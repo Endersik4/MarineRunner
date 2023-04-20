@@ -1,6 +1,6 @@
 # MarineRunner
 
-MarineRunner = Ghostrunner + Cyberpunk 2077 + High On Life. My biggest and most ambitious project 
+MarineRunner = Ghostrunner + Cyberpunk 2077 + High On Life. My biggest and most ambitious project <br/>
 It's time for more complex games, not some tiny ones. 
 This game has movement like in Ghostrunner (code from scratch). 
 Shooting mechanics like in Cyberpunk 2077 and style like High On Life (but that wasn't on purpose).
