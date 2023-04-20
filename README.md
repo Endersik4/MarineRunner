@@ -1,9 +1,9 @@
 # MarineRunner
 
 MarineRunner = Ghostrunner + Cyberpunk 2077 + High On Life. My biggest and most ambitious project <br/>
-It's time for more complex games, not some tiny ones. 
-This game has movement like in Ghostrunner (code from scratch). 
-Shooting mechanics like in Cyberpunk 2077 and style like High On Life (but that wasn't on purpose).
+It's time for more complex games, not some tiny ones. <br/>
+This game has movement like in Ghostrunner (code from scratch). <br/> 
+Shooting mechanics like in Cyberpunk 2077 and style like High On Life (but that wasn't on purpose).<br/>
 The game is in development, there is still a lot to do.
 
 <a href="https://youtu.be/8jKjilVmgmk"> MarineRunner status as of 30/03/2023 </a>
