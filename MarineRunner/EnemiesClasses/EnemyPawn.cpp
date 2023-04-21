@@ -61,7 +61,7 @@ void AEnemyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 void AEnemyPawn::Shoot()
 {
-	if (BulletClass == NULL || bCanShoot == false) return;
+	if (BulletClass == NULL || bCanShoot == false || bIsDead == true) return;
 
 	if (MagazineCapacity <= 0)
 	{
@@ -88,17 +88,18 @@ void AEnemyPawn::Shoot()
 
 void AEnemyPawn::CheckIfEnemySeePlayer()
 {
-	if (!EnemyAIController) return;
+	if (!EnemyAIController || bIsDead == true) return;
 	if (EnemyAIController->GetDoEnemySeePlayer() == false) return;
 
 	PredictWhereToShoot();
 	FocusBonesOnPlayerWhenPlayerDetected();
 }
 
-FRotator AEnemyPawn::FocusBoneOnPlayer(FName BoneName)
+FRotator AEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
 {
 	FRotator BoneRotation;
-	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName), CameraLocation);
+	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName), 
+		(bLookStraight) ? MarinePawn->GetCamera()->GetComponentLocation() : CameraLocation);
 	BoneRotation.Roll = FoundRotation.Pitch * -1.f;
 	BoneRotation.Yaw = FoundRotation.Yaw / EnemySkeletalMesh->GetSocketRotation(BoneName).Yaw;
 
@@ -118,7 +119,11 @@ void AEnemyPawn::PredictWhereToShoot()
 	}
 }
 
-
+void AEnemyPawn::SetIsDead(bool bNewDead)
+{
+	bIsDead = bNewDead;
+	EnemyAIController->KillEnemy();
+}
 
 void AEnemyPawn::DelayAfterEmptyMagazine()
 {

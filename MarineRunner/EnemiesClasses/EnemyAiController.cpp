@@ -13,6 +13,9 @@ AEnemyAiController::AEnemyAiController()
 	EnemyPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIEnemyPerception"));
 
 	EnemyPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAiController::HandleTargetPerceptionUpdated);
+	
+	GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &AEnemyAiController::OnMoveCompleted);
+
 }
 
 void AEnemyAiController::BeginPlay()
@@ -32,6 +35,8 @@ void AEnemyAiController::BeginPlay()
 
 			GetBlackboardComponent()->SetValueAsInt(TEXT("HowManyLocations"), EnemyPawn->GetHowManyLocations());
 			GetBlackboardComponent()->SetValueAsInt(TEXT("CurrentLocations"), EnemyPawn->GetHowManyLocations());
+
+			GetBlackboardComponent()->SetValueAsFloat(TEXT("WaitTime"), EnemyPawn->GetWaitTimeShoot());
 		}
 	}
 }
@@ -42,8 +47,18 @@ void AEnemyAiController::Tick(float DeltaTime)
 
 }
 
+void AEnemyAiController::KillEnemy()
+{
+	GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), true);
+}
+
+void AEnemyAiController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
+{
+	UE_LOG(LogTemp, Error, TEXT("KOMIEC"));
+	bIsMoveToCompleted = true;
+}
+
 void AEnemyAiController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	bDoEnemySeePlayer = Stimulus.WasSuccessfullySensed();
-	UE_LOG(LogTemp, Warning, TEXT("DO ENEMY SEE %s"), (bDoEnemySeePlayer ? TEXT("TRUE") : TEXT("FALSE")));
 }

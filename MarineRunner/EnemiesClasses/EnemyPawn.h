@@ -31,8 +31,10 @@ public:
 	float GetHealth() const { return Health; }
 	FColor GetBloodColor() const { return BloodColor; }
 	int32 GetHowManyLocations() const { return HowManyLocations; }
+	float GetWaitTimeShoot() const { return WaitTimeShoot; }
 
 	void ShootBullet() { Shoot(); }
+	void SetIsDead(bool bNewDead);
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 
 
@@ -43,9 +45,10 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void FocusBonesOnPlayerWhenPlayerDetected();
 
-	//Bone Rotation - Hand and Head will be looking at the player when he is detected
+	// Bone Rotation - Bone will be looking at the player when he is detected.
+	// bLookStraight means whether Bone should look directly at the player's camera or with some margin
 	UFUNCTION(BlueprintCallable)
-		FRotator FocusBoneOnPlayer(FName BoneName);
+		FRotator FocusBoneOnPlayer(FName BoneName, bool bLookStraight);
 
 	UFUNCTION(BlueprintCallable)
 		void SetCanShoot(bool bCan) { bCanShoot = bCan; }
@@ -65,6 +68,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		int32 HowManyLocations = 5;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
+		float WaitTimeShoot = 0.3f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy")
 		float Health = 100.f;
@@ -114,6 +120,8 @@ private:
 	void PredictWhereToShoot();
 
 	FVector CameraLocation;
+
+	bool bIsDead;
 
 	//If enemy see the player then he will execute given functions
 	void CheckIfEnemySeePlayer();

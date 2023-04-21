@@ -95,8 +95,11 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 			if (Enemy->GetHealth() <= 0.f)
 			{
 				Enemy->GetEnemySkeletalMesh()->SetSimulatePhysics(true);
+				Enemy->SetIsDead(true);
+
 				FVector Impulse = GetActorForwardVector() * (AmmoImpulseForce * 100);
 				Enemy->GetEnemySkeletalMesh()->AddImpulse(Impulse, Hit.BoneName);
+
 				Enemy->GetEnemySkeletalMesh()->Stop();
 				Enemy->GetEnemySkeletalMesh()->Stop();
 			}

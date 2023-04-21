@@ -23,8 +23,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	bool GetDoEnemySeePlayer() const { return bDoEnemySeePlayer; }
+	bool GetIsMoveToCompleted() const { return bIsMoveToCompleted; }
+
+	void SetIsMoveToCompleted(bool bNewMove) { bIsMoveToCompleted = bNewMove; }
+
+	void KillEnemy();
 
 private:
+	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
+
 	UFUNCTION()
 		void HandleTargetPerceptionUpdated(AActor* Actor, struct FAIStimulus Stimulus);
 
@@ -35,4 +42,5 @@ private:
 		class UAIPerceptionComponent* EnemyPerception;
 
 	bool bDoEnemySeePlayer;
+	bool bIsMoveToCompleted;
 };

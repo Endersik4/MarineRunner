@@ -27,4 +27,5 @@ EBTNodeResult::Type UBTTask_Shoot::ExecuteTask(UBehaviorTreeComponent& OwnerComp
 		return EBTNodeResult::Succeeded;
 	}
 	else return EBTNodeResult::Failed;
+
 }
