@@ -62,7 +62,7 @@ void AEnemyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 void AEnemyPawn::Shoot()
 {
 	if (BulletClass == NULL || bCanShoot == false || bIsDead == true) return;
-
+	
 	if (MagazineCapacity <= 0)
 	{
 		Reload();
@@ -86,7 +86,7 @@ void AEnemyPawn::Shoot()
 
 void AEnemyPawn::CheckIfEnemySeePlayer()
 {
-	if (!EnemyAIController || bIsDead == true) return;
+	if (!EnemyAIController || bIsDead == true || !MarinePawn) return;
 	if (EnemyAIController->GetDoEnemySeePlayer() == false) return;
 
 	PredictWhereToShoot();
@@ -98,7 +98,6 @@ FRotator AEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
 	FRotator BoneRotation;
 	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName), 
 		(bLookStraight) ? MarinePawn->GetCamera()->GetComponentLocation() : CameraLocation);
-	UE_LOG(LogTemp, Warning, TEXT("BONE NAME %s: FOUND ROTATION %s"), *BoneName.ToString(), *FoundRotation.ToCompactString());
 	BoneRotation.Roll = FoundRotation.Pitch * -1.f;
 	BoneRotation.Yaw = FoundRotation.Yaw - GetActorRotation().Yaw;
 
@@ -126,6 +125,7 @@ void AEnemyPawn::SetIsDead(bool bNewDead)
 
 void AEnemyPawn::Reload()
 {
+	bIsReloading = true;
 	bCanShoot = false;
 	//if (EmptyMagazineSound) UGameplayStatics::SpawnSoundAttached(EmptyMagazineSound, BaseSkeletalMesh, NAME_None);
 	GetWorldTimerManager().SetTimer(DelayEmptyMagazineHandle, this, &AEnemyPawn::DelayAfterEmptyMagazine, DelayTimeMagazine, false);
@@ -135,6 +135,7 @@ void AEnemyPawn::DelayAfterEmptyMagazine()
 {
 	MagazineCapacity = CopyOfMagazineCapacity;
 	bCanShoot = true;
+	bIsReloading = false;
 }
 
 void AEnemyPawn::SpawnBullet()

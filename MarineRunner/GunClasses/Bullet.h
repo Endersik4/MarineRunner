@@ -58,6 +58,10 @@ private:
 	void MovementBullet(float Delta);
 	bool bUseMyMovement;
 
+	void DamageEnemy(class AEnemyPawn* Enemy, const FHitResult& Hit);
+	void AlertEnemyAboutPlayer(class AEnemyPawn* Enemy);
+	void SpawnBulletHole(const FHitResult& Hit);
+
 	float TrackBulletDistance;
 	FVector BulletLocation;
 	UNiagaraComponent* HitParticle;

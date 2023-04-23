@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionComponent.h"
+#include "TimerManager.h"
 
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 
@@ -21,23 +22,7 @@ void AEnemyAiController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (AIBehaviour != nullptr)
-	{
-		
-		RunBehaviorTree(AIBehaviour);
-
-		AEnemyPawn* EnemyPawn = Cast<AEnemyPawn>(GetPawn());
-
-		if (EnemyPawn)
-		{
-			GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), EnemyPawn->GetActorLocation());
-
-			GetBlackboardComponent()->SetValueAsInt(TEXT("HowManyLocations"), EnemyPawn->GetHowManyLocations());
-			GetBlackboardComponent()->SetValueAsInt(TEXT("CurrentLocations"), EnemyPawn->GetHowManyLocations());
-
-			GetBlackboardComponent()->SetValueAsFloat(TEXT("WaitTime"), EnemyPawn->GetWaitTimeShoot());
-		}
-	}
+	SetAIVariables();
 }
 
 void AEnemyAiController::Tick(float DeltaTime)
@@ -58,5 +43,39 @@ void AEnemyAiController::OnMoveCompleted(FAIRequestID RequestID, const FPathFoll
 
 void AEnemyAiController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	bDoEnemySeePlayer = Stimulus.WasSuccessfullySensed();
+	if (!Actor->ActorHasTag("Player")) return;
+
+	if (Stimulus.WasSuccessfullySensed())
+	{
+		GetWorld()->GetTimerManager().SetTimer(DetectPlayerDelayHandle, this, &AEnemyAiController::DetectPlayerWithDelay, DetectPlayerTime, false);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
+		bDoEnemySeePlayer = false;
+	}
+	
+}
+
+void AEnemyAiController::DetectPlayerWithDelay()
+{
+	bDoEnemySeePlayer = true;
+}
+
+void AEnemyAiController::SetAIVariables()
+{
+	if (!AIBehaviour) return;
+	RunBehaviorTree(AIBehaviour);
+
+	AEnemyPawn* EnemyPawn = Cast<AEnemyPawn>(GetPawn());
+	if (!EnemyPawn) return;
+
+	DetectPlayerTime = EnemyPawn->GetDetectPlayerTime();
+
+	GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), EnemyPawn->GetActorLocation());
+
+	GetBlackboardComponent()->SetValueAsInt(TEXT("HowManyLocations"), EnemyPawn->GetHowManyLocations());
+	GetBlackboardComponent()->SetValueAsInt(TEXT("CurrentLocations"), EnemyPawn->GetHowManyLocations());
+
+	GetBlackboardComponent()->SetValueAsFloat(TEXT("WaitTime"), EnemyPawn->GetWaitTimeShoot());
 }

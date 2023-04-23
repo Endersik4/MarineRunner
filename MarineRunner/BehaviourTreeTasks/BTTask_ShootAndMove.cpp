@@ -34,7 +34,16 @@ void UBTTask_ShootAndMove::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	//If Enemy doesnt see the player then stop shooting, avoiding and end task succesful
+	FinishTask(OwnerComp);
+
+	MovedSuccessfully();
+}
+
+//If Enemy doesnt see the player then stop shooting, avoiding and end task succesful
+void UBTTask_ShootAndMove::FinishTask(UBehaviorTreeComponent& OwnerComp)
+{
+	if (!EnemyAIController || !EnemyPawn) return;
+
 	if (EnemyAIController->GetDoEnemySeePlayer() == false)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
@@ -43,13 +52,18 @@ void UBTTask_ShootAndMove::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 		EnemyAIController->ClearFocus(EAIFocusPriority::Gameplay);
 		OwnerComp.GetBlackboardComponent()->ClearValue(TEXT("PlayerLocation"));
 
-		EnemyPawn->SetMagazineCapacity(0);
-		EnemyPawn->Reload();
+		if (EnemyPawn->GetIsReloading() == false) EnemyPawn->Reload();
+		EnemyPawn->RestoreBonesToInitialRotation();
 
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
+}
 
-	//IF enemy Completed MoveTo function then do another
+//IF enemy Completed MoveTo function then do another
+void UBTTask_ShootAndMove::MovedSuccessfully()
+{
+	if (EnemyAIController == nullptr) return;
+
 	if (EnemyAIController->GetIsMoveToCompleted())
 	{
 		EnemyAIController->SetIsMoveToCompleted(false);

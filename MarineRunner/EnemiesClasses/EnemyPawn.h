@@ -32,17 +32,20 @@ public:
 	FColor GetBloodColor() const { return BloodColor; }
 	int32 GetHowManyLocations() const { return HowManyLocations; }
 	float GetWaitTimeShoot() const { return WaitTimeShoot; }
+	float GetDetectPlayerTime() const { return DetectPlayerTime; }
 
 	void ShootBullet() { Shoot(); }
 	void SetIsDead(bool bNewDead);
 	void SetHealth(float NewHealth) { Health = NewHealth; }
-	void SetMagazineCapacity(int32 NewMagazine) { MagazineCapacity = NewMagazine; }
 
 	void Reload();
 
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void PlayAnimMontageInBlueprint();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void RestoreBonesToInitialRotation();
 
 	//Had to get AnimInstance of AnimationBlueprint so in blueprint you are setting what bone you want to looking at the player
 	UFUNCTION(BlueprintImplementableEvent)
@@ -59,6 +62,9 @@ public:
 	UFUNCTION(BlueprintPure)
 		int32 GetCurrentMagazineCapacity() const { return MagazineCapacity; }
 
+	UFUNCTION(BlueprintPure)
+		bool GetIsReloading() const { return bIsReloading; }
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		USkeletalMeshComponent* EnemySkeletalMesh;
 
@@ -74,6 +80,10 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		float WaitTimeShoot = 0.3f;
+
+	//How long does it take to detect the player by enemy
+	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
+		float DetectPlayerTime = 0.2f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy")
 		float Health = 100.f;
@@ -125,6 +135,7 @@ private:
 	FVector CameraLocation;
 
 	bool bIsDead;
+	bool bIsReloading;
 
 	//If enemy see the player then he will execute given functions
 	void CheckIfEnemySeePlayer();

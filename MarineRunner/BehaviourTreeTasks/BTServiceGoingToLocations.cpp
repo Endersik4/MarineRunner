@@ -8,13 +8,26 @@
 UBTServiceGoingToLocations::UBTServiceGoingToLocations()
 {
 	NodeName = TEXT("Set up Random Location");
+	bNotifyBecomeRelevant = true;
+}
+
+void UBTServiceGoingToLocations::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	AIPawn = OwnerComp.GetAIOwner()->GetPawn();
+	BlackBoardComp = OwnerComp.GetBlackboardComponent();
+
+	if (BlackBoardComp) BlackBoardComp->ClearValue(TEXT("LastKnownPlayerLocation"));
 }
 
 void UBTServiceGoingToLocations::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickNode(OwnerComp, NodeMemory, DeltaSeconds);
-	APawn* AIPawn = OwnerComp.GetAIOwner()->GetPawn();
-	UBlackboardComponent* BlackBoardComp = OwnerComp.GetBlackboardComponent();
+	
+	PickRandomLocation(OwnerComp);
+}
+
+void UBTServiceGoingToLocations::PickRandomLocation(UBehaviorTreeComponent& OwnerComp)
+{
 	if (AIPawn == nullptr || BlackBoardComp == nullptr) return;
 
 	if (BlackBoardComp->GetValueAsInt(TEXT("CurrentLocations")) > 0)

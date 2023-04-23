@@ -43,4 +43,10 @@ private:
 
 	bool bDoEnemySeePlayer;
 	bool bIsMoveToCompleted;
+
+	FTimerHandle DetectPlayerDelayHandle;
+	void DetectPlayerWithDelay();
+	float DetectPlayerTime;
+
+	void SetAIVariables();
 };

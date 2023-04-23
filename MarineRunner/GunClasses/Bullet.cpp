@@ -3,15 +3,16 @@
 
 #include "Bullet.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Engine/StaticMeshActor.h"
 #include "PaperSpriteComponent.h"
 #include "PaperSprite.h"
 #include "PaperSpriteActor.h"
 
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
+#include "MarineRunner/EnemiesClasses/EnemyAiController.h"
 
 // Sets default values
 ABullet::ABullet()
@@ -75,6 +76,58 @@ void ABullet::ImpulseOnBullet()
 	else bUseMyMovement = true;
 }
 
+void ABullet::DamageEnemy(AEnemyPawn* Enemy, const FHitResult& Hit)
+{
+	Enemy->SetHealth(Enemy->GetHealth() - Damage);
+
+	//Kill enemy
+	if (Enemy->GetHealth() <= 0.f)
+	{
+		Enemy->GetEnemySkeletalMesh()->SetSimulatePhysics(true);
+		Enemy->SetIsDead(true);
+
+		FVector Impulse = GetActorForwardVector() * (AmmoImpulseForce * 100);
+		Enemy->GetEnemySkeletalMesh()->AddImpulse(Impulse, Hit.BoneName);
+
+		//There is some bug that SkeletonMesh still playing animation after Stop() but when i call 2 times this function, Skeleton stop playing animation
+		Enemy->GetEnemySkeletalMesh()->Stop();
+		Enemy->GetEnemySkeletalMesh()->Stop();
+	}
+}
+
+void ABullet::AlertEnemyAboutPlayer(AEnemyPawn* Enemy)
+{
+	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(Enemy->GetController());
+	if (!EnemyAIController) return;
+
+	if (EnemyAIController->GetDoEnemySeePlayer() == false)
+	{
+		FVector PlayerLocation = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
+		float FoundRotationYaw = UKismetMathLibrary::FindLookAtRotation(Enemy->GetActorLocation(), PlayerLocation).Yaw;
+
+		FRotator EnemyRotation = Enemy->GetActorRotation();
+		EnemyRotation.Yaw = FoundRotationYaw;
+		Enemy->SetActorRotation(EnemyRotation);
+	}
+}
+
+void ABullet::SpawnBulletHole(const FHitResult& Hit)
+{
+	if (!BulletHoleSprite) return;
+
+	FVector Location = Hit.ImpactPoint + (-GetActorForwardVector() * 3.f);
+	FRotator Rotation = GetActorRotation();
+	Rotation.Yaw += 90.f;
+
+	APaperSpriteActor* BulletHole = GetWorld()->SpawnActor<APaperSpriteActor>(APaperSpriteActor::StaticClass(), Location, Rotation);
+
+	if (!BulletHole) return;
+
+	BulletHole->GetRenderComponent()->SetMobility(EComponentMobility::Movable);
+	BulletHole->GetRenderComponent()->SetSprite(BulletHoleSprite);
+	BulletHole->SetActorScale3D(FVector(0.01));
+}
+
 void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
 	if (BulletHits)
@@ -85,51 +138,22 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 	if (OtherActor->ActorHasTag("Enemy"))
 	{
 		AEnemyPawn* Enemy = Cast<AEnemyPawn>(OtherActor);
-		if (Enemy)
-		{
-			FColor BloodColor = Enemy->GetBloodColor();
-			//I cant just do SetColorParameter(TEXT("BloodColor"), Enemy->GetBloodColor()); because of some bug it doesnt work, even when 
-			//Enemy->GetBloodColor() returns FLinearColor. It just dont work
-			HitParticle->SetColorParameter(TEXT("BloodColor"), FLinearColor(BloodColor.R, BloodColor.G, BloodColor.B));
-			Enemy->SetHealth(Enemy->GetHealth() - Damage);
-			if (Enemy->GetHealth() <= 0.f)
-			{
-				Enemy->GetEnemySkeletalMesh()->SetSimulatePhysics(true);
-				Enemy->SetIsDead(true);
+		if (!Enemy) return;
 
-				FVector Impulse = GetActorForwardVector() * (AmmoImpulseForce * 100);
-				Enemy->GetEnemySkeletalMesh()->AddImpulse(Impulse, Hit.BoneName);
+		FColor BloodColor = Enemy->GetBloodColor();
+		//I cant just do SetColorParameter(TEXT("BloodColor"), Enemy->GetBloodColor()); because of some bug it doesnt work, even when 
+		//Enemy->GetBloodColor() returns FLinearColor. It just dont work
+		HitParticle->SetColorParameter(TEXT("BloodColor"), FLinearColor(BloodColor.R, BloodColor.G, BloodColor.B));
 
-				Enemy->GetEnemySkeletalMesh()->Stop();
-				Enemy->GetEnemySkeletalMesh()->Stop();
-			}
-			
-		}
+		DamageEnemy(Enemy, Hit);
+
+		AlertEnemyAboutPlayer(Enemy);
 	}
 	else if (HitParticle)
 	{
 		HitParticle->SetColorParameter(TEXT("BloodColor"), FLinearColor::Yellow);
 
-		FVector Location = Hit.ImpactPoint + (-GetActorForwardVector() * 3.f);
-		FRotator Rotation = GetActorRotation();
-		Rotation.Yaw += 90.f;
-		//w build.cs trzeba wpisać Paper2D
-		//#include PaperSpriteActor.h | #include PaperSprite.h. 
-		//Respienie PaperSpriteActor w swiecie
-		APaperSpriteActor* BulletHole = GetWorld()->SpawnActor<APaperSpriteActor>(APaperSpriteActor::StaticClass(), 
-			Location, Rotation);
-		if (BulletHole)
-		{
-			//BulletHoleSprite to UPaperSprite* w .h
-			if (BulletHoleSprite)
-			{
-				//Trzeba wlaczyc aby zmienic Sprite actora
-				BulletHole->GetRenderComponent()->SetMobility(EComponentMobility::Movable); 
-				//Zmiana Spritu (GetRenderComponent() to wskaznik na Sprite)
-				BulletHole->GetRenderComponent()->SetSprite(BulletHoleSprite); 
-			}
-			BulletHole->SetActorScale3D(FVector(0.01));
-		}
+		SpawnBulletHole(Hit);
 	}
 
 	Destroy();

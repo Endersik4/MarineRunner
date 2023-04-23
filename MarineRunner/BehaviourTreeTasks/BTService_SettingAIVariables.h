@@ -21,5 +21,8 @@ public:
 
 protected:
 	virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
+
+private:
+	void SetPlayerLocation(UBehaviorTreeComponent& OwnerComp);
 	
 };
