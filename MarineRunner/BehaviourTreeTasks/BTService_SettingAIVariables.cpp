@@ -23,8 +23,4 @@ void UBTService_SettingAIVariables::TickNode(UBehaviorTreeComponent& OwnerComp, 
 	{
 		BlackBoardComp->SetValueAsVector(TEXT("PlayerLocation"), PlayerPawn->GetActorLocation());
 	}
-	else
-	{
-		BlackBoardComp->ClearValue(TEXT("PlayerLocation"));
-	}
 }

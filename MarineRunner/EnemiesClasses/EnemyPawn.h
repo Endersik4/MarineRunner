@@ -36,6 +36,9 @@ public:
 	void ShootBullet() { Shoot(); }
 	void SetIsDead(bool bNewDead);
 	void SetHealth(float NewHealth) { Health = NewHealth; }
+	void SetMagazineCapacity(int32 NewMagazine) { MagazineCapacity = NewMagazine; }
+
+	void Reload();
 
 
 	UFUNCTION(BlueprintImplementableEvent)

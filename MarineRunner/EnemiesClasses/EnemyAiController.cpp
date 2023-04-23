@@ -15,7 +15,6 @@ AEnemyAiController::AEnemyAiController()
 	EnemyPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAiController::HandleTargetPerceptionUpdated);
 	
 	GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &AEnemyAiController::OnMoveCompleted);
-
 }
 
 void AEnemyAiController::BeginPlay()
@@ -54,7 +53,6 @@ void AEnemyAiController::KillEnemy()
 
 void AEnemyAiController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-	UE_LOG(LogTemp, Error, TEXT("KOMIEC"));
 	bIsMoveToCompleted = true;
 }
 

@@ -12,6 +12,7 @@
 UBTTask_ShootAndMove::UBTTask_ShootAndMove()
 {
 	NodeName = TEXT("Shoot And Move");
+	//Turn On TickTask()
 	INIT_TASK_NODE_NOTIFY_FLAGS();
 }
 
@@ -33,26 +34,33 @@ void UBTTask_ShootAndMove::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
+	//If Enemy doesnt see the player then stop shooting, avoiding and end task succesful
 	if (EnemyAIController->GetDoEnemySeePlayer() == false)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
 		GetWorld()->GetTimerManager().ClearTimer(AvoidHandle);
 
+		EnemyAIController->ClearFocus(EAIFocusPriority::Gameplay);
+		OwnerComp.GetBlackboardComponent()->ClearValue(TEXT("PlayerLocation"));
+
+		EnemyPawn->SetMagazineCapacity(0);
+		EnemyPawn->Reload();
+
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
 
+	//IF enemy Completed MoveTo function then do another
 	if (EnemyAIController->GetIsMoveToCompleted())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("MOVE COMPLETED SHOOT AND MOVe"));
 		EnemyAIController->SetIsMoveToCompleted(false);
 		GetWorld()->GetTimerManager().ClearTimer(AvoidHandle);
 		AvoidBullets();
 	}
 }
 
+//Random Location where Enemy have to go. Its for "avoiding" bullets from player
 void UBTTask_ShootAndMove::AvoidBullets()
 {
-	UE_LOG(LogTemp, Warning, TEXT("AVOID"));
 	float Rand_X = FMath::FRandRange(-750, 750) + EnemyPawn->GetActorLocation().X;
 	float Rand_Y = FMath::FRandRange(-750, 750) + EnemyPawn->GetActorLocation().Y;
 	FVector Location = FVector(Rand_X, Rand_Y, EnemyPawn->GetActorLocation().Z);
