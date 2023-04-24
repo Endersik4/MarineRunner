@@ -50,6 +50,9 @@ public:
 	void SetCanGunSwayTick(bool bCan) { bCanGunSwayTick = bCan; }
 	void SetCanSway(bool bCan) { bCanSway = bCan; }
 	void SetMarinePawn(AActor* NewActor) { MarinePawn = NewActor; }
+	void SetHudWidget(class UHUDWidget* NewHudWidget);
+
+	void SetWeaponInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
 
 private:
 	UFUNCTION()
@@ -80,10 +83,15 @@ private:
 	//General Damage
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		float Damage;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		bool bIsAutomatic;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		int32 MagazineCapacity = 10;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		int32 StoredAmmo = 50;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		UTexture2D* GunHUDTexture;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
 		UParticleSystem* ShootParticle;
@@ -261,5 +269,6 @@ private:
 
 	AActor* MarinePawn;
 	class AMarinePlayerController* PC;
+	class UHUDWidget* HudWidget;
 
 };

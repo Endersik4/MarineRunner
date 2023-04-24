@@ -7,6 +7,7 @@
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/GunClasses/Gun.h"
+#include "MarineRunner/Widgets/HUDWidget.h"
 
 // Sets default values for this component's properties
 UTakeAndDrop::UTakeAndDrop()
@@ -47,8 +48,9 @@ void UTakeAndDrop::Take()
 
 	bool hasHit = GetWorld()->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeBox(FVector(20, 20, 20)));
 
-	if (hasHit == false || bHaveItem == true) return;
-	
+	//if (hasHit == false || bHaveItem == true) return;
+	if (hasHit == false) return;
+
 	if (HitResult.GetActor()->ActorHasTag("Gun"))
 	{
 		Gun = Cast<AGun>(HitResult.GetActor());
@@ -60,6 +62,9 @@ void UTakeAndDrop::Take()
 			Gun->GetBaseSkeletalMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 			Gun->SetMarinePawn(MarinePawn);
+			Gun->SetHudWidget(MarinePawn->GetHudWidget());
+			Gun->SetWeaponInHud(true, true);
+			MarinePawn->EquipGun(Gun);
 
 			Gun->AttachToComponent(MarinePawn->GetCamera(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 		}
@@ -111,12 +116,15 @@ void UTakeAndDrop::DropItem()
 	GetOwner()->GetWorldTimerManager().ClearTimer(GunSwayTimerHandle);
 	Gun->SetCanGunSwayTick(false);
 	Gun->SetMarinePawn(nullptr);
+	Gun->SetHudWidget(nullptr);
 
 	FVector DropImpulse = MarinePawn->GetCamera()->GetForwardVector() * 10 * DropImpulseDistance;
 	Gun->GetBaseSkeletalMesh()->AddImpulse(DropImpulse);
 	bHaveItem = false;
-	Gun = nullptr;
 
 	MarinePawn->SetHasWeapon(false);
 	MarinePawn->SetGun(nullptr);
+	MarinePawn->RemoveEquipedGun(Gun);
+
+	Gun = nullptr;
 }

@@ -13,6 +13,7 @@
 
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 #include "MarineRunner/EnemiesClasses/EnemyAiController.h"
+#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
 // Sets default values
 ABullet::ABullet()
@@ -148,6 +149,15 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 		DamageEnemy(Enemy, Hit);
 
 		AlertEnemyAboutPlayer(Enemy);
+	}
+	else if (OtherActor->ActorHasTag("Player"))
+	{
+		HitParticle->SetColorParameter(TEXT("BloodColor"), FLinearColor(0.f, 98.4, 100.f)); //color from HUD (light blue)
+
+		AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(OtherActor);
+		if (!MarinePawn) return;
+
+		MarinePawn->GotDamage(Damage);
 	}
 	else if (HitParticle)
 	{

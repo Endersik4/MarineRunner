@@ -33,6 +33,7 @@ public:
 	int32 GetHowManyLocations() const { return HowManyLocations; }
 	float GetWaitTimeShoot() const { return WaitTimeShoot; }
 	float GetDetectPlayerTime() const { return DetectPlayerTime; }
+	float GetLoseSightOfPlayerTime() const { return LoseSightOfPlayerTime; }
 
 	void ShootBullet() { Shoot(); }
 	void SetIsDead(bool bNewDead);
@@ -78,12 +79,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		int32 HowManyLocations = 5;
 
-	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
+	UPROPERTY(EditAnywhere, Category = "AI Setup")
 		float WaitTimeShoot = 0.3f;
 
 	//How long does it take to detect the player by enemy
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		float DetectPlayerTime = 0.2f;
+
+	//How long does it take to lose sight of the player by enemy
+	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
+		float LoseSightOfPlayerTime = 5.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy")
 		float Health = 100.f;

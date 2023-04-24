@@ -7,6 +7,7 @@
 UBTTask_SettingCurrentLocation::UBTTask_SettingCurrentLocation()
 {
 	NodeName = TEXT("SettingNumberOfCurrentLocations");
+	bCreateNodeInstance = true;
 
 }
 

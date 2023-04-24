@@ -45,21 +45,28 @@ void AEnemyAiController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulu
 {
 	if (!Actor->ActorHasTag("Player")) return;
 
+	FTimerDelegate TimerDel;
+
 	if (Stimulus.WasSuccessfullySensed())
 	{
-		GetWorld()->GetTimerManager().SetTimer(DetectPlayerDelayHandle, this, &AEnemyAiController::DetectPlayerWithDelay, DetectPlayerTime, false);
+		GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
+
+		TimerDel.BindUFunction(this, FName("DetectPlayerWithDelay"), true);
+		GetWorld()->GetTimerManager().SetTimer(DetectPlayerDelayHandle, TimerDel, DetectPlayerTime, false);
 	}
 	else
 	{
 		GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
-		bDoEnemySeePlayer = false;
+
+		TimerDel.BindUFunction(this, FName("DetectPlayerWithDelay"), false);
+		GetWorld()->GetTimerManager().SetTimer(DetectPlayerDelayHandle, TimerDel, LoseSightOfPlayerTime, false);
 	}
 	
 }
 
-void AEnemyAiController::DetectPlayerWithDelay()
+void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected)
 {
-	bDoEnemySeePlayer = true;
+	bDoEnemySeePlayer = bIsDetected;
 }
 
 void AEnemyAiController::SetAIVariables()
@@ -71,6 +78,7 @@ void AEnemyAiController::SetAIVariables()
 	if (!EnemyPawn) return;
 
 	DetectPlayerTime = EnemyPawn->GetDetectPlayerTime();
+	LoseSightOfPlayerTime = EnemyPawn->GetLoseSightOfPlayerTime();
 
 	GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), EnemyPawn->GetActorLocation());
 

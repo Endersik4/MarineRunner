@@ -9,6 +9,7 @@ UBTServiceGoingToLocations::UBTServiceGoingToLocations()
 {
 	NodeName = TEXT("Set up Random Location");
 	bNotifyBecomeRelevant = true;
+	bCreateNodeInstance = true;
 }
 
 void UBTServiceGoingToLocations::OnBecomeRelevant(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)

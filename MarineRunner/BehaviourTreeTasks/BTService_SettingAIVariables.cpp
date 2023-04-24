@@ -11,6 +11,7 @@ UBTService_SettingAIVariables::UBTService_SettingAIVariables()
 {
 	NodeName = "Update Player Location If seen (AI Variables)";
 	bNotifyTick = true;
+	bCreateNodeInstance = true;
 }
 
 void UBTService_SettingAIVariables::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)

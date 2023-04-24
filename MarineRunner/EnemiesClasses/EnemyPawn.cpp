@@ -31,7 +31,7 @@ AEnemyPawn::AEnemyPawn()
 	EnemySkeletalMesh->SetSimulatePhysics(false);
 	EnemySkeletalMesh->SetCollisionProfileName(TEXT("PhysicsActor"));
 	
-
+	Tags.Add(TEXT("enemy"));
 }
 
 // Called when the game starts or when spawned

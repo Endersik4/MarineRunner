@@ -30,6 +30,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		class UStaticMeshComponent* CapsulePawn;
+
 	UPROPERTY(EditAnywhere, Category = "Components", BlueprintReadWrite)
 		class UCameraComponent* Camera;
 
@@ -44,22 +45,27 @@ public:
 		bool IsOnGround;
 
 	float GetForce() const { return Force; }
+	float GetHealth() const { return Health; }
 	bool GetIsJumping() const { return bIsJumping; }
 	bool GetIsOnRamp() const { return bSlideOnRamp; }
 	bool GetIsGoingUp() const { return bIsGoingUp; }
 	bool GetIsInAir() const { return bIsInAir; }
 	bool GetShouldAddCounterMovement() const { return bShouldAddCounterMovement; }
+	class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	class UCameraComponent* GetCamera() const { return Camera; }
 
 	void SetForce(float NewForce) { Force = NewForce; }
 	void SetHasWeapon(bool bNewHasWeapon) { bHasWeapon = bNewHasWeapon; }
-	void SetGun(class AGun* NewGun) { Gun = NewGun; }
+	void SetGun(class AGun* NewGun) {Gun = NewGun;}
 
 	void SetMovementImpulse(FVector NewImpulse) { MovementImpulse = NewImpulse; }
 	void SetShouldAddCounterMovement(bool bShould) { bShouldAddCounterMovement = bShould; }
 	void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMultiplier = NewSpeed; }
 
 	void MovementStuffThatCannotHappen();
+	void GotDamage(float Damage);
+	void EquipGun(class AGun* NewGun);
+	void RemoveEquipedGun(class AGun* NewGun);
 
 	void MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov = true);
 
@@ -76,6 +82,9 @@ private:
 		class USlowMotionComponent* SlowMotionComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UPullUpComponent* PullUpComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UWeaponInventoryComponent* WeaponInventoryComponent;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Actors to Spawn")
 		TSubclassOf<class ASwingLine> SwingLineClass;
@@ -84,7 +93,11 @@ private:
 		TSubclassOf<class UUserWidget> CrosshairClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> DashClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UUserWidget> HUDClass;
 
+	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
+		float Health = 100.f;
 
 	//Aka speed movement
 	UPROPERTY(EditAnywhere, Category = "Movement")
@@ -119,8 +132,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|Swing")
 		float SwingDelay = 0.2f;
 
-	
-	
 	//Movement
 	float MovementSpeedMultiplier = 1.f;
 	bool bShouldAddCounterMovement = true;
@@ -170,6 +181,10 @@ private:
 	//Aiming
 	void AimPressed();
 	void AimReleased();
+
+	//Weapon Inventory
+	void FirstWeapon();
+	void SecondWeapon();
 	
 	//Swing
 	bool bCanMarineSwing;
@@ -187,9 +202,11 @@ private:
 	void SlowMotionPressed();
 
 	//Widgets
+	void MakeHudWidget();
 	void MakeCrosshire();
 	UUserWidget* CrosshairWidget;
 	class UDashWidget* DashWidget;
+	class UHUDWidget* HudWidget;
 
 	//Checking Stuff
 	bool MakeCheckBox(FVector Size, FVector NewStart, FVector NewEnd, FHitResult &OutHitResult, bool bDebug = false);

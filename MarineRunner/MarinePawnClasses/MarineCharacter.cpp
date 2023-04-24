@@ -19,7 +19,9 @@
 #include "MarineRunner/MarinePawnClasses/WallrunComponent.h"
 #include "MarineRunner/MarinePawnClasses/SlowMotionComponent.h"
 #include "MarineRunner/MarinePawnClasses/PullUpComponent.h"
+#include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/Widgets/DashWidget.h"
+#include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/GunClasses/Gun.h"
 
 // Sets default values
@@ -46,6 +48,9 @@ AMarineCharacter::AMarineCharacter()
 	WallrunComponent = CreateDefaultSubobject<UWallrunComponent>(TEXT("WallrunComponent"));
 	SlowMotionComponent = CreateDefaultSubobject<USlowMotionComponent>(TEXT("SlowMotionComponent"));
 	PullUpComponent = CreateDefaultSubobject<UPullUpComponent>(TEXT("PullUpComponent"));
+	WeaponInventoryComponent = CreateDefaultSubobject<UWeaponInventoryComponent>(TEXT("WeaponInventoryComponent"));
+
+	Tags.Add(TEXT("Player"));
 
 }
 
@@ -55,6 +60,7 @@ void AMarineCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	MakeCrosshire();
+	MakeHudWidget();
 
 }
 
@@ -76,23 +82,32 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AMarineCharacter::Jump);
+	
 
+	//Gun
 	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &AMarineCharacter::Shoot);
 	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Released, this, &AMarineCharacter::ReleasedShoot);
 	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, this, &AMarineCharacter::Reload);
 
+	//Aiming
 	PlayerInputComponent->BindAction(TEXT("Aim"), IE_Pressed, this, &AMarineCharacter::AimPressed);
 	PlayerInputComponent->BindAction(TEXT("Aim"), IE_Released, this, &AMarineCharacter::AimReleased);
 
+	//Weapon Inventory
+	PlayerInputComponent->BindAction(TEXT("First_Weapon"), IE_Pressed, this, &AMarineCharacter::FirstWeapon);
+	PlayerInputComponent->BindAction(TEXT("Second_Weapon"), IE_Pressed, this, &AMarineCharacter::SecondWeapon);
+
+	//TakeAndDrop
 	PlayerInputComponent->BindAction(TEXT("Take"), IE_Pressed, this, &AMarineCharacter::Take);
 	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, this, &AMarineCharacter::DropItem);
 
+	//Movement
+	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AMarineCharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("Croach"), IE_Pressed, this, &AMarineCharacter::CroachPressed);
 	PlayerInputComponent->BindAction(TEXT("Croach"), IE_Released, this, &AMarineCharacter::CroachReleased);
-
 	PlayerInputComponent->BindAction(TEXT("Forward"), IE_Released, this, &AMarineCharacter::ForwardReleased);
 
+	//Gameplay components
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, this, &AMarineCharacter::Dash);
 	PlayerInputComponent->BindAction(TEXT("Swing"), IE_Pressed, this, &AMarineCharacter::SwingPressed);
 	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, this, &AMarineCharacter::SlowMotionPressed);
@@ -115,6 +130,27 @@ void AMarineCharacter::AimReleased()
 	MakeCrosshire();
 
 	Gun->SetCanAimTheGun(2);
+}
+
+void AMarineCharacter::FirstWeapon()
+{
+	Gun = WeaponInventoryComponent->GetWeaponFromStorage(1, Gun);
+}
+
+void AMarineCharacter::SecondWeapon()
+{
+	Gun = WeaponInventoryComponent->GetWeaponFromStorage(2, Gun);
+}
+
+void AMarineCharacter::EquipGun(AGun* NewGun)
+{
+	if (Gun) Gun->SetActorHiddenInGame(true);
+	WeaponInventoryComponent->AddNewWeaponToStorage(NewGun);
+}
+
+void AMarineCharacter::RemoveEquipedGun(AGun* NewGun)
+{
+	WeaponInventoryComponent->RemoveWeaponFromStorage(NewGun);
 }
 
 void AMarineCharacter::Shoot()
@@ -512,6 +548,16 @@ FVector AMarineCharacter::EaseInQuint(FVector Start, FVector End, float Alpha)
 	return End * (Alpha * Alpha * Alpha * Alpha * Alpha + 1) + Start;
 }
 
+void AMarineCharacter::MakeHudWidget()
+{
+	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (HUDClass && MarineController)
+	{
+		HudWidget = Cast<UHUDWidget>(CreateWidget(MarineController, HUDClass));
+		HudWidget->AddToViewport();
+	}
+}
+
 void AMarineCharacter::MakeCrosshire()
 {
 	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -526,6 +572,17 @@ void AMarineCharacter::MovementStuffThatCannotHappen()
 {
 	bIsJumping = false;
 	CroachReleased();
+}
+
+void AMarineCharacter::GotDamage(float Damage)
+{
+	if (!HudWidget) return;
+
+	Health -= Damage;
+	if (Health < 0.f) Health = 0.f;
+	HudWidget->SetHealthPercent();
+
+	HudWidget->SetGotDamage(true);
 }
 
 void AMarineCharacter::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov)

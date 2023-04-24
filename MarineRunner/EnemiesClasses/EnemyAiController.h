@@ -35,6 +35,9 @@ private:
 	UFUNCTION()
 		void HandleTargetPerceptionUpdated(AActor* Actor, struct FAIStimulus Stimulus);
 
+	UFUNCTION()
+		void DetectPlayerWithDelay(bool bIsDetected);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UBehaviorTree* AIBehaviour;
 
@@ -45,8 +48,9 @@ private:
 	bool bIsMoveToCompleted;
 
 	FTimerHandle DetectPlayerDelayHandle;
-	void DetectPlayerWithDelay();
+	
 	float DetectPlayerTime;
+	float LoseSightOfPlayerTime;
 
 	void SetAIVariables();
 };

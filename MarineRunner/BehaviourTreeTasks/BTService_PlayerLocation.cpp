@@ -9,6 +9,7 @@
 UBTService_PlayerLocation::UBTService_PlayerLocation()
 {
 	NodeName = TEXT("Update Player Location");
+	bCreateNodeInstance = true;
 }
 
 void UBTService_PlayerLocation::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)

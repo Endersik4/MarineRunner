@@ -10,6 +10,7 @@
 #include "MarineRunner/GunClasses/Bullet.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
+#include "MarineRunner/Widgets/HUDWidget.h"
 
 // Sets default values
 AGun::AGun()
@@ -21,6 +22,8 @@ AGun::AGun()
 	RootComponent = BaseSkeletalMesh;
 	BaseSkeletalMesh->SetSimulatePhysics(true);
 	BaseSkeletalMesh->SetCollisionProfileName(TEXT("GunCollision"));
+
+	Tags.Add(TEXT("Gun"));
 
 }
 
@@ -49,7 +52,47 @@ void AGun::Tick(float DeltaTime)
 
 void AGun::Reload()
 {
-	MagazineCapacity = CopyOfMagazineCapacity;
+	if (StoredAmmo <= 0) return;
+
+	int32 RestAmmo = CopyOfMagazineCapacity - MagazineCapacity;
+	if (StoredAmmo < RestAmmo)
+	{
+		MagazineCapacity += StoredAmmo;
+		StoredAmmo = 0;
+	}
+	else
+	{
+		StoredAmmo -= RestAmmo;
+		MagazineCapacity = CopyOfMagazineCapacity;
+	}
+
+	SetWeaponInHud(true);
+}
+
+void AGun::SetHudWidget(UHUDWidget* NewHudWidget)
+{
+	// If NewHudWidget is a pointer to the HudWiget from the player then Hide weapon, otherwise
+	// check if the weapon has a HudWidget if so then Hide weapon(because this means that the player
+	// has just dropped the weapon
+	if (NewHudWidget)
+	{
+		NewHudWidget->HideWeaponThings(false);
+	}
+	else if (HudWidget)
+	{
+		HudWidget->HideWeaponThings(true);
+	}
+
+	HudWidget = NewHudWidget;
+}
+
+void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
+{
+	if (!HudWidget) return;
+
+	HudWidget->SetAmmoText(MagazineCapacity);
+	if (bChangeStoredAmmoText) HudWidget->SetAmmoText(StoredAmmo, true);
+	if (bChangeWeaponImage) HudWidget->SetWeaponImage(GunHUDTexture);
 }
 
 void AGun::Shoot()
@@ -96,6 +139,7 @@ void AGun::Shoot()
 	SpawnedBullet->ImpulseOnBullet();
 
 	MagazineCapacity--;
+	SetWeaponInHud();
 
 	bCanShoot = false;
 

@@ -14,6 +14,7 @@ UBTTask_ShootAndMove::UBTTask_ShootAndMove()
 	NodeName = TEXT("Shoot And Move");
 	//Turn On TickTask()
 	INIT_TASK_NODE_NOTIFY_FLAGS();
+	bCreateNodeInstance = true;
 }
 
 EBTNodeResult::Type UBTTask_ShootAndMove::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -22,6 +23,7 @@ EBTNodeResult::Type UBTTask_ShootAndMove::ExecuteTask(UBehaviorTreeComponent& Ow
 	GetWorld()->GetTimerManager().SetTimer(ShootHandle, this, &UBTTask_ShootAndMove::Shoot, Time, true);
 
 	EnemyPawn = Cast<AEnemyPawn>(OwnerComp.GetAIOwner()->GetPawn());
+	UE_LOG(LogTemp, Warning, TEXT("EXECUTE TASK %s"), *EnemyPawn->GetFName().ToString());
 	EnemyAIController = Cast<AEnemyAiController>(OwnerComp.GetAIOwner());
 	EnemyAIController->SetFocus(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
