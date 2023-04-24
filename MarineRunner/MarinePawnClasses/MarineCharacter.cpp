@@ -144,7 +144,11 @@ void AMarineCharacter::SecondWeapon()
 
 void AMarineCharacter::EquipGun(AGun* NewGun)
 {
-	if (Gun) Gun->SetActorHiddenInGame(true);
+	if (Gun)
+	{
+		Gun->SetActorHiddenInGame(true);
+		Gun->SetGunSwayWhileMovingTimer(true);
+	}
 	WeaponInventoryComponent->AddNewWeaponToStorage(NewGun);
 }
 

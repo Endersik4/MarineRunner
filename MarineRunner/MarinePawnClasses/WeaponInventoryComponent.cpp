@@ -24,6 +24,7 @@ void UWeaponInventoryComponent::BeginPlay()
 	Super::BeginPlay();
 
 	// ...
+	WeaponsStorage.Empty();
 	
 }
 
@@ -38,6 +39,8 @@ void UWeaponInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickTy
 
 void UWeaponInventoryComponent::AddNewWeaponToStorage(AGun* NewGun)
 {
+	if (!NewGun) return;
+
 	int32 NumberForWeapon = WeaponsStorage.Num() + 1;
 	WeaponsStorage.Add(NumberForWeapon, NewGun);
 }
@@ -53,8 +56,13 @@ AGun* UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, class 
 	AGun* Gun = *WeaponsStorage.Find(KeyForWeapon);
 	if (Gun == nullptr) return CurrentWeapon;
 
-	if (CurrentWeapon) CurrentWeapon->SetActorHiddenInGame(true);
+	if (CurrentWeapon)
+	{
+		CurrentWeapon->SetGunSwayWhileMovingTimer(true);
+		CurrentWeapon->SetActorHiddenInGame(true);
+	}
 	//Gun->SetHudWidget(MarinePawn->GetHudWidget());
+	Gun->SetGunSwayWhileMovingTimer();
 	Gun->SetWeaponInHud(true, true);
 	Gun->SetActorHiddenInGame(false);
 

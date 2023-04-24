@@ -34,12 +34,13 @@ public:
 	USkeletalMeshComponent* GetBaseSkeletalMesh() const { return BaseSkeletalMesh; }
 
 	bool GetIsAutomatic() const { return bIsAutomatic; }
+
 	void ShouldConstantlyShoot(bool bShould) { bConstantlyShoot = bShould; }
 	void Reload();
-
 	void Shoot();
 	void GunSwayWhileMoving();
 	void ShootReleased();
+	void SetGunSwayWhileMovingTimer(bool bShouldClear = false);
 
 	float GetAmmoDistance() const { return AmmoDistance; }
 	//bool GetCanSway() { return bCanSway; }
@@ -49,10 +50,13 @@ public:
 	void SetCanAimTheGun(int CanAim) { CanAimTheGun = CanAim; }
 	void SetCanGunSwayTick(bool bCan) { bCanGunSwayTick = bCan; }
 	void SetCanSway(bool bCan) { bCanSway = bCan; }
-	void SetMarinePawn(AActor* NewActor) { MarinePawn = NewActor; }
+	void SetMarinePawn(class AMarineCharacter* NewActor) { MarinePawn = NewActor; }
 	void SetHudWidget(class UHUDWidget* NewHudWidget);
 
 	void SetWeaponInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
+
+	void EquipWeapon(class AMarineCharacter* MarinePawn);
+	void UnequipWeapon();
 
 private:
 	UFUNCTION()
@@ -64,7 +68,7 @@ private:
 		void RecoilCameraTimelineCallback(float x);
 
 	UFUNCTION()
-		void RecoilCameraTimelineFinishedCallback();
+		void RecoilCameraTimelineFinishedCallback() {};
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		FVector RelativeLocationInPawn;
@@ -91,6 +95,8 @@ private:
 		int32 StoredAmmo = 50;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		UTexture2D* GunHUDTexture;
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
+		float DropImpulseDistance = 400.f;
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
@@ -139,11 +145,11 @@ private:
 		float AmmoImpulseForce;
 
 	//Bullet Type that will be fired from Gun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		TSubclassOf<AActor> BulletClass;
 
 	//Actor that will spawn on the location from Socket "BulletDrop". Its for casing that is dumped from gun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		TSubclassOf<AActor> DropBulletClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
@@ -242,7 +248,7 @@ private:
 	bool bCanGunSwayTick = false;
 	bool bCanDropTheGun = true;
 
-	//Constanly Shooting
+	//Constantly Shooting
 	bool bConstantlyShoot;
 	FTimerHandle ConstantlyShootHandle;
 
@@ -251,23 +257,26 @@ private:
 
 	//RecoilCamera
 	bool bCanRecoilCamera;
-	FRotator InitialCameraRotation;
-	FTimerHandle FixingBugHandle;
+	bool bShouldInterpBack;
 	float RandomRecoilYaw;
 	float RandomRecoilPitch;
-	
 	float TimeRecoilCameraElapsed;
+	FRotator InitialCameraRotation;
+	FTimerHandle FixingBugHandle;
 	void UpRecoilCamera(float Delta);
 	void InterpBackToInitialPosition(float Delta);
-	bool bShouldInterpBack;
-
+	
+	//Gun Sway
 	void GunSway(float Delta);
 	FRotator GunRotationSway;
 
+	//Aiming GUn
 	void AimTheGun(float Delta);
 	int32 CanAimTheGun; //0 - cant, 1 - can, 2 - back to original position
 
-	AActor* MarinePawn;
+	FTimerHandle GunSwayWhileMovingHandle;
+
+	class AMarineCharacter* MarinePawn;
 	class AMarinePlayerController* PC;
 	class UHUDWidget* HudWidget;
 

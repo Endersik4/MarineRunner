@@ -3,7 +3,6 @@
 
 #include "TakeAndDrop.h"
 #include "Camera/CameraComponent.h"
-#include "TimerManager.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/GunClasses/Gun.h"
@@ -41,7 +40,7 @@ void UTakeAndDrop::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 void UTakeAndDrop::Take()
 {
 	if (MarinePawn == nullptr) return;
-
+	
 	FVector Start = MarinePawn->GetCamera()->GetComponentLocation();
 	FVector End = Start + (MarinePawn->GetCamera()->GetForwardVector() * TakeDistance);
 	FHitResult HitResult;
@@ -53,33 +52,22 @@ void UTakeAndDrop::Take()
 
 	if (HitResult.GetActor()->ActorHasTag("Gun"))
 	{
+		
 		Gun = Cast<AGun>(HitResult.GetActor());
 		if (Gun)
 		{
 			bHaveItem = true;
 			bIsLerpEnded = false;
-			Gun->GetBaseSkeletalMesh()->SetSimulatePhysics(false);
-			Gun->GetBaseSkeletalMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-			Gun->SetMarinePawn(MarinePawn);
-			Gun->SetHudWidget(MarinePawn->GetHudWidget());
-			Gun->SetWeaponInHud(true, true);
-			MarinePawn->EquipGun(Gun);
-
-			Gun->AttachToComponent(MarinePawn->GetCamera(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+			Gun->EquipWeapon(MarinePawn);
 		}
 	}
 }
 
 void UTakeAndDrop::SetLocationOfItem(float Delta)
 {
-	if (MarinePawn == nullptr) return;
+	if (!MarinePawn || !Gun) return;
 
-	if (Gun == nullptr || bHaveItem == false || bIsLerpEnded == true)
-	{
-		return;
-	}
-
+	if (bHaveItem == false || bIsLerpEnded == true) return;
 
 	FVector BaseSkeletalMeshRelativeLocation = Gun->GetBaseSkeletalMesh()->GetRelativeLocation();
 	FVector Location = FMath::InterpExpoOut(BaseSkeletalMeshRelativeLocation, Gun->GetRelativeLocationInPawn(), SpeedOfComingGun * Delta);
@@ -92,7 +80,7 @@ void UTakeAndDrop::SetLocationOfItem(float Delta)
 	bIsLerpEnded = Gun->GetBaseSkeletalMesh()->GetRelativeLocation().Equals(Gun->GetRelativeLocationInPawn(), 0.2f);
 	if (bIsLerpEnded && MarinePawn)
 	{
-		GetOwner()->GetWorldTimerManager().SetTimer(GunSwayTimerHandle, Gun, &AGun::GunSwayWhileMoving, 0.01f, true);
+		Gun->SetGunSwayWhileMovingTimer();
 		Gun->SetActorRelativeLocation(Gun->GetRelativeLocationInPawn());
 		Gun->SetCanGunSwayTick(true);
 
@@ -103,23 +91,10 @@ void UTakeAndDrop::SetLocationOfItem(float Delta)
 
 void UTakeAndDrop::DropItem()
 {
-	if (MarinePawn == nullptr) return;
-
-	if (Gun == nullptr || bHaveItem == false) return;
+	if (!MarinePawn || !Gun || bHaveItem == false) return;
 
 	if (Gun->GetCanDropGun() == false) return;
-
-	Gun->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	Gun->GetBaseSkeletalMesh()->SetSimulatePhysics(true);
-	Gun->GetBaseSkeletalMesh()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-	GetOwner()->GetWorldTimerManager().ClearTimer(GunSwayTimerHandle);
-	Gun->SetCanGunSwayTick(false);
-	Gun->SetMarinePawn(nullptr);
-	Gun->SetHudWidget(nullptr);
-
-	FVector DropImpulse = MarinePawn->GetCamera()->GetForwardVector() * 10 * DropImpulseDistance;
-	Gun->GetBaseSkeletalMesh()->AddImpulse(DropImpulse);
+	Gun->UnequipWeapon();
 	bHaveItem = false;
 
 	MarinePawn->SetHasWeapon(false);

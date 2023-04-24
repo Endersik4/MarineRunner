@@ -35,8 +35,6 @@ private:
 		float TakeDistance = 400.f;
 	UPROPERTY(EditAnywhere, Category = "Gun options")
 		float SpeedOfComingGun = 7.f;
-	UPROPERTY(EditAnywhere, Category = "Gun options")
-		float DropImpulseDistance = 400.f;
 
 	class AMarineCharacter* MarinePawn;
 	class AGun* Gun;
@@ -45,7 +43,5 @@ private:
 	bool bIsLerpEnded;
 
 	void SetLocationOfItem(float Delta);
-
-	FTimerHandle GunSwayTimerHandle;
 		
 };

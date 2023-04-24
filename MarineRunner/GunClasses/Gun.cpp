@@ -6,6 +6,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "TimerManager.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Camera/CameraComponent.h"
 
 #include "MarineRunner/GunClasses/Bullet.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
@@ -89,10 +90,42 @@ void AGun::SetHudWidget(UHUDWidget* NewHudWidget)
 void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
 {
 	if (!HudWidget) return;
-
+	
 	HudWidget->SetAmmoText(MagazineCapacity);
 	if (bChangeStoredAmmoText) HudWidget->SetAmmoText(StoredAmmo, true);
 	if (bChangeWeaponImage) HudWidget->SetWeaponImage(GunHUDTexture);
+}
+
+void AGun::EquipWeapon(class AMarineCharacter* Marine)
+{
+	
+	BaseSkeletalMesh->SetSimulatePhysics(false);
+	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	MarinePawn = Marine;
+	SetHudWidget(Marine->GetHudWidget());
+	SetWeaponInHud(true, true);
+	
+	Marine->EquipGun(this);
+
+	AttachToComponent(Marine->GetCamera(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
+}
+
+void AGun::UnequipWeapon()
+{
+	if (!MarinePawn) return;
+
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	BaseSkeletalMesh->SetSimulatePhysics(true);
+	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	SetGunSwayWhileMovingTimer(true);
+	bCanGunSwayTick = false;
+	HudWidget = nullptr;
+
+	FVector DropImpulse = MarinePawn->GetCamera()->GetForwardVector() * 10 * DropImpulseDistance;
+	BaseSkeletalMesh->AddImpulse(DropImpulse);
+	MarinePawn = nullptr;
 }
 
 void AGun::Shoot()
@@ -210,6 +243,18 @@ void AGun::ShootReleased()
 	}
 }
 
+void AGun::SetGunSwayWhileMovingTimer(bool bShouldClear)
+{
+	if (bShouldClear)
+	{
+		GetWorldTimerManager().ClearTimer(GunSwayWhileMovingHandle);
+	}
+	else
+	{
+		GetWorldTimerManager().SetTimer(GunSwayWhileMovingHandle, this, &AGun::GunSwayWhileMoving, 0.01f, true);
+	}
+}
+
 void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
 {
 	if (RecoilAnimCurvePitch)
@@ -255,11 +300,6 @@ void AGun::RecoilAnimTimelineFinishedCallback()
 void AGun::RecoilCameraTimelineCallback(float ControlRotationY)
 {
 	PC->AddYawInput(ControlRotationY);
-}
-
-void AGun::RecoilCameraTimelineFinishedCallback()
-{
-
 }
 
 UTimelineComponent* AGun::SetupTimeline(UTimelineComponent* TimeLineComp, UCurveFloat* MostImportantCurve, FName TimeLineName, FName TimeLineDirection, float TimeLineLength,
