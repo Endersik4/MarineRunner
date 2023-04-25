@@ -6,7 +6,7 @@ This game has movement like in Ghostrunner. <br/>
 Shooting mechanics like in Cyberpunk 2077 and style like High On Life (but that wasn't on purpose).<br/>
 The game is in development, there is still a lot to do.<br/>
 MarineRunner is on Unreal Engine 5. <br/>
-(everything is code from scratch with Unreal Engine tools)
+(everything is code from scratch in C++ with Unreal Engine tools)
 
 <a href="https://youtu.be/8jKjilVmgmk"> MarineRunner status as of 30/03/2023 </a>
 
