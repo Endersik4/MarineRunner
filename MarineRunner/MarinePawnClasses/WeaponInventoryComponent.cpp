@@ -48,25 +48,38 @@ void UWeaponInventoryComponent::AddNewWeaponToStorage(AGun* NewGun)
 void UWeaponInventoryComponent::RemoveWeaponFromStorage(AGun* EquipedGun)
 {
 	int32 KeyForEquipedGun = *WeaponsStorage.FindKey(EquipedGun);
-	WeaponsStorage.FindAndRemoveChecked(KeyForEquipedGun);
+	WeaponsStorage.Remove(KeyForEquipedGun);
+
+	SortWeapons();
 }
 
 AGun* UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, class AGun* CurrentWeapon)
 {
+	if (WeaponsStorage.Find(KeyForWeapon) == nullptr) return CurrentWeapon;
 	AGun* Gun = *WeaponsStorage.Find(KeyForWeapon);
-	if (Gun == nullptr) return CurrentWeapon;
 
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->SetGunSwayWhileMovingTimer(true);
 		CurrentWeapon->SetActorHiddenInGame(true);
 	}
-	//Gun->SetHudWidget(MarinePawn->GetHudWidget());
+
 	Gun->SetGunSwayWhileMovingTimer();
 	Gun->SetWeaponInHud(true, true);
 	Gun->SetActorHiddenInGame(false);
 
 	return Gun;
+}
+
+void UWeaponInventoryComponent::SortWeapons()
+{
+	TArray<AGun*> Guns;
+	WeaponsStorage.GenerateValueArray(Guns);
+	WeaponsStorage.Empty();
+	for (int32 i = 1; i <= Guns.Num(); i++)
+	{
+		WeaponsStorage.Add(i, Guns[i - 1]);
+	}
 }
 
 void UWeaponInventoryComponent::SetUpMarinePawn()

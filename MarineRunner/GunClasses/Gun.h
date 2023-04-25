@@ -43,7 +43,6 @@ public:
 	void SetGunSwayWhileMovingTimer(bool bShouldClear = false);
 
 	float GetAmmoDistance() const { return AmmoDistance; }
-	//bool GetCanSway() { return bCanSway; }
 	bool GetCanDropGun() { return bCanDropTheGun; }
 
 	void SetBulletRotation(FRotator NewBulletRotation) { BulletRotation = NewBulletRotation; }
@@ -51,12 +50,14 @@ public:
 	void SetCanGunSwayTick(bool bCan) { bCanGunSwayTick = bCan; }
 	void SetCanSway(bool bCan) { bCanSway = bCan; }
 	void SetMarinePawn(class AMarineCharacter* NewActor) { MarinePawn = NewActor; }
+
+	// If NewHudWidget is a pointer to the HudWiget from the player then Hide weapon, otherwise
+	// check if the weapon has a HudWidget if so then Hide weapon(because this means that the player
+	// has just dropped the weapon
 	void SetHudWidget(class UHUDWidget* NewHudWidget);
-
 	void SetWeaponInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
-
 	void EquipWeapon(class AMarineCharacter* MarinePawn);
-	void UnequipWeapon();
+	void DropTheGun();
 
 private:
 	UFUNCTION()
@@ -74,15 +75,6 @@ private:
 		FVector RelativeLocationInPawn;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		FRotator RelativeRotationInPawn;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Aiming")
-		FVector RelativeLocationInPawnWhileAiming;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Aiming")
-		float SpeedOfAiming = 14.f;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Aiming")
-		float SpeedOfAimingBack = 7.f;
-	//This number will be subdivide with value from Recoil
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Aiming")
-		float DividerOfRecoilWhileAiming = 3.5f;
 
 	//General Damage
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
@@ -97,6 +89,36 @@ private:
 		UTexture2D* GunHUDTexture;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		float DropImpulseDistance = 400.f;
+
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Aiming")
+		FVector RelativeLocationInPawnWhileAiming;
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Aiming")
+		float SpeedOfAiming = 14.f;
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Aiming")
+		float SpeedOfAimingBack = 7.f;
+	//This number will be subdivide with value from Recoil
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Aiming")
+		float DividerOfRecoilWhileAiming = 3.5f;
+
+	//How fast ammo is moving forward. If Bullet has physics then this variable is Impulse Force
+	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+		float AmmoSpeed;
+	//What distance should Ammo pass when bullet starts falling down
+	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+		float AmmoDistance;
+	//How fast Ammo will falling down when AmmoDistance hit the number
+	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+		float AmmoFallingDown;
+	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+		float AmmoImpulseForce;
+
+	//Bullet Type that will be fired from Gun
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		TSubclassOf<AActor> BulletClass;
+
+	//Actor that will spawn on the location from Socket "BulletDrop". Its for casing that is dumped from gun
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		TSubclassOf<AActor> DropBulletClass;
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
@@ -131,26 +153,6 @@ private:
 		TArray<float>PitchBulletRecoilArray = {-5, 5};
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Bullet")
 		TArray<float>YawBulletRecoilArray = { -5, 5 };;
-
-	//How fast ammo is moving forward. If Bullet has physics then this variable is Impulse Force
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
-		float AmmoSpeed;
-	//What distance should Ammo pass when bullet starts falling down
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
-		float AmmoDistance;
-	//How fast Ammo will falling down when AmmoDistance hit the number
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
-		float AmmoFallingDown;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
-		float AmmoImpulseForce;
-
-	//Bullet Type that will be fired from Gun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		TSubclassOf<AActor> BulletClass;
-
-	//Actor that will spawn on the location from Socket "BulletDrop". Its for casing that is dumped from gun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		TSubclassOf<AActor> DropBulletClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		UAnimationAsset* ShootAnimation;
@@ -265,10 +267,12 @@ private:
 	FTimerHandle FixingBugHandle;
 	void UpRecoilCamera(float Delta);
 	void InterpBackToInitialPosition(float Delta);
+	//
 	
 	//Gun Sway
 	void GunSway(float Delta);
 	FRotator GunRotationSway;
+	//
 
 	//Aiming GUn
 	void AimTheGun(float Delta);

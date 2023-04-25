@@ -34,14 +34,18 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Take Items")
 		float TakeDistance = 400.f;
 	UPROPERTY(EditAnywhere, Category = "Gun options")
-		float SpeedOfComingGun = 7.f;
+		float SpeedOfComingGun = 2.f;
 
 	class AMarineCharacter* MarinePawn;
 	class AGun* Gun;
 
 	bool bHaveItem;
-	bool bIsLerpEnded;
+	bool bIsInterpEnded = true;
 
+	bool CheckIfPlayerCanTake(FHitResult& HitResult);
 	void SetLocationOfItem(float Delta);
+	void IsGunAtTheWeaponLocation();
+
+	void ChangeToAnotherWeapon(int32 AmountOfWeapons);
 		
 };

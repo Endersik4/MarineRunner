@@ -72,9 +72,6 @@ void AGun::Reload()
 
 void AGun::SetHudWidget(UHUDWidget* NewHudWidget)
 {
-	// If NewHudWidget is a pointer to the HudWiget from the player then Hide weapon, otherwise
-	// check if the weapon has a HudWidget if so then Hide weapon(because this means that the player
-	// has just dropped the weapon
 	if (NewHudWidget)
 	{
 		NewHudWidget->HideWeaponThings(false);
@@ -98,20 +95,18 @@ void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
 
 void AGun::EquipWeapon(class AMarineCharacter* Marine)
 {
-	
 	BaseSkeletalMesh->SetSimulatePhysics(false);
 	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 	MarinePawn = Marine;
+
+	//Changing Weapons things In HUD to the correct ones
 	SetHudWidget(Marine->GetHudWidget());
 	SetWeaponInHud(true, true);
-	
-	Marine->EquipGun(this);
 
 	AttachToComponent(Marine->GetCamera(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 }
 
-void AGun::UnequipWeapon()
+void AGun::DropTheGun()
 {
 	if (!MarinePawn) return;
 

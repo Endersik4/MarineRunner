@@ -61,7 +61,6 @@ void AMarineCharacter::BeginPlay()
 
 	MakeCrosshire();
 	MakeHudWidget();
-
 }
 
 // Called every frame
@@ -81,8 +80,6 @@ void AMarineCharacter::Tick(float DeltaTime)
 void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	
 
 	//Gun
 	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &AMarineCharacter::Shoot);
@@ -116,7 +113,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void AMarineCharacter::AimPressed()
 {
-	if (bHasWeapon == false || Gun == nullptr) return;
+	if (Gun == nullptr) return;
 
 	if (CrosshairWidget) CrosshairWidget->RemoveFromParent();
 
@@ -125,41 +122,16 @@ void AMarineCharacter::AimPressed()
 
 void AMarineCharacter::AimReleased()
 {
-	if (bHasWeapon == false || Gun == nullptr) return;
+	if (Gun == nullptr) return;
 
 	MakeCrosshire();
 
 	Gun->SetCanAimTheGun(2);
 }
 
-void AMarineCharacter::FirstWeapon()
-{
-	Gun = WeaponInventoryComponent->GetWeaponFromStorage(1, Gun);
-}
-
-void AMarineCharacter::SecondWeapon()
-{
-	Gun = WeaponInventoryComponent->GetWeaponFromStorage(2, Gun);
-}
-
-void AMarineCharacter::EquipGun(AGun* NewGun)
-{
-	if (Gun)
-	{
-		Gun->SetActorHiddenInGame(true);
-		Gun->SetGunSwayWhileMovingTimer(true);
-	}
-	WeaponInventoryComponent->AddNewWeaponToStorage(NewGun);
-}
-
-void AMarineCharacter::RemoveEquipedGun(AGun* NewGun)
-{
-	WeaponInventoryComponent->RemoveWeaponFromStorage(NewGun);
-}
-
 void AMarineCharacter::Shoot()
 {
-	if (bHasWeapon == false || Gun == nullptr) return;
+	if (Gun == nullptr) return;
 
 	Gun->Shoot();
 	if (Gun->GetIsAutomatic()) Gun->ShouldConstantlyShoot(true);
@@ -167,14 +139,14 @@ void AMarineCharacter::Shoot()
 
 void AMarineCharacter::ReleasedShoot()
 {
-	if (bHasWeapon == false || Gun == nullptr) return;
+	if (Gun == nullptr) return;
 
 	Gun->ShootReleased();
 }
 
 void AMarineCharacter::Reload()
 {
-	if (bHasWeapon == false || Gun == nullptr) return;
+	if (Gun == nullptr) return;
 
 	Gun->Reload();
 }
@@ -506,6 +478,30 @@ void AMarineCharacter::CroachPressed()
 void AMarineCharacter::CroachReleased()
 {
 	CroachAndSlideComponent->CroachReleased();
+}
+
+void AMarineCharacter::FirstWeapon()
+{
+	if (!bCanChangeWeapon) return;
+
+	Gun = WeaponInventoryComponent->GetWeaponFromStorage(1, Gun);
+}
+
+void AMarineCharacter::SecondWeapon()
+{
+	if (!bCanChangeWeapon) return;
+
+	Gun = WeaponInventoryComponent->GetWeaponFromStorage(2, Gun);
+}
+
+void AMarineCharacter::HideGunAndAddTheNewOne(AGun* NewGun)
+{
+	if (Gun)
+	{
+		Gun->SetActorHiddenInGame(true);
+		Gun->SetGunSwayWhileMovingTimer(true);
+	}
+	WeaponInventoryComponent->AddNewWeaponToStorage(NewGun);
 }
 
 void AMarineCharacter::Take()

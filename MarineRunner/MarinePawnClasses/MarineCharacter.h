@@ -26,7 +26,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void Shoot();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		class UStaticMeshComponent* CapsulePawn;
@@ -52,11 +51,13 @@ public:
 	bool GetIsInAir() const { return bIsInAir; }
 	bool GetShouldAddCounterMovement() const { return bShouldAddCounterMovement; }
 	class UHUDWidget* GetHudWidget() const { return HudWidget; }
+	class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
 	class UCameraComponent* GetCamera() const { return Camera; }
+	class AGun* GetGun() const { return Gun; }
 
 	void SetForce(float NewForce) { Force = NewForce; }
-	void SetHasWeapon(bool bNewHasWeapon) { bHasWeapon = bNewHasWeapon; }
 	void SetGun(class AGun* NewGun) {Gun = NewGun;}
+	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
 
 	void SetMovementImpulse(FVector NewImpulse) { MovementImpulse = NewImpulse; }
 	void SetShouldAddCounterMovement(bool bShould) { bShouldAddCounterMovement = bShould; }
@@ -64,8 +65,7 @@ public:
 
 	void MovementStuffThatCannotHappen();
 	void GotDamage(float Damage);
-	void EquipGun(class AGun* NewGun);
-	void RemoveEquipedGun(class AGun* NewGun);
+	void HideGunAndAddTheNewOne(class AGun* NewGun);
 
 	void MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov = true);
 
@@ -172,8 +172,7 @@ private:
 	void DropItem();
 
 	//Gun
-	bool bHasWeapon;
-	
+	void Shoot();
 	void ReleasedShoot();
 	void Reload();
 	class AGun* Gun;
@@ -185,6 +184,7 @@ private:
 	//Weapon Inventory
 	void FirstWeapon();
 	void SecondWeapon();
+	bool bCanChangeWeapon = true;
 	
 	//Swing
 	bool bCanMarineSwing;

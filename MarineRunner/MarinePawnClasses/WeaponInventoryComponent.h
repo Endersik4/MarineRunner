@@ -24,14 +24,26 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	int32 GetWeaponsStorageAmount() const { return WeaponsStorage.Num(); }
+	int32 GetMaxAmount() const { return MaxAmountOfItems; }
+
 	void AddNewWeaponToStorage(class AGun* NewGun);
+
+	//Removing weapon from Storage and sorting the rest of weapons
 	void RemoveWeaponFromStorage(class AGun* EquipedGun);
 
+	//Get Weapon from Storage. If There is no KeyForWeapon as key in WeaponStorage then return CurrentWeapon equiped by Player
+	//@return Gun from Storage at given Key
 	class AGun* GetWeaponFromStorage(int32 KeyForWeapon, class AGun* CurrentWeapon);
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+		int32 MaxAmountOfItems = 2;
+
 	TMap < int32, class AGun* > WeaponsStorage;
 		
+	void SortWeapons();
+
 	class AMarineCharacter* MarinePawn;
 	void SetUpMarinePawn();
 };
