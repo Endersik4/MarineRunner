@@ -23,9 +23,7 @@ void UWeaponInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
 	WeaponsStorage.Empty();
-	
 }
 
 

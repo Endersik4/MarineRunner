@@ -6,7 +6,10 @@
 #include "Components/ActorComponent.h"
 #include "WeaponInventoryComponent.generated.h"
 
-
+/// <summary>
+/// A Component that will storage weapons in order that was taken.
+/// Max amount of items can be customizable
+/// </summary>
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MARINERUNNER_API UWeaponInventoryComponent : public UActorComponent
 {

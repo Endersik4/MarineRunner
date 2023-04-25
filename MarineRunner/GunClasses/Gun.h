@@ -250,6 +250,9 @@ private:
 	bool bCanGunSwayTick = false;
 	bool bCanDropTheGun = true;
 
+	void SpawnBullet();
+	void AddEffectsToShooting();
+
 	//Constantly Shooting
 	bool bConstantlyShoot;
 	FTimerHandle ConstantlyShootHandle;
@@ -263,8 +266,12 @@ private:
 	float RandomRecoilYaw;
 	float RandomRecoilPitch;
 	float TimeRecoilCameraElapsed;
+	float RandomRecoilTimeElapsed;
 	FRotator InitialCameraRotation;
-	FTimerHandle FixingBugHandle;
+	FTimerHandle ShootTimerHandle;
+	void SetCameraRecoil();
+	void StopCameraRecoil();
+	void BackCameraToItsInitialRotation();
 	void UpRecoilCamera(float Delta);
 	void InterpBackToInitialPosition(float Delta);
 	//
