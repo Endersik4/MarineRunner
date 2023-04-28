@@ -169,4 +169,13 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 	Destroy();
 }
 
+void ABullet::SetBulletVariables(float NewDamage, float NewAmmoSpeed, float NewAmmoDistance, float NewAmmoFallingDown, float NewAmmoImpulseForce)
+{
+	Damage = NewDamage;
+	AmmoSpeed = NewAmmoSpeed;
+	AmmoDistance = NewAmmoDistance;
+	AmmoFallingDown = NewAmmoFallingDown;
+	AmmoImpulseForce = NewAmmoImpulseForce;
+}
+
 

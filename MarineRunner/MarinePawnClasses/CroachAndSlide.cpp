@@ -3,6 +3,7 @@
 
 #include "CroachAndSlide.h"
 #include "DrawDebugHelpers.h"
+#include "Camera/CameraComponent.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
@@ -26,6 +27,7 @@ void UCroachAndSlide::BeginPlay()
 	Force = MarinePawn->GetForce();
 
 	CopyForce = Force;
+	MarinePawn->GetCamera()->PostProcessSettings.bOverride_VignetteIntensity = true;
 }
 
 // Called every frame
@@ -52,14 +54,14 @@ void UCroachAndSlide::Sliding(float Delta)
 		
 	}
 	else Force -= SlideSpeed * Delta;
-	MarinePawn->SetForce(Force);
 
 	if (Force <= CroachForceSpeed)
 	{
 		Force = CroachForceSpeed;
-		MarinePawn->SetForce(Force);
 		bShouldSlide = false;
 	}
+
+	MarinePawn->SetForce(Force);
 }
 
 void UCroachAndSlide::CroachPressed()
@@ -67,6 +69,8 @@ void UCroachAndSlide::CroachPressed()
 	Force = CroachForceSpeed;
 	//GetOwner()->SetActorScale3D(FVector(2,2, 1.5));
 	ScaleZ = 1.5f;
+	VignetteIntensityValue = 1.2f;
+
 	bCanCroachLerp = true;
 	if (MarinePawn->GetIsGoingUp() == false)
 	{
@@ -83,6 +87,9 @@ void UCroachAndSlide::CroachPressed()
 void UCroachAndSlide::CroachLerp(float Delta)
 {
 	if (bCanCroachLerp == false) return;
+
+	float NewVignetteIntensity = FMath::Lerp(MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity, VignetteIntensityValue, Delta * SpeedOfCroachLerp);
+	MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
 
 	float NewScaleZ = FMath::Lerp(GetOwner()->GetActorScale3D().Z, ScaleZ, Delta * SpeedOfCroachLerp);
 	GetOwner()->SetActorScale3D(FVector(2, 2, NewScaleZ));
@@ -105,6 +112,7 @@ void UCroachAndSlide::CroachReleased()
 	bShouldStillCroach = false;
 
 	ScaleZ = 2.5f;
+	VignetteIntensityValue = 0.f;
 	bCanCroachLerp = true;
 
 	Force = CopyForce;

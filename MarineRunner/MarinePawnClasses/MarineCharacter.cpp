@@ -82,13 +82,13 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	//Gun
-	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &AMarineCharacter::Shoot);
-	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Released, this, &AMarineCharacter::ReleasedShoot);
+	PlayerInputComponent->BindAction(TEXT("Action"), IE_Pressed, this, &AMarineCharacter::Shoot);
+	PlayerInputComponent->BindAction(TEXT("Action"), IE_Released, this, &AMarineCharacter::ReleasedShoot);
 	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, this, &AMarineCharacter::Reload);
 
 	//Aiming
-	PlayerInputComponent->BindAction(TEXT("Aim"), IE_Pressed, this, &AMarineCharacter::AimPressed);
-	PlayerInputComponent->BindAction(TEXT("Aim"), IE_Released, this, &AMarineCharacter::AimReleased);
+	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Pressed, this, &AMarineCharacter::ADSPressed);
+	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Released, this, &AMarineCharacter::ADSReleased);
 
 	//Weapon Inventory
 	PlayerInputComponent->BindAction(TEXT("First_Weapon"), IE_Pressed, this, &AMarineCharacter::FirstWeapon);
@@ -111,22 +111,24 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	
 }
 
-void AMarineCharacter::AimPressed()
+void AMarineCharacter::ADSPressed()
 {
-	if (Gun == nullptr) return;
+	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
 
 	if (CrosshairWidget) CrosshairWidget->RemoveFromParent();
 
-	Gun->SetCanAimTheGun(1);
+	bIsPlayerADS = true;
+	Gun->SetStatusOfGun(StatusOfAimedGun::ADS);
 }
 
-void AMarineCharacter::AimReleased()
+void AMarineCharacter::ADSReleased()
 {
-	if (Gun == nullptr) return;
+	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
 
 	MakeCrosshire();
 
-	Gun->SetCanAimTheGun(2);
+	bIsPlayerADS = false;
+	Gun->SetStatusOfGun(StatusOfAimedGun::BackToInitialPosition);
 }
 
 void AMarineCharacter::Shoot()
@@ -177,7 +179,7 @@ void AMarineCharacter::Movement(float Delta)
 	FVector CounterMovement = FVector(DeltaCounterMovementForce * Velocity.X, DeltaCounterMovementForce * Velocity.Y, 0);
 
 	//Add Movement
-	float DeltaForce = Force * Delta * (1000 * MovementSpeedMultiplier);
+	float DeltaForce = (bIsPlayerADS ? Force / DividerOfMovementWhenADS : Force) *Delta * (1000 * MovementSpeedMultiplier);
 	MovementDirection.Normalize();
 	CapsulePawn->AddImpulse((MovementDirection * DeltaForce) + CounterMovement);
 }

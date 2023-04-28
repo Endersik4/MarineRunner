@@ -33,13 +33,13 @@ public:
 private:
 	//Speed of SlowMotion
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionValue = 0.5f;
+		float SlowMotionValue = 0.4f;
 	//How long should Slow Motion be on
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float SlowMotionTime = 4.0f;
 	//Delay of Slow Motion before the next one
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionDelay = 2.0f;
+		float SlowMotionDelay = 0.2f;
 
 	bool bCanSlowMotion = true;
 	bool bShouldVelocityBeHigher;

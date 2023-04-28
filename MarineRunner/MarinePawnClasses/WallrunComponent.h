@@ -49,7 +49,7 @@ public:
 private:
 	//Speed of Pawn while performing wallrun
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float WallrunSpeed = 1.3f;
+		float WallrunSpeed = 1.5f;
 
 	//Impulse added to Stick with Obstacle
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
@@ -85,7 +85,7 @@ private:
 	void ResetWallrunning(); //Disable Wallrun
 	void StickToTheObstacle(int32 WhichSide, FVector HitNormal);
 	bool IsPawnNextToObstacle(int32 &WhichSide, FVector& HitNormal); //If WhichSide == -1 then left, if == 1 then Right
-	bool ShouldDoWallrun();
+	bool CanDoWallrun();
 
 	//Other
 	bool MakeCheckLine(FHitResult& OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug = false, FColor Color = FColor::Red);

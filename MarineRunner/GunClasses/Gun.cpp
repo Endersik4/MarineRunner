@@ -51,6 +51,243 @@ void AGun::Tick(float DeltaTime)
 	InterpBackToInitialPosition(DeltaTime);
 }
 
+void AGun::Shoot()
+{
+	if (BulletClass == NULL) return;
+	if (bCanShoot == false)
+	{
+		bShouldDelayShoot = true;
+		GetWorldTimerManager().SetTimer(DelayShootHandle, this, &AGun::DelayShoot, DelayShootTime, false);
+		return;
+	}
+
+
+	if (MagazineCapacity <= 0)
+	{
+		if (EmptyMagazineSound) UGameplayStatics::SpawnSoundAttached(EmptyMagazineSound, BaseSkeletalMesh, NAME_None);
+		ShootReleased();
+		return;
+	}
+	
+	//Effect like paricles, sounds or drop casing from weapon
+	AddEffectsToShooting();
+	SpawnBullet();
+
+	MagazineCapacity--;
+	SetWeaponInHud();
+
+	bCanShoot = false;
+	bCanSway = false;
+	bCanDropTheGun = false;
+
+	if (bShouldWaitToPlayRecoil == true) GetWorldTimerManager().SetTimer(PlayRecoilHandle, this, &AGun::PlayRecoil, PlayRecoilTime, false);
+	else PlayRecoil();
+}
+
+void AGun::ShootReleased()
+{
+	if (bCanRecoilCamera == false) return;
+
+	ResetVariablesForCameraRecoil();
+	if (bShouldUseCurveRecoil) BackCameraToItsInitialRotation();
+}
+
+void AGun::AddEffectsToShooting()
+{
+	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, BaseSkeletalMesh, NAME_None);
+	if (ShootParticle) UGameplayStatics::SpawnEmitterAttached(ShootParticle, BaseSkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
+	if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
+
+	if (DropBulletClass)
+	{
+		AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), GetActorRotation());
+		DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, TEXT("BulletDrop"));
+	}
+}
+
+void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
+{
+	if (RecoilAnimCurvePitch)
+	{
+		float RecoilPitch = RecoilAnimCurvePitch->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
+		if (StatusOfGun == ADS) RecoilPitch /= DividerOfRecoilWhileADS;
+
+		FRotator GunMeshRotation = BaseSkeletalMesh->GetRelativeRotation();
+		GunMeshRotation.Pitch = RecoilPitch * MultiplierOfRecoilCurvePitch;
+
+		BaseSkeletalMesh->SetRelativeRotation(GunMeshRotation);
+	}
+
+	if (RecoilAnimCurveScale)
+	{
+		float RecoilScale = RecoilAnimCurveScale->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
+		if (StatusOfGun == ADS) RecoilScale /= DividerOfRecoilWhileADS;
+		BaseSkeletalMesh->SetRelativeScale3D(FVector(RecoilScale));
+	}
+
+	if (RecoilCameraRandomRotation)
+	{
+		float ControlRotationPitch = RandomRecoilPitch * RecoilCameraRandomRotation->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
+		float ControlRotationYaw = RandomRecoilYaw * RecoilCameraRandomRotation->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
+		PC->AddYawInput(ControlRotationYaw);
+		PC->AddPitchInput(-ControlRotationPitch);
+	}
+	
+	FVector GunMeshLocation = BaseSkeletalMesh->GetRelativeLocation();
+	if (StatusOfGun == ADS) RecoilDirection /= DividerOfRecoilWhileADS;
+	GunMeshLocation.X = GunMeshLocation.X - RecoilDirection;
+
+	BaseSkeletalMesh->SetRelativeLocation(GunMeshLocation);
+}
+
+void AGun::RecoilAnimTimelineFinishedCallback()
+{
+	bCanShoot = true;
+	bCanSway = true;
+	if (bShouldDelayShoot)
+	{
+		Shoot();
+		bShouldDelayShoot = false;
+	}
+
+	if (StatusOfGun == HipFire) bCanDropTheGun = true;
+	if (bConstantlyShoot)
+	{
+		//I need to use a timer to prevent an error that causes the bullet to appear in a different location than the Bullet Socket.
+		GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGun::Shoot, 0.001f);
+	}
+}
+
+void AGun::RecoilCameraTimelineCallback(float ControlRotationY)
+{
+	PC->AddYawInput(ControlRotationY);
+}
+
+void AGun::SetCameraRecoil()
+{
+	if (bCanRecoilCamera == true) return;
+	
+	InitialCameraRotation = PC->GetControlRotation();
+
+	if (bShouldUseCurveRecoil)
+	{
+		Playtimeline(RecoilCameraTimeline); //Use Curve Recoil for Camera moving
+		bCanRecoilCamera = true;
+	}
+	else if ((PitchRecoilRangeArray.Num() == 2 && YawRecoilRangeArray.Num() == 2))
+	{
+		RandomRecoilYaw = FMath::FRandRange(YawRecoilRangeArray[0], YawRecoilRangeArray[1]);
+		RandomRecoilPitch = FMath::FRandRange(PitchRecoilRangeArray[0], PitchRecoilRangeArray[1]);
+		if (StatusOfGun == ADS)
+		{
+			RandomRecoilYaw /= DividerOfRecoilWhileADS;
+			RandomRecoilPitch /= DividerOfRecoilWhileADS;
+		}
+	}
+}
+
+void AGun::UpRecoilCamera(float Delta)
+{
+	if (bCanRecoilCamera == false) return;
+	
+	if (bShouldUseCurveRecoil)
+	{
+		float ControlRotationPitch = (DistanceFromStart * 0.375) * TimeRecoilCameraElapsed / ((CopyOfMagazineCapacity * RecoilAnimTimelineLength) + 0.2f);
+		PC->AddPitchInput(-ControlRotationPitch);
+	}
+	TimeRecoilCameraElapsed = Delta;
+}
+
+void AGun::BackCameraToItsInitialRotation()
+{
+	FRotator CurrentControlRotation = PC->GetControlRotation();
+
+	//Calculating Distance between two pitches
+	float DistanceBetweenPitch;
+	DistanceBetweenPitch = FMath::Abs((InitialCameraRotation.Pitch - CurrentControlRotation.Pitch));
+	if ((InitialCameraRotation.Pitch < 100.f && CurrentControlRotation.Pitch >= 100.f) || (CurrentControlRotation.Pitch < 100.f && InitialCameraRotation.Pitch >= 100.f))
+	{
+		DistanceBetweenPitch = 360.f - DistanceBetweenPitch;
+	}
+
+	if (bShouldUseCurveRecoil)
+	{
+		//Oblicza dystans miedzy dwoma FRotator #include "Kismet/KismetMathLibrary.h"
+		UKismetMathLibrary::NormalizedDeltaRotator(PC->GetControlRotation(), InitialCameraRotation);
+		//If distance is too big then camera doesnt go back to its inital rotation
+		float DistanceBetweenYaw = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PC->GetControlRotation(), InitialCameraRotation).Yaw);
+		if (DistanceBetweenYaw > 10.f)
+		{
+			InitialCameraRotation.Yaw = PC->GetControlRotation().Yaw;
+		}
+		if (DistanceBetweenPitch > DistanceFromStart)
+		{
+			InitialCameraRotation = PC->GetControlRotation();
+			InitialCameraRotation.Pitch -= DistanceFromStart;
+		}
+	}
+
+	bShouldInterpBack = true;
+}
+
+void AGun::InterpBackToInitialPosition(float Delta)
+{
+	if (!MarinePawn) return;
+	
+	if (bShouldInterpBack == false) return;
+
+	if (PC->MouseXValue > 0.05f || PC->MouseXValue < -0.05f || PC->MouseYValue > 0.05f || PC->MouseYValue < -0.05f)
+	{
+		bShouldInterpBack = false;
+		return;
+	}
+
+	if (PC->GetControlRotation().Equals(InitialCameraRotation, 0.05f))
+	{
+		bShouldInterpBack = false;
+		return;
+	}
+	
+	FRotator NewRotation = UKismetMathLibrary::RInterpTo(PC->GetControlRotation(), InitialCameraRotation, Delta, InitalCameraPositionSpeed);
+
+	PC->SetControlRotation(NewRotation);
+}
+
+void AGun::SpawnBullet()
+{
+	//Proper Location and Rotation for Bullet
+	FVector Location = BaseSkeletalMesh->GetSocketLocation(TEXT("Bullet"));
+	BulletRotation = GetActorRotation();
+
+	//Bullet will randomly "go" to other directions 
+	if (PitchBulletRecoilArray.Num() == 2 && YawBulletRecoilArray.Num() == 2)
+	{
+		float NewPitchRotaton = FMath::FRandRange(PitchBulletRecoilArray[0], PitchBulletRecoilArray[1]);
+		float NewYawRotation = FMath::FRandRange(YawBulletRecoilArray[0], YawBulletRecoilArray[1]);
+		if (StatusOfGun == ADS)
+		{
+			NewPitchRotaton /= DividerOfBulletRecoilWhileADS;
+			NewYawRotation /= DividerOfBulletRecoilWhileADS;
+		}
+		BulletRotation.Pitch += NewPitchRotaton;
+		BulletRotation.Yaw += NewYawRotation;
+	}
+
+	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, Location, BulletRotation);
+
+	SpawnedBullet->SetBulletVariables(Damage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
+	SpawnedBullet->ImpulseOnBullet();
+}
+
+void AGun::ResetVariablesForCameraRecoil()
+{
+	GetWorldTimerManager().ClearTimer(ShootTimerHandle);
+	bCanRecoilCamera = false;
+	TimeRecoilCameraElapsed = 0.f;
+	bConstantlyShoot = false;
+	if (bShouldUseCurveRecoil) RecoilCameraTimeline->Stop();
+}
+
 void AGun::Reload()
 {
 	if (StoredAmmo <= 0) return;
@@ -68,29 +305,6 @@ void AGun::Reload()
 	}
 
 	SetWeaponInHud(true);
-}
-
-void AGun::SetHudWidget(UHUDWidget* NewHudWidget)
-{
-	if (NewHudWidget)
-	{
-		NewHudWidget->HideWeaponThings(false);
-	}
-	else if (HudWidget)
-	{
-		HudWidget->HideWeaponThings(true);
-	}
-
-	HudWidget = NewHudWidget;
-}
-
-void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
-{
-	if (!HudWidget) return;
-	
-	HudWidget->SetAmmoText(MagazineCapacity);
-	if (bChangeStoredAmmoText) HudWidget->SetAmmoText(StoredAmmo, true);
-	if (bChangeWeaponImage) HudWidget->SetWeaponImage(GunHUDTexture);
 }
 
 void AGun::EquipWeapon(class AMarineCharacter* Marine)
@@ -123,37 +337,127 @@ void AGun::DropTheGun()
 	MarinePawn = nullptr;
 }
 
-void AGun::Shoot()
+void AGun::GunSway(float Delta)
 {
-	if (BulletClass == NULL || bCanShoot == false) return;
+	if (MarinePawn == nullptr || bCanGunSwayTick == false || bCanSway == false) return;
 
-	if (MagazineCapacity <= 0)
+	//Preparing variables
+	float LookUp = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetInputAxisValue("LookUp");
+	float LookRight = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetInputAxisValue("LookRight");
+	float Forward = MarinePawn->GetInputAxisValue("Forward");
+	float Right = MarinePawn->GetInputAxisValue("Right");
+	
+	//Rotation Sway when The Player moves the mouse
+	float InterpLookUp = FMath::FInterpTo(GunRotationSway.Pitch, UKismetMathLibrary::MapRangeClamped(LookUp, -1, 1, RotationSwayPitchRangeBack, RotationSwayPitchRangeUp), Delta, SpeedOfSwayPitch);
+	float InterpLookRight = FMath::FInterpTo(GunRotationSway.Yaw, UKismetMathLibrary::MapRangeClamped(LookRight, -1, 1, RotationSwayYawRangeBack, RotationSwayYawRangeUp), Delta, SpeedOfSwayYaw);
+
+	if (StatusOfGun == ADS)
 	{
-		if (EmptyMagazineSound) UGameplayStatics::SpawnSoundAttached(EmptyMagazineSound, BaseSkeletalMesh, NAME_None);
-		ShootReleased();
+		InterpLookRight /= 1.5f;
+		InterpLookUp /= 1.5f;
+		GunRotationSway = FRotator(InterpLookUp, InterpLookRight, 0.f);
+		BaseSkeletalMesh->SetRelativeRotation(GunRotationSway);
 		return;
 	}
 	
-	//Effect like paricles, sounds or drop casing from weapon
-	AddEffectsToShooting();
-	SpawnBullet();
-	SetCameraRecoil();
+	//Location Sway when The Player moves around
+	FVector GunLocationInterp = BaseSkeletalMesh->GetRelativeLocation(); 
+	float InterpForward = FMath::InterpEaseInOut(GunLocationInterp.X, UKismetMathLibrary::MapRangeClamped(Forward, 1, -1, RelativeLocationInPawn.X + LocationSwayXRangeBack, 
+		RelativeLocationInPawn.X + LocationSwayXRangeUp), (Delta * SpeedOfSwayX), 1.f);
+	float InterpRight = FMath::InterpEaseInOut(GunLocationInterp.Y, UKismetMathLibrary::MapRangeClamped(Right, -1, 1, RelativeLocationInPawn.Y + LocationSwayYRangeBack,
+		RelativeLocationInPawn.Y + LocationSwayYRangeUp), (Delta * SpeedOfSwayY), 1.f);
 
-	MagazineCapacity--;
-	SetWeaponInHud();
+	GunRotationSway = FRotator(InterpLookUp, InterpLookRight, 0.f);
+	GunLocationInterp = FVector(InterpForward, InterpRight, GunLocationInterp.Z);
+	BaseSkeletalMesh->SetRelativeLocation(GunLocationInterp);
+	BaseSkeletalMesh->SetRelativeRotation(GunRotationSway);
 
-	bCanShoot = false;
-	bCanSway = false;
-	bCanDropTheGun = false;
-	Playtimeline(RecoilAnimTimeline);
+	//If Player doing nothing then Gun goes back to its original position
+	if (MarinePawn->GetInputAxisValue("Forward") == 0 && MarinePawn->GetInputAxisValue("Right") == 0)
+	{
+		FVector BackToOriginalPosition = FMath::VInterpTo(BaseSkeletalMesh->GetRelativeLocation(), RelativeLocationInPawn, Delta, 1.f);
+		BaseSkeletalMesh->SetRelativeLocation(BackToOriginalPosition);
+	}
 }
 
-void AGun::ShootReleased()
+void AGun::GunSwayWhileMoving()
 {
-	if (bCanRecoilCamera == false) return;
+	//Using Lemniscate Of Bernoulli to sway gun while moving 
+	if (bCanSway == false || MarinePawn == nullptr) return;
+	if (MarinePawn->GetInputAxisValue("Forward") == 0 && MarinePawn->GetInputAxisValue("Right") == 0) return;
 
-	StopCameraRecoil();
-	BackCameraToItsInitialRotation();
+	float SpeedOfLemniscate = GetWorld()->GetTimeSeconds() * SpeedOfSwayWhileMoving;
+
+	float Angle = 2 / (9.f - FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate * 2)));
+	float LocationY = Angle * FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate)); //SineWave
+	float LocationZ = (FMath::Sin(FMath::DegreesToRadians(SpeedOfLemniscate * 2)) * Angle) / 2; //Angle Offset
+
+	if (StatusOfGun == ADS)
+	{
+		Angle /= 2;
+		LocationY /= 2;
+		LocationZ /= 2;
+	}
+	
+	FVector GunLemniscateLocation = BaseSkeletalMesh->GetRelativeLocation();
+	GunLemniscateLocation.Y += (LocationY * MultiplierOfLocationYSwayWhileMoving);
+	GunLemniscateLocation.Z += (LocationZ * MultiplierOfLocationZSwayWhileMoving);
+
+	BaseSkeletalMesh->SetRelativeLocation(GunLemniscateLocation);
+	
+}
+
+void AGun::AimTheGun(float Delta)
+{
+	if (StatusOfGun == HipFire) return;
+
+	FVector Location = BaseSkeletalMesh->GetRelativeLocation();
+	if (StatusOfGun == ADS)
+	{
+		FRotator Rotation = BaseSkeletalMesh->GetRelativeRotation();
+		BaseSkeletalMesh->SetRelativeLocation(FMath::Lerp(Location, RelativeLocationInPawnWhileADS, Delta * SpeedOfInterpADS));
+		BaseSkeletalMesh->SetRelativeRotation(FMath::RInterpTo(Rotation, RelativeRotationInPawn, Delta, SpeedOfInterpADS));
+		bCanDropTheGun = false;
+	}
+	else
+	{
+		BaseSkeletalMesh->SetRelativeLocation(FMath::Lerp(Location, RelativeLocationInPawn, Delta * SpeedOfBackToHipFire));
+		if (BaseSkeletalMesh->GetRelativeLocation().Equals(RelativeLocationInPawn, 1.5f))
+		{
+			bCanDropTheGun = true;
+			StatusOfGun = HipFire;
+		}
+	}
+}
+
+void AGun::SetHudWidget(UHUDWidget* NewHudWidget)
+{
+	if (NewHudWidget)
+	{
+		NewHudWidget->HideWeaponThings(false);
+	}
+	else if (HudWidget)
+	{
+		HudWidget->HideWeaponThings(true);
+	}
+
+	HudWidget = NewHudWidget;
+}
+
+void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
+{
+	if (!HudWidget) return;
+
+	HudWidget->SetAmmoText(MagazineCapacity);
+	if (bChangeStoredAmmoText) HudWidget->SetAmmoText(StoredAmmo, true);
+	if (bChangeWeaponImage) HudWidget->SetWeaponImage(GunHUDTexture);
+}
+
+void AGun::PlayRecoil()
+{
+	//Recoil Things
+	SetCameraRecoil(); //Recoil CAMERA
+	Playtimeline(RecoilAnimTimeline); //Recoil GUN 
 }
 
 void AGun::SetGunSwayWhileMovingTimer(bool bShouldClear)
@@ -166,53 +470,6 @@ void AGun::SetGunSwayWhileMovingTimer(bool bShouldClear)
 	{
 		GetWorldTimerManager().SetTimer(GunSwayWhileMovingHandle, this, &AGun::GunSwayWhileMoving, 0.01f, true);
 	}
-}
-
-void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
-{
-	if (RecoilAnimCurvePitch)
-	{
-		float RecoilPitch = RecoilAnimCurvePitch->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
-		if (CanAimTheGun == 1) RecoilPitch /= DividerOfRecoilWhileAiming;
-
-		FRotator GunMeshRotation = BaseSkeletalMesh->GetRelativeRotation();
-		GunMeshRotation.Pitch = RecoilPitch * MultiplierOfRecoilCurvePitch;
-
-		BaseSkeletalMesh->SetRelativeRotation(GunMeshRotation);
-	}
-
-	if (RecoilAnimCurveScale)
-	{
-		float RecoilScale = RecoilAnimCurveScale->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
-		BaseSkeletalMesh->SetRelativeScale3D(FVector(RecoilScale));
-	}
-
-	if (CanAimTheGun == 1)
-	{
-		RecoilDirection /= DividerOfRecoilWhileAiming;
-	}
-	
-	FVector GunMeshLocation = BaseSkeletalMesh->GetRelativeLocation();
-	GunMeshLocation.X = GunMeshLocation.X - RecoilDirection;
-
-	BaseSkeletalMesh->SetRelativeLocation(GunMeshLocation);
-}
-
-void AGun::RecoilAnimTimelineFinishedCallback()
-{
-	bCanShoot = true;
-	bCanSway = true;
-	if (CanAimTheGun != 1) bCanDropTheGun = true;
-	if (bConstantlyShoot)
-	{
-		//I need to use a timer to prevent an error that causes the bullet to appear in a different location than the Bullet Socket.
-		GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGun::Shoot, 0.001f);
-	}
-}
-
-void AGun::RecoilCameraTimelineCallback(float ControlRotationY)
-{
-	PC->AddYawInput(ControlRotationY);
 }
 
 UTimelineComponent* AGun::SetupTimeline(UTimelineComponent* TimeLineComp, UCurveFloat* MostImportantCurve, FName TimeLineName, FName TimeLineDirection, float TimeLineLength,
@@ -251,246 +508,5 @@ void AGun::Playtimeline(UTimelineComponent* TimeLineComp)
 	if (TimeLineComp)
 	{
 		TimeLineComp->PlayFromStart();
-	}
-}
-
-void AGun::SetCameraRecoil()
-{
-	if (bCanRecoilCamera == true) return;
-	
-	bCanRecoilCamera = true;
-	InitialCameraRotation = PC->GetControlRotation();
-
-	if (bShouldUseCurveRecoil) Playtimeline(RecoilCameraTimeline); //Use Curve Recoil for Camera moving
-	else if ((PitchRecoilRangeArray.Num() == 2 && YawRecoilRangeArray.Num() == 2))
-	{
-		RandomRecoilYaw = FMath::FRandRange(YawRecoilRangeArray[0], YawRecoilRangeArray[1]);
-		RandomRecoilPitch = FMath::FRandRange(PitchRecoilRangeArray[0], PitchRecoilRangeArray[1]);
-		if (CanAimTheGun == 1)
-		{
-			RandomRecoilYaw /= DividerOfRecoilWhileAiming;
-			RandomRecoilPitch /= DividerOfRecoilWhileAiming;
-		}
-	}
-}
-
-void AGun::UpRecoilCamera(float Delta)
-{
-	if (bCanRecoilCamera == false) return;
-	
-	if (bShouldUseCurveRecoil)
-	{
-		float ControlRotationPitch = (DistanceFromStart * 0.375) * TimeRecoilCameraElapsed / ((CopyOfMagazineCapacity * RecoilAnimTimelineLength) + 0.2f);
-		PC->AddPitchInput(-ControlRotationPitch);
-	}
-	else
-	{
-		float ControlRotationPitch = RandomRecoilPitch * TimeRecoilCameraElapsed / RecoilAnimTimelineLength;
-		float ControlRotationYaw = RandomRecoilYaw * TimeRecoilCameraElapsed / RecoilAnimTimelineLength;
-		
-		PC->AddYawInput(ControlRotationYaw);
-		PC->AddPitchInput(-ControlRotationPitch);
-
-		RandomRecoilTimeElapsed += Delta;
-		if (RandomRecoilTimeElapsed >= 0.07f)
-		{
-			ShootReleased();	
-		}
-	}
-	TimeRecoilCameraElapsed = Delta;
-
-}
-
-void AGun::BackCameraToItsInitialRotation()
-{
-	FRotator CurrentControlRotation = PC->GetControlRotation();
-
-	//Calculating Distance between two pitches
-	float DistanceBetweenPitch;
-	DistanceBetweenPitch = FMath::Abs((InitialCameraRotation.Pitch - CurrentControlRotation.Pitch));
-	if ((InitialCameraRotation.Pitch < 100.f && CurrentControlRotation.Pitch >= 100.f) || (CurrentControlRotation.Pitch < 100.f && InitialCameraRotation.Pitch >= 100.f))
-	{
-		DistanceBetweenPitch = 360.f - DistanceBetweenPitch;
-	}
-
-	if (bShouldUseCurveRecoil)
-	{
-		//Oblicza dystans miedzy dwoma FRotator #include "Kismet/KismetMathLibrary.h"
-		UKismetMathLibrary::NormalizedDeltaRotator(PC->GetControlRotation(), InitialCameraRotation);
-		//If distance is too big then camera doesnt go back to its inital rotation
-		float DistanceBetweenYaw = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PC->GetControlRotation(), InitialCameraRotation).Yaw);
-		if (DistanceBetweenYaw > 10.f)
-		{
-			InitialCameraRotation.Yaw = PC->GetControlRotation().Yaw;
-		}
-		if (DistanceBetweenPitch > DistanceFromStart)
-		{
-			InitialCameraRotation = PC->GetControlRotation();
-			InitialCameraRotation.Pitch -= DistanceFromStart;
-		}
-	}
-	else if (PitchRecoilRangeArray.Num() == 2)
-	{
-		if (DistanceBetweenPitch > PitchRecoilRangeArray[1])
-		{
-			InitialCameraRotation = PC->GetControlRotation();
-			InitialCameraRotation.Pitch -= PitchRecoilRangeArray[1];
-		}
-	}
-
-	bShouldInterpBack = true;
-}
-
-void AGun::InterpBackToInitialPosition(float Delta)
-{
-	if (!MarinePawn) return;
-	
-	if (bShouldInterpBack == false) return;
-
-	if (PC->MouseXValue > 0.05f || PC->MouseXValue < -0.05f || PC->MouseYValue > 0.05f || PC->MouseYValue < -0.05f)
-	{
-		bShouldInterpBack = false;
-		return;
-	}
-
-	if (PC->GetControlRotation().Equals(InitialCameraRotation, 0.2f))
-	{
-		bShouldInterpBack = false;
-		return;
-	}
-
-	FRotator NewRotation = UKismetMathLibrary::RInterpTo(PC->GetControlRotation(), InitialCameraRotation, Delta, InitalCameraPositionSpeed);
-
-	PC->SetControlRotation(NewRotation);
-}
-
-void AGun::SpawnBullet()
-{
-	//Proper Location and Rotation for Bullet
-	FVector Location = BaseSkeletalMesh->GetSocketLocation(TEXT("Bullet"));
-	BulletRotation = GetActorRotation();
-
-	//Bullet will randomly "go" to other directions 
-	if (PitchBulletRecoilArray.Num() == 2 && YawBulletRecoilArray.Num() == 2)
-	{
-		float NewPitchRotaton = FMath::FRandRange(PitchBulletRecoilArray[0], PitchBulletRecoilArray[1]);
-		float NewYawRotation = FMath::FRandRange(YawBulletRecoilArray[0], YawBulletRecoilArray[1]);
-		BulletRotation.Pitch += NewPitchRotaton;
-		BulletRotation.Yaw += NewYawRotation;
-	}
-
-	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, Location, BulletRotation);
-
-	SpawnedBullet->SetDamage(Damage);
-	SpawnedBullet->SetAmmoSpeed(AmmoSpeed);
-	SpawnedBullet->SetAmmoDistance(AmmoDistance);
-	SpawnedBullet->SetAmmoFallingDown(AmmoFallingDown);
-	SpawnedBullet->SetAmmoImpulseForce(AmmoImpulseForce);
-	SpawnedBullet->ImpulseOnBullet();
-}
-
-void AGun::AddEffectsToShooting()
-{
-	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, BaseSkeletalMesh, NAME_None);
-	if (ShootParticle) UGameplayStatics::SpawnEmitterAttached(ShootParticle, BaseSkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
-	if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
-
-	if (DropBulletClass)
-	{
-		AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), GetActorRotation());
-		DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, TEXT("BulletDrop"));
-	}
-}
-
-void AGun::StopCameraRecoil()
-{
-	GetWorldTimerManager().ClearTimer(ShootTimerHandle);
-	bCanRecoilCamera = false;
-	TimeRecoilCameraElapsed = 0.f;
-	RandomRecoilTimeElapsed = 0.f;
-	bConstantlyShoot = false;
-	if (bShouldUseCurveRecoil) RecoilCameraTimeline->Stop();
-}
-
-
-void AGun::GunSway(float Delta)
-{
-	if (MarinePawn == nullptr || bCanGunSwayTick == false || bCanSway == false || CanAimTheGun == 1) return;
-
-	float LookUp = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetInputAxisValue("LookUp");
-	float LookRight = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetInputAxisValue("LookRight");
-	float Forward = MarinePawn->GetInputAxisValue("Forward");
-	float Right = MarinePawn->GetInputAxisValue("Right");
-	
-	float InterpLookUp = FMath::FInterpTo(GunRotationSway.Pitch, UKismetMathLibrary::MapRangeClamped(LookUp, -1, 1, RotationSwayPitchRangeBack, RotationSwayPitchRangeUp), Delta, SpeedOfSwayPitch);
-	float InterpLookRight = FMath::FInterpTo(GunRotationSway.Yaw, UKismetMathLibrary::MapRangeClamped(LookRight, -1, 1, RotationSwayYawRangeBack, RotationSwayYawRangeUp), Delta, SpeedOfSwayYaw);
-
-	FVector GunLocationInterp = BaseSkeletalMesh->GetRelativeLocation(); 
-	float InterpForward = FMath::InterpEaseInOut(GunLocationInterp.X, UKismetMathLibrary::MapRangeClamped(Forward, 1, -1, RelativeLocationInPawn.X + LocationSwayXRangeBack, 
-		RelativeLocationInPawn.X + LocationSwayXRangeUp), (Delta * SpeedOfSwayX), 1.f);
-	float InterpRight = FMath::InterpEaseInOut(GunLocationInterp.Y, UKismetMathLibrary::MapRangeClamped(Right, -1, 1, RelativeLocationInPawn.Y + LocationSwayYRangeBack,
-		RelativeLocationInPawn.Y + LocationSwayYRangeUp), (Delta * SpeedOfSwayY), 1.f);
-
-	GunRotationSway = FRotator(InterpLookUp, InterpLookRight, 0.f);
-	GunLocationInterp = FVector(InterpForward, InterpRight, GunLocationInterp.Z);
-
-	BaseSkeletalMesh->SetRelativeLocation(GunLocationInterp);
-	BaseSkeletalMesh->SetRelativeRotation(GunRotationSway);
-
-	if (MarinePawn->GetInputAxisValue("Forward") == 0 && MarinePawn->GetInputAxisValue("Right") == 0)
-	{
-		FVector cos = FMath::VInterpTo(BaseSkeletalMesh->GetRelativeLocation(), RelativeLocationInPawn, Delta, 1.f);
-		BaseSkeletalMesh->SetRelativeLocation(cos);
-	}
-}
-
-void AGun::GunSwayWhileMoving()
-{
-	//Using Lemniscate Of Bernoulli to sway gun while moving 
-	if (bCanSway == false || MarinePawn == nullptr) return;
-	if (MarinePawn->GetInputAxisValue("Forward") == 0 && MarinePawn->GetInputAxisValue("Right") == 0) return;
-
-	float SpeedOfLemniscate = GetWorld()->GetTimeSeconds() * SpeedOfSwayWhileMoving;
-
-	float Angle = 2 / (9.f - FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate * 2)));
-	float LocationY = Angle * FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate)); //SineWave
-	float LocationZ = (FMath::Sin(FMath::DegreesToRadians(SpeedOfLemniscate * 2)) * Angle) / 2; //Angle Offset
-
-	if (CanAimTheGun == 1)
-	{
-		Angle /= 2;
-		LocationY /= 2;
-		LocationZ /= 2;
-	}
-	
-	FVector GunLemniscateLocation = BaseSkeletalMesh->GetRelativeLocation();
-	GunLemniscateLocation.Y += (LocationY * MultiplierOfLocationYSwayWhileMoving);
-	GunLemniscateLocation.Z += (LocationZ * MultiplierOfLocationZSwayWhileMoving);
-
-	BaseSkeletalMesh->SetRelativeLocation(GunLemniscateLocation);
-	
-}
-
-void AGun::AimTheGun(float Delta)
-{
-	if (CanAimTheGun == 0) return;
-
-	FVector Location = BaseSkeletalMesh->GetRelativeLocation();
-	FRotator Rotation = BaseSkeletalMesh->GetRelativeRotation();
-	if (CanAimTheGun == 1)
-	{
-		BaseSkeletalMesh->SetRelativeLocation(FMath::Lerp(Location, RelativeLocationInPawnWhileAiming, Delta * SpeedOfAiming));
-		BaseSkeletalMesh->SetRelativeRotation(FMath::RInterpTo(Rotation, RelativeRotationInPawn, Delta, SpeedOfAiming));
-		bCanDropTheGun = false;
-	}
-	else
-	{
-		BaseSkeletalMesh->SetRelativeLocation(FMath::Lerp(Location, RelativeLocationInPawn, Delta * SpeedOfAimingBack));
-		bool bIsLerpEnded = BaseSkeletalMesh->GetRelativeLocation().Equals(RelativeLocationInPawn, 1.5f);
-		if (bIsLerpEnded)
-		{
-			bCanDropTheGun = true;
-			CanAimTheGun = 0;
-		}
 	}
 }

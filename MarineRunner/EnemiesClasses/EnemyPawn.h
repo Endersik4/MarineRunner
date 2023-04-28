@@ -127,6 +127,8 @@ private:
 	//SOUNDS
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		class USoundBase* ShootingSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		class USoundAttenuation* ShootingAttenuation;
 
 	//Particles
 	UPROPERTY(EditDefaultsOnly, Category = "Particles")

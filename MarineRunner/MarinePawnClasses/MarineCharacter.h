@@ -50,6 +50,7 @@ public:
 	bool GetIsGoingUp() const { return bIsGoingUp; }
 	bool GetIsInAir() const { return bIsInAir; }
 	bool GetShouldAddCounterMovement() const { return bShouldAddCounterMovement; }
+	bool GetIsPlayerADS() const { return bIsPlayerADS; }
 	class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
 	class UCameraComponent* GetCamera() const { return Camera; }
@@ -105,6 +106,8 @@ private:
 	//Prevent from Sliding on the ground like Fish
 	UPROPERTY(EditAnywhere, Category = "Movement")
 		float CounterMovementForce = 2000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+		float DividerOfMovementWhenADS = 1.4f;
 
 	//InitialJumpForce is lerping to -50.f and then applied to Velocity Z
 	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
@@ -178,8 +181,9 @@ private:
 	class AGun* Gun;
 
 	//Aiming
-	void AimPressed();
-	void AimReleased();
+	void ADSPressed();
+	void ADSReleased();
+	bool bIsPlayerADS;
 
 	//Weapon Inventory
 	void FirstWeapon();

@@ -26,11 +26,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Components", BlueprintReadWrite)
 		class UStaticMeshComponent* BulletMesh;
 
-	void SetDamage(float NewDamage) { Damage = NewDamage; }
-	void SetAmmoSpeed(float NewAmmoSpeed) { AmmoSpeed = NewAmmoSpeed; }
-	void SetAmmoDistance(float NewAmmoDistance) { AmmoDistance = NewAmmoDistance; }
-	void SetAmmoFallingDown(float NewAmmoFallingDown) { AmmoFallingDown = NewAmmoFallingDown; }
-	void SetAmmoImpulseForce(float NewAmmoImpulseForce) { AmmoImpulseForce = NewAmmoImpulseForce; }
+	void SetBulletVariables(float NewDamage, float NewAmmoSpeed, float NewAmmoDistance, float NewAmmoFallingDown, float NewAmmoImpulseForce);
 
 	void ImpulseOnBullet();
 

@@ -48,7 +48,7 @@ void UWallrunComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 void UWallrunComponent::Wallrunning()
 {
 	//Checking if Pawn Can do wallrun
-	if (!ShouldDoWallrun()) return;
+	if (CanDoWallrun() == false) return;
 
 	int32 Side; //On which side the obstacle is, -1 = left, 1 = right
 	FVector HitNormal; //Hit.ImpactNormal Vector from HitResult of Obstacle
@@ -133,7 +133,7 @@ bool UWallrunComponent::IsPawnNextToObstacle(int32& WhichSide, FVector& HitNorma
 	return false;
 }
 
-bool UWallrunComponent::ShouldDoWallrun()
+bool UWallrunComponent::CanDoWallrun()
 {
 	if (WallrunTimeElapsed < 0.2f) //Wait a little bit before the next wallrun
 	{

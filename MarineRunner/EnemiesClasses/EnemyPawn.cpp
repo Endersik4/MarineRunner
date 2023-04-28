@@ -69,7 +69,7 @@ void AEnemyPawn::Shoot()
 		return;
 	}
 
-	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, EnemySkeletalMesh, NAME_None);
+	if (ShootingSound) 	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ShootingSound, EnemySkeletalMesh->GetSocketLocation("MuzzleFlash"), FRotator::ZeroRotator, 1.f, 1.f, 0.f, ShootingAttenuation);
 	if (ShootParticle)
 	{
 		UGameplayStatics::SpawnEmitterAttached(ShootParticle, EnemySkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
@@ -143,11 +143,7 @@ void AEnemyPawn::SpawnBullet()
 	FRotator BulletRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(TEXT("Koncowka_Drugiego_Palca_R")), CameraLocation);
 	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, EnemySkeletalMesh->GetSocketLocation(TEXT("Bullet")), BulletRotation);
 	
-	SpawnedBullet->SetDamage(Damage);
-	SpawnedBullet->SetAmmoSpeed(AmmoSpeed);
-	SpawnedBullet->SetAmmoDistance(AmmoDistance);
-	SpawnedBullet->SetAmmoFallingDown(AmmoFallingDown);
-	SpawnedBullet->SetAmmoImpulseForce(AmmoImpulseForce);
+	SpawnedBullet->SetBulletVariables(Damage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
 	SpawnedBullet->ImpulseOnBullet();
 }
 

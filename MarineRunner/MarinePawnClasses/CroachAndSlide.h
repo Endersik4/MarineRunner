@@ -35,6 +35,8 @@ public:
 	
 private:
 
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+		float DividerOfCroachForceWhenADS = 1.4f;
 	//Speed of croaching
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
 		float CroachForceSpeed = 1500.f;
@@ -64,6 +66,8 @@ private:
 
 	void Sliding(float Delta);
 	bool bShouldSlide;
+
+	float VignetteIntensityValue = 1.2f;
 
 	void CroachLerp(float Delta);
 	bool bCanCroachLerp;
