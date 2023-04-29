@@ -61,7 +61,6 @@ void AGun::Shoot()
 		return;
 	}
 
-
 	if (MagazineCapacity <= 0)
 	{
 		if (EmptyMagazineSound) UGameplayStatics::SpawnSoundAttached(EmptyMagazineSound, BaseSkeletalMesh, NAME_None);
@@ -100,7 +99,11 @@ void AGun::AddEffectsToShooting()
 
 	if (DropBulletClass)
 	{
-		AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), GetActorRotation());
+		FRotator DropBulletRotation = GetActorRotation();
+		DropBulletRotation.Yaw -= FMath::FRandRange(-10.f, 40.f);
+		DropBulletRotation.Roll += FMath::FRandRange(-10.f, 10.f);
+		DropBulletRotation.Pitch += FMath::FRandRange(-15.f, 15.f);
+		AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), DropBulletRotation);
 		DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, TEXT("BulletDrop"));
 	}
 }
@@ -125,10 +128,10 @@ void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
 		BaseSkeletalMesh->SetRelativeScale3D(FVector(RecoilScale));
 	}
 
-	if (RecoilCameraRandomRotation)
+	if (RecoilCameraCurveRandomRotation)
 	{
-		float ControlRotationPitch = RandomRecoilPitch * RecoilCameraRandomRotation->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
-		float ControlRotationYaw = RandomRecoilYaw * RecoilCameraRandomRotation->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
+		float ControlRotationPitch = RandomRecoilPitch * RecoilCameraCurveRandomRotation->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
+		float ControlRotationYaw = RandomRecoilYaw * RecoilCameraCurveRandomRotation->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
 		PC->AddYawInput(ControlRotationYaw);
 		PC->AddPitchInput(-ControlRotationPitch);
 	}
@@ -160,6 +163,8 @@ void AGun::RecoilAnimTimelineFinishedCallback()
 
 void AGun::RecoilCameraTimelineCallback(float ControlRotationY)
 {
+	//Randomize recoil a bit
+	ControlRotationY += RandomValueForCameraYRecoil;
 	PC->AddYawInput(ControlRotationY);
 }
 
@@ -172,6 +177,8 @@ void AGun::SetCameraRecoil()
 	if (bShouldUseCurveRecoil)
 	{
 		Playtimeline(RecoilCameraTimeline); //Use Curve Recoil for Camera moving
+
+		if (RandomRangeFromRecoilCurveY.Num() == 2) RandomValueForCameraYRecoil = FMath::FRandRange(RandomRangeFromRecoilCurveY[0], RandomRangeFromRecoilCurveY[1]);
 		bCanRecoilCamera = true;
 	}
 	else if ((PitchRecoilRangeArray.Num() == 2 && YawRecoilRangeArray.Num() == 2))

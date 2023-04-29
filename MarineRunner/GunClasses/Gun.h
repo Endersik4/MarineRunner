@@ -156,6 +156,10 @@ private:
 	//Curve that is responisble for Yaw Camera Recoil (left, right)
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
 		UCurveFloat* RecoilCameraCurveY;
+	//Takes Value from RecoilCameraCurveY and randomize it with value from TArray<>. First Number in TArray is The Min and Second is The Max.
+	//If TArray<> has more then 2 values then Value will not be randomize
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
+		TArray<float> RandomRangeFromRecoilCurveY = {-0.2f, 0.2f};
 	//Should wait to execute Recoil timelines. When you want to play a little bit of animation and then add recoil for the camera and the gun
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil")
 		bool bShouldWaitToPlayRecoil;
@@ -166,7 +170,7 @@ private:
 	//The curve responsible for how quickly the screen reaches PitchRecoilRandomNumber and YawRecoilRandomNumber and returns to its rotation. 
 	//It was added for smoothness. It should have a length like the one in Animation|Setting Up Animation Recoil in RecoilAnimTimelineLength 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Random Pitch and Yaw recoil", meta = (EditCondition = "!bShouldUseCurveRecoil", EditConditionHides))
-		UCurveFloat* RecoilCameraRandomRotation;
+		UCurveFloat* RecoilCameraCurveRandomRotation;
 	//Range for random Pitch number. 0 index has to be MinNumber and 1 index has to be MaxNumber
 	//0 and 1 is only for positive side (UP)
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Random Pitch and Yaw recoil", meta = (EditCondition = "!bShouldUseCurveRecoil", EditConditionHides))
@@ -294,6 +298,7 @@ private:
 	float RandomRecoilYaw;
 	float RandomRecoilPitch;
 	float TimeRecoilCameraElapsed;
+	float RandomValueForCameraYRecoil;
 	FRotator InitialCameraRotation;
 	FTimerHandle ShootTimerHandle;
 	void SetCameraRecoil();
