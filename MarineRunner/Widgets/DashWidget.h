@@ -7,7 +7,7 @@
 #include "DashWidget.generated.h"
 
 /**
- * 
+ *  Dash Effects
  */
 UCLASS()
 class MARINERUNNER_API UDashWidget : public UUserWidget
@@ -19,15 +19,12 @@ public:
 		class UImage* DashImage;
 
 	void SetFadeTime(float NewTime) { FadeTime = NewTime; }
-	void ShouldAddChangingFov(bool bWant) { bShouldAddFov = bWant; }
+	void ShouldAddChromaticAbberation(bool bShould) { bShouldAddChromaticAbberation = bShould; }
+	void ShouldAddChangingFov(bool bShould) { bShouldAddFov = bShould; }
 
 protected:
 	virtual void NativeConstruct() override; //konstruktor
 	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override; //Tick
-	//UPROPERTY(BlueprintReadWrite, meta = (BindWidget)) //Dodawanie zmiennych
-	//	class UImage* DashImage; //Aby to zadzialalo w widget blueprint trzeba 
-	//Stworzyc UUserWidget na podstawie TEJ Klasy i pozniej dodac Image i 
-	//nazwac tak samo jak tutaj a pozniej prawy klawisz myszki wrap->Canvas Panel
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
@@ -40,10 +37,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
 		float StartingOffsetCA = 0.7f;
 
-	bool bShouldAddFov;
+	bool bShouldAddFov = true;
+	bool bShouldAddChromaticAbberation = true;
 	float Fov;
 	float FadeTimeElapsed;
-	void FadingImage(float Delta);
+	void FadingImage();
 
 	void SetMarinePawn();	
 	class UCameraComponent* MarineCamera;

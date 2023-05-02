@@ -67,20 +67,20 @@ void UCroachAndSlide::Sliding(float Delta)
 void UCroachAndSlide::CroachPressed()
 {
 	Force = CroachForceSpeed;
-	//GetOwner()->SetActorScale3D(FVector(2,2, 1.5));
 	ScaleZ = 1.5f;
 	VignetteIntensityValue = 1.2f;
 
 	bCanCroachLerp = true;
 	if (MarinePawn->GetIsGoingUp() == false)
 	{
-		if (MarinePawn->GetInputAxisValue(TEXT("Forward")) != 0 || MarinePawn->GetInputAxisValue(TEXT("Right")) != 0)
+		if (MarinePawn->GetInputAxisValue(TEXT("Forward")) == 1.f || MarinePawn->GetInputAxisValue(TEXT("Right")) != 0)
 		{
 			if (MarinePawn->GetIsJumping()) return;
 			Force = CopyForce + InitialVelocityOfSliding;
 			bShouldSlide = true;
 		}
 	}
+
 	MarinePawn->SetForce(Force);
 }
 
@@ -90,7 +90,7 @@ void UCroachAndSlide::CroachLerp(float Delta)
 
 	float NewVignetteIntensity = FMath::Lerp(MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity, VignetteIntensityValue, Delta * SpeedOfCroachLerp);
 	MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
-
+	
 	float NewScaleZ = FMath::Lerp(GetOwner()->GetActorScale3D().Z, ScaleZ, Delta * SpeedOfCroachLerp);
 	GetOwner()->SetActorScale3D(FVector(2, 2, NewScaleZ));
 	if (GetOwner()->GetActorScale3D().Equals(FVector(2, 2, ScaleZ), 0.01))

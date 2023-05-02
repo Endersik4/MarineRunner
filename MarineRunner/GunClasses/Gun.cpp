@@ -25,7 +25,6 @@ AGun::AGun()
 	BaseSkeletalMesh->SetCollisionProfileName(TEXT("GunCollision"));
 
 	Tags.Add(TEXT("Gun"));
-
 }
 
 // Called when the game starts or when spawned
@@ -87,6 +86,7 @@ void AGun::ShootReleased()
 {
 	if (bCanRecoilCamera == false) return;
 
+	GetWorldTimerManager().SetTimer(FirstBulletHandle, this, &AGun::ShouldFirstBulletGoStraight, FirstBulletWithoutRecoilTime, false);
 	ResetVariablesForCameraRecoil();
 	if (bShouldUseCurveRecoil) BackCameraToItsInitialRotation();
 }
@@ -267,7 +267,7 @@ void AGun::SpawnBullet()
 	BulletRotation = GetActorRotation();
 
 	//Bullet will randomly "go" to other directions 
-	if (PitchBulletRecoilArray.Num() == 2 && YawBulletRecoilArray.Num() == 2)
+	if (PitchBulletRecoilArray.Num() == 2 && YawBulletRecoilArray.Num() == 2 && (bIsAutomatic == false ||bFirstBulletWithoutRecoil == false))
 	{
 		float NewPitchRotaton = FMath::FRandRange(PitchBulletRecoilArray[0], PitchBulletRecoilArray[1]);
 		float NewYawRotation = FMath::FRandRange(YawBulletRecoilArray[0], YawBulletRecoilArray[1]);
@@ -279,6 +279,8 @@ void AGun::SpawnBullet()
 		BulletRotation.Pitch += NewPitchRotaton;
 		BulletRotation.Yaw += NewYawRotation;
 	}
+	else UE_LOG(LogTemp, Error, TEXT("NO RECOIL"));
+	bFirstBulletWithoutRecoil = false;
 
 	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, Location, BulletRotation);
 
@@ -487,23 +489,20 @@ UTimelineComponent* AGun::SetupTimeline(UTimelineComponent* TimeLineComp, UCurve
 	FOnTimelineFloat onTimelineCallback;
 	FOnTimelineEventStatic onTimelineFinishedCallback;
 
-	TimeLineComp = NewObject<UTimelineComponent>(this, TimeLineName); //Tworzenie obiektu, cos jak CreateDefaultSubobject
+	TimeLineComp = NewObject<UTimelineComponent>(this, TimeLineName); 
 	TimeLineComp->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-	this->BlueprintCreatedComponents.Add(TimeLineComp); //Dodanie obiektu do Array aby ten sie zapisal
+	this->BlueprintCreatedComponents.Add(TimeLineComp); 
 
-	TimeLineComp->SetPropertySetObject(this); //ustawienie obiektu na ktorym timeline ma sterowac wlasciwosciami
-	TimeLineComp->SetDirectionPropertyName(TimeLineDirection); //Ustawienie zmiennej RecoilTimelineDirection do Timeline
+	TimeLineComp->SetPropertySetObject(this); 
+	TimeLineComp->SetDirectionPropertyName(TimeLineDirection); 
 
-	TimeLineComp->SetLooping(false); //Czy petla
-	TimeLineComp->SetTimelineLength(TimeLineLength); //UStawienie dlugosci Timeline'u
-	TimeLineComp->SetTimelineLengthMode(ETimelineLengthMode::TL_TimelineLength); //Kiedy ma sie petla skonczyc czy po danym czasie 
-	//czy Po ostatnim keyframe ETimelineLengthMode::TL_LastKeyFrame
+	TimeLineComp->SetLooping(false);
+	TimeLineComp->SetTimelineLength(TimeLineLength); 
+	TimeLineComp->SetTimelineLengthMode(ETimelineLengthMode::TL_TimelineLength); 
 
-	onTimelineCallback.BindUFunction(this, TimelineCallbackFunction); //Bindowanie funkcji ktora ma sie odapalc za kazdym 
-	//razem gdy wartosc w Curve sei zmieni
-	onTimelineFinishedCallback.BindUFunction(this, TimelineFinishedFunction); //To samo co wyzej tylko ze jak sie 
-	//Timeline skonczy
-	TimeLineComp->AddInterpFloat(MostImportantCurve, onTimelineCallback); //Wartosc tej krzywej bedzie zapisana w tej funkcji Callback
+	onTimelineCallback.BindUFunction(this, TimelineCallbackFunction); 
+	onTimelineFinishedCallback.BindUFunction(this, TimelineFinishedFunction); 
+	TimeLineComp->AddInterpFloat(MostImportantCurve, onTimelineCallback); 
 	TimeLineComp->SetTimelineFinishedFunc(onTimelineFinishedCallback);
 
 	TimeLineComp->RegisterComponent();

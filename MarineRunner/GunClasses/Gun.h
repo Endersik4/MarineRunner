@@ -150,6 +150,8 @@ private:
 	//Distance that Camera is going to rotate in pitch when shooting full magazine. 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
 		float DistanceFromStart = 40.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
+		float FirstBulletWithoutRecoilTime = 1.f;
 	//How long timeline need to least. It has to be the same like is in RecoilCameraCurveY
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
 		float RecoilCameraTimelineLength = 3.2f;
@@ -279,6 +281,9 @@ private:
 	bool bCanGunSwayTick = false;
 	bool bCanDropTheGun = true;
 
+	bool bFirstBulletWithoutRecoil = true;
+	void ShouldFirstBulletGoStraight() { bFirstBulletWithoutRecoil = true; }
+	FTimerHandle FirstBulletHandle;
 	void SpawnBullet();
 	void AddEffectsToShooting();
 

@@ -5,6 +5,7 @@
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
@@ -26,7 +27,8 @@ void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);
 
-	FadeGotDamageImage(DeltaTime);
+	FadeGotDamageImage();
+	WhichElementShouldProgress();
 }
 
 void UHUDWidget::SetHealthPercent()
@@ -35,6 +37,17 @@ void UHUDWidget::SetHealthPercent()
 
 	float Health = MarinePawn->GetHealth() / 100.f;
 	HealthBar->SetPercent(Health);
+}
+
+void UHUDWidget::SetCurrentNumberOfFirstAidKits()
+{
+	int32 CurrentNumber = MarinePawn->GetFirstAidKits();
+	FString CurrentNumberString = FString::FromInt(CurrentNumber);
+	if (CurrentNumber < 10)
+	{
+		CurrentNumberString = "0" + FString::FromInt(CurrentNumber);
+	}
+	CurrentNumbersOfFirstAidKit->SetText(FText::FromString(CurrentNumberString));
 }
 
 void UHUDWidget::SetAmmoText(int32 Ammo, bool bSetStoredAmmo)
@@ -77,7 +90,7 @@ void UHUDWidget::HideWeaponThings(bool bShouldHide)
 	WeaponImage->SetRenderOpacity(RenderOpacityValue);
 }
 
-void UHUDWidget::FadeGotDamageImage(float Delta)
+void UHUDWidget::FadeGotDamageImage()
 {
 	if (!bGotDamage) return;
 
@@ -86,8 +99,46 @@ void UHUDWidget::FadeGotDamageImage(float Delta)
 		float Opacity = FMath::Lerp(1.f, 0, FadeTimeElapsed / FadeTime);
 
 		GotDamageImage->SetRenderOpacity(Opacity);
-		FadeTimeElapsed += Delta;
+		FadeTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 	}
+}
+
+void UHUDWidget::WhichElementShouldProgress()
+{
+	if (bShouldProgress == false) return;
+
+	ProgressBarForUseableElements(HealBar, EUseableElement::Heal);
+	ProgressBarForUseableElements(DashBar, EUseableElement::Dash);
+	ProgressBarForUseableElements(SlowMoBar, EUseableElement::SlowMo);
+	ProgressBarForUseableElements(Button_HealBar, EUseableElement::Button_Heal);
+	ProgressBarForUseableElements(Button_DashBar, EUseableElement::Button_Dash);
+	ProgressBarForUseableElements(Button_SlowMoBar, EUseableElement::Button_SlowMo);
+}
+
+void UHUDWidget::ProgressBarForUseableElements(UProgressBar* ProgressBarElement, EUseableElement Element)
+{
+	if (!WhichElementToProgress.Contains(Element)) return;
+
+	if (WhichElementToProgress[Element].ProgressTimeElapsed <= WhichElementToProgress[Element].MaxToZeroTime)
+	{
+		float NewPercent = FMath::Lerp(1.f, 0.f, WhichElementToProgress[Element].ProgressTimeElapsed / WhichElementToProgress[Element].MaxToZeroTime);
+
+		ProgressBarElement->SetPercent(NewPercent);
+		WhichElementToProgress[Element].ProgressTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+		return;
+	}
+	else
+	{
+		ProgressBarElement->SetPercent(0.f);
+		WhichElementToProgress.Remove(Element);
+		if (WhichElementToProgress.Num() <= 0) bShouldProgress = false;
+	}
+}
+
+void UHUDWidget::AddElementToProgress(EUseableElement Element, ElementBar ElementProgressBar)
+{
+	WhichElementToProgress.Add(Element, ElementProgressBar);
+	bShouldProgress = true;
 }
 
 void UHUDWidget::SetUpMarinePawn()
@@ -95,4 +146,5 @@ void UHUDWidget::SetUpMarinePawn()
 	MarinePawn = Cast<AMarineCharacter>(GetOwningPlayerPawn());
 
 	SetHealthPercent();
+	SetCurrentNumberOfFirstAidKits();
 }

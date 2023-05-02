@@ -28,7 +28,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void TurnOnSlowMotion() { SlowMotionPressed(); };
-	bool GetIsInSlowMotion() const { return !bCanSlowMotion; }
+	bool GetIsInSlowMotion() const { return bIsInSlowMotion; }
 
 private:
 	//Speed of SlowMotion
@@ -42,7 +42,7 @@ private:
 		float SlowMotionDelay = 0.2f;
 
 	bool bCanSlowMotion = true;
-	bool bShouldVelocityBeHigher;
+	bool bIsInSlowMotion = false;
 	FTimerHandle SlowMotionTimeHandle;
 	FTimerHandle SlowMotionDelayHandle;
 	void SlowMotionPressed();

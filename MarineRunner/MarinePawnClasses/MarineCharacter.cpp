@@ -86,6 +86,8 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Action"), IE_Released, this, &AMarineCharacter::ReleasedShoot);
 	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, this, &AMarineCharacter::Reload);
 
+	PlayerInputComponent->BindAction(TEXT("FirstAidKit"), IE_Pressed, this, &AMarineCharacter::UseFirstAidKit);
+
 	//Aiming
 	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Pressed, this, &AMarineCharacter::ADSPressed);
 	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Released, this, &AMarineCharacter::ADSReleased);
@@ -109,6 +111,22 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Swing"), IE_Pressed, this, &AMarineCharacter::SwingPressed);
 	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, this, &AMarineCharacter::SlowMotionPressed);
 	
+}
+
+void AMarineCharacter::UseFirstAidKit()
+{
+	if (FirstAidKits <= 0) return;
+
+	FirstAidKits--;
+	Health += FirstAidKitHealth;
+	if (Health > 100.f) Health = 100.f;
+
+	HudWidget->SetHealthPercent();
+	HudWidget->SetCurrentNumberOfFirstAidKits();
+
+	ElementBar ProgressHealBar{ DelayAfterUseFirstAidKit }, ProgressHealButtonBar{ 0.3f };
+	HudWidget->AddElementToProgress(EUseableElement::Heal, ProgressHealBar);
+	HudWidget->AddElementToProgress(EUseableElement::Button_Heal, ProgressHealButtonBar);
 }
 
 void AMarineCharacter::ADSPressed()
@@ -587,7 +605,7 @@ void AMarineCharacter::GotDamage(float Damage)
 	HudWidget->SetGotDamage(true);
 }
 
-void AMarineCharacter::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov)
+void AMarineCharacter::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov, bool bAddChromaticAbberation)
 {
 	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (DashClass)
@@ -597,6 +615,7 @@ void AMarineCharacter::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAd
 			DashWidget = Cast<UDashWidget>(CreateWidget(MarineController, DashClass));
 			DashWidget->SetFadeTime(FadeTime);
 			DashWidget->ShouldAddChangingFov(bAddFov);
+			DashWidget->ShouldAddChromaticAbberation(bAddChromaticAbberation);
 			DashWidget->AddToViewport();
 		}	
 	}

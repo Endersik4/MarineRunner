@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/Widgets/HUDWidget.h"
 
 // Sets default values for this component's properties
 USlowMotionComponent::USlowMotionComponent()
@@ -49,7 +50,7 @@ void USlowMotionComponent::SlowMotionPressed()
 void USlowMotionComponent::SettingUpSlowMotion()
 {
 	bCanSlowMotion = false;
-	bShouldVelocityBeHigher = true;
+	bIsInSlowMotion = true;
 
 	//If in Marine pawn there is adding a counter movement then disable this and add impulse in direction of what player pressed (forward,right...)
 	//When this happens then Player in Air move like Physics object 
@@ -75,13 +76,16 @@ void USlowMotionComponent::SettingUpSlowMotion()
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowMotionValue);
 	MarinePawn->CustomTimeDilation = 2.5f;
 
-	//DashWidget will be on player viewport for SlowMotionTime + 1.1f seconds
-	MarinePawn->MakeDashWidget(true, SlowMotionValue * (SlowMotionTime + 1.1f) * 2.5f, false); 
+	//DashWidget will be on player viewport for some time (SlowMotionTime)
+	MarinePawn->MakeDashWidget(true, SlowMotionTime, false); 
+	ElementBar SlowMoElementBar{ SlowMotionDelay + 1.7f}, ButtonSlowMoElementBar{ 0.3f };
+	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::SlowMo, SlowMoElementBar);
+	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Button_SlowMo, ButtonSlowMoElementBar);
 }
 
 void USlowMotionComponent::DisableSlowMotion()
 {
-	bShouldVelocityBeHigher = false;
+	bIsInSlowMotion = false;
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
 	MarinePawn->CustomTimeDilation = 1.f;
 
@@ -91,12 +95,13 @@ void USlowMotionComponent::DisableSlowMotion()
 
 void USlowMotionComponent::DelayCompleted()
 {
+	UE_LOG(LogTemp, Warning, TEXT("MOZNA"));
 	bCanSlowMotion = true; 
 }
 
 void USlowMotionComponent::AddingVelocity()
 {
-	if (bShouldVelocityBeHigher == false) return;
+	if (bIsInSlowMotion == false) return;
 
 	FVector Vel = MarinePawn->CapsulePawn->GetPhysicsLinearVelocity();
 	Vel /= 1.1f;

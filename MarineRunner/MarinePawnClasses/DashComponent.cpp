@@ -5,6 +5,7 @@
 #include "TimerManager.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/Widgets/HUDWidget.h"
 
 // Sets default values for this component's properties
 UDashComponent::UDashComponent()
@@ -36,6 +37,7 @@ void UDashComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+
 }
 
 void UDashComponent::Dash()
@@ -52,6 +54,11 @@ void UDashComponent::Dash()
 		bCanDash = false;
 
 		MarinePawn->MakeDashWidget(true, DashWidgetTime);
+
+		ElementBar DashElementBar{ DashCoolDown }, ButtonDashElementBar{0.3f};
+		MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Dash, DashElementBar);
+		MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Button_Dash, ButtonDashElementBar);
+
 		MarinePawn->GetWorldTimerManager().SetTimer(DashLengthHandle, this, &UDashComponent::DashLengthTimer, DashLength, false);
 	}
 }
@@ -59,10 +66,12 @@ void UDashComponent::Dash()
 void UDashComponent::DashLengthTimer()
 {
 	MarinePawn->SetForce(CopyForce);
+	UE_LOG(LogTemp, Warning, TEXT("NIEEE"));
 	MarinePawn->GetWorldTimerManager().SetTimer(DashCooldownHandle, this, &UDashComponent::DashCooldownTimer, DashCoolDown, false);
 }
 
 void UDashComponent::DashCooldownTimer()
 {
+	UE_LOG(LogTemp, Warning, TEXT("MONZA JUZ"));
 	bCanDash = true;
 }

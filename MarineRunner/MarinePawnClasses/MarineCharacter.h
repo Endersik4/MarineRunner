@@ -43,6 +43,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Movement|Jump", BlueprintReadWrite)
 		bool IsOnGround;
 
+	int32 GetFirstAidKits() const { return FirstAidKits; }
 	float GetForce() const { return Force; }
 	float GetHealth() const { return Health; }
 	bool GetIsJumping() const { return bIsJumping; }
@@ -68,7 +69,7 @@ public:
 	void GotDamage(float Damage);
 	void HideGunAndAddTheNewOne(class AGun* NewGun);
 
-	void MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov = true);
+	void MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov = true, bool bAddChromaticAbberation = true);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -99,6 +100,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;
+	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
+		int32 FirstAidKits = 10;
+	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
+		float FirstAidKitHealth = 35.f;
+	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
+		float DelayAfterUseFirstAidKit = 1.f;
 
 	//Aka speed movement
 	UPROPERTY(EditAnywhere, Category = "Movement")
@@ -179,6 +186,9 @@ private:
 	void ReleasedShoot();
 	void Reload();
 	class AGun* Gun;
+
+	//FirstAidKit
+	void UseFirstAidKit();
 
 	//Aiming
 	void ADSPressed();
