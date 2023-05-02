@@ -115,7 +115,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void AMarineCharacter::UseFirstAidKit()
 {
-	if (FirstAidKits <= 0) return;
+	if (FirstAidKits <= 0 || bCanUseFirstAidKit == false) return;
 
 	FirstAidKits--;
 	Health += FirstAidKitHealth;
@@ -123,10 +123,14 @@ void AMarineCharacter::UseFirstAidKit()
 
 	HudWidget->SetHealthPercent();
 	HudWidget->SetCurrentNumberOfFirstAidKits();
+	HudWidget->SetDidPlayerUseFirstAidKit(true);
 
 	ElementBar ProgressHealBar{ DelayAfterUseFirstAidKit }, ProgressHealButtonBar{ 0.3f };
 	HudWidget->AddElementToProgress(EUseableElement::Heal, ProgressHealBar);
 	HudWidget->AddElementToProgress(EUseableElement::Button_Heal, ProgressHealButtonBar);
+
+	bCanUseFirstAidKit = false;
+	GetWorldTimerManager().SetTimer(FirstAidKitHandle, this, &AMarineCharacter::CanUseFirstAidKit, DelayAfterUseFirstAidKit, false);
 }
 
 void AMarineCharacter::ADSPressed()

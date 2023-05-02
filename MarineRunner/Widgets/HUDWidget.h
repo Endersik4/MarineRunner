@@ -45,9 +45,13 @@ public:
 	void SetAmmoText(int32 Ammo, bool bSetStoredAmmo = false);
 	void SetWeaponImage(UTexture2D* Texture);
 	void SetGotDamage(bool bGot);
+	void SetDidPlayerUseFirstAidKit(bool bDid) { bDidPlayerUseFirstAidKit = bDid; }
 	void AddElementToProgress(EUseableElement Element, ElementBar ElementProgressBar);
 
 	void HideWeaponThings(bool bShouldHide);
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UImage* UseFirstAidKidImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* WeaponImage;
@@ -87,11 +91,17 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
-		float FadeTime = 1.5f;
+		float FadeGotDamageTime = 1.5f;
+	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
+		float FadeFirstAidImageTime = 0.8f;
 
 	bool bGotDamage;
-	float FadeTimeElapsed;
+	float FadeGotDamageTimeElapsed;
 	void FadeGotDamageImage();
+
+	bool bDidPlayerUseFirstAidKit;
+	float FadeFirstAidImageTimeElapsed;
+	void FadeFirstAidImage();
 
 	bool bShouldProgress;
 	TMap<EUseableElement, ElementBar> WhichElementToProgress;

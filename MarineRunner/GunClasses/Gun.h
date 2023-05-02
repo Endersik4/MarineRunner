@@ -309,12 +309,12 @@ private:
 	void SetCameraRecoil();
 	void ResetVariablesForCameraRecoil();
 	void BackCameraToItsInitialRotation();
-	void UpRecoilCamera(float Delta);
-	void InterpBackToInitialPosition(float Delta);
+	void UpRecoilCamera();
+	void InterpBackToInitialPosition();
 	//
 
 	//Gun Sway
-	void GunSway(float Delta);
+	void GunSway();
 	FRotator GunRotationSway;
 	//
 

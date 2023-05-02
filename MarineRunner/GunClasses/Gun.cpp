@@ -44,10 +44,10 @@ void AGun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	GunSway(DeltaTime);
 	AimTheGun(DeltaTime);
-	UpRecoilCamera(DeltaTime);
-	InterpBackToInitialPosition(DeltaTime);
+	GunSway();
+	UpRecoilCamera();
+	InterpBackToInitialPosition();
 }
 
 void AGun::Shoot()
@@ -193,7 +193,7 @@ void AGun::SetCameraRecoil()
 	}
 }
 
-void AGun::UpRecoilCamera(float Delta)
+void AGun::UpRecoilCamera()
 {
 	if (bCanRecoilCamera == false) return;
 	
@@ -202,7 +202,7 @@ void AGun::UpRecoilCamera(float Delta)
 		float ControlRotationPitch = (DistanceFromStart * 0.375) * TimeRecoilCameraElapsed / ((CopyOfMagazineCapacity * RecoilAnimTimelineLength) + 0.2f);
 		PC->AddPitchInput(-ControlRotationPitch);
 	}
-	TimeRecoilCameraElapsed = Delta;
+	TimeRecoilCameraElapsed = UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 }
 
 void AGun::BackCameraToItsInitialRotation()
@@ -237,7 +237,7 @@ void AGun::BackCameraToItsInitialRotation()
 	bShouldInterpBack = true;
 }
 
-void AGun::InterpBackToInitialPosition(float Delta)
+void AGun::InterpBackToInitialPosition()
 {
 	if (!MarinePawn) return;
 	
@@ -255,7 +255,7 @@ void AGun::InterpBackToInitialPosition(float Delta)
 		return;
 	}
 	
-	FRotator NewRotation = UKismetMathLibrary::RInterpTo(PC->GetControlRotation(), InitialCameraRotation, Delta, InitalCameraPositionSpeed);
+	FRotator NewRotation = UKismetMathLibrary::RInterpTo(PC->GetControlRotation(), InitialCameraRotation, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), InitalCameraPositionSpeed);
 
 	PC->SetControlRotation(NewRotation);
 }
@@ -346,9 +346,11 @@ void AGun::DropTheGun()
 	MarinePawn = nullptr;
 }
 
-void AGun::GunSway(float Delta)
+void AGun::GunSway()
 {
 	if (MarinePawn == nullptr || bCanGunSwayTick == false || bCanSway == false) return;
+
+	float Delta = UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 
 	//Preparing variables
 	float LookUp = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetInputAxisValue("LookUp");

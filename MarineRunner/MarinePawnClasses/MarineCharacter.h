@@ -188,6 +188,9 @@ private:
 	class AGun* Gun;
 
 	//FirstAidKit
+	bool bCanUseFirstAidKit = true;
+	FTimerHandle FirstAidKitHandle;
+	void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }
 	void UseFirstAidKit();
 
 	//Aiming

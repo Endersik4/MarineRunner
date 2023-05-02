@@ -28,6 +28,7 @@ void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 	Super::NativeTick(MyGeometry, DeltaTime);
 
 	FadeGotDamageImage();
+	FadeFirstAidImage();
 	WhichElementShouldProgress();
 }
 
@@ -75,7 +76,7 @@ void UHUDWidget::SetGotDamage(bool bGot)
 	if (bGotDamage)
 	{
 		GotDamageImage->SetRenderOpacity(1.f);
-		FadeTimeElapsed = 0.f;
+		FadeGotDamageTimeElapsed = 0.f;
 	}
 	else GotDamageImage->SetRenderOpacity(0.f);
 }
@@ -94,14 +95,39 @@ void UHUDWidget::FadeGotDamageImage()
 {
 	if (!bGotDamage) return;
 
-	if (FadeTimeElapsed < FadeTime)
+	if (FadeGotDamageTimeElapsed <= FadeGotDamageTime)
 	{
-		float Opacity = FMath::Lerp(1.f, 0, FadeTimeElapsed / FadeTime);
+		float Opacity = FMath::Lerp(1.f, 0, FadeGotDamageTimeElapsed / FadeGotDamageTime);
 
 		GotDamageImage->SetRenderOpacity(Opacity);
-		FadeTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+		FadeGotDamageTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+	}
+	else
+	{
+		GotDamageImage->SetRenderOpacity(0.f);
+		bGotDamage = false;
 	}
 }
+
+void UHUDWidget::FadeFirstAidImage()
+{
+	if (bDidPlayerUseFirstAidKit == false) return;
+
+	if (FadeFirstAidImageTimeElapsed <= FadeFirstAidImageTime)
+	{
+		float Opacity = FMath::Lerp(1.f, 0, FadeFirstAidImageTimeElapsed / FadeFirstAidImageTime);
+
+		UseFirstAidKidImage->SetRenderOpacity(Opacity);
+		FadeFirstAidImageTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+	}
+	else
+	{
+		FadeFirstAidImageTimeElapsed = 0.f;
+		UseFirstAidKidImage->SetRenderOpacity(0.f);
+		bDidPlayerUseFirstAidKit = false;
+	}
+}
+
 
 void UHUDWidget::WhichElementShouldProgress()
 {
