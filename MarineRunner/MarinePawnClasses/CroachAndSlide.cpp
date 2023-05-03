@@ -115,10 +115,10 @@ void UCroachAndSlide::CroachReleased()
 	VignetteIntensityValue = 0.f;
 	bCanCroachLerp = true;
 
+	if (MarinePawn->GetIsInAir()) return;
+
 	Force = CopyForce;
 	MarinePawn->SetForce(Force);
-
-	//GetOwner()->SetActorScale3D(FVector(2,2,2.5));
 }
 
 bool UCroachAndSlide::SweepBox(FVector Where, float Distance)

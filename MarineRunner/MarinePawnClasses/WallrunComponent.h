@@ -6,6 +6,12 @@
 #include "Components/ActorComponent.h"
 #include "WallrunComponent.generated.h"
 
+UENUM()
+enum ESideOfLine {
+	Left,
+	Right
+};
+
 /// <summary>
 /// A Component that allow MarineCharacter to do Wallrun on any object wall
 /// In Details Panel you can set up variables for Wallrun (speed,impulse,angle,camera rotate speed)
@@ -35,9 +41,6 @@ public:
 
 	//Getters
 	bool GetShouldPlayerGoForward() const { return bShouldPlayerGoForward; }
-
-
-
 	bool GetCanJump() const { return bCanJumpWhileWallrunning; }
 
 	bool ShouldAddImpulseAfterWallrun(bool bShould); //Check If Should Add This Impulse. Return true if Pawn is wallrunning, false otherwise
@@ -77,18 +80,23 @@ private:
 	//Yaw camera rotation after run-up begins
 	bool bShouldLerpRotation;
 	float WhereToInterp;
-	void RotateCameraYaw(int32 WhichSide, FVector HitNormal);
-	void CameraRotationInterp(float Delta);
+	void RotateCameraYaw(ESideOfLine CurrentSide, FVector HitNormal);
+	void CameraRotationInterp();
 
-	//Functions
+	//Wallrunning Functions
 	void Wallrunning(); 
 	void ResetWallrunning(); //Disable Wallrun
-	void StickToTheObstacle(int32 WhichSide, FVector HitNormal);
-	bool IsPawnNextToObstacle(int32 &WhichSide, FVector& HitNormal); //If WhichSide == -1 then left, if == 1 then Right
+	void StickToTheObstacle(ESideOfLine CurrentSide, FVector HitNormal);
+	bool IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& OutCurrentSide, ESideOfLine WhichSideToLook = ESideOfLine::Left);
 	bool CanDoWallrun();
 
+	//Is the player held down the Forward button long enough
+	bool bIsForwardButtonPressed;
+	void CheckIfForwardButtonIsPressed();
+	FTimerHandle ForwardButtonHandle;
+	void SetIsForwardButtonPressed() { bIsForwardButtonPressed = true; }
+
 	//Other
-	bool MakeCheckLine(FHitResult& OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug = false, FColor Color = FColor::Red);
 	FTimerHandle CanJumpHandle;
 
 		

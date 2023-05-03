@@ -95,7 +95,12 @@ void AGun::AddEffectsToShooting()
 {
 	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, BaseSkeletalMesh, NAME_None);
 	if (ShootParticle) UGameplayStatics::SpawnEmitterAttached(ShootParticle, BaseSkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
-	if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
+	
+	if (StoredAmmo <= 0 && MagazineCapacity == 1 && ShootWithNoBulletsAnimation)
+	{
+		BaseSkeletalMesh->PlayAnimation(ShootWithNoBulletsAnimation, false);
+	}
+	else if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
 
 	if (DropBulletClass)
 	{

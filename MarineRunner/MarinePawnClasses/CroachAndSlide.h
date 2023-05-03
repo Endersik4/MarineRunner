@@ -28,10 +28,11 @@ public:
 	void CroachPressed();
 	void CroachReleased();
 
+	float GetCroachWalkingSpeed() const { return CroachForceSpeed; }
+	bool GetIsSliding() const { return bShouldSlide; }
+
 	void SetShouldSlide(bool bShould) { bShouldSlide = bShould; }
 	void SetIsPressedForward(bool bShould) { bIsPressedForward = bShould; }
-	float GetCroachWalkingSpeed() const { return CroachForceSpeed; }
-
 	
 private:
 

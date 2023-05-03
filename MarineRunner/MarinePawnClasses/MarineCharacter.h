@@ -144,6 +144,7 @@ private:
 
 	//Movement
 	float MovementSpeedMultiplier = 1.f;
+	float CopyOfOriginalForce;
 	bool bShouldAddCounterMovement = true;
 	FVector MovementImpulse;
 	void Movement(float Delta);

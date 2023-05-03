@@ -66,12 +66,10 @@ void UDashComponent::Dash()
 void UDashComponent::DashLengthTimer()
 {
 	MarinePawn->SetForce(CopyForce);
-	UE_LOG(LogTemp, Warning, TEXT("NIEEE"));
 	MarinePawn->GetWorldTimerManager().SetTimer(DashCooldownHandle, this, &UDashComponent::DashCooldownTimer, DashCoolDown, false);
 }
 
 void UDashComponent::DashCooldownTimer()
 {
-	UE_LOG(LogTemp, Warning, TEXT("MONZA JUZ"));
 	bCanDash = true;
 }

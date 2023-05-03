@@ -187,6 +187,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		UAnimationAsset* ShootAnimation;
+	//This animation will play when there is no bullets left and the player is shooting the last one
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+		UAnimationAsset* ShootWithNoBulletsAnimation;
 
 	//Rotation Sway Pitch
 	//Maximal Pitch rotation of Gun when player looking down

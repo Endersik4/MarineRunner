@@ -50,6 +50,7 @@ AMarineCharacter::AMarineCharacter()
 	PullUpComponent = CreateDefaultSubobject<UPullUpComponent>(TEXT("PullUpComponent"));
 	WeaponInventoryComponent = CreateDefaultSubobject<UWeaponInventoryComponent>(TEXT("WeaponInventoryComponent"));
 
+	bUseControllerRotationYaw = true;
 	Tags.Add(TEXT("Player"));
 
 }
@@ -61,6 +62,7 @@ void AMarineCharacter::BeginPlay()
 
 	MakeCrosshire();
 	MakeHudWidget();
+	CopyOfOriginalForce = Force;
 }
 
 // Called every frame
@@ -190,6 +192,7 @@ void AMarineCharacter::Movement(float Delta)
 	float DirectionX = ForwardDirection.X - RightDirection.X;
 	float DirectionY = ForwardDirection.Y - RightDirection.Y;
 	FVector MovementDirection = FVector(DirectionX, DirectionY, 0);
+	if (bSlideOnRamp && CroachAndSlideComponent->GetIsSliding()) MovementDirection += 1.f * -GetActorUpVector();
 
 	DisableCounterMovement(MovementDirection);
 
@@ -347,6 +350,7 @@ void AMarineCharacter::UnstickFromWall(FVector& ForwardDir, FVector& RightDir)
 void AMarineCharacter::CheckIfIsInAir()
 {
 	FHitResult Hit;
+	//Check if there is ground under the player, if not, the player is in the air
 	if (!MakeCheckBox(FVector(25.f, 25.f, 2.f), GetActorLocation(), GetActorLocation(), Hit))
 	{
 		bIsInAir = true;
@@ -354,6 +358,7 @@ void AMarineCharacter::CheckIfIsInAir()
 	}
 	else
 	{
+		//The first moment a player touches the ground
 		if (bIsInAir)
 		{
 			WallrunComponent->CallResetWallrunningAfterLanding();
@@ -363,6 +368,8 @@ void AMarineCharacter::CheckIfIsInAir()
 
 			bIsInAir = false;
 			PullUpComponent->SetPulledHimselfUp(false);
+			Force = CopyOfOriginalForce;
+			MovementSpeedMultiplier = 1.f;
 		}
 
 		if (Hit.GetActor()->ActorHasTag("Ramp"))
