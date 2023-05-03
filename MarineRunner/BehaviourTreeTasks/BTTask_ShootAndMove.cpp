@@ -23,7 +23,6 @@ EBTNodeResult::Type UBTTask_ShootAndMove::ExecuteTask(UBehaviorTreeComponent& Ow
 	GetWorld()->GetTimerManager().SetTimer(ShootHandle, this, &UBTTask_ShootAndMove::Shoot, Time, true);
 
 	EnemyPawn = Cast<AEnemyPawn>(OwnerComp.GetAIOwner()->GetPawn());
-	UE_LOG(LogTemp, Warning, TEXT("EXECUTE TASK %s"), *EnemyPawn->GetFName().ToString());
 	EnemyAIController = Cast<AEnemyAiController>(OwnerComp.GetAIOwner());
 	EnemyAIController->SetFocus(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
@@ -32,30 +31,29 @@ EBTNodeResult::Type UBTTask_ShootAndMove::ExecuteTask(UBehaviorTreeComponent& Ow
 	return EBTNodeResult::InProgress;
 }
 
+EBTNodeResult::Type UBTTask_ShootAndMove::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+{
+	StopShootAndMove(OwnerComp.GetBlackboardComponent());
+	return EBTNodeResult::Succeeded;
+}
+
 void UBTTask_ShootAndMove::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds)
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
-
+	
 	FinishTask(OwnerComp);
 
 	MovedSuccessfully();
 }
 
-//If Enemy doesnt see the player then stop shooting, avoiding and end task succesful
+//If Enemy doesnt see the player then stop shooting, avoiding and end task succesfully
 void UBTTask_ShootAndMove::FinishTask(UBehaviorTreeComponent& OwnerComp)
 {
 	if (!EnemyAIController || !EnemyPawn) return;
 
 	if (EnemyAIController->GetDoEnemySeePlayer() == false)
 	{
-		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
-		GetWorld()->GetTimerManager().ClearTimer(AvoidHandle);
-
-		EnemyAIController->ClearFocus(EAIFocusPriority::Gameplay);
-		OwnerComp.GetBlackboardComponent()->ClearValue(TEXT("PlayerLocation"));
-
-		if (EnemyPawn->GetIsReloading() == false) EnemyPawn->Reload();
-		EnemyPawn->RestoreBonesToInitialRotation();
+		StopShootAndMove(OwnerComp.GetBlackboardComponent());
 
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
@@ -77,8 +75,8 @@ void UBTTask_ShootAndMove::MovedSuccessfully()
 //Random Location where Enemy have to go. Its for "avoiding" bullets from player
 void UBTTask_ShootAndMove::AvoidBullets()
 {
-	float Rand_X = FMath::FRandRange(-750, 750) + EnemyPawn->GetActorLocation().X;
-	float Rand_Y = FMath::FRandRange(-750, 750) + EnemyPawn->GetActorLocation().Y;
+	float Rand_X = FMath::FRandRange(-750.f, 750.f) + EnemyPawn->GetActorLocation().X;
+	float Rand_Y = FMath::FRandRange(-750.f, 750.f) + EnemyPawn->GetActorLocation().Y;
 	FVector Location = FVector(Rand_X, Rand_Y, EnemyPawn->GetActorLocation().Z);
 	EnemyAIController->MoveToLocation(Location, 100.f);
 
@@ -91,5 +89,17 @@ void UBTTask_ShootAndMove::Shoot()
 	if (EnemyPawn == nullptr) return;
 
 	EnemyPawn->ShootBullet();
+}
+
+void UBTTask_ShootAndMove::StopShootAndMove(UBlackboardComponent* BlackBoardComp)
+{
+	GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
+	GetWorld()->GetTimerManager().ClearTimer(AvoidHandle);
+
+	EnemyAIController->ClearFocus(EAIFocusPriority::Gameplay);
+	BlackBoardComp->ClearValue(TEXT("PlayerLocation"));
+
+	if (EnemyPawn->GetIsReloading() == false) EnemyPawn->Reload();
+	EnemyPawn->RestoreBonesToInitialRotation();
 }
 

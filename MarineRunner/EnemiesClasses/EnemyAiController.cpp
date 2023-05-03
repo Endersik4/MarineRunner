@@ -36,6 +36,11 @@ void AEnemyAiController::KillEnemy()
 	GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), true);
 }
 
+void AEnemyAiController::RunAway()
+{
+	GetBlackboardComponent()->SetValueAsBool(TEXT("isRunningAway"), true);
+}
+
 void AEnemyAiController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
 	bIsMoveToCompleted = true;
@@ -43,7 +48,7 @@ void AEnemyAiController::OnMoveCompleted(FAIRequestID RequestID, const FPathFoll
 
 void AEnemyAiController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	if (!Actor->ActorHasTag("Player")) return;
+	if (!Actor->ActorHasTag("Player") || GetBlackboardComponent()->GetValueAsBool(TEXT("isRunningAway"))) return;
 
 	FTimerDelegate TimerDel;
 

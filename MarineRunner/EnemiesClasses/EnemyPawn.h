@@ -28,19 +28,23 @@ public:
 
 	USkeletalMeshComponent* GetEnemySkeletalMesh() const { return EnemySkeletalMesh; }
 
-	float GetHealth() const { return Health; }
 	FColor GetBloodColor() const { return BloodColor; }
 	int32 GetHowManyLocations() const { return HowManyLocations; }
+	float GetHealth() const { return Health; }
 	float GetWaitTimeShoot() const { return WaitTimeShoot; }
 	float GetDetectPlayerTime() const { return DetectPlayerTime; }
 	float GetLoseSightOfPlayerTime() const { return LoseSightOfPlayerTime; }
 
 	void ShootBullet() { Shoot(); }
 	void SetIsDead(bool bNewDead);
+	void SetShouldRunningAway();
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 
 	void Reload();
 
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void SetShouldRunningAwayInAnimBP();
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void PlayAnimMontageInBlueprint();
@@ -62,9 +66,10 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		int32 GetCurrentMagazineCapacity() const { return MagazineCapacity; }
-
 	UFUNCTION(BlueprintPure)
 		bool GetIsReloading() const { return bIsReloading; }
+	UFUNCTION(BlueprintPure)
+		float GetSpeedOfEnemyWhenIsRunningAway() const { return SpeedOfEnemyWhenIsRunningAway; }
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		USkeletalMeshComponent* EnemySkeletalMesh;
@@ -89,6 +94,9 @@ private:
 	//How long does it take to lose sight of the player by enemy
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		float LoseSightOfPlayerTime = 5.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
+		float SpeedOfEnemyWhenIsRunningAway = 1600.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy")
 		float Health = 100.f;
@@ -143,6 +151,7 @@ private:
 
 	bool bIsDead;
 	bool bIsReloading;
+	bool bIsRunningAway;
 
 	//If enemy see the player then he will execute given functions
 	void CheckIfEnemySeePlayer();

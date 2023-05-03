@@ -86,7 +86,7 @@ void AEnemyPawn::Shoot()
 
 void AEnemyPawn::CheckIfEnemySeePlayer()
 {
-	if (!EnemyAIController || bIsDead == true || !MarinePawn) return;
+	if (!EnemyAIController || bIsDead == true || !MarinePawn || bIsRunningAway) return;
 	if (EnemyAIController->GetDoEnemySeePlayer() == false) return;
 
 	PredictWhereToShoot();
@@ -121,6 +121,13 @@ void AEnemyPawn::SetIsDead(bool bNewDead)
 {
 	bIsDead = bNewDead;
 	EnemyAIController->KillEnemy();
+}
+
+void AEnemyPawn::SetShouldRunningAway()
+{
+	bIsRunningAway = true;
+	SetShouldRunningAwayInAnimBP();
+	EnemyAIController->RunAway();
 }
 
 void AEnemyPawn::Reload()

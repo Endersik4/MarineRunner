@@ -28,6 +28,7 @@ public:
 	void SetIsMoveToCompleted(bool bNewMove) { bIsMoveToCompleted = bNewMove; }
 
 	void KillEnemy();
+	void RunAway();
 
 private:
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;

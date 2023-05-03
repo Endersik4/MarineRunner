@@ -93,7 +93,16 @@ void ABullet::DamageEnemy(AEnemyPawn* Enemy, const FHitResult& Hit)
 		//There is some bug that SkeletonMesh still playing animation after Stop() but when i call 2 times this function, Skeleton stop playing animation
 		Enemy->GetEnemySkeletalMesh()->Stop();
 		Enemy->GetEnemySkeletalMesh()->Stop();
+		return;
 	}
+
+	if (Enemy->GetHealth() <= 10.f)
+	{
+		Enemy->SetShouldRunningAway();
+		return;
+	}
+
+	AlertEnemyAboutPlayer(Enemy);
 }
 
 void ABullet::AlertEnemyAboutPlayer(AEnemyPawn* Enemy)
@@ -147,8 +156,6 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 		HitParticle->SetColorParameter(TEXT("BloodColor"), FLinearColor(BloodColor.R, BloodColor.G, BloodColor.B));
 
 		DamageEnemy(Enemy, Hit);
-
-		AlertEnemyAboutPlayer(Enemy);
 	}
 	else if (OtherActor->ActorHasTag("Player"))
 	{
