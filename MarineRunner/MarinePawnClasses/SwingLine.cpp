@@ -27,11 +27,11 @@ void ASwingLine::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	LineInterp(DeltaTime);
+	LineInterp();
 
 }
 
-void ASwingLine::LineInterp(float Delta)
+void ASwingLine::LineInterp()
 {
 	if (bCanTick == false) return;
 
@@ -41,6 +41,6 @@ void ASwingLine::LineInterp(float Delta)
 		SetActorLocation(LerpLocation);
 	}
 	else if (TimeElapsed > 10.f) Destroy();
-	TimeElapsed += Delta;
+	TimeElapsed += GetWorld()->GetDeltaSeconds();
 }
 

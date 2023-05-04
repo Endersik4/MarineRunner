@@ -62,7 +62,7 @@ void AMarineCharacter::BeginPlay()
 
 	MakeCrosshire();
 	MakeHudWidget();
-	CopyOfOriginalForce = Force;
+	CopyOfOriginalForce = MovementForce;
 }
 
 // Called every frame
@@ -70,7 +70,7 @@ void AMarineCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	SwingInterp(DeltaTime);
+	SwingInterp();
 	SwingLineCheck();
 
 	Movement(DeltaTime);
@@ -106,7 +106,6 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AMarineCharacter::Jump);
 	PlayerInputComponent->BindAction(TEXT("Croach"), IE_Pressed, this, &AMarineCharacter::CroachPressed);
 	PlayerInputComponent->BindAction(TEXT("Croach"), IE_Released, this, &AMarineCharacter::CroachReleased);
-	PlayerInputComponent->BindAction(TEXT("Forward"), IE_Released, this, &AMarineCharacter::ForwardReleased);
 
 	//Gameplay components
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, this, &AMarineCharacter::Dash);
@@ -204,7 +203,7 @@ void AMarineCharacter::Movement(float Delta)
 	FVector CounterMovement = FVector(DeltaCounterMovementForce * Velocity.X, DeltaCounterMovementForce * Velocity.Y, 0);
 
 	//Add Movement
-	float DeltaForce = (bIsPlayerADS ? Force / DividerOfMovementWhenADS : Force) *Delta * (1000 * MovementSpeedMultiplier);
+	float DeltaForce = (bIsPlayerADS ? (MovementForce / DividerOfMovementWhenADS) : MovementForce) * Delta * (1000 * MovementSpeedMultiplier);
 	MovementDirection.Normalize();
 	CapsulePawn->AddImpulse((MovementDirection * DeltaForce) + CounterMovement);
 }
@@ -241,16 +240,6 @@ void AMarineCharacter::GoConstanlyForward(FVector& ForwardDir, FVector& RightDir
 	{
 		ForwardDir = GetInputAxisValue(TEXT("Forward")) * GetActorForwardVector();
 		RightDir = GetInputAxisValue(TEXT("Right")) * GetActorRightVector();
-	}
-}
-
-void AMarineCharacter::ForwardReleased()
-{
-	CroachAndSlideComponent->SetIsPressedForward(false);
-	CroachAndSlideComponent->SetShouldSlide(false);
-	if (GetActorScale3D().Z == 1.5f)
-	{
-		Force = CroachAndSlideComponent->GetCroachWalkingSpeed();
 	}
 }
 
@@ -368,7 +357,8 @@ void AMarineCharacter::CheckIfIsInAir()
 
 			bIsInAir = false;
 			PullUpComponent->SetPulledHimselfUp(false);
-			Force = CopyOfOriginalForce;
+			
+			MovementForce = CopyOfOriginalForce;
 			MovementSpeedMultiplier = 1.f;
 		}
 
@@ -402,6 +392,7 @@ void AMarineCharacter::SwingPressed()
 {
 	if (!bCanMarineSwing || HookCast == nullptr || bCanSwingLerp == true) return;
 
+	bShouldCheckForSwing = false;
 	FVector SpawnLocation = Camera->GetComponentLocation();
 	SpawnLocation += Camera->GetForwardVector() * 100.f;
 	SpawnLocation += Camera->GetRightVector() * 70.f;
@@ -440,14 +431,15 @@ void AMarineCharacter::Swing()
 }
 
 //Interp player to location of the Hook
-void AMarineCharacter::SwingInterp(float Delta)
+void AMarineCharacter::SwingInterp()
 {
 	if (!bCanSwingLerp || HookCast == nullptr) return;
 	
-	FVector LocationInterp = FMath::VInterpTo(GetActorLocation(), HookLocation, Delta, SwingSpeed);
+	FVector LocationInterp = FMath::VInterpTo(GetActorLocation(), HookLocation, GetWorld()->GetDeltaSeconds(), SwingSpeed);
 	if (Camera->GetComponentLocation().Equals(HookLocation, 200))
 	{
 		bCanSwingLerp = false;
+		bShouldCheckForSwing = true;
 		FVector Velocity = CapsulePawn->GetPhysicsLinearVelocity() * SwingLinearPhysicsMultiplier;
 		Velocity.Z = CapsulePawn->GetPhysicsLinearVelocity().Z;
 		CapsulePawn->SetPhysicsLinearVelocity(Velocity);
@@ -458,7 +450,7 @@ void AMarineCharacter::SwingInterp(float Delta)
 
 void AMarineCharacter::SwingLineCheck()
 {
-	if (bCanSwingLerp) return;
+	if (bCanSwingLerp || bShouldCheckForSwing == false) return;
 
 	FVector LineStart = Camera->GetComponentLocation();
 	FVector LineEnd = LineStart + (Camera->GetForwardVector() * 2000.f);
@@ -630,4 +622,9 @@ void AMarineCharacter::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAd
 			DashWidget->AddToViewport();
 		}	
 	}
+}
+
+bool AMarineCharacter::GetIsWallrunning() const
+{
+	return WallrunComponent->GetIsWallrunning();
 }

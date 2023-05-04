@@ -34,17 +34,14 @@ void UPullUpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	if (MarinePawn)
 	{
-		if (MarinePawn->GetIsInAir())
-		{
-			EdgePullUp();
-		}
-		PullupLerp(DeltaTime);
+		EdgePullUp();
+		PullupLerp();
 	}
 }
 
 void UPullUpComponent::EdgePullUp()
 {
-	if (PulledHimselfUp) return;
+	if (PulledHimselfUp || !MarinePawn->GetIsInAir()) return;
 
 	//Locations of Lines 
 	FVector StartTrueLine = MarinePawn->GetActorLocation();
@@ -56,8 +53,6 @@ void UPullUpComponent::EdgePullUp()
 	if (MakeCheckLine(Line1Hit, StartTrueLine, StartTrueLine + MarinePawn->GetActorForwardVector() * 100.f) == true &&
 		MakeCheckLine(Line2Hit, StartFalseLine, StartFalseLine + MarinePawn->GetActorForwardVector() * 100.f) == false)
 	{
-		//DrawDebugLine(GetWorld(), StartTrueLine, StartTrueLine + GetActorForwardVector() * 100.f, FColor::Red, true);
-		//DrawDebugLine(GetWorld(), StartFalseLine, StartFalseLine + GetActorForwardVector() * 100.f, FColor::Magenta, true);
 		MarinePawn->SetShouldAddCounterMovement(true);
 
 		//Setting a line that is in the direction of the object the player wants to pull up.
@@ -83,7 +78,7 @@ void UPullUpComponent::EdgePullUp()
 
 }
 
-void UPullUpComponent::PullupLerp(float Delta)
+void UPullUpComponent::PullupLerp()
 {
 	if (!ShouldPullUpLerp) return;
 
@@ -91,7 +86,7 @@ void UPullUpComponent::PullupLerp(float Delta)
 	{
 		FVector LerpLocation = FMath::Lerp(MarineLocation, PullupLocationZ, PullupTimeElapsed / PullUpTime);
 		MarinePawn->SetActorLocation(LerpLocation);
-		PullupTimeElapsed += Delta;
+		PullupTimeElapsed += GetWorld()->GetDeltaSeconds();
 	}
 	else
 	{

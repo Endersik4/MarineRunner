@@ -38,17 +38,15 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* HookMesh;
 
-
-
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
 		UMaterialInstance* M_PlayerInRange;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
 		UMaterialInstance* M_PlayerOutRange;
 
+	float Radius;
+	void ChangeRadiusOfSphere();
+
 	void SetPlayerPawn();
 	class AMarineCharacter* MarinePawn;
-
-	float Radius;
-
 };

@@ -28,7 +28,6 @@ void AHook::BeginPlay()
 
 	SetPlayerPawn();
 	Radius = CheckSphere->GetScaledSphereRadius();
-	
 }
 
 // Called every frame
@@ -36,16 +35,7 @@ void AHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (MarinePawn)
-	{
-		float Distance = FVector::Distance(MarinePawn->GetActorLocation(), GetActorLocation());
-		if (Distance < (Radius + 300.f))
-		{
-			if (Distance - 500.f > 150.f) CheckSphere->SetSphereRadius(Distance - 500.f);
-		}
-		else CheckSphere->SetSphereRadius(Radius);
-	}
-
+	ChangeRadiusOfSphere();
 }
 
 void AHook::HookActivate()
@@ -56,6 +46,18 @@ void AHook::HookActivate()
 void AHook::HookInactiv()
 {
 	HookMesh->SetMaterial(0, M_PlayerOutRange);
+}
+
+void AHook::ChangeRadiusOfSphere()
+{
+	if (!MarinePawn) return;
+
+	float Distance = FVector::Distance(MarinePawn->GetActorLocation(), GetActorLocation());
+	if (Distance < (Radius + 300.f))
+	{
+		if (Distance - 500.f > 150.f) CheckSphere->SetSphereRadius(Distance - 500.f);
+	}
+	else CheckSphere->SetSphereRadius(Radius);
 }
 
 void AHook::SetPlayerPawn()

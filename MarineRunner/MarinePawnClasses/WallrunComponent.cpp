@@ -36,8 +36,9 @@ void UWallrunComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+	
+	//CheckIfForwardButtonIsPressed();
 	//Calling Wallrunning functione when Player is In Air
-	CheckIfForwardButtonIsPressed();
 	if (MarinePawn->GetIsInAir())
 	{
 		Wallrunning();
@@ -54,6 +55,7 @@ void UWallrunComponent::Wallrunning()
 	FVector HitNormal; //Hit.ImpactNormal Vector from HitResult of Obstacle
 	if (IsPawnNextToObstacle(HitNormal, CurrentSide) || IsPawnNextToObstacle(HitNormal, CurrentSide, ESideOfLine::Right))
 	{
+		PlayerRotationWhileWallrun = MarinePawn->GetActorRotation();
 		StickToTheObstacle(CurrentSide, HitNormal);
 	}
 	else  if (bIsWallrunning) ResetWallrunning(); //If There is no obstacle around then Wallrun should be disabled
@@ -64,12 +66,13 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 	if (bIsWallrunning == false)
 	{
 		//The player must move forward to perform the wallrun
-		if (bIsForwardButtonPressed == false) return;
+		if (!(MarinePawn->GetInputAxisValue("Forward") > 0.5f)) return;
 		WallrunTimeElapsed = 0.6f;
 
 		//Setting up MarinePawn variables
 		MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
 		MarinePawn->RotateCameraWhileWallrunning(CurrentSide == Right ? true : false);//Rotating the camera in Roll, Definition of this function is in Blueprint of MarineCharacter
+		
 
 		RotateCameraYaw(CurrentSide, HitNormal);
 		float YawMovementImpulse = HitNormal.Rotation().Yaw + (85 * (CurrentSide == Left ? -1 : 1));
@@ -94,6 +97,7 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 bool UWallrunComponent::IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& OutCurrentSide, ESideOfLine WhichSideToLook)
 {
 	TArray<FVector> StartLocationOfLinesTrace; 
+	TArray<AActor*> ignor;
 	TArray<FVector> EndLocationOfLinesTrace;
 	auto DeleteArrays = [&StartLocationOfLinesTrace, &EndLocationOfLinesTrace]() {
 		StartLocationOfLinesTrace.Empty();
@@ -103,8 +107,9 @@ bool UWallrunComponent::IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& Ou
 	//Starting Locations for LineTrace
 	StartLocationOfLinesTrace.Add(MarinePawn->GetCamera()->GetComponentLocation()); //Start of Upper Line in the player
 	StartLocationOfLinesTrace.Add(MarinePawn->GetActorLocation()); //Start of Lower Line in the player
-	StartLocationOfLinesTrace.Add(MarinePawn->GetCamera()->GetComponentLocation() + MarinePawn->GetActorForwardVector() * 450.f); //Start of Upper Line ahead of the player 
-	StartLocationOfLinesTrace.Add(MarinePawn->GetActorLocation() + MarinePawn->GetActorForwardVector() * 450.f); //Start of Lower Line ahead of the player
+
+	//StartLocationOfLinesTrace.Add(MarinePawn->GetCamera()->GetComponentLocation() + MarinePawn->GetActorForwardVector() * 450.f); //Start of Upper Line ahead of the player 
+	//StartLocationOfLinesTrace.Add(MarinePawn->GetActorLocation() + MarinePawn->GetActorForwardVector() * 450.f); //Start of Lower Line ahead of the player
 
 	int32 HowManyBools = 0;
 	FHitResult HitResult;
@@ -113,14 +118,16 @@ bool UWallrunComponent::IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& Ou
 		//Set end location of lines, Start Location have End Location at the same index
 		if (WhichSideToLook == Left) EndLocationOfLinesTrace.Add(StartLocationOfLinesTrace[i] + (-MarinePawn->GetActorRightVector() * 150.f));
 		else EndLocationOfLinesTrace.Add(StartLocationOfLinesTrace[i] + (MarinePawn->GetActorRightVector() * 150.f));
-
+		
 		//If Line hit wall then Add 1 to HowManyBools
-		HowManyBools += GetWorld()->LineTraceSingleByChannel(HitResult, StartLocationOfLinesTrace[i], EndLocationOfLinesTrace[i], ECC_Visibility);;
+		HowManyBools += UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocationOfLinesTrace[i], EndLocationOfLinesTrace[i], UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ignor, EDrawDebugTrace::None, HitResult, true);
+
 		if (i == 0) HitNormal = HitResult.ImpactNormal; //Take out HitResult from the first line
 
 		//If all lines hit something (HowManyBools == 4) then the player can do a wallrun
 		//If The Player is wallrunning then only the first two lines count if they hit something
-		if (HowManyBools == 4 || (bIsWallrunning && HowManyBools == 2 && i == 2))
+		//if (HowManyBools == 4 || (bIsWallrunning && HowManyBools == 2 && i == 2))
+		if (HowManyBools == 2)
 		{
 			OutCurrentSide = WhichSideToLook;
 			DeleteArrays();
@@ -138,9 +145,8 @@ void UWallrunComponent::ResetWallrunning()
 	bIsWallrunning = false;
 	bShouldPlayerGoForward = false;
 	bShouldLerpRotation = false;
-	bIsForwardButtonPressed = false;
+	//bIsForwardButtonPressed = false;
 
-	//MarinePawn->SetMovementSpeedMutliplier(1.f);
 	MarinePawn->SetShouldAddCounterMovement(false);
 	MarinePawn->RotateCameraWhileWallrunning();
 }
@@ -151,6 +157,14 @@ bool UWallrunComponent::CanDoWallrun()
 	{
 		if (bIsWallrunning && MarinePawn->GetIsJumping() == false) ResetWallrunning();
 		else WallrunTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+		return false;
+	}
+
+	//if player looks far away from the wall while wallrunning it then stop wallruning
+	float DistanceBetweenYaws = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PlayerRotationWallrun, PlayerRotationWhileWallrun).Yaw);
+	if (bIsWallrunning && DistanceBetweenYaws > 45.f)
+	{
+		ResetWallrunning();
 		return false;
 	}
 	return true;
@@ -183,6 +197,7 @@ void UWallrunComponent::RotateCameraYaw(ESideOfLine CurrentSide, FVector HitNorm
 {
 	bShouldLerpRotation = true;
 	WhereToInterp = HitNormal.Rotation().Yaw + ((CurrentSide == Left ? -1 : 1) * AngleOfHitImpact);
+	PlayerRotationWallrun.Yaw = WhereToInterp;
 }
 
 void UWallrunComponent::CameraRotationInterp()
@@ -200,18 +215,18 @@ void UWallrunComponent::CameraRotationInterp()
 	//In Blueprint BP_MarinePlayerController when player moves mouse (with some tolerance) then bShouldLerpRotation = false
 }
 
-void UWallrunComponent::CheckIfForwardButtonIsPressed()
+/*void UWallrunComponent::CheckIfForwardButtonIsPressed()
 {
 	if (MarinePawn->GetInputAxisValue(TEXT("Forward")) > 0.5f)
 	{
-		if (!GetWorld()->GetTimerManager().IsTimerActive(ForwardButtonHandle)) GetWorld()->GetTimerManager().SetTimer(ForwardButtonHandle, this, &UWallrunComponent::SetIsForwardButtonPressed, 0.3f, false);
+		if (!GetWorld()->GetTimerManager().IsTimerActive(ForwardButtonHandle)) GetWorld()->GetTimerManager().SetTimer(ForwardButtonHandle, this, &UWallrunComponent::SetIsForwardButtonPressed, 0.1f, false);
 	}
 	else
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ForwardButtonHandle);
 		bIsForwardButtonPressed = false;
 	}
-}
+}*/
 
 void UWallrunComponent::SetCanJumpWhileWallrunning()
 {

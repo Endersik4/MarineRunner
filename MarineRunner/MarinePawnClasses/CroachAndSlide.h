@@ -40,37 +40,38 @@ private:
 		float DividerOfCroachForceWhenADS = 1.4f;
 	//Speed of croaching
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		float CroachForceSpeed = 1500.f;
-	
+		float CroachForceSpeed = 3000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
 		float SpeedOfCroachLerp = 10.f;
+
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float SlideSpeed = 7.f;
+		float SlideSpeed = 10.f;
 	//Initial Velocity of Sliding is added to Walking Distance from MarineCharacter
 	//and then we have Initial Velocity of Sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float InitialVelocityOfSliding = 7.f;
+		float InitialVelocityOfSliding = 6000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float MaxSlideForce = 12000.f;
+		float MaxSlideForce = 500000.f;
 	//How fast Pawn will gain speed on ramp when sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float RampForce = 5.f;
+		float RampForce = 3000.f;
+
 	class AMarineCharacter* MarinePawn;
 	bool bIsPressedForward;
 
-	float CopyForce;
-	float Force;
+	float CopyMovementForce;
+	float MovementForce;
 	
 	bool SweepBox(FVector Where, float Distance);
 	bool bShouldStillCroach = false;
 
-	void Sliding(float Delta);
+	void Sliding();
 	bool bShouldSlide;
 
 	float VignetteIntensityValue = 1.2f;
 
-	void CroachLerp(float Delta);
+	void CroachLerp();
 	bool bCanCroachLerp;
 	float ScaleZ = 1.5f;
 		

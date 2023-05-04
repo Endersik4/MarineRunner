@@ -39,11 +39,10 @@ private:
 	class AMarineCharacter* MarinePawn;
 	class AGun* Gun;
 
-	bool bHaveItem;
 	bool bIsInterpEnded = true;
 
 	bool CheckIfPlayerCanTake(FHitResult& HitResult);
-	void SetLocationOfItem(float Delta);
+	void SetLocationOfItem();
 	void IsGunAtTheWeaponLocation();
 
 	void ChangeToAnotherWeapon(int32 AmountOfWeapons);

@@ -91,10 +91,13 @@ private:
 	bool CanDoWallrun();
 
 	//Is the player held down the Forward button long enough
-	bool bIsForwardButtonPressed;
-	void CheckIfForwardButtonIsPressed();
-	FTimerHandle ForwardButtonHandle;
-	void SetIsForwardButtonPressed() { bIsForwardButtonPressed = true; }
+	//bool bIsForwardButtonPressed;
+	//void CheckIfForwardButtonIsPressed();
+	//FTimerHandle ForwardButtonHandle;
+	//void SetIsForwardButtonPressed() { bIsForwardButtonPressed = true; }
+
+	FRotator PlayerRotationWallrun;
+	FRotator PlayerRotationWhileWallrun;
 
 	//Other
 	FTimerHandle CanJumpHandle;

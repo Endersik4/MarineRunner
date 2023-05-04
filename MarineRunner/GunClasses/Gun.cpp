@@ -284,7 +284,6 @@ void AGun::SpawnBullet()
 		BulletRotation.Pitch += NewPitchRotaton;
 		BulletRotation.Yaw += NewYawRotation;
 	}
-	else UE_LOG(LogTemp, Error, TEXT("NO RECOIL"));
 	bFirstBulletWithoutRecoil = false;
 
 	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, Location, BulletRotation);
@@ -400,7 +399,7 @@ void AGun::GunSwayWhileMoving()
 {
 	//Using Lemniscate Of Bernoulli to sway gun while moving 
 	if (bCanSway == false || MarinePawn == nullptr) return;
-	if (MarinePawn->GetInputAxisValue("Forward") == 0 && MarinePawn->GetInputAxisValue("Right") == 0) return;
+	if (!MarinePawn->GetIsWallrunning() && MarinePawn->GetInputAxisValue("Forward") == 0 && MarinePawn->GetInputAxisValue("Right") == 0) return;
 
 	float SpeedOfLemniscate = GetWorld()->GetTimeSeconds() * SpeedOfSwayWhileMoving;
 

@@ -26,7 +26,7 @@ void UDashComponent::BeginPlay()
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
 	if (MarinePawn)
 	{
-		CopyForce = MarinePawn->GetForce();
+		CopyForce = MarinePawn->GetMovementForce();
 	}
 }
 
@@ -45,7 +45,7 @@ void UDashComponent::Dash()
 	if (MarinePawn == nullptr) return;
 	if (bCanDash)
 	{
-		if (!MarinePawn->GetIsOnRamp()) MarinePawn->SetForce(DashForce*10);
+		if (!MarinePawn->GetIsOnRamp()) MarinePawn->SetMovementForce(DashForce*10);
 		else if(!MarinePawn->GetIsGoingUp())
 		{
 			FVector Impulse = (-MarinePawn->GetActorUpVector() + MarinePawn->GetActorForwardVector()) * DashForce * 300;
@@ -65,7 +65,7 @@ void UDashComponent::Dash()
 
 void UDashComponent::DashLengthTimer()
 {
-	MarinePawn->SetForce(CopyForce);
+	MarinePawn->SetMovementForce(CopyForce);
 	MarinePawn->GetWorldTimerManager().SetTimer(DashCooldownHandle, this, &UDashComponent::DashCooldownTimer, DashCoolDown, false);
 }
 

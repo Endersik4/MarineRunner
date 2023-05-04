@@ -35,13 +35,11 @@ void UTakeAndDrop::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SetLocationOfItem(DeltaTime);
+	SetLocationOfItem();
 }
 
 void UTakeAndDrop::Take()
 {
-	if (MarinePawn == nullptr) return;
-
 	FHitResult HitResult;
 	if (CheckIfPlayerCanTake(HitResult) == false) return;
 	if (HitResult.GetActor() == nullptr) return;
@@ -50,7 +48,6 @@ void UTakeAndDrop::Take()
 	{
 		Gun = Cast<AGun>(HitResult.GetActor());
 
-		bHaveItem = true;
 		bIsInterpEnded = false;
 
 		MarinePawn->SetCanChangeWeapon(false);
@@ -73,16 +70,17 @@ bool UTakeAndDrop::CheckIfPlayerCanTake(FHitResult& HitResult)
 	return true;
 }
 
-void UTakeAndDrop::SetLocationOfItem(float Delta)
+void UTakeAndDrop::SetLocationOfItem()
 {
 	if (!MarinePawn || !Gun) return;
 
-	if (bHaveItem == false || bIsInterpEnded == true) return;
+	if (bIsInterpEnded == true) return;
+	float Delta = GetWorld()->GetDeltaSeconds();
 
 	FVector BaseSkeletalMeshRelativeLocation = Gun->GetBaseSkeletalMesh()->GetRelativeLocation();
 	FVector Location = FMath::InterpExpoOut(BaseSkeletalMeshRelativeLocation, Gun->GetRelativeLocationInPawn(), SpeedOfComingGun * Delta);
 	Gun->SetActorRelativeLocation(Location);
-
+	
 	FRotator BaseSkeletalMeshRelativeRotation = Gun->GetBaseSkeletalMesh()->GetRelativeRotation();
 	FRotator Rotation = FMath::InterpExpoOut(BaseSkeletalMeshRelativeRotation, Gun->GetRelativeRotationInPawn(), SpeedOfComingGun * Delta);
 	Gun->SetActorRelativeRotation(Rotation);
@@ -105,11 +103,9 @@ void UTakeAndDrop::IsGunAtTheWeaponLocation()
 
 void UTakeAndDrop::DropItem()
 {
-	if (!MarinePawn) return;
+	if (bIsInterpEnded == false) return;
 
-	Gun = MarinePawn->GetGun(); //Make sure the player drops the weapon he has equipped
-	if (!Gun || bHaveItem == false) return;
-
+	if (MarinePawn->GetGun() != Gun) Gun = MarinePawn->GetGun(); //Make sure the player drops the weapon he has equipped
 	if (Gun->GetCanDropGun() == false) return;
 
 	Gun->DropTheGun();
@@ -132,6 +128,5 @@ void UTakeAndDrop::ChangeToAnotherWeapon(int32 AmountOfWeapons)
 		MarinePawn->GetHudWidget()->HideWeaponThings(true);
 		Gun = nullptr;
 		MarinePawn->SetGun(nullptr);
-		bHaveItem = false;
 	}
 }

@@ -24,9 +24,9 @@ void UCroachAndSlide::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	Force = MarinePawn->GetForce();
+	MovementForce = MarinePawn->GetMovementForce();
 
-	CopyForce = Force;
+	CopyMovementForce = MovementForce;
 	MarinePawn->GetCamera()->PostProcessSettings.bOverride_VignetteIntensity = true;
 }
 
@@ -39,34 +39,35 @@ void UCroachAndSlide::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	{
 		CroachReleased();
 	}
-	CroachLerp(DeltaTime);
-	Sliding(DeltaTime);
+	CroachLerp();
+	Sliding();
 }
 
-void UCroachAndSlide::Sliding(float Delta)
+void UCroachAndSlide::Sliding()
 {
 	if (bShouldSlide == false) return;
-
+	float Delta = GetWorld()->GetDeltaSeconds();
+ 
 	if (MarinePawn->GetIsOnRamp())
 	{
-		if (MarinePawn->GetIsGoingUp() == false) Force += (Force < MaxSlideForce) ? (RampForce) * Delta : 0;
-		else Force -= (SlideSpeed * 2.5) * Delta;
+		if (MarinePawn->GetIsGoingUp() == false) MovementForce += (MovementForce < MaxSlideForce) ? (RampForce) * Delta : 0;
+		else MovementForce -= (SlideSpeed * 2.5) * Delta;
 		
 	}
-	else Force -= SlideSpeed * Delta;
+	else MovementForce -= SlideSpeed * Delta;
 
-	if (Force <= CroachForceSpeed)
+	if (MovementForce <= CroachForceSpeed)
 	{
-		Force = CroachForceSpeed;
+		MovementForce = CroachForceSpeed;
 		bShouldSlide = false;
 	}
 
-	MarinePawn->SetForce(Force);
+	MarinePawn->SetMovementForce(MovementForce);
 }
 
 void UCroachAndSlide::CroachPressed()
 {
-	Force = CroachForceSpeed;
+	MovementForce = CroachForceSpeed;
 	ScaleZ = 1.5f;
 	VignetteIntensityValue = 1.2f;
 
@@ -76,17 +77,18 @@ void UCroachAndSlide::CroachPressed()
 		if (MarinePawn->GetInputAxisValue(TEXT("Forward")) == 1.f || MarinePawn->GetInputAxisValue(TEXT("Right")) != 0)
 		{
 			if (MarinePawn->GetIsJumping()) return;
-			Force = CopyForce + InitialVelocityOfSliding;
+			MovementForce = CopyMovementForce + InitialVelocityOfSliding;
 			bShouldSlide = true;
 		}
 	}
 
-	MarinePawn->SetForce(Force);
+	MarinePawn->SetMovementForce(MovementForce);
 }
 
-void UCroachAndSlide::CroachLerp(float Delta)
+void UCroachAndSlide::CroachLerp()
 {
 	if (bCanCroachLerp == false) return;
+	float Delta = GetWorld()->GetDeltaSeconds();
 
 	float NewVignetteIntensity = FMath::Lerp(MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity, VignetteIntensityValue, Delta * SpeedOfCroachLerp);
 	MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
@@ -117,8 +119,8 @@ void UCroachAndSlide::CroachReleased()
 
 	if (MarinePawn->GetIsInAir()) return;
 
-	Force = CopyForce;
-	MarinePawn->SetForce(Force);
+	MovementForce = CopyMovementForce;
+	MarinePawn->SetMovementForce(MovementForce);
 }
 
 bool UCroachAndSlide::SweepBox(FVector Where, float Distance)

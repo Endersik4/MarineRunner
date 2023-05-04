@@ -44,8 +44,9 @@ public:
 		bool IsOnGround;
 
 	int32 GetFirstAidKits() const { return FirstAidKits; }
-	float GetForce() const { return Force; }
+	float GetMovementForce() const { return MovementForce; }
 	float GetHealth() const { return Health; }
+	bool GetIsWallrunning() const;
 	bool GetIsJumping() const { return bIsJumping; }
 	bool GetIsOnRamp() const { return bSlideOnRamp; }
 	bool GetIsGoingUp() const { return bIsGoingUp; }
@@ -57,7 +58,7 @@ public:
 	class UCameraComponent* GetCamera() const { return Camera; }
 	class AGun* GetGun() const { return Gun; }
 
-	void SetForce(float NewForce) { Force = NewForce; }
+	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
 	void SetGun(class AGun* NewGun) {Gun = NewGun;}
 	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
 
@@ -105,14 +106,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float FirstAidKitHealth = 35.f;
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
-		float DelayAfterUseFirstAidKit = 1.f;
+		float DelayAfterUseFirstAidKit = 1.1f;
 
 	//Aka speed movement
 	UPROPERTY(EditAnywhere, Category = "Movement")
-		float Force = 2000.f;
+		float MovementForce = 7000.f;
 	//Prevent from Sliding on the ground like Fish
 	UPROPERTY(EditAnywhere, Category = "Movement")
-		float CounterMovementForce = 2000.f;
+		float CounterMovementForce = 4800.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 		float DividerOfMovementWhenADS = 1.4f;
 
@@ -121,13 +122,13 @@ private:
 		float InitialJumpForce = 1800.f;
 	//Impuls force that is applied to Player in down vector, Thanks to this player is falling faster
 	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
-		float JumpDownForce = 200.f;
+		float JumpDownForce = 15000.f;
 	//How Fast (in seconds) lerp will be done 
 	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
 		float JumpUpTime = 0.35f;
 	//Time for Delay Jump
 	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
-		float DelayJumpTime = 3.1f;
+		float DelayJumpTime = 0.1f;
 
 	//Impuls before Interp/*
 	
@@ -151,7 +152,6 @@ private:
 	void DisableCounterMovement(FVector& MovementDir);
 	void UnstickFromWall(FVector& ForwardDir, FVector& RightDir);
 	void GoConstanlyForward(FVector& ForwardDir, FVector& RightDir);
-	void ForwardReleased();
 
 	//Jumps Variables
 	bool bDownForce;
@@ -206,13 +206,14 @@ private:
 	
 	//Swing
 	bool bCanMarineSwing;
+	bool bShouldCheckForSwing = true;
 	bool bCanSwingLerp;
 	FVector HookLocation;
 	FVector SwingImpulse;
 	FTimerHandle SwingHandle;
 	void SwingPressed();
 	void Swing();
-	void SwingInterp(float Delta);
+	void SwingInterp();
 	void SwingLineCheck();
 	class AHook* HookCast;
 

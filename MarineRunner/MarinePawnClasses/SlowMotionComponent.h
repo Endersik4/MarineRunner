@@ -39,7 +39,7 @@ private:
 		float SlowMotionTime = 4.0f;
 	//Delay of Slow Motion before the next one
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionDelay = 0.2f;
+		float SlowMotionDelay = 3.f;
 
 	bool bCanSlowMotion = true;
 	bool bIsInSlowMotion = false;
