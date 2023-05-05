@@ -143,6 +143,21 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|Swing")
 		float SwingDelay = 0.2f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* ADSInSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* ADSOutSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* ImpactOnFloorSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* JumpSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* QuickSelectSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* UseFirstAidKitSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* FootstepsSound;
+
 	//Movement
 	float MovementSpeedMultiplier = 1.f;
 	float CopyOfOriginalForce;
@@ -152,6 +167,11 @@ private:
 	void DisableCounterMovement(FVector& MovementDir);
 	void UnstickFromWall(FVector& ForwardDir, FVector& RightDir);
 	void GoConstanlyForward(FVector& ForwardDir, FVector& RightDir);
+
+	//Footstepts sounds
+	bool bCanPlayFootstepsSound = true;
+	FTimerHandle FootstepsHandle;
+	void SetCanPlayFootstepsSound() {bCanPlayFootstepsSound = true;}
 
 	//Jumps Variables
 	bool bDownForce;

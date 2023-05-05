@@ -3,6 +3,7 @@
 
 #include "DashComponent.h"
 #include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
@@ -52,6 +53,8 @@ void UDashComponent::Dash()
 			MarinePawn->CapsulePawn->AddImpulse(Impulse);
 		}
 		bCanDash = false;
+
+		if (DashSound) UGameplayStatics::SpawnSound2D(GetWorld(), DashSound);
 
 		MarinePawn->MakeDashWidget(true, DashWidgetTime);
 

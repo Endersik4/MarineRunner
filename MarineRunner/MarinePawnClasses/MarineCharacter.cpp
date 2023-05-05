@@ -122,6 +122,8 @@ void AMarineCharacter::UseFirstAidKit()
 	Health += FirstAidKitHealth;
 	if (Health > 100.f) Health = 100.f;
 
+	if (UseFirstAidKitSound) UGameplayStatics::SpawnSound2D(GetWorld(), UseFirstAidKitSound);
+
 	HudWidget->SetHealthPercent();
 	HudWidget->SetCurrentNumberOfFirstAidKits();
 	HudWidget->SetDidPlayerUseFirstAidKit(true);
@@ -140,6 +142,7 @@ void AMarineCharacter::ADSPressed()
 
 	if (CrosshairWidget) CrosshairWidget->RemoveFromParent();
 
+	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
 	bIsPlayerADS = true;
 	Gun->SetStatusOfGun(StatusOfAimedGun::ADS);
 }
@@ -150,6 +153,7 @@ void AMarineCharacter::ADSReleased()
 
 	MakeCrosshire();
 
+	if (ADSOutSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
 	bIsPlayerADS = false;
 	Gun->SetStatusOfGun(StatusOfAimedGun::BackToInitialPosition);
 }
@@ -206,6 +210,14 @@ void AMarineCharacter::Movement(float Delta)
 	float DeltaForce = (bIsPlayerADS ? (MovementForce / DividerOfMovementWhenADS) : MovementForce) * Delta * (1000 * MovementSpeedMultiplier);
 	MovementDirection.Normalize();
 	CapsulePawn->AddImpulse((MovementDirection * DeltaForce) + CounterMovement);
+
+	if ((GetInputAxisValue(TEXT("Forward")) != 0.f || GetInputAxisValue(TEXT("Right")) != 0.f) && bCanPlayFootstepsSound == true && bIsInAir == false)
+	{
+		if (FootstepsSound) UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);
+		
+		bCanPlayFootstepsSound = false;
+		GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AMarineCharacter::SetCanPlayFootstepsSound, 0.2f, false);
+	}
 }
 
 //Thanks to that Pawn will "Fly" after Impulse and not stopping because of CounterMovement
@@ -251,6 +263,7 @@ void AMarineCharacter::Jump()
 	{
 		bIsJumping = true;
 		JumpTimeElapsed = 0;
+		if (JumpSound) UGameplayStatics::SpawnSound2D(GetWorld(), JumpSound);
 	}
 	else
 	{
@@ -357,6 +370,8 @@ void AMarineCharacter::CheckIfIsInAir()
 
 			bIsInAir = false;
 			PullUpComponent->SetPulledHimselfUp(false);
+
+			if (ImpactOnFloorSound) UGameplayStatics::SpawnSound2D(GetWorld(), ImpactOnFloorSound);
 			
 			MovementForce = CopyOfOriginalForce;
 			MovementSpeedMultiplier = 1.f;
@@ -508,6 +523,7 @@ void AMarineCharacter::FirstWeapon()
 	if (!bCanChangeWeapon) return;
 
 	Gun = WeaponInventoryComponent->GetWeaponFromStorage(1, Gun);
+	if (QuickSelectSound) UGameplayStatics::SpawnSound2D(GetWorld(), QuickSelectSound);
 }
 
 void AMarineCharacter::SecondWeapon()
@@ -515,6 +531,7 @@ void AMarineCharacter::SecondWeapon()
 	if (!bCanChangeWeapon) return;
 
 	Gun = WeaponInventoryComponent->GetWeaponFromStorage(2, Gun);
+	if (QuickSelectSound) UGameplayStatics::SpawnSound2D(GetWorld(), QuickSelectSound);
 }
 
 void AMarineCharacter::HideGunAndAddTheNewOne(AGun* NewGun)

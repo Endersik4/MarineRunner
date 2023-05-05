@@ -94,6 +94,8 @@ private:
 		float FadeGotDamageTime = 1.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
 		float FadeFirstAidImageTime = 0.8f;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* PowerUpLoadedSound;
 
 	bool bGotDamage;
 	float FadeGotDamageTimeElapsed;
@@ -106,7 +108,7 @@ private:
 	bool bShouldProgress;
 	TMap<EUseableElement, ElementBar> WhichElementToProgress;
 	void WhichElementShouldProgress();
-	void ProgressBarForUseableElements(class UProgressBar* ProgressBarElement, EUseableElement Element);
+	void ProgressBarForUseableElements(class UProgressBar* ProgressBarElement, EUseableElement Element, bool bShouldAddSound = false);
 
 	void SetUpMarinePawn();
 	class AMarineCharacter* MarinePawn;

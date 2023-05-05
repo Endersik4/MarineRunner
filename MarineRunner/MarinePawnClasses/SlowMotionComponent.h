@@ -41,6 +41,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float SlowMotionDelay = 3.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* SlowMotionSound;
+
 	bool bCanSlowMotion = true;
 	bool bIsInSlowMotion = false;
 	FTimerHandle SlowMotionTimeHandle;

@@ -154,6 +154,7 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 		//I cant just do SetColorParameter(TEXT("BloodColor"), Enemy->GetBloodColor()); because of some bug it doesnt work, even when 
 		//Enemy->GetBloodColor() returns FLinearColor. It just dont work
 		HitParticle->SetColorParameter(TEXT("BloodColor"), FLinearColor(BloodColor.R, BloodColor.G, BloodColor.B));
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), EnemyHitSound, Hit.ImpactPoint);
 
 		DamageEnemy(Enemy, Hit);
 	}
@@ -164,11 +165,13 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 		AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(OtherActor);
 		if (!MarinePawn) return;
 
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, Hit.ImpactPoint);
 		MarinePawn->GotDamage(Damage);
 	}
 	else if (HitParticle)
 	{
 		HitParticle->SetColorParameter(TEXT("BloodColor"), FLinearColor::Yellow);
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ObjectHitSound, Hit.ImpactPoint);
 
 		SpawnBulletHole(Hit);
 	}

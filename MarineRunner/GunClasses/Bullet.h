@@ -45,6 +45,13 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
 		class UPaperSprite* BulletHoleSprite;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* MarineHitSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* EnemyHitSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* ObjectHitSound;
+
 	float Damage;
 	float AmmoSpeed;
 	float AmmoDistance;

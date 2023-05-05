@@ -71,6 +71,7 @@ void USlowMotionComponent::SettingUpSlowMotion()
 		}
 		MarinePawn->SetMovementImpulse(Impulse);
 	}
+	if (SlowMotionSound) UGameplayStatics::SpawnSound2D(GetWorld(), SlowMotionSound);
 
 	//SlowMotion command
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowMotionValue);
@@ -95,7 +96,6 @@ void USlowMotionComponent::DisableSlowMotion()
 
 void USlowMotionComponent::DelayCompleted()
 {
-	UE_LOG(LogTemp, Warning, TEXT("MOZNA"));
 	bCanSlowMotion = true; 
 }
 

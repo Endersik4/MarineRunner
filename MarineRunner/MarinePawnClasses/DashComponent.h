@@ -39,6 +39,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement")
 		float DashWidgetTime = 0.4f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* DashSound;
+
 	class AMarineCharacter* MarinePawn;
 
 	bool bCanDash = true;

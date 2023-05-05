@@ -57,6 +57,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 		float RampForce = 3000.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* SlideSound;
+
 	class AMarineCharacter* MarinePawn;
 	bool bIsPressedForward;
 
@@ -68,6 +71,10 @@ private:
 
 	void Sliding();
 	bool bShouldSlide;
+
+	bool bShouldPlaySound = true;
+	class UAudioComponent* SpawnedSlideSound;
+	void TurnOffSlideSound();
 
 	float VignetteIntensityValue = 1.2f;
 

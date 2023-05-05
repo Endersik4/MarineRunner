@@ -133,15 +133,15 @@ void UHUDWidget::WhichElementShouldProgress()
 {
 	if (bShouldProgress == false) return;
 
-	ProgressBarForUseableElements(HealBar, EUseableElement::Heal);
-	ProgressBarForUseableElements(DashBar, EUseableElement::Dash);
-	ProgressBarForUseableElements(SlowMoBar, EUseableElement::SlowMo);
+	ProgressBarForUseableElements(HealBar, EUseableElement::Heal, true);
+	ProgressBarForUseableElements(DashBar, EUseableElement::Dash, true);
+	ProgressBarForUseableElements(SlowMoBar, EUseableElement::SlowMo, true);
 	ProgressBarForUseableElements(Button_HealBar, EUseableElement::Button_Heal);
 	ProgressBarForUseableElements(Button_DashBar, EUseableElement::Button_Dash);
 	ProgressBarForUseableElements(Button_SlowMoBar, EUseableElement::Button_SlowMo);
 }
 
-void UHUDWidget::ProgressBarForUseableElements(UProgressBar* ProgressBarElement, EUseableElement Element)
+void UHUDWidget::ProgressBarForUseableElements(UProgressBar* ProgressBarElement, EUseableElement Element, bool bShouldAddSound)
 {
 	if (!WhichElementToProgress.Contains(Element)) return;
 
@@ -155,6 +155,7 @@ void UHUDWidget::ProgressBarForUseableElements(UProgressBar* ProgressBarElement,
 	}
 	else
 	{
+		if (PowerUpLoadedSound && bShouldAddSound) UGameplayStatics::SpawnSound2D(GetWorld(), PowerUpLoadedSound);
 		ProgressBarElement->SetPercent(0.f);
 		WhichElementToProgress.Remove(Element);
 		if (WhichElementToProgress.Num() <= 0) bShouldProgress = false;

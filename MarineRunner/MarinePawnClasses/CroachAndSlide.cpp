@@ -4,6 +4,8 @@
 #include "CroachAndSlide.h"
 #include "DrawDebugHelpers.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
@@ -48,6 +50,12 @@ void UCroachAndSlide::Sliding()
 	if (bShouldSlide == false) return;
 	float Delta = GetWorld()->GetDeltaSeconds();
  
+	if (bShouldPlaySound == true && SlideSound)
+	{
+		SpawnedSlideSound = UGameplayStatics::SpawnSound2D(GetWorld(), SlideSound);
+		bShouldPlaySound = false;
+	}
+
 	if (MarinePawn->GetIsOnRamp())
 	{
 		if (MarinePawn->GetIsGoingUp() == false) MovementForce += (MovementForce < MaxSlideForce) ? (RampForce) * Delta : 0;
@@ -59,6 +67,7 @@ void UCroachAndSlide::Sliding()
 	if (MovementForce <= CroachForceSpeed)
 	{
 		MovementForce = CroachForceSpeed;
+		TurnOffSlideSound();
 		bShouldSlide = false;
 	}
 
@@ -111,6 +120,8 @@ void UCroachAndSlide::CroachReleased()
 		return;
 	}
 	bShouldSlide = false;
+	TurnOffSlideSound();
+	bShouldPlaySound = true;
 	bShouldStillCroach = false;
 
 	ScaleZ = 2.5f;
@@ -134,3 +145,11 @@ bool UCroachAndSlide::SweepBox(FVector Where, float Distance)
 	return GetWorld()->SweepSingleByChannel(HitResult, Start, Start, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(FVector(30, 30, 60)));
 }
 
+
+void UCroachAndSlide::TurnOffSlideSound()
+{
+	if (!SpawnedSlideSound) return;
+
+	SpawnedSlideSound->ToggleActive();
+	SpawnedSlideSound = nullptr;
+}

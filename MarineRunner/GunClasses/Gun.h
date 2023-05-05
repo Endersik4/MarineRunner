@@ -268,9 +268,9 @@ private:
 
 	//SOUNDS
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		class USoundBase* ShootingSound;
+		USoundBase* ShootingSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		class USoundBase* EmptyMagazineSound;
+		USoundBase* EmptyMagazineSound;
 
 	//RecoilTimeline
 	void Playtimeline(class UTimelineComponent* TimeLineComp);
