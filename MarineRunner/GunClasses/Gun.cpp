@@ -7,6 +7,7 @@
 #include "TimerManager.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AudioComponent.h"
 
 #include "MarineRunner/GunClasses/Bullet.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
@@ -21,8 +22,10 @@ AGun::AGun()
 	
 	BaseSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun Skeletal Mesh"));
 	RootComponent = BaseSkeletalMesh;
+
 	BaseSkeletalMesh->SetSimulatePhysics(true);
 	BaseSkeletalMesh->SetCollisionProfileName(TEXT("GunCollision"));
+	BaseSkeletalMesh->SetNotifyRigidBodyCollision(true); 
 
 	Tags.Add(TEXT("Gun"));
 }
@@ -31,7 +34,9 @@ AGun::AGun()
 void AGun::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	BaseSkeletalMesh->OnComponentHit.AddDynamic(this, &AGun::OnHit);
+
 	RecoilAnimTimeline = SetupTimeline(RecoilAnimTimeline, RecoilAnimCurveLocationX, FName("RecoilAnimTimeline"), FName("RecoilAnimTimelineDirection"), RecoilAnimTimelineLength, FName("RecoilAnimTimelineCallback"), FName("RecoilAnimTimelineFinishedCallback"));
 	if (bShouldUseCurveRecoil) RecoilCameraTimeline = SetupTimeline(RecoilCameraTimeline, RecoilCameraCurveY, FName("RecoilCameraTimeline"), FName("RecoilCameraTimelineDirection"), RecoilCameraTimelineLength, FName("RecoilCameraTimelineCallback"), FName("RecoilCameraTimelineFinishedCallback"));
 	
@@ -52,7 +57,7 @@ void AGun::Tick(float DeltaTime)
 
 void AGun::Shoot()
 {
-	if (BulletClass == NULL) return;
+	if (BulletClass == NULL || bIsReloading) return;
 	if (bCanShoot == false)
 	{
 		bShouldDelayShoot = true;
@@ -301,10 +306,19 @@ void AGun::ResetVariablesForCameraRecoil()
 	if (bShouldUseCurveRecoil) RecoilCameraTimeline->Stop();
 }
 
+void AGun::WaitToReload()
+{
+	if (StoredAmmo <= 0 || MagazineCapacity == CopyOfMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return;
+	if (ReloadSound) SpawnedReloadSound = UGameplayStatics::SpawnSoundAttached(ReloadSound, BaseSkeletalMesh);
+
+	bCanShoot = false;
+	ShootReleased();
+	bIsReloading = true;
+	GetWorldTimerManager().SetTimer(ReloadHandle, this, &AGun::Reload, ReloadTime, false);
+}
+
 void AGun::Reload()
 {
-	if (StoredAmmo <= 0) return;
-
 	int32 RestAmmo = CopyOfMagazineCapacity - MagazineCapacity;
 	if (StoredAmmo < RestAmmo)
 	{
@@ -317,7 +331,20 @@ void AGun::Reload()
 		MagazineCapacity = CopyOfMagazineCapacity;
 	}
 
+	bIsReloading = false;
+	bCanShoot = true;
 	SetWeaponInHud(true);
+}
+
+void  AGun::CancelReload()
+{
+	GetWorldTimerManager().ClearTimer(ReloadHandle);
+	if (!SpawnedReloadSound) return;
+
+	SpawnedReloadSound->ToggleActive();
+	SpawnedReloadSound = nullptr;
+	bCanShoot = true;
+	bIsReloading = false;
 }
 
 void AGun::EquipWeapon(class AMarineCharacter* Marine)
@@ -329,6 +356,8 @@ void AGun::EquipWeapon(class AMarineCharacter* Marine)
 	//Changing Weapons things In HUD to the correct ones
 	SetHudWidget(Marine->GetHudWidget());
 	SetWeaponInHud(true, true);
+
+	if (PickUpSound) UGameplayStatics::SpawnSoundAttached(PickUpSound, BaseSkeletalMesh);
 
 	AttachToComponent(Marine->GetCamera(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 }
@@ -344,10 +373,24 @@ void AGun::DropTheGun()
 	SetGunSwayWhileMovingTimer(true);
 	bCanGunSwayTick = false;
 	HudWidget = nullptr;
+	if (bIsReloading) CancelReload();
 
 	FVector DropImpulse = MarinePawn->GetCamera()->GetForwardVector() * 10 * DropImpulseDistance;
 	BaseSkeletalMesh->AddImpulse(DropImpulse);
 	MarinePawn = nullptr;
+}
+
+void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	if (!HitGroundSound || OtherActor->ActorHasTag("Gun")) return;
+
+	if (SpawnedHitGroundSound && HitActor)
+	{
+		if (SpawnedHitGroundSound->IsActive() && HitActor == OtherActor) return;
+	}
+
+	SpawnedHitGroundSound = UGameplayStatics::SpawnSoundAtLocation(GetWorld(), HitGroundSound, GetActorLocation());
+	HitActor = OtherActor;
 }
 
 void AGun::GunSway()

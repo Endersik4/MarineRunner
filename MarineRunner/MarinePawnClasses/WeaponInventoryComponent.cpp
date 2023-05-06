@@ -55,10 +55,12 @@ AGun* UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, class 
 {
 	if (WeaponsStorage.Find(KeyForWeapon) == nullptr) return CurrentWeapon;
 	AGun* Gun = *WeaponsStorage.Find(KeyForWeapon);
+	if (Gun == CurrentWeapon) return CurrentWeapon;
 
 	if (CurrentWeapon)
 	{
 		CurrentWeapon->SetGunSwayWhileMovingTimer(true);
+		if (CurrentWeapon->GetIsReloading()) CurrentWeapon->CancelReload();
 		CurrentWeapon->SetActorHiddenInGame(true);
 	}
 

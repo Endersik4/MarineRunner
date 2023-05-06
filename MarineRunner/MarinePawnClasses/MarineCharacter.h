@@ -156,7 +156,13 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* UseFirstAidKitSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* SwingSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* FootstepsSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* FootstepsWallrunSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* FootstepsCroachSound;
 
 	//Movement
 	float MovementSpeedMultiplier = 1.f;
@@ -169,6 +175,7 @@ private:
 	void GoConstanlyForward(FVector& ForwardDir, FVector& RightDir);
 
 	//Footstepts sounds
+	void PlayFootstepsSound();
 	bool bCanPlayFootstepsSound = true;
 	FTimerHandle FootstepsHandle;
 	void SetCanPlayFootstepsSound() {bCanPlayFootstepsSound = true;}
@@ -193,6 +200,7 @@ private:
 	void Dash();
 
 	//Croaching
+	bool bIsCroaching;
 	bool bSlideOnRamp;
 	bool bIsGoingUp;
 	void CroachPressed();

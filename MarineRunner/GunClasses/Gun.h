@@ -44,14 +44,16 @@ public:
 	bool GetIsAutomatic() const { return bIsAutomatic; }
 
 	void ShouldConstantlyShoot(bool bShould) { bConstantlyShoot = bShould; }
-	void Reload();
+	void WaitToReload();
+	void CancelReload();
 	void Shoot();
 	void GunSwayWhileMoving();
 	void ShootReleased();
 	void SetGunSwayWhileMovingTimer(bool bShouldClear = false);
 
 	float GetAmmoDistance() const { return AmmoDistance; }
-	bool GetCanDropGun() { return bCanDropTheGun; }
+	bool GetCanDropGun() const { return bCanDropTheGun; }
+	bool GetIsReloading()  const { return bIsReloading; }
 
 	void SetBulletRotation(FRotator NewBulletRotation) { BulletRotation = NewBulletRotation; }
 	void SetCanGunSwayTick(bool bCan) { bCanGunSwayTick = bCan; }
@@ -79,6 +81,9 @@ private:
 	UFUNCTION()
 		void RecoilCameraTimelineFinishedCallback() {};
 
+	UFUNCTION()
+		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		FVector RelativeLocationInPawn;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
@@ -87,6 +92,8 @@ private:
 	//General Damage
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		float Damage;
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
+		float ReloadTime = 1.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		bool bIsAutomatic;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
@@ -271,6 +278,12 @@ private:
 		USoundBase* ShootingSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* EmptyMagazineSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* ReloadSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* HitGroundSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* PickUpSound;
 
 	//RecoilTimeline
 	void Playtimeline(class UTimelineComponent* TimeLineComp);
@@ -299,6 +312,14 @@ private:
 
 	//Reloading
 	float CopyOfMagazineCapacity;
+	bool bIsReloading;
+	FTimerHandle ReloadHandle;
+	class UAudioComponent* SpawnedReloadSound;
+	void Reload();
+
+	//OnHit
+	class UAudioComponent* SpawnedHitGroundSound;
+	AActor* HitActor;
 
 	//RecoilCamera
 	bool bCanRecoilCamera;

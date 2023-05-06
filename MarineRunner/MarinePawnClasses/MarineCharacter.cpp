@@ -177,7 +177,7 @@ void AMarineCharacter::Reload()
 {
 	if (Gun == nullptr) return;
 
-	Gun->Reload();
+	Gun->WaitToReload();
 }
 
 void AMarineCharacter::Movement(float Delta)
@@ -210,14 +210,8 @@ void AMarineCharacter::Movement(float Delta)
 	float DeltaForce = (bIsPlayerADS ? (MovementForce / DividerOfMovementWhenADS) : MovementForce) * Delta * (1000 * MovementSpeedMultiplier);
 	MovementDirection.Normalize();
 	CapsulePawn->AddImpulse((MovementDirection * DeltaForce) + CounterMovement);
-
-	if ((GetInputAxisValue(TEXT("Forward")) != 0.f || GetInputAxisValue(TEXT("Right")) != 0.f) && bCanPlayFootstepsSound == true && bIsInAir == false)
-	{
-		if (FootstepsSound) UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);
-		
-		bCanPlayFootstepsSound = false;
-		GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AMarineCharacter::SetCanPlayFootstepsSound, 0.2f, false);
-	}
+	
+	PlayFootstepsSound();
 }
 
 //Thanks to that Pawn will "Fly" after Impulse and not stopping because of CounterMovement
@@ -371,7 +365,7 @@ void AMarineCharacter::CheckIfIsInAir()
 			bIsInAir = false;
 			PullUpComponent->SetPulledHimselfUp(false);
 
-			if (ImpactOnFloorSound) UGameplayStatics::SpawnSound2D(GetWorld(), ImpactOnFloorSound);
+			if (ImpactOnFloorSound) UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, CapsulePawn);
 			
 			MovementForce = CopyOfOriginalForce;
 			MovementSpeedMultiplier = 1.f;
@@ -402,6 +396,32 @@ void AMarineCharacter::CheckIfIsInAir()
 	}
 }
 
+void AMarineCharacter::PlayFootstepsSound()
+{
+	if (bCanPlayFootstepsSound == false) return;
+	if (WallrunComponent->GetIsWallrunning() == false && bIsInAir == true) return;
+	if (CroachAndSlideComponent->GetIsSliding() == true) return;
+
+	if ((GetInputAxisValue(TEXT("Forward")) != 0.f || GetInputAxisValue(TEXT("Right")) != 0.f) || WallrunComponent->GetIsWallrunning() == true)
+	{
+		float TimeOfHandle = 0.21f;
+		if (WallrunComponent->GetIsWallrunning() == true && FootstepsWallrunSound)
+		{
+			TimeOfHandle = 0.17f;
+			UGameplayStatics::SpawnSound2D(GetWorld(), FootstepsWallrunSound);
+		}
+		else if (bIsCroaching == true && FootstepsCroachSound)
+		{
+			TimeOfHandle = 0.43f;
+			UGameplayStatics::SpawnSoundAttached(FootstepsCroachSound, CapsulePawn);
+		}
+		else if (FootstepsSound) UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);
+
+		bCanPlayFootstepsSound = false;
+		GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AMarineCharacter::SetCanPlayFootstepsSound, TimeOfHandle, false);
+	}
+}
+
 //If the player press the Swing button then spawn the Line that is going to the Hook and then wait for SwingDelay to elapsed
 void AMarineCharacter::SwingPressed()
 {
@@ -418,6 +438,8 @@ void AMarineCharacter::SwingPressed()
 		SwingLine->SetSpeedLine(SwingDelay);
 		SwingLine->SetCanTick(true);
 	}
+
+	if (SwingSound) UGameplayStatics::SpawnSound2D(GetWorld(), SwingSound);
 
 	GetWorldTimerManager().SetTimer(SwingHandle, this, &AMarineCharacter::Swing, SwingDelay);
 }
@@ -510,17 +532,20 @@ void AMarineCharacter::CroachPressed()
 {
 	if (bCanSwingLerp || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion()) return;
 
+	bIsCroaching = true;
 	CroachAndSlideComponent->CroachPressed();
 }
 
 void AMarineCharacter::CroachReleased()
 {
+	bIsCroaching = false;
 	CroachAndSlideComponent->CroachReleased();
 }
 
 void AMarineCharacter::FirstWeapon()
 {
 	if (!bCanChangeWeapon) return;
+	if (WeaponInventoryComponent->GetWeaponFromStorage(1, Gun) == Gun) return;
 
 	Gun = WeaponInventoryComponent->GetWeaponFromStorage(1, Gun);
 	if (QuickSelectSound) UGameplayStatics::SpawnSound2D(GetWorld(), QuickSelectSound);
@@ -529,6 +554,7 @@ void AMarineCharacter::FirstWeapon()
 void AMarineCharacter::SecondWeapon()
 {
 	if (!bCanChangeWeapon) return;
+	if (WeaponInventoryComponent->GetWeaponFromStorage(2, Gun) == Gun) return;
 
 	Gun = WeaponInventoryComponent->GetWeaponFromStorage(2, Gun);
 	if (QuickSelectSound) UGameplayStatics::SpawnSound2D(GetWorld(), QuickSelectSound);
