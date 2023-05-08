@@ -167,7 +167,7 @@ void AGun::RecoilAnimTimelineFinishedCallback()
 	if (bConstantlyShoot)
 	{
 		//I need to use a timer to prevent an error that causes the bullet to appear in a different location than the Bullet Socket.
-		GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGun::Shoot, 0.001f);
+		GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGun::Shoot, 0.005f);
 	}
 }
 

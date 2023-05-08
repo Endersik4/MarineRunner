@@ -9,6 +9,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "TimerManager.h"
 #include "Camera/CameraComponent.h"
+#include "Components/DecalComponent.h"
 
 #include "MarineRunner/GunClasses/Bullet.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
@@ -50,6 +51,7 @@ void AEnemyPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	CheckIfEnemySeePlayer();
+	PlayFootstepsSound();
 }
 
 // Called to bind functionality to input
@@ -69,7 +71,7 @@ void AEnemyPawn::Shoot()
 		return;
 	}
 
-	if (ShootingSound) 	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ShootingSound, EnemySkeletalMesh->GetSocketLocation("MuzzleFlash"), FRotator::ZeroRotator, 1.f, 1.f, 0.f, ShootingAttenuation);
+	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, EnemySkeletalMesh, TEXT("MuzzleFlash"));
 	if (ShootParticle)
 	{
 		UGameplayStatics::SpawnEmitterAttached(ShootParticle, EnemySkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
@@ -81,7 +83,6 @@ void AEnemyPawn::Shoot()
 	MagazineCapacity--;
 	PlayAnimMontageInBlueprint();
 	bCanShoot = false;
-	
 }
 
 void AEnemyPawn::CheckIfEnemySeePlayer()
@@ -152,6 +153,33 @@ void AEnemyPawn::SpawnBullet()
 	
 	SpawnedBullet->SetBulletVariables(Damage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
 	SpawnedBullet->ImpulseOnBullet();
+}
+
+void AEnemyPawn::SpawnBloodDecal(const FHitResult& Hit)
+{
+	if (!BloodDecalMaterial) return;
+
+	FVector Size = FVector(FMath::FRandRange(5.f, 20.f));
+	FRotator Rotation = Hit.ImpactNormal.Rotation();
+	UDecalComponent* SpawnedDecal = UGameplayStatics::SpawnDecalAttached(BloodDecalMaterial, Size, EnemySkeletalMesh, Hit.BoneName, Hit.Location, Rotation, EAttachLocation::KeepWorldPosition);
+	if (SpawnedDecal) SpawnedDecal->SetFadeScreenSize(0.f);
+}
+
+void AEnemyPawn::PlayFootstepsSound()
+{
+	if (!FootstepsSound) return;
+	if (GetVelocity().Length() < 1.f || bCanPlayFootstepsSound == false || bIsDead) return;
+
+	float FootstepsTime = 0.42f;
+	if (bIsRunningAway)
+	{
+		if (FootstepsRunningAwaySound) UGameplayStatics::SpawnSoundAttached(FootstepsRunningAwaySound, EnemySkeletalMesh);
+		FootstepsTime = 0.2f;
+	}
+	else UGameplayStatics::SpawnSoundAttached(FootstepsSound, EnemySkeletalMesh);
+
+	bCanPlayFootstepsSound = false;
+	GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AEnemyPawn::SetCanPlayFootstepsSound, FootstepsTime, false);
 }
 
 void AEnemyPawn::SetUpMarinePawn()

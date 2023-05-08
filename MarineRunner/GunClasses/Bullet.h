@@ -35,15 +35,12 @@ private:
 		void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
 	UPROPERTY(EditAnywhere, Category = "Particles")
-		class UNiagaraComponent* BulletTrail;
-
+		class UParticleSystem* BulletHitParticle;
 	UPROPERTY(EditAnywhere, Category = "Particles")
-		class UNiagaraSystem* BulletHits;
+		class UParticleSystem* EnemyBloodParticle;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
 		bool bUseImpulseForBullet;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
-		class UPaperSprite* BulletHoleSprite;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* MarineHitSound;
@@ -51,6 +48,9 @@ private:
 		USoundBase* EnemyHitSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ObjectHitSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Materials")
+		UMaterialInstance* BulletHoleDecalMaterial;
 
 	float Damage;
 	float AmmoSpeed;
@@ -67,5 +67,4 @@ private:
 
 	float TrackBulletDistance;
 	FVector BulletLocation;
-	UNiagaraComponent* HitParticle;
 };

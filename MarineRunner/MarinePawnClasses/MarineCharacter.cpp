@@ -116,7 +116,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void AMarineCharacter::UseFirstAidKit()
 {
-	if (FirstAidKits <= 0 || bCanUseFirstAidKit == false) return;
+	if (FirstAidKits <= 0 || bCanUseFirstAidKit == false || Health == 100.f) return;
 
 	FirstAidKits--;
 	Health += FirstAidKitHealth;

@@ -40,6 +40,7 @@ public:
 	void SetShouldRunningAway();
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 
+	void SpawnBloodDecal(const FHitResult& Hit);
 	void Reload();
 
 
@@ -136,7 +137,13 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		class USoundBase* ShootingSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		class USoundAttenuation* ShootingAttenuation;
+		class USoundBase* FootstepsSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		class USoundBase* FootstepsRunningAwaySound;
+
+	//Materials
+	UPROPERTY(EditDefaultsOnly, Category = "Materials")
+		UMaterialInstance* BloodDecalMaterial;
 
 	//Particles
 	UPROPERTY(EditDefaultsOnly, Category = "Particles")
@@ -163,6 +170,12 @@ private:
 	//Bullet
 	FTimerHandle ImpulseOnBulletHandle;
 	void SpawnBullet();
+
+	//Footsteps sound
+	void PlayFootstepsSound();
+	bool bCanPlayFootstepsSound = true;
+	FTimerHandle FootstepsHandle;
+	void SetCanPlayFootstepsSound() { bCanPlayFootstepsSound = true; }
 
 	//MarinePawn
 	class AMarineCharacter* MarinePawn;

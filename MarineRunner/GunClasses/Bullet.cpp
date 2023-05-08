@@ -5,11 +5,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
-#include "PaperSpriteComponent.h"
-#include "PaperSprite.h"
-#include "PaperSpriteActor.h"
+#include "Components/DecalComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 #include "MarineRunner/EnemiesClasses/EnemyAiController.h"
@@ -24,9 +21,6 @@ ABullet::ABullet()
 	BulletMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BulletMesh"));
 	RootComponent = BulletMesh;
 
-	BulletTrail = CreateDefaultSubobject<UNiagaraComponent>(TEXT("BulletTrail"));
-	BulletTrail->SetupAttachment(BulletMesh);
-
 	OnActorHit.AddDynamic(this, &ABullet::OnHit);
 }
 
@@ -34,7 +28,6 @@ ABullet::ABullet()
 void ABullet::BeginPlay()
 {
 	Super::BeginPlay();
-
 
 }
 
@@ -44,7 +37,6 @@ void ABullet::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	MovementBullet(DeltaTime);
-
 }
 
 void ABullet::MovementBullet(float Delta)
@@ -90,8 +82,6 @@ void ABullet::DamageEnemy(AEnemyPawn* Enemy, const FHitResult& Hit)
 		FVector Impulse = GetActorForwardVector() * (AmmoImpulseForce * 100);
 		Enemy->GetEnemySkeletalMesh()->AddImpulse(Impulse, Hit.BoneName);
 
-		//There is some bug that SkeletonMesh still playing animation after Stop() but when i call 2 times this function, Skeleton stop playing animation
-		Enemy->GetEnemySkeletalMesh()->Stop();
 		Enemy->GetEnemySkeletalMesh()->Stop();
 		return;
 	}
@@ -123,55 +113,49 @@ void ABullet::AlertEnemyAboutPlayer(AEnemyPawn* Enemy)
 
 void ABullet::SpawnBulletHole(const FHitResult& Hit)
 {
-	if (!BulletHoleSprite) return;
+	if (!BulletHoleDecalMaterial) return;
 
-	FVector Location = Hit.ImpactPoint + (-GetActorForwardVector() * 3.f);
-	FRotator Rotation = GetActorRotation();
-	Rotation.Yaw += 90.f;
-
-	APaperSpriteActor* BulletHole = GetWorld()->SpawnActor<APaperSpriteActor>(APaperSpriteActor::StaticClass(), Location, Rotation);
-
-	if (!BulletHole) return;
-
-	BulletHole->GetRenderComponent()->SetMobility(EComponentMobility::Movable);
-	BulletHole->GetRenderComponent()->SetSprite(BulletHoleSprite);
-	BulletHole->SetActorScale3D(FVector(0.01));
+	FVector Size = FVector(FMath::FRandRange(7.f, 8.f));
+	FRotator Rotation = Hit.ImpactNormal.Rotation();
+	UDecalComponent* SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalMaterial, Size, Hit.Location, Rotation);
+	if (SpawnedDecal) SpawnedDecal->SetFadeScreenSize(0.f);
 }
 
 void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (BulletHits)
-	{
-		HitParticle = UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), BulletHits, Hit.ImpactPoint);
-	}
-
 	if (OtherActor->ActorHasTag("Enemy"))
 	{
 		AEnemyPawn* Enemy = Cast<AEnemyPawn>(OtherActor);
 		if (!Enemy) return;
 
-		FColor BloodColor = Enemy->GetBloodColor();
-		//I cant just do SetColorParameter(TEXT("BloodColor"), Enemy->GetBloodColor()); because of some bug it doesnt work, even when 
-		//Enemy->GetBloodColor() returns FLinearColor. It just dont work
-		HitParticle->SetColorParameter(TEXT("BloodColor"), FLinearColor(BloodColor.R, BloodColor.G, BloodColor.B));
-		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), EnemyHitSound, Hit.ImpactPoint);
-
+		if (EnemyHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), EnemyHitSound, Hit.ImpactPoint);
+		if (EnemyBloodParticle)
+		{
+			FRotator Rotation = Hit.ImpactNormal.Rotation() - FRotator(90.f,0.f,0.f);
+			UParticleSystemComponent* SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, Rotation);
+			SpawnedParticle->SetColorParameter(TEXT("ColorOfBlood"), Enemy->GetBloodColor());
+		}
+		
+		Enemy->SpawnBloodDecal(Hit);
 		DamageEnemy(Enemy, Hit);
 	}
 	else if (OtherActor->ActorHasTag("Player"))
 	{
-		HitParticle->SetColorParameter(TEXT("BloodColor"), FLinearColor(0.f, 98.4, 100.f)); //color from HUD (light blue)
-
 		AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(OtherActor);
 		if (!MarinePawn) return;
 
-		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, Hit.ImpactPoint);
+		if (MarineHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, Hit.ImpactPoint);
+
 		MarinePawn->GotDamage(Damage);
 	}
-	else if (HitParticle)
+	else
 	{
-		HitParticle->SetColorParameter(TEXT("BloodColor"), FLinearColor::Yellow);
-		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ObjectHitSound, Hit.ImpactPoint);
+		if (ObjectHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ObjectHitSound, Hit.ImpactPoint);
+		if (BulletHitParticle)
+		{
+			FRotator Rotation = GetActorRotation();
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHitParticle, Hit.ImpactPoint, Rotation);
+		}
 
 		SpawnBulletHole(Hit);
 	}
