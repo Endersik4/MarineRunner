@@ -140,7 +140,11 @@ void AMarineCharacter::ADSPressed()
 {
 	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
 
-	if (CrosshairWidget) CrosshairWidget->RemoveFromParent();
+	if (CrosshairWidget)
+	{
+		CrosshairWidget->RemoveFromParent();
+		CrosshairWidget = nullptr;
+	}
 
 	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
 	bIsPlayerADS = true;
@@ -262,13 +266,8 @@ void AMarineCharacter::Jump()
 	else
 	{
 		bCanDelayJump = true;
-		GetWorldTimerManager().SetTimer(DelayJumpHandle, this, &AMarineCharacter::DelayJump, DelayJumpTime, false);
+		GetWorldTimerManager().SetTimer(DelayJumpHandle, this, &AMarineCharacter::SetCanDelayJump, DelayJumpTime, false);
 	}
-}
-
-void AMarineCharacter::DelayJump()
-{
-	bCanDelayJump = false;
 }
 
 void AMarineCharacter::JumpTick(float DeltaTime)
@@ -386,12 +385,7 @@ void AMarineCharacter::CheckIfIsInAir()
 		}
 		else bSlideOnRamp = false;
 
-		if (bCanDelayJump == true)
-		{
-			Jump();
-			bCanDelayJump = false;
-			GetWorldTimerManager().ClearTimer(DelayJumpHandle);
-		}
+		DelayJump();
 		
 	}
 }
@@ -425,8 +419,9 @@ void AMarineCharacter::PlayFootstepsSound()
 //If the player press the Swing button then spawn the Line that is going to the Hook and then wait for SwingDelay to elapsed
 void AMarineCharacter::SwingPressed()
 {
-	if (!bCanMarineSwing || HookCast == nullptr || bCanSwingLerp == true) return;
+	if (!bCanMarineSwing || HookCast == nullptr || bCanSwingLerp == true || bIsSwingPressed == true) return;
 
+	bIsSwingPressed = true;
 	bShouldCheckForSwing = false;
 	FVector SpawnLocation = Camera->GetComponentLocation();
 	SpawnLocation += Camera->GetForwardVector() * 100.f;
@@ -475,6 +470,7 @@ void AMarineCharacter::SwingInterp()
 	FVector LocationInterp = FMath::VInterpTo(GetActorLocation(), HookLocation, GetWorld()->GetDeltaSeconds(), SwingSpeed);
 	if (Camera->GetComponentLocation().Equals(HookLocation, 200))
 	{
+		bIsSwingPressed = false;
 		bCanSwingLerp = false;
 		bShouldCheckForSwing = true;
 		FVector Velocity = CapsulePawn->GetPhysicsLinearVelocity() * SwingLinearPhysicsMultiplier;
@@ -490,7 +486,7 @@ void AMarineCharacter::SwingLineCheck()
 	if (bCanSwingLerp || bShouldCheckForSwing == false) return;
 
 	FVector LineStart = Camera->GetComponentLocation();
-	FVector LineEnd = LineStart + (Camera->GetForwardVector() * 2000.f);
+	FVector LineEnd = LineStart + (Camera->GetForwardVector() * 3500.f);
 	TArray<AActor*> ActorsToIgnore;
 	FHitResult HitResults;
 	if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ActorsToIgnore, EDrawDebugTrace::None, HitResults, true))
@@ -582,7 +578,7 @@ void AMarineCharacter::DropItem()
 
 void AMarineCharacter::Dash()
 {
-	if (bCanSwingLerp || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion()) return;
+	if (bCanSwingLerp || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion() || bIsCroaching) return;
 
 	bShouldAddCounterMovement = true;
 	DashComponent->Dash();
@@ -626,6 +622,8 @@ void AMarineCharacter::MakeHudWidget()
 
 void AMarineCharacter::MakeCrosshire()
 {
+	if (CrosshairWidget) return;
+
 	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (CrosshairClass && MarineController)
 	{
@@ -634,10 +632,15 @@ void AMarineCharacter::MakeCrosshire()
 	}
 }
 
-void AMarineCharacter::MovementStuffThatCannotHappen()
+void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings)
 {
 	bIsJumping = false;
 	CroachReleased();
+
+	if (!bShouldCancelGameplayThings) return;
+
+	if (bCanDelayJump) DelayJump();
+	if (bIsPlayerADS) ADSReleased();
 }
 
 void AMarineCharacter::GotDamage(float Damage)
@@ -649,6 +652,15 @@ void AMarineCharacter::GotDamage(float Damage)
 	HudWidget->SetHealthPercent();
 
 	HudWidget->SetGotDamage(true);
+}
+
+void AMarineCharacter::DelayJump()
+{
+	if (bCanDelayJump == false) return;
+
+	Jump();
+	bCanDelayJump = false;
+	GetWorldTimerManager().ClearTimer(DelayJumpHandle);
 }
 
 void AMarineCharacter::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov, bool bAddChromaticAbberation)

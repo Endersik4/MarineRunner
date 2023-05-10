@@ -69,11 +69,12 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 		if (!(MarinePawn->GetInputAxisValue("Forward") > 0.5f)) return;
 		WallrunTimeElapsed = 0.6f;
 
+		MarinePawn->MovementStuffThatCannotHappen(true); //Things that cannot happen while WAllrunning
+
 		//Setting up MarinePawn variables
 		MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
 		MarinePawn->RotateCameraWhileWallrunning(CurrentSide == Right ? true : false);//Rotating the camera in Roll, Definition of this function is in Blueprint of MarineCharacter
 		
-
 		RotateCameraYaw(CurrentSide, HitNormal);
 		float YawMovementImpulse = HitNormal.Rotation().Yaw + (85 * (CurrentSide == Left ? -1 : 1));
 		MarinePawn->SetMovementImpulse(FRotator(0, YawMovementImpulse, 0).Vector());
@@ -82,10 +83,7 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 		bIsWallrunning = true;
 
 		bCanJumpWhileWallrunning = false;
-		GetWorld()->GetTimerManager().SetTimer(CanJumpHandle, this, &UWallrunComponent::SetCanJumpWhileWallrunning, 0.2f);
-
-		//Things that cannot happen while WAllrunning
-		MarinePawn->MovementStuffThatCannotHappen();
+		GetWorld()->GetTimerManager().SetTimer(CanJumpHandle, this, &UWallrunComponent::SetCanJumpWhileWallrunning, 0.1f);	
 	}
 	WallrunningWhereToJump = HitNormal;
 
@@ -121,7 +119,7 @@ bool UWallrunComponent::IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& Ou
 		
 		//If Line hit wall then Add 1 to HowManyBools
 		HowManyBools += UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocationOfLinesTrace[i], EndLocationOfLinesTrace[i], UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ignor, EDrawDebugTrace::None, HitResult, true);
-
+		if (HitResult.GetActor()) if (HitResult.GetActor()->ActorHasTag("NoWall")) HowManyBools--;
 		if (i == 0) HitNormal = HitResult.ImpactNormal; //Take out HitResult from the first line
 
 		//If all lines hit something (HowManyBools == 4) then the player can do a wallrun

@@ -52,7 +52,7 @@ public:
 	bool GetIsGoingUp() const { return bIsGoingUp; }
 	bool GetIsInAir() const { return bIsInAir; }
 	bool GetShouldAddCounterMovement() const { return bShouldAddCounterMovement; }
-	bool GetIsPlayerADS() const { return bIsPlayerADS; }
+	//bool GetIsPlayerADS() const { return bIsPlayerADS; }
 	class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
 	class UCameraComponent* GetCamera() const { return Camera; }
@@ -66,7 +66,7 @@ public:
 	void SetShouldAddCounterMovement(bool bShould) { bShouldAddCounterMovement = bShould; }
 	void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMultiplier = NewSpeed; }
 
-	void MovementStuffThatCannotHappen();
+	void MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings = false);
 	void GotDamage(float Damage);
 	void HideGunAndAddTheNewOne(class AGun* NewGun);
 
@@ -191,6 +191,7 @@ private:
 	bool bCanDelayJump;
 	FTimerHandle DelayJumpHandle;
 	void DelayJump();
+	void SetCanDelayJump() { bCanDelayJump = false; };
 
 	//In Air
 	bool bIsInAir;
@@ -233,6 +234,7 @@ private:
 	bool bCanChangeWeapon = true;
 	
 	//Swing
+	bool bIsSwingPressed = false;
 	bool bCanMarineSwing;
 	bool bShouldCheckForSwing = true;
 	bool bCanSwingLerp;

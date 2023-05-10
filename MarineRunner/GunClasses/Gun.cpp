@@ -157,18 +157,19 @@ void AGun::RecoilAnimTimelineFinishedCallback()
 {
 	bCanShoot = true;
 	bCanSway = true;
-	if (bShouldDelayShoot)
+	if (StatusOfGun == HipFire) bCanDropTheGun = true;
+
+	if (bShouldDelayShoot || bConstantlyShoot)
 	{
-		Shoot();
-		bShouldDelayShoot = false;
+		GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGun::Shoot, 0.015f);
+		if (bShouldDelayShoot) bShouldDelayShoot = false;
 	}
 
-	if (StatusOfGun == HipFire) bCanDropTheGun = true;
-	if (bConstantlyShoot)
+	/*if (bConstantlyShoot)
 	{
 		//I need to use a timer to prevent an error that causes the bullet to appear in a different location than the Bullet Socket.
-		GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGun::Shoot, 0.005f);
-	}
+		GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGun::Shoot, 0.055f);
+	}*/
 }
 
 void AGun::RecoilCameraTimelineCallback(float ControlRotationY)

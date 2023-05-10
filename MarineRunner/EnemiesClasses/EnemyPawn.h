@@ -34,6 +34,7 @@ public:
 	float GetWaitTimeShoot() const { return WaitTimeShoot; }
 	float GetDetectPlayerTime() const { return DetectPlayerTime; }
 	float GetLoseSightOfPlayerTime() const { return LoseSightOfPlayerTime; }
+	bool GetIsDead() const { return bIsDead; }
 
 	void ShootBullet() { Shoot(); }
 	void SetIsDead(bool bNewDead);
@@ -99,7 +100,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		float SpeedOfEnemyWhenIsRunningAway = 1600.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy")
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		float Health = 100.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")

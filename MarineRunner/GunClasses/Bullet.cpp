@@ -22,7 +22,7 @@ ABullet::ABullet()
 	RootComponent = BulletMesh;
 
 	OnActorHit.AddDynamic(this, &ABullet::OnHit);
-}
+}	
 
 // Called when the game starts or when spawned
 void ABullet::BeginPlay()
@@ -150,11 +150,16 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 	}
 	else
 	{
+		if (Hit.GetComponent()->IsSimulatingPhysics()) Hit.GetComponent()->AddImpulseAtLocation(GetVelocity() * 100.f, GetActorLocation());
 		if (ObjectHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ObjectHitSound, Hit.ImpactPoint);
 		if (BulletHitParticle)
 		{
 			FRotator Rotation = GetActorRotation();
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHitParticle, Hit.ImpactPoint, Rotation);
+			if (BulletHit2Particle)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHit2Particle, Hit.ImpactPoint, Rotation);
+			}
 		}
 
 		SpawnBulletHole(Hit);

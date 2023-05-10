@@ -37,6 +37,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Particles")
 		class UParticleSystem* BulletHitParticle;
 	UPROPERTY(EditAnywhere, Category = "Particles")
+		class UParticleSystem* BulletHit2Particle;
+	UPROPERTY(EditAnywhere, Category = "Particles")
 		class UParticleSystem* EnemyBloodParticle;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
