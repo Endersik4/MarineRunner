@@ -7,6 +7,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/DecalComponent.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "GeometryCollection/GeometryCollectionComponent.h"
 
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 #include "MarineRunner/EnemiesClasses/EnemyAiController.h"
@@ -128,13 +129,7 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 		AEnemyPawn* Enemy = Cast<AEnemyPawn>(OtherActor);
 		if (!Enemy) return;
 
-		if (EnemyHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), EnemyHitSound, Hit.ImpactPoint);
-		if (EnemyBloodParticle)
-		{
-			FRotator Rotation = Hit.ImpactNormal.Rotation() - FRotator(90.f,0.f,0.f);
-			UParticleSystemComponent* SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, Rotation);
-			SpawnedParticle->SetColorParameter(TEXT("ColorOfBlood"), Enemy->GetBloodColor());
-		}
+		SpawnEffectsForImpact(Hit, TypeOfObject::EnemyType, Enemy->GetBloodColor());
 		
 		Enemy->SpawnBloodDecal(Hit);
 		DamageEnemy(Enemy, Hit);
@@ -150,22 +145,61 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 	}
 	else
 	{
-		if (Hit.GetComponent()->IsSimulatingPhysics()) Hit.GetComponent()->AddImpulseAtLocation(GetVelocity() * 100.f, GetActorLocation());
-		if (ObjectHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ObjectHitSound, Hit.ImpactPoint);
-		if (BulletHitParticle)
+		if (Hit.GetActor()->ActorHasTag("Breakable"))
 		{
-			FRotator Rotation = GetActorRotation();
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHitParticle, Hit.ImpactPoint, Rotation);
-			if (BulletHit2Particle)
-			{
-				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHit2Particle, Hit.ImpactPoint, Rotation);
-			}
-		}
+			UGeometryCollectionComponent* GeometryCollection = Cast<UGeometryCollectionComponent>(Hit.GetComponent());
+			GeometryCollection->ApplyExternalStrain(Hit.Item, Hit.ImpactPoint, 20.f, 1, 1.f, 5000.f);
+			GeometryCollection->ApplyBreakingLinearVelocity(Hit.Item, Hit.ImpactPoint);
+			GeometryCollection->AddRadialImpulse(GetActorLocation(), 100.f, AmmoImpulseForce * 100, ERadialImpulseFalloff::RIF_Linear);
 
-		SpawnBulletHole(Hit);
+			if (Hit.GetActor()->ActorHasTag("Glass")) SpawnEffectsForImpact(Hit, TypeOfObject::GlassType);
+			else SpawnEffectsForImpact(Hit);
+		}
+		else
+		{
+			SpawnEffectsForImpact(Hit);
+			SpawnBulletHole(Hit);
+		}
 	}
 
 	Destroy();
+}
+
+void ABullet::SpawnEffectsForImpact(const FHitResult& Hit, TypeOfObject Type, FLinearColor EnemyBloodColor)
+{
+	if (Type == TypeOfObject::GlassType)
+	{
+		if (GlassHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), GlassHitSound, Hit.ImpactPoint);
+		if (GlassBreakParticle)
+		{
+			FRotator Rotation = GetActorRotation();
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), GlassBreakParticle, Hit.ImpactPoint, Rotation, FVector(4.f));
+		}
+		return;
+	}
+
+	if (Type == TypeOfObject::EnemyType)
+	{
+		if (EnemyHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), EnemyHitSound, Hit.ImpactPoint);
+		if (EnemyBloodParticle)
+		{
+			FRotator Rotation = Hit.ImpactNormal.Rotation() - FRotator(90.f, 0.f, 0.f);
+			UParticleSystemComponent* SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, Rotation);
+			SpawnedParticle->SetColorParameter(TEXT("ColorOfBlood"), EnemyBloodColor);
+		}
+		return;
+	}
+
+	if (ObjectHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ObjectHitSound, Hit.ImpactPoint);
+	if (BulletHitParticle)
+	{
+		FRotator Rotation = GetActorRotation();
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHitParticle, Hit.ImpactPoint, Rotation);
+		if (BulletHit2Particle)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHit2Particle, Hit.ImpactPoint, Rotation);
+		}
+	}
 }
 
 void ABullet::SetBulletVariables(float NewDamage, float NewAmmoSpeed, float NewAmmoDistance, float NewAmmoFallingDown, float NewAmmoImpulseForce)

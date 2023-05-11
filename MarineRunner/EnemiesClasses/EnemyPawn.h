@@ -34,7 +34,7 @@ public:
 	float GetWaitTimeShoot() const { return WaitTimeShoot; }
 	float GetDetectPlayerTime() const { return DetectPlayerTime; }
 	float GetLoseSightOfPlayerTime() const { return LoseSightOfPlayerTime; }
-	bool GetIsDead() const { return bIsDead; }
+	//bool GetIsDead() const { return bIsDead; }
 
 	void ShootBullet() { Shoot(); }
 	void SetIsDead(bool bNewDead);
@@ -70,6 +70,8 @@ public:
 		int32 GetCurrentMagazineCapacity() const { return MagazineCapacity; }
 	UFUNCTION(BlueprintPure)
 		bool GetIsReloading() const { return bIsReloading; }
+	UFUNCTION(BlueprintPure)
+		bool GetIsDead() const { return bIsDead; }
 	UFUNCTION(BlueprintPure)
 		float GetSpeedOfEnemyWhenIsRunningAway() const { return SpeedOfEnemyWhenIsRunningAway; }
 

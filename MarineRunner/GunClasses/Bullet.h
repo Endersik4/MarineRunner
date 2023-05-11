@@ -6,6 +6,13 @@
 #include "GameFramework/Actor.h"
 #include "Bullet.generated.h"
 
+UENUM()
+enum TypeOfObject {
+	EnemyType,
+	GlassType,
+	ObjectType,
+};
+
 UCLASS()
 class MARINERUNNER_API ABullet : public AActor
 {
@@ -39,6 +46,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Particles")
 		class UParticleSystem* BulletHit2Particle;
 	UPROPERTY(EditAnywhere, Category = "Particles")
+		class UParticleSystem* GlassBreakParticle;
+	UPROPERTY(EditAnywhere, Category = "Particles")
 		class UParticleSystem* EnemyBloodParticle;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
@@ -50,6 +59,8 @@ private:
 		USoundBase* EnemyHitSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ObjectHitSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* GlassHitSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
 		UMaterialInstance* BulletHoleDecalMaterial;
@@ -63,6 +74,7 @@ private:
 	void MovementBullet(float Delta);
 	bool bUseMyMovement;
 
+	void SpawnEffectsForImpact(const FHitResult& Hit, TypeOfObject Type = TypeOfObject::ObjectType, FLinearColor EnemyBloodColor = FLinearColor(0.445201f, 0.114435f, 0.287441f));
 	void DamageEnemy(class AEnemyPawn* Enemy, const FHitResult& Hit);
 	void AlertEnemyAboutPlayer(class AEnemyPawn* Enemy);
 	void SpawnBulletHole(const FHitResult& Hit);
