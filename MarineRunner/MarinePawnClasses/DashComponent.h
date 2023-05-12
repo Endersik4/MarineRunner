@@ -28,16 +28,16 @@ public:
 private:
 	//Dash Speed
 	UPROPERTY(EditAnywhere, Category = "Movement")
-		float DashForce = 8500.f;
+		float DashForce = 6000.f;
 	//Dash cooldown in Seconds
 	UPROPERTY(EditAnywhere, Category = "Movement")
 		float DashCoolDown = 1.4f;
 	//How long Player Dash in Seconds (DashForce is applied per frame so after DashLength it will stop apply dash froce to the player)
 	UPROPERTY(EditAnywhere, Category = "Movement")
-		float DashLength = 0.03f;
+		float DashLength = 0.1f;
 	//How long DashWidget will be in player viewport
 	UPROPERTY(EditAnywhere, Category = "Movement")
-		float DashWidgetTime = 0.4f;
+		float DashWidgetTime = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* DashSound;

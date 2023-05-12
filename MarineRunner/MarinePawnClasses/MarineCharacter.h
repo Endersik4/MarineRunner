@@ -19,7 +19,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -38,6 +38,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void RotateCameraWhileWallrunning(bool bIsRightSide = false);
+
+	UFUNCTION(BlueprintCallable)
+		void CallLoadCheckpoint() { LoadCheckpoint(); }
 
 	//Is there Marine on The ground after begin in Air, It is used in Timeline in Blueprints
 	UPROPERTY(VisibleAnywhere, Category = "Movement|Jump", BlueprintReadWrite)
@@ -59,8 +62,13 @@ public:
 	class AGun* GetGun() const { return Gun; }
 
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
-	void SetGun(class AGun* NewGun) {Gun = NewGun;}
+	void SetGun(class AGun* NewGun) { Gun = NewGun; }
 	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
+
+	void SetCurrentCheckpoint(class ACheckpoint* NewCheckpoint) { CurrentCheckpoint = NewCheckpoint;}
+	void CallSaveGame() { SaveGame(); }
+	void SetHealth(float NewHealth) { Health = NewHealth; }
+	void SetFirstAidKits(int32 NewFirstAidKits) { FirstAidKits = NewFirstAidKits; }
 
 	void SetMovementImpulse(FVector NewImpulse) { MovementImpulse = NewImpulse; }
 	void SetShouldAddCounterMovement(bool bShould) { bShouldAddCounterMovement = bShould; }
@@ -128,7 +136,7 @@ private:
 		float JumpUpTime = 0.35f;
 	//Time for Delay Jump
 	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
-		float DelayJumpTime = 0.1f;
+		float DelayJumpTime = 0.15f;
 
 	//Impuls before Interp/*
 	
@@ -249,6 +257,14 @@ private:
 
 	//SlowMotion
 	void SlowMotionPressed();
+
+	//Checkpoint
+	void LoadCheckpoint();
+	class ACheckpoint* CurrentCheckpoint;
+
+	//Saving/Loading Game
+	void SaveGame();
+	void LoadGame();
 
 	//Widgets
 	void MakeHudWidget();

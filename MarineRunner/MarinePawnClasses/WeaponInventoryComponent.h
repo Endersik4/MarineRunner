@@ -39,6 +39,8 @@ public:
 	//@return Gun from Storage at given Key
 	class AGun* GetWeaponFromStorage(int32 KeyForWeapon, class AGun* CurrentWeapon);
 
+	TMap<int32, class AGun*> ReturnAllWeapons() { return WeaponsStorage; }
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings")
 		int32 MaxAmountOfItems = 2;

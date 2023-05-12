@@ -54,9 +54,8 @@ void UPullUpComponent::EdgePullUp()
 		MakeCheckLine(Line2Hit, StartFalseLine, StartFalseLine + MarinePawn->GetActorForwardVector() * 100.f) == false)
 	{
 		MarinePawn->SetShouldAddCounterMovement(true);
-
+		
 		//Setting a line that is in the direction of the object the player wants to pull up.
-		//The Line is like this: /
 		FHitResult HitResult;
 		TArray<AActor*> ActorsToIgnore;
 		FVector LineStart = MarinePawn->GetActorLocation();
@@ -68,7 +67,6 @@ void UPullUpComponent::EdgePullUp()
 		{
 			PullupLocationZ = MarinePawn->GetActorLocation();
 			PullupLocationZ.Z = HitResult.ImpactPoint.Z + 75.f;
-
 			ShouldPullUpLerp = true;
 			MarineLocation = MarinePawn->GetActorLocation();
 			PullupTimeElapsed = 0.f;

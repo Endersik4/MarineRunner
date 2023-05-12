@@ -36,10 +36,10 @@ private:
 		float SlowMotionValue = 0.4f;
 	//How long should Slow Motion be on
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionTime = 4.0f;
+		float SlowMotionTime = 4.7f;
 	//Delay of Slow Motion before the next one
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionDelay = 3.f;
+		float SlowMotionDelay = 8.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* SlowMotionSound;

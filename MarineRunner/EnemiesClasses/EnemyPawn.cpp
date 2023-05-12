@@ -24,6 +24,10 @@ AEnemyPawn::AEnemyPawn()
 
 	CapsuleColl = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollision"));
 	RootComponent = CapsuleColl;
+	bUseControllerRotationYaw = true;
+	CapsuleColl->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CapsuleColl->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	CapsuleColl->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
 
 	EnemyFloatingMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("EnemyFloatingMovement"));
 	
@@ -31,6 +35,7 @@ AEnemyPawn::AEnemyPawn()
 	EnemySkeletalMesh->SetupAttachment(CapsuleColl);
 	EnemySkeletalMesh->SetSimulatePhysics(false);
 	EnemySkeletalMesh->SetCollisionProfileName(TEXT("PhysicsActor"));
+	EnemySkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 	
 	Tags.Add(TEXT("enemy"));
 }

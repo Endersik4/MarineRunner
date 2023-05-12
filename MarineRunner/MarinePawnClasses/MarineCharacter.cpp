@@ -23,6 +23,8 @@
 #include "MarineRunner/Widgets/DashWidget.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/GunClasses/Gun.h"
+#include "MarineRunner/Objects/Checkpoint.h"
+#include "MarineRunner/Framework/SaveMarineRunner.h"
 
 // Sets default values
 AMarineCharacter::AMarineCharacter()
@@ -33,8 +35,14 @@ AMarineCharacter::AMarineCharacter()
 	CapsulePawn = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CapsulePawn"));
 	RootComponent = CapsulePawn;
 
+	CapsulePawn->SetSimulatePhysics(true);
+	CapsulePawn->SetMassScale(NAME_None, 2.f);
+	CapsulePawn->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+	CapsulePawn->SetCastShadow(false);
+
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CapsulePawn);
+	Camera->bUsePawnControlRotation = true;
 
 	CroachAndSlideComponent = CreateDefaultSubobject<UCroachAndSlide>(TEXT("CroachAndSlideComponent"));
 	CroachAndSlideComponent->SetupAttachment(CapsulePawn);
@@ -591,6 +599,32 @@ void AMarineCharacter::SlowMotionPressed()
 	SlowMotionComponent->TurnOnSlowMotion();
 }
 
+void AMarineCharacter::LoadCheckpoint()
+{
+	if (CurrentCheckpoint == nullptr) return;
+
+	LoadGame();
+	SetActorLocation(CurrentCheckpoint->GetActorLocation());
+}
+
+void AMarineCharacter::SaveGame()
+{
+	USaveMarineRunner* SaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+	TArray<AGun*> GeneratedGuns;
+	WeaponInventoryComponent->ReturnAllWeapons().GenerateValueArray(GeneratedGuns);
+	SaveGameInstance->SaveGame(FirstAidKits, Health, GeneratedGuns);
+	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("MySlot"), 0);
+}
+
+void AMarineCharacter::LoadGame()
+{
+	USaveMarineRunner* SaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+	SaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(TEXT("MySlot"), 0));
+	SaveGameInstance->LoadGame(this);
+	HudWidget->SetHealthPercent();
+	HudWidget->SetCurrentNumberOfFirstAidKits();
+}
+
 bool AMarineCharacter::MakeCheckBox(FVector Size, FVector NewStart, FVector NewEnd, FHitResult &OutHitResult, bool bDebug)
 {
 	if (bDebug) DrawDebugBox(GetWorld(), NewStart, FVector(Size), FColor::Red, true);
@@ -648,7 +682,11 @@ void AMarineCharacter::GotDamage(float Damage)
 	if (!HudWidget) return;
 
 	Health -= Damage;
-	if (Health < 0.f) Health = 0.f;
+	if (Health < 0.f)
+	{
+		Health = 0.f;
+		LoadCheckpoint();
+	}
 	HudWidget->SetHealthPercent();
 
 	HudWidget->SetGotDamage(true);

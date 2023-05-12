@@ -151,7 +151,7 @@ void UWallrunComponent::ResetWallrunning()
 
 bool UWallrunComponent::CanDoWallrun()
 {
-	if (WallrunTimeElapsed < 0.2f) //Wait a little bit before the next wallrun
+	if (WallrunTimeElapsed < 0.3f) //Wait a little bit before the next wallrun
 	{
 		if (bIsWallrunning && MarinePawn->GetIsJumping() == false) ResetWallrunning();
 		else WallrunTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
@@ -212,19 +212,6 @@ void UWallrunComponent::CameraRotationInterp()
 	PC->SetControlRotation(NewRotation);
 	//In Blueprint BP_MarinePlayerController when player moves mouse (with some tolerance) then bShouldLerpRotation = false
 }
-
-/*void UWallrunComponent::CheckIfForwardButtonIsPressed()
-{
-	if (MarinePawn->GetInputAxisValue(TEXT("Forward")) > 0.5f)
-	{
-		if (!GetWorld()->GetTimerManager().IsTimerActive(ForwardButtonHandle)) GetWorld()->GetTimerManager().SetTimer(ForwardButtonHandle, this, &UWallrunComponent::SetIsForwardButtonPressed, 0.1f, false);
-	}
-	else
-	{
-		GetWorld()->GetTimerManager().ClearTimer(ForwardButtonHandle);
-		bIsForwardButtonPressed = false;
-	}
-}*/
 
 void UWallrunComponent::SetCanJumpWhileWallrunning()
 {

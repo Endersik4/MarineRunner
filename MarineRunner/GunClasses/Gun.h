@@ -55,11 +55,17 @@ public:
 	bool GetCanDropGun() const { return bCanDropTheGun; }
 	bool GetIsReloading()  const { return bIsReloading; }
 
+	int32 GetMagazineCapacity() const { return MagazineCapacity; }
+	int32 GetStoredAmmo() const { return StoredAmmo; }
+
 	void SetBulletRotation(FRotator NewBulletRotation) { BulletRotation = NewBulletRotation; }
 	void SetCanGunSwayTick(bool bCan) { bCanGunSwayTick = bCan; }
 	void SetCanSway(bool bCan) { bCanSway = bCan; }
 	void SetMarinePawn(class AMarineCharacter* NewActor) { MarinePawn = NewActor; }
 	void SetStatusOfGun(StatusOfAimedGun NewStatus) { StatusOfGun = NewStatus; }
+
+	void SetMagazineCapacity(int32 NewMagazineCapacity) { MagazineCapacity = NewMagazineCapacity; }
+	void SetStoredAmmo(int32 NewStoredAmmo) { StoredAmmo = NewStoredAmmo; }
 
 	// If NewHudWidget is a pointer to the HudWiget from the player then Hide weapon, otherwise
 	// check if the weapon has a HudWidget if so then Hide weapon(because this means that the player
