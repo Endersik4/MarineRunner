@@ -72,7 +72,7 @@ public:
 	// has just dropped the weapon
 	void SetHudWidget(class UHUDWidget* NewHudWidget);
 	void SetWeaponInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
-	void EquipWeapon(class AMarineCharacter* MarinePawn);
+	void EquipWeapon(class AMarineCharacter* MarinePawn, bool bShouldPlaySound = true, bool bIsThisCurrentGun = true);
 	void DropTheGun();
 
 private:

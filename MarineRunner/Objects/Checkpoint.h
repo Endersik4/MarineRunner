@@ -30,6 +30,4 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UBoxComponent* CheckpointBox;
 
-	bool bItWasOverlapped;
-
 };

@@ -103,9 +103,8 @@ void UTakeAndDrop::IsGunAtTheWeaponLocation()
 
 void UTakeAndDrop::DropItem()
 {
-	if (bIsInterpEnded == false || Gun == nullptr) return;
-
-	if (MarinePawn->GetGun() != Gun) Gun = MarinePawn->GetGun(); //Make sure the player drops the weapon he has equipped
+	Gun = MarinePawn->GetGun();
+	if (bIsInterpEnded == false) return;
 	
 	if (Gun->GetCanDropGun() == false) return;
 

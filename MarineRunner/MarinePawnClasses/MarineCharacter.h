@@ -39,9 +39,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void RotateCameraWhileWallrunning(bool bIsRightSide = false);
 
-	UFUNCTION(BlueprintCallable)
-		void CallLoadCheckpoint() { LoadCheckpoint(); }
-
 	//Is there Marine on The ground after begin in Air, It is used in Timeline in Blueprints
 	UPROPERTY(VisibleAnywhere, Category = "Movement|Jump", BlueprintReadWrite)
 		bool IsOnGround;
@@ -55,7 +52,6 @@ public:
 	bool GetIsGoingUp() const { return bIsGoingUp; }
 	bool GetIsInAir() const { return bIsInAir; }
 	bool GetShouldAddCounterMovement() const { return bShouldAddCounterMovement; }
-	//bool GetIsPlayerADS() const { return bIsPlayerADS; }
 	class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
 	class UCameraComponent* GetCamera() const { return Camera; }
@@ -65,10 +61,10 @@ public:
 	void SetGun(class AGun* NewGun) { Gun = NewGun; }
 	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
 
-	void SetCurrentCheckpoint(class ACheckpoint* NewCheckpoint) { CurrentCheckpoint = NewCheckpoint;}
-	void CallSaveGame() { SaveGame(); }
+	void CallSaveGame(FVector CheckpointLocation) { SaveGame(CheckpointLocation); }
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 	void SetFirstAidKits(int32 NewFirstAidKits) { FirstAidKits = NewFirstAidKits; }
+	void SetQuickSelect(TMap < int32, class AGun* > NewWeaponsStorage);
 
 	void SetMovementImpulse(FVector NewImpulse) { MovementImpulse = NewImpulse; }
 	void SetShouldAddCounterMovement(bool bShould) { bShouldAddCounterMovement = bShould; }
@@ -258,12 +254,8 @@ private:
 	//SlowMotion
 	void SlowMotionPressed();
 
-	//Checkpoint
-	void LoadCheckpoint();
-	class ACheckpoint* CurrentCheckpoint;
-
 	//Saving/Loading Game
-	void SaveGame();
+	void SaveGame(FVector CheckpointLocation = FVector(0));
 	void LoadGame();
 
 	//Widgets

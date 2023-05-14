@@ -64,7 +64,7 @@ void UCroachAndSlide::Sliding()
 	}
 	else MovementForce -= SlideSpeed * Delta;
 
-	if (MovementForce <= CroachForceSpeed)
+	if (MovementForce <= CroachForceSpeed || MarinePawn->GetVelocity().Length() < 700.f)
 	{
 		MovementForce = CroachForceSpeed;
 		TurnOffSlideSound();

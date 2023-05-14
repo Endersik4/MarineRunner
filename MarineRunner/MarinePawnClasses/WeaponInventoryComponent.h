@@ -30,6 +30,8 @@ public:
 	int32 GetWeaponsStorageAmount() const { return WeaponsStorage.Num(); }
 	int32 GetMaxAmount() const { return MaxAmountOfItems; }
 
+	void SetWeaponsStorage(TMap < int32, class AGun* > NewWeaponsStorage) { WeaponsStorage = NewWeaponsStorage; }
+
 	void AddNewWeaponToStorage(class AGun* NewGun);
 
 	//Removing weapon from Storage and sorting the rest of weapons

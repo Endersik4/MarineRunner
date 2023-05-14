@@ -28,7 +28,6 @@ void AEnemyAiController::BeginPlay()
 void AEnemyAiController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 void AEnemyAiController::KillEnemy()
@@ -48,6 +47,7 @@ void AEnemyAiController::OnMoveCompleted(FAIRequestID RequestID, const FPathFoll
 
 void AEnemyAiController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
+	if (!Actor || !GetBlackboardComponent()) return;
 	if (!Actor->ActorHasTag("Player") || GetBlackboardComponent()->GetValueAsBool(TEXT("isRunningAway"))) return;
 
 	FTimerDelegate TimerDel;

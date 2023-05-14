@@ -124,7 +124,11 @@ void ABullet::SpawnBulletHole(const FHitResult& Hit)
 	FVector Size = FVector(FMath::FRandRange(7.f, 8.f));
 	FRotator Rotation = Hit.ImpactNormal.Rotation();
 	UDecalComponent* SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalMaterial, Size, Hit.Location, Rotation);
-	if (SpawnedDecal) SpawnedDecal->SetFadeScreenSize(0.f);
+	if (SpawnedDecal)
+	{
+		SpawnedDecal->SetFadeScreenSize(0.f);
+		SpawnedDecal->SetLifeSpan(10.f);
+	}
 }
 
 void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
@@ -167,6 +171,7 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 		}
 	}
 
+	SetActorTickEnabled(false);
 	Destroy();
 }
 

@@ -34,7 +34,6 @@ public:
 	float GetWaitTimeShoot() const { return WaitTimeShoot; }
 	float GetDetectPlayerTime() const { return DetectPlayerTime; }
 	float GetLoseSightOfPlayerTime() const { return LoseSightOfPlayerTime; }
-	//bool GetIsDead() const { return bIsDead; }
 
 	void ShootBullet() { Shoot(); }
 	void SetIsDead(bool bNewDead);
@@ -43,7 +42,6 @@ public:
 
 	void SpawnBloodDecal(const FHitResult& Hit);
 	void Reload();
-
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void SetShouldRunningAwayInAnimBP();

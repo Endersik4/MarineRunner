@@ -22,7 +22,7 @@ public:
 		int32 AmountOfFirstAidKits;
 
 	UPROPERTY(EditAnywhere)
-		float CurrentHealth;
+		float CurrentHealthSaved;
 
 	UPROPERTY(EditAnywhere)
 		TMap <class AGun*, int32 > MagazineCapacityStorage;
@@ -30,9 +30,18 @@ public:
 		TMap <class AGun*, int32 > StoredAmmoStorage;
 
 	UPROPERTY(EditAnywhere)
-		TArray<class AGun*> Weapons;
+		TArray<class AGun*> WeaponsSaved;
 
-	void SaveGame(int32 NewAmountOfFirstAidKits, float NewCurrentHealth,  TArray<class AGun*> WeaponsStorage);
+	UPROPERTY(EditAnywhere)
+		TMap < int32, class AGun* > WeaponsStorageSaved;
+
+	UPROPERTY(EditAnywhere)
+		class AGun* MarineGun;
+
+	UPROPERTY(EditAnywhere)
+		FVector CheckpointLocation;
+
+	void SaveGame(int32 CurrentAmountOfFirstAidKits, float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage);
 	void LoadGame(class AMarineCharacter* MarinePawn);
 
 	void ClearTMapValues();

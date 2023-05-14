@@ -10,17 +10,20 @@
 USaveMarineRunner::USaveMarineRunner()
 {
 	AmountOfFirstAidKits = 0;
-	CurrentHealth = 0;
+	CurrentHealthSaved = 0;
 	ClearTMapValues();
 }
 
-void USaveMarineRunner::SaveGame(int32 NewAmountOfFirstAidKits, float NewCurrentHealth, TArray<AGun*> WeaponsStorage)
+void USaveMarineRunner::SaveGame(int32 CurrentAmountOfFirstAidKits, float CurrentHealth, AGun* CurrentMarineGun, TMap < int32, AGun* > CurrentWeaponsStorage)
 {
 	ClearTMapValues();
-	AmountOfFirstAidKits = NewAmountOfFirstAidKits;
-	CurrentHealth = NewCurrentHealth;
-	Weapons = WeaponsStorage;
-	for (auto& Storage : WeaponsStorage)
+	AmountOfFirstAidKits = CurrentAmountOfFirstAidKits;
+	CurrentHealthSaved = CurrentHealth;
+
+	CurrentWeaponsStorage.GenerateValueArray(WeaponsSaved);
+	WeaponsStorageSaved = CurrentWeaponsStorage;
+	MarineGun = CurrentMarineGun;
+	for (auto& Storage : WeaponsSaved)
 	{
 		MagazineCapacityStorage.Add(Storage, Storage->GetMagazineCapacity());
 		StoredAmmoStorage.Add(Storage, Storage->GetStoredAmmo());
@@ -32,9 +35,14 @@ void USaveMarineRunner::LoadGame(class AMarineCharacter* MarinePawn)
 	if (MarinePawn == nullptr) return;
 
 	MarinePawn->SetFirstAidKits(AmountOfFirstAidKits);
-	MarinePawn->SetHealth(CurrentHealth);
+	MarinePawn->SetHealth(CurrentHealthSaved);
+	MarinePawn->SetQuickSelect(WeaponsStorageSaved);
 
-	for (auto& CurrentWeapon : Weapons)
+	if (!MarineGun) return;
+
+	MarinePawn->SetGun(MarineGun);
+
+	for (auto& CurrentWeapon : WeaponsSaved)
 	{
 		if (MagazineCapacityStorage.Find(CurrentWeapon))
 		{
@@ -44,13 +52,26 @@ void USaveMarineRunner::LoadGame(class AMarineCharacter* MarinePawn)
 		{
 			CurrentWeapon->SetStoredAmmo(*StoredAmmoStorage.Find(CurrentWeapon));
 		}
-		if (MarinePawn->GetGun() == CurrentWeapon) CurrentWeapon->SetWeaponInHud(true);
+
+		if (MarinePawn->GetGun() == CurrentWeapon)
+		{	
+			CurrentWeapon->EquipWeapon(MarinePawn, false);
+			CurrentWeapon->SetGunSwayWhileMovingTimer();
+		}
+		else
+		{
+			CurrentWeapon->EquipWeapon(MarinePawn, false, false);
+			CurrentWeapon->SetGunSwayWhileMovingTimer(true);
+			CurrentWeapon->SetActorHiddenInGame(true);
+		}
+		CurrentWeapon->SetCanGunSwayTick(true);
+		CurrentWeapon->SetActorRelativeLocation(MarineGun->GetRelativeLocationInPawn());	
 	}
 }
 
 void USaveMarineRunner::ClearTMapValues()
 {
-	Weapons.Empty();
+	WeaponsSaved.Empty();
 	MagazineCapacityStorage.Empty();
 	StoredAmmoStorage.Empty();
 }

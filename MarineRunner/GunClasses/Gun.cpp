@@ -164,12 +164,6 @@ void AGun::RecoilAnimTimelineFinishedCallback()
 		GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGun::Shoot, 0.015f);
 		if (bShouldDelayShoot) bShouldDelayShoot = false;
 	}
-
-	/*if (bConstantlyShoot)
-	{
-		//I need to use a timer to prevent an error that causes the bullet to appear in a different location than the Bullet Socket.
-		GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGun::Shoot, 0.055f);
-	}*/
 }
 
 void AGun::RecoilCameraTimelineCallback(float ControlRotationY)
@@ -348,17 +342,20 @@ void  AGun::CancelReload()
 	bIsReloading = false;
 }
 
-void AGun::EquipWeapon(class AMarineCharacter* Marine)
+void AGun::EquipWeapon(class AMarineCharacter* Marine, bool bShouldPlaySound, bool bIsThisCurrentGun)
 {
 	BaseSkeletalMesh->SetSimulatePhysics(false);
 	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	MarinePawn = Marine;
 
-	//Changing Weapons things In HUD to the correct ones
-	SetHudWidget(Marine->GetHudWidget());
-	SetWeaponInHud(true, true);
+	if (bShouldPlaySound && PickUpSound) UGameplayStatics::SpawnSoundAttached(PickUpSound, BaseSkeletalMesh);
 
-	if (PickUpSound) UGameplayStatics::SpawnSoundAttached(PickUpSound, BaseSkeletalMesh);
+	SetHudWidget(Marine->GetHudWidget());
+	if (bIsThisCurrentGun)
+	{
+		//Changing Weapons things In HUD to the correct ones
+		SetWeaponInHud(true, true);
+	}
 
 	AttachToComponent(Marine->GetCamera(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 }

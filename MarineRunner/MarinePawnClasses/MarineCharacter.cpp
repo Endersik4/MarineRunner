@@ -23,8 +23,8 @@
 #include "MarineRunner/Widgets/DashWidget.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/GunClasses/Gun.h"
-#include "MarineRunner/Objects/Checkpoint.h"
 #include "MarineRunner/Framework/SaveMarineRunner.h"
+#include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 
 // Sets default values
 AMarineCharacter::AMarineCharacter()
@@ -71,6 +71,7 @@ void AMarineCharacter::BeginPlay()
 	MakeCrosshire();
 	MakeHudWidget();
 	CopyOfOriginalForce = MovementForce;
+	LoadGame();
 }
 
 // Called every frame
@@ -599,30 +600,28 @@ void AMarineCharacter::SlowMotionPressed()
 	SlowMotionComponent->TurnOnSlowMotion();
 }
 
-void AMarineCharacter::LoadCheckpoint()
-{
-	if (CurrentCheckpoint == nullptr) return;
-
-	LoadGame();
-	SetActorLocation(CurrentCheckpoint->GetActorLocation());
-}
-
-void AMarineCharacter::SaveGame()
+void AMarineCharacter::SaveGame(FVector NewCheckpointLocation)
 {
 	USaveMarineRunner* SaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
-	TArray<AGun*> GeneratedGuns;
-	WeaponInventoryComponent->ReturnAllWeapons().GenerateValueArray(GeneratedGuns);
-	SaveGameInstance->SaveGame(FirstAidKits, Health, GeneratedGuns);
+	SaveGameInstance->SaveGame(FirstAidKits, Health, Gun, WeaponInventoryComponent->ReturnAllWeapons());
+	SaveGameInstance->CheckpointLocation = NewCheckpointLocation;
 	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("MySlot"), 0);
 }
 
 void AMarineCharacter::LoadGame()
 {
 	USaveMarineRunner* SaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+	if (!UGameplayStatics::LoadGameFromSlot(TEXT("MySlot"), 0)) return;
 	SaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(TEXT("MySlot"), 0));
 	SaveGameInstance->LoadGame(this);
+	if (SaveGameInstance->CheckpointLocation != FVector(0)) SetActorLocation(SaveGameInstance->CheckpointLocation);
 	HudWidget->SetHealthPercent();
 	HudWidget->SetCurrentNumberOfFirstAidKits();
+}
+
+void AMarineCharacter::SetQuickSelect(TMap < int32, AGun* > NewWeaponsStorage)
+{
+	WeaponInventoryComponent->SetWeaponsStorage(NewWeaponsStorage);
 }
 
 bool AMarineCharacter::MakeCheckBox(FVector Size, FVector NewStart, FVector NewEnd, FHitResult &OutHitResult, bool bDebug)
@@ -685,7 +684,7 @@ void AMarineCharacter::GotDamage(float Damage)
 	if (Health < 0.f)
 	{
 		Health = 0.f;
-		LoadCheckpoint();
+		UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
 	}
 	HudWidget->SetHealthPercent();
 

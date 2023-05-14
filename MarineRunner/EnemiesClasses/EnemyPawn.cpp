@@ -44,10 +44,11 @@ AEnemyPawn::AEnemyPawn()
 void AEnemyPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
 	CopyOfMagazineCapacity = MagazineCapacity;
 	SetUpMarinePawn();
 	SetUpEnemyAIController();
-
+	
 }
 
 // Called every frame
@@ -79,7 +80,7 @@ void AEnemyPawn::Shoot()
 	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, EnemySkeletalMesh, TEXT("MuzzleFlash"));
 	if (ShootParticle)
 	{
-		UGameplayStatics::SpawnEmitterAttached(ShootParticle, EnemySkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
+		UParticleSystemComponent* SpawnedShootParticle = UGameplayStatics::SpawnEmitterAttached(ShootParticle, EnemySkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));	
 	}
 
 	//Had to do this in this way because bullet was spawned before bones were on their locations (in shooting animation)
@@ -140,7 +141,6 @@ void AEnemyPawn::Reload()
 {
 	bIsReloading = true;
 	bCanShoot = false;
-	//if (EmptyMagazineSound) UGameplayStatics::SpawnSoundAttached(EmptyMagazineSound, BaseSkeletalMesh, NAME_None);
 	GetWorldTimerManager().SetTimer(DelayEmptyMagazineHandle, this, &AEnemyPawn::DelayAfterEmptyMagazine, DelayTimeMagazine, false);
 }
 
