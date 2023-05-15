@@ -46,7 +46,7 @@ private:
 
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float SlideSpeed = 10.f;
+		float SlideSpeed = 10000.f;
 	//Initial Velocity of Sliding is added to Walking Distance from MarineCharacter
 	//and then we have Initial Velocity of Sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")

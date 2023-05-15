@@ -36,7 +36,7 @@ AMarineCharacter::AMarineCharacter()
 	RootComponent = CapsulePawn;
 
 	CapsulePawn->SetSimulatePhysics(true);
-	CapsulePawn->SetMassScale(NAME_None, 2.f);
+	//CapsulePawn->SetMassScale(NAME_None, 2.f);
 	CapsulePawn->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 	CapsulePawn->SetCastShadow(false);
 
@@ -195,7 +195,7 @@ void AMarineCharacter::Reload()
 
 void AMarineCharacter::Movement(float Delta)
 {
-	if (bCanSwingLerp) return;
+	if (bCanSwingLerp || bIsInputDisabled) return;
 
 	FVector ForwardDirection;
 	FVector RightDirection;
@@ -375,7 +375,7 @@ void AMarineCharacter::CheckIfIsInAir()
 
 			if (ImpactOnFloorSound) UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, CapsulePawn);
 			
-			MovementForce = CopyOfOriginalForce;
+			if (!bIsCroaching) MovementForce = CopyOfOriginalForce;
 			MovementSpeedMultiplier = 1.f;
 		}
 
@@ -543,7 +543,6 @@ void AMarineCharacter::CroachPressed()
 
 void AMarineCharacter::CroachReleased()
 {
-	bIsCroaching = false;
 	CroachAndSlideComponent->CroachReleased();
 }
 
@@ -588,6 +587,9 @@ void AMarineCharacter::DropItem()
 void AMarineCharacter::Dash()
 {
 	if (bCanSwingLerp || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion() || bIsCroaching) return;
+
+	//If Dash is forbidden in the current stage of level then kill the player
+	if (bShouldDieWhenDash == true) UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
 
 	bShouldAddCounterMovement = true;
 	DashComponent->Dash();

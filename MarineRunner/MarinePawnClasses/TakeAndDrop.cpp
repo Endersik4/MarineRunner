@@ -104,7 +104,7 @@ void UTakeAndDrop::IsGunAtTheWeaponLocation()
 void UTakeAndDrop::DropItem()
 {
 	Gun = MarinePawn->GetGun();
-	if (bIsInterpEnded == false) return;
+	if (bIsInterpEnded == false || Gun == nullptr) return;
 	
 	if (Gun->GetCanDropGun() == false) return;
 

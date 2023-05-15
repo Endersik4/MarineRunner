@@ -36,6 +36,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		USkeletalMeshComponent* BaseSkeletalMesh;
 
+	UFUNCTION(BlueprintPure)
+		class AMarineCharacter* GetMarinePawn() const { return MarinePawn; }
+
 	FVector GetRelativeLocationInPawn() const { return RelativeLocationInPawn; }
 	FRotator GetRelativeRotationInPawn() const { return RelativeRotationInPawn; }
 

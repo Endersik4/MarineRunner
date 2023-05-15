@@ -26,15 +26,21 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		class UStaticMeshComponent* CapsulePawn;
 
 	UPROPERTY(EditAnywhere, Category = "Components", BlueprintReadWrite)
 		class UCameraComponent* Camera;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bIsInputDisabled;
+
 	UFUNCTION(BlueprintPure)
 		class UWallrunComponent* GetWallrunComponent() const { return WallrunComponent; }
+
+	UFUNCTION(BlueprintCallable)
+		void SetShouldDieWhenDash(bool bShould) { bShouldDieWhenDash = bShould; }
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void RotateCameraWhileWallrunning(bool bIsRightSide = false);
@@ -60,6 +66,7 @@ public:
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
 	void SetGun(class AGun* NewGun) { Gun = NewGun; }
 	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
+	void SetIsCroaching(bool bIs) { bIsCroaching = bIs; }
 
 	void CallSaveGame(FVector CheckpointLocation) { SaveGame(CheckpointLocation); }
 	void SetHealth(float NewHealth) { Health = NewHealth; }
@@ -202,6 +209,7 @@ private:
 	void CheckIfIsInAir();
 
 	//Dashing
+	bool bShouldDieWhenDash;
 	void Dash();
 
 	//Croaching

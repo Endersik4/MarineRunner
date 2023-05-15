@@ -58,13 +58,19 @@ void UCroachAndSlide::Sliding()
 
 	if (MarinePawn->GetIsOnRamp())
 	{
-		if (MarinePawn->GetIsGoingUp() == false) MovementForce += (MovementForce < MaxSlideForce) ? (RampForce) * Delta : 0;
+		if (MarinePawn->GetIsGoingUp() == false)
+		{
+			MovementForce += (MovementForce < MaxSlideForce) ? (RampForce)*Delta : 0;
+		}
 		else MovementForce -= (SlideSpeed * 2.5) * Delta;
-		
-	}
-	else MovementForce -= SlideSpeed * Delta;
 
-	if (MovementForce <= CroachForceSpeed || MarinePawn->GetVelocity().Length() < 700.f)
+	}
+	else
+	{
+		MovementForce -= SlideSpeed * Delta;
+	}
+
+	if (MovementForce <= CroachForceSpeed || (MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0))
 	{
 		MovementForce = CroachForceSpeed;
 		TurnOffSlideSound();
@@ -76,6 +82,8 @@ void UCroachAndSlide::Sliding()
 
 void UCroachAndSlide::CroachPressed()
 {
+	if (bShouldStillCroach) return;
+
 	MovementForce = CroachForceSpeed;
 	ScaleZ = 1.5f;
 	VignetteIntensityValue = 1.2f;
@@ -83,9 +91,11 @@ void UCroachAndSlide::CroachPressed()
 	bCanCroachLerp = true;
 	if (MarinePawn->GetIsGoingUp() == false)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("SLIDE "));
 		if (MarinePawn->GetInputAxisValue(TEXT("Forward")) == 1.f || MarinePawn->GetInputAxisValue(TEXT("Right")) != 0)
 		{
 			if (MarinePawn->GetIsJumping()) return;
+			UE_LOG(LogTemp, Warning, TEXT("SLIDE 2 "));
 			MovementForce = CopyMovementForce + InitialVelocityOfSliding;
 			bShouldSlide = true;
 		}
@@ -119,6 +129,7 @@ void UCroachAndSlide::CroachReleased()
 		bShouldStillCroach = true;
 		return;
 	}
+	MarinePawn->SetIsCroaching(false);
 	bShouldSlide = false;
 	TurnOffSlideSound();
 	bShouldPlaySound = true;

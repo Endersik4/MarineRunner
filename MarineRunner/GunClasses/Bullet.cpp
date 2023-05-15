@@ -22,7 +22,7 @@ ABullet::ABullet()
 	BulletMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("BulletMesh"));
 	RootComponent = BulletMesh;
 
-	BulletMesh->SetMassScale(NAME_None, 1.5f);
+	//BulletMesh->SetMassScale(NAME_None, 1.5f);
 	BulletMesh->SetNotifyRigidBodyCollision(true);
 	BulletMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore); //For the enemy bullet set this to BLOCK
 
