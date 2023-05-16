@@ -4,6 +4,7 @@ MarineRunner = Ghostrunner + Cyberpunk 2077. My biggest and most ambitious proje
 It's time for more complex games, not some tiny ones. <br/>
 I wanted to create movement like in Ghostrunner and shooting mechanic like in Cyberpunk 2077 <br/>
 The game is in development, there is still a lot to do.<br/>
+I started this project on 27.01.2023 and on the day 15.05.2023 I have spent 570h on this game (454 Unreal Engine, 116 Blender) <br/>
 MarineRunner is on Unreal Engine 5. <br/>
 (everything is code from scratch in C++ with Unreal Engine tools)<br/>
 <br/>
