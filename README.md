@@ -13,7 +13,7 @@ Its just demo for showcase, I plan to add more things in the future such as <br/
 Shotgun, Sniper Rifle, Granade Launcher or Grenades, more enemies and a cute-little robot friend to help you with some things <br/>
 And probably this level will never in used in the future because i have other plans for this game in level design. <br/>
 You can download game here: <a href="https://drive.google.com/file/d/17XCGErqjLaanXRmtc4CCK67CzDlCNRf0/view?usp=share_link"> MarineRunner </a> <br/>
-Demo on Youtube: <a href="https://youtu.be/EfcJptK8Fco"> MarineRunner
+Demo on Youtube: <a href="[https://youtu.be/EfcJptK8Fco](https://youtu.be/TpYCEW1tYkw)"> MarineRunner
 ![Thumbnail_MarineRunner](https://github.com/Endersik4/MarineRunner/assets/131354098/528efd8e-2281-4e10-8044-426a166bbe65)
  </a>
 
