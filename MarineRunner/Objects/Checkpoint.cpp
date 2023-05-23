@@ -34,11 +34,12 @@ void ACheckpoint::Tick(float DeltaTime)
 
 void ACheckpoint::OnCheckpointBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!OtherActor->ActorHasTag("Player")) return;
+	if (!OtherActor->ActorHasTag("Player") || bSaved == true) return;
 
 	AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(OtherActor);
 	if (MarinePawn == nullptr) return;
 
 	MarinePawn->CallSaveGame(GetActorLocation());
+	bSaved = true;
 }
 

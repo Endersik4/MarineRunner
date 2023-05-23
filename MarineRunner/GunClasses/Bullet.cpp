@@ -133,6 +133,8 @@ void ABullet::SpawnBulletHole(const FHitResult& Hit)
 
 void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (OtherActor->ActorHasTag("Bullet")) return;
+
 	if (OtherActor->ActorHasTag("Enemy"))
 	{
 		AEnemyPawn* Enemy = Cast<AEnemyPawn>(OtherActor);
@@ -149,7 +151,7 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 		if (!MarinePawn) return;
 
 		if (MarineHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, Hit.ImpactPoint);
-
+	
 		MarinePawn->GotDamage(Damage);
 	}
 	else

@@ -78,7 +78,7 @@ void USlowMotionComponent::SettingUpSlowMotion()
 	MarinePawn->CustomTimeDilation = 2.5f;
 
 	//DashWidget will be on player viewport for some time (SlowMotionTime)
-	MarinePawn->MakeDashWidget(true, SlowMotionTime, false); 
+	MarinePawn->MakeDashWidget(true, SlowMotionTime-1.0f, false); 
 	ElementBar SlowMoElementBar{ SlowMotionDelay + 1.7f}, ButtonSlowMoElementBar{ 0.3f };
 	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::SlowMo, SlowMoElementBar);
 	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Button_SlowMo, ButtonSlowMoElementBar);

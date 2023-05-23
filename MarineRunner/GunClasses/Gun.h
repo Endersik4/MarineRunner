@@ -63,6 +63,7 @@ public:
 
 	void SetBulletRotation(FRotator NewBulletRotation) { BulletRotation = NewBulletRotation; }
 	void SetCanGunSwayTick(bool bCan) { bCanGunSwayTick = bCan; }
+	void SetCanShoot() { bCanShoot = true; }
 	void SetCanSway(bool bCan) { bCanSway = bCan; }
 	void SetMarinePawn(class AMarineCharacter* NewActor) { MarinePawn = NewActor; }
 	void SetStatusOfGun(StatusOfAimedGun NewStatus) { StatusOfGun = NewStatus; }
@@ -105,6 +106,16 @@ private:
 		float ReloadTime = 1.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		bool bIsAutomatic;
+	//should play the shot animation after the shot. If it is equal to false, the shot animation will be played along with the shot
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		bool bPlayShootAnimationAfterFire = false;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		bool bReloadOneBullet;
+	//Should spread bullets from barrel like from shotgun
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		bool bManyBulletAtOnce;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
+		int32 HowManyBulletsToSpawn = 10;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		int32 MagazineCapacity = 10;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
@@ -113,6 +124,8 @@ private:
 		UTexture2D* GunHUDTexture;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		float DropImpulseDistance = 400.f;
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
+		UCurveFloat* ShootFOVCurve;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		FVector RelativeLocationInPawnWhileADS;
@@ -217,7 +230,7 @@ private:
 	//Speed of Gun that will reach the Range Sway Pitch
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
 		float SpeedOfSwayPitch = 3.f;
-
+	
 	//Rotation Sway Yaw
 	//Maximal Yaw rotation of Gun when player looking left
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
@@ -285,6 +298,8 @@ private:
 	//SOUNDS
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ShootingSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds", meta = (EditCondition = "bPlayShootAnimationAfterFire", EditConditionHides))
+		USoundBase* AfterShootSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* EmptyMagazineSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
@@ -318,6 +333,9 @@ private:
 	//Constantly Shooting
 	bool bConstantlyShoot;
 	FTimerHandle ConstantlyShootHandle;
+
+	//DropCasing
+	void DropCasing();
 
 	//Reloading
 	float CopyOfMagazineCapacity;

@@ -57,7 +57,10 @@ void AGun::Tick(float DeltaTime)
 
 void AGun::Shoot()
 {
-	if (BulletClass == NULL || bIsReloading) return;
+	if (BulletClass == NULL) return;
+	if (bReloadOneBullet && bIsReloading && MagazineCapacity > 0) CancelReload();
+	else if (bIsReloading) return;
+
 	if (bCanShoot == false)
 	{
 		bShouldDelayShoot = true;
@@ -74,7 +77,8 @@ void AGun::Shoot()
 	
 	//Effect like paricles, sounds or drop casing from weapon
 	AddEffectsToShooting();
-	SpawnBullet();
+	if (bManyBulletAtOnce) for (int i = 0; i != 10; i++) SpawnBullet();
+	else SpawnBullet();
 
 	MagazineCapacity--;
 	SetWeaponInHud();
@@ -101,21 +105,27 @@ void AGun::AddEffectsToShooting()
 	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, BaseSkeletalMesh, NAME_None);
 	if (ShootParticle) UGameplayStatics::SpawnEmitterAttached(ShootParticle, BaseSkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
 	
+	if (bPlayShootAnimationAfterFire == true) return;
+
 	if (StoredAmmo <= 0 && MagazineCapacity == 1 && ShootWithNoBulletsAnimation)
 	{
 		BaseSkeletalMesh->PlayAnimation(ShootWithNoBulletsAnimation, false);
 	}
 	else if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
 
-	if (DropBulletClass)
-	{
-		FRotator DropBulletRotation = GetActorRotation();
-		DropBulletRotation.Yaw -= FMath::FRandRange(-10.f, 40.f);
-		DropBulletRotation.Roll += FMath::FRandRange(-10.f, 10.f);
-		DropBulletRotation.Pitch += FMath::FRandRange(-15.f, 15.f);
-		AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), DropBulletRotation);
-		DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, TEXT("BulletDrop"));
-	}
+	DropCasing();
+}
+
+void AGun::DropCasing()
+{
+	if (!DropBulletClass) return;
+
+	FRotator DropBulletRotation = GetActorRotation();
+	DropBulletRotation.Yaw -= FMath::FRandRange(-10.f, 40.f);
+	DropBulletRotation.Roll += FMath::FRandRange(-10.f, 10.f);
+	DropBulletRotation.Pitch += FMath::FRandRange(-15.f, 15.f);
+	AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), DropBulletRotation);
+	DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, TEXT("BulletDrop"));
 }
 
 void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
@@ -134,7 +144,7 @@ void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
 	if (RecoilAnimCurveScale)
 	{
 		float RecoilScale = RecoilAnimCurveScale->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
-		if (StatusOfGun == ADS) RecoilScale /= DividerOfRecoilWhileADS;
+		//if (StatusOfGun == ADS) RecoilScale /= DividerOfRecoilWhileADS;
 		BaseSkeletalMesh->SetRelativeScale3D(FVector(RecoilScale));
 	}
 
@@ -144,6 +154,12 @@ void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
 		float ControlRotationYaw = RandomRecoilYaw * RecoilCameraCurveRandomRotation->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
 		PC->AddYawInput(ControlRotationYaw);
 		PC->AddPitchInput(-ControlRotationPitch);
+	}
+
+	if (ShootFOVCurve)
+	{
+		float NewFOV = ShootFOVCurve->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
+		MarinePawn->GetCamera()->FieldOfView += NewFOV;
 	}
 	
 	FVector GunMeshLocation = BaseSkeletalMesh->GetRelativeLocation();
@@ -155,8 +171,19 @@ void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
 
 void AGun::RecoilAnimTimelineFinishedCallback()
 {
-	bCanShoot = true;
 	bCanSway = true;
+	if (bPlayShootAnimationAfterFire)
+	{
+		if (AfterShootSound) UGameplayStatics::SpawnSoundAttached(AfterShootSound, BaseSkeletalMesh, NAME_None);
+		if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
+		FTimerHandle DropCasingHandle;
+		GetWorldTimerManager().SetTimer(DropCasingHandle, this, &AGun::DropCasing, 0.2f, false);
+
+		FTimerHandle PlayAfterFireHandle;
+		GetWorldTimerManager().SetTimer(PlayAfterFireHandle, this, &AGun::SetCanShoot, ShootAnimation->GetPlayLength(), false);
+	}
+	else bCanShoot = true;
+
 	if (StatusOfGun == HipFire) bCanDropTheGun = true;
 
 	if (bShouldDelayShoot || bConstantlyShoot)
@@ -224,7 +251,6 @@ void AGun::BackCameraToItsInitialRotation()
 
 	if (bShouldUseCurveRecoil)
 	{
-		//Oblicza dystans miedzy dwoma FRotator #include "Kismet/KismetMathLibrary.h"
 		UKismetMathLibrary::NormalizedDeltaRotator(PC->GetControlRotation(), InitialCameraRotation);
 		//If distance is too big then camera doesnt go back to its inital rotation
 		float DistanceBetweenYaw = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PC->GetControlRotation(), InitialCameraRotation).Yaw);
@@ -288,7 +314,8 @@ void AGun::SpawnBullet()
 
 	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, Location, BulletRotation);
 
-	SpawnedBullet->SetBulletVariables(Damage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
+	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
+	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
 	SpawnedBullet->ImpulseOnBullet();
 }
 
@@ -314,21 +341,31 @@ void AGun::WaitToReload()
 
 void AGun::Reload()
 {
-	int32 RestAmmo = CopyOfMagazineCapacity - MagazineCapacity;
-	if (StoredAmmo < RestAmmo)
+	if (bReloadOneBullet == true)
 	{
-		MagazineCapacity += StoredAmmo;
-		StoredAmmo = 0;
+		MagazineCapacity++;
+		StoredAmmo--;
 	}
 	else
 	{
-		StoredAmmo -= RestAmmo;
-		MagazineCapacity = CopyOfMagazineCapacity;
+		int32 RestAmmo = CopyOfMagazineCapacity - MagazineCapacity;
+		if (StoredAmmo < RestAmmo)
+		{
+			MagazineCapacity += StoredAmmo;
+			StoredAmmo = 0;
+		}
+		else
+		{
+			StoredAmmo -= RestAmmo;
+			MagazineCapacity = CopyOfMagazineCapacity;
+		}
 	}
 
 	bIsReloading = false;
 	bCanShoot = true;
 	SetWeaponInHud(true);
+	GetWorldTimerManager().ClearTimer(ReloadHandle);
+	if (bReloadOneBullet) WaitToReload();
 }
 
 void  AGun::CancelReload()
