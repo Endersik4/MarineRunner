@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AudioComponent.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
@@ -40,6 +41,17 @@ void USlowMotionComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void USlowMotionComponent::SlowMotionPressed()
 {
+	if (bIsInSlowMotion)
+	{
+		if (SlowMotionSoundSpawned) SlowMotionSoundSpawned->Stop();
+		if (CancelSlowMotionSound) UGameplayStatics::PlaySound2D(GetWorld(), CancelSlowMotionSound);
+		MarinePawn->RemoveDashWidget();
+
+		GetWorld()->GetTimerManager().ClearTimer(SlowMotionTimeHandle);
+		DisableSlowMotion();
+		
+	}
+
 	if (bCanSlowMotion == false) return;
 
 	SettingUpSlowMotion();
@@ -71,7 +83,7 @@ void USlowMotionComponent::SettingUpSlowMotion()
 		}
 		MarinePawn->SetMovementImpulse(Impulse);
 	}
-	if (SlowMotionSound) UGameplayStatics::SpawnSound2D(GetWorld(), SlowMotionSound);
+	if (SlowMotionSound) SlowMotionSoundSpawned = UGameplayStatics::SpawnSound2D(GetWorld(), SlowMotionSound);
 
 	//SlowMotion command
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowMotionValue);

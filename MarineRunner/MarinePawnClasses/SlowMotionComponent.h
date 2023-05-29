@@ -43,6 +43,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* SlowMotionSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* CancelSlowMotionSound;
 
 	bool bCanSlowMotion = true;
 	bool bIsInSlowMotion = false;
@@ -55,5 +57,5 @@ private:
 	void AddingVelocity();
 	
 	class AMarineCharacter* MarinePawn;
-		
+	class UAudioComponent* SlowMotionSoundSpawned;
 };

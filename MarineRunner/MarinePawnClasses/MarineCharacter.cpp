@@ -266,7 +266,7 @@ void AMarineCharacter::Jump()
 {
 	if (WallrunComponent->GetCanJump() == false) return;
 
-	if (bIsInAir == false || WallrunComponent->ShouldAddImpulseAfterWallrun(true))
+	if (bIsInAir == false || bDelayIsInAir || WallrunComponent->ShouldAddImpulseAfterWallrun(true))
 	{
 		bIsJumping = true;
 		JumpTimeElapsed = 0;
@@ -355,8 +355,14 @@ void AMarineCharacter::CheckIfIsInAir()
 {
 	FHitResult Hit;
 	//Check if there is ground under the player, if not, the player is in the air
-	if (!MakeCheckBox(FVector(25.f, 25.f, 2.f), GetActorLocation(), GetActorLocation(), Hit))
+	if (!MakeCheckBox(FVector(25.f,25.f, 2.f), GetActorLocation(), GetActorLocation(), Hit))
 	{
+		//The first moment a player is in the air
+		if (bIsInAir == false)
+		{
+			bDelayIsInAir = true;
+			GetWorldTimerManager().SetTimer(DelayIsInAirHandle, this, &AMarineCharacter::SetDelayIsInAir, DelayIsInAirTime, false);
+		}
 		bIsInAir = true;
 		bSlideOnRamp = false;
 	}
@@ -371,6 +377,7 @@ void AMarineCharacter::CheckIfIsInAir()
 			bShouldAddCounterMovement = true;
 
 			bIsInAir = false;
+			bDelayIsInAir = false;
 			PullUpComponent->SetPulledHimselfUp(false);
 
 			if (ImpactOnFloorSound) UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, CapsulePawn);
@@ -505,28 +512,16 @@ void AMarineCharacter::SwingLineCheck()
 		{
 			TempHook = Cast<AHook>(HitResults.GetActor());
 
-			FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(Camera->GetComponentLocation(), TempHook->GetActorLocation());
-			if (FoundRotation.Equals(GetControlRotation(), 60.f))
-			{
-				if (HookCast && TempHook != HookCast) HookCast->HookInactiv();
-				TempHook->HookActivate();
-				HookCast = TempHook;
-				bCanMarineSwing = true;
-			}
-			else
-			{
-				bCanMarineSwing = false;
-				TempHook->HookInactiv();
-				HookCast = TempHook;
-			}
-		}
-		else if (HookCast)
-		{
-			HookCast->HookInactiv();
-			bCanMarineSwing = false;
+			if (HookCast && TempHook != HookCast) HookCast->HookInactiv();
+			TempHook->HookActivate();
+			HookCast = TempHook;
+			bCanMarineSwing = true;
+
+			return;
 		}
 	}
-	else if (HookCast)
+
+	if (HookCast)
 	{
 		HookCast->HookInactiv();
 		bCanMarineSwing = false;
@@ -597,6 +592,7 @@ void AMarineCharacter::Dash()
 
 void AMarineCharacter::SlowMotionPressed()
 {
+	//Cant do Slowmotion when Player isnt in AIr or is wallrunning or swinging
 	if (!bIsInAir || WallrunComponent->GetIsWallrunning() || bCanSwingLerp) return;
 
 	SlowMotionComponent->TurnOnSlowMotion();
@@ -705,17 +701,19 @@ void AMarineCharacter::DelayJump()
 void AMarineCharacter::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov, bool bAddChromaticAbberation)
 {
 	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (DashClass)
-	{
-		if (bShouldMake)
-		{
-			DashWidget = Cast<UDashWidget>(CreateWidget(MarineController, DashClass));
-			DashWidget->SetFadeTime(FadeTime);
-			DashWidget->ShouldAddChangingFov(bAddFov);
-			DashWidget->ShouldAddChromaticAbberation(bAddChromaticAbberation);
-			DashWidget->AddToViewport();
-		}	
-	}
+	if (!DashClass || !bShouldMake) return;
+
+	DashWidget = Cast<UDashWidget>(CreateWidget(MarineController, DashClass));
+	DashWidget->SetFadeTime(FadeTime);
+	DashWidget->ShouldAddChangingFov(bAddFov);
+	DashWidget->ShouldAddChromaticAbberation(bAddChromaticAbberation);
+	DashWidget->AddToViewport();
+}
+
+void AMarineCharacter::RemoveDashWidget()
+{
+	if (!DashWidget) return;
+	DashWidget->ResetDashWidget();
 }
 
 bool AMarineCharacter::GetIsWallrunning() const

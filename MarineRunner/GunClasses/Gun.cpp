@@ -77,7 +77,7 @@ void AGun::Shoot()
 	
 	//Effect like paricles, sounds or drop casing from weapon
 	AddEffectsToShooting();
-	if (bManyBulletAtOnce) for (int i = 0; i != 10; i++) SpawnBullet();
+	if (bManyBulletAtOnce) for (int i = 0; i != HowManyBulletsToSpawn; i++) SpawnBullet();
 	else SpawnBullet();
 
 	MagazineCapacity--;
@@ -579,6 +579,7 @@ UTimelineComponent* AGun::SetupTimeline(UTimelineComponent* TimeLineComp, UCurve
 
 	TimeLineComp->SetPropertySetObject(this); 
 	TimeLineComp->SetDirectionPropertyName(TimeLineDirection); 
+	TimeLineComp->SetIgnoreTimeDilation(true);
 
 	TimeLineComp->SetLooping(false);
 	TimeLineComp->SetTimelineLength(TimeLineLength); 

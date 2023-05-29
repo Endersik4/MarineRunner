@@ -21,6 +21,7 @@ public:
 	void SetFadeTime(float NewTime) { FadeTime = NewTime; }
 	void ShouldAddChromaticAbberation(bool bShould) { bShouldAddChromaticAbberation = bShould; }
 	void ShouldAddChangingFov(bool bShould) { bShouldAddFov = bShould; }
+	void ResetDashWidget() { FadeTimeElapsed = FadeTime - 0.01f; }
 
 protected:
 	virtual void NativeConstruct() override; //konstruktor

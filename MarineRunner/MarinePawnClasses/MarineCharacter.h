@@ -82,6 +82,7 @@ public:
 	void HideGunAndAddTheNewOne(class AGun* NewGun);
 
 	void MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov = true, bool bAddChromaticAbberation = true);
+	void RemoveDashWidget();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -140,6 +141,8 @@ private:
 	//Time for Delay Jump
 	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
 		float DelayJumpTime = 0.15f;
+	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
+		float DelayIsInAirTime = 0.55f;
 
 	//Impuls before Interp/*
 	
@@ -197,6 +200,11 @@ private:
 	float JumpTimeElapsed;
 	void Jump();
 	void JumpTick(float DeltaTime);
+
+	//Delay is in Air (can jump though player is not in the air)
+	bool bDelayIsInAir;
+	FTimerHandle DelayIsInAirHandle;
+	void SetDelayIsInAir() { bDelayIsInAir = false; }
 
 	//Delayed jump
 	bool bCanDelayJump;

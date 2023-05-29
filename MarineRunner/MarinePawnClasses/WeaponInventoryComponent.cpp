@@ -59,6 +59,7 @@ AGun* UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, class 
 
 	if (CurrentWeapon)
 	{
+		CurrentWeapon->ShootReleased();
 		CurrentWeapon->SetGunSwayWhileMovingTimer(true);
 		if (CurrentWeapon->GetIsReloading()) CurrentWeapon->CancelReload();
 		CurrentWeapon->SetActorHiddenInGame(true);

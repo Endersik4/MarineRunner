@@ -28,13 +28,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		class USphereComponent* CheckSphere;
 private:
-
-	//UFUNCTION()
-	//	void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	//UFUNCTION()
-	//	void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* HookMesh;
 
@@ -43,9 +36,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
 		UMaterialInstance* M_PlayerOutRange;
-
-	float Radius;
-	void ChangeRadiusOfSphere();
 
 	void SetPlayerPawn();
 	class AMarineCharacter* MarinePawn;

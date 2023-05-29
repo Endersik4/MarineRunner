@@ -109,6 +109,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		int32 MagazineCapacity = 10;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		FName BoneNameForBulletRotation = TEXT("Koncowka_Drugiego_Palca_R");
+
+	//Should spread bullets from barrel like from shotgun
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		bool bManyBulletAtOnce;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
+		int32 HowManyBulletsToSpawn = 10;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
+		float RecoilImpulseOnEnemy = 3000.f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
 		UParticleSystem* ShootParticle;
 
@@ -129,6 +140,10 @@ private:
 		float AmmoFallingDown;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
 		float AmmoImpulseForce;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		TArray<float>PitchBulletRecoilArray = { -5, 5 };
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		TArray<float>YawBulletRecoilArray = { -5, 5 };;
 
 	//Bullet Type that will be fired from Gun
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
@@ -170,6 +185,7 @@ private:
 
 	//Bullet
 	FTimerHandle ImpulseOnBulletHandle;
+	void SpawnManyBullets();
 	void SpawnBullet();
 
 	//Footsteps sound

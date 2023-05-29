@@ -94,8 +94,12 @@ void ABullet::DamageEnemy(AEnemyPawn* Enemy, const FHitResult& Hit)
 
 	if (Enemy->GetHealth() <= 10.f)
 	{
-		Enemy->SetShouldRunningAway();
-		return;
+		float ShouldRunAwayRandom = FMath::FRandRange(0.f, 100.f);
+		if (ShouldRunAwayRandom <= 30.f)
+		{
+			Enemy->SetShouldRunningAway();
+			return;
+		}	
 	}
 
 	AlertEnemyAboutPlayer(Enemy);

@@ -84,11 +84,14 @@ void AEnemyPawn::Shoot()
 	}
 
 	//Had to do this in this way because bullet was spawned before bones were on their locations (in shooting animation)
-	GetWorldTimerManager().SetTimer(ImpulseOnBulletHandle, this, &AEnemyPawn::SpawnBullet, 0.001f, false);
+	GetWorldTimerManager().SetTimer(ImpulseOnBulletHandle, this, &AEnemyPawn::SpawnManyBullets, 0.001f, false);
 
 	MagazineCapacity--;
 	PlayAnimMontageInBlueprint();
 	bCanShoot = false;
+
+	FVector RecoilImpulse = -GetActorForwardVector() * RecoilImpulseOnEnemy * 100.f;
+	CapsuleColl->AddImpulse(RecoilImpulse);
 }
 
 void AEnemyPawn::CheckIfEnemySeePlayer()
@@ -151,12 +154,27 @@ void AEnemyPawn::DelayAfterEmptyMagazine()
 	bIsReloading = false;
 }
 
+void AEnemyPawn::SpawnManyBullets()
+{
+	if (bManyBulletAtOnce) for (int i = 0; i != HowManyBulletsToSpawn; i++) SpawnBullet();
+	else SpawnBullet();
+}
+
 void AEnemyPawn::SpawnBullet()
 {
-	FRotator BulletRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(TEXT("Koncowka_Drugiego_Palca_R")), CameraLocation);
+	FRotator BulletRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneNameForBulletRotation), CameraLocation);
+	//Bullet will randomly "go" to other directions 
+	if (PitchBulletRecoilArray.Num() == 2 && YawBulletRecoilArray.Num() == 2 && bManyBulletAtOnce)
+	{
+		float NewPitchRotaton = FMath::FRandRange(PitchBulletRecoilArray[0], PitchBulletRecoilArray[1]);
+		float NewYawRotation = FMath::FRandRange(YawBulletRecoilArray[0], YawBulletRecoilArray[1]);
+		BulletRotation.Pitch += NewPitchRotaton;
+		BulletRotation.Yaw += NewYawRotation;
+	}
 	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, EnemySkeletalMesh->GetSocketLocation(TEXT("Bullet")), BulletRotation);
 	
-	SpawnedBullet->SetBulletVariables(Damage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
+	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
+	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
 	SpawnedBullet->ImpulseOnBullet();
 }
 
