@@ -45,6 +45,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void RotateCameraWhileWallrunning(bool bIsRightSide = false);
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void ChangeMouseSensivity(float NewMouseSensivity);
+
 	//Is there Marine on The ground after begin in Air, It is used in Timeline in Blueprints
 	UPROPERTY(VisibleAnywhere, Category = "Movement|Jump", BlueprintReadWrite)
 		bool IsOnGround;
@@ -100,17 +103,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWeaponInventoryComponent* WeaponInventoryComponent;
 
-
-	UPROPERTY(EditDefaultsOnly, Category = "Actors to Spawn")
-		TSubclassOf<class ASwingLine> SwingLineClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget> CrosshairClass;
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget> DashClass;
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget> HUDClass;
-
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
@@ -119,6 +111,10 @@ private:
 		float FirstAidKitHealth = 35.f;
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float DelayAfterUseFirstAidKit = 1.1f;
+	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
+		float MouseSensivity = 0.7f;
+	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
+		TArray<float> MouseSensivityWhenScope = {0.4f, 0.2f, 0.1f, 0.05f};
 
 	//Aka speed movement
 	UPROPERTY(EditAnywhere, Category = "Movement")
@@ -156,6 +152,16 @@ private:
 		float SwingSpeed = 4.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|Swing")
 		float SwingDelay = 0.2f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Actors to Spawn")
+		TSubclassOf<class ASwingLine> SwingLineClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UUserWidget> CrosshairClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UUserWidget> DashClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UUserWidget> HUDClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ADSInSound;
@@ -235,6 +241,8 @@ private:
 	void Shoot();
 	void ReleasedShoot();
 	void Reload();
+	void Zoom(float WheelAxis);
+	int32 CurrentScopeIndex;
 	class AGun* Gun;
 
 	//FirstAidKit

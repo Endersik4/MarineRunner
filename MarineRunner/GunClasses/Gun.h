@@ -39,6 +39,13 @@ public:
 	UFUNCTION(BlueprintPure)
 		class AMarineCharacter* GetMarinePawn() const { return MarinePawn; }
 
+	//If Gun should be with scope then 
+	// * add Scope actor blueprint class
+	// * add this Event in EventGraph (Functions->Override->ZoomScope)
+	// * Call Zoom event from BP_Scope in ZoomScope event
+	UFUNCTION(BlueprintImplementableEvent)
+		int32 ZoomScope(float WheelAxis, bool bShouldRestartScope = false);
+
 	FVector GetRelativeLocationInPawn() const { return RelativeLocationInPawn; }
 	FRotator GetRelativeRotationInPawn() const { return RelativeRotationInPawn; }
 
@@ -56,6 +63,7 @@ public:
 
 	float GetAmmoDistance() const { return AmmoDistance; }
 	bool GetCanDropGun() const { return bCanDropTheGun; }
+	bool GetShouldChangeMouseSensitivityADS() const { return bShouldChangeMouseSensitivityADS; }
 	bool GetIsReloading()  const { return bIsReloading; }
 
 	int32 GetMagazineCapacity() const { return MagazineCapacity; }
@@ -120,15 +128,23 @@ private:
 		int32 MagazineCapacity = 10;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		int32 StoredAmmo = 50;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		UTexture2D* GunHUDTexture;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		float DropImpulseDistance = 400.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		UCurveFloat* ShootFOVCurve;
 
+	// If True then ammunition on UI will be below the Gun icon picture and its 460x260
+	// Useful for longer weapons
+	// If False then ammunition on UI will be on the left side of the gun icon picture and its 260x150
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|UI")
+		bool bAmmoCounterBelowGunHUD;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|UI")
+		UTexture2D* GunHUDTexture;
+
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		FVector RelativeLocationInPawnWhileADS;
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
+		bool bShouldChangeMouseSensitivityADS = false;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		float SpeedOfInterpADS = 14.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
@@ -139,6 +155,12 @@ private:
 	//This number will be subdivided with value from Recoil (bullet)
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		float DividerOfBulletRecoilWhileADS = 3.f;
+	//This number will be subdivided with value from responsible for Gun Sway
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
+		float DividerOfGunSwayADS = 1.5f;
+	//This number will be subdivided with value from responsible for Gun Sway while moving
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
+		float DividerOfGunSwayMovingADS = 2.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|DelayShoot")
 		float DelayShootTime = 0.1f;
@@ -329,6 +351,8 @@ private:
 
 	void PlayRecoil();
 	FTimerHandle PlayRecoilHandle;
+
+	bool CanShoot();
 
 	//Constantly Shooting
 	bool bConstantlyShoot;

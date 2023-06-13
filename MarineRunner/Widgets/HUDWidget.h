@@ -43,7 +43,7 @@ public:
 	//if bSetStoredAmmo == false then set ammo text in CurrentAmmoInMagazineText
 	//otherwise set ammo in StoredAmmoText
 	void SetAmmoText(int32 Ammo, bool bSetStoredAmmo = false);
-	void SetWeaponImage(UTexture2D* Texture);
+	void SetWeaponImage(UTexture2D* Texture, bool bAmmoCounterBelowGunHUD);
 	void SetGotDamage(bool bGot);
 	void SetDidPlayerUseFirstAidKit(bool bDid) { bDidPlayerUseFirstAidKit = bDid; }
 	void AddElementToProgress(EUseableElement Element, ElementBar ElementProgressBar);

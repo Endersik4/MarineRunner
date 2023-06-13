@@ -65,8 +65,11 @@ void UHUDWidget::SetAmmoText(int32 Ammo, bool bSetStoredAmmo)
 	else CurrentAmmoInMagazineText->SetText(FText::FromString(AmmoText));
 }
 
-void UHUDWidget::SetWeaponImage(UTexture2D* Texture)
+void UHUDWidget::SetWeaponImage(UTexture2D* Texture, bool bAmmoCounterBelowGunHUD)
 {
+	if (bAmmoCounterBelowGunHUD == true) WeaponImage->SetDesiredSizeOverride(FVector2D(460.f, 260.f));
+	else WeaponImage->SetDesiredSizeOverride(FVector2D(260.f, 150.f));
+	
 	WeaponImage->SetBrushFromTexture(Texture, true);
 }
 

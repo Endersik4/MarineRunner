@@ -63,6 +63,7 @@ void USlowMotionComponent::SettingUpSlowMotion()
 {
 	bCanSlowMotion = false;
 	bIsInSlowMotion = true;
+	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 0.5f, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
 
 	//If in Marine pawn there is adding a counter movement then disable this and add impulse in direction of what player pressed (forward,right...)
 	//When this happens then Player in Air move like Physics object 
@@ -99,6 +100,7 @@ void USlowMotionComponent::SettingUpSlowMotion()
 void USlowMotionComponent::DisableSlowMotion()
 {
 	bIsInSlowMotion = false;
+	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 1.f, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
 	MarinePawn->CustomTimeDilation = 1.f;
 

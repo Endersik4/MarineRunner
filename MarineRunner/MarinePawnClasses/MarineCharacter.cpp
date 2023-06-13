@@ -97,6 +97,8 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Action"), IE_Released, this, &AMarineCharacter::ReleasedShoot);
 	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, this, &AMarineCharacter::Reload);
 
+	PlayerInputComponent->BindAxis(TEXT("Zoom"), this, &AMarineCharacter::Zoom);
+
 	PlayerInputComponent->BindAction(TEXT("FirstAidKit"), IE_Pressed, this, &AMarineCharacter::UseFirstAidKit);
 
 	//Aiming
@@ -158,6 +160,7 @@ void AMarineCharacter::ADSPressed()
 	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
 	bIsPlayerADS = true;
 	Gun->SetStatusOfGun(StatusOfAimedGun::ADS);
+	if (Gun->GetShouldChangeMouseSensitivityADS() == true) ChangeMouseSensivity(MouseSensivityWhenScope[CurrentScopeIndex]);
 }
 
 void AMarineCharacter::ADSReleased()
@@ -169,6 +172,11 @@ void AMarineCharacter::ADSReleased()
 	if (ADSOutSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
 	bIsPlayerADS = false;
 	Gun->SetStatusOfGun(StatusOfAimedGun::BackToInitialPosition);
+	if (Gun->GetShouldChangeMouseSensitivityADS() == true)
+	{
+		ChangeMouseSensivity(MouseSensivity);
+		CurrentScopeIndex = Gun->ZoomScope(0.f, true);
+	}
 }
 
 void AMarineCharacter::Shoot()
@@ -191,6 +199,13 @@ void AMarineCharacter::Reload()
 	if (Gun == nullptr) return;
 
 	Gun->WaitToReload();
+}
+
+void AMarineCharacter::Zoom(float WheelAxis)
+{
+	if (Gun == nullptr || bIsPlayerADS == false || WheelAxis == 0.f) return;
+	CurrentScopeIndex = Gun->ZoomScope(WheelAxis);
+	ChangeMouseSensivity(MouseSensivityWhenScope[CurrentScopeIndex]);
 }
 
 void AMarineCharacter::Movement(float Delta)
@@ -266,7 +281,7 @@ void AMarineCharacter::Jump()
 {
 	if (WallrunComponent->GetCanJump() == false) return;
 
-	if (bIsInAir == false || bDelayIsInAir || WallrunComponent->ShouldAddImpulseAfterWallrun(true))
+	if (bIsInAir == false || (bDelayIsInAir && bIsJumping == false) || WallrunComponent->ShouldAddImpulseAfterWallrun(true))
 	{
 		bIsJumping = true;
 		JumpTimeElapsed = 0;

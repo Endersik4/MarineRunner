@@ -57,11 +57,9 @@ void AGun::Tick(float DeltaTime)
 
 void AGun::Shoot()
 {
-	if (BulletClass == NULL) return;
-	if (bReloadOneBullet && bIsReloading && MagazineCapacity > 0) CancelReload();
-	else if (bIsReloading) return;
+	if (CanShoot() == false) return;
 
-	if (bCanShoot == false)
+	if (bCanShoot == false || BaseSkeletalMesh->IsPlaying() == true)
 	{
 		bShouldDelayShoot = true;
 		GetWorldTimerManager().SetTimer(DelayShootHandle, this, &AGun::DelayShoot, DelayShootTime, false);
@@ -446,8 +444,8 @@ void AGun::GunSway()
 
 	if (StatusOfGun == ADS)
 	{
-		InterpLookRight /= 1.5f;
-		InterpLookUp /= 1.5f;
+		InterpLookRight /= DividerOfGunSwayADS;
+		InterpLookUp /= DividerOfGunSwayADS;
 		GunRotationSway = FRotator(InterpLookUp, InterpLookRight, 0.f);
 		BaseSkeletalMesh->SetRelativeRotation(GunRotationSway);
 		return;
@@ -487,9 +485,9 @@ void AGun::GunSwayWhileMoving()
 
 	if (StatusOfGun == ADS)
 	{
-		Angle /= 2;
-		LocationY /= 2;
-		LocationZ /= 2;
+		Angle /= DividerOfGunSwayMovingADS;
+		LocationY /= DividerOfGunSwayMovingADS;
+		LocationZ /= DividerOfGunSwayMovingADS;
 	}
 	
 	FVector GunLemniscateLocation = BaseSkeletalMesh->GetRelativeLocation();
@@ -543,7 +541,10 @@ void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
 
 	HudWidget->SetAmmoText(MagazineCapacity);
 	if (bChangeStoredAmmoText) HudWidget->SetAmmoText(StoredAmmo, true);
-	if (bChangeWeaponImage) HudWidget->SetWeaponImage(GunHUDTexture);
+	if (bChangeWeaponImage)
+	{
+		HudWidget->SetWeaponImage(GunHUDTexture, bAmmoCounterBelowGunHUD);
+	}
 }
 
 void AGun::PlayRecoil()
@@ -551,6 +552,19 @@ void AGun::PlayRecoil()
 	//Recoil Things
 	SetCameraRecoil(); //Recoil CAMERA
 	Playtimeline(RecoilAnimTimeline); //Recoil GUN 
+}
+
+bool AGun::CanShoot()
+{
+	if (BulletClass == NULL) return false;
+	if (bReloadOneBullet && bIsReloading && MagazineCapacity > 0)
+	{
+		CancelReload();
+		return true;
+	}
+	else if (bIsReloading) return false;
+
+	return true;
 }
 
 void AGun::SetGunSwayWhileMovingTimer(bool bShouldClear)
