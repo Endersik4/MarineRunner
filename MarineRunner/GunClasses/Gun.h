@@ -165,26 +165,37 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|DelayShoot")
 		float DelayShootTime = 0.1f;
 
-	//How fast ammo is moving forward. If Bullet has physics then this variable is Impulse Force
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+	// How fast ammo is moving forward. If Bullet has physics then this variable is Impulse Force
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		float AmmoSpeed;
-	//What distance should Ammo pass when bullet starts falling down
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+	// What distance should Ammo pass when bullet starts falling down
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		float AmmoDistance;
-	//How fast Ammo will falling down when AmmoDistance hit the number
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+	// How fast Ammo will falling down when AmmoDistance hit the number
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		float AmmoFallingDown;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		float AmmoImpulseForce;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		bool bCanBulletGoThrough;
+	// How much damage should be reduced after one object in percentage
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Bullet Through Objects", 
+		meta = (EditCondition = "bCanBulletGoThrough", EditConditionHides, ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+		float DamageReduceAfterObject;
+	// How much impulse should be reduced after one object in percentage
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Bullet Through Objects", 
+		meta = (EditCondition = "bCanBulletGoThrough", EditConditionHides, ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+		float ImpulseReduceAfterObject;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Bullet Through Objects", meta = (EditCondition = "bCanBulletGoThrough", EditConditionHides))
+		int32 MaxObjectsForBulletToGoThrough;
+
 	//Bullet Type that will be fired from Gun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Objects to Spawn")
 		TSubclassOf<AActor> BulletClass;
-
 	//Actor that will spawn on the location from Socket "BulletDrop". Its for casing that is dumped from gun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Objects to Spawn")
 		TSubclassOf<AActor> DropBulletClass;
-
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
 		UParticleSystem* ShootParticle;

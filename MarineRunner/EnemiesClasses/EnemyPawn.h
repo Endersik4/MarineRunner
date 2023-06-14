@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "MarineRunner/Interfaces/InteractInterface.h"
+
 #include "EnemyPawn.generated.h"
 
 UCLASS()
-class MARINERUNNER_API AEnemyPawn : public APawn
+class MARINERUNNER_API AEnemyPawn : public APawn, public IInteractInterface
 {
 	GENERATED_BODY()
 
@@ -25,22 +27,18 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+ 
+	//Function From Interface
+	virtual void ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseDirection, const FHitResult& NewHit) override;
 
-	USkeletalMeshComponent* GetEnemySkeletalMesh() const { return EnemySkeletalMesh; }
-
-	FColor GetBloodColor() const { return BloodColor; }
+	//AI
 	int32 GetHowManyLocations() const { return HowManyLocations; }
-	float GetHealth() const { return Health; }
 	float GetWaitTimeShoot() const { return WaitTimeShoot; }
 	float GetDetectPlayerTime() const { return DetectPlayerTime; }
 	float GetLoseSightOfPlayerTime() const { return LoseSightOfPlayerTime; }
 
 	void ShootBullet() { Shoot(); }
-	void SetIsDead(bool bNewDead);
-	void SetShouldRunningAway();
-	void SetHealth(float NewHealth) { Health = NewHealth; }
 
-	void SpawnBloodDecal(const FHitResult& Hit);
 	void Reload();
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -151,11 +149,13 @@ private:
 
 	//SOUNDS
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		class USoundBase* ShootingSound;
+		USoundBase* ShootingSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		class USoundBase* FootstepsSound;
+		USoundBase* FootstepsSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		class USoundBase* FootstepsRunningAwaySound;
+		USoundBase* FootstepsRunningAwaySound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* EnemyHitSound;
 
 	//Materials
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
@@ -164,6 +164,8 @@ private:
 	//Particles
 	UPROPERTY(EditDefaultsOnly, Category = "Particles")
 		FColor BloodColor;
+	UPROPERTY(EditDefaultsOnly, Category = "Particles")
+		class UParticleSystem* EnemyBloodParticle;
 
 	//Shooting
 	bool bCanShoot = true;
@@ -175,6 +177,13 @@ private:
 	bool bIsDead;
 	bool bIsReloading;
 	bool bIsRunningAway;
+
+	//Got Hit
+	void SpawnEffectsForImpact(const FHitResult& Hit);
+	void AlertEnemyAboutPlayer();
+	void SpawnBloodDecal(const FHitResult& Hit);
+	void SetIsDead(bool bNewDead);
+	void ShouldRunAway();
 
 	//If enemy see the player then he will execute given functions
 	void CheckIfEnemySeePlayer();

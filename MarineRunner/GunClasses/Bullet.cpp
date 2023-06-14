@@ -12,6 +12,7 @@
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 #include "MarineRunner/EnemiesClasses/EnemyAiController.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/Interfaces/InteractInterface.h"
 
 // Sets default values
 ABullet::ABullet()
@@ -25,6 +26,7 @@ ABullet::ABullet()
 	//BulletMesh->SetMassScale(NAME_None, 1.5f);
 	BulletMesh->SetNotifyRigidBodyCollision(true);
 	BulletMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore); //For the enemy bullet set this to BLOCK
+	BulletMesh->bReturnMaterialOnMove = true;
 
 	OnActorHit.AddDynamic(this, &ABullet::OnHit);
 	Tags.Add(TEXT("Bullet"));
@@ -75,50 +77,39 @@ void ABullet::ImpulseOnBullet()
 	else bUseMyMovement = true;
 }
 
-void ABullet::DamageEnemy(AEnemyPawn* Enemy, const FHitResult& Hit)
+void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
-	Enemy->SetHealth(Enemy->GetHealth() - Damage);
+	if (OtherActor->ActorHasTag("Bullet")) return;
 
-	//Kill enemy
-	if (Enemy->GetHealth() <= 0.f)
+	IInteractInterface* Interface = Cast<IInteractInterface>(Hit.GetActor());
+	if (Interface) //Check if Object has Interface C++ Implementation
 	{
-		Enemy->GetEnemySkeletalMesh()->SetSimulatePhysics(true);
-		Enemy->SetIsDead(true);
-
-		FVector Impulse = GetActorForwardVector() * (AmmoImpulseForce * 100);
-		Enemy->GetEnemySkeletalMesh()->AddImpulse(Impulse, Hit.BoneName);
-
-		Enemy->GetEnemySkeletalMesh()->Stop();
-		return;
+		Interface->ApplyDamage(Damage, AmmoImpulseForce, GetActorForwardVector(), Hit);
 	}
-
-	if (Enemy->GetHealth() <= 10.f)
+	else if (OtherActor->Implements<UInteractInterface>())  //Check if Object has Interface Blueprint Implementation
 	{
-		float ShouldRunAwayRandom = FMath::FRandRange(0.f, 100.f);
-		if (ShouldRunAwayRandom <= 30.f)
-		{
-			Enemy->SetShouldRunningAway();
-			return;
-		}	
+		IInteractInterface::Execute_BreakObject(Hit.GetActor(),  AmmoImpulseForce, GetActorRotation(), Hit); 
 	}
+	else {	SpawnEffectsForImpact(Hit); }
 
-	AlertEnemyAboutPlayer(Enemy);
+	BulletThroughObject(Hit);
 }
 
-void ABullet::AlertEnemyAboutPlayer(AEnemyPawn* Enemy)
+
+void ABullet::SpawnEffectsForImpact(const FHitResult& Hit)
 {
-	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(Enemy->GetController());
-	if (!EnemyAIController) return;
-
-	if (EnemyAIController->GetDoEnemySeePlayer() == false)
+	if (ObjectHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ObjectHitSound, Hit.ImpactPoint);
+	if (BulletHitParticle)
 	{
-		FVector PlayerLocation = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
-		float FoundRotationYaw = UKismetMathLibrary::FindLookAtRotation(Enemy->GetActorLocation(), PlayerLocation).Yaw;
-
-		FRotator EnemyRotation = Enemy->GetActorRotation();
-		EnemyRotation.Yaw = FoundRotationYaw;
-		Enemy->SetActorRotation(EnemyRotation);
+		FRotator Rotation = GetActorRotation();
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHitParticle, Hit.ImpactPoint, Rotation);
+		if (BulletHit2Particle)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHit2Particle, Hit.ImpactPoint, Rotation);
+		}
 	}
+
+	SpawnBulletHole(Hit);
 }
 
 void ABullet::SpawnBulletHole(const FHitResult& Hit)
@@ -135,87 +126,21 @@ void ABullet::SpawnBulletHole(const FHitResult& Hit)
 	}
 }
 
-void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
+void ABullet::BulletThroughObject(const FHitResult& Hit)
 {
-	if (OtherActor->ActorHasTag("Bullet")) return;
-
-	if (OtherActor->ActorHasTag("Enemy"))
+	if (bCanBulletGoThrough == false || MaxObjectsForBulletToGoThrough <= 0 || UGameplayStatics::GetSurfaceType(Hit) != EPhysicalSurface::SurfaceType2)
 	{
-		AEnemyPawn* Enemy = Cast<AEnemyPawn>(OtherActor);
-		if (!Enemy) return;
-
-		SpawnEffectsForImpact(Hit, TypeOfObject::EnemyType, Enemy->GetBloodColor());
-		
-		Enemy->SpawnBloodDecal(Hit);
-		DamageEnemy(Enemy, Hit);
-	}
-	else if (OtherActor->ActorHasTag("Player"))
-	{
-		AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(OtherActor);
-		if (!MarinePawn) return;
-
-		if (MarineHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, Hit.ImpactPoint);
-	
-		MarinePawn->GotDamage(Damage);
-	}
-	else
-	{
-		if (Hit.GetActor()->ActorHasTag("Breakable"))
-		{
-			UGeometryCollectionComponent* GeometryCollection = Cast<UGeometryCollectionComponent>(Hit.GetComponent());
-			GeometryCollection->ApplyExternalStrain(Hit.Item, Hit.ImpactPoint, 20.f, 1, 1.f, 5000.f);
-			GeometryCollection->ApplyBreakingLinearVelocity(Hit.Item, Hit.ImpactPoint);
-			GeometryCollection->AddRadialImpulse(GetActorLocation(), 100.f, AmmoImpulseForce * 100, ERadialImpulseFalloff::RIF_Linear);
-
-			if (Hit.GetActor()->ActorHasTag("Glass")) SpawnEffectsForImpact(Hit, TypeOfObject::GlassType);
-			else SpawnEffectsForImpact(Hit);
-		}
-		else
-		{
-			SpawnEffectsForImpact(Hit);
-			SpawnBulletHole(Hit);
-		}
-	}
-
-	SetActorTickEnabled(false);
-	Destroy();
-}
-
-void ABullet::SpawnEffectsForImpact(const FHitResult& Hit, TypeOfObject Type, FLinearColor EnemyBloodColor)
-{
-	if (Type == TypeOfObject::GlassType)
-	{
-		if (GlassHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), GlassHitSound, Hit.ImpactPoint);
-		if (GlassBreakParticle)
-		{
-			FRotator Rotation = GetActorRotation();
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), GlassBreakParticle, Hit.ImpactPoint, Rotation, FVector(4.f));
-		}
+		SetActorTickEnabled(false);
+		Destroy();
 		return;
 	}
 
-	if (Type == TypeOfObject::EnemyType)
-	{
-		if (EnemyHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), EnemyHitSound, Hit.ImpactPoint);
-		if (EnemyBloodParticle)
-		{
-			FRotator Rotation = Hit.ImpactNormal.Rotation() - FRotator(90.f, 0.f, 0.f);
-			UParticleSystemComponent* SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, Rotation);
-			SpawnedParticle->SetColorParameter(TEXT("ColorOfBlood"), EnemyBloodColor);
-		}
-		return;
-	}
+	Damage *= DamageReduceAfterObject;
+	AmmoImpulseForce *= ImpulseReduceAfterObject;
+	MaxObjectsForBulletToGoThrough--;
 
-	if (ObjectHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ObjectHitSound, Hit.ImpactPoint);
-	if (BulletHitParticle)
-	{
-		FRotator Rotation = GetActorRotation();
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHitParticle, Hit.ImpactPoint, Rotation);
-		if (BulletHit2Particle)
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BulletHit2Particle, Hit.ImpactPoint, Rotation);
-		}
-	}
+	FVector MoveLocation = GetActorLocation() + GetActorForwardVector() * 50.f;
+	SetActorLocation(MoveLocation);
 }
 
 void ABullet::SetBulletVariables(float NewDamage, float NewAmmoSpeed, float NewAmmoDistance, float NewAmmoFallingDown, float NewAmmoImpulseForce)
@@ -227,4 +152,12 @@ void ABullet::SetBulletVariables(float NewDamage, float NewAmmoSpeed, float NewA
 	AmmoImpulseForce = NewAmmoImpulseForce;
 }
 
+void ABullet::SetBulletGoThroughVariables(bool NewCanBulletGoThrough, float NewDamageReduceAfterObject, float NewImpulseReduceAfterObject, int32 NewMaxObjectsForBulletToGoThrough)
+{
+	if (NewCanBulletGoThrough == false) return;
 
+	bCanBulletGoThrough = true;
+	DamageReduceAfterObject = NewDamageReduceAfterObject;
+	ImpulseReduceAfterObject = NewImpulseReduceAfterObject;
+	MaxObjectsForBulletToGoThrough = NewMaxObjectsForBulletToGoThrough;
+}

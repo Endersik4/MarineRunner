@@ -94,6 +94,68 @@ void AEnemyPawn::Shoot()
 	CapsuleColl->AddImpulse(RecoilImpulse);
 }
 
+
+//void AEnemyPawn::BreakObject_Implementation(float NewDamage)
+//{
+//	UE_LOG(LogTemp, Warning, TEXT("IMPLEMENTATION"));
+//}
+
+void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseDirection, const FHitResult& NewHit)
+{
+	Health -= NewDamage;
+	SpawnEffectsForImpact(NewHit);
+	SpawnBloodDecal(NewHit);
+
+	//Kill enemy
+	if (Health <= 0.f)
+	{
+		EnemySkeletalMesh->SetSimulatePhysics(true);
+		bIsDead = true;
+
+		FVector Impulse = ImpulseDirection * (AmmoImpulseForce * 100);
+		EnemySkeletalMesh->AddImpulse(Impulse, NewHit.BoneName);
+
+		EnemySkeletalMesh->Stop();
+		return;
+	}
+
+	if (Health <= 10.f)
+	{
+		float ShouldRunAwayRandom = FMath::FRandRange(0.f, 100.f);
+		if (ShouldRunAwayRandom <= 30.f)
+		{
+			ShouldRunAway();
+			return;
+		}
+	}
+
+	AlertEnemyAboutPlayer();
+}
+
+void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit)
+{
+	if (EnemyHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), EnemyHitSound, Hit.ImpactPoint);
+	if (!EnemyBloodParticle) return;
+
+	FRotator Rotation = Hit.ImpactNormal.Rotation() - FRotator(90.f, 0.f, 0.f);
+	UParticleSystemComponent* SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, Rotation);
+	SpawnedParticle->SetColorParameter(TEXT("ColorOfBlood"), BloodColor);
+}
+
+void AEnemyPawn::AlertEnemyAboutPlayer()
+{
+	if (!EnemyAIController) return;
+
+	if (EnemyAIController->GetDoEnemySeePlayer() == true) return;
+
+	FVector PlayerLocation = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
+	float FoundRotationYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PlayerLocation).Yaw;
+
+	FRotator EnemyRotation = GetActorRotation();
+	EnemyRotation.Yaw = FoundRotationYaw;
+	SetActorRotation(EnemyRotation);
+}
+
 void AEnemyPawn::CheckIfEnemySeePlayer()
 {
 	if (!EnemyAIController || bIsDead == true || !MarinePawn || bIsRunningAway) return;
@@ -133,7 +195,7 @@ void AEnemyPawn::SetIsDead(bool bNewDead)
 	EnemyAIController->KillEnemy();
 }
 
-void AEnemyPawn::SetShouldRunningAway()
+void AEnemyPawn::ShouldRunAway()
 {
 	bIsRunningAway = true;
 	SetShouldRunningAwayInAnimBP();

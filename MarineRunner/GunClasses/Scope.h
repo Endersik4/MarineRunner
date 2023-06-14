@@ -39,7 +39,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ZoomSound;
 
-
 	// Keys are FOV, the more FOV, the higher the magnification of the scope.
 	// Values are the Scale of the viewfinder displayed on the scope during magnification.
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")

@@ -689,6 +689,23 @@ void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayT
 	if (bIsPlayerADS) ADSReleased();
 }
 
+void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseDirection, const FHitResult& NewHit)
+{
+	if (MarineHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, NewHit.ImpactPoint);
+
+	if (!HudWidget) return;
+
+	Health -= NewDamage;
+	if (Health < 0.f)
+	{
+		Health = 0.f;
+		UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
+	}
+	HudWidget->SetHealthPercent();
+
+	HudWidget->SetGotDamage(true);
+}
+
 void AMarineCharacter::GotDamage(float Damage)
 {
 	if (!HudWidget) return;

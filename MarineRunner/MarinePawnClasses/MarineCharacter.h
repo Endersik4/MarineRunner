@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "MarineRunner/Interfaces/InteractInterface.h"
+
 #include "MarineCharacter.generated.h"
 
 UCLASS()
-class MARINERUNNER_API AMarineCharacter : public APawn
+class MARINERUNNER_API AMarineCharacter : public APawn, public IInteractInterface
 {
 	GENERATED_BODY()
 
@@ -26,6 +28,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual void ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseDirection, const FHitResult& NewHit) override; //C++ ONLY
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		class UStaticMeshComponent* CapsulePawn;
@@ -174,14 +177,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* QuickSelectSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* MarineHitSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* UseFirstAidKitSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* SwingSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds|Footsteps")
 		USoundBase* FootstepsSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds|Footsteps")
 		USoundBase* FootstepsWallrunSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds|Footsteps")
 		USoundBase* FootstepsCroachSound;
 
 	//Movement

@@ -314,6 +314,7 @@ void AGun::SpawnBullet()
 
 	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
 	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
+	if (bCanBulletGoThrough == true) SpawnedBullet->SetBulletGoThroughVariables(true, DamageReduceAfterObject, ImpulseReduceAfterObject, MaxObjectsForBulletToGoThrough);
 	SpawnedBullet->ImpulseOnBullet();
 }
 

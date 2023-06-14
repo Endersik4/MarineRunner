@@ -34,9 +34,9 @@ public:
 		class UStaticMeshComponent* BulletMesh;
 
 	void SetBulletVariables(float NewDamage, float NewAmmoSpeed, float NewAmmoDistance, float NewAmmoFallingDown, float NewAmmoImpulseForce);
+	void SetBulletGoThroughVariables(bool bCanBulletGoThrough, float DamageReduceAfterObject, float ImpulseReduceAfterObject, int32 MaxObjectsForBulletToGoThrough);
 
 	void ImpulseOnBullet();
-
 private:
 	UFUNCTION()
 		void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
@@ -45,22 +45,12 @@ private:
 		class UParticleSystem* BulletHitParticle;
 	UPROPERTY(EditAnywhere, Category = "Particles")
 		class UParticleSystem* BulletHit2Particle;
-	UPROPERTY(EditAnywhere, Category = "Particles")
-		class UParticleSystem* GlassBreakParticle;
-	UPROPERTY(EditAnywhere, Category = "Particles")
-		class UParticleSystem* EnemyBloodParticle;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
 		bool bUseImpulseForBullet;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* MarineHitSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* EnemyHitSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ObjectHitSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* GlassHitSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
 		UMaterialInstance* BulletHoleDecalMaterial;
@@ -71,13 +61,17 @@ private:
 	float AmmoFallingDown;
 	float AmmoImpulseForce;
 
+	bool bCanBulletGoThrough;
+	float DamageReduceAfterObject;
+	float ImpulseReduceAfterObject;
+	int32 MaxObjectsForBulletToGoThrough;
+
 	void MovementBullet(float Delta);
 	bool bUseMyMovement;
 
-	void SpawnEffectsForImpact(const FHitResult& Hit, TypeOfObject Type = TypeOfObject::ObjectType, FLinearColor EnemyBloodColor = FLinearColor(0.445201f, 0.114435f, 0.287441f));
-	void DamageEnemy(class AEnemyPawn* Enemy, const FHitResult& Hit);
-	void AlertEnemyAboutPlayer(class AEnemyPawn* Enemy);
+	void SpawnEffectsForImpact(const FHitResult& Hit);
 	void SpawnBulletHole(const FHitResult& Hit);
+	void BulletThroughObject(const FHitResult& Hit);
 
 	float TrackBulletDistance;
 	FVector BulletLocation;
