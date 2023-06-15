@@ -25,6 +25,7 @@ ABullet::ABullet()
 
 	//BulletMesh->SetMassScale(NAME_None, 1.5f);
 	BulletMesh->SetNotifyRigidBodyCollision(true);
+	BulletMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	BulletMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore); //For the enemy bullet set this to BLOCK
 	BulletMesh->bReturnMaterialOnMove = true;
 

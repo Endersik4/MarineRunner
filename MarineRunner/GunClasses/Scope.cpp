@@ -87,7 +87,7 @@ int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
 	{
 		SetNewScope(CurrentScope + 1);
 	}
-	else if (WheelAxis < -0.1f && !(FOVZoom_Keys[0] == ZoomCamera->FOVAngle))
+	else if (WheelAxis < -0.1f && !(FOVZoom_Keys[0] == ZoomCamera->FOVAngle) && CurrentScope > 0)
 	{
 		SetNewScope(CurrentScope - 1);
 	}
