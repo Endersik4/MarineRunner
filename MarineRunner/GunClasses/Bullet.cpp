@@ -30,7 +30,6 @@ ABullet::ABullet()
 	BulletMesh->bReturnMaterialOnMove = true;
 
 	OnActorHit.AddDynamic(this, &ABullet::OnHit);
-	Tags.Add(TEXT("Bullet"));
 }	
 
 // Called when the game starts or when spawned
@@ -64,7 +63,7 @@ void ABullet::MovementBullet(float Delta)
 		TrackBulletDistance += (AmmoSpeed * Delta);
 	}
 
-	SetActorLocation(BulletLocation, true);
+	SetActorLocation(BulletLocation, true, (FHitResult*)nullptr,  ETeleportType::TeleportPhysics);
 }
 
 void ABullet::ImpulseOnBullet()
@@ -80,18 +79,33 @@ void ABullet::ImpulseOnBullet()
 
 void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (OtherActor->ActorHasTag("Bullet")) return;
+	if (Hit.GetActor() == HitActor) //If bullet is stuck in the same actor then teleport it a bit forward
+	{
+		FVector NewLocation = GetActorLocation() + GetActorForwardVector() * 50.f;
+		SetActorLocation(NewLocation);
+		return;
+	}
+	HitActor = Hit.GetActor();
 
 	IInteractInterface* Interface = Cast<IInteractInterface>(Hit.GetActor());
 	if (Interface) //Check if Object has Interface C++ Implementation
 	{
-		Interface->ApplyDamage(Damage, AmmoImpulseForce, GetActorForwardVector(), Hit);
+		FVector Impulse = GetActorForwardVector() * AmmoImpulseForce * 10.f;
+		Interface->ApplyDamage(Damage, AmmoImpulseForce, Impulse, Hit);
 	}
 	else if (OtherActor->Implements<UInteractInterface>())  //Check if Object has Interface Blueprint Implementation
 	{
 		IInteractInterface::Execute_BreakObject(Hit.GetActor(),  AmmoImpulseForce, GetActorRotation(), Hit); 
 	}
-	else {	SpawnEffectsForImpact(Hit); }
+	else 
+	{	
+		if (Hit.GetComponent()->IsSimulatingPhysics() == true)
+		{
+			FVector Impulse = GetActorForwardVector() * AmmoImpulseForce * 10.f;
+			Hit.GetComponent()->AddImpulse(Impulse);
+		}
+		SpawnEffectsForImpact(Hit); 
+	}
 
 	BulletThroughObject(Hit);
 }

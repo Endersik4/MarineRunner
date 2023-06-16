@@ -95,11 +95,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		float LoseSightOfPlayerTime = 5.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		float SpeedOfEnemyWhenIsRunningAway = 1600.f;
-
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		float Health = 100.f;
+
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
+		bool bCanEnemyRunAway = true;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
+		float SpeedOfEnemyWhenIsRunningAway = 1600.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		float Damage;
@@ -138,9 +141,9 @@ private:
 		float AmmoFallingDown;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
 		float AmmoImpulseForce;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
 		TArray<float>PitchBulletRecoilArray = { -5, 5 };
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
 		TArray<float>YawBulletRecoilArray = { -5, 5 };;
 
 	//Bullet Type that will be fired from Gun
@@ -152,7 +155,7 @@ private:
 		USoundBase* ShootingSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* FootstepsSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
 		USoundBase* FootstepsRunningAwaySound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* EnemyHitSound;

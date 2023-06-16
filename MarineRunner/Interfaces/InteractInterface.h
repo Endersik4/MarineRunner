@@ -26,5 +26,5 @@ public:
 		void BreakObject(float ImpulseForce, FRotator BulletRotation, const FHitResult& NewHit);
 
 	UFUNCTION()
-		virtual void ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseDirection, const FHitResult& NewHit) = 0;
+		virtual void ApplyDamage(float NewDamage, float NewImpulse, FVector BulletImpulse, const FHitResult& NewHit) = 0;
 };

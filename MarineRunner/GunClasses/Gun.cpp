@@ -313,7 +313,8 @@ void AGun::SpawnBullet()
 	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, Location, BulletRotation);
 
 	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
-	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
+	float BulletImpulseForce = (bManyBulletAtOnce == false ? AmmoImpulseForce : AmmoImpulseForce / HowManyBulletsToSpawn);
+	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, BulletImpulseForce);
 	if (bCanBulletGoThrough == true) SpawnedBullet->SetBulletGoThroughVariables(true, DamageReduceAfterObject, ImpulseReduceAfterObject, MaxObjectsForBulletToGoThrough);
 	SpawnedBullet->ImpulseOnBullet();
 }

@@ -69,6 +69,8 @@ private:
 	void MovementBullet(float Delta);
 	bool bUseMyMovement;
 
+	AActor* HitActor;
+
 	void SpawnEffectsForImpact(const FHitResult& Hit);
 	void SpawnBulletHole(const FHitResult& Hit);
 	void BulletThroughObject(const FHitResult& Hit);

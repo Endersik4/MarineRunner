@@ -94,13 +94,7 @@ void AEnemyPawn::Shoot()
 	CapsuleColl->AddImpulse(RecoilImpulse);
 }
 
-
-//void AEnemyPawn::BreakObject_Implementation(float NewDamage)
-//{
-//	UE_LOG(LogTemp, Warning, TEXT("IMPLEMENTATION"));
-//}
-
-void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseDirection, const FHitResult& NewHit)
+void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulse, FVector BulletImpulse, const FHitResult& NewHit)
 {
 	Health -= NewDamage;
 	SpawnEffectsForImpact(NewHit);
@@ -112,14 +106,13 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseD
 		EnemySkeletalMesh->SetSimulatePhysics(true);
 		bIsDead = true;
 
-		FVector Impulse = ImpulseDirection * (AmmoImpulseForce * 100);
-		EnemySkeletalMesh->AddImpulse(Impulse, NewHit.BoneName);
+		EnemySkeletalMesh->AddImpulse(BulletImpulse, NewHit.BoneName);
 
 		EnemySkeletalMesh->Stop();
 		return;
 	}
 
-	if (Health <= 10.f)
+	if (Health <= 10.f && bCanEnemyRunAway == true)
 	{
 		float ShouldRunAwayRandom = FMath::FRandRange(0.f, 100.f);
 		if (ShouldRunAwayRandom <= 30.f)
