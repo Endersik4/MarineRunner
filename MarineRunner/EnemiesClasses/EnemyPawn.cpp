@@ -67,6 +67,7 @@ void AEnemyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 }
 
+//Shoot function is executed in ShootAndMove.cpp
 void AEnemyPawn::Shoot()
 {
 	if (BulletClass == NULL || bCanShoot == false || bIsDead == true) return;
@@ -151,8 +152,7 @@ void AEnemyPawn::AlertEnemyAboutPlayer()
 
 void AEnemyPawn::CheckIfEnemySeePlayer()
 {
-	if (!EnemyAIController || bIsDead == true || !MarinePawn || bIsRunningAway) return;
-	if (EnemyAIController->GetDoEnemySeePlayer() == false) return;
+	if (ConditionsForEnemyToSeePlayer() == false) return;
 
 	PredictWhereToShoot();
 	FocusBonesOnPlayerWhenPlayerDetected();
@@ -213,6 +213,14 @@ void AEnemyPawn::SpawnManyBullets()
 {
 	if (bManyBulletAtOnce) for (int i = 0; i != HowManyBulletsToSpawn; i++) SpawnBullet();
 	else SpawnBullet();
+}
+
+bool AEnemyPawn::ConditionsForEnemyToSeePlayer()
+{
+	if (!EnemyAIController || bIsDead == true || !MarinePawn || bIsRunningAway) return false;
+	if (EnemyAIController->GetDoEnemySeePlayer() == false) return false;
+
+	return true;
 }
 
 void AEnemyPawn::SpawnBullet()

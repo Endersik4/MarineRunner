@@ -26,8 +26,8 @@ EBTNodeResult::Type UBTTask_ShootAndMove::ExecuteTask(UBehaviorTreeComponent& Ow
 	EnemyAIController = Cast<AEnemyAiController>(OwnerComp.GetAIOwner());
 	EnemyAIController->SetFocus(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
-	AvoidBullets();
-
+	if (EnemyPawn->GetShouldAvoidBullets()) AvoidBullets();
+	if (EnemyPawn->GetPlayPrepareToShootAnimation() == true) EnemyPawn->PlayPrepareToShootAnimation(true);
 	return EBTNodeResult::InProgress;
 }
 
@@ -54,6 +54,7 @@ void UBTTask_ShootAndMove::FinishTask(UBehaviorTreeComponent& OwnerComp)
 	if (EnemyAIController->GetDoEnemySeePlayer() == false)
 	{
 		StopShootAndMove(OwnerComp.GetBlackboardComponent());
+		if (EnemyPawn->GetPlayPrepareToShootAnimation() == true) EnemyPawn->PlayPrepareToShootAnimation(false);
 
 		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
 	}
@@ -62,7 +63,7 @@ void UBTTask_ShootAndMove::FinishTask(UBehaviorTreeComponent& OwnerComp)
 //IF enemy Completed MoveTo function then do another
 void UBTTask_ShootAndMove::MovedSuccessfully()
 {
-	if (EnemyAIController == nullptr) return;
+	if (EnemyAIController == nullptr || EnemyPawn->GetShouldAvoidBullets() == false) return;
 
 	if (EnemyAIController->GetIsMoveToCompleted())
 	{

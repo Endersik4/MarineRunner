@@ -32,6 +32,8 @@ public:
 	virtual void ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseDirection, const FHitResult& NewHit) override;
 
 	//AI
+	bool GetShouldAvoidBullets() const { return bShouldAvoidBullet; }
+	bool GetPlayPrepareToShootAnimation() const { return bPlayPrepareToShootAnimation; }
 	int32 GetHowManyLocations() const { return HowManyLocations; }
 	float GetWaitTimeShoot() const { return WaitTimeShoot; }
 	float GetDetectPlayerTime() const { return DetectPlayerTime; }
@@ -40,6 +42,9 @@ public:
 	void ShootBullet() { Shoot(); }
 
 	void Reload();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlayPrepareToShootAnimation(bool bShouldPlay);
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void SetShouldRunningAwayInAnimBP();
@@ -103,6 +108,12 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
 		float SpeedOfEnemyWhenIsRunningAway = 1600.f;
+
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
+		bool bShouldAvoidBullet = true;
+
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
+		bool bPlayPrepareToShootAnimation;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		float Damage;
@@ -168,7 +179,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Particles")
 		FColor BloodColor;
 	UPROPERTY(EditDefaultsOnly, Category = "Particles")
-		class UParticleSystem* EnemyBloodParticle;
+		UParticleSystem* EnemyBloodParticle;
 
 	//Shooting
 	bool bCanShoot = true;
@@ -190,6 +201,7 @@ private:
 
 	//If enemy see the player then he will execute given functions
 	void CheckIfEnemySeePlayer();
+	bool ConditionsForEnemyToSeePlayer();
 
 	//Reload
 	FTimerHandle DelayEmptyMagazineHandle;
