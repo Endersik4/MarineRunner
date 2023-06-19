@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
+#include "MarineRunner/Inventory/InventoryComponent.h"
+
 #include "SaveMarineRunner.generated.h"
 
 /**
@@ -26,8 +28,6 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		TMap <class AGun*, int32 > MagazineCapacityStorage;
-	UPROPERTY(EditAnywhere)
-		TMap <class AGun*, int32 > StoredAmmoStorage;
 
 	UPROPERTY(EditAnywhere)
 		TArray<class AGun*> WeaponsSaved;
@@ -41,7 +41,10 @@ public:
 	UPROPERTY(EditAnywhere)
 		FVector CheckpointLocation;
 
-	void SaveGame(int32 CurrentAmountOfFirstAidKits, float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage);
+	UPROPERTY(EditAnywhere)
+		TMap<FString, FItemStruct> Inventory_ItemsSaved;
+
+	void SaveGame(int32 CurrentAmountOfFirstAidKits, float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
 	void LoadGame(class AMarineCharacter* MarinePawn);
 
 	void ClearTMapValues();

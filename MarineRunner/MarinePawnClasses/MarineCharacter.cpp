@@ -186,7 +186,7 @@ void AMarineCharacter::Shoot()
 	if (Gun == nullptr) return;
 
 	Gun->Shoot();
-	if (Gun->GetIsAutomatic()) Gun->ShouldConstantlyShoot(true);
+	//if (Gun->GetIsAutomatic()) Gun->ShouldConstantlyShoot(true);
 }
 
 void AMarineCharacter::ReleasedShoot()
@@ -619,7 +619,7 @@ void AMarineCharacter::SlowMotionPressed()
 void AMarineCharacter::SaveGame(FVector NewCheckpointLocation)
 {
 	USaveMarineRunner* SaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
-	SaveGameInstance->SaveGame(FirstAidKits, Health, Gun, WeaponInventoryComponent->ReturnAllWeapons());
+	SaveGameInstance->SaveGame(FirstAidKits, Health, Gun, WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
 	SaveGameInstance->CheckpointLocation = NewCheckpointLocation;
 	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("MySlot"), 0);
 }

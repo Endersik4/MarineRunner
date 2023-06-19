@@ -34,11 +34,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
-		USkeletalMeshComponent* BaseSkeletalMesh;
-
-	UFUNCTION(BlueprintPure)
-		class AMarineCharacter* GetMarinePawn() const { return MarinePawn; }
+	//UFUNCTION(BlueprintPure)
+	//	class AMarineCharacter* GetMarinePawn() const { return MarinePawn; }
 
 	//Take
 	virtual void TakeItem(class AMarineCharacter* MarineCharacter, bool& bIsItWeapon) override;
@@ -52,11 +49,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		int32 ZoomScope(float WheelAxis, bool bShouldRestartScope = false);
 
-	//USkeletalMeshComponent* GetBaseSkeletalMesh() const { return BaseSkeletalMesh; }
-
-	bool GetIsAutomatic() const { return bIsAutomatic; }
-
-	void ShouldConstantlyShoot(bool bShould) { bConstantlyShoot = bShould; }
 	void WaitToReload();
 	void CancelReload();
 	void Shoot();
@@ -69,7 +61,6 @@ public:
 	bool GetIsReloading()  const { return bIsReloading; }
 
 	int32 GetMagazineCapacity() const { return MagazineCapacity; }
-	int32 GetStoredAmmo() const { return StoredAmmo; }
 
 	void SetBulletRotation(FRotator NewBulletRotation) { BulletRotation = NewBulletRotation; }
 	void SetCanGunSwayTick(bool bCan) { bCanGunSwayTick = bCan; }
@@ -79,20 +70,20 @@ public:
 	void SetStatusOfGun(StatusOfAimedGun NewStatus) { StatusOfGun = NewStatus; }
 
 	void SetMagazineCapacity(int32 NewMagazineCapacity) { MagazineCapacity = NewMagazineCapacity; }
-	void SetStoredAmmo(int32 NewStoredAmmo) { StoredAmmo = NewStoredAmmo; }
 
-	// If NewHudWidget is a pointer to the HudWiget from the player then Hide weapon, otherwise
-	// check if the weapon has a HudWidget if so then Hide weapon(because this means that the player
-	// has just dropped the weapon
-	void SetHudWidget(class UHUDWidget* NewHudWidget);
 	void SetWeaponInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
 
 	//Take And Drop
 	FString GetAmmoName() const { return Ammo_Name; }
-	void EquipWeapon(bool bShouldPlaySound = true, bool bIsThisCurrentGun = true);
 	FVector GetRelativeLocationInPawn() const { return RelativeLocationInPawn; }
+	void SetItemFromInventory(struct FItemStruct* NewItemFromInventory) { ItemFromInventory = NewItemFromInventory; }
+	void EquipWeapon(bool bShouldPlaySound = true, bool bIsThisCurrentGun = true);
+
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		USkeletalMeshComponent* BaseSkeletalMesh;
+
 	UFUNCTION()
 		void RecoilAnimTimelineCallback(float x);
 
@@ -356,29 +347,29 @@ private:
 	class UTimelineComponent* SetupTimeline(class UTimelineComponent* TimeLineComp, UCurveFloat* MostImportantCurve, FName TimeLineName, FName TimeLineDirection, float TimeLineLenght, FName TimelineCallbackFunction,
 		FName TimelineFinishedFunction);
 
-	FRotator BulletRotation;
-
+	
+	bool CanShoot();
 	bool bCanShoot = true;
 	bool bCanSway = true;
 	bool bCanGunSwayTick = false;
 	bool bCanDropTheGun = true;
 
-	bool bFirstBulletWithoutRecoil = true;
-	void ShouldFirstBulletGoStraight() { bFirstBulletWithoutRecoil = true; }
-	FTimerHandle FirstBulletHandle;
+	//////////////BULLET///////////
+	FRotator BulletRotation;
 	void SpawnBullet();
 	void AddEffectsToShooting();
+	///////////////////////////////
 
+	///////////GUN and CAMERA RECOIL/////////////////
 	void PlayRecoil();
 	FTimerHandle PlayRecoilHandle;
+	////////////////////////////////////////////
 
-	bool CanShoot();
-
-	//Constantly Shooting
+	///////////////Constantly Shooting///////////
 	bool bConstantlyShoot;
 	FTimerHandle ConstantlyShootHandle;
 
-	//TakeAndDrop
+	//////////////TakeAndDrop//////////////////
 	bool bDidTakeThisWeapon;
 	bool bIsGrabbingEnded;
 	bool IsGunAtTheWeaponLocation();
@@ -386,22 +377,37 @@ private:
 	AActor* ChangeToAnotherWeapon(int32 AmountOfWeapons);
 	void DropTheGun();
 	void AddAmmoToInventory();
+	/////////////////
 
-	//DropCasing
+	/////////////////////HUD WIDGET/////////////////////H
+	// If NewHudWidget is a pointer to the HudWiget from the player then Hide weapon, otherwise			//
+	// check if the weapon has a HudWidget if so then Hide weapon(because this means that the player	//
+	// has just dropped the weapon																		//
+	void SetHudWidget(class UHUDWidget* NewHudWidget);
+	//////////////////////////////////////////////////
+
+	//////////////DropCasing//////////
 	void DropCasing();
 
-	//Reloading
+	///////////////Reloading////////////////
 	float CopyOfMagazineCapacity;
 	bool bIsReloading;
 	FTimerHandle ReloadHandle;
 	class UAudioComponent* SpawnedReloadSound;
 	void Reload();
+	////////////////////
 
-	//OnHit
+	////////////First bullet without any recoil////////////////
+	bool bFirstBulletWithoutRecoil = true;
+	void ShouldFirstBulletGoStraight() { bFirstBulletWithoutRecoil = true; }
+	FTimerHandle FirstBulletHandle;
+	/////////////////////////////////
+
+	//////////////////////OnHit////////////////////
 	class UAudioComponent* SpawnedHitGroundSound;
 	AActor* HitActor;
 
-	//RecoilCamera
+	//////////////RecoilCamera///////////////
 	bool bCanRecoilCamera;
 	bool bShouldInterpBack;
 	float RandomRecoilYaw;
@@ -415,23 +421,24 @@ private:
 	void BackCameraToItsInitialRotation();
 	void UpRecoilCamera();
 	void InterpBackToInitialPosition();
-	//
+	////////////////////
 
-	//Gun Sway
+	/////////////////Gun Sway////////////////
 	void GunSway();
 	FRotator GunRotationSway;
-	//
-
-	//Delay Shoot
+	FTimerHandle GunSwayWhileMovingHandle;
+	/////////////////////////////////
+	
+	/////////////Delay Shoot/////////
 	bool bShouldDelayShoot;
 	void DelayShoot() { bShouldDelayShoot = false; }
 	FTimerHandle DelayShootHandle;
+	///////////////////////////
 
-	//ADS GUn
+	///////////////ADS GUN//////////////////
 	void AimTheGun(float Delta);
 	StatusOfAimedGun StatusOfGun = HipFire;
-
-	FTimerHandle GunSwayWhileMovingHandle;
+	///////////////////////////
 
 	class AMarineCharacter* MarinePawn;
 	class AMarinePlayerController* PC;

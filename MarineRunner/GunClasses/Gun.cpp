@@ -61,7 +61,7 @@ void AGun::Tick(float DeltaTime)
 void AGun::Shoot()
 {
 	if (CanShoot() == false) return;
-
+	if (bIsAutomatic) bConstantlyShoot = true;
 	if (bCanShoot == false || BaseSkeletalMesh->IsPlaying() == true)
 	{
 		bShouldDelayShoot = true;
@@ -510,7 +510,7 @@ void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
 
 	HudWidget->SetAmmoText(MagazineCapacity);
 
-	if (bChangeStoredAmmoText) HudWidget->SetAmmoText(ItemFromInventory->Item_Amount, true);
+	if (bChangeStoredAmmoText && ItemFromInventory) HudWidget->SetAmmoText(ItemFromInventory->Item_Amount, true);
 	if (bChangeWeaponImage)
 	{
 		HudWidget->SetWeaponImage(GunHUDTexture, bAmmoCounterBelowGunHUD);
@@ -569,7 +569,6 @@ void AGun::AddAmmoToInventory()
 	if (ItemFromInventory)
 	{
 		ItemFromInventory->Item_Amount += StoredAmmo;
-		UE_LOG(LogTemp, Warning, TEXT("AMMO %d"), ItemFromInventory->Item_Amount);
 	}
 	else
 	{
