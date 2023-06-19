@@ -8,6 +8,7 @@
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/Interfaces/TakeInterface.h"
 
 // Sets default values for this component's properties
 UTakeAndDrop::UTakeAndDrop()
@@ -44,16 +45,10 @@ void UTakeAndDrop::Take()
 	if (CheckIfPlayerCanTake(HitResult) == false) return;
 	if (HitResult.GetActor() == nullptr) return;
 
-	if (HitResult.GetActor()->ActorHasTag("Gun"))
+	TakeInterface = Cast<ITakeInterface>(HitResult.GetActor());
+	if (TakeInterface)
 	{
-		Gun = Cast<AGun>(HitResult.GetActor());
-
-		bIsInterpEnded = false;
-
-		MarinePawn->SetCanChangeWeapon(false);
-		MarinePawn->HideGunAndAddTheNewOne(Gun);
-
-		Gun->EquipWeapon(MarinePawn);
+		TakeInterface->TakeItem(HitResult, MarinePawn, bIsItWeapon);
 	}
 }
 
@@ -63,71 +58,31 @@ bool UTakeAndDrop::CheckIfPlayerCanTake(FHitResult& HitResult)
 	FVector End = Start + (MarinePawn->GetCamera()->GetForwardVector() * TakeDistance);
 
 	bool hasHit = GetWorld()->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeBox(FVector(20, 20, 20)));
-	bool bIsTooManyItems = MarinePawn->GetWeaponInventoryComponent()->GetWeaponsStorageAmount() >= MarinePawn->GetWeaponInventoryComponent()->GetMaxAmount();
+	if (bIsItWeapon)
+	{
+		bool bIsTooManyItems = MarinePawn->GetWeaponInventoryComponent()->GetWeaponsStorageAmount() >= MarinePawn->GetWeaponInventoryComponent()->GetMaxAmount();
+		if (bIsTooManyItems) return false;
+	}
 
-	if (hasHit == false || bIsInterpEnded == false || bIsTooManyItems) return false;
+	if (hasHit == false || bIsInterpEnded == false) return false;
 
 	return true;
 }
 
 void UTakeAndDrop::SetLocationOfItem()
 {
-	if (!MarinePawn || !Gun) return;
+	if (!MarinePawn || !TakeInterface) return;
 
-	if (bIsInterpEnded == true) return;
-	float Delta = GetWorld()->GetDeltaSeconds();
-
-	FVector BaseSkeletalMeshRelativeLocation = Gun->GetBaseSkeletalMesh()->GetRelativeLocation();
-	FVector Location = FMath::InterpExpoOut(BaseSkeletalMeshRelativeLocation, Gun->GetRelativeLocationInPawn(), SpeedOfComingGun * Delta);
-	Gun->SetActorRelativeLocation(Location);
-	
-	FRotator BaseSkeletalMeshRelativeRotation = Gun->GetBaseSkeletalMesh()->GetRelativeRotation();
-	FRotator Rotation = FMath::InterpExpoOut(BaseSkeletalMeshRelativeRotation, Gun->GetRelativeRotationInPawn(), SpeedOfComingGun * Delta);
-	Gun->SetActorRelativeRotation(Rotation);
-
-	IsGunAtTheWeaponLocation();
-}
-
-void UTakeAndDrop::IsGunAtTheWeaponLocation()
-{
-	bIsInterpEnded = Gun->GetBaseSkeletalMesh()->GetRelativeLocation().Equals(Gun->GetRelativeLocationInPawn(), 0.2f);
-	if (!bIsInterpEnded) return;
-
-	Gun->SetGunSwayWhileMovingTimer();
-	Gun->SetCanGunSwayTick(true);
-	Gun->SetActorRelativeLocation(Gun->GetRelativeLocationInPawn());
-
-	MarinePawn->SetGun(Gun);
-	MarinePawn->SetCanChangeWeapon(true);
+	bIsInterpEnded = TakeInterface->ItemLocationWhenGrabbed(SpeedOfComingGun * GetWorld()->GetDeltaSeconds());
 }
 
 void UTakeAndDrop::DropItem()
 {
-	if (bIsInterpEnded == false) return;
-	Gun = MarinePawn->GetGun();
-	if (Gun == nullptr) return;
-	
-	if (Gun->GetCanDropGun() == false) return;
+	if (!MarinePawn || bIsInterpEnded == false) return;
+	TakeInterface = Cast<ITakeInterface>(MarinePawn->GetGun());
 
-	Gun->DropTheGun();
-
-	MarinePawn->GetWeaponInventoryComponent()->RemoveWeaponFromStorage(Gun);
-	int32 AmountOfWeapons = MarinePawn->GetWeaponInventoryComponent()->GetWeaponsStorageAmount();
-	
-	ChangeToAnotherWeapon(AmountOfWeapons);
-}
-
-void UTakeAndDrop::ChangeToAnotherWeapon(int32 AmountOfWeapons)
-{
-	if (AmountOfWeapons > 0)
+	if (TakeInterface)
 	{
-		Gun = MarinePawn->GetWeaponInventoryComponent()->GetWeaponFromStorage(AmountOfWeapons, nullptr);
-		MarinePawn->SetGun(Gun);
-	}
-	else
-	{
-		MarinePawn->GetHudWidget()->HideWeaponThings(true);
-		Gun = nullptr;
-		MarinePawn->SetGun(nullptr);
+		TakeInterface = Cast<ITakeInterface>(TakeInterface->DropItem());
 	}
 }

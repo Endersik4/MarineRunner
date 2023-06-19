@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/TimelineComponent.h"
+#include "MarineRunner/Interfaces/TakeInterface.h"
 
 #include "Gun.generated.h"
 
@@ -17,7 +18,7 @@ enum StatusOfAimedGun
 };
 
 UCLASS()
-class MARINERUNNER_API AGun : public AActor
+class MARINERUNNER_API AGun : public AActor, public ITakeInterface
 {
 	GENERATED_BODY()
 	
@@ -39,6 +40,11 @@ public:
 	UFUNCTION(BlueprintPure)
 		class AMarineCharacter* GetMarinePawn() const { return MarinePawn; }
 
+	//Take
+	virtual void TakeItem(FHitResult& HitResult, class AMarineCharacter* MarineCharacter, bool& bIsItWeapon) override;
+	virtual AActor* DropItem() override;
+	virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) override;
+
 	//If Gun should be with scope then 
 	// * add Scope actor blueprint class
 	// * add this Event in EventGraph (Functions->Override->ZoomScope)
@@ -46,10 +52,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		int32 ZoomScope(float WheelAxis, bool bShouldRestartScope = false);
 
-	FVector GetRelativeLocationInPawn() const { return RelativeLocationInPawn; }
-	FRotator GetRelativeRotationInPawn() const { return RelativeRotationInPawn; }
-
-	USkeletalMeshComponent* GetBaseSkeletalMesh() const { return BaseSkeletalMesh; }
+	//USkeletalMeshComponent* GetBaseSkeletalMesh() const { return BaseSkeletalMesh; }
 
 	bool GetIsAutomatic() const { return bIsAutomatic; }
 
@@ -62,7 +65,6 @@ public:
 	void SetGunSwayWhileMovingTimer(bool bShouldClear = false);
 
 	float GetAmmoDistance() const { return AmmoDistance; }
-	bool GetCanDropGun() const { return bCanDropTheGun; }
 	bool GetShouldChangeMouseSensitivityADS() const { return bShouldChangeMouseSensitivityADS; }
 	bool GetIsReloading()  const { return bIsReloading; }
 
@@ -84,8 +86,10 @@ public:
 	// has just dropped the weapon
 	void SetHudWidget(class UHUDWidget* NewHudWidget);
 	void SetWeaponInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
+
+	//Take And Drop
 	void EquipWeapon(class AMarineCharacter* MarinePawn, bool bShouldPlaySound = true, bool bIsThisCurrentGun = true);
-	void DropTheGun();
+	FVector GetRelativeLocationInPawn() const { return RelativeLocationInPawn; }
 
 private:
 	UFUNCTION()
@@ -368,6 +372,12 @@ private:
 	//Constantly Shooting
 	bool bConstantlyShoot;
 	FTimerHandle ConstantlyShootHandle;
+
+	//TakeAndDrop
+	bool bIsGrabbingEnded;
+	bool IsGunAtTheWeaponLocation();
+	AActor* ChangeToAnotherWeapon(int32 AmountOfWeapons);
+	void DropTheGun();
 
 	//DropCasing
 	void DropCasing();

@@ -27,9 +27,6 @@ public:
 	void Take();
 	void DropItem();
 
-	UFUNCTION(BlueprintCallable)
-	class AGun* GetGun() const { return Gun; }
-
 private:
 	UPROPERTY(EditAnywhere, Category = "Take Items")
 		float TakeDistance = 400.f;
@@ -37,14 +34,12 @@ private:
 		float SpeedOfComingGun = 2.f;
 
 	class AMarineCharacter* MarinePawn;
-	class AGun* Gun;
+	class ITakeInterface* TakeInterface;
+	bool bIsItWeapon;
 
 	bool bIsInterpEnded = true;
 
 	bool CheckIfPlayerCanTake(FHitResult& HitResult);
 	void SetLocationOfItem();
-	void IsGunAtTheWeaponLocation();
-
-	void ChangeToAnotherWeapon(int32 AmountOfWeapons);
 		
 };

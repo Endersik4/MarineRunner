@@ -520,7 +520,7 @@ void AMarineCharacter::SwingLineCheck()
 	FVector LineEnd = LineStart + (Camera->GetForwardVector() * 2500.f);
 	TArray<AActor*> ActorsToIgnore;
 	FHitResult HitResults;
-	if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ActorsToIgnore, EDrawDebugTrace::ForDuration, HitResults, true, FLinearColor::Red, FLinearColor::Green, 2.f))
+	if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ActorsToIgnore, EDrawDebugTrace::None, HitResults, true))
 	{
 		AHook* TempHook;
 		if (HitResults.GetActor()->ActorHasTag("Hook"))

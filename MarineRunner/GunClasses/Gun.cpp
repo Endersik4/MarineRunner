@@ -13,6 +13,7 @@
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 
 // Sets default values
 AGun::AGun()
@@ -568,6 +569,81 @@ bool AGun::CanShoot()
 
 	return true;
 }
+
+//TAKE AND DROP
+void AGun::TakeItem(FHitResult& HitResult, AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
+{
+	bIsGrabbingEnded = false;
+	bIsItWeapon = true;
+
+	EquipWeapon(MarineCharacter);
+
+	MarinePawn->SetCanChangeWeapon(false);
+	MarinePawn->HideGunAndAddTheNewOne(this);
+}
+
+AActor* AGun::DropItem()
+{
+	if (bIsGrabbingEnded == false) return this;
+	if (this != MarinePawn->GetGun()) return this;
+
+	if (bCanDropTheGun == false) return this;
+
+	MarinePawn->GetWeaponInventoryComponent()->RemoveWeaponFromStorage(this);
+	int32 AmountOfWeapons = MarinePawn->GetWeaponInventoryComponent()->GetWeaponsStorageAmount();
+
+	AActor* GunFromStorage = ChangeToAnotherWeapon(AmountOfWeapons);
+
+	DropTheGun();
+	return GunFromStorage;
+}
+
+AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
+{
+	AGun* GunFromStorage;
+	if (AmountOfWeapons > 0)
+	{
+		GunFromStorage = MarinePawn->GetWeaponInventoryComponent()->GetWeaponFromStorage(AmountOfWeapons, nullptr);
+		MarinePawn->SetGun(GunFromStorage);
+	}
+	else
+	{
+		MarinePawn->GetHudWidget()->HideWeaponThings(true);
+		GunFromStorage = nullptr;
+		MarinePawn->SetGun(nullptr);
+	}
+	return GunFromStorage;
+}
+
+bool AGun::ItemLocationWhenGrabbed(float SpeedOfItem)
+{
+	if (bIsGrabbingEnded == true) return true;
+
+	FVector BaseSkeletalMeshRelativeLocation = BaseSkeletalMesh->GetRelativeLocation();
+	FVector Location = FMath::InterpExpoOut(BaseSkeletalMeshRelativeLocation, RelativeLocationInPawn, SpeedOfItem);
+	SetActorRelativeLocation(Location);
+
+	FRotator BaseSkeletalMeshRelativeRotation = BaseSkeletalMesh->GetRelativeRotation();
+	FRotator Rotation = FMath::InterpExpoOut(BaseSkeletalMeshRelativeRotation, RelativeRotationInPawn, SpeedOfItem);
+	SetActorRelativeRotation(Rotation);
+
+	return IsGunAtTheWeaponLocation();
+}
+
+bool AGun::IsGunAtTheWeaponLocation()
+{
+	bIsGrabbingEnded = BaseSkeletalMesh->GetRelativeLocation().Equals(RelativeLocationInPawn, 0.2f);
+	if (!bIsGrabbingEnded) return false;
+
+	SetGunSwayWhileMovingTimer();
+	SetCanGunSwayTick(true);
+	SetActorRelativeLocation(RelativeLocationInPawn);
+
+	MarinePawn->SetGun(this);
+	MarinePawn->SetCanChangeWeapon(true);
+	return true;
+}
+//END OF TAKE AND DROP
 
 void AGun::SetGunSwayWhileMovingTimer(bool bShouldClear)
 {
