@@ -24,7 +24,7 @@ class MARINERUNNER_API ITakeInterface
 public:
 
 	UFUNCTION()
-		virtual void TakeItem(FHitResult& HitResult, class AMarineCharacter* Character, bool & bIsItWeapon) = 0;
+		virtual void TakeItem(class AMarineCharacter* Character, bool & bIsItWeapon) = 0;
 
 	UFUNCTION()
 		virtual AActor* DropItem() = 0;

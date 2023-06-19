@@ -48,7 +48,8 @@ void UTakeAndDrop::Take()
 	TakeInterface = Cast<ITakeInterface>(HitResult.GetActor());
 	if (TakeInterface)
 	{
-		TakeInterface->TakeItem(HitResult, MarinePawn, bIsItWeapon);
+		TakeInterface->TakeItem(MarinePawn, bIsItWeapon);
+		if (bIsItWeapon == false) TakeInterface = nullptr;
 	}
 }
 
@@ -58,11 +59,6 @@ bool UTakeAndDrop::CheckIfPlayerCanTake(FHitResult& HitResult)
 	FVector End = Start + (MarinePawn->GetCamera()->GetForwardVector() * TakeDistance);
 
 	bool hasHit = GetWorld()->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeBox(FVector(20, 20, 20)));
-	if (bIsItWeapon)
-	{
-		bool bIsTooManyItems = MarinePawn->GetWeaponInventoryComponent()->GetWeaponsStorageAmount() >= MarinePawn->GetWeaponInventoryComponent()->GetMaxAmount();
-		if (bIsTooManyItems) return false;
-	}
 
 	if (hasHit == false || bIsInterpEnded == false) return false;
 
@@ -71,7 +67,7 @@ bool UTakeAndDrop::CheckIfPlayerCanTake(FHitResult& HitResult)
 
 void UTakeAndDrop::SetLocationOfItem()
 {
-	if (!MarinePawn || !TakeInterface) return;
+	if (!MarinePawn || !TakeInterface || bIsItWeapon == false) return;
 
 	bIsInterpEnded = TakeInterface->ItemLocationWhenGrabbed(SpeedOfComingGun * GetWorld()->GetDeltaSeconds());
 }

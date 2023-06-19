@@ -66,6 +66,7 @@ public:
 	bool GetShouldAddCounterMovement() const { return bShouldAddCounterMovement; }
 	class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
+	class UInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
 	class UCameraComponent* GetCamera() const { return Camera; }
 	class AGun* GetGun() const { return Gun; }
 
@@ -105,6 +106,8 @@ private:
 		class UPullUpComponent* PullUpComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWeaponInventoryComponent* WeaponInventoryComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UInventoryComponent* InventoryComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;

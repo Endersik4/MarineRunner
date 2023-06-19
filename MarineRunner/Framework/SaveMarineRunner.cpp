@@ -55,12 +55,12 @@ void USaveMarineRunner::LoadGame(class AMarineCharacter* MarinePawn)
 
 		if (MarinePawn->GetGun() == CurrentWeapon)
 		{	
-			CurrentWeapon->EquipWeapon(MarinePawn, false);
+			//CurrentWeapon->EquipWeapon(MarinePawn, false);
 			CurrentWeapon->SetGunSwayWhileMovingTimer();
 		}
 		else
 		{
-			CurrentWeapon->EquipWeapon(MarinePawn, false, false);
+			//CurrentWeapon->EquipWeapon(MarinePawn, false, false);
 			CurrentWeapon->SetGunSwayWhileMovingTimer(true);
 			CurrentWeapon->SetActorHiddenInGame(true);
 		}

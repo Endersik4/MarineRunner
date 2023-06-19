@@ -25,6 +25,7 @@
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Framework/SaveMarineRunner.h"
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
+#include "MarineRunner/Inventory/InventoryComponent.h"
 
 // Sets default values
 AMarineCharacter::AMarineCharacter()
@@ -57,6 +58,7 @@ AMarineCharacter::AMarineCharacter()
 	SlowMotionComponent = CreateDefaultSubobject<USlowMotionComponent>(TEXT("SlowMotionComponent"));
 	PullUpComponent = CreateDefaultSubobject<UPullUpComponent>(TEXT("PullUpComponent"));
 	WeaponInventoryComponent = CreateDefaultSubobject<UWeaponInventoryComponent>(TEXT("WeaponInventoryComponent"));
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 
 	bUseControllerRotationYaw = true;
 	Tags.Add(TEXT("Player"));
@@ -580,6 +582,7 @@ void AMarineCharacter::HideGunAndAddTheNewOne(AGun* NewGun)
 	{
 		Gun->SetActorHiddenInGame(true);
 		Gun->SetGunSwayWhileMovingTimer(true);
+		Gun->ShootReleased();
 	}
 	WeaponInventoryComponent->AddNewWeaponToStorage(NewGun);
 }

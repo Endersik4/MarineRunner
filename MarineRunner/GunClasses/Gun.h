@@ -41,7 +41,7 @@ public:
 		class AMarineCharacter* GetMarinePawn() const { return MarinePawn; }
 
 	//Take
-	virtual void TakeItem(FHitResult& HitResult, class AMarineCharacter* MarineCharacter, bool& bIsItWeapon) override;
+	virtual void TakeItem(class AMarineCharacter* MarineCharacter, bool& bIsItWeapon) override;
 	virtual AActor* DropItem() override;
 	virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) override;
 
@@ -88,7 +88,8 @@ public:
 	void SetWeaponInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
 
 	//Take And Drop
-	void EquipWeapon(class AMarineCharacter* MarinePawn, bool bShouldPlaySound = true, bool bIsThisCurrentGun = true);
+	FString GetAmmoName() const { return Ammo_Name; }
+	void EquipWeapon(bool bShouldPlaySound = true, bool bIsThisCurrentGun = true);
 	FVector GetRelativeLocationInPawn() const { return RelativeLocationInPawn; }
 
 private:
@@ -128,14 +129,18 @@ private:
 		bool bManyBulletAtOnce;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
 		int32 HowManyBulletsToSpawn = 10;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		int32 MagazineCapacity = 10;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		int32 StoredAmmo = 50;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		float DropImpulseDistance = 400.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		UCurveFloat* ShootFOVCurve;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Ammunition")
+		int32 MagazineCapacity = 10;
+	//When a player picks up a weapon for the first time, the value will be added to the inventory.
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Ammunition")
+		int32 StoredAmmo = 50;
+	//The name of the item from the inventory that will be the ammunition for this weapon. It must be the same as the one in the inventory.
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Ammunition")
+		FString Ammo_Name = "ColtAmmo";
 
 	// If True then ammunition on UI will be below the Gun icon picture and its 460x260
 	// Useful for longer weapons
@@ -374,10 +379,13 @@ private:
 	FTimerHandle ConstantlyShootHandle;
 
 	//TakeAndDrop
+	bool bDidTakeThisWeapon;
 	bool bIsGrabbingEnded;
 	bool IsGunAtTheWeaponLocation();
+	struct FItemStruct* ItemFromInventory;
 	AActor* ChangeToAnotherWeapon(int32 AmountOfWeapons);
 	void DropTheGun();
+	void AddAmmoToInventory();
 
 	//DropCasing
 	void DropCasing();

@@ -12,8 +12,10 @@
 #include "MarineRunner/GunClasses/Bullet.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
-#include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
+#include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/Inventory/InventoryComponent.h"
+#include "MarineRunner/Inventory/PickupItem.h"
 
 // Sets default values
 AGun::AGun()
@@ -106,7 +108,7 @@ void AGun::AddEffectsToShooting()
 	
 	if (bPlayShootAnimationAfterFire == true) return;
 
-	if (StoredAmmo <= 0 && MagazineCapacity == 1 && ShootWithNoBulletsAnimation)
+	if (ItemFromInventory->Item_Amount <= 0 && MagazineCapacity == 1 && ShootWithNoBulletsAnimation)
 	{
 		BaseSkeletalMesh->PlayAnimation(ShootWithNoBulletsAnimation, false);
 	}
@@ -331,7 +333,7 @@ void AGun::ResetVariablesForCameraRecoil()
 
 void AGun::WaitToReload()
 {
-	if (StoredAmmo <= 0 || MagazineCapacity == CopyOfMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return;
+	if (ItemFromInventory->Item_Amount <= 0 || MagazineCapacity == CopyOfMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return;
 	if (ReloadSound) SpawnedReloadSound = UGameplayStatics::SpawnSoundAttached(ReloadSound, BaseSkeletalMesh);
 
 	bCanShoot = false;
@@ -345,19 +347,19 @@ void AGun::Reload()
 	if (bReloadOneBullet == true)
 	{
 		MagazineCapacity++;
-		StoredAmmo--;
+		ItemFromInventory->Item_Amount--;
 	}
 	else
 	{
 		int32 RestAmmo = CopyOfMagazineCapacity - MagazineCapacity;
-		if (StoredAmmo < RestAmmo)
+		if (ItemFromInventory->Item_Amount < RestAmmo)
 		{
-			MagazineCapacity += StoredAmmo;
-			StoredAmmo = 0;
+			MagazineCapacity += ItemFromInventory->Item_Amount;
+			ItemFromInventory->Item_Amount = 0;
 		}
 		else
 		{
-			StoredAmmo -= RestAmmo;
+			ItemFromInventory->Item_Amount -= RestAmmo;
 			MagazineCapacity = CopyOfMagazineCapacity;
 		}
 	}
@@ -378,42 +380,6 @@ void  AGun::CancelReload()
 	SpawnedReloadSound = nullptr;
 	bCanShoot = true;
 	bIsReloading = false;
-}
-
-void AGun::EquipWeapon(class AMarineCharacter* Marine, bool bShouldPlaySound, bool bIsThisCurrentGun)
-{
-	BaseSkeletalMesh->SetSimulatePhysics(false);
-	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	MarinePawn = Marine;
-
-	if (bShouldPlaySound && PickUpSound) UGameplayStatics::SpawnSoundAttached(PickUpSound, BaseSkeletalMesh);
-
-	SetHudWidget(Marine->GetHudWidget());
-	if (bIsThisCurrentGun)
-	{
-		//Changing Weapons things In HUD to the correct ones
-		SetWeaponInHud(true, true);
-	}
-
-	AttachToComponent(Marine->GetCamera(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
-}
-
-void AGun::DropTheGun()
-{
-	if (!MarinePawn) return;
-
-	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	BaseSkeletalMesh->SetSimulatePhysics(true);
-	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-	SetGunSwayWhileMovingTimer(true);
-	bCanGunSwayTick = false;
-	HudWidget = nullptr;
-	if (bIsReloading) CancelReload();
-
-	FVector DropImpulse = MarinePawn->GetCamera()->GetForwardVector() * 10 * DropImpulseDistance;
-	BaseSkeletalMesh->AddImpulse(DropImpulse);
-	MarinePawn = nullptr;
 }
 
 void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
@@ -543,7 +509,8 @@ void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
 	if (!HudWidget) return;
 
 	HudWidget->SetAmmoText(MagazineCapacity);
-	if (bChangeStoredAmmoText) HudWidget->SetAmmoText(StoredAmmo, true);
+
+	if (bChangeStoredAmmoText) HudWidget->SetAmmoText(ItemFromInventory->Item_Amount, true);
 	if (bChangeWeaponImage)
 	{
 		HudWidget->SetWeaponImage(GunHUDTexture, bAmmoCounterBelowGunHUD);
@@ -559,7 +526,7 @@ void AGun::PlayRecoil()
 
 bool AGun::CanShoot()
 {
-	if (BulletClass == NULL) return false;
+	if (BulletClass == NULL || bIsGrabbingEnded == false) return false;
 	if (bReloadOneBullet && bIsReloading && MagazineCapacity > 0)
 	{
 		CancelReload();
@@ -570,16 +537,63 @@ bool AGun::CanShoot()
 	return true;
 }
 
-//TAKE AND DROP
-void AGun::TakeItem(FHitResult& HitResult, AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
+////////////////////////////////////////TAKE AND DROP//////////////////////////////////////////////////
+void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 {
+	bool bIsTooManyItems = MarineCharacter->GetWeaponInventoryComponent()->GetWeaponsStorageAmount() >= MarineCharacter->GetWeaponInventoryComponent()->GetMaxAmount();
+	if (bIsTooManyItems)
+	{
+		bIsItWeapon = false;
+		return;
+	}
+
 	bIsGrabbingEnded = false;
 	bIsItWeapon = true;
+	MarinePawn = MarineCharacter;
 
-	EquipWeapon(MarineCharacter);
+	AddAmmoToInventory();
+
+	EquipWeapon();
 
 	MarinePawn->SetCanChangeWeapon(false);
 	MarinePawn->HideGunAndAddTheNewOne(this);
+	MarinePawn->SetGun(this);
+}
+
+void AGun::AddAmmoToInventory()
+{
+	if (bDidTakeThisWeapon == true || MarinePawn->GetInventoryComponent() == nullptr) return;
+
+	FItemStruct NewItem(Ammo_Name, StoredAmmo);
+	ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Ammo_Name);
+	if (ItemFromInventory)
+	{
+		ItemFromInventory->Item_Amount += StoredAmmo;
+		UE_LOG(LogTemp, Warning, TEXT("AMMO %d"), ItemFromInventory->Item_Amount);
+	}
+	else
+	{
+		MarinePawn->GetInventoryComponent()->Inventory_Items.Add(Ammo_Name, NewItem);
+		ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Ammo_Name);
+	}
+	bDidTakeThisWeapon = true;
+}
+
+void AGun::EquipWeapon(bool bShouldPlaySound, bool bIsThisCurrentGun)
+{
+	BaseSkeletalMesh->SetSimulatePhysics(false);
+	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	if (bShouldPlaySound && PickUpSound) UGameplayStatics::SpawnSoundAttached(PickUpSound, BaseSkeletalMesh);
+
+	SetHudWidget(MarinePawn->GetHudWidget());
+	if (bIsThisCurrentGun)
+	{
+		//Changing Weapons things In HUD to the correct ones
+		SetWeaponInHud(true, true);
+	}
+
+	AttachToComponent(MarinePawn->GetCamera(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 }
 
 AActor* AGun::DropItem()
@@ -615,6 +629,24 @@ AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
 	return GunFromStorage;
 }
 
+void AGun::DropTheGun()
+{
+	if (!MarinePawn) return;
+
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	BaseSkeletalMesh->SetSimulatePhysics(true);
+	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
+	SetGunSwayWhileMovingTimer(true);
+	bCanGunSwayTick = false;
+	HudWidget = nullptr;
+	if (bIsReloading) CancelReload();
+
+	FVector DropImpulse = MarinePawn->GetCamera()->GetForwardVector() * 10 * DropImpulseDistance;
+	BaseSkeletalMesh->AddImpulse(DropImpulse);
+	MarinePawn = nullptr;
+}
+
 bool AGun::ItemLocationWhenGrabbed(float SpeedOfItem)
 {
 	if (bIsGrabbingEnded == true) return true;
@@ -639,11 +671,11 @@ bool AGun::IsGunAtTheWeaponLocation()
 	SetCanGunSwayTick(true);
 	SetActorRelativeLocation(RelativeLocationInPawn);
 
-	MarinePawn->SetGun(this);
+	//MarinePawn->SetGun(this);
 	MarinePawn->SetCanChangeWeapon(true);
 	return true;
 }
-//END OF TAKE AND DROP
+/////////////////////////////////////END of TAKE AND DROP//////////////////////////////////////////////////
 
 void AGun::SetGunSwayWhileMovingTimer(bool bShouldClear)
 {
