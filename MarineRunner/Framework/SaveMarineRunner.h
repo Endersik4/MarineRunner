@@ -21,9 +21,6 @@ public:
 	USaveMarineRunner();
 
 	UPROPERTY(EditAnywhere)
-		int32 AmountOfFirstAidKits;
-
-	UPROPERTY(EditAnywhere)
 		float CurrentHealthSaved;
 
 	UPROPERTY(EditAnywhere)
@@ -44,7 +41,7 @@ public:
 	UPROPERTY(EditAnywhere)
 		TMap<FString, FItemStruct> Inventory_ItemsSaved;
 
-	void SaveGame(int32 CurrentAmountOfFirstAidKits, float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
+	void SaveGame(float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
 	void LoadGame(class AMarineCharacter* MarinePawn);
 
 	void ClearTMapValues();

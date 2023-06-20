@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/Inventory/InventoryComponent.h"
 
 void UHUDWidget::NativeConstruct()
 {
@@ -42,7 +43,7 @@ void UHUDWidget::SetHealthPercent()
 
 void UHUDWidget::SetCurrentNumberOfFirstAidKits()
 {
-	int32 CurrentNumber = MarinePawn->GetFirstAidKits();
+	int32 CurrentNumber = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(MarinePawn->GetFirstAidKitName())->Item_Amount;
 	FString CurrentNumberString = FString::FromInt(CurrentNumber);
 	if (CurrentNumber < 10)
 	{

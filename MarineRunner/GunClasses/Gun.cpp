@@ -29,6 +29,7 @@ AGun::AGun()
 	BaseSkeletalMesh->SetSimulatePhysics(true);
 	BaseSkeletalMesh->SetCollisionProfileName(TEXT("GunCollision"));
 	BaseSkeletalMesh->SetNotifyRigidBodyCollision(true); 
+	BaseSkeletalMesh->bRenderCustomDepth = true; //Its for outline material 
 
 	Tags.Add(TEXT("Gun"));
 }
@@ -582,6 +583,7 @@ void AGun::EquipWeapon(bool bShouldPlaySound, bool bIsThisCurrentGun)
 {
 	BaseSkeletalMesh->SetSimulatePhysics(false);
 	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BaseSkeletalMesh->SetRenderCustomDepth(false);
 
 	if (bShouldPlaySound && PickUpSound) UGameplayStatics::SpawnSoundAttached(PickUpSound, BaseSkeletalMesh);
 
@@ -635,6 +637,7 @@ void AGun::DropTheGun()
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	BaseSkeletalMesh->SetSimulatePhysics(true);
 	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BaseSkeletalMesh->SetRenderCustomDepth(true);
 
 	SetGunSwayWhileMovingTimer(true);
 	bCanGunSwayTick = false;

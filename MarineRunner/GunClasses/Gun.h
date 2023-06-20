@@ -34,8 +34,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	//UFUNCTION(BlueprintPure)
-	//	class AMarineCharacter* GetMarinePawn() const { return MarinePawn; }
+	UFUNCTION(BlueprintPure)
+		class AMarineCharacter* GetMarinePawn() const { return MarinePawn; }
 
 	//Take
 	virtual void TakeItem(class AMarineCharacter* MarineCharacter, bool& bIsItWeapon) override;

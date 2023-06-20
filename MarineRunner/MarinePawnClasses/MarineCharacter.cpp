@@ -70,6 +70,7 @@ void AMarineCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetFirstAidKitToInventory();
 	MakeCrosshire();
 	MakeHudWidget();
 	CopyOfOriginalForce = MovementForce;
@@ -127,89 +128,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	
 }
 
-void AMarineCharacter::UseFirstAidKit()
-{
-	if (FirstAidKits <= 0 || bCanUseFirstAidKit == false || Health == 100.f) return;
-
-	FirstAidKits--;
-	Health += FirstAidKitHealth;
-	if (Health > 100.f) Health = 100.f;
-
-	if (UseFirstAidKitSound) UGameplayStatics::SpawnSound2D(GetWorld(), UseFirstAidKitSound);
-
-	HudWidget->SetHealthPercent();
-	HudWidget->SetCurrentNumberOfFirstAidKits();
-	HudWidget->SetDidPlayerUseFirstAidKit(true);
-
-	ElementBar ProgressHealBar{ DelayAfterUseFirstAidKit }, ProgressHealButtonBar{ 0.3f };
-	HudWidget->AddElementToProgress(EUseableElement::Heal, ProgressHealBar);
-	HudWidget->AddElementToProgress(EUseableElement::Button_Heal, ProgressHealButtonBar);
-
-	bCanUseFirstAidKit = false;
-	GetWorldTimerManager().SetTimer(FirstAidKitHandle, this, &AMarineCharacter::CanUseFirstAidKit, DelayAfterUseFirstAidKit, false);
-}
-
-void AMarineCharacter::ADSPressed()
-{
-	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
-
-	if (CrosshairWidget)
-	{
-		CrosshairWidget->RemoveFromParent();
-		CrosshairWidget = nullptr;
-	}
-
-	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
-	bIsPlayerADS = true;
-	Gun->SetStatusOfGun(StatusOfAimedGun::ADS);
-	if (Gun->GetShouldChangeMouseSensitivityADS() == true) ChangeMouseSensivity(MouseSensivityWhenScope[CurrentScopeIndex]);
-}
-
-void AMarineCharacter::ADSReleased()
-{
-	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
-
-	MakeCrosshire();
-
-	if (ADSOutSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
-	bIsPlayerADS = false;
-	Gun->SetStatusOfGun(StatusOfAimedGun::BackToInitialPosition);
-	if (Gun->GetShouldChangeMouseSensitivityADS() == true)
-	{
-		ChangeMouseSensivity(MouseSensivity);
-		CurrentScopeIndex = Gun->ZoomScope(0.f, true);
-	}
-}
-
-void AMarineCharacter::Shoot()
-{
-	if (Gun == nullptr) return;
-
-	Gun->Shoot();
-	//if (Gun->GetIsAutomatic()) Gun->ShouldConstantlyShoot(true);
-}
-
-void AMarineCharacter::ReleasedShoot()
-{
-	if (Gun == nullptr) return;
-
-	Gun->ShootReleased();
-}
-
-void AMarineCharacter::Reload()
-{
-	if (Gun == nullptr) return;
-
-	Gun->WaitToReload();
-}
-
-void AMarineCharacter::Zoom(float WheelAxis)
-{
-	if (Gun == nullptr || bIsPlayerADS == false || WheelAxis == 0.f) return;
-	CurrentScopeIndex = Gun->ZoomScope(WheelAxis);
-	ChangeMouseSensivity(MouseSensivityWhenScope[CurrentScopeIndex]);
-}
-
+///////////////////////////////// MOVEMENT /////////////////////////////////////////////////
 void AMarineCharacter::Movement(float Delta)
 {
 	if (bCanSwingLerp || bIsInputDisabled) return;
@@ -278,7 +197,9 @@ void AMarineCharacter::GoConstanlyForward(FVector& ForwardDir, FVector& RightDir
 		RightDir = GetInputAxisValue(TEXT("Right")) * GetActorRightVector();
 	}
 }
+////////////////////////////// END OF MOVEMENT /////////////////////////////////////////////
 
+///////////////////////////////// JUMP /////////////////////////////////////////////////////
 void AMarineCharacter::Jump()
 {
 	if (WallrunComponent->GetCanJump() == false) return;
@@ -337,6 +258,17 @@ void AMarineCharacter::JumpTick(float DeltaTime)
 	}
 }
 
+void AMarineCharacter::DelayJump()
+{
+	if (bCanDelayJump == false) return;
+
+	Jump();
+	bCanDelayJump = false;
+	GetWorldTimerManager().ClearTimer(DelayJumpHandle);
+}
+/////////////////////////////  END OF JUMP /////////////////////////////////////////////////
+
+///////////////////////////////// AIR /////////////////////////////////////////////////////
 void AMarineCharacter::UnstickFromWall(FVector& ForwardDir, FVector& RightDir)
 {
 	if (bIsInAir == false) return;
@@ -422,7 +354,71 @@ void AMarineCharacter::CheckIfIsInAir()
 		
 	}
 }
+///////////////////////////// END OF AIR //////////////////////////////////////////////////
 
+/////////////////////////////////// GUN ////////////////////////////////////////////////
+void AMarineCharacter::ADSPressed()
+{
+	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
+
+	if (CrosshairWidget)
+	{
+		CrosshairWidget->RemoveFromParent();
+		CrosshairWidget = nullptr;
+	}
+
+	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
+	bIsPlayerADS = true;
+	Gun->SetStatusOfGun(StatusOfAimedGun::ADS);
+	if (Gun->GetShouldChangeMouseSensitivityADS() == true) ChangeMouseSensivity(MouseSensivityWhenScope[CurrentScopeIndex]);
+}
+
+void AMarineCharacter::ADSReleased()
+{
+	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
+
+	MakeCrosshire();
+
+	if (ADSOutSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
+	bIsPlayerADS = false;
+	Gun->SetStatusOfGun(StatusOfAimedGun::BackToInitialPosition);
+	if (Gun->GetShouldChangeMouseSensitivityADS() == true)
+	{
+		ChangeMouseSensivity(MouseSensivity);
+		CurrentScopeIndex = Gun->ZoomScope(0.f, true);
+	}
+}
+
+void AMarineCharacter::Shoot()
+{
+	if (Gun == nullptr) return;
+
+	Gun->Shoot();
+}
+
+void AMarineCharacter::ReleasedShoot()
+{
+	if (Gun == nullptr) return;
+
+	Gun->ShootReleased();
+}
+
+void AMarineCharacter::Reload()
+{
+	if (Gun == nullptr) return;
+
+	Gun->WaitToReload();
+}
+
+void AMarineCharacter::Zoom(float WheelAxis)
+{
+	if (Gun == nullptr || bIsPlayerADS == false || WheelAxis == 0.f) return;
+	CurrentScopeIndex = Gun->ZoomScope(WheelAxis);
+	ChangeMouseSensivity(MouseSensivityWhenScope[CurrentScopeIndex]);
+}
+//////////////////////////////// END OF GUN ////////////////////////////////////////////////
+
+////////////////////////////////// FOOTSTEPS SOUND /////////////////////////////////////////
 void AMarineCharacter::PlayFootstepsSound()
 {
 	if (bCanPlayFootstepsSound == false) return;
@@ -449,6 +445,43 @@ void AMarineCharacter::PlayFootstepsSound()
 	}
 }
 
+////////////////////////////////// FIRST AID KIT ///////////////////////////////////////////
+void AMarineCharacter::SetFirstAidKitToInventory()
+{
+	FirstAidKitItem = InventoryComponent->Inventory_Items.Find(FirstAidKits_Name);
+
+	if (FirstAidKitItem == nullptr)
+	{
+		FItemStruct FirstAidKitStruct(FirstAidKits_Name, 0);
+		InventoryComponent->Inventory_Items.Add(FirstAidKits_Name, FirstAidKitStruct);
+		FirstAidKitItem = InventoryComponent->Inventory_Items.Find(FirstAidKits_Name);
+	}
+}
+
+void AMarineCharacter::UseFirstAidKit()
+{
+	if (FirstAidKitItem->Item_Amount <= 0 || bCanUseFirstAidKit == false || Health == 100.f) return;
+
+	FirstAidKitItem->Item_Amount--;
+	Health += FirstAidKitHealth;
+	if (Health > 100.f) Health = 100.f;
+
+	if (UseFirstAidKitSound) UGameplayStatics::SpawnSound2D(GetWorld(), UseFirstAidKitSound);
+
+	HudWidget->SetHealthPercent();
+	HudWidget->SetCurrentNumberOfFirstAidKits();
+	HudWidget->SetDidPlayerUseFirstAidKit(true);
+
+	ElementBar ProgressHealBar{ DelayAfterUseFirstAidKit }, ProgressHealButtonBar{ 0.3f };
+	HudWidget->AddElementToProgress(EUseableElement::Heal, ProgressHealBar);
+	HudWidget->AddElementToProgress(EUseableElement::Button_Heal, ProgressHealButtonBar);
+
+	bCanUseFirstAidKit = false;
+	GetWorldTimerManager().SetTimer(FirstAidKitHandle, this, &AMarineCharacter::CanUseFirstAidKit, DelayAfterUseFirstAidKit, false);
+}
+/////////////////////////////////// END OF FIRST AID KIT ///////////////////////////////////////////////
+
+//////////////////////////////////////// SWING /////////////////////////////////////////////////////////
 //If the player press the Swing button then spawn the Line that is going to the Hook and then wait for SwingDelay to elapsed
 void AMarineCharacter::SwingPressed()
 {
@@ -544,7 +577,9 @@ void AMarineCharacter::SwingLineCheck()
 		bCanMarineSwing = false;
 	}
 }
+/////////////////////////////////// END OF SWING //////////////////////////////////////////////////////
 
+//////////////////////////////////// CROACHING ////////////////////////////////////////////////////////
 void AMarineCharacter::CroachPressed()
 {
 	if (bCanSwingLerp || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion()) return;
@@ -557,7 +592,9 @@ void AMarineCharacter::CroachReleased()
 {
 	CroachAndSlideComponent->CroachReleased();
 }
+//////////////////////////////// END OF CROACHING ////////////////////////////////////////////////////////
 
+///////////////////////////// EQUIP WEAPON FROM INVENTORY //////////////////////////////////////////////
 void AMarineCharacter::FirstWeapon()
 {
 	if (!bCanChangeWeapon) return;
@@ -586,7 +623,9 @@ void AMarineCharacter::HideGunAndAddTheNewOne(AGun* NewGun)
 	}
 	WeaponInventoryComponent->AddNewWeaponToStorage(NewGun);
 }
+////////////////////////// END OF EQUIP WEAPON FROM INVENTORY //////////////////////////////////////////////
 
+/////////////////////////////////// TAKE/DROP ITEM /////////////////////////////////////////////////////////
 void AMarineCharacter::Take()
 {
 	TakeAndDropComponent->Take();
@@ -596,6 +635,7 @@ void AMarineCharacter::DropItem()
 {
 	TakeAndDropComponent->DropItem();
 }
+////////////////////////////////END OF TAKE/DROP ITEM //////////////////////////////////////////////////////
 
 void AMarineCharacter::Dash()
 {
@@ -616,10 +656,12 @@ void AMarineCharacter::SlowMotionPressed()
 	SlowMotionComponent->TurnOnSlowMotion();
 }
 
+////////////////////////////////// SAVE/LOAD /////////////////////////////////////////////////
 void AMarineCharacter::SaveGame(FVector NewCheckpointLocation)
 {
+	UE_LOG(LogTemp, Warning, TEXT("SAVED"));
 	USaveMarineRunner* SaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
-	SaveGameInstance->SaveGame(FirstAidKits, Health, Gun, WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
+	SaveGameInstance->SaveGame(Health, Gun, WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
 	SaveGameInstance->CheckpointLocation = NewCheckpointLocation;
 	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("MySlot"), 0);
 }
@@ -634,52 +676,7 @@ void AMarineCharacter::LoadGame()
 	HudWidget->SetHealthPercent();
 	HudWidget->SetCurrentNumberOfFirstAidKits();
 }
-
-void AMarineCharacter::SetQuickSelect(TMap < int32, AGun* > NewWeaponsStorage)
-{
-	WeaponInventoryComponent->SetWeaponsStorage(NewWeaponsStorage);
-}
-
-bool AMarineCharacter::MakeCheckBox(FVector Size, FVector NewStart, FVector NewEnd, FHitResult &OutHitResult, bool bDebug)
-{
-	if (bDebug) DrawDebugBox(GetWorld(), NewStart, FVector(Size), FColor::Red, true);
-	return GetWorld()->SweepSingleByChannel(OutHitResult, NewStart, NewEnd, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(Size));
-}
-
-bool AMarineCharacter::MakeCheckLine(FHitResult &OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug, FColor Color)
-{
-	if (bDebug) DrawDebugLine(GetWorld(), NewStart, NewEnd, Color, false, 0.5f);
-	return GetWorld()->LineTraceSingleByChannel(OutHitResult, NewStart, NewEnd, ECC_Visibility);
-}
-
-FVector AMarineCharacter::EaseInQuint(FVector Start, FVector End, float Alpha)
-{
-	Alpha--;
-	End -= Start;
-	return End * (Alpha * Alpha * Alpha * Alpha * Alpha + 1) + Start;
-}
-
-void AMarineCharacter::MakeHudWidget()
-{
-	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (HUDClass && MarineController)
-	{
-		HudWidget = Cast<UHUDWidget>(CreateWidget(MarineController, HUDClass));
-		HudWidget->AddToViewport();
-	}
-}
-
-void AMarineCharacter::MakeCrosshire()
-{
-	if (CrosshairWidget) return;
-
-	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (CrosshairClass && MarineController)
-	{
-		CrosshairWidget = CreateWidget(MarineController, CrosshairClass);
-		CrosshairWidget->AddToViewport();
-	}
-}
+////////////////////////////// END OF SAVE/LOAD /////////////////////////////////////////////////
 
 void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings)
 {
@@ -692,6 +689,7 @@ void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayT
 	if (bIsPlayerADS) ADSReleased();
 }
 
+/////////////////////////////////////// DAMAGE /////////////////////////////////////////////////
 void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseDirection, const FHitResult& NewHit)
 {
 	if (MarineHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, NewHit.ImpactPoint);
@@ -723,14 +721,29 @@ void AMarineCharacter::GotDamage(float Damage)
 
 	HudWidget->SetGotDamage(true);
 }
+/////////////////////////////////// END OF DAMAGE /////////////////////////////////////////////////
 
-void AMarineCharacter::DelayJump()
+////////////////////////////////////// WIDGETS //////////////////////////////////////////////////////
+void AMarineCharacter::MakeHudWidget()
 {
-	if (bCanDelayJump == false) return;
+	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (HUDClass && MarineController)
+	{
+		HudWidget = Cast<UHUDWidget>(CreateWidget(MarineController, HUDClass));
+		HudWidget->AddToViewport();
+	}
+}
 
-	Jump();
-	bCanDelayJump = false;
-	GetWorldTimerManager().ClearTimer(DelayJumpHandle);
+void AMarineCharacter::MakeCrosshire()
+{
+	if (CrosshairWidget) return;
+
+	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (CrosshairClass && MarineController)
+	{
+		CrosshairWidget = CreateWidget(MarineController, CrosshairClass);
+		CrosshairWidget->AddToViewport();
+	}
 }
 
 void AMarineCharacter::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov, bool bAddChromaticAbberation)
@@ -749,6 +762,38 @@ void AMarineCharacter::RemoveDashWidget()
 {
 	if (!DashWidget) return;
 	DashWidget->ResetDashWidget();
+}
+
+void AMarineCharacter::UpdateHudWidget()
+{
+	if (Gun) Gun->SetWeaponInHud(true);
+	HudWidget->SetCurrentNumberOfFirstAidKits();
+}
+////////////////////////////////// END OF WIDGETS ////////////////////////////////////////////////////
+
+////////////////////////////////// ADDITIONAL FUNCTIONS //////////////////////////////////////////////
+void AMarineCharacter::SetQuickSelect(TMap < int32, AGun* > NewWeaponsStorage)
+{
+	WeaponInventoryComponent->SetWeaponsStorage(NewWeaponsStorage);
+}
+
+bool AMarineCharacter::MakeCheckBox(FVector Size, FVector NewStart, FVector NewEnd, FHitResult& OutHitResult, bool bDebug)
+{
+	if (bDebug) DrawDebugBox(GetWorld(), NewStart, FVector(Size), FColor::Red, true);
+	return GetWorld()->SweepSingleByChannel(OutHitResult, NewStart, NewEnd, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(Size));
+}
+
+bool AMarineCharacter::MakeCheckLine(FHitResult& OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug, FColor Color)
+{
+	if (bDebug) DrawDebugLine(GetWorld(), NewStart, NewEnd, Color, false, 0.5f);
+	return GetWorld()->LineTraceSingleByChannel(OutHitResult, NewStart, NewEnd, ECC_Visibility);
+}
+
+FVector AMarineCharacter::EaseInQuint(FVector Start, FVector End, float Alpha)
+{
+	Alpha--;
+	End -= Start;
+	return End * (Alpha * Alpha * Alpha * Alpha * Alpha + 1) + Start;
 }
 
 bool AMarineCharacter::GetIsWallrunning() const

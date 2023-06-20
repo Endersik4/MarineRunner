@@ -55,7 +55,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Movement|Jump", BlueprintReadWrite)
 		bool IsOnGround;
 
-	int32 GetFirstAidKits() const { return FirstAidKits; }
+	FString GetFirstAidKitName() const { return FirstAidKits_Name; }
 	float GetMovementForce() const { return MovementForce; }
 	float GetHealth() const { return Health; }
 	bool GetIsWallrunning() const;
@@ -77,7 +77,6 @@ public:
 
 	void CallSaveGame(FVector CheckpointLocation) { SaveGame(CheckpointLocation); }
 	void SetHealth(float NewHealth) { Health = NewHealth; }
-	void SetFirstAidKits(int32 NewFirstAidKits) { FirstAidKits = NewFirstAidKits; }
 	void SetQuickSelect(TMap < int32, class AGun* > NewWeaponsStorage);
 
 	void SetMovementImpulse(FVector NewImpulse) { MovementImpulse = NewImpulse; }
@@ -90,6 +89,7 @@ public:
 
 	void MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov = true, bool bAddChromaticAbberation = true);
 	void RemoveDashWidget();
+	void UpdateHudWidget();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -111,8 +111,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;
+	//Name of Item that will be used for healing. 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
-		int32 FirstAidKits = 10;
+		FString FirstAidKits_Name = "FirstAidKit";
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float FirstAidKitHealth = 35.f;
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
@@ -255,7 +256,9 @@ private:
 
 	//FirstAidKit
 	bool bCanUseFirstAidKit = true;
+	struct FItemStruct* FirstAidKitItem;
 	FTimerHandle FirstAidKitHandle;
+	void SetFirstAidKitToInventory();
 	void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }
 	void UseFirstAidKit();
 

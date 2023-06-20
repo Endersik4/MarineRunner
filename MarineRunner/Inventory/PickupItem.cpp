@@ -23,6 +23,7 @@ APickupItem::APickupItem()
 	ItemMesh->SetNotifyRigidBodyCollision(true);
 	ItemMesh->SetGenerateOverlapEvents(false);
 	ItemMesh->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
+	ItemMesh->bRenderCustomDepth = true; //Its for outline material 
 }
 
 // Called when the game starts or when spawned
@@ -59,11 +60,8 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 		Inventory->Inventory_Items.Add(Item_Name, NewItem); 
 	}
 
-	//If this item is a ammunition for current weapon then refresh HUD and StoredAmmo
-	if (Character->GetGun())
-	{
-		if (Item_Name == Character->GetGun()->GetAmmoName()) Character->GetGun()->SetWeaponInHud(true);
-	}
+	//Update HUD to display particular item on hud
+	Character->UpdateHudWidget();
 
 	if (PickUpSound) UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
 	Destroy();

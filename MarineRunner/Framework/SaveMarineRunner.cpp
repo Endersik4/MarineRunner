@@ -9,15 +9,13 @@
 
 USaveMarineRunner::USaveMarineRunner()
 {
-	AmountOfFirstAidKits = 0;
 	CurrentHealthSaved = 0;
 	ClearTMapValues();
 }
 
-void USaveMarineRunner::SaveGame(int32 CurrentAmountOfFirstAidKits, float CurrentHealth, AGun* CurrentMarineGun, TMap < int32, AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved)
+void USaveMarineRunner::SaveGame(float CurrentHealth, AGun* CurrentMarineGun, TMap < int32, AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved)
 {
 	ClearTMapValues();
-	AmountOfFirstAidKits = CurrentAmountOfFirstAidKits;
 	CurrentHealthSaved = CurrentHealth;
 
 	Inventory_ItemsSaved = CurrentInventory_ItemsSaved;
@@ -35,7 +33,6 @@ void USaveMarineRunner::LoadGame(class AMarineCharacter* MarinePawn)
 {
 	if (MarinePawn == nullptr) return;
 
-	MarinePawn->SetFirstAidKits(AmountOfFirstAidKits);
 	MarinePawn->SetHealth(CurrentHealthSaved);
 	MarinePawn->SetQuickSelect(WeaponsStorageSaved);
 	MarinePawn->GetInventoryComponent()->Inventory_Items = Inventory_ItemsSaved;
