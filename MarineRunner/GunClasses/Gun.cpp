@@ -53,8 +53,8 @@ void AGun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	AimTheGun(DeltaTime);
 	GunSway();
+	AimTheGun(DeltaTime);
 	UpRecoilCamera();
 	InterpBackToInitialPosition();
 }
@@ -115,7 +115,7 @@ void AGun::AddEffectsToShooting()
 	}
 	else if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
 
-	DropCasing();
+	if (bCasingEjectionWhileReloading == false) DropCasing();
 }
 
 void AGun::DropCasing()
@@ -123,11 +123,14 @@ void AGun::DropCasing()
 	if (!DropBulletClass) return;
 
 	FRotator DropBulletRotation = GetActorRotation();
-	DropBulletRotation.Yaw -= FMath::FRandRange(-10.f, 40.f);
-	DropBulletRotation.Roll += FMath::FRandRange(-10.f, 10.f);
-	DropBulletRotation.Pitch += FMath::FRandRange(-15.f, 15.f);
+	if (bShouldRandomizeRotationOfCasing)
+	{
+		DropBulletRotation.Yaw -= FMath::FRandRange(-10.f, 40.f);
+		DropBulletRotation.Roll += FMath::FRandRange(-10.f, 10.f);
+		DropBulletRotation.Pitch += FMath::FRandRange(-15.f, 15.f);
+	}
 	AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), DropBulletRotation);
-	DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, TEXT("BulletDrop"));
+	DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 }
 
 void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
@@ -319,8 +322,11 @@ void AGun::SpawnBullet()
 	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
 	float BulletImpulseForce = (bManyBulletAtOnce == false ? AmmoImpulseForce : AmmoImpulseForce / HowManyBulletsToSpawn);
 	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, BulletImpulseForce);
+	SpawnedBullet->ImpulseOnBullet(bShouldUseImpulseOnBullet);
+
 	if (bCanBulletGoThrough == true) SpawnedBullet->SetBulletGoThroughVariables(true, DamageReduceAfterObject, ImpulseReduceAfterObject, MaxObjectsForBulletToGoThrough);
-	SpawnedBullet->ImpulseOnBullet();
+	if (bRadialImpulse) SpawnedBullet->RadialImpulse(RadialSphereRadius, bDrawRadialSphere);
+	if (bShouldCameraShakeAfterHit) SpawnedBullet->SetCameraShake(CameraShakeAfterBulletHit);
 }
 
 void AGun::ResetVariablesForCameraRecoil()
@@ -336,6 +342,8 @@ void AGun::WaitToReload()
 {
 	if (ItemFromInventory->Item_Amount <= 0 || MagazineCapacity == CopyOfMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return;
 	if (ReloadSound) SpawnedReloadSound = UGameplayStatics::SpawnSoundAttached(ReloadSound, BaseSkeletalMesh);
+	if (bCasingEjectionWhileReloading == true) DropCasing();
+	if (ReloadAnimation) BaseSkeletalMesh->PlayAnimation(ReloadAnimation, false);
 
 	bCanShoot = false;
 	ShootReleased();
@@ -399,7 +407,7 @@ void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCom
 void AGun::GunSway()
 {
 	if (MarinePawn == nullptr || bCanGunSwayTick == false || bCanSway == false) return;
-
+	
 	float Delta = UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 
 	//Preparing variables
@@ -475,9 +483,7 @@ void AGun::AimTheGun(float Delta)
 	FVector Location = BaseSkeletalMesh->GetRelativeLocation();
 	if (StatusOfGun == ADS)
 	{
-		FRotator Rotation = BaseSkeletalMesh->GetRelativeRotation();
 		BaseSkeletalMesh->SetRelativeLocation(FMath::Lerp(Location, RelativeLocationInPawnWhileADS, Delta * SpeedOfInterpADS));
-		BaseSkeletalMesh->SetRelativeRotation(FMath::RInterpTo(Rotation, RelativeRotationInPawn, Delta, SpeedOfInterpADS));
 		bCanDropTheGun = false;
 	}
 	else
@@ -658,7 +664,7 @@ bool AGun::ItemLocationWhenGrabbed(float SpeedOfItem)
 	SetActorRelativeLocation(Location);
 
 	FRotator BaseSkeletalMeshRelativeRotation = BaseSkeletalMesh->GetRelativeRotation();
-	FRotator Rotation = FMath::InterpExpoOut(BaseSkeletalMeshRelativeRotation, RelativeRotationInPawn, SpeedOfItem);
+	FRotator Rotation = FMath::InterpExpoOut(BaseSkeletalMeshRelativeRotation, FRotator(0.f), SpeedOfItem);
 	SetActorRelativeRotation(Rotation);
 
 	return IsGunAtTheWeaponLocation();

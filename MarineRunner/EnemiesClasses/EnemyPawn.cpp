@@ -95,7 +95,7 @@ void AEnemyPawn::Shoot()
 	CapsuleColl->AddImpulse(RecoilImpulse);
 }
 
-void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulse, FVector BulletImpulse, const FHitResult& NewHit)
+void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
 	Health -= NewDamage;
 	SpawnEffectsForImpact(NewHit);
@@ -107,7 +107,14 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulse, FVector BulletIm
 		EnemySkeletalMesh->SetSimulatePhysics(true);
 		bIsDead = true;
 
-		EnemySkeletalMesh->AddImpulse(BulletImpulse, NewHit.BoneName);
+		if (NewSphereRadius != 0.f)
+		{
+			EnemySkeletalMesh->AddRadialImpulse(BulletActor->GetActorLocation(), NewSphereRadius, NewImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);
+		}
+		else
+		{
+			EnemySkeletalMesh->AddImpulse(BulletActor->GetActorForwardVector() * NewImpulseForce * 10.f, NewHit.BoneName);
+		}
 
 		EnemySkeletalMesh->Stop();
 		return;
@@ -238,7 +245,7 @@ void AEnemyPawn::SpawnBullet()
 	
 	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
 	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
-	SpawnedBullet->ImpulseOnBullet();
+	SpawnedBullet->ImpulseOnBullet(bShouldUseImpulseOnBullet);
 }
 
 void AEnemyPawn::SpawnBloodDecal(const FHitResult& Hit)

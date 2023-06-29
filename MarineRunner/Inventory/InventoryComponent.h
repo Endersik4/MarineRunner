@@ -9,7 +9,7 @@
 USTRUCT(BlueprintType)
 struct FItemStruct 
 {
-	GENERATED_USTRUCT_BODY();
+	GENERATED_USTRUCT_BODY(); 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		FString Item_Name;

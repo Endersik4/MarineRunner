@@ -29,7 +29,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
  
 	//Function From Interface
-	virtual void ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseDirection, const FHitResult& NewHit) override;
+	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
 
 	//AI
 	bool GetShouldAvoidBullets() const { return bShouldAvoidBullet; }
@@ -141,16 +141,18 @@ private:
 	//Delay time after the enemy runs out of ammunition
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		float DelayTimeMagazine;
-	//How fast ammo is moving forward. If Bullet has physics then this variable is Impulse Force
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		bool bShouldUseImpulseOnBullet;
+	// How fast ammo is moving forward. If Bullet has physics then this variable is Impulse Force
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		float AmmoSpeed;
-	//What distance should Ammo pass when bullet starts falling down
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+	// What distance should Ammo pass when bullet starts falling down
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bShouldUseImpulseOnBullet", EditConditionHides))
 		float AmmoDistance;
-	//How fast Ammo will falling down when AmmoDistance hit the number
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+	// How fast Ammo will falling down when AmmoDistance hit the number
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bShouldUseImpulseOnBullet", EditConditionHides))
 		float AmmoFallingDown;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bShouldUseImpulseOnBullet", EditConditionHides))
 		float AmmoImpulseForce;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
 		TArray<float>PitchBulletRecoilArray = { -5, 5 };

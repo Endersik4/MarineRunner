@@ -28,7 +28,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseDirection, const FHitResult& NewHit) override; //C++ ONLY
+	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) override; //C++ ONLY
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		class UStaticMeshComponent* CapsulePawn;
@@ -84,7 +84,6 @@ public:
 	void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMultiplier = NewSpeed; }
 
 	void MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings = false);
-	void GotDamage(float Damage);
 	void HideGunAndAddTheNewOne(class AGun* NewGun);
 
 	void MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov = true, bool bAddChromaticAbberation = true);

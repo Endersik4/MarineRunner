@@ -360,6 +360,7 @@ void AMarineCharacter::CheckIfIsInAir()
 void AMarineCharacter::ADSPressed()
 {
 	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
+	if (Gun->GetIsGrabbingEnded() == false) return;
 
 	if (CrosshairWidget)
 	{
@@ -375,7 +376,7 @@ void AMarineCharacter::ADSPressed()
 
 void AMarineCharacter::ADSReleased()
 {
-	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
+	if (Gun == nullptr || WallrunComponent->GetIsWallrunning() || bIsPlayerADS == false) return;
 
 	MakeCrosshire();
 
@@ -690,7 +691,7 @@ void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayT
 }
 
 /////////////////////////////////////// DAMAGE /////////////////////////////////////////////////
-void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulse, FVector ImpulseDirection, const FHitResult& NewHit)
+void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
 	if (MarineHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, NewHit.ImpactPoint);
 
@@ -707,20 +708,6 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulse, FVector Im
 	HudWidget->SetGotDamage(true);
 }
 
-void AMarineCharacter::GotDamage(float Damage)
-{
-	if (!HudWidget) return;
-
-	Health -= Damage;
-	if (Health < 0.f)
-	{
-		Health = 0.f;
-		UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
-	}
-	HudWidget->SetHealthPercent();
-
-	HudWidget->SetGotDamage(true);
-}
 /////////////////////////////////// END OF DAMAGE /////////////////////////////////////////////////
 
 ////////////////////////////////////// WIDGETS //////////////////////////////////////////////////////

@@ -76,6 +76,7 @@ public:
 	//Take And Drop
 	FString GetAmmoName() const { return Ammo_Name; }
 	FVector GetRelativeLocationInPawn() const { return RelativeLocationInPawn; }
+	bool GetIsGrabbingEnded() const { return bIsGrabbingEnded; }
 	void SetItemFromInventory(struct FItemStruct* NewItemFromInventory) { ItemFromInventory = NewItemFromInventory; }
 	void EquipWeapon(bool bShouldPlaySound = true, bool bIsThisCurrentGun = true);
 
@@ -100,8 +101,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		FVector RelativeLocationInPawn;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
-		FRotator RelativeRotationInPawn;
 
 	//General Damage
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
@@ -165,17 +164,30 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|DelayShoot")
 		float DelayShootTime = 0.1f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		bool bShouldUseImpulseOnBullet;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		bool bRadialImpulse;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bRadialImpulse", EditConditionHides))
+		float RadialSphereRadius;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bRadialImpulse", EditConditionHides))
+		bool bDrawRadialSphere;
 	// How fast ammo is moving forward. If Bullet has physics then this variable is Impulse Force
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		float AmmoSpeed;
 	// What distance should Ammo pass when bullet starts falling down
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bShouldUseImpulseOnBullet", EditConditionHides))
 		float AmmoDistance;
 	// How fast Ammo will falling down when AmmoDistance hit the number
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bShouldUseImpulseOnBullet", EditConditionHides))
 		float AmmoFallingDown;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		float AmmoImpulseForce;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (InlineEditConditionToggle))
+		bool bShouldCameraShakeAfterHit;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bShouldCameraShakeAfterHit"))
+		TSubclassOf<UCameraShakeBase> CameraShakeAfterBulletHit;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		bool bCanBulletGoThrough;
@@ -193,8 +205,12 @@ private:
 	//Bullet Type that will be fired from Gun
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Objects to Spawn")
 		TSubclassOf<AActor> BulletClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection")
+		bool bCasingEjectionWhileReloading;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection")
+		bool bShouldRandomizeRotationOfCasing = true;
 	//Actor that will spawn on the location from Socket "BulletDrop". Its for casing that is dumped from gun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Objects to Spawn")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection")
 		TSubclassOf<AActor> DropBulletClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
@@ -249,6 +265,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		UAnimationAsset* ShootAnimation;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+		UAnimationAsset* ReloadAnimation;
 	//This animation will play when there is no bullets left and the player is shooting the last one
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		UAnimationAsset* ShootWithNoBulletsAnimation;

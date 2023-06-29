@@ -33,8 +33,8 @@ void UBTServiceGoingToLocations::PickRandomLocation(UBehaviorTreeComponent& Owne
 
 	if (BlackBoardComp->GetValueAsInt(TEXT("CurrentLocations")) > 0)
 	{
-		float Rand_X = FMath::FRandRange(-2000, 2000) + AIPawn->GetActorLocation().X;
-		float Rand_Y = FMath::FRandRange(-2000, 2000) + AIPawn->GetActorLocation().Y;
+		float Rand_X = FMath::FRandRange(-2000.f, 2000.f) + AIPawn->GetActorLocation().X;
+		float Rand_Y = FMath::FRandRange(-2000.f, 2000.f) + AIPawn->GetActorLocation().Y;
 		float Rand_Z = AIPawn->GetActorLocation().Z;
 
 		BlackBoardComp->SetValueAsVector(GetSelectedBlackboardKey(), FVector(Rand_X, Rand_Y, Rand_Z));

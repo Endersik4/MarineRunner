@@ -23,8 +23,8 @@ class MARINERUNNER_API IInteractInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interact")
-		void BreakObject(float ImpulseForce, FRotator BulletRotation, const FHitResult& NewHit);
+		void BreakObject(float ImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f);
 
 	UFUNCTION()
-		virtual void ApplyDamage(float NewDamage, float NewImpulse, FVector BulletImpulse, const FHitResult& NewHit) = 0;
+		virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) = 0;
 };
