@@ -109,6 +109,7 @@ void AGun::AddEffectsToShooting()
 	
 	if (bPlayShootAnimationAfterFire == true) return;
 
+	BaseSkeletalMesh->SetForceRefPose(false);
 	if (ItemFromInventory->Item_Amount <= 0 && MagazineCapacity == 1 && ShootWithNoBulletsAnimation)
 	{
 		BaseSkeletalMesh->PlayAnimation(ShootWithNoBulletsAnimation, false);
@@ -180,6 +181,7 @@ void AGun::RecoilAnimTimelineFinishedCallback()
 	if (bPlayShootAnimationAfterFire)
 	{
 		if (AfterShootSound) UGameplayStatics::SpawnSoundAttached(AfterShootSound, BaseSkeletalMesh, NAME_None);
+		BaseSkeletalMesh->SetForceRefPose(false);
 		if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
 		FTimerHandle DropCasingHandle;
 		GetWorldTimerManager().SetTimer(DropCasingHandle, this, &AGun::DropCasing, 0.2f, false);
@@ -187,7 +189,7 @@ void AGun::RecoilAnimTimelineFinishedCallback()
 		FTimerHandle PlayAfterFireHandle;
 		GetWorldTimerManager().SetTimer(PlayAfterFireHandle, this, &AGun::SetCanShoot, ShootAnimation->GetPlayLength(), false);
 	}
-	else bCanShoot = true;
+	else SetCanShoot();
 
 	if (StatusOfGun == HipFire) bCanDropTheGun = true;
 
@@ -296,6 +298,12 @@ void AGun::InterpBackToInitialPosition()
 	PC->SetControlRotation(NewRotation);
 }
 
+void AGun::SetCanShoot()
+{
+	bCanShoot = true;
+	if (MagazineCapacity <= 0) WaitToReload();
+}
+
 void AGun::SpawnBullet()
 {
 	//Proper Location and Rotation for Bullet
@@ -343,6 +351,7 @@ void AGun::WaitToReload()
 	if (ItemFromInventory->Item_Amount <= 0 || MagazineCapacity == CopyOfMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return;
 	if (ReloadSound) SpawnedReloadSound = UGameplayStatics::SpawnSoundAttached(ReloadSound, BaseSkeletalMesh);
 	if (bCasingEjectionWhileReloading == true) DropCasing();
+	BaseSkeletalMesh->SetForceRefPose(false);
 	if (ReloadAnimation) BaseSkeletalMesh->PlayAnimation(ReloadAnimation, false);
 
 	bCanShoot = false;
@@ -383,9 +392,10 @@ void AGun::Reload()
 void  AGun::CancelReload()
 {
 	GetWorldTimerManager().ClearTimer(ReloadHandle);
-	if (!SpawnedReloadSound) return;
 
-	SpawnedReloadSound->ToggleActive();
+	if (SpawnedReloadSound) SpawnedReloadSound->ToggleActive();
+	if (BaseSkeletalMesh->IsPlaying()) BaseSkeletalMesh->SetForceRefPose(true);
+
 	SpawnedReloadSound = nullptr;
 	bCanShoot = true;
 	bIsReloading = false;
@@ -393,7 +403,7 @@ void  AGun::CancelReload()
 
 void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (!HitGroundSound || OtherActor->ActorHasTag("Gun")) return;
+	if (!HitGroundSound) return;
 
 	if (SpawnedHitGroundSound && HitActor)
 	{

@@ -96,7 +96,6 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 	if (bShouldCameraShakeAfterHit)
 	{
 		float CameraShakeScale = 1 - (FVector::Distance(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation(), GetActorLocation()) / 10000);
-		UE_LOG(LogTemp, Warning, TEXT("CAMERA SHALE SCLAE: %f"), CameraShakeScale);
 		UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(CameraShakeAfterHit, CameraShakeScale);
 	}
 

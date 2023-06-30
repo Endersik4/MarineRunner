@@ -697,14 +697,20 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 
 	if (!HudWidget) return;
 
-	Health -= NewDamage;
+	if (NewSphereRadius != 0.f)
+	{
+		CapsulePawn->AddRadialImpulse(BulletActor->GetActorLocation(), NewSphereRadius, NewImpulseForce, ERadialImpulseFalloff::RIF_Linear, true);
+		Health -= NewDamage / 15;
+	}
+	else Health -= NewDamage;
+
 	if (Health < 0.f)
 	{
 		Health = 0.f;
 		UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
 	}
-	HudWidget->SetHealthPercent();
 
+	HudWidget->SetHealthPercent();
 	HudWidget->SetGotDamage(true);
 }
 

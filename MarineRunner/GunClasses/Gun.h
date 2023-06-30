@@ -64,7 +64,6 @@ public:
 
 	void SetBulletRotation(FRotator NewBulletRotation) { BulletRotation = NewBulletRotation; }
 	void SetCanGunSwayTick(bool bCan) { bCanGunSwayTick = bCan; }
-	void SetCanShoot() { bCanShoot = true; }
 	void SetCanSway(bool bCan) { bCanSway = bCan; }
 	void SetMarinePawn(class AMarineCharacter* NewActor) { MarinePawn = NewActor; }
 	void SetStatusOfGun(StatusOfAimedGun NewStatus) { StatusOfGun = NewStatus; }
@@ -242,10 +241,10 @@ private:
 		TArray<float> RandomRangeFromRecoilCurveY = {-0.2f, 0.2f};
 	//Should wait to execute Recoil timelines. When you want to play a little bit of animation and then add recoil for the camera and the gun
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil")
-		bool bShouldWaitToPlayRecoil;
+		bool bShouldWaitToPlayRecoil = true;
 	//How long should wait to play recoil timelines (camera and gun recoil)
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldWaitToPlayRecoil", EditConditionHides))
-		float PlayRecoilTime = 0.6f;
+		float PlayRecoilTime = 0.06f;
 
 	//The curve responsible for how quickly the screen reaches PitchRecoilRandomNumber and YawRecoilRandomNumber and returns to its rotation. 
 	//It was added for smoothness. It should have a length like the one in Animation|Setting Up Animation Recoil in RecoilAnimTimelineLength 
@@ -371,23 +370,24 @@ private:
 	bool bCanSway = true;
 	bool bCanGunSwayTick = false;
 	bool bCanDropTheGun = true;
+	void SetCanShoot();
 
-	//////////////BULLET///////////
+	////////////// BULLET ///////////
 	FRotator BulletRotation;
 	void SpawnBullet();
 	void AddEffectsToShooting();
 	///////////////////////////////
 
-	///////////GUN and CAMERA RECOIL/////////////////
+	/////////// GUN and CAMERA RECOIL /////////////////
 	void PlayRecoil();
 	FTimerHandle PlayRecoilHandle;
 	////////////////////////////////////////////
 
-	///////////////Constantly Shooting///////////
+	/////////////// Constantly Shooting ///////////
 	bool bConstantlyShoot;
 	FTimerHandle ConstantlyShootHandle;
 
-	//////////////TakeAndDrop//////////////////
+	////////////// TakeAndDrop //////////////////
 	bool bDidTakeThisWeapon;
 	bool bIsGrabbingEnded;
 	bool IsGunAtTheWeaponLocation();
@@ -397,17 +397,17 @@ private:
 	void AddAmmoToInventory();
 	/////////////////
 
-	/////////////////////HUD WIDGET/////////////////////H
+	///////////////////// HUD WIDGET /////////////////////H
 	// If NewHudWidget is a pointer to the HudWiget from the player then Hide weapon, otherwise			//
 	// check if the weapon has a HudWidget if so then Hide weapon(because this means that the player	//
 	// has just dropped the weapon																		//
 	void SetHudWidget(class UHUDWidget* NewHudWidget);
 	//////////////////////////////////////////////////
 
-	//////////////DropCasing//////////
+	////////////// Drop Casing //////////
 	void DropCasing();
 
-	///////////////Reloading////////////////
+	/////////////// Reloading ////////////////
 	float CopyOfMagazineCapacity;
 	bool bIsReloading;
 	FTimerHandle ReloadHandle;
@@ -415,17 +415,17 @@ private:
 	void Reload();
 	////////////////////
 
-	////////////First bullet without any recoil////////////////
+	//////////// First bullet without any recoil ////////////////
 	bool bFirstBulletWithoutRecoil = true;
 	void ShouldFirstBulletGoStraight() { bFirstBulletWithoutRecoil = true; }
 	FTimerHandle FirstBulletHandle;
 	/////////////////////////////////
 
-	//////////////////////OnHit////////////////////
+	////////////////////// OnHit ////////////////////
 	class UAudioComponent* SpawnedHitGroundSound;
 	AActor* HitActor;
 
-	//////////////RecoilCamera///////////////
+	////////////// RecoilCamera ///////////////
 	bool bCanRecoilCamera;
 	bool bShouldInterpBack;
 	float RandomRecoilYaw;
@@ -441,19 +441,19 @@ private:
 	void InterpBackToInitialPosition();
 	////////////////////
 
-	/////////////////Gun Sway////////////////
+	///////////////// Gun Sway ////////////////
 	void GunSway();
 	FRotator GunRotationSway;
 	FTimerHandle GunSwayWhileMovingHandle;
 	/////////////////////////////////
 	
-	/////////////Delay Shoot/////////
+	///////////// Delay Shoot /////////
 	bool bShouldDelayShoot;
 	void DelayShoot() { bShouldDelayShoot = false; }
 	FTimerHandle DelayShootHandle;
 	///////////////////////////
 
-	///////////////ADS GUN//////////////////
+	/////////////// ADS GUN //////////////////
 	void AimTheGun(float Delta);
 	StatusOfAimedGun StatusOfGun = HipFire;
 	///////////////////////////
