@@ -360,7 +360,7 @@ void AMarineCharacter::CheckIfIsInAir()
 void AMarineCharacter::ADSPressed()
 {
 	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
-	if (Gun->GetIsGrabbingEnded() == false) return;
+	if (Gun->GetIsGrabbingEnded() == false || Gun->GetIsReloading()) return;
 
 	if (CrosshairWidget)
 	{

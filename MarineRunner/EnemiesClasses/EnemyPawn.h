@@ -113,6 +113,9 @@ private:
 		bool bShouldAvoidBullet = true;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
+		bool bShouldAlsoPredictVertical;
+
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		bool bPlayPrepareToShootAnimation;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
@@ -137,12 +140,18 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
 		float ShootParticleScale;
-
 	//Delay time after the enemy runs out of ammunition
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		float DelayTimeMagazine;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		bool bShouldUseImpulseOnBullet;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		bool bRadialImpulse;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bRadialImpulse", EditConditionHides))
+		float RadialSphereRadius;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bRadialImpulse", EditConditionHides))
+		bool bDrawRadialSphere;
 	// How fast ammo is moving forward. If Bullet has physics then this variable is Impulse Force
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		float AmmoSpeed;
@@ -152,8 +161,14 @@ private:
 	// How fast Ammo will falling down when AmmoDistance hit the number
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bShouldUseImpulseOnBullet", EditConditionHides))
 		float AmmoFallingDown;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bShouldUseImpulseOnBullet", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		float AmmoImpulseForce;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (InlineEditConditionToggle))
+		bool bShouldCameraShakeAfterHit;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bShouldCameraShakeAfterHit"))
+		TSubclassOf<UCameraShakeBase> CameraShakeAfterBulletHit;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
 		TArray<float>PitchBulletRecoilArray = { -5, 5 };
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))

@@ -179,6 +179,7 @@ FRotator AEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
 void AEnemyPawn::PredictWhereToShoot()
 {
 	CameraLocation = MarinePawn->GetCamera()->GetComponentLocation();
+
 	if (MarinePawn->GetInputAxisValue("Right") == -1.f)
 	{
 		CameraLocation += MarinePawn->GetCamera()->GetRightVector() * 150.f;
@@ -187,6 +188,10 @@ void AEnemyPawn::PredictWhereToShoot()
 	{
 		CameraLocation -= MarinePawn->GetCamera()->GetRightVector() * 150.f;
 	}
+
+	if (bShouldAlsoPredictVertical == false) return;
+
+	CameraLocation.Z += FVector::Distance(GetActorLocation(), MarinePawn->GetActorLocation()) / 10 ;
 }
 
 void AEnemyPawn::SetIsDead(bool bNewDead)
@@ -246,6 +251,9 @@ void AEnemyPawn::SpawnBullet()
 	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
 	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
 	SpawnedBullet->ImpulseOnBullet(bShouldUseImpulseOnBullet);
+
+	if (bRadialImpulse) SpawnedBullet->RadialImpulse(RadialSphereRadius, bDrawRadialSphere);
+	if (bShouldCameraShakeAfterHit) SpawnedBullet->SetCameraShake(CameraShakeAfterBulletHit);
 }
 
 void AEnemyPawn::SpawnBloodDecal(const FHitResult& Hit)

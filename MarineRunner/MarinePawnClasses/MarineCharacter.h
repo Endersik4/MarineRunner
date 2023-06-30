@@ -76,6 +76,7 @@ public:
 	void SetIsCroaching(bool bIs) { bIsCroaching = bIs; }
 
 	void CallSaveGame(FVector CheckpointLocation) { SaveGame(CheckpointLocation); }
+	void CallADSReleased() { ADSReleased(); }
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 	void SetQuickSelect(TMap < int32, class AGun* > NewWeaponsStorage);
 

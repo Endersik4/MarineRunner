@@ -59,6 +59,26 @@ void AGun::Tick(float DeltaTime)
 	InterpBackToInitialPosition();
 }
 
+///////////////////////////////////// SHOOT /////////////////////////////////////
+bool AGun::CanShoot()
+{
+	if (BulletClass == NULL || bIsGrabbingEnded == false) return false;
+	if (bReloadOneBullet && bIsReloading && MagazineCapacity > 0)
+	{
+		CancelReload();
+		return true;
+	}
+	else if (bIsReloading) return false;
+
+	return true;
+}
+
+void AGun::SetCanShoot()
+{
+	bCanShoot = true;
+	if (MagazineCapacity <= 0) WaitToReload();
+}
+
 void AGun::Shoot()
 {
 	if (CanShoot() == false) return;
@@ -101,39 +121,18 @@ void AGun::ShootReleased()
 	ResetVariablesForCameraRecoil();
 	if (bShouldUseCurveRecoil) BackCameraToItsInitialRotation();
 }
+////////////////////////////////// END OF SHOOT /////////////////////////////////
 
-void AGun::AddEffectsToShooting()
+/////////////////////////////////// RECOIL //////////////////////////////////////
+void AGun::PlayRecoil()
 {
-	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, BaseSkeletalMesh, NAME_None);
-	if (ShootParticle) UGameplayStatics::SpawnEmitterAttached(ShootParticle, BaseSkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
-	
-	if (bPlayShootAnimationAfterFire == true) return;
-
-	BaseSkeletalMesh->SetForceRefPose(false);
-	if (ItemFromInventory->Item_Amount <= 0 && MagazineCapacity == 1 && ShootWithNoBulletsAnimation)
-	{
-		BaseSkeletalMesh->PlayAnimation(ShootWithNoBulletsAnimation, false);
-	}
-	else if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
-
-	if (bCasingEjectionWhileReloading == false) DropCasing();
+	//Recoil Things
+	SetCameraRecoil(); //Recoil CAMERA
+	Playtimeline(RecoilAnimTimeline); //Recoil GUN 
 }
+//////////////////////////////// END OF RECOIL  /////////////////////////////////
 
-void AGun::DropCasing()
-{
-	if (!DropBulletClass) return;
-
-	FRotator DropBulletRotation = GetActorRotation();
-	if (bShouldRandomizeRotationOfCasing)
-	{
-		DropBulletRotation.Yaw -= FMath::FRandRange(-10.f, 40.f);
-		DropBulletRotation.Roll += FMath::FRandRange(-10.f, 10.f);
-		DropBulletRotation.Pitch += FMath::FRandRange(-15.f, 15.f);
-	}
-	AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), DropBulletRotation);
-	DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-}
-
+///////////////////////////////// GUN RECOIL ////////////////////////////////////
 void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
 {
 	if (RecoilAnimCurvePitch)
@@ -199,7 +198,9 @@ void AGun::RecoilAnimTimelineFinishedCallback()
 		if (bShouldDelayShoot) bShouldDelayShoot = false;
 	}
 }
+///////////////////////////// END OF GUN RECOIL /////////////////////////////////
 
+/////////////////////////////// CAMERA RECOIL ///////////////////////////////////
 void AGun::RecoilCameraTimelineCallback(float ControlRotationY)
 {
 	//Randomize recoil a bit
@@ -298,12 +299,17 @@ void AGun::InterpBackToInitialPosition()
 	PC->SetControlRotation(NewRotation);
 }
 
-void AGun::SetCanShoot()
+void AGun::ResetVariablesForCameraRecoil()
 {
-	bCanShoot = true;
-	if (MagazineCapacity <= 0) WaitToReload();
+	GetWorldTimerManager().ClearTimer(ShootTimerHandle);
+	bCanRecoilCamera = false;
+	TimeRecoilCameraElapsed = 0.f;
+	bConstantlyShoot = false;
+	if (bShouldUseCurveRecoil) RecoilCameraTimeline->Stop();
 }
-
+/////////////////////////// END OF CAMERA RECOIL ////////////////////////////////
+// 
+/////////////////////////////////// BULLET //////////////////////////////////////
 void AGun::SpawnBullet()
 {
 	//Proper Location and Rotation for Bullet
@@ -336,16 +342,9 @@ void AGun::SpawnBullet()
 	if (bRadialImpulse) SpawnedBullet->RadialImpulse(RadialSphereRadius, bDrawRadialSphere);
 	if (bShouldCameraShakeAfterHit) SpawnedBullet->SetCameraShake(CameraShakeAfterBulletHit);
 }
+//////////////////////////////// END OF BULLET //////////////////////////////////
 
-void AGun::ResetVariablesForCameraRecoil()
-{
-	GetWorldTimerManager().ClearTimer(ShootTimerHandle);
-	bCanRecoilCamera = false;
-	TimeRecoilCameraElapsed = 0.f;
-	bConstantlyShoot = false;
-	if (bShouldUseCurveRecoil) RecoilCameraTimeline->Stop();
-}
-
+/////////////////////////////////// RELOAD //////////////////////////////////////
 void AGun::WaitToReload()
 {
 	if (ItemFromInventory->Item_Amount <= 0 || MagazineCapacity == CopyOfMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return;
@@ -357,6 +356,7 @@ void AGun::WaitToReload()
 	bCanShoot = false;
 	ShootReleased();
 	bIsReloading = true;
+	MarinePawn->CallADSReleased();
 	GetWorldTimerManager().SetTimer(ReloadHandle, this, &AGun::Reload, ReloadTime, false);
 }
 
@@ -400,6 +400,41 @@ void  AGun::CancelReload()
 	bCanShoot = true;
 	bIsReloading = false;
 }
+//////////////////////////////// END OF RELOAD //////////////////////////////////
+
+/////////////////////////////////// EFFECTS /////////////////////////////////////
+void AGun::AddEffectsToShooting()
+{
+	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, BaseSkeletalMesh, NAME_None);
+	if (ShootParticle) UGameplayStatics::SpawnEmitterAttached(ShootParticle, BaseSkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
+
+	if (bPlayShootAnimationAfterFire == true) return;
+
+	BaseSkeletalMesh->SetForceRefPose(false);
+	if (ItemFromInventory->Item_Amount <= 0 && MagazineCapacity == 1 && ShootWithNoBulletsAnimation)
+	{
+		BaseSkeletalMesh->PlayAnimation(ShootWithNoBulletsAnimation, false);
+	}
+	else if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
+
+	if (bCasingEjectionWhileReloading == false) DropCasing();
+}
+
+void AGun::DropCasing()
+{
+	if (!DropBulletClass) return;
+
+	FRotator DropBulletRotation = GetActorRotation();
+	if (bShouldRandomizeRotationOfCasing)
+	{
+		DropBulletRotation.Yaw -= FMath::FRandRange(-10.f, 40.f);
+		DropBulletRotation.Roll += FMath::FRandRange(-10.f, 10.f);
+		DropBulletRotation.Pitch += FMath::FRandRange(-15.f, 15.f);
+	}
+	AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), DropBulletRotation);
+	DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+}
+//////////////////////////////// END OF EFFECTS /////////////////////////////////
 
 void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -414,6 +449,7 @@ void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCom
 	HitActor = OtherActor;
 }
 
+///////////////////////////////// GUN SWAY //////////////////////////////////////
 void AGun::GunSway()
 {
 	if (MarinePawn == nullptr || bCanGunSwayTick == false || bCanSway == false) return;
@@ -486,6 +522,20 @@ void AGun::GunSwayWhileMoving()
 	
 }
 
+void AGun::SetGunSwayWhileMovingTimer(bool bShouldClear)
+{
+	if (bShouldClear)
+	{
+		GetWorldTimerManager().ClearTimer(GunSwayWhileMovingHandle);
+	}
+	else
+	{
+		GetWorldTimerManager().SetTimer(GunSwayWhileMovingHandle, this, &AGun::GunSwayWhileMoving, 0.01f, true);
+	}
+}
+////////////////////////////// END OF GUN SWAY //////////////////////////////////
+
+////////////////////////////////// ADS //////////////////////////////////////////
 void AGun::AimTheGun(float Delta)
 {
 	if (StatusOfGun == HipFire) return;
@@ -506,7 +556,9 @@ void AGun::AimTheGun(float Delta)
 		}
 	}
 }
+/////////////////////////////// END OF ADS //////////////////////////////////////
 
+////////////////////////////////// HUD //////////////////////////////////////////
 void AGun::SetHudWidget(UHUDWidget* NewHudWidget)
 {
 	if (NewHudWidget)
@@ -533,28 +585,9 @@ void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
 		HudWidget->SetWeaponImage(GunHUDTexture, bAmmoCounterBelowGunHUD);
 	}
 }
+/////////////////////////////// END OF HUD //////////////////////////////////////
 
-void AGun::PlayRecoil()
-{
-	//Recoil Things
-	SetCameraRecoil(); //Recoil CAMERA
-	Playtimeline(RecoilAnimTimeline); //Recoil GUN 
-}
-
-bool AGun::CanShoot()
-{
-	if (BulletClass == NULL || bIsGrabbingEnded == false) return false;
-	if (bReloadOneBullet && bIsReloading && MagazineCapacity > 0)
-	{
-		CancelReload();
-		return true;
-	}
-	else if (bIsReloading) return false;
-
-	return true;
-}
-
-////////////////////////////////////////TAKE AND DROP//////////////////////////////////////////////////
+////////////////////////////////// TAKE ////////////////////////////////////////
 void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 {
 	bool bIsTooManyItems = MarineCharacter->GetWeaponInventoryComponent()->GetWeaponsStorageAmount() >= MarineCharacter->GetWeaponInventoryComponent()->GetMaxAmount();
@@ -577,24 +610,6 @@ void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 	MarinePawn->SetGun(this);
 }
 
-void AGun::AddAmmoToInventory()
-{
-	if (bDidTakeThisWeapon == true || MarinePawn->GetInventoryComponent() == nullptr) return;
-
-	FItemStruct NewItem(Ammo_Name, StoredAmmo);
-	ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Ammo_Name);
-	if (ItemFromInventory)
-	{
-		ItemFromInventory->Item_Amount += StoredAmmo;
-	}
-	else
-	{
-		MarinePawn->GetInventoryComponent()->Inventory_Items.Add(Ammo_Name, NewItem);
-		ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Ammo_Name);
-	}
-	bDidTakeThisWeapon = true;
-}
-
 void AGun::EquipWeapon(bool bShouldPlaySound, bool bIsThisCurrentGun)
 {
 	BaseSkeletalMesh->SetSimulatePhysics(false);
@@ -611,58 +626,6 @@ void AGun::EquipWeapon(bool bShouldPlaySound, bool bIsThisCurrentGun)
 	}
 
 	AttachToComponent(MarinePawn->GetCamera(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
-}
-
-AActor* AGun::DropItem()
-{
-	if (bIsGrabbingEnded == false) return this;
-	if (this != MarinePawn->GetGun()) return this;
-
-	if (bCanDropTheGun == false) return this;
-
-	MarinePawn->GetWeaponInventoryComponent()->RemoveWeaponFromStorage(this);
-	int32 AmountOfWeapons = MarinePawn->GetWeaponInventoryComponent()->GetWeaponsStorageAmount();
-
-	AActor* GunFromStorage = ChangeToAnotherWeapon(AmountOfWeapons);
-
-	DropTheGun();
-	return GunFromStorage;
-}
-
-AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
-{
-	AGun* GunFromStorage;
-	if (AmountOfWeapons > 0)
-	{
-		GunFromStorage = MarinePawn->GetWeaponInventoryComponent()->GetWeaponFromStorage(AmountOfWeapons, nullptr);
-		MarinePawn->SetGun(GunFromStorage);
-	}
-	else
-	{
-		MarinePawn->GetHudWidget()->HideWeaponThings(true);
-		GunFromStorage = nullptr;
-		MarinePawn->SetGun(nullptr);
-	}
-	return GunFromStorage;
-}
-
-void AGun::DropTheGun()
-{
-	if (!MarinePawn) return;
-
-	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	BaseSkeletalMesh->SetSimulatePhysics(true);
-	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BaseSkeletalMesh->SetRenderCustomDepth(true);
-
-	SetGunSwayWhileMovingTimer(true);
-	bCanGunSwayTick = false;
-	HudWidget = nullptr;
-	if (bIsReloading) CancelReload();
-
-	FVector DropImpulse = MarinePawn->GetCamera()->GetForwardVector() * 10 * DropImpulseDistance;
-	BaseSkeletalMesh->AddImpulse(DropImpulse);
-	MarinePawn = nullptr;
 }
 
 bool AGun::ItemLocationWhenGrabbed(float SpeedOfItem)
@@ -693,20 +656,83 @@ bool AGun::IsGunAtTheWeaponLocation()
 	MarinePawn->SetCanChangeWeapon(true);
 	return true;
 }
-/////////////////////////////////////END of TAKE AND DROP//////////////////////////////////////////////////
+/////////////////////////////// END OF TAKE ////////////////////////////////////
 
-void AGun::SetGunSwayWhileMovingTimer(bool bShouldClear)
+////////////////////////////////// DROP ////////////////////////////////////////
+AActor* AGun::DropItem()
 {
-	if (bShouldClear)
+	if (bIsGrabbingEnded == false) return this;
+	if (this != MarinePawn->GetGun()) return this;
+
+	if (bCanDropTheGun == false) return this;
+
+	MarinePawn->GetWeaponInventoryComponent()->RemoveWeaponFromStorage(this);
+	int32 AmountOfWeapons = MarinePawn->GetWeaponInventoryComponent()->GetWeaponsStorageAmount();
+
+	AActor* GunFromStorage = ChangeToAnotherWeapon(AmountOfWeapons);
+
+	DropTheGun();
+	return GunFromStorage;
+}
+
+void AGun::DropTheGun()
+{
+	if (!MarinePawn) return;
+
+	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	BaseSkeletalMesh->SetSimulatePhysics(true);
+	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	BaseSkeletalMesh->SetRenderCustomDepth(true);
+
+	SetGunSwayWhileMovingTimer(true);
+	bCanGunSwayTick = false;
+	HudWidget = nullptr;
+	if (bIsReloading) CancelReload();
+
+	FVector DropImpulse = MarinePawn->GetCamera()->GetForwardVector() * 10 * DropImpulseDistance;
+	BaseSkeletalMesh->AddImpulse(DropImpulse);
+	MarinePawn = nullptr;
+}
+/////////////////////////////// END OF DROP ////////////////////////////////////
+
+/////////////////////////////// INVENTORY //////////////////////////////////////
+void AGun::AddAmmoToInventory()
+{
+	if (bDidTakeThisWeapon == true || MarinePawn->GetInventoryComponent() == nullptr) return;
+
+	FItemStruct NewItem(Ammo_Name, StoredAmmo);
+	ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Ammo_Name);
+	if (ItemFromInventory)
 	{
-		GetWorldTimerManager().ClearTimer(GunSwayWhileMovingHandle);
+		ItemFromInventory->Item_Amount += StoredAmmo;
 	}
 	else
 	{
-		GetWorldTimerManager().SetTimer(GunSwayWhileMovingHandle, this, &AGun::GunSwayWhileMoving, 0.01f, true);
+		MarinePawn->GetInventoryComponent()->Inventory_Items.Add(Ammo_Name, NewItem);
+		ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Ammo_Name);
 	}
+	bDidTakeThisWeapon = true;
 }
 
+AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
+{
+	AGun* GunFromStorage;
+	if (AmountOfWeapons > 0)
+	{
+		GunFromStorage = MarinePawn->GetWeaponInventoryComponent()->GetWeaponFromStorage(AmountOfWeapons, nullptr);
+		MarinePawn->SetGun(GunFromStorage);
+	}
+	else
+	{
+		MarinePawn->GetHudWidget()->HideWeaponThings(true);
+		GunFromStorage = nullptr;
+		MarinePawn->SetGun(nullptr);
+	}
+	return GunFromStorage;
+}
+//////////////////////////// END OF INVENTORY //////////////////////////////////
+
+/////////////////////////////// TIMELINES //////////////////////////////////////
 UTimelineComponent* AGun::SetupTimeline(UTimelineComponent* TimeLineComp, UCurveFloat* MostImportantCurve, FName TimeLineName, FName TimeLineDirection, float TimeLineLength,
 	FName TimelineCallbackFunction, FName TimelineFinishedFunction)
 {
@@ -743,3 +769,4 @@ void AGun::Playtimeline(UTimelineComponent* TimeLineComp)
 		TimeLineComp->PlayFromStart();
 	}
 }
+//////////////////////////// END OF TIMELINES //////////////////////////////////
