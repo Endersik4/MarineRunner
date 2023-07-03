@@ -305,5 +305,5 @@ private:
 	bool MakeCheckLine(FHitResult &OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug = false, FColor Color = FColor::Red);
 
 	FVector EaseInQuint(FVector Start, FVector End, float Alpha);
-
+	APlayerController* MarinePlayerController;
 };

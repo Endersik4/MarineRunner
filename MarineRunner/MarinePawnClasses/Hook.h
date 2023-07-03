@@ -23,6 +23,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	bool bCanGrabTheHook = true;
+	
+	
+	void HookPressed();
 	void HookActivate();
 	void HookInactiv();
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
@@ -36,6 +40,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
 		UMaterialInstance* M_PlayerOutRange;
+
+	float CopyOfSphereRadius;
+	void DelayForGrabbingTheHook();
 
 	void SetPlayerPawn();
 	class AMarineCharacter* MarinePawn;

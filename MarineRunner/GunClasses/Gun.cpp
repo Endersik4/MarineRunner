@@ -59,7 +59,7 @@ void AGun::Tick(float DeltaTime)
 	InterpBackToInitialPosition();
 }
 
-///////////////////////////////////// SHOOT /////////////////////////////////////
+#pragma region //////////////////////////////////// SHOOT /////////////////////////////////////
 bool AGun::CanShoot()
 {
 	if (BulletClass == NULL || bIsGrabbingEnded == false) return false;
@@ -121,18 +121,18 @@ void AGun::ShootReleased()
 	ResetVariablesForCameraRecoil();
 	if (bShouldUseCurveRecoil) BackCameraToItsInitialRotation();
 }
-////////////////////////////////// END OF SHOOT /////////////////////////////////
+#pragma endregion
 
-/////////////////////////////////// RECOIL //////////////////////////////////////
+#pragma region ////////////////////////////////// RECOIL //////////////////////////////////////
 void AGun::PlayRecoil()
 {
 	//Recoil Things
 	SetCameraRecoil(); //Recoil CAMERA
 	Playtimeline(RecoilAnimTimeline); //Recoil GUN 
 }
-//////////////////////////////// END OF RECOIL  /////////////////////////////////
+#pragma endregion
 
-///////////////////////////////// GUN RECOIL ////////////////////////////////////
+#pragma region //////////////////////////////// GUN RECOIL ////////////////////////////////////
 void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
 {
 	if (RecoilAnimCurvePitch)
@@ -198,9 +198,9 @@ void AGun::RecoilAnimTimelineFinishedCallback()
 		if (bShouldDelayShoot) bShouldDelayShoot = false;
 	}
 }
-///////////////////////////// END OF GUN RECOIL /////////////////////////////////
+#pragma endregion
 
-/////////////////////////////// CAMERA RECOIL ///////////////////////////////////
+#pragma region ////////////////////////////// CAMERA RECOIL ///////////////////////////////////
 void AGun::RecoilCameraTimelineCallback(float ControlRotationY)
 {
 	//Randomize recoil a bit
@@ -307,9 +307,9 @@ void AGun::ResetVariablesForCameraRecoil()
 	bConstantlyShoot = false;
 	if (bShouldUseCurveRecoil) RecoilCameraTimeline->Stop();
 }
-/////////////////////////// END OF CAMERA RECOIL ////////////////////////////////
-// 
-/////////////////////////////////// BULLET //////////////////////////////////////
+#pragma endregion
+ 
+#pragma region ////////////////////////////////// BULLET //////////////////////////////////////
 void AGun::SpawnBullet()
 {
 	//Proper Location and Rotation for Bullet
@@ -342,12 +342,14 @@ void AGun::SpawnBullet()
 	if (bRadialImpulse) SpawnedBullet->RadialImpulse(RadialSphereRadius, bDrawRadialSphere);
 	if (bShouldCameraShakeAfterHit) SpawnedBullet->SetCameraShake(CameraShakeAfterBulletHit);
 }
-//////////////////////////////// END OF BULLET //////////////////////////////////
+#pragma endregion
 
-/////////////////////////////////// RELOAD //////////////////////////////////////
+#pragma region ////////////////////////////////// RELOAD //////////////////////////////////////
 void AGun::WaitToReload()
 {
-	if (ItemFromInventory->Item_Amount <= 0 || MagazineCapacity == CopyOfMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return;
+	if (GetPointerToAmmoFromInventory() == false || MagazineCapacity == CopyOfMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return;
+	if (ItemFromInventory->Item_Amount <= 0) return;
+
 	if (ReloadSound) SpawnedReloadSound = UGameplayStatics::SpawnSoundAttached(ReloadSound, BaseSkeletalMesh);
 	if (bCasingEjectionWhileReloading == true) DropCasing();
 	BaseSkeletalMesh->SetForceRefPose(false);
@@ -362,6 +364,8 @@ void AGun::WaitToReload()
 
 void AGun::Reload()
 {
+	if (GetPointerToAmmoFromInventory() == false) return;
+
 	if (bReloadOneBullet == true)
 	{
 		MagazineCapacity++;
@@ -400,9 +404,9 @@ void  AGun::CancelReload()
 	bCanShoot = true;
 	bIsReloading = false;
 }
-//////////////////////////////// END OF RELOAD //////////////////////////////////
+#pragma endregion
 
-/////////////////////////////////// EFFECTS /////////////////////////////////////
+#pragma region ////////////////////////////////// EFFECTS /////////////////////////////////////
 void AGun::AddEffectsToShooting()
 {
 	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, BaseSkeletalMesh, NAME_None);
@@ -411,9 +415,9 @@ void AGun::AddEffectsToShooting()
 	if (bPlayShootAnimationAfterFire == true) return;
 
 	BaseSkeletalMesh->SetForceRefPose(false);
-	if (ItemFromInventory->Item_Amount <= 0 && MagazineCapacity == 1 && ShootWithNoBulletsAnimation)
+	if (GetPointerToAmmoFromInventory() && MagazineCapacity == 1 && ShootWithNoBulletsAnimation)
 	{
-		BaseSkeletalMesh->PlayAnimation(ShootWithNoBulletsAnimation, false);
+		if (ItemFromInventory->Item_Amount <= 0) BaseSkeletalMesh->PlayAnimation(ShootWithNoBulletsAnimation, false);
 	}
 	else if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
 
@@ -434,7 +438,7 @@ void AGun::DropCasing()
 	AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), DropBulletRotation);
 	DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 }
-//////////////////////////////// END OF EFFECTS /////////////////////////////////
+#pragma endregion
 
 void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
@@ -449,7 +453,7 @@ void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCom
 	HitActor = OtherActor;
 }
 
-///////////////////////////////// GUN SWAY //////////////////////////////////////
+#pragma region //////////////////////////////// GUN SWAY //////////////////////////////////////
 void AGun::GunSway()
 {
 	if (MarinePawn == nullptr || bCanGunSwayTick == false || bCanSway == false) return;
@@ -533,9 +537,9 @@ void AGun::SetGunSwayWhileMovingTimer(bool bShouldClear)
 		GetWorldTimerManager().SetTimer(GunSwayWhileMovingHandle, this, &AGun::GunSwayWhileMoving, 0.01f, true);
 	}
 }
-////////////////////////////// END OF GUN SWAY //////////////////////////////////
+#pragma endregion
 
-////////////////////////////////// ADS //////////////////////////////////////////
+#pragma region ///////////////////////////////// ADS //////////////////////////////////////////
 void AGun::AimTheGun(float Delta)
 {
 	if (StatusOfGun == HipFire) return;
@@ -556,9 +560,9 @@ void AGun::AimTheGun(float Delta)
 		}
 	}
 }
-/////////////////////////////// END OF ADS //////////////////////////////////////
+#pragma endregion
 
-////////////////////////////////// HUD //////////////////////////////////////////
+#pragma region ///////////////////////////////// HUD //////////////////////////////////////////
 void AGun::SetHudWidget(UHUDWidget* NewHudWidget)
 {
 	if (NewHudWidget)
@@ -579,15 +583,15 @@ void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
 
 	HudWidget->SetAmmoText(MagazineCapacity);
 
-	if (bChangeStoredAmmoText && ItemFromInventory) HudWidget->SetAmmoText(ItemFromInventory->Item_Amount, true);
+	if (bChangeStoredAmmoText && GetPointerToAmmoFromInventory()) HudWidget->SetAmmoText(ItemFromInventory->Item_Amount, true);
 	if (bChangeWeaponImage)
 	{
 		HudWidget->SetWeaponImage(GunHUDTexture, bAmmoCounterBelowGunHUD);
 	}
 }
-/////////////////////////////// END OF HUD //////////////////////////////////////
+#pragma endregion
 
-////////////////////////////////// TAKE ////////////////////////////////////////
+#pragma region ////////////////////////////////// TAKE ////////////////////////////////////////
 void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 {
 	bool bIsTooManyItems = MarineCharacter->GetWeaponInventoryComponent()->GetWeaponsStorageAmount() >= MarineCharacter->GetWeaponInventoryComponent()->GetMaxAmount();
@@ -656,9 +660,9 @@ bool AGun::IsGunAtTheWeaponLocation()
 	MarinePawn->SetCanChangeWeapon(true);
 	return true;
 }
-/////////////////////////////// END OF TAKE ////////////////////////////////////
+#pragma endregion
 
-////////////////////////////////// DROP ////////////////////////////////////////
+#pragma region ////////////////////////////////// DROP ////////////////////////////////////////
 AActor* AGun::DropItem()
 {
 	if (bIsGrabbingEnded == false) return this;
@@ -689,20 +693,19 @@ void AGun::DropTheGun()
 	HudWidget = nullptr;
 	if (bIsReloading) CancelReload();
 
-	FVector DropImpulse = MarinePawn->GetCamera()->GetForwardVector() * 10 * DropImpulseDistance;
+	FVector DropImpulse = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetRootComponent()->GetForwardVector() * 10 * DropImpulseDistance;
 	BaseSkeletalMesh->AddImpulse(DropImpulse);
 	MarinePawn = nullptr;
 }
-/////////////////////////////// END OF DROP ////////////////////////////////////
+#pragma endregion
 
-/////////////////////////////// INVENTORY //////////////////////////////////////
+#pragma region /////////////////////////////// INVENTORY //////////////////////////////////////
 void AGun::AddAmmoToInventory()
 {
 	if (bDidTakeThisWeapon == true || MarinePawn->GetInventoryComponent() == nullptr) return;
 
 	FItemStruct NewItem(Ammo_Name, StoredAmmo);
-	ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Ammo_Name);
-	if (ItemFromInventory)
+	if (GetPointerToAmmoFromInventory())
 	{
 		ItemFromInventory->Item_Amount += StoredAmmo;
 	}
@@ -712,6 +715,12 @@ void AGun::AddAmmoToInventory()
 		ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Ammo_Name);
 	}
 	bDidTakeThisWeapon = true;
+}
+
+bool AGun::GetPointerToAmmoFromInventory()
+{
+	ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Ammo_Name);
+	return ItemFromInventory ? true : false;
 }
 
 AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
@@ -730,9 +739,9 @@ AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
 	}
 	return GunFromStorage;
 }
-//////////////////////////// END OF INVENTORY //////////////////////////////////
+#pragma endregion
 
-/////////////////////////////// TIMELINES //////////////////////////////////////
+#pragma region /////////////////////////////// TIMELINES //////////////////////////////////////
 UTimelineComponent* AGun::SetupTimeline(UTimelineComponent* TimeLineComp, UCurveFloat* MostImportantCurve, FName TimeLineName, FName TimeLineDirection, float TimeLineLength,
 	FName TimelineCallbackFunction, FName TimelineFinishedFunction)
 {
@@ -769,4 +778,4 @@ void AGun::Playtimeline(UTimelineComponent* TimeLineComp)
 		TimeLineComp->PlayFromStart();
 	}
 }
-//////////////////////////// END OF TIMELINES //////////////////////////////////
+#pragma endregion

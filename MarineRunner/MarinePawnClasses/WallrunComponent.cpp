@@ -143,7 +143,6 @@ void UWallrunComponent::ResetWallrunning()
 	bIsWallrunning = false;
 	bShouldPlayerGoForward = false;
 	bShouldLerpRotation = false;
-	//bIsForwardButtonPressed = false;
 
 	MarinePawn->SetShouldAddCounterMovement(false);
 	MarinePawn->RotateCameraWhileWallrunning();

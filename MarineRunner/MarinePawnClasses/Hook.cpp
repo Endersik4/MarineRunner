@@ -28,6 +28,7 @@ void AHook::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CopyOfSphereRadius = CheckSphere->GetUnscaledSphereRadius();
 	SetPlayerPawn();
 }
 
@@ -35,6 +36,14 @@ void AHook::BeginPlay()
 void AHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AHook::HookPressed()
+{
+	bCanGrabTheHook = false;
+	CheckSphere->SetSphereRadius(0.f);
+	FTimerHandle HookPressedHandle;
+	GetWorld()->GetTimerManager().SetTimer(HookPressedHandle, this, &AHook::DelayForGrabbingTheHook, 1.5f, false);
 }
 
 void AHook::HookActivate()
@@ -45,6 +54,12 @@ void AHook::HookActivate()
 void AHook::HookInactiv()
 {
 	HookMesh->SetMaterial(0, M_PlayerOutRange);
+}
+
+void AHook::DelayForGrabbingTheHook()
+{
+	bCanGrabTheHook = true;
+	CheckSphere->SetSphereRadius(CopyOfSphereRadius);
 }
 
 void AHook::SetPlayerPawn()

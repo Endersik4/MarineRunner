@@ -3,6 +3,7 @@
 
 #include "TakeAndDrop.h"
 #include "Camera/CameraComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
@@ -56,7 +57,7 @@ void UTakeAndDrop::Take()
 bool UTakeAndDrop::CheckIfPlayerCanTake(FHitResult& HitResult)
 {
 	FVector Start = MarinePawn->GetCamera()->GetComponentLocation();
-	FVector End = Start + (MarinePawn->GetCamera()->GetForwardVector() * TakeDistance);
+	FVector End = Start + (UGameplayStatics::GetPlayerController(GetWorld(),0)->GetRootComponent()->GetForwardVector() * TakeDistance);
 
 	bool hasHit = GetWorld()->SweepSingleByChannel(HitResult, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeBox(FVector(20, 20, 20)));
 

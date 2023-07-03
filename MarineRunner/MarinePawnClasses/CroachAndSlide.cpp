@@ -91,11 +91,9 @@ void UCroachAndSlide::CroachPressed()
 	bCanCroachLerp = true;
 	if (MarinePawn->GetIsGoingUp() == false)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SLIDE "));
 		if (MarinePawn->GetInputAxisValue(TEXT("Forward")) == 1.f || MarinePawn->GetInputAxisValue(TEXT("Right")) != 0)
 		{
 			if (MarinePawn->GetIsJumping()) return;
-			UE_LOG(LogTemp, Warning, TEXT("SLIDE 2 "));
 			MovementForce = CopyMovementForce + InitialVelocityOfSliding;
 			bShouldSlide = true;
 		}

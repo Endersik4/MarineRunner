@@ -70,6 +70,7 @@ void AMarineCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	MarinePlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	SetFirstAidKitToInventory();
 	MakeCrosshire();
 	MakeHudWidget();
@@ -128,7 +129,8 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	
 }
 
-///////////////////////////////// MOVEMENT /////////////////////////////////////////////////
+#pragma region //////////////////////////////// MOVEMENT ///////////////////////////////
+
 void AMarineCharacter::Movement(float Delta)
 {
 	if (bCanSwingLerp || bIsInputDisabled) return;
@@ -197,9 +199,9 @@ void AMarineCharacter::GoConstanlyForward(FVector& ForwardDir, FVector& RightDir
 		RightDir = GetInputAxisValue(TEXT("Right")) * GetActorRightVector();
 	}
 }
-////////////////////////////// END OF MOVEMENT /////////////////////////////////////////////
+#pragma endregion
 
-///////////////////////////////// JUMP /////////////////////////////////////////////////////
+#pragma region ////////////////////////////////// JUMP /////////////////////////////////
 void AMarineCharacter::Jump()
 {
 	if (WallrunComponent->GetCanJump() == false) return;
@@ -266,9 +268,10 @@ void AMarineCharacter::DelayJump()
 	bCanDelayJump = false;
 	GetWorldTimerManager().ClearTimer(DelayJumpHandle);
 }
-/////////////////////////////  END OF JUMP /////////////////////////////////////////////////
+#pragma endregion 
 
-///////////////////////////////// AIR /////////////////////////////////////////////////////
+#pragma region ////////////////////////////////// AIR //////////////////////////////////
+
 void AMarineCharacter::UnstickFromWall(FVector& ForwardDir, FVector& RightDir)
 {
 	if (bIsInAir == false) return;
@@ -354,9 +357,9 @@ void AMarineCharacter::CheckIfIsInAir()
 		
 	}
 }
-///////////////////////////// END OF AIR //////////////////////////////////////////////////
+#pragma endregion 
 
-/////////////////////////////////// GUN ////////////////////////////////////////////////
+#pragma region ////////////////////////////////// GUN //////////////////////////////////
 void AMarineCharacter::ADSPressed()
 {
 	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
@@ -417,9 +420,9 @@ void AMarineCharacter::Zoom(float WheelAxis)
 	CurrentScopeIndex = Gun->ZoomScope(WheelAxis);
 	ChangeMouseSensivity(MouseSensivityWhenScope[CurrentScopeIndex]);
 }
-//////////////////////////////// END OF GUN ////////////////////////////////////////////////
+#pragma endregion 
 
-////////////////////////////////// FOOTSTEPS SOUND /////////////////////////////////////////
+#pragma region //////////////////////////// FOOTSTEPS SOUND ////////////////////////////
 void AMarineCharacter::PlayFootstepsSound()
 {
 	if (bCanPlayFootstepsSound == false) return;
@@ -446,7 +449,9 @@ void AMarineCharacter::PlayFootstepsSound()
 	}
 }
 
-////////////////////////////////// FIRST AID KIT ///////////////////////////////////////////
+#pragma endregion 
+
+#pragma region ///////////////////////////// FIRST AID KIT /////////////////////////////
 void AMarineCharacter::SetFirstAidKitToInventory()
 {
 	FirstAidKitItem = InventoryComponent->Inventory_Items.Find(FirstAidKits_Name);
@@ -461,7 +466,9 @@ void AMarineCharacter::SetFirstAidKitToInventory()
 
 void AMarineCharacter::UseFirstAidKit()
 {
-	if (FirstAidKitItem->Item_Amount <= 0 || bCanUseFirstAidKit == false || Health == 100.f) return;
+	if (bCanUseFirstAidKit == false || Health == 100.f) return;
+	FirstAidKitItem = InventoryComponent->Inventory_Items.Find(FirstAidKits_Name);
+	if (FirstAidKitItem == nullptr) return;
 
 	FirstAidKitItem->Item_Amount--;
 	Health += FirstAidKitHealth;
@@ -480,18 +487,53 @@ void AMarineCharacter::UseFirstAidKit()
 	bCanUseFirstAidKit = false;
 	GetWorldTimerManager().SetTimer(FirstAidKitHandle, this, &AMarineCharacter::CanUseFirstAidKit, DelayAfterUseFirstAidKit, false);
 }
-/////////////////////////////////// END OF FIRST AID KIT ///////////////////////////////////////////////
+#pragma endregion 
 
-//////////////////////////////////////// SWING /////////////////////////////////////////////////////////
+#pragma region ///////////////////////////////// SWING /////////////////////////////////
+void AMarineCharacter::SwingLineCheck()
+{
+	if (bCanSwingLerp || bShouldCheckForSwing == false) return;
+
+	FVector LineStart = Camera->GetComponentLocation();
+	FVector LineEnd = LineStart + (MarinePlayerController->GetRootComponent()->GetForwardVector() * 2500.f);
+	TArray<AActor*> ActorsToIgnore;
+	FHitResult HitResults;
+	if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ActorsToIgnore, EDrawDebugTrace::None, HitResults, true))
+	{
+		AHook* TempHook;
+		if (HitResults.GetActor()->ActorHasTag("Hook"))
+		{
+			TempHook = Cast<AHook>(HitResults.GetActor());
+
+			if (HookCast && TempHook != HookCast) HookCast->HookInactiv();
+			if (TempHook->bCanGrabTheHook == true)
+			{
+				TempHook->HookActivate();
+				HookCast = TempHook;
+				bCanMarineSwing = true;
+
+				return;
+			}
+		}
+	}
+
+	if (HookCast)
+	{
+		HookCast->HookInactiv();
+		bCanMarineSwing = false;
+	}
+}
+
 //If the player press the Swing button then spawn the Line that is going to the Hook and then wait for SwingDelay to elapsed
 void AMarineCharacter::SwingPressed()
 {
 	if (!bCanMarineSwing || HookCast == nullptr || bCanSwingLerp == true || bIsSwingPressed == true) return;
 
+	HookCast->HookPressed();
 	bIsSwingPressed = true;
 	bShouldCheckForSwing = false;
 	FVector SpawnLocation = Camera->GetComponentLocation();
-	SpawnLocation += Camera->GetForwardVector() * 100.f;
+	SpawnLocation += MarinePlayerController->GetRootComponent()->GetForwardVector() * 100.f;
 	SpawnLocation += Camera->GetRightVector() * 70.f;
 	ASwingLine* SwingLine = GetWorld()->SpawnActor<ASwingLine>(SwingLineClass, SpawnLocation, FRotator(0, 0, 0));
 	if (SwingLine)
@@ -547,40 +589,9 @@ void AMarineCharacter::SwingInterp()
 	SetActorLocation(LocationInterp);
 
 }
+#pragma endregion 
 
-void AMarineCharacter::SwingLineCheck()
-{
-	if (bCanSwingLerp || bShouldCheckForSwing == false) return;
-
-	FVector LineStart = Camera->GetComponentLocation();
-	FVector LineEnd = LineStart + (Camera->GetForwardVector() * 2500.f);
-	TArray<AActor*> ActorsToIgnore;
-	FHitResult HitResults;
-	if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ActorsToIgnore, EDrawDebugTrace::None, HitResults, true))
-	{
-		AHook* TempHook;
-		if (HitResults.GetActor()->ActorHasTag("Hook"))
-		{
-			TempHook = Cast<AHook>(HitResults.GetActor());
-
-			if (HookCast && TempHook != HookCast) HookCast->HookInactiv();
-			TempHook->HookActivate();
-			HookCast = TempHook;
-			bCanMarineSwing = true;
-
-			return;
-		}
-	}
-
-	if (HookCast)
-	{
-		HookCast->HookInactiv();
-		bCanMarineSwing = false;
-	}
-}
-/////////////////////////////////// END OF SWING //////////////////////////////////////////////////////
-
-//////////////////////////////////// CROACHING ////////////////////////////////////////////////////////
+#pragma region /////////////////////////////// CROACHING ///////////////////////////////
 void AMarineCharacter::CroachPressed()
 {
 	if (bCanSwingLerp || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion()) return;
@@ -593,9 +604,9 @@ void AMarineCharacter::CroachReleased()
 {
 	CroachAndSlideComponent->CroachReleased();
 }
-//////////////////////////////// END OF CROACHING ////////////////////////////////////////////////////////
+#pragma endregion 
 
-///////////////////////////// EQUIP WEAPON FROM INVENTORY //////////////////////////////////////////////
+#pragma region ////////////////////// EQUIP WEAPON FROM INVENTORY //////////////////////
 void AMarineCharacter::FirstWeapon()
 {
 	if (!bCanChangeWeapon) return;
@@ -624,9 +635,9 @@ void AMarineCharacter::HideGunAndAddTheNewOne(AGun* NewGun)
 	}
 	WeaponInventoryComponent->AddNewWeaponToStorage(NewGun);
 }
-////////////////////////// END OF EQUIP WEAPON FROM INVENTORY //////////////////////////////////////////////
+#pragma endregion 
 
-/////////////////////////////////// TAKE/DROP ITEM /////////////////////////////////////////////////////////
+#pragma region ///////////////////////////// TAKE/DROP ITEM ////////////////////////////
 void AMarineCharacter::Take()
 {
 	TakeAndDropComponent->Take();
@@ -636,8 +647,9 @@ void AMarineCharacter::DropItem()
 {
 	TakeAndDropComponent->DropItem();
 }
-////////////////////////////////END OF TAKE/DROP ITEM //////////////////////////////////////////////////////
+#pragma endregion 
 
+#pragma region ////////////////////////// COMPONENTS PRESSED ///////////////////////////
 void AMarineCharacter::Dash()
 {
 	if (bCanSwingLerp || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion() || bIsCroaching) return;
@@ -656,8 +668,9 @@ void AMarineCharacter::SlowMotionPressed()
 
 	SlowMotionComponent->TurnOnSlowMotion();
 }
+#pragma endregion
 
-////////////////////////////////// SAVE/LOAD /////////////////////////////////////////////////
+#pragma region /////////////////////////////// SAVE/LOAD ///////////////////////////////
 void AMarineCharacter::SaveGame(FVector NewCheckpointLocation)
 {
 	UE_LOG(LogTemp, Warning, TEXT("SAVED"));
@@ -677,20 +690,9 @@ void AMarineCharacter::LoadGame()
 	HudWidget->SetHealthPercent();
 	HudWidget->SetCurrentNumberOfFirstAidKits();
 }
-////////////////////////////// END OF SAVE/LOAD /////////////////////////////////////////////////
+#pragma endregion 
 
-void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings)
-{
-	bIsJumping = false;
-	CroachReleased();
-
-	if (!bShouldCancelGameplayThings) return;
-
-	if (bCanDelayJump) DelayJump();
-	if (bIsPlayerADS) ADSReleased();
-}
-
-/////////////////////////////////////// DAMAGE /////////////////////////////////////////////////
+#pragma region //////////////////////////////// DAMAGE /////////////////////////////////
 void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
 	if (MarineHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, NewHit.ImpactPoint);
@@ -714,9 +716,9 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 	HudWidget->SetGotDamage(true);
 }
 
-/////////////////////////////////// END OF DAMAGE /////////////////////////////////////////////////
+#pragma endregion 
 
-////////////////////////////////////// WIDGETS //////////////////////////////////////////////////////
+#pragma region //////////////////////////////// WIDGETS ////////////////////////////////
 void AMarineCharacter::MakeHudWidget()
 {
 	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -762,9 +764,20 @@ void AMarineCharacter::UpdateHudWidget()
 	if (Gun) Gun->SetWeaponInHud(true);
 	HudWidget->SetCurrentNumberOfFirstAidKits();
 }
-////////////////////////////////// END OF WIDGETS ////////////////////////////////////////////////////
+#pragma endregion 
 
-////////////////////////////////// ADDITIONAL FUNCTIONS //////////////////////////////////////////////
+#pragma region ////////////////////////// ADDITIONAL FUNCTIONS /////////////////////////
+void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings)
+{
+	bIsJumping = false;
+	CroachReleased();
+
+	if (!bShouldCancelGameplayThings) return;
+
+	if (bCanDelayJump) DelayJump();
+	if (bIsPlayerADS) ADSReleased();
+}
+
 void AMarineCharacter::SetQuickSelect(TMap < int32, AGun* > NewWeaponsStorage)
 {
 	WeaponInventoryComponent->SetWeaponsStorage(NewWeaponsStorage);
@@ -793,3 +806,4 @@ bool AMarineCharacter::GetIsWallrunning() const
 {
 	return WallrunComponent->GetIsWallrunning();
 }
+#pragma endregion 

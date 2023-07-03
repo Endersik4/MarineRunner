@@ -395,6 +395,7 @@ private:
 	AActor* ChangeToAnotherWeapon(int32 AmountOfWeapons);
 	void DropTheGun();
 	void AddAmmoToInventory();
+	bool GetPointerToAmmoFromInventory();
 	/////////////////
 
 	///////////////////// HUD WIDGET /////////////////////H
