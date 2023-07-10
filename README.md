@@ -10,7 +10,7 @@ MarineRunner is on Unreal Engine 5. <br/>
 <br/>
 Demo of MarineRunner to show current status. <br/>
 Its just demo for showcase, I plan to add more things in the future such as <br/>
-Shotgun, Sniper Rifle, Granade Launcher or Grenades, more enemies and a cute-little robot friend to help you with some things <br/>
+Shotgun, Sniper Rifle, Granade Launcher or Grenades, more enemies and a <a href="https://www.youtube.com/watch?v=dtFB4vfd2Eg"> cute-little robot friend </a> to help you with some things <br/>
 And probably this level will never in used in the future because i have other plans for this game in level design. <br/>
 You can download game here: <a href="https://drive.google.com/file/d/17XCGErqjLaanXRmtc4CCK67CzDlCNRf0/view?usp=share_link"> MarineRunner </a> <br/>
 Demo on Youtube: <a href="https://www.youtube.com/watch?v=9iU5uLWakVk"> MarineRunner 
