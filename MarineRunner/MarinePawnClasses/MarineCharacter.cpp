@@ -3,6 +3,7 @@
 
 #include "MarineCharacter.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/WidgetInteractionComponent.h"
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Blueprint/UserWidget.h"
@@ -26,6 +27,8 @@
 #include "MarineRunner/Framework/SaveMarineRunner.h"
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
+#include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
+#include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
 
 // Sets default values
 AMarineCharacter::AMarineCharacter()
@@ -60,6 +63,10 @@ AMarineCharacter::AMarineCharacter()
 	WeaponInventoryComponent = CreateDefaultSubobject<UWeaponInventoryComponent>(TEXT("WeaponInventoryComponent"));
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 
+	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
+	WidgetInteractionComponent->SetupAttachment(Camera);
+	WidgetInteractionComponent->InteractionSource = EWidgetInteractionSource::CenterScreen;
+
 	bUseControllerRotationYaw = true;
 	Tags.Add(TEXT("Player"));
 
@@ -71,7 +78,6 @@ void AMarineCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	SetFirstAidKitToInventory();
 	MakeCrosshire();
 	MakeHudWidget();
 	CopyOfOriginalForce = MovementForce;
@@ -114,7 +120,8 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Second_Weapon"), IE_Pressed, this, &AMarineCharacter::SecondWeapon);
 
 	//TakeAndDrop
-	PlayerInputComponent->BindAction(TEXT("Take"), IE_Pressed, this, &AMarineCharacter::Take);
+	PlayerInputComponent->BindAction(TEXT("Take"), IE_Pressed, this, &AMarineCharacter::KeyEPressed);
+	PlayerInputComponent->BindAction(TEXT("Take"), IE_Released, this, &AMarineCharacter::KeyEReleased);
 	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, this, &AMarineCharacter::DropItem);
 
 	//Movement
@@ -452,17 +459,6 @@ void AMarineCharacter::PlayFootstepsSound()
 #pragma endregion 
 
 #pragma region ///////////////////////////// FIRST AID KIT /////////////////////////////
-void AMarineCharacter::SetFirstAidKitToInventory()
-{
-	FirstAidKitItem = InventoryComponent->Inventory_Items.Find(FirstAidKits_Name);
-
-	if (FirstAidKitItem == nullptr)
-	{
-		FItemStruct FirstAidKitStruct(FirstAidKits_Name, 0);
-		InventoryComponent->Inventory_Items.Add(FirstAidKits_Name, FirstAidKitStruct);
-		FirstAidKitItem = InventoryComponent->Inventory_Items.Find(FirstAidKits_Name);
-	}
-}
 
 void AMarineCharacter::UseFirstAidKit()
 {
@@ -638,9 +634,18 @@ void AMarineCharacter::HideGunAndAddTheNewOne(AGun* NewGun)
 #pragma endregion 
 
 #pragma region ///////////////////////////// TAKE/DROP ITEM ////////////////////////////
-void AMarineCharacter::Take()
+void AMarineCharacter::KeyEPressed()
 {
-	TakeAndDropComponent->Take();
+	if (WidgetInteractionComponent->IsOverInteractableWidget())
+	{
+		WidgetInteractionComponent->PressPointerKey(EKeys::LeftMouseButton);
+	}
+	else TakeAndDropComponent->Take();
+}
+
+void AMarineCharacter::KeyEReleased()
+{
+	WidgetInteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
 }
 
 void AMarineCharacter::DropItem()
@@ -763,6 +768,24 @@ void AMarineCharacter::UpdateHudWidget()
 {
 	if (Gun) Gun->SetWeaponInHud(true);
 	HudWidget->SetCurrentNumberOfFirstAidKits();
+}
+#pragma endregion 
+
+#pragma region //////////////////////////////// ALBERTO ////////////////////////////////
+void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateCrafting)
+{
+	if (AlbertoPawn) CraftingWidget = Cast<UCraftingAlbertosWidget>(AlbertoPawn->GetCraftingTableWidget());
+	if (CraftingWidget == nullptr) return;
+
+	if (bShouldUpdateCrafting == true)
+	{
+		CraftingWidget->SwitchCurrentCraftingItem();
+		return;
+	}
+
+	TArray<FItemStruct> ItemDataArray;
+	InventoryComponent->Inventory_Items.GenerateValueArray(ItemDataArray);
+	CraftingWidget->AddDataToList(ItemDataArray);
 }
 #pragma endregion 
 

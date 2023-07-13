@@ -15,17 +15,41 @@ struct FItemStruct
 		FString Item_Name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		int32 Item_Amount;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		UTexture2D* Item_StorageIcon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		bool bIsItResource = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		FString Item_Description;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		bool bIsItCraftable = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
+		float Item_TimeCraft;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
+		TMap<FString, int32> ResourceRequirements;
 
 	FItemStruct()
 	{
 		Item_Name = " ";
 		Item_Amount = 0;
+		Item_StorageIcon = nullptr;
+		Item_Description = " ";
+		bIsItResource = false;
+		bIsItCraftable = false;
+		Item_TimeCraft = 0.f;
+		ResourceRequirements = { {" ", 0} };
 	}
 
-	FItemStruct(FString Name, int32 Amount)
+	FItemStruct(FString Name, int32 Amount, UTexture2D* StorageIcon, FString Description = " ", bool bResource = false, bool bCraftable = false, float CraftingTime = 0.f, TMap<FString, int32> Requirements = { {" ", 0}})
 	{
 		Item_Name = Name;
 		Item_Amount = Amount;
+		Item_StorageIcon = StorageIcon;
+		Item_Description = Description;
+		bIsItResource = bResource;
+		bIsItCraftable = bCraftable;
+		Item_TimeCraft = CraftingTime;
+		ResourceRequirements = Requirements;
 	}
 };
 
@@ -46,6 +70,15 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UPROPERTY(EditAnywhere, Category = "Inventory")
+	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadWrite)
+		TMap<TSubclassOf<class APickupItem>, int32> Inventory_ItemsData;
+
+	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadOnly)
+		TArray<TSubclassOf<class APickupItem>> Recipes_Items;
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory", BlueprintReadOnly)
 		TMap<FString, FItemStruct> Inventory_Items;
+
+private:
+	void TransformItemsDataToInventory();
 };

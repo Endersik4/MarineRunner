@@ -14,7 +14,6 @@
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
-#include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/Inventory/PickupItem.h"
 
 // Sets default values
@@ -40,6 +39,8 @@ void AGun::BeginPlay()
 	Super::BeginPlay();
 
 	BaseSkeletalMesh->OnComponentHit.AddDynamic(this, &AGun::OnHit);
+
+	SpawnAmmunitionForVariables();
 
 	RecoilAnimTimeline = SetupTimeline(RecoilAnimTimeline, RecoilAnimCurveLocationX, FName("RecoilAnimTimeline"), FName("RecoilAnimTimelineDirection"), RecoilAnimTimelineLength, FName("RecoilAnimTimelineCallback"), FName("RecoilAnimTimelineFinishedCallback"));
 	if (bShouldUseCurveRecoil) RecoilCameraTimeline = SetupTimeline(RecoilCameraTimeline, RecoilCameraCurveY, FName("RecoilCameraTimeline"), FName("RecoilCameraTimelineDirection"), RecoilCameraTimelineLength, FName("RecoilCameraTimelineCallback"), FName("RecoilCameraTimelineFinishedCallback"));
@@ -700,26 +701,36 @@ void AGun::DropTheGun()
 #pragma endregion
 
 #pragma region /////////////////////////////// INVENTORY //////////////////////////////////////
+void AGun::SpawnAmmunitionForVariables()
+{
+	APickupItem* SpawnedAmmunition = GetWorld()->SpawnActor<APickupItem>(AmmunitionItemClass, FVector(0.f), FRotator(0.f));
+	if (SpawnedAmmunition == nullptr) return;
+
+	AmmoItem = SpawnedAmmunition->GetItemSettings();
+	AmmoItem.Item_Amount += StoredAmmo;
+	SpawnedAmmunition->Destroy();
+}
+
 void AGun::AddAmmoToInventory()
 {
 	if (bDidTakeThisWeapon == true || MarinePawn->GetInventoryComponent() == nullptr) return;
 
-	FItemStruct NewItem(Ammo_Name, StoredAmmo);
 	if (GetPointerToAmmoFromInventory())
 	{
 		ItemFromInventory->Item_Amount += StoredAmmo;
 	}
 	else
 	{
-		MarinePawn->GetInventoryComponent()->Inventory_Items.Add(Ammo_Name, NewItem);
-		ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Ammo_Name);
+		MarinePawn->GetInventoryComponent()->Inventory_Items.Add(AmmoItem.Item_Name, AmmoItem);
+		ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(AmmoItem.Item_Name);
 	}
+	
 	bDidTakeThisWeapon = true;
 }
 
 bool AGun::GetPointerToAmmoFromInventory()
 {
-	ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Ammo_Name);
+	ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(AmmoItem.Item_Name);
 	return ItemFromInventory ? true : false;
 }
 

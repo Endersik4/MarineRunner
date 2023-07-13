@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/TimelineComponent.h"
 #include "MarineRunner/Interfaces/TakeInterface.h"
+#include "MarineRunner/Inventory/InventoryComponent.h"
 
 #include "Gun.generated.h"
 
@@ -73,7 +74,7 @@ public:
 	void SetWeaponInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
 
 	//Take And Drop
-	FString GetAmmoName() const { return Ammo_Name; }
+	FString GetAmmoName() const { return AmmoItem.Item_Name; }
 	FVector GetRelativeLocationInPawn() const { return RelativeLocationInPawn; }
 	bool GetIsGrabbingEnded() const { return bIsGrabbingEnded; }
 	void SetItemFromInventory(struct FItemStruct* NewItemFromInventory) { ItemFromInventory = NewItemFromInventory; }
@@ -129,7 +130,7 @@ private:
 		int32 StoredAmmo = 50;
 	//The name of the item from the inventory that will be the ammunition for this weapon. It must be the same as the one in the inventory.
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Ammunition")
-		FString Ammo_Name = "ColtAmmo";
+		TSubclassOf<class APickupItem> AmmunitionItemClass;
 
 	// If True then ammunition on UI will be below the Gun icon picture and its 460x260
 	// Useful for longer weapons
@@ -388,13 +389,15 @@ private:
 	FTimerHandle ConstantlyShootHandle;
 
 	////////////// TakeAndDrop //////////////////
+	FItemStruct AmmoItem;
 	bool bDidTakeThisWeapon;
 	bool bIsGrabbingEnded;
 	bool IsGunAtTheWeaponLocation();
-	struct FItemStruct* ItemFromInventory;
+	FItemStruct* ItemFromInventory;
 	AActor* ChangeToAnotherWeapon(int32 AmountOfWeapons);
 	void DropTheGun();
 	void AddAmmoToInventory();
+	void SpawnAmmunitionForVariables();
 	bool GetPointerToAmmoFromInventory();
 	/////////////////
 

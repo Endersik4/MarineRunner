@@ -36,6 +36,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Components", BlueprintReadWrite)
 		class UCameraComponent* Camera;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
+		class UInventoryComponent* InventoryComponent;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bIsInputDisabled;
 
@@ -91,6 +94,8 @@ public:
 	void RemoveDashWidget();
 	void UpdateHudWidget();
 
+	void UpdateAlbertosInventory(bool bShouldUpdateCrafting = false);
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCroachAndSlide* CroachAndSlideComponent;
@@ -107,7 +112,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWeaponInventoryComponent* WeaponInventoryComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UInventoryComponent* InventoryComponent;
+		class UWidgetInteractionComponent* WidgetInteractionComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Alberto")
+		class AAlbertosPawn* AlbertoPawn;
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;
@@ -216,6 +224,9 @@ private:
 	void Jump();
 	void JumpTick(float DeltaTime);
 
+	//Albertos
+	class UCraftingAlbertosWidget* CraftingWidget;
+
 	//Delay is in Air (can jump though player is not in the air)
 	bool bDelayIsInAir;
 	FTimerHandle DelayIsInAirHandle;
@@ -243,7 +254,8 @@ private:
 	void CroachReleased();
 
 	//Taking Items
-	void Take();
+	void KeyEPressed();
+	void KeyEReleased();
 	void DropItem();
 
 	//Gun
@@ -258,7 +270,6 @@ private:
 	bool bCanUseFirstAidKit = true;
 	struct FItemStruct* FirstAidKitItem;
 	FTimerHandle FirstAidKitHandle;
-	void SetFirstAidKitToInventory();
 	void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }
 	void UseFirstAidKit();
 

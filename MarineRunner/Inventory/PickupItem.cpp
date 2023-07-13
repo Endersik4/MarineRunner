@@ -46,22 +46,24 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	UInventoryComponent* Inventory = Character->GetInventoryComponent();
 	if (!Inventory) return;
 
-	FItemStruct NewItem(Item_Name, Amount);
-
-	FItemStruct* ItemFromInventory = Inventory->Inventory_Items.Find(Item_Name);
+	FItemStruct* ItemFromInventory = Inventory->Inventory_Items.Find(ItemSettings.Item_Name);
 
 	//If there is an item with the same name, add the amount
 	if (ItemFromInventory) 
 	{ 
-		ItemFromInventory->Item_Amount += Amount; 
+		ItemFromInventory->Item_Amount += ItemSettings.Item_Amount; 
+		if (ItemFromInventory->Item_Amount > 999) ItemFromInventory->Item_Amount -= ItemFromInventory->Item_Amount - 999;
 	}
 	else //if there are no items with the same name, add that item to the inventory
 	{ 
-		Inventory->Inventory_Items.Add(Item_Name, NewItem); 
+		if (Inventory->Inventory_Items.Num() > 31) return;
+		Inventory->Inventory_Items.Add(ItemSettings.Item_Name, ItemSettings);
 	}
 
 	//Update HUD to display particular item on hud
 	Character->UpdateHudWidget();
+	Character->UpdateAlbertosInventory();
+	Character->UpdateAlbertosInventory(true);
 
 	if (PickUpSound) UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
 	Destroy();

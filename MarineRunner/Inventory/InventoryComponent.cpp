@@ -21,8 +21,7 @@ void UInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	TransformItemsDataToInventory();
 }
 
 
@@ -32,5 +31,23 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
+}
+
+void UInventoryComponent::TransformItemsDataToInventory()
+{
+	Inventory_Items.Empty();
+
+	TArray<TSubclassOf<APickupItem>> ItemsDataKeys;
+	Inventory_ItemsData.GenerateKeyArray(ItemsDataKeys);
+	for (int i = 0; i != Inventory_ItemsData.Num(); i++)
+	{
+		APickupItem* SpawnedItem = GetWorld()->SpawnActor<APickupItem>(ItemsDataKeys[i], FVector(0.f), FRotator(0.f));
+		if (SpawnedItem == nullptr) continue;
+
+		FItemStruct NewItemSettings = SpawnedItem->GetItemSettings();
+		NewItemSettings.Item_Amount = *Inventory_ItemsData.Find(ItemsDataKeys[i]);
+		Inventory_Items.Add(SpawnedItem->GetItemName(), NewItemSettings);
+		SpawnedItem->Destroy();
+	}
 }
 

@@ -29,16 +29,18 @@ public:
 	virtual AActor* DropItem() override { return nullptr; }
 	virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) override { return false; }
 
-	FString GetItemName() const { return Item_Name; }
+	void SetItemAmount(int32 NewAmount) { ItemSettings.Item_Amount = NewAmount; }
+
+	FString GetItemName() const { return ItemSettings.Item_Name; }
+	FItemStruct GetItemSettings() const { return ItemSettings; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* ItemMesh;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
-		FString Item_Name = "ColtAmmo";
-	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
-		int32 Amount;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* PickUpSound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
+		FItemStruct ItemSettings;
 };
