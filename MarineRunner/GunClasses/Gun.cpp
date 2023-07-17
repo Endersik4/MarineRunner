@@ -178,6 +178,8 @@ void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
 void AGun::RecoilAnimTimelineFinishedCallback()
 {
 	bCanSway = true;
+	MarinePawn->GetCamera()->FieldOfView = CopyOfFOV;
+
 	if (bPlayShootAnimationAfterFire)
 	{
 		if (AfterShootSound) UGameplayStatics::SpawnSoundAttached(AfterShootSound, BaseSkeletalMesh, NAME_None);
@@ -595,6 +597,8 @@ void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
 #pragma region ////////////////////////////////// TAKE ////////////////////////////////////////
 void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 {
+	Super::TakeItem(MarineCharacter, bIsItWeapon);
+
 	bool bIsTooManyItems = MarineCharacter->GetWeaponInventoryComponent()->GetWeaponsStorageAmount() >= MarineCharacter->GetWeaponInventoryComponent()->GetMaxAmount();
 	if (bIsTooManyItems)
 	{
@@ -605,6 +609,7 @@ void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 	bIsGrabbingEnded = false;
 	bIsItWeapon = true;
 	MarinePawn = MarineCharacter;
+	CopyOfFOV = MarinePawn->GetCamera()->FieldOfView;
 
 	AddAmmoToInventory();
 
@@ -621,7 +626,8 @@ void AGun::EquipWeapon(bool bShouldPlaySound, bool bIsThisCurrentGun)
 	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BaseSkeletalMesh->SetRenderCustomDepth(false);
 
-	if (bShouldPlaySound && PickUpSound) UGameplayStatics::SpawnSoundAttached(PickUpSound, BaseSkeletalMesh);
+	if (bShouldPlaySound && PickUpGunSound) UGameplayStatics::SpawnSoundAttached(PickUpGunSound, BaseSkeletalMesh);
+	ActivateZoom(true);
 
 	SetHudWidget(MarinePawn->GetHudWidget());
 	if (bIsThisCurrentGun)
@@ -685,6 +691,7 @@ void AGun::DropTheGun()
 	if (!MarinePawn) return;
 
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	ActivateZoom(false);
 	BaseSkeletalMesh->SetSimulatePhysics(true);
 	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	BaseSkeletalMesh->SetRenderCustomDepth(true);

@@ -50,4 +50,3 @@ void UInventoryComponent::TransformItemsDataToInventory()
 		SpawnedItem->Destroy();
 	}
 }
-

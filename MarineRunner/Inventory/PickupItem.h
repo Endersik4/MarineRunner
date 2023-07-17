@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MarineRunner/Interfaces/TakeInterface.h"
+#include "MarineRunner/Inventory/InventoryComponent.h"
 
 #include "PickupItem.generated.h"
 

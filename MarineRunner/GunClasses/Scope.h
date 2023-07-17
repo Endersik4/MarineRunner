@@ -25,6 +25,9 @@ private:
 	UFUNCTION(BlueprintCallable, meta = (AllowPrivateAccess = "true"))
 		int32 Zoom(float WheelAxis, bool bShouldRestartScope = false);
 
+	UFUNCTION(BlueprintCallable, meta = (AllowPrivateAccess = "true"))
+		void ActiveZoom(bool bShouldActive);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		USceneComponent* SceneRootComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -35,6 +38,12 @@ private:
 		class UStaticMeshComponent* Scope_Crosshair;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class URectLightComponent* RectLightForScope;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Materials")
+		UMaterialInterface* ZoomMaterial;
+	UPROPERTY(EditDefaultsOnly, Category = "Materials")
+		UMaterialInterface* RenderTargetMaterial;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ZoomSound;

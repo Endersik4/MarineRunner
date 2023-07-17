@@ -13,6 +13,7 @@
 #include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/Inventory/PickupItem.h"
 #include "MarineRunner/AlbertosClasses/ItemDataObject.h"
+#include "MarineRunner/GunClasses/Gun.h"
 
 void UCraftingAlbertosWidget::NativeConstruct()
 {
@@ -33,8 +34,6 @@ void UCraftingAlbertosWidget::NativeConstruct()
 void UCraftingAlbertosWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-
-	SetRecipesData();
 }
 
 void UCraftingAlbertosWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
@@ -64,6 +63,7 @@ void UCraftingAlbertosWidget::SetRecipesData()
 {
 	MarinePawn = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (MarinePawn == nullptr) return;
+	RecipesOfCraftableItems.Empty();
 	
 	for (TSubclassOf<APickupItem> PickableItem : MarinePawn->GetInventoryComponent()->Recipes_Items)
 	{
@@ -109,7 +109,13 @@ void UCraftingAlbertosWidget::CraftClicked()
 	bool bCanBeCrafted = DoesHaveEnoughResources();
 	if (bCanBeCrafted == true)
 	{
-		APickupItem* SpawnedItem = GetWorld()->SpawnActor<APickupItem>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], FVector(0.f), FRotator(0.f));
+		UE_LOG(LogTemp, Error, TEXT("HAVE RESOURCES"));
+		APickupItem* SpawnedItem;
+		if (RecipesOfCraftableItems[ChoiceOfCraftableItem].bIsItWeapon == true)
+		{
+			SpawnedItem = GetWorld()->SpawnActor<AGun>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], FVector(0.f), FRotator(0.f));
+		}
+		else SpawnedItem = GetWorld()->SpawnActor<APickupItem>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], FVector(0.f), FRotator(0.f));
 		if (SpawnedItem == nullptr) return;
 		SpawnedItem->SetItemAmount(SpawnedItem->GetItemSettings().Item_Amount * CraftingMultiplier);
 		MarinePawn->UpdateAlbertosInventory();
@@ -119,6 +125,7 @@ void UCraftingAlbertosWidget::CraftClicked()
 		WaitTime = SpawnedItem->GetItemSettings().Item_TimeCraft;
 		GetWorld()->GetTimerManager().SetTimer(TimeCraftHandle, this, &UCraftingAlbertosWidget::CanCraftAgain, WaitTime, false);
 	}
+	else UE_LOG(LogTemp, Error, TEXT("DOESNOT HAVE RESOURCES"));
 }
 
 bool UCraftingAlbertosWidget::DoesHaveEnoughResources()
@@ -128,12 +135,26 @@ bool UCraftingAlbertosWidget::DoesHaveEnoughResources()
 	for (int32 i = 0; i != ResourcesName.Num(); i++)
 	{
 		FItemStruct* ResourceFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(ResourcesName[i]);
-		if (ResourceFromInventory == nullptr) return false;
+		if (ResourceFromInventory == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("NIE ZNALEZIONO PRZEDMIOTU %s"), *ResourcesName[i]);
+			return false;
+		}
+		
 		int32* NumberOfResourcesNeeded = RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.Find(ResourcesName[i]);
-		if (NumberOfResourcesNeeded == nullptr) return false;
+		if (NumberOfResourcesNeeded == nullptr)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("NIE ZNALEZIONO ILOSCi"));
+			return false;
+		}
+		
 
-		if (ResourceFromInventory->Item_Amount >= *NumberOfResourcesNeeded * CraftingMultiplier) ResourceFromInventory->Item_Amount -= *NumberOfResourcesNeeded;
-		else return false;
+		if (ResourceFromInventory->Item_Amount >= *NumberOfResourcesNeeded * CraftingMultiplier) ResourceFromInventory->Item_Amount -= *NumberOfResourcesNeeded * CraftingMultiplier;
+		else
+		{
+			return false;
+			UE_LOG(LogTemp, Warning, TEXT("ZA MALO %s"), *ResourceFromInventory->Item_Name);
+		}
 	}
 	return true;
 }
@@ -158,21 +179,33 @@ void UCraftingAlbertosWidget::LeftArrowClicked()
 	if (ChoiceOfCraftableItem > 0)
 	{
 		ChoiceOfCraftableItem--;
-		CraftingMultiplier = 1;
-		SwitchCurrentCraftingItem();
 	}
+	else if (ChoiceOfCraftableItem == 0)
+	{
+		ChoiceOfCraftableItem = RecipesOfCraftableItems.Num() - 1;
+	}
+	else return;
+
+	CraftingMultiplier = 1;
+	SwitchCurrentCraftingItem();
 }
 
 void UCraftingAlbertosWidget::RightArrowClicked()
 {
 	if (bCanCraft == false) return;
 
-	if (ChoiceOfCraftableItem < RecipesOfCraftableItems.Num()-1)
+	if (ChoiceOfCraftableItem < RecipesOfCraftableItems.Num() - 1)
 	{
 		ChoiceOfCraftableItem++;
-		CraftingMultiplier = 1;
-		SwitchCurrentCraftingItem();
 	}
+	else if (ChoiceOfCraftableItem == RecipesOfCraftableItems.Num() - 1)
+	{
+		ChoiceOfCraftableItem = 0;
+	}
+	else return;
+
+	CraftingMultiplier = 1;
+	SwitchCurrentCraftingItem();
 }
 
 void UCraftingAlbertosWidget::CanCraftAgain()

@@ -49,7 +49,7 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	FItemStruct* ItemFromInventory = Inventory->Inventory_Items.Find(ItemSettings.Item_Name);
 
 	//If there is an item with the same name, add the amount
-	if (ItemFromInventory) 
+	if (ItemFromInventory)
 	{ 
 		ItemFromInventory->Item_Amount += ItemSettings.Item_Amount; 
 		if (ItemFromInventory->Item_Amount > 999) ItemFromInventory->Item_Amount -= ItemFromInventory->Item_Amount - 999;
@@ -66,6 +66,6 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	Character->UpdateAlbertosInventory(true);
 
 	if (PickUpSound) UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
-	Destroy();
+	if (ItemSettings.bIsItWeapon == false) Destroy();
 }
 

@@ -776,6 +776,7 @@ void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateCrafting)
 {
 	if (AlbertoPawn) CraftingWidget = Cast<UCraftingAlbertosWidget>(AlbertoPawn->GetCraftingTableWidget());
 	if (CraftingWidget == nullptr) return;
+	CraftingWidget->SetRecipesData();
 
 	if (bShouldUpdateCrafting == true)
 	{

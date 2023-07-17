@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/TimelineComponent.h"
-#include "MarineRunner/Interfaces/TakeInterface.h"
+#include "MarineRunner/Inventory/PickupItem.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
 
 #include "Gun.generated.h"
@@ -19,7 +19,7 @@ enum StatusOfAimedGun
 };
 
 UCLASS()
-class MARINERUNNER_API AGun : public AActor, public ITakeInterface
+class MARINERUNNER_API AGun : public APickupItem
 {
 	GENERATED_BODY()
 	
@@ -49,6 +49,8 @@ public:
 	// * Call Zoom event from BP_Scope in ZoomScope event
 	UFUNCTION(BlueprintImplementableEvent)
 		int32 ZoomScope(float WheelAxis, bool bShouldRestartScope = false);
+	UFUNCTION(BlueprintImplementableEvent)
+		int32 ActivateZoom(bool bShouldActivate = false);
 
 	void WaitToReload();
 	void CancelReload();
@@ -358,13 +360,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* HitGroundSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* PickUpSound;
+		USoundBase* PickUpGunSound;
 
 	//RecoilTimeline
 	void Playtimeline(class UTimelineComponent* TimeLineComp);
 	class UTimelineComponent* SetupTimeline(class UTimelineComponent* TimeLineComp, UCurveFloat* MostImportantCurve, FName TimeLineName, FName TimeLineDirection, float TimeLineLenght, FName TimelineCallbackFunction,
 		FName TimelineFinishedFunction);
 
+	float CopyOfFOV = 90.f;
 	
 	bool CanShoot();
 	bool bCanShoot = true;

@@ -27,7 +27,7 @@ void UDashWidget::FadingImage()
 {
 	if (MarineCamera == nullptr) return;
 
-	if (FadeTimeElapsed < FadeTime)
+	if (FadeTimeElapsed <= FadeTime)
 	{
 		float Opacity = FMath::Lerp(1.f, 0, FadeTimeElapsed / FadeTime);
 		float NewFov = FMath::Lerp(Fov + StartingFOV, Fov, FadeTimeElapsed / FadeTime);
@@ -44,6 +44,7 @@ void UDashWidget::FadingImage()
 		}
 
 		FadeTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+		if (FadeTimeElapsed >= FadeTime) FadeTimeElapsed = FadeTime;
 	}
 	else
 	{

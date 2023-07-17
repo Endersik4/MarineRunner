@@ -22,6 +22,8 @@ struct FItemStruct
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		FString Item_Description;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		bool bIsItWeapon = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		bool bIsItCraftable = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
 		float Item_TimeCraft;
@@ -35,6 +37,7 @@ struct FItemStruct
 		Item_StorageIcon = nullptr;
 		Item_Description = " ";
 		bIsItResource = false;
+		bIsItWeapon = false;
 		bIsItCraftable = false;
 		Item_TimeCraft = 0.f;
 		ResourceRequirements = { {" ", 0} };

@@ -42,7 +42,7 @@ AScope::AScope()
 	Scope_Mesh->LightingChannels.bChannel1 = true;
 	//
 
-	//Scope light to prevent you from not being able to see through the scope when it's a bit dark
+	//Scope light to prevent you from not being able to see through the scope when it's dark
 	RectLightForScope = CreateDefaultSubobject<URectLightComponent>(TEXT("RectLightForScope"));
 	RectLightForScope->SetupAttachment(RootComponent);
 	RectLightForScope->LightingChannels.bChannel0 = false;
@@ -61,6 +61,7 @@ void AScope::BeginPlay()
 	Super::BeginPlay();
 
 	FOVZoom.GenerateKeyArray(FOVZoom_Keys);
+	ActiveZoom(false);
 }
 
 void AScope::SetNewScope(int32 CurrentScopeIndex)
@@ -96,5 +97,21 @@ int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
 	if (ZoomSound) UGameplayStatics::PlaySound2D(GetWorld(), ZoomSound);
 
 	return CurrentScope;
+}
+
+void AScope::ActiveZoom(bool bShouldActive)
+{
+	if (bShouldActive)
+	{
+		Scope_Mesh->SetMaterial(0, RenderTargetMaterial);
+		ZoomCamera->ToggleActive();
+		RectLightForScope->SetVisibility(false);
+	}
+	else
+	{
+		Scope_Mesh->SetMaterial(0, ZoomMaterial);
+		ZoomCamera->ToggleActive();
+		RectLightForScope->SetVisibility(true);
+	}
 }
 
