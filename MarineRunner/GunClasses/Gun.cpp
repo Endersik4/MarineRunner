@@ -185,6 +185,7 @@ void AGun::RecoilAnimTimelineFinishedCallback()
 		if (AfterShootSound) UGameplayStatics::SpawnSoundAttached(AfterShootSound, BaseSkeletalMesh, NAME_None);
 		BaseSkeletalMesh->SetForceRefPose(false);
 		if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
+
 		FTimerHandle DropCasingHandle;
 		GetWorldTimerManager().SetTimer(DropCasingHandle, this, &AGun::DropCasing, 0.2f, false);
 
@@ -392,6 +393,10 @@ void AGun::Reload()
 	bIsReloading = false;
 	bCanShoot = true;
 	SetWeaponInHud(true);
+
+	if (ItemFromInventory->Item_Amount <= 0) MarinePawn->GetInventoryComponent()->Inventory_Items.Remove(AmmoItem.Item_Name);
+	MarinePawn->UpdateAlbertosInventory();
+
 	GetWorldTimerManager().ClearTimer(ReloadHandle);
 	if (bReloadOneBullet) WaitToReload();
 }
@@ -422,7 +427,10 @@ void AGun::AddEffectsToShooting()
 	{
 		if (ItemFromInventory->Item_Amount <= 0) BaseSkeletalMesh->PlayAnimation(ShootWithNoBulletsAnimation, false);
 	}
-	else if (ShootAnimation) BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
+	else if (ShootAnimation)
+	{
+		BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
+	}
 
 	if (bCasingEjectionWhileReloading == false) DropCasing();
 }
@@ -618,6 +626,7 @@ void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 	MarinePawn->SetCanChangeWeapon(false);
 	MarinePawn->HideGunAndAddTheNewOne(this);
 	MarinePawn->SetGun(this);
+	MarinePawn->UpdateAlbertosInventory(true, true);
 }
 
 void AGun::EquipWeapon(bool bShouldPlaySound, bool bIsThisCurrentGun)
@@ -690,6 +699,9 @@ void AGun::DropTheGun()
 {
 	if (!MarinePawn) return;
 
+	MarinePawn->GetInventoryComponent()->Inventory_Items.Remove(GetItemSettings().Item_Name);
+	MarinePawn->UpdateAlbertosInventory();
+
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	ActivateZoom(false);
 	BaseSkeletalMesh->SetSimulatePhysics(true);
@@ -714,7 +726,9 @@ void AGun::SpawnAmmunitionForVariables()
 	if (SpawnedAmmunition == nullptr) return;
 
 	AmmoItem = SpawnedAmmunition->GetItemSettings();
-	AmmoItem.Item_Amount += StoredAmmo;
+	AmmoItem.Item_Amount = 0;
+
+	if (StoredAmmo != 0) AmmoItem.Item_Amount += StoredAmmo;
 	SpawnedAmmunition->Destroy();
 }
 
@@ -769,12 +783,12 @@ UTimelineComponent* AGun::SetupTimeline(UTimelineComponent* TimeLineComp, UCurve
 	FOnTimelineEventStatic onTimelineFinishedCallback;
 
 	TimeLineComp = NewObject<UTimelineComponent>(this, TimeLineName); 
-	TimeLineComp->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+	TimeLineComp->CreationMethod = EComponentCreationMethod::SimpleConstructionScript;
 	this->BlueprintCreatedComponents.Add(TimeLineComp); 
 
-	TimeLineComp->SetPropertySetObject(this); 
 	TimeLineComp->SetDirectionPropertyName(TimeLineDirection); 
 	TimeLineComp->SetIgnoreTimeDilation(true);
+	TimeLineComp->SetPlaybackPosition(0.f, false);
 
 	TimeLineComp->SetLooping(false);
 	TimeLineComp->SetTimelineLength(TimeLineLength); 

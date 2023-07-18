@@ -24,6 +24,16 @@ public:
 
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FLinearColor EnoughResourcesColor;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FLinearColor NotEnoughResourcesColor;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UImage* MainImage;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UImage* MainImageWithoutResources;
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* ItemImageListEntry;
 

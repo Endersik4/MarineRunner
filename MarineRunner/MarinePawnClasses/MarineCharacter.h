@@ -94,7 +94,7 @@ public:
 	void RemoveDashWidget();
 	void UpdateHudWidget();
 
-	void UpdateAlbertosInventory(bool bShouldUpdateCrafting = false);
+	void UpdateAlbertosInventory(bool bShouldUpdateInventory = true, bool bShouldUpdateCrafting = false);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")

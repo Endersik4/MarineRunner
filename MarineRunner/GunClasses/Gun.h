@@ -125,10 +125,10 @@ private:
 		float DropImpulseDistance = 400.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		UCurveFloat* ShootFOVCurve;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Ammunition")
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Ammunition")
 		int32 MagazineCapacity = 10;
 	//When a player picks up a weapon for the first time, the value will be added to the inventory.
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Ammunition")
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Ammunition")
 		int32 StoredAmmo = 50;
 	//The name of the item from the inventory that will be the ammunition for this weapon. It must be the same as the one in the inventory.
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Ammunition")

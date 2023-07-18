@@ -82,6 +82,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Inventory", BlueprintReadOnly)
 		TMap<FString, FItemStruct> Inventory_Items;
 
+
 private:
 	void TransformItemsDataToInventory();
 };

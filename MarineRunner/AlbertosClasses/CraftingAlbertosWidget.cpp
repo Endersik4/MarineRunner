@@ -8,6 +8,7 @@
 #include "Components/Button.h"
 #include "Components/TileView.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
@@ -34,6 +35,9 @@ void UCraftingAlbertosWidget::NativeConstruct()
 void UCraftingAlbertosWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+
+	MultiplierChoice = AmountMultiplier_1x;
+	UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
 }
 
 void UCraftingAlbertosWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
@@ -75,38 +79,10 @@ void UCraftingAlbertosWidget::SetRecipesData()
 	}
 }
 
-void UCraftingAlbertosWidget::SwitchCurrentCraftingItem()
-{
-	RequirementsInventoryTileView->ClearListItems();
-	if (RecipesOfCraftableItems.Num() < ChoiceOfCraftableItem || MarinePawn == nullptr) return;
-
-	CraftingItemImage->SetBrushFromTexture(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_StorageIcon);
-	ItemNameToBeCraftedText->SetText(FText::FromString(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Name));
-	ItemDescriptionText->SetText(FText::FromString(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Description));
-	FString Time = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
-	ItemValue_TimeText->SetText(FText::FromString(Time));
-	ItemValue_AmountText->SetText(FText::FromString(FString::FromInt(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Amount)));
-
-	TArray<FString> ResourcesName;
-	RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.GenerateKeyArray(ResourcesName);
-	for (int32 i = 0; i != ResourcesName.Num(); i++)
-	{
-		if (MarinePawn->GetInventoryComponent()->Inventory_Items.Find(ResourcesName[i]) == nullptr) continue;
-
-		UItemDataObject* ConstructedItemObject = NewObject<UItemDataObject>(ItemDataObject);
-		ConstructedItemObject->ItemData = *MarinePawn->GetInventoryComponent()->Inventory_Items.Find(ResourcesName[i]);
-		ConstructedItemObject->ItemData.Item_Amount = (*RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.Find(ResourcesName[i]) * CraftingMultiplier);
-		RequirementsInventoryTileView->AddItem(ConstructedItemObject);
-
-		ConstructedItemObject->ConditionalBeginDestroy();
-	}
-}
-
 void UCraftingAlbertosWidget::CraftClicked()
 {
 	if (MarinePawn == nullptr || bCanCraft == false) return;
 
-	bool bCanBeCrafted = DoesHaveEnoughResources();
 	if (bCanBeCrafted == true)
 	{
 		UE_LOG(LogTemp, Error, TEXT("HAVE RESOURCES"));
@@ -117,44 +93,99 @@ void UCraftingAlbertosWidget::CraftClicked()
 		}
 		else SpawnedItem = GetWorld()->SpawnActor<APickupItem>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], FVector(0.f), FRotator(0.f));
 		if (SpawnedItem == nullptr) return;
+
 		SpawnedItem->SetItemAmount(SpawnedItem->GetItemSettings().Item_Amount * CraftingMultiplier);
+		SwitchCurrentCraftingItem(true);
 		MarinePawn->UpdateAlbertosInventory();
 
 		bCanCraft = false;
+		CraftButton->SetIsEnabled(false);
+		LeftArrowButton->SetIsEnabled(false);
+		RightArrowButton->SetIsEnabled(false);
+
 		TimeElapsed = 0.f;
+		CraftingTimeProgressBar->SetVisibility(ESlateVisibility::Visible);
+
 		WaitTime = SpawnedItem->GetItemSettings().Item_TimeCraft;
 		GetWorld()->GetTimerManager().SetTimer(TimeCraftHandle, this, &UCraftingAlbertosWidget::CanCraftAgain, WaitTime, false);
 	}
 	else UE_LOG(LogTemp, Error, TEXT("DOESNOT HAVE RESOURCES"));
 }
 
-bool UCraftingAlbertosWidget::DoesHaveEnoughResources()
+
+void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bDeleteResources)
 {
+	if (bCanCraft == false) return;
+	RequirementsInventoryTileView->ClearListItems();
+	if (RecipesOfCraftableItems.Num() < ChoiceOfCraftableItem || MarinePawn == nullptr) return;
+
+	if (bDeleteResources == false)
+	{
+		CraftingItemImage->SetBrushFromTexture(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_StorageIcon);
+		ItemNameToBeCraftedText->SetText(FText::FromString(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Name));
+		ItemDescriptionText->SetText(FText::FromString(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Description));
+		FString Time = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
+		ItemValue_TimeText->SetText(FText::FromString(Time));
+		ItemValue_AmountText->SetText(FText::FromString(FString::FromInt(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Amount)));
+
+		if (RecipesOfCraftableItems[ChoiceOfCraftableItem].bIsItWeapon == true) SetisEnableAllMultipliers(false);
+		else SetisEnableAllMultipliers(true);
+	}
+
+	bCanBeCrafted = true;
+	CraftButton->SetIsEnabled(true);
 	TArray<FString> ResourcesName;
 	RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.GenerateKeyArray(ResourcesName);
-	for (int32 i = 0; i != ResourcesName.Num(); i++)
+	for (FString NameOfResource : ResourcesName)
 	{
-		FItemStruct* ResourceFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(ResourcesName[i]);
-		if (ResourceFromInventory == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("NIE ZNALEZIONO PRZEDMIOTU %s"), *ResourcesName[i]);
-			return false;
-		}
-		
-		int32* NumberOfResourcesNeeded = RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.Find(ResourcesName[i]);
-		if (NumberOfResourcesNeeded == nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("NIE ZNALEZIONO ILOSCi"));
-			return false;
-		}
-		
+		if (MarinePawn->GetInventoryComponent()->Inventory_Items.Find(NameOfResource) == nullptr) continue;
 
-		if (ResourceFromInventory->Item_Amount >= *NumberOfResourcesNeeded * CraftingMultiplier) ResourceFromInventory->Item_Amount -= *NumberOfResourcesNeeded * CraftingMultiplier;
-		else
+		bool HaveEnough = DoesHaveEnoughResources(NameOfResource, bDeleteResources);
+
+		UItemDataObject* ConstructedItemObject = NewObject<UItemDataObject>(ItemDataObject);
+		ConstructedItemObject->ItemData = *MarinePawn->GetInventoryComponent()->Inventory_Items.Find(NameOfResource);
+		ConstructedItemObject->ItemData.Item_Amount = (*RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.Find(NameOfResource) * CraftingMultiplier);
+		ConstructedItemObject->bIsItEnoughToCraft = HaveEnough;
+		RequirementsInventoryTileView->AddItem(ConstructedItemObject);
+
+		if (bCanBeCrafted == true && HaveEnough == false)
 		{
-			return false;
-			UE_LOG(LogTemp, Warning, TEXT("ZA MALO %s"), *ResourceFromInventory->Item_Name);
+			bCanBeCrafted = false;
+			CraftButton->SetIsEnabled(false);
 		}
+
+		ConstructedItemObject->ConditionalBeginDestroy();
+	}
+}
+
+bool UCraftingAlbertosWidget::DoesHaveEnoughResources(FString Resource, bool bDeleteResources)
+{
+	FItemStruct* ResourceFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Resource);
+	if (ResourceFromInventory == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NIE ZNALEZIONO PRZEDMIOTU %s"), *Resource);
+		return false;
+	}
+	
+	int32* NumberOfResourcesNeeded = RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.Find(Resource);
+	if (NumberOfResourcesNeeded == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NIE ZNALEZIONO ILOSCi"));
+		return false;
+	}
+		
+	if (ResourceFromInventory->Item_Amount >= *NumberOfResourcesNeeded * CraftingMultiplier)
+	{
+		if (bDeleteResources == true)
+		{
+			ResourceFromInventory->Item_Amount -= *NumberOfResourcesNeeded * CraftingMultiplier;
+			if (!(ResourceFromInventory->Item_Amount >= *NumberOfResourcesNeeded * CraftingMultiplier)) return false;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ZA MALO %s"), *ResourceFromInventory->Item_Name);
+		return false;	
 	}
 	return true;
 }
@@ -171,11 +202,9 @@ void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar(float Delta)
 		TimeElapsed += Delta;
 	}
 }
-
+#pragma region ///////////////////////////// CHOICE - ARROWS //////////////////////////////
 void UCraftingAlbertosWidget::LeftArrowClicked()
 {
-	if (bCanCraft == false) return;
-
 	if (ChoiceOfCraftableItem > 0)
 	{
 		ChoiceOfCraftableItem--;
@@ -186,14 +215,11 @@ void UCraftingAlbertosWidget::LeftArrowClicked()
 	}
 	else return;
 
-	CraftingMultiplier = 1;
-	SwitchCurrentCraftingItem();
+	Multiplier_1xClicked();
 }
 
 void UCraftingAlbertosWidget::RightArrowClicked()
 {
-	if (bCanCraft == false) return;
-
 	if (ChoiceOfCraftableItem < RecipesOfCraftableItems.Num() - 1)
 	{
 		ChoiceOfCraftableItem++;
@@ -204,45 +230,83 @@ void UCraftingAlbertosWidget::RightArrowClicked()
 	}
 	else return;
 
-	CraftingMultiplier = 1;
-	SwitchCurrentCraftingItem();
+	Multiplier_1xClicked();
 }
+#pragma endregion
 
 void UCraftingAlbertosWidget::CanCraftAgain()
 {
 	CraftingTimeProgressBar->SetPercent(0.f);
+	CraftingTimeProgressBar->SetVisibility(ESlateVisibility::Hidden);
+
+	LeftArrowButton->SetIsEnabled(true);
+	RightArrowButton->SetIsEnabled(true);
+
 	bCanCraft = true;
+	CraftButton->SetIsEnabled(true);
 }
+
+#pragma region //////////////////////////////// Mutlipliers Buttons/////////////////////////////////
 
 void UCraftingAlbertosWidget::MultiplierClicked(int32 Mutliplier)
 {
 	if (bCanCraft == false) return;
 
+	if (MultiplierChoice && ChoiceOfMultiplierChoice < OriginalMultiplierChoiceTextures.Num())
+	{
+		UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, OriginalMultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
+	}
+	
 	CraftingMultiplier = Mutliplier;
 	SwitchCurrentCraftingItem();
+}
+
+void UCraftingAlbertosWidget::SetisEnableAllMultipliers(bool bEnable)
+{
+	AmountMultiplier_2x->SetIsEnabled(bEnable);
+	AmountMultiplier_4x->SetIsEnabled(bEnable);
+	AmountMultiplier_8x->SetIsEnabled(bEnable);
+	AmountMultiplier_16x->SetIsEnabled(bEnable);
 }
 
 void UCraftingAlbertosWidget::Multiplier_1xClicked()
 {
 	MultiplierClicked(1);
+	ChoiceOfMultiplierChoice = 0;
+	MultiplierChoice = AmountMultiplier_1x;
+	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
 }
 
 void UCraftingAlbertosWidget::Multiplier_2xClicked()
 {
 	MultiplierClicked(2);
+	MultiplierChoice = AmountMultiplier_2x;
+	ChoiceOfMultiplierChoice = 1;
+	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
 }
 
 void UCraftingAlbertosWidget::Multiplier_4xClicked()
 {
 	MultiplierClicked(4);
+	MultiplierChoice = AmountMultiplier_4x;
+	ChoiceOfMultiplierChoice = 2;
+	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
 }
 
 void UCraftingAlbertosWidget::Multiplier_8xClicked()
 {
 	MultiplierClicked(8);
+	MultiplierChoice = AmountMultiplier_8x;
+	ChoiceOfMultiplierChoice = 3;
+	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
 }
 
 void UCraftingAlbertosWidget::Multiplier_16xClicked()
 {
 	MultiplierClicked(16);
+	MultiplierChoice = AmountMultiplier_16x;
+	ChoiceOfMultiplierChoice = 4;
+	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
 }
+
+#pragma endregion

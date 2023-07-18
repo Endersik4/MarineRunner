@@ -24,10 +24,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<class UItemDataObject> ItemDataObject;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<UTexture2D*> MultiplierChoiceTextures;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray<UTexture2D*> OriginalMultiplierChoiceTextures;
 
 	void AddDataToList(TArray<struct FItemStruct> InventoryItems);
 	void SetRecipesData();
-	void SwitchCurrentCraftingItem();
+	void SwitchCurrentCraftingItem(bool bDeleteResources = false);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* BackgroundImage;
@@ -106,7 +110,9 @@ private:
 	int32 CraftingMultiplier = 1;
 	bool bCanCraft = true;
 
-	bool DoesHaveEnoughResources();
+	bool bCanBeCrafted;
+	bool DoesHaveEnoughResources(FString Resource, bool bDeleteResources = false);
+
 
 	float TimeElapsed;
 	float WaitTime;
@@ -114,7 +120,10 @@ private:
 	FTimerHandle TimeCraftHandle;
 	void CanCraftAgain();
 
+	int32 ChoiceOfMultiplierChoice = 0;
+	class UButton* MultiplierChoice;
 	void MultiplierClicked(int32 Mutliplier);
+	void SetisEnableAllMultipliers(bool bEnable);
 
 	class AMarineCharacter* MarinePawn;
 

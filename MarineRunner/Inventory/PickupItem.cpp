@@ -62,10 +62,12 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 
 	//Update HUD to display particular item on hud
 	Character->UpdateHudWidget();
-	Character->UpdateAlbertosInventory();
-	Character->UpdateAlbertosInventory(true);
+	
+	if (ItemSettings.bIsItWeapon == true) return;
 
-	if (PickUpSound) UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
-	if (ItemSettings.bIsItWeapon == false) Destroy();
+	if (ItemSettings.bIsItCraftable == true) Character->UpdateAlbertosInventory(true, true);
+	else Character->UpdateAlbertosInventory();
+	UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
+	Destroy();
 }
 

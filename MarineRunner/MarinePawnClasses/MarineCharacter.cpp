@@ -465,6 +465,7 @@ void AMarineCharacter::UseFirstAidKit()
 	if (bCanUseFirstAidKit == false || Health == 100.f) return;
 	FirstAidKitItem = InventoryComponent->Inventory_Items.Find(FirstAidKits_Name);
 	if (FirstAidKitItem == nullptr) return;
+	if (FirstAidKitItem->Item_Amount <= 0) return;
 
 	FirstAidKitItem->Item_Amount--;
 	Health += FirstAidKitHealth;
@@ -479,6 +480,8 @@ void AMarineCharacter::UseFirstAidKit()
 	ElementBar ProgressHealBar{ DelayAfterUseFirstAidKit }, ProgressHealButtonBar{ 0.3f };
 	HudWidget->AddElementToProgress(EUseableElement::Heal, ProgressHealBar);
 	HudWidget->AddElementToProgress(EUseableElement::Button_Heal, ProgressHealButtonBar);
+
+	UpdateAlbertosInventory();
 
 	bCanUseFirstAidKit = false;
 	GetWorldTimerManager().SetTimer(FirstAidKitHandle, this, &AMarineCharacter::CanUseFirstAidKit, DelayAfterUseFirstAidKit, false);
@@ -772,21 +775,23 @@ void AMarineCharacter::UpdateHudWidget()
 #pragma endregion 
 
 #pragma region //////////////////////////////// ALBERTO ////////////////////////////////
-void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateCrafting)
+void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool bShouldUpdateCrafting)
 {
 	if (AlbertoPawn) CraftingWidget = Cast<UCraftingAlbertosWidget>(AlbertoPawn->GetCraftingTableWidget());
 	if (CraftingWidget == nullptr) return;
-	CraftingWidget->SetRecipesData();
-
+	
 	if (bShouldUpdateCrafting == true)
 	{
+		CraftingWidget->SetRecipesData();
 		CraftingWidget->SwitchCurrentCraftingItem();
-		return;
 	}
 
-	TArray<FItemStruct> ItemDataArray;
-	InventoryComponent->Inventory_Items.GenerateValueArray(ItemDataArray);
-	CraftingWidget->AddDataToList(ItemDataArray);
+	if (bShouldUpdateInventory  == true)
+	{
+		TArray<FItemStruct> ItemDataArray;
+		InventoryComponent->Inventory_Items.GenerateValueArray(ItemDataArray);
+		CraftingWidget->AddDataToList(ItemDataArray);
+	}
 }
 #pragma endregion 
 

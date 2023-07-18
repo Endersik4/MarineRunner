@@ -61,7 +61,7 @@ void AScope::BeginPlay()
 	Super::BeginPlay();
 
 	FOVZoom.GenerateKeyArray(FOVZoom_Keys);
-	ActiveZoom(false);
+	ZoomCamera->ToggleActive();
 }
 
 void AScope::SetNewScope(int32 CurrentScopeIndex)
@@ -105,13 +105,14 @@ void AScope::ActiveZoom(bool bShouldActive)
 	{
 		Scope_Mesh->SetMaterial(0, RenderTargetMaterial);
 		ZoomCamera->ToggleActive();
-		RectLightForScope->SetVisibility(false);
+		RectLightForScope->SetVisibility(true);
+		
 	}
 	else
 	{
 		Scope_Mesh->SetMaterial(0, ZoomMaterial);
 		ZoomCamera->ToggleActive();
-		RectLightForScope->SetVisibility(true);
+		RectLightForScope->SetVisibility(false);
 	}
 }
 
