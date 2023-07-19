@@ -699,7 +699,13 @@ void AGun::DropTheGun()
 {
 	if (!MarinePawn) return;
 
-	MarinePawn->GetInventoryComponent()->Inventory_Items.Remove(GetItemSettings().Item_Name);
+	FItemStruct * GunItem = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(GetItemName());
+
+	if (GunItem)
+	{
+		GunItem->Item_Amount--;
+		if (GunItem->Item_Amount <= 0) MarinePawn->GetInventoryComponent()->Inventory_Items.Remove(GetItemSettings().Item_Name);
+	}
 	MarinePawn->UpdateAlbertosInventory();
 
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);

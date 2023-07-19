@@ -29,6 +29,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<UTexture2D*> OriginalMultiplierChoiceTextures;
 
+
 	void AddDataToList(TArray<struct FItemStruct> InventoryItems);
 	void SetRecipesData();
 	void SwitchCurrentCraftingItem(bool bDeleteResources = false);

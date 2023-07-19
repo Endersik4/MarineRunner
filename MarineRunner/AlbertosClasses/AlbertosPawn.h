@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "MarineRunner/Interfaces/TakeInterface.h"
+
 #include "AlbertosPawn.generated.h"
 
 UCLASS()
-class MARINERUNNER_API AAlbertosPawn : public APawn
+class MARINERUNNER_API AAlbertosPawn : public APawn, public ITakeInterface
 {
 	GENERATED_BODY()
 
@@ -28,6 +30,10 @@ public:
 
 	UUserWidget* GetCraftingTableWidget() const;
 
+	virtual void TakeItem(class AMarineCharacter* Character, bool& bIsItWeapon) override;
+	virtual AActor* DropItem() override { return nullptr; }
+	virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) override { return false; }
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCapsuleComponent* AlbertosCapsuleComponent;
@@ -35,6 +41,10 @@ private:
 		USkeletalMeshComponent* AlbertosSkeletalMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetComponent* CraftingTableWidget;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UStaticMeshComponent* Hologram_1;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UStaticMeshComponent* Hologram_2;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UFloatingPawnMovement* AlbertosFloatingMovement;
 
