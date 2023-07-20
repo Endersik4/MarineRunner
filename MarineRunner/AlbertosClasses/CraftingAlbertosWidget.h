@@ -29,10 +29,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TArray<UTexture2D*> OriginalMultiplierChoiceTextures;
 
-
-	void AddDataToList(TArray<struct FItemStruct> InventoryItems);
+	void AddItemToTileView(TArray<struct FItemStruct> InventoryItems);
 	void SetRecipesData();
 	void SwitchCurrentCraftingItem(bool bDeleteResources = false);
+
+	void SetAlbertosPawn(class AAlbertosPawn* NewAlbertos) { AlbertosPawn = NewAlbertos; }
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* BackgroundImage;
@@ -85,7 +86,7 @@ public:
 		class UTextBlock* ItemValue_AmountText;
 
 	UFUNCTION()
-		void CraftClicked();
+		void CraftPressed();
 
 	UFUNCTION()
 		void LeftArrowClicked();
@@ -109,17 +110,20 @@ private:
 
 	int32 ChoiceOfCraftableItem = 0;
 	int32 CraftingMultiplier = 1;
+	
 	bool bCanCraft = true;
-
 	bool bCanBeCrafted;
+	void SetVisualDataFromItemToUI(bool bDeleteResources);
+	void AddResourcesToVisualRequirements(bool bDeleteResources);
 	bool DoesHaveEnoughResources(FString Resource, bool bDeleteResources = false);
-
 
 	float TimeElapsed;
 	float WaitTime;
-	void SetPercentOfCraftingProgressBar(float Delta);
 	FTimerHandle TimeCraftHandle;
-	void CanCraftAgain();
+	void SetPercentOfCraftingProgressBar(float Delta);
+	void SetCanCraftAgain();
+
+	class AAlbertosPawn* AlbertosPawn;
 
 	int32 ChoiceOfMultiplierChoice = 0;
 	class UButton* MultiplierChoice;

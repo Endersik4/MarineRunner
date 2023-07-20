@@ -54,6 +54,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void ChangeMouseSensivity(float NewMouseSensivity);
 
+	UPROPERTY(EditAnywhere, Category = "Alberto")
+		class AAlbertosPawn* AlbertoPawn;
+
 	//Is there Marine on The ground after begin in Air, It is used in Timeline in Blueprints
 	UPROPERTY(VisibleAnywhere, Category = "Movement|Jump", BlueprintReadWrite)
 		bool IsOnGround;
@@ -113,9 +116,6 @@ private:
 		class UWeaponInventoryComponent* WeaponInventoryComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetInteractionComponent* WidgetInteractionComponent;
-
-	UPROPERTY(EditAnywhere, Category = "Alberto")
-		class AAlbertosPawn* AlbertoPawn;
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;

@@ -790,7 +790,7 @@ void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool
 	{
 		TArray<FItemStruct> ItemDataArray;
 		InventoryComponent->Inventory_Items.GenerateValueArray(ItemDataArray);
-		CraftingWidget->AddDataToList(ItemDataArray);
+		CraftingWidget->AddItemToTileView(ItemDataArray);
 	}
 }
 #pragma endregion 

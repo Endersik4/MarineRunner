@@ -34,10 +34,25 @@ public:
 	virtual AActor* DropItem() override { return nullptr; }
 	virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) override { return false; }
 
+	void CraftPressed();
+
+	UFUNCTION(BlueprintCallable)
+		void SetIsFrontDoorOpen(bool bIsIt) { bIsFrontDoorOpen = bIsIt; }
+
+	// Open or close the front door
+	UFUNCTION(BlueprintImplementableEvent)
+		void OpenFrontDoor(USkeletalMeshComponent* AlbertosSkeleton, bool bShouldOpen = true);
+
+	// Enable or disable craftign animation
+	UFUNCTION(BlueprintImplementableEvent)
+		void EnableCraftingAnimation(USkeletalMeshComponent* AlbertosSkeleton, bool bShouldPlayMontage = true, float ShouldEnable = 1.f);
+
+	USkeletalMeshComponent* GetAlbertosSkeletal() const { return AlbertosSkeletalMesh; }
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCapsuleComponent* AlbertosCapsuleComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		USkeletalMeshComponent* AlbertosSkeletalMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetComponent* CraftingTableWidget;
@@ -47,5 +62,7 @@ private:
 		class UStaticMeshComponent* Hologram_2;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UFloatingPawnMovement* AlbertosFloatingMovement;
+
+	bool bIsFrontDoorOpen;
 
 };

@@ -9,6 +9,7 @@
 #include "Blueprint/UserWidget.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
 
 // Sets default values
 AAlbertosPawn::AAlbertosPawn()
@@ -50,6 +51,8 @@ void AAlbertosPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	UCraftingAlbertosWidget* CraftingWidget = Cast<UCraftingAlbertosWidget>(GetCraftingTableWidget());
+	if (CraftingWidget) CraftingWidget->SetAlbertosPawn(this);
 }
 
 // Called every frame
@@ -78,5 +81,14 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	Hologram_1->ToggleVisibility();
 	Hologram_2->ToggleVisibility();
 	if (CraftingTableWidget->IsVisible()) Character->UpdateAlbertosInventory(true, true);
+}
+
+void AAlbertosPawn::CraftPressed()
+{
+	if (bIsFrontDoorOpen == true) return;
+	bIsFrontDoorOpen = true;
+
+	OpenFrontDoor(AlbertosSkeletalMesh);
+	EnableCraftingAnimation(AlbertosSkeletalMesh);
 }
 
