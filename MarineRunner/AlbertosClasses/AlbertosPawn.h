@@ -34,7 +34,8 @@ public:
 	virtual AActor* DropItem() override { return nullptr; }
 	virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) override { return false; }
 
-	void CraftPressed();
+	void CraftPressed(class APickupItem*);
+	void CraftingFinished();
 
 	UFUNCTION(BlueprintCallable)
 		void SetIsFrontDoorOpen(bool bIsIt) { bIsFrontDoorOpen = bIsIt; }
@@ -63,6 +64,18 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UFloatingPawnMovement* AlbertosFloatingMovement;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
+		float SpeedOfItemAfterCrafting = 5.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
+		UMaterialInstance* OverlayCraftingMaterial;
+
 	bool bIsFrontDoorOpen;
+	class APickupItem* CraftedItem;
+
+	// Moving an item aftet it has been created
+	bool bShouldMoveToFinalPosition;
+	void InterpToFinalPosition(float Delta);
+
+	FVector FinalLocation;
 
 };

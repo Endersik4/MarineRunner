@@ -19,7 +19,7 @@ APickupItem::APickupItem()
 	RootComponent = ItemMesh;
 
 	ItemMesh->SetSimulatePhysics(true);
-	ItemMesh->SetCollisionProfileName(TEXT("GunCollision"));
+	ItemMesh->SetCollisionProfileName(TEXT("ItemCollision"));
 	ItemMesh->SetNotifyRigidBodyCollision(true);
 	ItemMesh->SetGenerateOverlapEvents(false);
 	ItemMesh->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
@@ -38,6 +38,7 @@ void APickupItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	Dissolve(DeltaTime);
 }
 
 void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
@@ -63,11 +64,40 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	//Update HUD to display particular item on hud
 	Character->UpdateHudWidget();
 	
+	UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
 	if (ItemSettings.bIsItWeapon == true) return;
 
 	if (ItemSettings.bIsItCraftable == true) Character->UpdateAlbertosInventory(true, true);
 	else Character->UpdateAlbertosInventory();
-	UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
 	Destroy();
 }
+
+void APickupItem::SetOverlayMaterial(UMaterialInstance* NewMaterial)
+{
+	if (NewMaterial == nullptr) return;
+
+	DissolveDynamicMaterial = UMaterialInstanceDynamic::Create(NewMaterial, this);
+	ItemMesh->SetOverlayMaterial(DissolveDynamicMaterial);
+	
+	bShouldDissolve = true;
+}
+
+void APickupItem::Dissolve(float Delta)
+{
+	if (bShouldDissolve == false || DissolveDynamicMaterial == nullptr) return;
+
+	if (DissolveTimeElapsed <= ItemSettings.Item_TimeCraft)
+	{
+		float NewDissolveValue = FMath::Lerp(0.6f, -0.4f, DissolveTimeElapsed / ItemSettings.Item_TimeCraft);
+
+		DissolveDynamicMaterial->SetScalarParameterValue(TEXT("Dissolve"), NewDissolveValue);
+		DissolveTimeElapsed += Delta;
+	}
+	else
+	{
+		bShouldDissolve = false;
+		ItemMesh->SetOverlayMaterial(nullptr);
+	}
+}
+
 

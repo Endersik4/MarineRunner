@@ -26,7 +26,7 @@ AGun::AGun()
 	RootComponent = BaseSkeletalMesh;
 
 	BaseSkeletalMesh->SetSimulatePhysics(true);
-	BaseSkeletalMesh->SetCollisionProfileName(TEXT("GunCollision"));
+	BaseSkeletalMesh->SetCollisionProfileName(TEXT("ItemCollision"));
 	BaseSkeletalMesh->SetNotifyRigidBodyCollision(true); 
 	BaseSkeletalMesh->bRenderCustomDepth = true; //Its for outline material 
 
@@ -629,13 +629,12 @@ void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 	MarinePawn->UpdateAlbertosInventory(true, true);
 }
 
-void AGun::EquipWeapon(bool bShouldPlaySound, bool bIsThisCurrentGun)
+void AGun::EquipWeapon(bool bIsThisCurrentGun)
 {
 	BaseSkeletalMesh->SetSimulatePhysics(false);
 	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BaseSkeletalMesh->SetRenderCustomDepth(false);
 
-	if (bShouldPlaySound && PickUpGunSound) UGameplayStatics::SpawnSoundAttached(PickUpGunSound, BaseSkeletalMesh);
 	ActivateZoom(true);
 
 	SetHudWidget(MarinePawn->GetHudWidget());
@@ -776,6 +775,11 @@ AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
 		MarinePawn->SetGun(nullptr);
 	}
 	return GunFromStorage;
+}
+
+void AGun::ChangeSimulatingPhysics(bool bChange)
+{
+	BaseSkeletalMesh->SetSimulatePhysics(bChange);
 }
 #pragma endregion
 

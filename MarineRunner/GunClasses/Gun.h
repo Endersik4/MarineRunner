@@ -80,8 +80,9 @@ public:
 	FVector GetRelativeLocationInPawn() const { return RelativeLocationInPawn; }
 	bool GetIsGrabbingEnded() const { return bIsGrabbingEnded; }
 	void SetItemFromInventory(struct FItemStruct* NewItemFromInventory) { ItemFromInventory = NewItemFromInventory; }
-	void EquipWeapon(bool bShouldPlaySound = true, bool bIsThisCurrentGun = true);
+	void EquipWeapon(bool bIsThisCurrentGun = true);
 
+	virtual void ChangeSimulatingPhysics(bool bChange = true) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -359,8 +360,6 @@ private:
 		USoundBase* ReloadSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* HitGroundSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* PickUpGunSound;
 
 	//RecoilTimeline
 	void Playtimeline(class UTimelineComponent* TimeLineComp);

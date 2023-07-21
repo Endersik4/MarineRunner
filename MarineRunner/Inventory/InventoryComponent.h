@@ -28,6 +28,10 @@ struct FItemStruct
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
 		float Item_TimeCraft;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
+		FVector Item_CraftLocation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
+		FRotator Item_CraftRotation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
 		TMap<FString, int32> ResourceRequirements;
 
 	FItemStruct()
@@ -39,6 +43,7 @@ struct FItemStruct
 		bIsItResource = false;
 		bIsItWeapon = false;
 		bIsItCraftable = false;
+		Item_CraftRotation = FRotator(0.f);
 		Item_TimeCraft = 0.f;
 		ResourceRequirements = { {" ", 0} };
 	}

@@ -10,6 +10,7 @@
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
+#include "MarineRunner/Inventory/PickupItem.h"
 
 // Sets default values
 AAlbertosPawn::AAlbertosPawn()
@@ -60,6 +61,7 @@ void AAlbertosPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	InterpToFinalPosition(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -83,12 +85,47 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	if (CraftingTableWidget->IsVisible()) Character->UpdateAlbertosInventory(true, true);
 }
 
-void AAlbertosPawn::CraftPressed()
+void AAlbertosPawn::CraftPressed(APickupItem* SpawnedCraftingItem)
 {
-	if (bIsFrontDoorOpen == true) return;
-	bIsFrontDoorOpen = true;
+	if (SpawnedCraftingItem == nullptr) return;
+	
+	CraftedItem = SpawnedCraftingItem;
 
-	OpenFrontDoor(AlbertosSkeletalMesh);
+	if (bIsFrontDoorOpen == false)
+	{
+		OpenFrontDoor(AlbertosSkeletalMesh);
+		bIsFrontDoorOpen = true;
+	}
+
 	EnableCraftingAnimation(AlbertosSkeletalMesh);
+
+	CraftedItem->SetOverlayMaterial(OverlayCraftingMaterial);
+}
+
+void AAlbertosPawn::CraftingFinished()
+{
+	EnableCraftingAnimation(AlbertosSkeletalMesh, false, 0.f);
+
+	if (CraftedItem == nullptr) return;
+	CraftedItem->ChangeSimulatingPhysics(false);
+	bShouldMoveToFinalPosition = true;
+	FinalLocation = CraftedItem->GetActorLocation() + GetActorForwardVector() * FVector::Distance(AlbertosSkeletalMesh->GetSocketLocation(FName(TEXT("FinalItemPosition"))), CraftedItem->GetActorLocation());
+}
+
+void AAlbertosPawn::InterpToFinalPosition(float Delta)
+{
+	if (bShouldMoveToFinalPosition == false || CraftedItem == nullptr) return;
+
+	if (!CraftedItem->GetActorLocation().Equals(FinalLocation, 10.f))
+	{
+		FVector NewLocation = FMath::VInterpTo(CraftedItem->GetActorLocation(), FinalLocation, Delta, SpeedOfItemAfterCrafting);
+		CraftedItem->SetActorLocation(NewLocation);
+	}
+	else
+	{
+		bShouldMoveToFinalPosition = false;
+		CraftedItem->ChangeSimulatingPhysics(true);
+		CraftedItem = nullptr;
+	}
 }
 

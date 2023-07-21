@@ -32,8 +32,12 @@ public:
 
 	void SetItemAmount(int32 NewAmount) { ItemSettings.Item_Amount = NewAmount; }
 
+	virtual void ChangeSimulatingPhysics(bool bChange = true) { ; };
+
 	FString GetItemName() const { return ItemSettings.Item_Name; }
 	FItemStruct GetItemSettings() const { return ItemSettings; }
+
+	void SetOverlayMaterial(UMaterialInstance* NewMaterial);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -44,4 +48,12 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
 		FItemStruct ItemSettings;
+
+	//Dissolve Material
+	bool bShouldDissolve;
+	float DissolveTimeElapsed;
+	UMaterialInstanceDynamic* DissolveDynamicMaterial;
+	void Dissolve(float Delta);
+
+
 };

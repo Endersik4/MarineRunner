@@ -165,16 +165,17 @@ void UCraftingAlbertosWidget::CraftPressed()
 
 	if (bCanBeCrafted == false || AlbertosPawn == nullptr) return;
 
-	AlbertosPawn->CraftPressed();
-
 	APickupItem* SpawnedItem;
-	FVector SpawnLocation = AlbertosPawn->GetAlbertosSkeletal()->GetSocketLocation(FName(TEXT("ItemSpawnLocation")));
+	FVector SpawnLocation = AlbertosPawn->GetAlbertosSkeletal()->GetSocketLocation(FName(TEXT("ItemSpawnLocation"))) + RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftLocation;
+	FRotator Spawnotation = AlbertosPawn->GetActorRotation() + RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftRotation;
 	if (RecipesOfCraftableItems[ChoiceOfCraftableItem].bIsItWeapon == true)
 	{
-		SpawnedItem = GetWorld()->SpawnActor<AGun>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], SpawnLocation, AlbertosPawn->GetActorRotation());
+		SpawnedItem = GetWorld()->SpawnActor<AGun>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], SpawnLocation, Spawnotation);
 	}
-	else SpawnedItem = GetWorld()->SpawnActor<APickupItem>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], SpawnLocation, AlbertosPawn->GetActorRotation());
+	else SpawnedItem = GetWorld()->SpawnActor<APickupItem>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], SpawnLocation, Spawnotation);
 	if (SpawnedItem == nullptr) return;
+
+	AlbertosPawn->CraftPressed(SpawnedItem);
 
 	// Refresh Inventory
 	SpawnedItem->SetItemAmount(SpawnedItem->GetItemSettings().Item_Amount * CraftingMultiplier);
@@ -208,6 +209,22 @@ void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar(float Delta)
 		TimeElapsed += Delta;
 	}
 }
+
+void UCraftingAlbertosWidget::SetCanCraftAgain()
+{
+	CraftingTimeProgressBar->SetPercent(0.f);
+	CraftingTimeProgressBar->SetVisibility(ESlateVisibility::Hidden);
+
+	LeftArrowButton->SetIsEnabled(true);
+	RightArrowButton->SetIsEnabled(true);
+
+	AlbertosPawn->CraftingFinished();
+
+	bCanCraft = true;
+	CraftButton->SetIsEnabled(true);
+}
+
+
 #pragma endregion
 
 #pragma region ///////////////////////////// CHOICE - ARROWS //////////////////////////////
@@ -241,18 +258,6 @@ void UCraftingAlbertosWidget::RightArrowClicked()
 	Multiplier_1xClicked();
 }
 #pragma endregion
-
-void UCraftingAlbertosWidget::SetCanCraftAgain()
-{
-	CraftingTimeProgressBar->SetPercent(0.f);
-	CraftingTimeProgressBar->SetVisibility(ESlateVisibility::Hidden);
-
-	LeftArrowButton->SetIsEnabled(true);
-	RightArrowButton->SetIsEnabled(true);
-
-	bCanCraft = true;
-	CraftButton->SetIsEnabled(true);
-}
 
 #pragma region //////////////////////////////// Mutlipliers Buttons/////////////////////////////////
 
