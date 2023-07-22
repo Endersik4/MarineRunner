@@ -90,6 +90,11 @@ void AAlbertosPawn::CraftPressed(APickupItem* SpawnedCraftingItem)
 	if (SpawnedCraftingItem == nullptr) return;
 	
 	CraftedItem = SpawnedCraftingItem;
+	if (CraftedItem->GetItemSettings().Item_CraftScale != FVector(0.f))
+	{
+		bShouldScaleCraftedItem = true;
+		TargetScaleOfCraftedItem = CraftedItem->GetItemSettings().Item_CraftScale;
+	}
 
 	if (bIsFrontDoorOpen == false)
 	{
@@ -99,7 +104,7 @@ void AAlbertosPawn::CraftPressed(APickupItem* SpawnedCraftingItem)
 
 	EnableCraftingAnimation(AlbertosSkeletalMesh);
 
-	CraftedItem->SetOverlayMaterial(OverlayCraftingMaterial);
+	CraftedItem->SetDissolveMaterial(OverlayCraftingMaterial);
 }
 
 void AAlbertosPawn::CraftingFinished()
@@ -120,10 +125,19 @@ void AAlbertosPawn::InterpToFinalPosition(float Delta)
 	{
 		FVector NewLocation = FMath::VInterpTo(CraftedItem->GetActorLocation(), FinalLocation, Delta, SpeedOfItemAfterCrafting);
 		CraftedItem->SetActorLocation(NewLocation);
+
+		if (bShouldScaleCraftedItem == false) return;
+
+		FVector NewScale = FMath::VInterpTo(CraftedItem->GetActorScale3D(), TargetScaleOfCraftedItem, Delta, SpeedOfItemAfterCrafting);
+		CraftedItem->SetActorScale3D(NewScale);
 	}
 	else
 	{
+		if (bShouldScaleCraftedItem == true) CraftedItem->SetActorScale3D(TargetScaleOfCraftedItem);
+
 		bShouldMoveToFinalPosition = false;
+		bShouldScaleCraftedItem = false;
+
 		CraftedItem->ChangeSimulatingPhysics(true);
 		CraftedItem = nullptr;
 	}

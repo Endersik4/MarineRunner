@@ -37,7 +37,7 @@ public:
 	FString GetItemName() const { return ItemSettings.Item_Name; }
 	FItemStruct GetItemSettings() const { return ItemSettings; }
 
-	void SetOverlayMaterial(UMaterialInstance* NewMaterial);
+	virtual void SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh = nullptr);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -53,6 +53,7 @@ private:
 	bool bShouldDissolve;
 	float DissolveTimeElapsed;
 	UMaterialInstanceDynamic* DissolveDynamicMaterial;
+	USkeletalMeshComponent* WeaponSkeletalMesh;
 	void Dissolve(float Delta);
 
 

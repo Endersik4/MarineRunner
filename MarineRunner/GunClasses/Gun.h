@@ -82,7 +82,9 @@ public:
 	void SetItemFromInventory(struct FItemStruct* NewItemFromInventory) { ItemFromInventory = NewItemFromInventory; }
 	void EquipWeapon(bool bIsThisCurrentGun = true);
 
+	// Albertos
 	virtual void ChangeSimulatingPhysics(bool bChange = true) override;
+	virtual void SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh = nullptr) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -277,21 +279,21 @@ private:
 	//Rotation Sway Pitch
 	//Maximal Pitch rotation of Gun when player looking down
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
-		float RotationSwayPitchRangeBack = -8.f;
+		float RotationSwayPitchRangeBack = -7.f;
 	//Maximal Pitch rotation of Gun when player looking up
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
-		float RotationSwayPitchRangeUp = 8.f;
+		float RotationSwayPitchRangeUp = 7.f;
 	//Speed of Gun that will reach the Range Sway Pitch
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
-		float SpeedOfSwayPitch = 3.f;
+		float SpeedOfSwayPitch = 7.f;
 	
 	//Rotation Sway Yaw
 	//Maximal Yaw rotation of Gun when player looking left
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
-		float RotationSwayYawRangeBack = -10.f;
+		float RotationSwayYawRangeBack = -5.5f;
 	//Maximal Yaw rotation of Gun when player looking right
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
-		float RotationSwayYawRangeUp = 10.f;
+		float RotationSwayYawRangeUp = 5.5f;
 	//Speed of Gun that will reach the Range Sway Yaw
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
 		float SpeedOfSwayYaw = 3.f;
@@ -299,34 +301,34 @@ private:
 	//Location Sway X
 	//Maximal X location of Gun when player moving forward (This value is added to RelativeLocationInPawn)
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float LocationSwayXRangeBack = -10.f;
+		float LocationSwayXRangeBack = -4.f;
 	//Maximal X location of Gun when player moving backward (This value is added to RelativeLocationInPawn)
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float LocationSwayXRangeUp = 20.f;
+		float LocationSwayXRangeUp = 5.f;
 	//Speed of Gun that will reach the Range Sway X
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float SpeedOfSwayX = 3.f;
+		float SpeedOfSwayX = 7.f;
 
 	//Location Sway Y
 	//Maximal Y location of Gun when player moving right (This value is added to RelativeLocationInPawn)
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float LocationSwayYRangeBack = -10.f;
+		float LocationSwayYRangeBack = -4.f;
 	//Maximal Y location of Gun when player moving left (This value is added to RelativeLocationInPawn)
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float LocationSwayYRangeUp = 20.f;
+		float LocationSwayYRangeUp = 4.f;
 	//Speed of Gun that will reach the Range Sway Y
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float SpeedOfSwayY = 3.f;
+		float SpeedOfSwayY = 4.f;
 
 	//Speed of Moving Gun while Player is moving
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float SpeedOfSwayWhileMoving = 350.f;
+		float SpeedOfSwayWhileMoving = 550.f;
 	//Multiplier of Calculeted Y by Lemniscate Of Bernoulli, this represents how big Gun is gonna move in Y
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float MultiplierOfLocationYSwayWhileMoving = 2.f;
+		float MultiplierOfLocationYSwayWhileMoving = 0.8f;
 	//Multiplier of Calculeted Z by Lemniscate Of Bernoulli, this represents how big Gun is gonna move in Z
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float MultiplierOfLocationZSwayWhileMoving = 1.2;
+		float MultiplierOfLocationZSwayWhileMoving = 0.4f;
 
 	//Recoil when player shot
 	

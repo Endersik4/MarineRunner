@@ -70,6 +70,8 @@ private:
 		UMaterialInstance* OverlayCraftingMaterial;
 
 	bool bIsFrontDoorOpen;
+	bool bShouldScaleCraftedItem;
+	FVector TargetScaleOfCraftedItem;
 	class APickupItem* CraftedItem;
 
 	// Moving an item aftet it has been created

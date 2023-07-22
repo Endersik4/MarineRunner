@@ -21,7 +21,7 @@ AGun::AGun()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	BaseSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Gun Skeletal Mesh"));
 	RootComponent = BaseSkeletalMesh;
 
@@ -780,6 +780,10 @@ AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
 void AGun::ChangeSimulatingPhysics(bool bChange)
 {
 	BaseSkeletalMesh->SetSimulatePhysics(bChange);
+}
+void AGun::SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh)
+{
+	Super::SetDissolveMaterial(NewMaterial, BaseSkeletalMesh);
 }
 #pragma endregion
 

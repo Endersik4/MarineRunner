@@ -72,12 +72,17 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	Destroy();
 }
 
-void APickupItem::SetOverlayMaterial(UMaterialInstance* NewMaterial)
+void APickupItem::SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh)
 {
 	if (NewMaterial == nullptr) return;
 
 	DissolveDynamicMaterial = UMaterialInstanceDynamic::Create(NewMaterial, this);
-	ItemMesh->SetOverlayMaterial(DissolveDynamicMaterial);
+	if (SkeletalMesh == nullptr) ItemMesh->SetOverlayMaterial(DissolveDynamicMaterial);
+	else
+	{
+		SkeletalMesh->SetOverlayMaterial(DissolveDynamicMaterial);
+		WeaponSkeletalMesh = SkeletalMesh;
+	}
 	
 	bShouldDissolve = true;
 }
@@ -96,7 +101,9 @@ void APickupItem::Dissolve(float Delta)
 	else
 	{
 		bShouldDissolve = false;
-		ItemMesh->SetOverlayMaterial(nullptr);
+
+		if (WeaponSkeletalMesh == nullptr) ItemMesh->SetOverlayMaterial(nullptr);
+		else WeaponSkeletalMesh->SetOverlayMaterial(nullptr);
 	}
 }
 
