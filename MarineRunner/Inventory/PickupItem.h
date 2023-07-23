@@ -39,6 +39,8 @@ public:
 
 	virtual void SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh = nullptr);
 
+	virtual void SetCollisionNewResponse(ECollisionChannel ChannelName, ECollisionResponse NewResponse);
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* ItemMesh;
@@ -55,6 +57,8 @@ private:
 	UMaterialInstanceDynamic* DissolveDynamicMaterial;
 	USkeletalMeshComponent* WeaponSkeletalMesh;
 	void Dissolve(float Delta);
+
+	
 
 
 };

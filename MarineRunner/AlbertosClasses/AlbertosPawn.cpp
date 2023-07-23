@@ -5,6 +5,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Blueprint/UserWidget.h"
 
@@ -21,9 +22,9 @@ AAlbertosPawn::AAlbertosPawn()
 	AlbertosCapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("AlbertosCapsuleComponent"));
 	RootComponent = AlbertosCapsuleComponent;
 	bUseControllerRotationYaw = true;
-	//CapsuleColl->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	//CapsuleColl->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
-	//CapsuleColl->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
+	AlbertosCapsuleComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	AlbertosCapsuleComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
+	AlbertosCapsuleComponent->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
 
 	AlbertosFloatingMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("AlbertosFloatingMovement"));
 
@@ -32,6 +33,11 @@ AAlbertosPawn::AAlbertosPawn()
 	AlbertosSkeletalMesh->SetSimulatePhysics(false);
 	AlbertosSkeletalMesh->SetCollisionProfileName(TEXT("PhysicsActor"));
 	AlbertosSkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+
+	InventoryButtonComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Inventory Button Component"));
+	InventoryButtonComponent->SetupAttachment(AlbertosSkeletalMesh);
+	InventoryButtonComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	InventoryButtonComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 
 	CraftingTableWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("CraftingTableWidget"));
 	CraftingTableWidget->SetupAttachment(AlbertosSkeletalMesh);
@@ -112,7 +118,11 @@ void AAlbertosPawn::CraftingFinished()
 	EnableCraftingAnimation(AlbertosSkeletalMesh, false, 0.f);
 
 	if (CraftedItem == nullptr) return;
+
 	CraftedItem->ChangeSimulatingPhysics(false);
+
+	StartingLocation = CraftedItem->GetActorLocation();
+	StartingScale = CraftedItem->GetActorScale3D();
 	bShouldMoveToFinalPosition = true;
 	FinalLocation = CraftedItem->GetActorLocation() + GetActorForwardVector() * FVector::Distance(AlbertosSkeletalMesh->GetSocketLocation(FName(TEXT("FinalItemPosition"))), CraftedItem->GetActorLocation());
 }
@@ -121,6 +131,7 @@ void AAlbertosPawn::InterpToFinalPosition(float Delta)
 {
 	if (bShouldMoveToFinalPosition == false || CraftedItem == nullptr) return;
 
+	
 	if (!CraftedItem->GetActorLocation().Equals(FinalLocation, 10.f))
 	{
 		FVector NewLocation = FMath::VInterpTo(CraftedItem->GetActorLocation(), FinalLocation, Delta, SpeedOfItemAfterCrafting);
@@ -128,7 +139,7 @@ void AAlbertosPawn::InterpToFinalPosition(float Delta)
 
 		if (bShouldScaleCraftedItem == false) return;
 
-		FVector NewScale = FMath::VInterpTo(CraftedItem->GetActorScale3D(), TargetScaleOfCraftedItem, Delta, SpeedOfItemAfterCrafting);
+		FVector NewScale = FMath::VInterpTo(CraftedItem->GetActorScale3D(), TargetScaleOfCraftedItem, Delta, SpeedOfItemAfterCrafting * 2.2f);
 		CraftedItem->SetActorScale3D(NewScale);
 	}
 	else
@@ -139,7 +150,10 @@ void AAlbertosPawn::InterpToFinalPosition(float Delta)
 		bShouldScaleCraftedItem = false;
 
 		CraftedItem->ChangeSimulatingPhysics(true);
+		CraftedItem->SetCollisionNewResponse(ECC_GameTraceChannel1, ECR_Block);
+		CraftedItem->SetCollisionNewResponse(ECC_GameTraceChannel3, ECR_Block);
 		CraftedItem = nullptr;
 	}
+	
 }
 

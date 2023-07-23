@@ -85,6 +85,7 @@ public:
 	// Albertos
 	virtual void ChangeSimulatingPhysics(bool bChange = true) override;
 	virtual void SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh = nullptr) override;
+	virtual void SetCollisionNewResponse(ECollisionChannel ChannelName, ECollisionResponse NewResponse) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")

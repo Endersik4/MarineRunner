@@ -776,7 +776,9 @@ AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
 	}
 	return GunFromStorage;
 }
+#pragma endregion
 
+#pragma region /////////////////////////////// ALBERTOS ///////////////////////////////////////
 void AGun::ChangeSimulatingPhysics(bool bChange)
 {
 	BaseSkeletalMesh->SetSimulatePhysics(bChange);
@@ -784,6 +786,10 @@ void AGun::ChangeSimulatingPhysics(bool bChange)
 void AGun::SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh)
 {
 	Super::SetDissolveMaterial(NewMaterial, BaseSkeletalMesh);
+}
+void AGun::SetCollisionNewResponse(ECollisionChannel ChannelName, ECollisionResponse NewResponse)
+{
+	BaseSkeletalMesh->SetCollisionResponseToChannel(ChannelName, NewResponse);
 }
 #pragma endregion
 

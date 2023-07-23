@@ -175,6 +175,9 @@ void UCraftingAlbertosWidget::CraftPressed()
 	else SpawnedItem = GetWorld()->SpawnActor<APickupItem>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], SpawnLocation, Spawnotation);
 	if (SpawnedItem == nullptr) return;
 
+	SpawnedItem->SetCollisionNewResponse(ECC_GameTraceChannel1, ECR_Ignore);
+	SpawnedItem->SetCollisionNewResponse(ECC_GameTraceChannel3, ECR_Ignore);
+
 	AlbertosPawn->CraftPressed(SpawnedItem);
 
 	// Refresh Inventory

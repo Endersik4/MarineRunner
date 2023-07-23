@@ -58,6 +58,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetComponent* CraftingTableWidget;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class USphereComponent* InventoryButtonComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* Hologram_1;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* Hologram_2;
@@ -73,6 +75,10 @@ private:
 	bool bShouldScaleCraftedItem;
 	FVector TargetScaleOfCraftedItem;
 	class APickupItem* CraftedItem;
+
+	FVector StartingLocation;
+	FVector StartingScale;
+	float TimeElapsed;
 
 	// Moving an item aftet it has been created
 	bool bShouldMoveToFinalPosition;

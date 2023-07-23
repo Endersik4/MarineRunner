@@ -44,7 +44,7 @@ void ABullet::Tick(float DeltaTime)
 	MovementBullet(DeltaTime);
 }
 
-//////////////////////////////////////  BULLET MOVEMENT //////////////////////////////////////////////////////
+#pragma region ///////////////////////////// BULLET MOVEMENT//////////////////////////////////
 void ABullet::MovementBullet(float Delta)
 {
 	if (bUseMyMovement == false) return;
@@ -74,9 +74,9 @@ void ABullet::ImpulseOnBullet(bool bShouldUseImpulseOnBullet)
 	}
 	else bUseMyMovement = true;
 }
-//////////////////////////////////. END OF  BULLET MOVEMENT //////////////////////////////////////////////////
+#pragma endregion
 
-////////////////////////////////////////////  HIT ////////////////////////////////////////////////////////////
+#pragma region /////////////////// HIT //////////////////////
 bool ABullet::BulletStuckInActor(const FHitResult& Hit)
 {
 	if (Hit.GetActor() == HitActor) //If bullet is stuck in the same actor then teleport it a bit forward
@@ -183,9 +183,9 @@ void ABullet::BulletThroughObject(const FHitResult& Hit)
 	FVector MoveLocation = GetActorLocation() + GetActorForwardVector() * 50.f;
 	SetActorLocation(MoveLocation);
 }
-///////////////////////////////////////// END OF  HIT /////////////////////////////////////////////////////////
+#pragma endregion
 
-/////////////////////////////////////////  EFFECTS ////////////////////////////////////////////////////////////
+#pragma region ////////////////////// EFFECTS ////////////////////////////
 void ABullet::SpawnEffectsForImpact(const FHitResult& Hit)
 {
 	if (ObjectHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ObjectHitSound, Hit.ImpactPoint);
@@ -215,9 +215,9 @@ void ABullet::SpawnBulletHole(const FHitResult& Hit)
 		SpawnedDecal->SetLifeSpan(10.f);
 	}
 }
-////////////////////////////////////// END OF  EFFECTS ////////////////////////////////////////////////////////
+#pragma endregion
 
-///////////////////////////////////  SETTING THE BULLET ///////////////////////////////////////////////////////
+#pragma region ///////////////////// SETTING THE BULLET /////////////////////
 void ABullet::SetBulletVariables(float NewDamage, float NewAmmoSpeed, float NewAmmoDistance, float NewAmmoFallingDown, float NewAmmoImpulseForce)
 {
 	Damage = NewDamage;
@@ -249,4 +249,4 @@ void ABullet::SetCameraShake(TSubclassOf<UCameraShakeBase> NewCameraShake)
 	bShouldCameraShakeAfterHit = true;
 	CameraShakeAfterHit = NewCameraShake;
 }
-//////////////////////////////// END OF SETTING THE BULLET ////////////////////////////////////////////////////
+#pragma endregion

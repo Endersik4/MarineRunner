@@ -107,4 +107,9 @@ void APickupItem::Dissolve(float Delta)
 	}
 }
 
+void APickupItem::SetCollisionNewResponse(ECollisionResponse NewResponse)
+{
+	ItemMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel3, NewResponse);
+}
+
 
