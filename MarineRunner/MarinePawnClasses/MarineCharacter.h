@@ -225,6 +225,7 @@ private:
 	void JumpTick(float DeltaTime);
 
 	//Albertos
+	void CallAlbertosPressed();
 	class UCraftingAlbertosWidget* CraftingWidget;
 
 	//Delay is in Air (can jump though player is not in the air)

@@ -134,6 +134,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Swing"), IE_Pressed, this, &AMarineCharacter::SwingPressed);
 	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, this, &AMarineCharacter::SlowMotionPressed);
 	
+	PlayerInputComponent->BindAction(TEXT("CallAlbertos"), IE_Pressed, this, &AMarineCharacter::CallAlbertosPressed);
 }
 
 #pragma region //////////////////////////////// MOVEMENT ///////////////////////////////
@@ -793,6 +794,13 @@ void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool
 		CraftingWidget->AddItemToTileView(ItemDataArray);
 	}
 }
+
+void AMarineCharacter::CallAlbertosPressed()
+{
+	if (AlbertoPawn == nullptr) return;
+	AlbertoPawn->CallAlbertoToThePlayer(GetActorLocation());
+}
+
 #pragma endregion 
 
 #pragma region ////////////////////////// ADDITIONAL FUNCTIONS /////////////////////////

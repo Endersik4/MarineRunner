@@ -50,9 +50,13 @@ public:
 
 	USkeletalMeshComponent* GetAlbertosSkeletal() const { return AlbertosSkeletalMesh; }
 
+	void CallAlbertoToThePlayer(FVector PlayerLoc);
+
+	void ChangeMaxSpeedOfFloatingMovement(bool bTowardsPlayer = true);
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UCapsuleComponent* AlbertosCapsuleComponent;
+		class UBoxComponent* AlbertosBoxComponent;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		USkeletalMeshComponent* AlbertosSkeletalMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -71,14 +75,26 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
 		UMaterialInstance* OverlayCraftingMaterial;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
+		float ActiveAlbertosRadius = 900.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
+		float MaxSpeedWhenMovingTowardsPlayer = 2500.f;
+
 	bool bIsFrontDoorOpen;
 	bool bShouldScaleCraftedItem;
 	FVector TargetScaleOfCraftedItem;
 	class APickupItem* CraftedItem;
 
-	FVector StartingLocation;
-	FVector StartingScale;
-	float TimeElapsed;
+	void ToggleVisibilityInventory(bool bCheckIfHidden = false);
+
+	float CopyOfMaxSpeed;
+
+	// When Players is near Albertos
+	bool bPlayerWasClose;
+	bool bCanRotateAlbertos;
+	FTimerHandle PlayerIsNearHandle;
+	void CheckIfThePlayerIsNear();
+	void RotateAlbertosTowardsPlayer(float Delta);
 
 	// Moving an item aftet it has been created
 	bool bShouldMoveToFinalPosition;
@@ -86,4 +102,5 @@ private:
 
 	FVector FinalLocation;
 
+	class AAlbertosAIController* AlbertosAI;
 };

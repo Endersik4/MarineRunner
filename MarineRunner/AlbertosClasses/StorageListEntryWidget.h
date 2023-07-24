@@ -22,6 +22,7 @@ protected:
 
 public:
 
+	// Funkcja ktora sie odpali gdy item zostanie dodany do listy
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

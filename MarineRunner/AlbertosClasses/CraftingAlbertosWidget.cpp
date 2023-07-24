@@ -74,9 +74,9 @@ void UCraftingAlbertosWidget::AddItemToTileView(TArray<FItemStruct> InventoryIte
 	{
 		UItemDataObject* ConstructedItemObject = NewObject<UItemDataObject>(ItemDataObject);
 		ConstructedItemObject->ItemData = Items;
+
 		if (Items.bIsItResource == true) ResourcesInventoryTileView->AddItem(ConstructedItemObject);
 		else StorageInventoryTileView->AddItem(ConstructedItemObject);
-
 		ConstructedItemObject->ConditionalBeginDestroy();
 	}
 }
@@ -166,13 +166,13 @@ void UCraftingAlbertosWidget::CraftPressed()
 	if (bCanBeCrafted == false || AlbertosPawn == nullptr) return;
 
 	APickupItem* SpawnedItem;
-	FVector SpawnLocation = AlbertosPawn->GetAlbertosSkeletal()->GetSocketLocation(FName(TEXT("ItemSpawnLocation"))) + RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftLocation;
-	FRotator Spawnotation = AlbertosPawn->GetActorRotation() + RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftRotation;
+	FVector SpawnLocation = AlbertosPawn->GetAlbertosSkeletal()->GetSocketLocation(FName(TEXT("ItemSpawnLocation")));
+	FRotator SpawnRotation = AlbertosPawn->GetActorRotation() + RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftRotation;
 	if (RecipesOfCraftableItems[ChoiceOfCraftableItem].bIsItWeapon == true)
 	{
-		SpawnedItem = GetWorld()->SpawnActor<AGun>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], SpawnLocation, Spawnotation);
+		SpawnedItem = GetWorld()->SpawnActor<AGun>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], SpawnLocation, SpawnRotation);
 	}
-	else SpawnedItem = GetWorld()->SpawnActor<APickupItem>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], SpawnLocation, Spawnotation);
+	else SpawnedItem = GetWorld()->SpawnActor<APickupItem>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], SpawnLocation, SpawnRotation);
 	if (SpawnedItem == nullptr) return;
 
 	SpawnedItem->SetCollisionNewResponse(ECC_GameTraceChannel1, ECR_Ignore);
