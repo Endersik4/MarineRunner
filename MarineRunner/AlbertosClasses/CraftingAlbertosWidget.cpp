@@ -106,7 +106,9 @@ void UCraftingAlbertosWidget::SetVisualDataFromItemToUI(bool bDeleteResources)
 	ItemDescriptionText->SetText(FText::FromString(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Description));
 	FString Time = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
 	ItemValue_TimeText->SetText(FText::FromString(Time));
-	ItemValue_AmountText->SetText(FText::FromString(FString::FromInt(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Amount)));
+
+	FString AmountTextStr = FString::FromInt(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Amount) + " * " + FString::FromInt(CraftingMultiplier) + " = " + FString::FromInt(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Amount * CraftingMultiplier);
+	ItemValue_AmountText->SetText(FText::FromString(AmountTextStr));
 
 	if (RecipesOfCraftableItems[ChoiceOfCraftableItem].bIsItWeapon == true) SetisEnableAllMultipliers(false);
 	else SetisEnableAllMultipliers(true);
@@ -178,7 +180,7 @@ void UCraftingAlbertosWidget::CraftPressed()
 	SpawnedItem->SetCollisionNewResponse(ECC_GameTraceChannel1, ECR_Ignore);
 	SpawnedItem->SetCollisionNewResponse(ECC_GameTraceChannel3, ECR_Ignore);
 
-	AlbertosPawn->CraftPressed(SpawnedItem);
+	AlbertosPawn->CraftPressed(SpawnedItem, &TimeCraftHandle);
 
 	// Refresh Inventory
 	SpawnedItem->SetItemAmount(SpawnedItem->GetItemSettings().Item_Amount * CraftingMultiplier);
@@ -266,8 +268,6 @@ void UCraftingAlbertosWidget::RightArrowClicked()
 
 void UCraftingAlbertosWidget::MultiplierClicked(int32 Mutliplier)
 {
-	if (bCanCraft == false) return;
-
 	if (MultiplierChoice && ChoiceOfMultiplierChoice < OriginalMultiplierChoiceTextures.Num())
 	{
 		UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, OriginalMultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
@@ -287,6 +287,8 @@ void UCraftingAlbertosWidget::SetisEnableAllMultipliers(bool bEnable)
 
 void UCraftingAlbertosWidget::Multiplier_1xClicked()
 {
+	if (bCanCraft == false) return;
+
 	MultiplierClicked(1);
 	ChoiceOfMultiplierChoice = 0;
 	MultiplierChoice = AmountMultiplier_1x;
@@ -295,6 +297,8 @@ void UCraftingAlbertosWidget::Multiplier_1xClicked()
 
 void UCraftingAlbertosWidget::Multiplier_2xClicked()
 {
+	if (bCanCraft == false) return;
+
 	MultiplierClicked(2);
 	MultiplierChoice = AmountMultiplier_2x;
 	ChoiceOfMultiplierChoice = 1;
@@ -303,6 +307,8 @@ void UCraftingAlbertosWidget::Multiplier_2xClicked()
 
 void UCraftingAlbertosWidget::Multiplier_4xClicked()
 {
+	if (bCanCraft == false) return;
+
 	MultiplierClicked(4);
 	MultiplierChoice = AmountMultiplier_4x;
 	ChoiceOfMultiplierChoice = 2;
@@ -311,6 +317,8 @@ void UCraftingAlbertosWidget::Multiplier_4xClicked()
 
 void UCraftingAlbertosWidget::Multiplier_8xClicked()
 {
+	if (bCanCraft == false) return;
+
 	MultiplierClicked(8);
 	MultiplierChoice = AmountMultiplier_8x;
 	ChoiceOfMultiplierChoice = 3;
@@ -319,6 +327,8 @@ void UCraftingAlbertosWidget::Multiplier_8xClicked()
 
 void UCraftingAlbertosWidget::Multiplier_16xClicked()
 {
+	if (bCanCraft == false) return;
+
 	MultiplierClicked(16);
 	MultiplierChoice = AmountMultiplier_16x;
 	ChoiceOfMultiplierChoice = 4;

@@ -6,6 +6,7 @@
 #include "Components/WidgetComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/AudioComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
@@ -70,6 +71,9 @@ void AAlbertosPawn::BeginPlay()
 	if (CraftingWidget) CraftingWidget->SetAlbertosPawn(this);
 
 	GetWorld()->GetTimerManager().SetTimer(PlayerIsNearHandle, this, &AAlbertosPawn::CheckIfThePlayerIsNear, 0.5f, true);
+
+	TimeForRandomSound = FMath::FRandRange(4.f, 10.f);
+	GetWorld()->GetTimerManager().SetTimer(RandomSoundHandle, this, &AAlbertosPawn::PlayRandomAlbertoSound, 0.01f, false, TimeForRandomSound);
 }
 
 // Called every frame
@@ -79,7 +83,6 @@ void AAlbertosPawn::Tick(float DeltaTime)
 
 	InterpToFinalPosition(DeltaTime);
 	RotateAlbertosTowardsPlayer(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -88,13 +91,8 @@ void AAlbertosPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
-UUserWidget* AAlbertosPawn::GetCraftingTableWidget() const
-{
-	return CraftingTableWidget->GetUserWidgetObject();
-}
-
 #pragma region //////////////// Crafting ////////////////
-void AAlbertosPawn::CraftPressed(APickupItem* SpawnedCraftingItem)
+void AAlbertosPawn::CraftPressed(APickupItem* SpawnedCraftingItem, FTimerHandle * CraftTimeHandle)
 {
 	if (SpawnedCraftingItem == nullptr) return;
 	
@@ -109,11 +107,37 @@ void AAlbertosPawn::CraftPressed(APickupItem* SpawnedCraftingItem)
 	{
 		OpenFrontDoor(AlbertosSkeletalMesh);
 		bIsFrontDoorOpen = true;
+		if (OpenDoorSound) UGameplayStatics::SpawnSoundAttached(OpenDoorSound, AlbertosSkeletalMesh, FName(TEXT("Wysuwak")));
 	}
 
 	EnableCraftingAnimation(AlbertosSkeletalMesh);
 
 	CraftedItem->SetDissolveMaterial(OverlayCraftingMaterial);
+
+	if (CraftingItemSound) SpawnedCraftingSound = UGameplayStatics::SpawnSoundAttached(CraftingItemSound, AlbertosSkeletalMesh, FName(TEXT("ItemSpawnLocation")));
+
+	CraftingTimeHandle = CraftTimeHandle;
+	
+	float FirstDelay = TimeOfCraftingRuntimeSound + TimeAfterStartingCraftSound;
+	GetWorld()->GetTimerManager().SetTimer(ShouldLoopCraftingSoundHandle, this, &AAlbertosPawn::ShouldLoopCraftingSound, TimeOfCraftingRuntimeSound, true, FirstDelay);
+}
+
+void AAlbertosPawn::ShouldLoopCraftingSound()
+{
+	if (SpawnedCraftingSound == nullptr || CraftingTimeHandle == nullptr) return;
+
+	if (GetWorld()->GetTimerManager().GetTimerRemaining(*CraftingTimeHandle) > TimeLeftEndCraftingLoop)
+	{
+		SpawnedCraftingSound->Play(TimeAfterStartingCraftSound);
+	}
+	else GetWorld()->GetTimerManager().ClearTimer(ShouldLoopCraftingSoundHandle);
+}
+
+void AAlbertosPawn::PlayRandomAlbertoSound()
+{
+	if (RandomAlbertoSounds && CraftingTableWidget->IsVisible() == false) SpawnedRandomSound = UGameplayStatics::SpawnSoundAttached(RandomAlbertoSounds, AlbertosSkeletalMesh, FName(TEXT("Root")));
+	TimeForRandomSound = FMath::FRandRange(4.f, 10.f);
+	GetWorld()->GetTimerManager().SetTimer(RandomSoundHandle, this, &AAlbertosPawn::PlayRandomAlbertoSound, 0.01f, false, TimeForRandomSound);
 }
 
 void AAlbertosPawn::CraftingFinished()
@@ -135,6 +159,7 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	bIsItWeapon = false;
 	ToggleVisibilityInventory();
 	if (CraftingTableWidget->IsVisible()) Character->UpdateAlbertosInventory(true, true);
+	if (SpawnedRandomSound) SpawnedRandomSound->Stop();
 }
 
 void AAlbertosPawn::ToggleVisibilityInventory(bool bCheckIfHidden)
@@ -178,6 +203,7 @@ void AAlbertosPawn::CheckIfThePlayerIsNear()
 		{
 			OpenFrontDoor(AlbertosSkeletalMesh, false);
 			bIsFrontDoorOpen = false;
+			if (OpenDoorSound) UGameplayStatics::SpawnSoundAttached(OpenDoorSound, AlbertosSkeletalMesh, FName(TEXT("Wysuwak")));
 		}
 		bPlayerWasClose = false;
 	}
@@ -245,5 +271,9 @@ void AAlbertosPawn::ChangeMaxSpeedOfFloatingMovement(bool bTowardsPlayer)
 {
 	if (bTowardsPlayer == true) AlbertosFloatingMovement->MaxSpeed = MaxSpeedWhenMovingTowardsPlayer;
 	else AlbertosFloatingMovement->MaxSpeed = CopyOfMaxSpeed;
-	
+}
+
+UUserWidget* AAlbertosPawn::GetCraftingTableWidget() const
+{
+	return CraftingTableWidget->GetUserWidgetObject();
 }

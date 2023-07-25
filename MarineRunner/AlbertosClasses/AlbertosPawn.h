@@ -34,7 +34,7 @@ public:
 	virtual AActor* DropItem() override { return nullptr; }
 	virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) override { return false; }
 
-	void CraftPressed(class APickupItem*);
+	void CraftPressed(class APickupItem*, FTimerHandle* CraftTimeHandle);
 	void CraftingFinished();
 
 	UFUNCTION(BlueprintCallable)
@@ -48,7 +48,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void EnableCraftingAnimation(USkeletalMeshComponent* AlbertosSkeleton, bool bShouldPlayMontage = true, float ShouldEnable = 1.f);
 
-	USkeletalMeshComponent* GetAlbertosSkeletal() const { return AlbertosSkeletalMesh; }
+	UFUNCTION(BlueprintPure)
+		USkeletalMeshComponent* GetAlbertosSkeletal() const { return AlbertosSkeletalMesh; }
 
 	void CallAlbertoToThePlayer(FVector PlayerLoc);
 
@@ -70,15 +71,28 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UFloatingPawnMovement* AlbertosFloatingMovement;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
+		float ActiveAlbertosRadius = 1000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
+		float MaxSpeedWhenMovingTowardsPlayer = 3000.f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
 		float SpeedOfItemAfterCrafting = 5.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
 		UMaterialInstance* OverlayCraftingMaterial;
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting |Sounds Variables")
+		float TimeAfterStartingCraftSound = 1.515f;
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting |Sounds Variables")
+		float TimeOfCraftingRuntimeSound = 0.845f;
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting |Sounds Variables")
+		float TimeLeftEndCraftingLoop = 1.341f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
-		float ActiveAlbertosRadius = 900.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
-		float MaxSpeedWhenMovingTowardsPlayer = 2500.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* CraftingItemSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* RandomAlbertoSounds;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* OpenDoorSound;
 
 	bool bIsFrontDoorOpen;
 	bool bShouldScaleCraftedItem;
@@ -99,6 +113,18 @@ private:
 	// Moving an item aftet it has been created
 	bool bShouldMoveToFinalPosition;
 	void InterpToFinalPosition(float Delta);
+
+	// Crafting Sounds
+	FTimerHandle* CraftingTimeHandle;
+	FTimerHandle ShouldLoopCraftingSoundHandle;
+	class UAudioComponent* SpawnedCraftingSound;
+	void ShouldLoopCraftingSound();
+
+	// Random Sounds
+	class UAudioComponent* SpawnedRandomSound;
+	FTimerHandle RandomSoundHandle;
+	float TimeForRandomSound;
+	void PlayRandomAlbertoSound();
 
 	FVector FinalLocation;
 
