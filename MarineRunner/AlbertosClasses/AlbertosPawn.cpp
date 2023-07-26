@@ -162,6 +162,11 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	if (SpawnedRandomSound) SpawnedRandomSound->Stop();
 }
 
+void AAlbertosPawn::ItemHover(UHUDWidget* MarineHUDWidget)
+{
+	;
+}
+
 void AAlbertosPawn::ToggleVisibilityInventory(bool bCheckIfHidden)
 {
 	if (bCheckIfHidden == false)
@@ -263,6 +268,7 @@ void AAlbertosPawn::CallAlbertoToThePlayer(FVector PlayerLoc)
 
 	PlayerLoc.Z = GetActorLocation().Z;
 	AlbertosAI->CallAlbertosToThePlayer(PlayerLoc);
+	if (CallAlbertosSound) UGameplayStatics::PlaySound2D(GetWorld(), CallAlbertosSound);
 
 	ChangeMaxSpeedOfFloatingMovement();
 }

@@ -31,6 +31,7 @@ public:
 	UUserWidget* GetCraftingTableWidget() const;
 
 	virtual void TakeItem(class AMarineCharacter* Character, bool& bIsItWeapon) override;
+	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
 	virtual AActor* DropItem() override { return nullptr; }
 	virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) override { return false; }
 
@@ -93,6 +94,8 @@ private:
 		USoundBase* RandomAlbertoSounds;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* OpenDoorSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* CallAlbertosSound;
 
 	bool bIsFrontDoorOpen;
 	bool bShouldScaleCraftedItem;

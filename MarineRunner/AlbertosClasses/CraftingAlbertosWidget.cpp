@@ -5,8 +5,8 @@
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
-#include "Components/Button.h"
 #include "Components/TileView.h"
+#include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
@@ -16,6 +16,7 @@
 #include "MarineRunner/AlbertosClasses/ItemDataObject.h"
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
 #include "MarineRunner/GunClasses/Gun.h"
+#include "MarineRunner/Widgets/HUDWidget.h"
 
 void UCraftingAlbertosWidget::NativeConstruct()
 {
@@ -31,6 +32,7 @@ void UCraftingAlbertosWidget::NativeConstruct()
 	AmountMultiplier_4x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_4xClicked);
 	AmountMultiplier_8x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_8xClicked);
 	AmountMultiplier_16x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xClicked);
+
 }
 
 void UCraftingAlbertosWidget::NativeOnInitialized()
@@ -159,6 +161,14 @@ bool UCraftingAlbertosWidget::DoesHaveEnoughResources(FString Resource, bool bDe
 	else return false;
 
 	return true;
+}
+
+void UCraftingAlbertosWidget::OnItemHovered(UObject* Item, bool bIsHovered)
+{
+	if (MarinePawn == nullptr) return;
+	UItemDataObject* NewItem = Cast<UItemDataObject>(Item);
+	if (bIsHovered == true) MarinePawn->GetHudWidget()->SetItemHoverStuff(NewItem->ItemData);
+	else MarinePawn->GetHudWidget()->HideItemHover();
 }
 
 void UCraftingAlbertosWidget::CraftPressed()

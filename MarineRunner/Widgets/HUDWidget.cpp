@@ -172,6 +172,21 @@ void UHUDWidget::AddElementToProgress(EUseableElement Element, ElementBar Elemen
 	bShouldProgress = true;
 }
 
+void UHUDWidget::HideItemHover(ESlateVisibility NewVisibility)
+{
+	ItemHoverImage->SetVisibility(NewVisibility);
+	ItemHoverName->SetVisibility(NewVisibility);
+	ItemHoverDescription->SetVisibility(NewVisibility);
+}
+
+void UHUDWidget::SetItemHoverStuff(FItemStruct ItemStruct)
+{
+	HideItemHover(ESlateVisibility::Visible);
+
+	ItemHoverName->SetText(FText::FromString(ItemStruct.Item_Name));
+	ItemHoverDescription->SetText(FText::FromString(ItemStruct.Item_Description));
+}
+
 void UHUDWidget::SetUpMarinePawn()
 {
 	MarinePawn = Cast<AMarineCharacter>(GetOwningPlayerPawn());

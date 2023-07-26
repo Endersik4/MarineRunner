@@ -89,6 +89,17 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* GotDamageImage;
 
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UImage* ItemHoverImage;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock* ItemHoverName;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock* ItemHoverDescription;
+
+	// On Item Hover
+	void HideItemHover(ESlateVisibility NewVisibility = ESlateVisibility::Hidden);
+	void SetItemHoverStuff(struct FItemStruct);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
 		float FadeGotDamageTime = 1.5f;
@@ -105,6 +116,7 @@ private:
 	float FadeFirstAidImageTimeElapsed;
 	void FadeFirstAidImage();
 
+	// Progress bars (health, slow mo...)
 	bool bShouldProgress;
 	TMap<EUseableElement, ElementBar> WhichElementToProgress;
 	void WhichElementShouldProgress();

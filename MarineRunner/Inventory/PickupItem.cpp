@@ -8,6 +8,7 @@
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/GunClasses/Gun.h"
+#include "MarineRunner/Widgets/HUDWidget.h"
 
 // Sets default values
 APickupItem::APickupItem()
@@ -70,6 +71,13 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	if (ItemSettings.bIsItCraftable == true) Character->UpdateAlbertosInventory(true, true);
 	else Character->UpdateAlbertosInventory();
 	Destroy();
+}
+
+void APickupItem::ItemHover(UHUDWidget* MarineHUDWidget)
+{
+	if (MarineHUDWidget == nullptr) return;
+
+	MarineHUDWidget->SetItemHoverStuff(GetItemSettings());
 }
 
 void APickupItem::SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh)

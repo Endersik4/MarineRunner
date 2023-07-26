@@ -39,7 +39,8 @@ private:
 
 	bool bIsInterpEnded = true;
 
-	bool CheckIfPlayerCanTake(FHitResult& HitResult);
+	bool CheckIfPlayerCanTake();
 	void SetLocationOfItem();
 		
+	FHitResult HitResult;
 };

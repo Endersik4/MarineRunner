@@ -9,6 +9,7 @@
 /**
  * 
  */
+
 UCLASS()
 class MARINERUNNER_API UCraftingAlbertosWidget : public UUserWidget
 {
@@ -69,6 +70,9 @@ public:
 	// The Place where only Resources will be stored
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTileView* ResourcesInventoryTileView;
+
+	UFUNCTION(BlueprintCallable)
+		void OnItemHovered(UObject* Item, bool bIsHovered);
 
 	// The Place where it will be shown what Player needs to craft an item
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

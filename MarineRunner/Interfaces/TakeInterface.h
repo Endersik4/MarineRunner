@@ -31,4 +31,7 @@ public:
 
 	UFUNCTION()
 		virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) = 0;
+
+	UFUNCTION()
+		virtual void ItemHover(class UHUDWidget* MarineHUDWidget) = 0;
 };
