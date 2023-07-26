@@ -164,7 +164,16 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 
 void AAlbertosPawn::ItemHover(UHUDWidget* MarineHUDWidget)
 {
-	;
+	if (OnAlbertosHoverMaterial == nullptr) return;
+
+	AlbertosSkeletalMesh->SetMaterial(3, OnAlbertosHoverMaterial);
+}
+
+void AAlbertosPawn::ItemUnHover(UHUDWidget* MarineHUDWidget)
+{
+	if (OnAlbertosUnHoverMaterial == nullptr) return;
+
+	AlbertosSkeletalMesh->SetMaterial(3, OnAlbertosUnHoverMaterial);
 }
 
 void AAlbertosPawn::ToggleVisibilityInventory(bool bCheckIfHidden)

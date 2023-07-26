@@ -32,6 +32,7 @@ public:
 
 	virtual void TakeItem(class AMarineCharacter* Character, bool& bIsItWeapon) override;
 	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
+	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
 	virtual AActor* DropItem() override { return nullptr; }
 	virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) override { return false; }
 
@@ -76,16 +77,20 @@ private:
 		float ActiveAlbertosRadius = 1000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
 		float MaxSpeedWhenMovingTowardsPlayer = 3000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Hover")
+		UMaterialInstance* OnAlbertosHoverMaterial;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Hover")
+		UMaterialInstance* OnAlbertosUnHoverMaterial;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
 		float SpeedOfItemAfterCrafting = 5.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
 		UMaterialInstance* OverlayCraftingMaterial;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting |Sounds Variables")
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds Variables")
 		float TimeAfterStartingCraftSound = 1.515f;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting |Sounds Variables")
-		float TimeOfCraftingRuntimeSound = 0.845f;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting |Sounds Variables")
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds Variables")
+		float TimeOfCraftingRuntimeSound = 0.844f;
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds Variables")
 		float TimeLeftEndCraftingLoop = 1.341f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")

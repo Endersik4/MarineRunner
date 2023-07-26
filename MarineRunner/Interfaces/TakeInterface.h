@@ -34,4 +34,7 @@ public:
 
 	UFUNCTION()
 		virtual void ItemHover(class UHUDWidget* MarineHUDWidget) = 0;
+	
+	UFUNCTION()
+		virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) = 0;
 };

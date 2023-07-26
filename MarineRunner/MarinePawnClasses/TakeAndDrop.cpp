@@ -57,14 +57,24 @@ void UTakeAndDrop::Take()
 
 bool UTakeAndDrop::CheckIfPlayerCanTake()
 {
+	if (MarinePawn == nullptr) return false;
+
 	FVector Start = MarinePawn->GetCamera()->GetComponentLocation();
 	FVector End = Start + (UGameplayStatics::GetPlayerController(GetWorld(),0)->GetRootComponent()->GetForwardVector() * TakeDistance);
 	
 	FHitResult FirstHit;
-	bool hasHit = GetWorld()->SweepSingleByChannel(FirstHit, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeBox(FVector(20, 20, 20)));
+	bool bhasHit = GetWorld()->SweepSingleByChannel(FirstHit, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeBox(FVector(20, 20, 20)));
 
-	if (hasHit == true)
+	if (bhasHit == true)
 	{
+		if (HitResult.GetActor())
+		{
+			ITakeInterface* HoverInterface = Cast<ITakeInterface>(HitResult.GetActor());
+			if (HoverInterface)
+			{
+				HoverInterface->ItemUnHover(MarinePawn->GetHudWidget());
+			}
+		}
 		HitResult = FirstHit;
 		ITakeInterface* HoverInterface = Cast<ITakeInterface>(HitResult.GetActor());
 		if (HoverInterface)
@@ -74,11 +84,15 @@ bool UTakeAndDrop::CheckIfPlayerCanTake()
 	}
 	else if (HitResult.GetActor())
 	{
-		MarinePawn->GetHudWidget()->HideItemHover(ESlateVisibility::Hidden);
+		ITakeInterface* HoverInterface = Cast<ITakeInterface>(HitResult.GetActor());
+		if (HoverInterface)
+		{
+			HoverInterface->ItemUnHover(MarinePawn->GetHudWidget());
+		}
 		HitResult = FirstHit;
 	}
 
-	if (hasHit == false || bIsInterpEnded == false) return false;
+	if (bhasHit == false || bIsInterpEnded == false) return false;
 
 	return true;
 }

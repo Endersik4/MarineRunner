@@ -24,7 +24,7 @@ APickupItem::APickupItem()
 	ItemMesh->SetNotifyRigidBodyCollision(true);
 	ItemMesh->SetGenerateOverlapEvents(false);
 	ItemMesh->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-	ItemMesh->bRenderCustomDepth = true; //Its for outline material 
+	ItemMesh->bRenderCustomDepth = false; //Its for outline material 
 }
 
 // Called when the game starts or when spawned
@@ -75,9 +75,18 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 
 void APickupItem::ItemHover(UHUDWidget* MarineHUDWidget)
 {
-	if (MarineHUDWidget == nullptr) return;
+	ItemMesh->SetRenderCustomDepth(true);
 
+	if (MarineHUDWidget == nullptr) return;
 	MarineHUDWidget->SetItemHoverStuff(GetItemSettings());
+}
+
+void APickupItem::ItemUnHover(UHUDWidget* MarineHUDWidget)
+{
+	ItemMesh->SetRenderCustomDepth(false);
+
+	if (MarineHUDWidget == nullptr) return;
+	MarineHUDWidget->HideItemHover();
 }
 
 void APickupItem::SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh)

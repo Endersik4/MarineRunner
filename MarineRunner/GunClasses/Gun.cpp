@@ -28,7 +28,7 @@ AGun::AGun()
 	BaseSkeletalMesh->SetSimulatePhysics(true);
 	BaseSkeletalMesh->SetCollisionProfileName(TEXT("ItemCollision"));
 	BaseSkeletalMesh->SetNotifyRigidBodyCollision(true); 
-	BaseSkeletalMesh->bRenderCustomDepth = true; //Its for outline material 
+	BaseSkeletalMesh->bRenderCustomDepth = false; //Its for outline material 
 
 	Tags.Add(TEXT("Gun"));
 }
@@ -627,6 +627,20 @@ void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 	MarinePawn->HideGunAndAddTheNewOne(this);
 	MarinePawn->SetGun(this);
 	MarinePawn->UpdateAlbertosInventory(true, true);
+}
+
+void AGun::ItemHover(UHUDWidget* MarineHUDWidget)
+{
+	Super::ItemHover(MarineHUDWidget);
+
+	BaseSkeletalMesh->SetRenderCustomDepth(true);
+}
+
+void AGun::ItemUnHover(UHUDWidget* MarineHUDWidget)
+{
+	Super::ItemUnHover(MarineHUDWidget);
+
+	BaseSkeletalMesh->SetRenderCustomDepth(false);
 }
 
 void AGun::EquipWeapon(bool bIsThisCurrentGun)

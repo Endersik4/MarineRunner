@@ -166,8 +166,13 @@ bool UCraftingAlbertosWidget::DoesHaveEnoughResources(FString Resource, bool bDe
 void UCraftingAlbertosWidget::OnItemHovered(UObject* Item, bool bIsHovered)
 {
 	if (MarinePawn == nullptr) return;
-	UItemDataObject* NewItem = Cast<UItemDataObject>(Item);
-	if (bIsHovered == true) MarinePawn->GetHudWidget()->SetItemHoverStuff(NewItem->ItemData);
+	if (MarinePawn->GetHudWidget() == nullptr) return;
+
+	if (bIsHovered == true)
+	{
+		UItemDataObject* NewItem = Cast<UItemDataObject>(Item);
+		MarinePawn->GetHudWidget()->SetItemHoverStuff(NewItem->ItemData);
+	}
 	else MarinePawn->GetHudWidget()->HideItemHover();
 }
 

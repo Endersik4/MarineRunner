@@ -40,6 +40,8 @@ public:
 
 	//Take
 	virtual void TakeItem(class AMarineCharacter* MarineCharacter, bool& bIsItWeapon) override;
+	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
+	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
 	virtual AActor* DropItem() override;
 	virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) override;
 
