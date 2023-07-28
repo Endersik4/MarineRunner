@@ -5,6 +5,7 @@
 #include "Components/BoxComponent.h"
 #include "MarineRunner/Inventory/PickupItem.h"
 #include "Components/WidgetComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Widgets/FrontChestPanelWidget.h"
@@ -57,11 +58,14 @@ void AChestWithItems::OpenChest(FString PinCodeText)
 		if (PlayerPin != PinCode)
 		{
 			FrontChestPanelWidget->ResetPinCodeStrings();
+			if (WrongCodeSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), WrongCodeSound, ChestSkeletalMesh->GetSocketLocation(FName(TEXT("temSpawnLocation"))));
 			return;
 		}
 		else FrontChestPanelWidget->DisableOpenButton(true);
 	}
 
+	if (OpenChestSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), OpenChestSound, ChestSkeletalMesh->GetSocketLocation(FName(TEXT("temSpawnLocation"))));
+	ChestSkeletalMesh->SetMaterial(3, UpperOpenLockMaterial);
 	ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 
 	TArray<TSubclassOf<APickupItem>> ItemsArray;

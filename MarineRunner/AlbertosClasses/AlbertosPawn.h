@@ -101,6 +101,8 @@ private:
 		USoundBase* OpenDoorSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* CallAlbertosSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* HoverSound;
 
 	bool bIsFrontDoorOpen;
 	bool bShouldScaleCraftedItem;

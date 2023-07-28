@@ -167,6 +167,7 @@ void AAlbertosPawn::ItemHover(UHUDWidget* MarineHUDWidget)
 	if (OnAlbertosHoverMaterial == nullptr) return;
 
 	AlbertosSkeletalMesh->SetMaterial(3, OnAlbertosHoverMaterial);
+	if (HoverSound) UGameplayStatics::SpawnSoundAttached(HoverSound, AlbertosSkeletalMesh, FName(TEXT("Root")));
 }
 
 void AAlbertosPawn::ItemUnHover(UHUDWidget* MarineHUDWidget)
@@ -174,6 +175,7 @@ void AAlbertosPawn::ItemUnHover(UHUDWidget* MarineHUDWidget)
 	if (OnAlbertosUnHoverMaterial == nullptr) return;
 
 	AlbertosSkeletalMesh->SetMaterial(3, OnAlbertosUnHoverMaterial);
+	if (HoverSound) UGameplayStatics::SpawnSoundAttached(HoverSound, AlbertosSkeletalMesh, FName(TEXT("Root")));
 }
 
 void AAlbertosPawn::ToggleVisibilityInventory(bool bCheckIfHidden)

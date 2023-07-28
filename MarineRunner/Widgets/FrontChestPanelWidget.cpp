@@ -45,6 +45,8 @@ void UFrontChestPanelWidget::DeleteButtonPressed()
 	PinCodeString.RemoveAt(PinCodeString.Len() - 1);
 	PinCodeNotVisibleString.RemoveAt(PinCodeNotVisibleString.Len() - 1);
 	PINText->SetText(FText::FromString(PinCodeNotVisibleString));
+
+	OpenButton->SetIsEnabled(false);
 }
 
 void UFrontChestPanelWidget::DisableOpenButton(bool bDisable)
