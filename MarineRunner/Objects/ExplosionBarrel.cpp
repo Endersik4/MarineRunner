@@ -3,7 +3,6 @@
 
 #include "MarineRunner/Objects/ExplosionBarrel.h"
 #include "Components/StaticMeshComponent.h"
-#include "GeometryCollection/GeometryCollectionComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/DecalComponent.h"
@@ -16,11 +15,7 @@ AExplosionBarrel::AExplosionBarrel()
 	
 	ExplosionBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Explosion Barrel Mesh"));
 	RootComponent = ExplosionBarrelMesh;
-
-	ExplosionBarrelGeometryMesh = CreateDefaultSubobject<UGeometryCollectionComponent>(TEXT("Explosion Barrel Geometry Mesh"));
-	ExplosionBarrelGeometryMesh->SetupAttachment(ExplosionBarrelMesh);
-
-	ExplosionBarrelGeometryMesh->SetVisibility(false);
+	
 }
 
 void AExplosionBarrel::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
@@ -28,6 +23,28 @@ void AExplosionBarrel::ApplyDamage(float NewDamage, float NewImpulseForce, const
 	if (bExploded == true) return;
 	bExploded = true;
 
+	GetWorld()->SpawnActor<AActor>(ExplosionBarrelGeometryClass, GetActorLocation(), GetActorRotation());
+
+	FTimerHandle ExplodeHandle;
+	GetWorld()->GetTimerManager().SetTimer(ExplodeHandle, this, &AExplosionBarrel::Explode, 0.05f, false);
+}
+
+// Called when the game starts or when spawned
+void AExplosionBarrel::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+// Called every frame
+void AExplosionBarrel::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+
+void AExplosionBarrel::Explode()
+{
 	TArray<FHitResult> HitArray;
 	GetWorld()->SweepMultiByChannel(HitArray, GetActorLocation(), GetActorLocation(), FQuat::Identity, ECC_GameTraceChannel3, FCollisionShape::MakeSphere(ExplosionRadius));
 
@@ -48,20 +65,8 @@ void AExplosionBarrel::ApplyDamage(float NewDamage, float NewImpulseForce, const
 	}
 
 	SpawnEffects();
-}
 
-// Called when the game starts or when spawned
-void AExplosionBarrel::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void AExplosionBarrel::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	Destroy();
 }
 
 void AExplosionBarrel::UseInterfaceOnActor(const FHitResult& HitResult)
@@ -102,8 +107,5 @@ void AExplosionBarrel::SpawnEffects()
 	{
 		SpawnedDecal->SetFadeScreenSize(0.f);
 	}
-
-	ExplosionBarrelGeometryMesh->SetVisibility(true);
-	ExplosionBarrelMesh->SetVisibility(false);
 }
 

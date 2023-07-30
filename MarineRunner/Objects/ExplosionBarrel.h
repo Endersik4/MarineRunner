@@ -32,7 +32,7 @@ private:
 		class UStaticMeshComponent* ExplosionBarrelMesh;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UGeometryCollectionComponent* ExplosionBarrelGeometryMesh;
+		TSubclassOf<AActor> ExplosionBarrelGeometryClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
 		float ExplosionDamage = 1000.f;
@@ -55,8 +55,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Effects")
 		float ExplosionParticleSize = 1.f;
 
+	void Explode();
 	void UseInterfaceOnActor(const FHitResult& HitResult);
-
 	void SpawnEffects();
 
 	bool bExploded;
