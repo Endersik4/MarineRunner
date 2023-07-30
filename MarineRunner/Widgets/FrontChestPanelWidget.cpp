@@ -71,7 +71,7 @@ void UFrontChestPanelWidget::ResetPinCodeStrings()
 #pragma region //////////// PIN CODE CLICKED ////////////////////
 void UFrontChestPanelWidget::PinNumbersClicked(FString Number)
 {
-	if (PinCodeString.Len() < 4 && OpenButton->bIsEnabled == false)
+	if (PinCodeString.Len() < 4 && OpenButton->GetIsEnabled() == false)
 	{
 		PinCodeString += Number;
 		PinCodeNotVisibleString += "*";
