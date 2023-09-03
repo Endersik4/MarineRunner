@@ -11,7 +11,13 @@ MarineRunner runs on Unreal Engine 5. <br/>
 
 MarineRunner demo to show the current status.  <br/>
 This is just a demo for demonstration, I plan to add more things in the future.  <br/>
-Currently the game features: Dash, Slow Motion, Grappling Hook, Sliding, Pull up on the edge, Wallrun.  <br/>
+Currently the game features: <br/>
+-Dash <br/>
+-Slow Motion<br/>
+-Grappling Hook<br/>
+-Sliding<br/>
+-Pull up on the edge<br/>
+-Wallrun.  <br/>
 Picking up and dropping items, chest with random items or resources with or without a pin, exploding barrels  <br/>
 Five different types of weapons - pistol, machine gun, shotgun, sniper rifle, grenade launcher  <br/>
 Five different types of enemies - enemy with a pistol, a machine gun, a shotgun, a sniper rifle, a grenade launcher <br/>
