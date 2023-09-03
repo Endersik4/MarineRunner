@@ -9,10 +9,10 @@ MarineRunner runs on Unreal Engine 5. <br/>
 (Everything is coded from scratch in C++ using Unreal Engine tools). 
 <br/>
 
-MarineRunner demo to show the current status.  <br/>
+ <a href="https://youtu.be/UozAfLmbgF0"> MarineRunner demo </a> to show the current status.  <br/>
 This is just a demo for demonstration, I plan to add more things in the future.  <br/>
 Currently the game features: <br/>
--Dash <br/>
+-<i>Dash</i> <br/>
 -Slow Motion<br/>
 -Grappling Hook<br/>
 -Sliding<br/>
