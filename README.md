@@ -30,11 +30,16 @@ This robot also has an inventory that stores everything you can pick up (resourc
 And this level will never be used in the future, because I have other plans for this game in level design.  <br/>
 You can download game here: <a href="https://drive.google.com/file/d/17XCGErqjLaanXRmtc4CCK67CzDlCNRf0/view?usp=share_link"> MarineRunner </a> <br/>
 Demo on Youtube: <a href="https://youtu.be/UozAfLmbgF0"> MarineRunner 
-![Thumbnail_MarineRunner](https://github.com/Endersik4/MarineRunner/assets/131354098/86575f93-54b3-4cc0-805d-0b19858155d4)
+![ScreenShot00020](https://github.com/Endersik4/MarineRunner/assets/131354098/afb0c8a0-dbaf-4e01-8e2b-4448933e2764)
 </a>
 <br/>
 ![MarineRunner - Unreal Editor 22 07 2023 23_10_22](https://github.com/Endersik4/MarineRunner/assets/131354098/9fec6708-dff4-4630-8111-f7699c07b7a9)
 <br/>
+![ScreenShot00023](https://github.com/Endersik4/MarineRunner/assets/131354098/dbc205a0-0baa-49c4-bb95-0fd9ebfde853)
+<br/>
+![ScreenShot00024](https://github.com/Endersik4/MarineRunner/assets/131354098/91e46e8e-e3f3-4e57-aea8-aafcb1c87616)
+<br/>
+
 
 <a href="https://youtu.be/TpYCEW1tYkw"> MarineRunner status as of 16/05/2023 </a> <br/>
 <a href="https://youtu.be/8jKjilVmgmk"> MarineRunner status as of 30/03/2023 </a>
