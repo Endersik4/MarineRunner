@@ -30,7 +30,7 @@ This robot also has an inventory that stores everything you can pick up (resourc
 And this level will never be used in the future, because I have other plans for this game in level design.  <br/>
 You can download game here: <a href="https://drive.google.com/file/d/17XCGErqjLaanXRmtc4CCK67CzDlCNRf0/view?usp=share_link"> MarineRunner </a> <br/>
 Demo on Youtube: <a href="https://youtu.be/UozAfLmbgF0"> MarineRunner </a>
-[![ScreenShot00020](https://github.com/Endersik4/MarineRunner/assets/131354098/d8efe413-35ef-4fac-9e28-1f3a432df52b)]([https://youtu.be/UozAfLmbgF0](https://www.youtube.com/watch?v=UozAfLmbgF0))
+[![ScreenShot00020](https://github.com/Endersik4/MarineRunner/assets/131354098/d8efe413-35ef-4fac-9e28-1f3a432df52b)](https://www.youtube.com/watch?v=UozAfLmbgF0)
 <br/>
 ![MarineRunner - Unreal Editor 22 07 2023 23_10_22](https://github.com/Endersik4/MarineRunner/assets/131354098/9fec6708-dff4-4630-8111-f7699c07b7a9)
 <br/>
