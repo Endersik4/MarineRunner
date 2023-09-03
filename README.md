@@ -1,6 +1,6 @@
 # MarineRunner
 
-MarineRunner = Ghostrunner + Cyberpunk 2077 My biggest and most ambitious project. <br/>
+##MarineRunner = Ghostrunner + Cyberpunk 2077 My biggest and most ambitious project. <br/>
 It was time for more complex games, not some tiny ones. <br/>
 I wanted to create movement like in Ghostrunner and shooting mechanics like in Cyberpunk 2077 <br/>
 The game is in development, there is still a lot to do. <br/>
@@ -9,10 +9,10 @@ MarineRunner runs on Unreal Engine 5. <br/>
 (Everything is coded from scratch in C++ using Unreal Engine tools). 
 <br/>
 
- <a href="https://youtu.be/UozAfLmbgF0"> MarineRunner demo </a> to show the current status.  <br/>
+### <a href="https://youtu.be/UozAfLmbgF0"> MarineRunner demo </a> to show the current status.  <br/>
 This is just a demo for demonstration, I plan to add more things in the future.  <br/>
 Currently the game features: <br/>
--<i>Dash</i> <br/>
+**-Dash**<br/>
 -Slow Motion<br/>
 -Grappling Hook<br/>
 -Sliding<br/>
