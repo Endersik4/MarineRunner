@@ -26,7 +26,7 @@ Currently the game features: <br/>
 This robot also has an inventory that stores everything you can pick up (resources, weapons, ammunition...).  <br/>
 **-and more...**<br/><br/>
 
-And this level will never be used in the future, because I have other plans for this game in level design.  <br/>
+The demo level will never be used in the future, as I have other plans for this game in level design.  <br/>
 You can download game here: <a href="https://drive.google.com/file/d/17XCGErqjLaanXRmtc4CCK67CzDlCNRf0/view?usp=share_link"> MarineRunner </a> <br/>
 Demo on Youtube: <a href="https://youtu.be/UozAfLmbgF0"> MarineRunner 
 [![MarineRunner](https://i.ytimg.com/vi/UozAfLmbgF0/maxresdefault.jpg)](https://www.youtube.com/watch?v=UozAfLmbgF0)
