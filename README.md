@@ -11,20 +11,20 @@ MarineRunner runs on Unreal Engine 5. <br/>
 ### <a href="https://youtu.be/UozAfLmbgF0"> MarineRunner demo </a> to show the current status.  <br/>
 This is just a demo for demonstration, I plan to add more things in the future.  <br/>
 Currently the game features: <br/>
-**-Dash**<br/>
-**-Slow Motion**<br/>
-**-Grappling Hook**<br/>
-**-Sliding**<br/>
-**-Pull up on the edge**<br/>
-**-Wallrun.** <br/>
-**-Picking up and dropping items** <br/>
-**-chest with random items or resources with or without a pin** <br/>
-**-exploding barrels**  <br/>
-**-Five different types of weapons** - pistol, machine gun, shotgun, sniper rifle, grenade launcher  <br/>
-**-Five different types of enemies** - enemy with a pistol, a machine gun, a shotgun, a sniper rifle, a grenade launcher <br/>
+**- Dash**<br/>
+**- Slow Motion**<br/>
+**- Grappling Hook**<br/>
+**- Sliding**<br/>
+**- Pull up on the edge**<br/>
+**- Wallrun.** <br/>
+**- Picking up and dropping items** <br/>
+**- chest with random items or resources with or without a pin** <br/>
+**- exploding barrels**  <br/>
+**- Five different types of weapons** - _pistol_, _machine gun_, _shotgun_, _sniper rifle_, _grenade launcher_  <br/>
+**- Five different types of enemies** - enemy with a _pistol_, _machine gun_, _shotgun_, _sniper rifle_ or _grenade launcher_ <br/>
 **-<a href="https://www.youtube.com/watch?v=dtFB4vfd2Eg"> ALBERTOS** </a> - a robot friend that can craft items such as ammunition, weapons, first aid kits....  <br/>
 This robot also has an inventory that stores everything you can pick up (resources, weapons, ammunition...).  <br/>
-**-and more...**<br/><br/>
+**- and more...**<br/><br/>
 
 The demo level will never be used in the future, as I have other plans for this game in level design.  <br/>
 You can download game here: <a href="https://drive.google.com/file/d/17XCGErqjLaanXRmtc4CCK67CzDlCNRf0/view?usp=share_link"> MarineRunner </a> <br/>
