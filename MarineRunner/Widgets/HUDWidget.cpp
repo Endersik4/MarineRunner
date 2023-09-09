@@ -21,7 +21,7 @@ void UHUDWidget::NativeOnInitialized()
 	SetUpMarinePawn();
 
 	GotDamageImage->SetRenderOpacity(0.f);
-	HideWeaponThings(true);
+	HideWeaponUI(true);
 }
 
 void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
@@ -85,7 +85,7 @@ void UHUDWidget::SetGotDamage(bool bGot)
 	else GotDamageImage->SetRenderOpacity(0.f);
 }
 
-void UHUDWidget::HideWeaponThings(bool bShouldHide)
+void UHUDWidget::HideWeaponUI(bool bShouldHide)
 {
 	float RenderOpacityValue = 0.f;
 	if (bShouldHide == false) RenderOpacityValue = 1.f;

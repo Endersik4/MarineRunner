@@ -30,7 +30,7 @@ public:
 		virtual AActor* DropItem() = 0;
 
 	UFUNCTION()
-		virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) = 0;
+		virtual bool MoveItemToEquipPosition(float SpeedOfItem) = 0;
 
 	UFUNCTION()
 		virtual void ItemHover(class UHUDWidget* MarineHUDWidget) = 0;

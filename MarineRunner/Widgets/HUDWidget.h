@@ -48,7 +48,7 @@ public:
 	void SetDidPlayerUseFirstAidKit(bool bDid) { bDidPlayerUseFirstAidKit = bDid; }
 	void AddElementToProgress(EUseableElement Element, ElementBar ElementProgressBar);
 
-	void HideWeaponThings(bool bShouldHide);
+	void HideWeaponUI(bool bShouldHide);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* UseFirstAidKidImage;

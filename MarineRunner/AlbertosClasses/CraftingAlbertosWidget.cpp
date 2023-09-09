@@ -8,6 +8,7 @@
 #include "Components/TileView.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetTextLibrary.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
@@ -109,7 +110,7 @@ void UCraftingAlbertosWidget::SetVisualDataFromItemToUI(bool bDeleteResources)
 	FString Time = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
 	ItemValue_TimeText->SetText(FText::FromString(Time));
 
-	FString AmountTextStr = FString::FromInt(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Amount) + " * " + FString::FromInt(CraftingMultiplier) + " = " + FString::FromInt(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Amount * CraftingMultiplier);
+	FString AmountTextStr = FString::FromInt(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Amount * CraftingMultiplier);
 	ItemValue_AmountText->SetText(FText::FromString(AmountTextStr));
 
 	if (RecipesOfCraftableItems[ChoiceOfCraftableItem].bIsItWeapon == true) SetisEnableAllMultipliers(false);
@@ -184,6 +185,9 @@ void UCraftingAlbertosWidget::CraftPressed()
 
 	APickupItem* SpawnedItem;
 	FVector SpawnLocation = AlbertosPawn->GetAlbertosSkeletal()->GetSocketLocation(FName(TEXT("ItemSpawnLocation")));
+	SpawnLocation += AlbertosPawn->GetActorForwardVector() * RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftLocation.X;
+	SpawnLocation += AlbertosPawn->GetActorRightVector() * RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftLocation.Y;
+
 	FRotator SpawnRotation = AlbertosPawn->GetActorRotation() + RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftRotation;
 	if (RecipesOfCraftableItems[ChoiceOfCraftableItem].bIsItWeapon == true)
 	{
@@ -210,6 +214,7 @@ void UCraftingAlbertosWidget::CraftPressed()
 
 	// Fill in Progress bar
 	TimeElapsed = 0.f;
+	CopiedItemCraftTime = SpawnedItem->GetItemSettings().Item_TimeCraft;
 
 	// Set Can craft again after TimeCraft
 	bCanCraft = false;
@@ -224,8 +229,13 @@ void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar(float Delta)
 	if (TimeElapsed <= WaitTime)
 	{
 		float Progress = FMath::Lerp(0.f, 1.f, TimeElapsed / WaitTime);
-
 		CraftingTimeProgressBar->SetPercent(Progress);
+
+		FText NewText = FText::FromString(UKismetTextLibrary::Conv_FloatToText(CopiedItemCraftTime, ERoundingMode::HalfToEven, false, true, 1, 3, 1, 2).ToString() + "s");
+		ItemValue_TimeText->SetText(NewText);
+		
+
+		CopiedItemCraftTime -= Delta;
 		TimeElapsed += Delta;
 	}
 }
@@ -239,6 +249,9 @@ void UCraftingAlbertosWidget::SetCanCraftAgain()
 	RightArrowButton->SetIsEnabled(true);
 
 	AlbertosPawn->CraftingFinished();
+
+	FString Time = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
+	ItemValue_TimeText->SetText(FText::FromString(Time));
 
 	bCanCraft = true;
 	CraftButton->SetIsEnabled(true);

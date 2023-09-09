@@ -250,7 +250,7 @@ void AEnemyPawn::SpawnBullet()
 	
 	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
 	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
-	SpawnedBullet->ImpulseOnBullet(bShouldUseImpulseOnBullet);
+	SpawnedBullet->SetUpBullet(bShouldUseImpulseOnBullet);
 
 	if (bRadialImpulse) SpawnedBullet->RadialImpulse(RadialSphereRadius, bDrawRadialSphere);
 	if (bShouldCameraShakeAfterHit) SpawnedBullet->SetCameraShake(CameraShakeAfterBulletHit);

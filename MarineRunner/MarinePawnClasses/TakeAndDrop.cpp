@@ -100,7 +100,7 @@ void UTakeAndDrop::SetLocationOfItem()
 {
 	if (!MarinePawn || !TakeInterface || bIsItWeapon == false) return;
 
-	bIsInterpEnded = TakeInterface->ItemLocationWhenGrabbed(SpeedOfComingGun * GetWorld()->GetDeltaSeconds());
+	bIsInterpEnded = TakeInterface->MoveItemToEquipPosition(SpeedOfComingGun * GetWorld()->GetDeltaSeconds());
 }
 
 void UTakeAndDrop::DropItem()

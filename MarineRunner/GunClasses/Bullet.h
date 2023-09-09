@@ -36,7 +36,7 @@ public:
 	void SetBulletVariables(float NewDamage, float NewAmmoSpeed, float NewAmmoDistance, float NewAmmoFallingDown, float NewAmmoImpulseForce);
 	void SetBulletGoThroughVariables(bool bCanBulletGoThrough, float DamageReduceAfterObject, float ImpulseReduceAfterObject, int32 MaxObjectsForBulletToGoThrough);
 
-	void ImpulseOnBullet(bool bShouldUseImpulse);
+	void SetUpBullet(bool bShouldUseImpulse);
 	void RadialImpulse(float SphereRadius, bool bShouldDrawDebugSphere = false);
 	void SetCameraShake(TSubclassOf<UCameraShakeBase> NewCameraShake);
 private:
@@ -90,9 +90,10 @@ private:
 	bool BulletStuckInActor(const FHitResult& Hit);
 
 	//Hit
+	void HitActorWithoutInterface(const FHitResult& HitResult);
 	void UseInterfaceOnActor(const FHitResult& HitResult);
 
 	//Effects
-	void SpawnEffectsForImpact(const FHitResult& Hit);
-	void SpawnBulletHole(const FHitResult& Hit);
+	void SpawnEffectsWhenHit(const FHitResult& Hit);
+	void SpawnBulletHoleDecal(const FHitResult& Hit);
 };

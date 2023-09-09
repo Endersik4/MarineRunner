@@ -10,6 +10,53 @@
 
 #include "Gun.generated.h"
 
+USTRUCT(BlueprintType)
+struct FBulletStruct
+{
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		float Damage;
+	// How fast ammo is moving forward. If Bullet has physics then this variable is Impulse Force
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		float AmmoSpeed;
+	// What distance should Ammo pass when bullet starts falling down
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bShouldUseImpulseOnBullet", EditConditionHides))
+		float AmmoDistance;
+	// How fast Ammo will falling down when AmmoDistance hit the number
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bShouldUseImpulseOnBullet", EditConditionHides))
+		float AmmoFallingDown;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		float AmmoImpulseForce;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		bool bShouldUseImpulseOnBullet;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		bool bRadialImpulse;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bRadialImpulse", EditConditionHides))
+		float RadialSphereRadius;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bRadialImpulse", EditConditionHides))
+		bool bDrawRadialSphere;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		bool bCanBulletGoThrough;
+	// How much damage should be reduced after one object in percentage
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Bullet Through Objects",
+		meta = (EditCondition = "bCanBulletGoThrough", EditConditionHides, ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+		float DamageReduceAfterObject;
+	// How much impulse should be reduced after one object in percentage
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Bullet Through Objects",
+		meta = (EditCondition = "bCanBulletGoThrough", EditConditionHides, ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
+		float ImpulseReduceAfterObject;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Bullet Through Objects", meta = (EditCondition = "bCanBulletGoThrough", EditConditionHides))
+		int32 MaxObjectsForBulletToGoThrough;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (InlineEditConditionToggle))
+		bool bShouldCameraShakeAfterHit;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bShouldCameraShakeAfterHit"))
+		TSubclassOf<UCameraShakeBase> CameraShakeAfterBulletHit;
+};
+
 UENUM()
 enum StatusOfAimedGun
 {
@@ -43,7 +90,7 @@ public:
 	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
 	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
 	virtual AActor* DropItem() override;
-	virtual bool ItemLocationWhenGrabbed(float SpeedOfItem) override;
+	virtual bool MoveItemToEquipPosition(float SpeedOfItem) override;
 
 	//If Gun should be with scope then 
 	// * add Scope actor blueprint class
@@ -56,9 +103,11 @@ public:
 
 	void WaitToReload();
 	void CancelReload();
+
 	void Shoot();
-	void GunSwayWhileMoving();
 	void ShootReleased();
+
+	void GunSwayWhileMoving();
 	void SetGunSwayWhileMovingTimer(bool bShouldClear = false);
 
 	float GetAmmoDistance() const { return AmmoDistance; }
@@ -68,20 +117,22 @@ public:
 	int32 GetMagazineCapacity() const { return MagazineCapacity; }
 
 	void SetBulletRotation(FRotator NewBulletRotation) { BulletRotation = NewBulletRotation; }
-	void SetCanGunSwayTick(bool bCan) { bCanGunSwayTick = bCan; }
+
+	void SetCanGunSwayTick(bool bCan) { bActivateGunSway = bCan; }
 	void SetCanSway(bool bCan) { bCanSway = bCan; }
+
 	void SetMarinePawn(class AMarineCharacter* NewActor) { MarinePawn = NewActor; }
 	void SetStatusOfGun(StatusOfAimedGun NewStatus) { StatusOfGun = NewStatus; }
 
 	void SetMagazineCapacity(int32 NewMagazineCapacity) { MagazineCapacity = NewMagazineCapacity; }
 
-	void SetWeaponInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
+	void UpdateWeaponDataInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
 
 	//Take And Drop
-	FString GetAmmoName() const { return AmmoItem.Item_Name; }
+	FString GetAmmoName() const { return SpawnedAmmoItemData.Item_Name; }
 	FVector GetRelativeLocationInPawn() const { return RelativeLocationInPawn; }
-	bool GetIsGrabbingEnded() const { return bIsGrabbingEnded; }
-	void SetItemFromInventory(struct FItemStruct* NewItemFromInventory) { ItemFromInventory = NewItemFromInventory; }
+	bool GetIsGrabbingEnded() const { return bEquipPositionMoveCompleted; }
+	void SetItemFromInventory(struct FItemStruct* NewItemFromInventory) { AmmunitionFromInventory = NewItemFromInventory; }
 	void EquipWeapon(bool bIsThisCurrentGun = true);
 
 	// Albertos
@@ -131,12 +182,13 @@ private:
 		float DropImpulseDistance = 400.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		UCurveFloat* ShootFOVCurve;
+
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Ammunition")
 		int32 MagazineCapacity = 10;
 	//When a player picks up a weapon for the first time, the value will be added to the inventory.
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Ammunition")
 		int32 StoredAmmo = 50;
-	//The name of the item from the inventory that will be the ammunition for this weapon. It must be the same as the one in the inventory.
+	//The item that will be the ammunition for this weapon.
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Ammunition")
 		TSubclassOf<class APickupItem> AmmunitionItemClass;
 
@@ -172,6 +224,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|DelayShoot")
 		float DelayShootTime = 0.1f;
 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
+		FBulletStruct BulletData;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		bool bShouldUseImpulseOnBullet;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
@@ -191,11 +246,6 @@ private:
 		float AmmoFallingDown;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		float AmmoImpulseForce;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (InlineEditConditionToggle))
-		bool bShouldCameraShakeAfterHit;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bShouldCameraShakeAfterHit"))
-		TSubclassOf<UCameraShakeBase> CameraShakeAfterBulletHit;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		bool bCanBulletGoThrough;
@@ -220,6 +270,12 @@ private:
 	//Actor that will spawn on the location from Socket "BulletDrop". Its for casing that is dumped from gun
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection")
 		TSubclassOf<AActor> DropBulletClass;
+
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (InlineEditConditionToggle))
+		bool bShouldCameraShakeAfterHit;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bShouldCameraShakeAfterHit"))
+		TSubclassOf<UCameraShakeBase> CameraShakeAfterBulletHit;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
 		UParticleSystem* ShootParticle;
@@ -373,18 +429,23 @@ private:
 
 	float CopyOfFOV = 90.f;
 	
-	bool CanShoot();
+	////////////// SHOOT ////////////
 	bool bCanShoot = true;
-	bool bCanSway = true;
-	bool bCanGunSwayTick = false;
-	bool bCanDropTheGun = true;
+	bool CanShoot();
 	void SetCanShoot();
+	////////////////////////////////
 
 	////////////// BULLET ///////////
 	FRotator BulletRotation;
+	void RandomBulletDirection(FRotator& NewBulletRotation);
 	void SpawnBullet();
-	void AddEffectsToShooting();
 	///////////////////////////////
+
+	///////////// GUN EFFECTS ///////
+	void PlayGunShootAnimation();
+	void AddEffectsToShooting();
+	void DropCasing();
+	void PlayGunHitObjectSound(AActor* OtherActor, const FHitResult& Hit);
 
 	/////////// GUN and CAMERA RECOIL /////////////////
 	void PlayRecoil();
@@ -395,17 +456,22 @@ private:
 	bool bConstantlyShoot;
 	FTimerHandle ConstantlyShootHandle;
 
-	////////////// TakeAndDrop //////////////////
-	FItemStruct AmmoItem;
-	bool bDidTakeThisWeapon;
-	bool bIsGrabbingEnded;
-	bool IsGunAtTheWeaponLocation();
-	FItemStruct* ItemFromInventory;
-	AActor* ChangeToAnotherWeapon(int32 AmountOfWeapons);
-	void DropTheGun();
+	/////////////// INVENTORY ////////////////
+	FItemStruct SpawnedAmmoItemData;
+	FItemStruct* AmmunitionFromInventory;
+	void RemoveGunFromAlbertosInventory();
 	void AddAmmoToInventory();
-	void SpawnAmmunitionForVariables();
+	void SpawnAmmunitionObjectForVariables();
 	bool GetPointerToAmmoFromInventory();
+
+	////////////// TakeAndDrop //////////////////
+	bool bDidTakeThisWeapon;
+	bool bEquipPositionMoveCompleted;
+	bool IsGunAtTheEquipLocation();
+	bool bCanDropTheGun = true;
+	AActor* EquipAnotherWeapon(int32 AmountOfWeapons);
+	void DropTheGun();
+	void DisableTheGun();
 	/////////////////
 
 	///////////////////// HUD WIDGET /////////////////////H
@@ -415,14 +481,14 @@ private:
 	void SetHudWidget(class UHUDWidget* NewHudWidget);
 	//////////////////////////////////////////////////
 
-	////////////// Drop Casing //////////
-	void DropCasing();
-
 	/////////////// Reloading ////////////////
 	float CopyOfMagazineCapacity;
 	bool bIsReloading;
 	FTimerHandle ReloadHandle;
 	class UAudioComponent* SpawnedReloadSound;
+	bool CanReload();
+	void ReloadEffects();
+	void RemoveAmmunitionFromInventory();
 	void Reload();
 	////////////////////
 
@@ -438,7 +504,7 @@ private:
 
 	////////////// RecoilCamera ///////////////
 	bool bCanRecoilCamera;
-	bool bShouldInterpBack;
+	bool bShouldCameraInterpBack;
 	float RandomRecoilYaw;
 	float RandomRecoilPitch;
 	float TimeRecoilCameraElapsed;
@@ -449,10 +515,16 @@ private:
 	void ResetVariablesForCameraRecoil();
 	void BackCameraToItsInitialRotation();
 	void UpRecoilCamera();
-	void InterpBackToInitialPosition();
+	void CameraInterpBackToInitialPosition();
 	////////////////////
 
 	///////////////// Gun Sway ////////////////
+	bool bCanSway = true;
+	bool bActivateGunSway = false;
+	bool GunADSSway(float LookUpValue, float LookRightValue);
+	bool CalculateGunSway(FVector & CalculatedLocation, FRotator &CalculatedRotation, float Delta);
+		//Using Lemniscate Of Bernoulli to sway gun while moving 
+	FVector CalculateLOBGunSwayWhileMoving();
 	void GunSway();
 	FRotator GunRotationSway;
 	FTimerHandle GunSwayWhileMovingHandle;

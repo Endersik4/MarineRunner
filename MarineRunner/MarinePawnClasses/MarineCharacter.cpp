@@ -770,7 +770,7 @@ void AMarineCharacter::RemoveDashWidget()
 
 void AMarineCharacter::UpdateHudWidget()
 {
-	if (Gun) Gun->SetWeaponInHud(true);
+	if (Gun) Gun->UpdateWeaponDataInHud(true);
 	HudWidget->SetCurrentNumberOfFirstAidKits();
 }
 #pragma endregion 

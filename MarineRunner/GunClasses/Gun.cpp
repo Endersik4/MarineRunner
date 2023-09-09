@@ -40,7 +40,7 @@ void AGun::BeginPlay()
 
 	BaseSkeletalMesh->OnComponentHit.AddDynamic(this, &AGun::OnHit);
 
-	SpawnAmmunitionForVariables();
+	SpawnAmmunitionObjectForVariables();
 
 	RecoilAnimTimeline = SetupTimeline(RecoilAnimTimeline, RecoilAnimCurveLocationX, FName("RecoilAnimTimeline"), FName("RecoilAnimTimelineDirection"), RecoilAnimTimelineLength, FName("RecoilAnimTimelineCallback"), FName("RecoilAnimTimelineFinishedCallback"));
 	if (bShouldUseCurveRecoil) RecoilCameraTimeline = SetupTimeline(RecoilCameraTimeline, RecoilCameraCurveY, FName("RecoilCameraTimeline"), FName("RecoilCameraTimelineDirection"), RecoilCameraTimelineLength, FName("RecoilCameraTimelineCallback"), FName("RecoilCameraTimelineFinishedCallback"));
@@ -57,13 +57,13 @@ void AGun::Tick(float DeltaTime)
 	GunSway();
 	AimTheGun(DeltaTime);
 	UpRecoilCamera();
-	InterpBackToInitialPosition();
+	CameraInterpBackToInitialPosition();
 }
 
 #pragma region //////////////////////////////////// SHOOT /////////////////////////////////////
 bool AGun::CanShoot()
 {
-	if (BulletClass == NULL || bIsGrabbingEnded == false) return false;
+	if (BulletClass == NULL || bEquipPositionMoveCompleted == false) return false;
 	if (bReloadOneBullet && bIsReloading && MagazineCapacity > 0)
 	{
 		CancelReload();
@@ -100,11 +100,12 @@ void AGun::Shoot()
 	
 	//Effect like paricles, sounds or drop casing from weapon
 	AddEffectsToShooting();
+
 	if (bManyBulletAtOnce) for (int i = 0; i != HowManyBulletsToSpawn; i++) SpawnBullet();
 	else SpawnBullet();
 
 	MagazineCapacity--;
-	SetWeaponInHud();
+	UpdateWeaponDataInHud();
 
 	bCanShoot = false;
 	bCanSway = false;
@@ -127,7 +128,6 @@ void AGun::ShootReleased()
 #pragma region ////////////////////////////////// RECOIL //////////////////////////////////////
 void AGun::PlayRecoil()
 {
-	//Recoil Things
 	SetCameraRecoil(); //Recoil CAMERA
 	Playtimeline(RecoilAnimTimeline); //Recoil GUN 
 }
@@ -277,29 +277,29 @@ void AGun::BackCameraToItsInitialRotation()
 		}
 	}
 
-	bShouldInterpBack = true;
+	bShouldCameraInterpBack = true;
 }
 
-void AGun::InterpBackToInitialPosition()
+void AGun::CameraInterpBackToInitialPosition()
 {
 	if (!MarinePawn) return;
 	
-	if (bShouldInterpBack == false) return;
+	if (bShouldCameraInterpBack == false) return;
 
+	// If the player moves the mouse, it stops the camera movement that was going back to its starting position.
 	if (PC->MouseXValue > 0.05f || PC->MouseXValue < -0.05f || PC->MouseYValue > 0.05f || PC->MouseYValue < -0.05f)
 	{
-		bShouldInterpBack = false;
+		bShouldCameraInterpBack = false;
 		return;
 	}
 
 	if (PC->GetControlRotation().Equals(InitialCameraRotation, 0.05f))
 	{
-		bShouldInterpBack = false;
+		bShouldCameraInterpBack = false;
 		return;
 	}
 	
 	FRotator NewRotation = UKismetMathLibrary::RInterpTo(PC->GetControlRotation(), InitialCameraRotation, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), InitalCameraPositionSpeed);
-
 	PC->SetControlRotation(NewRotation);
 }
 
@@ -320,8 +320,25 @@ void AGun::SpawnBullet()
 	FVector Location = BaseSkeletalMesh->GetSocketLocation(TEXT("Bullet"));
 	BulletRotation = GetActorRotation();
 
-	//Bullet will randomly "go" to other directions 
-	if (PitchBulletRecoilArray.Num() == 2 && YawBulletRecoilArray.Num() == 2 && (bIsAutomatic == false ||bFirstBulletWithoutRecoil == false))
+	RandomBulletDirection(BulletRotation);
+
+	bFirstBulletWithoutRecoil = false;
+
+	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, Location, BulletRotation);
+
+	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
+	float BulletImpulseForce = (bManyBulletAtOnce == false ? AmmoImpulseForce : AmmoImpulseForce / HowManyBulletsToSpawn);
+	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, BulletImpulseForce);
+	SpawnedBullet->SetUpBullet(bShouldUseImpulseOnBullet);
+
+	if (bCanBulletGoThrough == true) SpawnedBullet->SetBulletGoThroughVariables(true, DamageReduceAfterObject, ImpulseReduceAfterObject, MaxObjectsForBulletToGoThrough);
+	if (bRadialImpulse) SpawnedBullet->RadialImpulse(RadialSphereRadius, bDrawRadialSphere);
+	if (bShouldCameraShakeAfterHit) SpawnedBullet->SetCameraShake(CameraShakeAfterBulletHit);
+}
+
+void AGun::RandomBulletDirection(FRotator& NewBulletRotation)
+{
+	if (PitchBulletRecoilArray.Num() == 2 && YawBulletRecoilArray.Num() == 2 && (bIsAutomatic == false || bFirstBulletWithoutRecoil == false))
 	{
 		float NewPitchRotaton = FMath::FRandRange(PitchBulletRecoilArray[0], PitchBulletRecoilArray[1]);
 		float NewYawRotation = FMath::FRandRange(YawBulletRecoilArray[0], YawBulletRecoilArray[1]);
@@ -333,75 +350,59 @@ void AGun::SpawnBullet()
 		BulletRotation.Pitch += NewPitchRotaton;
 		BulletRotation.Yaw += NewYawRotation;
 	}
-	bFirstBulletWithoutRecoil = false;
-
-	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, Location, BulletRotation);
-
-	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
-	float BulletImpulseForce = (bManyBulletAtOnce == false ? AmmoImpulseForce : AmmoImpulseForce / HowManyBulletsToSpawn);
-	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, BulletImpulseForce);
-	SpawnedBullet->ImpulseOnBullet(bShouldUseImpulseOnBullet);
-
-	if (bCanBulletGoThrough == true) SpawnedBullet->SetBulletGoThroughVariables(true, DamageReduceAfterObject, ImpulseReduceAfterObject, MaxObjectsForBulletToGoThrough);
-	if (bRadialImpulse) SpawnedBullet->RadialImpulse(RadialSphereRadius, bDrawRadialSphere);
-	if (bShouldCameraShakeAfterHit) SpawnedBullet->SetCameraShake(CameraShakeAfterBulletHit);
 }
 #pragma endregion
 
 #pragma region ////////////////////////////////// RELOAD //////////////////////////////////////
+bool AGun::CanReload()
+{
+	if (GetPointerToAmmoFromInventory() == false || MagazineCapacity == CopyOfMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return false;
+	if (AmmunitionFromInventory->Item_Amount <= 0) return false;
+	
+	return true;
+}
+
+
 void AGun::WaitToReload()
 {
-	if (GetPointerToAmmoFromInventory() == false || MagazineCapacity == CopyOfMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return;
-	if (ItemFromInventory->Item_Amount <= 0) return;
+	if (CanReload() == false) return;
 
+	ReloadEffects();
+
+	bCanShoot = false;
+	ShootReleased();
+
+	bIsReloading = true;
+	MarinePawn->CallADSReleased();
+	GetWorldTimerManager().SetTimer(ReloadHandle, this, &AGun::Reload, ReloadTime, false);
+}
+
+void AGun::ReloadEffects()
+{
 	if (ReloadSound) SpawnedReloadSound = UGameplayStatics::SpawnSoundAttached(ReloadSound, BaseSkeletalMesh);
 	if (bCasingEjectionWhileReloading == true) DropCasing();
 	BaseSkeletalMesh->SetForceRefPose(false);
 	if (ReloadAnimation) BaseSkeletalMesh->PlayAnimation(ReloadAnimation, false);
-
-	bCanShoot = false;
-	ShootReleased();
-	bIsReloading = true;
-	MarinePawn->CallADSReleased();
-	GetWorldTimerManager().SetTimer(ReloadHandle, this, &AGun::Reload, ReloadTime, false);
 }
 
 void AGun::Reload()
 {
 	if (GetPointerToAmmoFromInventory() == false) return;
 
-	if (bReloadOneBullet == true)
-	{
-		MagazineCapacity++;
-		ItemFromInventory->Item_Amount--;
-	}
-	else
-	{
-		int32 RestAmmo = CopyOfMagazineCapacity - MagazineCapacity;
-		if (ItemFromInventory->Item_Amount < RestAmmo)
-		{
-			MagazineCapacity += ItemFromInventory->Item_Amount;
-			ItemFromInventory->Item_Amount = 0;
-		}
-		else
-		{
-			ItemFromInventory->Item_Amount -= RestAmmo;
-			MagazineCapacity = CopyOfMagazineCapacity;
-		}
-	}
+	RemoveAmmunitionFromInventory();
 
 	bIsReloading = false;
 	bCanShoot = true;
-	SetWeaponInHud(true);
+	UpdateWeaponDataInHud(true);
 
-	if (ItemFromInventory->Item_Amount <= 0) MarinePawn->GetInventoryComponent()->Inventory_Items.Remove(AmmoItem.Item_Name);
+	if (AmmunitionFromInventory->Item_Amount <= 0) MarinePawn->GetInventoryComponent()->Inventory_Items.Remove(SpawnedAmmoItemData.Item_Name);
 	MarinePawn->UpdateAlbertosInventory();
 
 	GetWorldTimerManager().ClearTimer(ReloadHandle);
 	if (bReloadOneBullet) WaitToReload();
 }
 
-void  AGun::CancelReload()
+void AGun::CancelReload()
 {
 	GetWorldTimerManager().ClearTimer(ReloadHandle);
 
@@ -411,6 +412,29 @@ void  AGun::CancelReload()
 	SpawnedReloadSound = nullptr;
 	bCanShoot = true;
 	bIsReloading = false;
+}
+
+void AGun::RemoveAmmunitionFromInventory()
+{
+	if (bReloadOneBullet == true)
+	{
+		MagazineCapacity++;
+		AmmunitionFromInventory->Item_Amount--;
+	}
+	else
+	{
+		int32 RestAmmo = CopyOfMagazineCapacity - MagazineCapacity;
+		if (AmmunitionFromInventory->Item_Amount < RestAmmo)
+		{
+			MagazineCapacity += AmmunitionFromInventory->Item_Amount;
+			AmmunitionFromInventory->Item_Amount = 0;
+		}
+		else
+		{
+			AmmunitionFromInventory->Item_Amount -= RestAmmo;
+			MagazineCapacity = CopyOfMagazineCapacity;
+		}
+	}
 }
 #pragma endregion
 
@@ -422,17 +446,25 @@ void AGun::AddEffectsToShooting()
 
 	if (bPlayShootAnimationAfterFire == true) return;
 
-	BaseSkeletalMesh->SetForceRefPose(false);
-	if (GetPointerToAmmoFromInventory() && MagazineCapacity == 1 && ShootWithNoBulletsAnimation)
-	{
-		if (ItemFromInventory->Item_Amount <= 0) BaseSkeletalMesh->PlayAnimation(ShootWithNoBulletsAnimation, false);
-	}
-	else if (ShootAnimation)
-	{
-		BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
-	}
+	PlayGunShootAnimation();
 
 	if (bCasingEjectionWhileReloading == false) DropCasing();
+}
+
+void AGun::PlayGunShootAnimation()
+{
+	BaseSkeletalMesh->SetForceRefPose(false);
+	if (ShootWithNoBulletsAnimation && GetPointerToAmmoFromInventory() == true && MagazineCapacity == 1)
+	{
+		if (AmmunitionFromInventory->Item_Amount <= 0)
+		{
+			BaseSkeletalMesh->PlayAnimation(ShootWithNoBulletsAnimation, false);
+			return;
+		}
+	}
+
+	if (ShootAnimation == nullptr) return;	
+	BaseSkeletalMesh->PlayAnimation(ShootAnimation, false);
 }
 
 void AGun::DropCasing()
@@ -449,11 +481,14 @@ void AGun::DropCasing()
 	AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), DropBulletRotation);
 	DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 }
-#pragma endregion
 
-void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void AGun::PlayGunHitObjectSound(AActor* OtherActor, const FHitResult& Hit)
 {
+	// TODO: Rewrite the entire function because it works poorly
 	if (!HitGroundSound) return;
+
+	ITakeInterface* TakeInterface = Cast<ITakeInterface>(Hit.GetActor());
+	if (TakeInterface) return;
 
 	if (SpawnedHitGroundSound && HitActor)
 	{
@@ -463,42 +498,25 @@ void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCom
 	SpawnedHitGroundSound = UGameplayStatics::SpawnSoundAtLocation(GetWorld(), HitGroundSound, GetActorLocation());
 	HitActor = OtherActor;
 }
+#pragma endregion
+
+void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	PlayGunHitObjectSound(OtherActor, Hit);
+}
 
 #pragma region //////////////////////////////// GUN SWAY //////////////////////////////////////
 void AGun::GunSway()
 {
-	if (MarinePawn == nullptr || bCanGunSwayTick == false || bCanSway == false) return;
+	if (MarinePawn == nullptr || bActivateGunSway == false || bCanSway == false) return;
 	
 	float Delta = UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 
-	//Preparing variables
-	float LookUp = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetInputAxisValue("LookUp");
-	float LookRight = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetInputAxisValue("LookRight");
-	float Forward = MarinePawn->GetInputAxisValue("Forward");
-	float Right = MarinePawn->GetInputAxisValue("Right");
-	
-	//Rotation Sway when The Player moves the mouse
-	float InterpLookUp = FMath::FInterpTo(GunRotationSway.Pitch, UKismetMathLibrary::MapRangeClamped(LookUp, -1, 1, RotationSwayPitchRangeBack, RotationSwayPitchRangeUp), Delta, SpeedOfSwayPitch);
-	float InterpLookRight = FMath::FInterpTo(GunRotationSway.Yaw, UKismetMathLibrary::MapRangeClamped(LookRight, -1, 1, RotationSwayYawRangeBack, RotationSwayYawRangeUp), Delta, SpeedOfSwayYaw);
+	FVector GunLocationInterp = BaseSkeletalMesh->GetRelativeLocation();
 
-	if (StatusOfGun == ADS)
-	{
-		InterpLookRight /= DividerOfGunSwayADS;
-		InterpLookUp /= DividerOfGunSwayADS;
-		GunRotationSway = FRotator(InterpLookUp, InterpLookRight, 0.f);
-		BaseSkeletalMesh->SetRelativeRotation(GunRotationSway);
-		return;
-	}
-	
-	//Location Sway when The Player moves around
-	FVector GunLocationInterp = BaseSkeletalMesh->GetRelativeLocation(); 
-	float InterpForward = FMath::InterpEaseInOut(GunLocationInterp.X, UKismetMathLibrary::MapRangeClamped(Forward, 1, -1, RelativeLocationInPawn.X + LocationSwayXRangeBack, 
-		RelativeLocationInPawn.X + LocationSwayXRangeUp), (Delta * SpeedOfSwayX), 1.f);
-	float InterpRight = FMath::InterpEaseInOut(GunLocationInterp.Y, UKismetMathLibrary::MapRangeClamped(Right, -1, 1, RelativeLocationInPawn.Y + LocationSwayYRangeBack,
-		RelativeLocationInPawn.Y + LocationSwayYRangeUp), (Delta * SpeedOfSwayY), 1.f);
+	bool bADSGunSway = CalculateGunSway(GunLocationInterp, GunRotationSway, Delta);
+	if (bADSGunSway == true) return;
 
-	GunRotationSway = FRotator(InterpLookUp, InterpLookRight, 0.f);
-	GunLocationInterp = FVector(InterpForward, InterpRight, GunLocationInterp.Z);
 	BaseSkeletalMesh->SetRelativeLocation(GunLocationInterp);
 	BaseSkeletalMesh->SetRelativeRotation(GunRotationSway);
 
@@ -509,32 +527,73 @@ void AGun::GunSway()
 		BaseSkeletalMesh->SetRelativeLocation(BackToOriginalPosition);
 	}
 }
+bool AGun::CalculateGunSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, float Delta)
+{
+	//Preparing variables
+	float LookUp = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetInputAxisValue("LookUp");
+	float LookRight = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetInputAxisValue("LookRight");
+	float Forward = MarinePawn->GetInputAxisValue("Forward");
+	float Right = MarinePawn->GetInputAxisValue("Right");
+
+	//Rotation Sway when The Player moves the mouse
+	float InterpLookUp = FMath::FInterpTo(GunRotationSway.Pitch, UKismetMathLibrary::MapRangeClamped(LookUp, -1, 1, RotationSwayPitchRangeBack, RotationSwayPitchRangeUp), Delta, SpeedOfSwayPitch);
+	float InterpLookRight = FMath::FInterpTo(GunRotationSway.Yaw, UKismetMathLibrary::MapRangeClamped(LookRight, -1, 1, RotationSwayYawRangeBack, RotationSwayYawRangeUp), Delta, SpeedOfSwayYaw);
+
+	if (GunADSSway(InterpLookUp, InterpLookRight) == true) return true;
+
+	//Location Sway when The Player moves around
+	float InterpForward = FMath::InterpEaseInOut(CalculatedLocation.X, UKismetMathLibrary::MapRangeClamped(Forward, 1, -1, RelativeLocationInPawn.X + LocationSwayXRangeBack,
+		RelativeLocationInPawn.X + LocationSwayXRangeUp), (Delta * SpeedOfSwayX), 1.f);
+	float InterpRight = FMath::InterpEaseInOut(CalculatedLocation.Y, UKismetMathLibrary::MapRangeClamped(Right, -1, 1, RelativeLocationInPawn.Y + LocationSwayYRangeBack,
+		RelativeLocationInPawn.Y + LocationSwayYRangeUp), (Delta * SpeedOfSwayY), 1.f);
+
+	CalculatedRotation = FRotator(InterpLookUp, InterpLookRight, 0.f);
+	CalculatedLocation = FVector(InterpForward, InterpRight, CalculatedLocation.Z);
+
+	return false;
+}
+
+bool AGun::GunADSSway(float LookUpValue, float LookRightValue)
+{
+	if (StatusOfGun != ADS) return false;
+
+	LookRightValue /= DividerOfGunSwayADS;
+	LookUpValue /= DividerOfGunSwayADS;
+	GunRotationSway = FRotator(LookUpValue, LookRightValue, 0.f);
+	BaseSkeletalMesh->SetRelativeRotation(GunRotationSway);
+	return true;
+}
 
 void AGun::GunSwayWhileMoving()
 {
-	//Using Lemniscate Of Bernoulli to sway gun while moving 
 	if (bCanSway == false || MarinePawn == nullptr) return;
 	if (!MarinePawn->GetIsWallrunning() && MarinePawn->GetInputAxisValue("Forward") == 0 && MarinePawn->GetInputAxisValue("Right") == 0) return;
 
+	FVector CalculatedGunSway = CalculateLOBGunSwayWhileMoving();
+
+	BaseSkeletalMesh->SetRelativeLocation(CalculatedGunSway);
+}
+
+FVector AGun::CalculateLOBGunSwayWhileMoving()
+{
 	float SpeedOfLemniscate = GetWorld()->GetTimeSeconds() * SpeedOfSwayWhileMoving;
 
-	float Angle = 2 / (9.f - FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate * 2)));
-	float LocationY = Angle * FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate)); //SineWave
-	float LocationZ = (FMath::Sin(FMath::DegreesToRadians(SpeedOfLemniscate * 2)) * Angle) / 2; //Angle Offset
+	float Ang = 2 / (9.f - FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate * 2)));
+	float LocY = Ang * FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate)); //SineWave
+	float LocZ = (FMath::Sin(FMath::DegreesToRadians(SpeedOfLemniscate * 2)) * Ang) / 2; //Angle Offset
 
 	if (StatusOfGun == ADS)
 	{
-		Angle /= DividerOfGunSwayMovingADS;
-		LocationY /= DividerOfGunSwayMovingADS;
-		LocationZ /= DividerOfGunSwayMovingADS;
+		Ang /= DividerOfGunSwayMovingADS;
+		LocY /= DividerOfGunSwayMovingADS;
+		LocZ /= DividerOfGunSwayMovingADS;
 	}
-	
-	FVector GunLemniscateLocation = BaseSkeletalMesh->GetRelativeLocation();
-	GunLemniscateLocation.Y += (LocationY * MultiplierOfLocationYSwayWhileMoving);
-	GunLemniscateLocation.Z += (LocationZ * MultiplierOfLocationZSwayWhileMoving);
 
-	BaseSkeletalMesh->SetRelativeLocation(GunLemniscateLocation);
-	
+	FVector CalculatedGunSway = BaseSkeletalMesh->GetRelativeLocation();
+	CalculatedGunSway.Y += (LocY * MultiplierOfLocationYSwayWhileMoving);
+	CalculatedGunSway.Z += (LocZ * MultiplierOfLocationZSwayWhileMoving);
+
+	return CalculatedGunSway;
 }
 
 void AGun::SetGunSwayWhileMovingTimer(bool bShouldClear)
@@ -578,23 +637,23 @@ void AGun::SetHudWidget(UHUDWidget* NewHudWidget)
 {
 	if (NewHudWidget)
 	{
-		NewHudWidget->HideWeaponThings(false);
+		NewHudWidget->HideWeaponUI(false);
 	}
 	else if (HudWidget)
 	{
-		HudWidget->HideWeaponThings(true);
+		HudWidget->HideWeaponUI(true);
 	}
 
 	HudWidget = NewHudWidget;
 }
 
-void AGun::SetWeaponInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
+void AGun::UpdateWeaponDataInHud(bool bChangeStoredAmmoText, bool bChangeWeaponImage)
 {
 	if (!HudWidget) return;
 
 	HudWidget->SetAmmoText(MagazineCapacity);
 
-	if (bChangeStoredAmmoText && GetPointerToAmmoFromInventory()) HudWidget->SetAmmoText(ItemFromInventory->Item_Amount, true);
+	if (bChangeStoredAmmoText && GetPointerToAmmoFromInventory()) HudWidget->SetAmmoText(AmmunitionFromInventory->Item_Amount, true);
 	if (bChangeWeaponImage)
 	{
 		HudWidget->SetWeaponImage(GunHUDTexture, bAmmoCounterBelowGunHUD);
@@ -614,7 +673,7 @@ void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 		return;
 	}
 
-	bIsGrabbingEnded = false;
+	bEquipPositionMoveCompleted = false;
 	bIsItWeapon = true;
 	MarinePawn = MarineCharacter;
 	CopyOfFOV = MarinePawn->GetCamera()->FieldOfView;
@@ -654,16 +713,16 @@ void AGun::EquipWeapon(bool bIsThisCurrentGun)
 	SetHudWidget(MarinePawn->GetHudWidget());
 	if (bIsThisCurrentGun)
 	{
-		//Changing Weapons things In HUD to the correct ones
-		SetWeaponInHud(true, true);
+		//Changing Weapons UI In HUD to the correct ones
+		UpdateWeaponDataInHud(true, true);
 	}
 
 	AttachToComponent(MarinePawn->GetCamera(), FAttachmentTransformRules(EAttachmentRule::KeepWorld, true));
 }
 
-bool AGun::ItemLocationWhenGrabbed(float SpeedOfItem)
+bool AGun::MoveItemToEquipPosition(float SpeedOfItem)
 {
-	if (bIsGrabbingEnded == true) return true;
+	if (bEquipPositionMoveCompleted == true) return true;
 
 	FVector BaseSkeletalMeshRelativeLocation = BaseSkeletalMesh->GetRelativeLocation();
 	FVector Location = FMath::InterpExpoOut(BaseSkeletalMeshRelativeLocation, RelativeLocationInPawn, SpeedOfItem);
@@ -673,19 +732,19 @@ bool AGun::ItemLocationWhenGrabbed(float SpeedOfItem)
 	FRotator Rotation = FMath::InterpExpoOut(BaseSkeletalMeshRelativeRotation, FRotator(0.f), SpeedOfItem);
 	SetActorRelativeRotation(Rotation);
 
-	return IsGunAtTheWeaponLocation();
+	return IsGunAtTheEquipLocation();
 }
 
-bool AGun::IsGunAtTheWeaponLocation()
+bool AGun::IsGunAtTheEquipLocation()
 {
-	bIsGrabbingEnded = BaseSkeletalMesh->GetRelativeLocation().Equals(RelativeLocationInPawn, 0.2f);
-	if (!bIsGrabbingEnded) return false;
+	bEquipPositionMoveCompleted = BaseSkeletalMesh->GetRelativeLocation().Equals(RelativeLocationInPawn, 0.2f);
+	if (!bEquipPositionMoveCompleted) return false;
 
+	// Activate Gun
 	SetGunSwayWhileMovingTimer();
 	SetCanGunSwayTick(true);
 	SetActorRelativeLocation(RelativeLocationInPawn);
 
-	//MarinePawn->SetGun(this);
 	MarinePawn->SetCanChangeWeapon(true);
 	return true;
 }
@@ -694,7 +753,7 @@ bool AGun::IsGunAtTheWeaponLocation()
 #pragma region ////////////////////////////////// DROP ////////////////////////////////////////
 AActor* AGun::DropItem()
 {
-	if (bIsGrabbingEnded == false) return this;
+	if (bEquipPositionMoveCompleted == false) return this;
 	if (this != MarinePawn->GetGun()) return this;
 
 	if (bCanDropTheGun == false) return this;
@@ -702,7 +761,7 @@ AActor* AGun::DropItem()
 	MarinePawn->GetWeaponInventoryComponent()->RemoveWeaponFromStorage(this);
 	int32 AmountOfWeapons = MarinePawn->GetWeaponInventoryComponent()->GetWeaponsStorageAmount();
 
-	AActor* GunFromStorage = ChangeToAnotherWeapon(AmountOfWeapons);
+	AActor* GunFromStorage = EquipAnotherWeapon(AmountOfWeapons);
 
 	DropTheGun();
 	return GunFromStorage;
@@ -712,7 +771,20 @@ void AGun::DropTheGun()
 {
 	if (!MarinePawn) return;
 
-	FItemStruct * GunItem = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(GetItemName());
+	RemoveGunFromAlbertosInventory();
+
+	DisableTheGun();
+
+	if (bIsReloading) CancelReload();
+
+	FVector DropImpulse = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetRootComponent()->GetForwardVector() * 10 * DropImpulseDistance;
+	BaseSkeletalMesh->AddImpulse(DropImpulse);
+	MarinePawn = nullptr;
+}
+
+void AGun::RemoveGunFromAlbertosInventory()
+{
+	FItemStruct* GunItem = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(GetItemName());
 
 	if (GunItem)
 	{
@@ -720,34 +792,34 @@ void AGun::DropTheGun()
 		if (GunItem->Item_Amount <= 0) MarinePawn->GetInventoryComponent()->Inventory_Items.Remove(GetItemSettings().Item_Name);
 	}
 	MarinePawn->UpdateAlbertosInventory();
+}
 
+void AGun::DisableTheGun()
+{
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 	ActivateZoom(false);
 	BaseSkeletalMesh->SetSimulatePhysics(true);
 	BaseSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	BaseSkeletalMesh->SetRenderCustomDepth(true);
+	//BaseSkeletalMesh->SetRenderCustomDepth(true);
 
 	SetGunSwayWhileMovingTimer(true);
-	bCanGunSwayTick = false;
+	bActivateGunSway = false;
 	HudWidget = nullptr;
-	if (bIsReloading) CancelReload();
-
-	FVector DropImpulse = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetRootComponent()->GetForwardVector() * 10 * DropImpulseDistance;
-	BaseSkeletalMesh->AddImpulse(DropImpulse);
-	MarinePawn = nullptr;
 }
+
 #pragma endregion
 
 #pragma region /////////////////////////////// INVENTORY //////////////////////////////////////
-void AGun::SpawnAmmunitionForVariables()
+void AGun::SpawnAmmunitionObjectForVariables()
 {
+	// TODO: Change Whole Spawning Object system to Data Tables
 	APickupItem* SpawnedAmmunition = GetWorld()->SpawnActor<APickupItem>(AmmunitionItemClass, FVector(0.f), FRotator(0.f));
 	if (SpawnedAmmunition == nullptr) return;
 
-	AmmoItem = SpawnedAmmunition->GetItemSettings();
-	AmmoItem.Item_Amount = 0;
+	SpawnedAmmoItemData = SpawnedAmmunition->GetItemSettings();
+	SpawnedAmmoItemData.Item_Amount = 0;
 
-	if (StoredAmmo != 0) AmmoItem.Item_Amount += StoredAmmo;
+	if (StoredAmmo != 0) SpawnedAmmoItemData.Item_Amount += StoredAmmo;
 	SpawnedAmmunition->Destroy();
 }
 
@@ -757,12 +829,12 @@ void AGun::AddAmmoToInventory()
 
 	if (GetPointerToAmmoFromInventory())
 	{
-		ItemFromInventory->Item_Amount += StoredAmmo;
+		AmmunitionFromInventory->Item_Amount += StoredAmmo;
 	}
 	else
 	{
-		MarinePawn->GetInventoryComponent()->Inventory_Items.Add(AmmoItem.Item_Name, AmmoItem);
-		ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(AmmoItem.Item_Name);
+		MarinePawn->GetInventoryComponent()->Inventory_Items.Add(SpawnedAmmoItemData.Item_Name, SpawnedAmmoItemData);
+		AmmunitionFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(SpawnedAmmoItemData.Item_Name);
 	}
 	
 	bDidTakeThisWeapon = true;
@@ -770,11 +842,11 @@ void AGun::AddAmmoToInventory()
 
 bool AGun::GetPointerToAmmoFromInventory()
 {
-	ItemFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(AmmoItem.Item_Name);
-	return ItemFromInventory ? true : false;
+	AmmunitionFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(SpawnedAmmoItemData.Item_Name);
+	return AmmunitionFromInventory ? true : false;
 }
 
-AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
+AActor* AGun::EquipAnotherWeapon(int32 AmountOfWeapons)
 {
 	AGun* GunFromStorage;
 	if (AmountOfWeapons > 0)
@@ -782,9 +854,9 @@ AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
 		GunFromStorage = MarinePawn->GetWeaponInventoryComponent()->GetWeaponFromStorage(AmountOfWeapons, nullptr);
 		MarinePawn->SetGun(GunFromStorage);
 	}
-	else
+	else 
 	{
-		MarinePawn->GetHudWidget()->HideWeaponThings(true);
+		MarinePawn->GetHudWidget()->HideWeaponUI(true);
 		GunFromStorage = nullptr;
 		MarinePawn->SetGun(nullptr);
 	}
@@ -792,7 +864,7 @@ AActor* AGun::ChangeToAnotherWeapon(int32 AmountOfWeapons)
 }
 #pragma endregion
 
-#pragma region /////////////////////////////// ALBERTOS ///////////////////////////////////////
+#pragma region /////////////////////////////// ALBERTOS CRAFTING ///////////////////////////////////////
 void AGun::ChangeSimulatingPhysics(bool bChange)
 {
 	BaseSkeletalMesh->SetSimulatePhysics(bChange);

@@ -66,7 +66,7 @@ AGun* UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, class 
 	}
 
 	Gun->SetGunSwayWhileMovingTimer();
-	Gun->SetWeaponInHud(true, true);
+	Gun->UpdateWeaponDataInHud(true, true);
 	Gun->SetActorHiddenInGame(false);
 
 	return Gun;

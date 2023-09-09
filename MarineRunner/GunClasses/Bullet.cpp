@@ -64,7 +64,7 @@ void ABullet::MovementBullet(float Delta)
 	SetActorLocation(BulletLocation, true, (FHitResult*)nullptr,  ETeleportType::TeleportPhysics);
 }
 
-void ABullet::ImpulseOnBullet(bool bShouldUseImpulseOnBullet)
+void ABullet::SetUpBullet(bool bShouldUseImpulseOnBullet)
 {
 	if (bShouldUseImpulseOnBullet)
 	{
@@ -129,7 +129,7 @@ void ABullet::SphereRadialDamage(const FHitResult& Hit)
 		}
 	}
 
-	SpawnEffectsForImpact(Hit);
+	SpawnEffectsWhenHit(Hit);
 	Destroy();
 }
 
@@ -151,20 +151,25 @@ void ABullet::UseInterfaceOnActor(const FHitResult& HitResult)
 	}
 	else
 	{
-		if (HitResult.GetComponent()->IsSimulatingPhysics() == true)
-		{
-			if (SphereImpulseRadius != 0.f)
-			{
-				HitResult.GetComponent()->AddRadialImpulse(GetActorLocation(), SphereImpulseRadius, AmmoImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);
-			}
-			else
-			{
-				FVector Impulse = GetActorForwardVector() * AmmoImpulseForce * 10.f;
-				HitResult.GetComponent()->AddImpulse(Impulse);
-			}	
-		}
-		if (SphereImpulseRadius == 0.f) SpawnEffectsForImpact(HitResult);
+		HitActorWithoutInterface(HitResult);
 	}
+}
+
+void ABullet::HitActorWithoutInterface(const FHitResult& HitResult)
+{
+	if (HitResult.GetComponent()->IsSimulatingPhysics() == true)
+	{
+		if (SphereImpulseRadius != 0.f)
+		{
+			HitResult.GetComponent()->AddRadialImpulse(GetActorLocation(), SphereImpulseRadius, AmmoImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);
+		}
+		else
+		{
+			FVector Impulse = GetActorForwardVector() * AmmoImpulseForce * 10.f;
+			HitResult.GetComponent()->AddImpulse(Impulse);
+		}
+	}
+	if (SphereImpulseRadius == 0.f) SpawnEffectsWhenHit(HitResult);
 }
 
 void ABullet::BulletThroughObject(const FHitResult& Hit)
@@ -186,7 +191,7 @@ void ABullet::BulletThroughObject(const FHitResult& Hit)
 #pragma endregion
 
 #pragma region ////////////////////// EFFECTS ////////////////////////////
-void ABullet::SpawnEffectsForImpact(const FHitResult& Hit)
+void ABullet::SpawnEffectsWhenHit(const FHitResult& Hit)
 {
 	if (ObjectHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ObjectHitSound, Hit.ImpactPoint);
 	if (BulletHitParticle)
@@ -199,10 +204,10 @@ void ABullet::SpawnEffectsForImpact(const FHitResult& Hit)
 		}
 	}
 
-	SpawnBulletHole(Hit);
+	SpawnBulletHoleDecal(Hit);
 }
 
-void ABullet::SpawnBulletHole(const FHitResult& Hit)
+void ABullet::SpawnBulletHoleDecal(const FHitResult& Hit)
 {
 	if (!BulletHoleDecalMaterial) return;
 

@@ -123,6 +123,7 @@ private:
 
 	float TimeElapsed;
 	float WaitTime;
+	float CopiedItemCraftTime;
 	FTimerHandle TimeCraftHandle;
 	void SetPercentOfCraftingProgressBar(float Delta);
 	void SetCanCraftAgain();
