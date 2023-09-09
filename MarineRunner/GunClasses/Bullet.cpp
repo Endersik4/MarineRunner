@@ -34,6 +34,7 @@ void ABullet::BeginPlay()
 {
 	Super::BeginPlay();
 
+	SetBulletMovementType();
 }
 
 // Called every frame
@@ -49,28 +50,28 @@ void ABullet::MovementBullet(float Delta)
 {
 	if (bUseMyMovement == false) return;
 
-	BulletLocation = GetActorLocation() + (GetActorForwardVector() * AmmoSpeed * Delta);
+	BulletLocation = GetActorLocation() + (GetActorForwardVector() * BulletData.Speed * Delta);
 	
-	if (TrackBulletDistance >= AmmoDistance)
+	if (TrackBulletDistance >= BulletData.Distance)
 	{
-		BulletLocation -= GetActorUpVector() * (AmmoFallingDown * Delta);
-		AmmoFallingDown += 20 * Delta;
+		BulletLocation -= GetActorUpVector() * (BulletData.FallingDown * Delta);
+		BulletData.FallingDown += 20 * Delta;
 	}
 	else
 	{
-		TrackBulletDistance += (AmmoSpeed * Delta);
+		TrackBulletDistance += (BulletData.Speed * Delta);
 	}
 
 	SetActorLocation(BulletLocation, true, (FHitResult*)nullptr,  ETeleportType::TeleportPhysics);
 }
 
-void ABullet::SetUpBullet(bool bShouldUseImpulseOnBullet)
+void ABullet::SetBulletMovementType()
 {
-	if (bShouldUseImpulseOnBullet)
+	if (BulletData.bUsePhysicsForMovement)
 	{
 		BulletMesh->SetSimulatePhysics(true);
 		BulletMesh->SetAllUseCCD(true); 
-		BulletMesh->AddImpulse(GetActorForwardVector() * AmmoSpeed);
+		BulletMesh->AddImpulse(GetActorForwardVector() * BulletData.Speed);
 	}
 	else bUseMyMovement = true;
 }
@@ -93,10 +94,10 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 {
 	if (BulletStuckInActor(Hit) == true) return;
 
-	if (bShouldCameraShakeAfterHit)
+	if (BulletData.bShouldCameraShakeAfterHit)
 	{
 		float CameraShakeScale = 1 - (FVector::Distance(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation(), GetActorLocation()) / 10000);
-		UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(CameraShakeAfterHit, CameraShakeScale);
+		UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(BulletData.CameraShakeAfterBulletHit, CameraShakeScale);
 	}
 
 	SphereRadialDamage(Hit);
@@ -108,12 +109,12 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 
 void ABullet::SphereRadialDamage(const FHitResult& Hit)
 {
-	if (bSphereImpulse == false) return;
+	if (BulletData.bUseSphereForDamage == false) return;
 
 	TArray<FHitResult> HitArray;
-	GetWorld()->SweepMultiByChannel(HitArray, GetActorLocation(), GetActorLocation(), FQuat::Identity, ECC_GameTraceChannel3, FCollisionShape::MakeSphere(SphereImpulseRadius));
+	GetWorld()->SweepMultiByChannel(HitArray, GetActorLocation(), GetActorLocation(), FQuat::Identity, ECC_GameTraceChannel3, FCollisionShape::MakeSphere(BulletData.RadialSphereRadius));
 
-	if (bDrawDebugRadialSphere) DrawDebugSphere(GetWorld(), GetActorLocation(), SphereImpulseRadius, 50, FColor::Red, true);
+	if (BulletData.bDrawDebugRadialSphere) DrawDebugSphere(GetWorld(), GetActorLocation(), BulletData.RadialSphereRadius, 50, FColor::Red, true);
 
 	//Use UseInterfaceOnActor(HitResult) only once on the same actor
 	TArray<AActor*> HitActors;
@@ -138,16 +139,16 @@ void ABullet::UseInterfaceOnActor(const FHitResult& HitResult)
 	IInteractInterface* Interface = Cast<IInteractInterface>(HitResult.GetActor());
 	if (Interface) //Check if Object has Interface C++ Implementation
 	{
-		if (SphereImpulseRadius != 0.f)
+		if (BulletData.RadialSphereRadius != 0.f)
 		{
-			float RadialDamage = Damage / (FVector::Distance(GetActorLocation(), HitResult.GetActor()->GetActorLocation()) / 100);
-			Interface->ApplyDamage(RadialDamage, AmmoImpulseForce, HitResult, this, SphereImpulseRadius);
+			float RadialDamage = BulletData.Damage / (FVector::Distance(GetActorLocation(), HitResult.GetActor()->GetActorLocation()) / 100);
+			Interface->ApplyDamage(RadialDamage, BulletData.ImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
 		}
-		else Interface->ApplyDamage(Damage, AmmoImpulseForce, HitResult, this);
+		else Interface->ApplyDamage(BulletData.Damage, BulletData.ImpulseForce, HitResult, this);
 	}
 	else if (HitResult.GetActor()->Implements<UInteractInterface>())  //Check if Object has Interface Blueprint Implementation
 	{
-		IInteractInterface::Execute_BreakObject(HitResult.GetActor(), AmmoImpulseForce, HitResult, this, SphereImpulseRadius);
+		IInteractInterface::Execute_BreakObject(HitResult.GetActor(), BulletData.ImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
 	}
 	else
 	{
@@ -159,31 +160,31 @@ void ABullet::HitActorWithoutInterface(const FHitResult& HitResult)
 {
 	if (HitResult.GetComponent()->IsSimulatingPhysics() == true)
 	{
-		if (SphereImpulseRadius != 0.f)
+		if (BulletData.RadialSphereRadius != 0.f)
 		{
-			HitResult.GetComponent()->AddRadialImpulse(GetActorLocation(), SphereImpulseRadius, AmmoImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);
+			HitResult.GetComponent()->AddRadialImpulse(GetActorLocation(), BulletData.RadialSphereRadius, BulletData.ImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);
 		}
 		else
 		{
-			FVector Impulse = GetActorForwardVector() * AmmoImpulseForce * 10.f;
+			FVector Impulse = GetActorForwardVector() * BulletData.ImpulseForce * 10.f;
 			HitResult.GetComponent()->AddImpulse(Impulse);
 		}
 	}
-	if (SphereImpulseRadius == 0.f) SpawnEffectsWhenHit(HitResult);
+	if (BulletData.RadialSphereRadius == 0.f) SpawnEffectsWhenHit(HitResult);
 }
 
 void ABullet::BulletThroughObject(const FHitResult& Hit)
 {
-	if (bCanBulletGoThrough == false || MaxObjectsForBulletToGoThrough <= 0 || UGameplayStatics::GetSurfaceType(Hit) != EPhysicalSurface::SurfaceType2)
+	if (BulletData.bCanBulletGoThroughObjects == false || BulletData.MaxObjectsForBulletToGoThrough <= 0 || UGameplayStatics::GetSurfaceType(Hit) != EPhysicalSurface::SurfaceType2)
 	{
 		SetActorTickEnabled(false);
 		Destroy();
 		return;
 	}
 
-	Damage *= DamageReduceAfterObject;
-	AmmoImpulseForce *= ImpulseReduceAfterObject;
-	MaxObjectsForBulletToGoThrough--;
+	BulletData.Damage *= BulletData.DamageReduceAfterObject;
+	BulletData.ImpulseForce *= BulletData.ImpulseReduceAfterObject;
+	BulletData.MaxObjectsForBulletToGoThrough--;
 
 	FVector MoveLocation = GetActorLocation() + GetActorForwardVector() * 50.f;
 	SetActorLocation(MoveLocation);
@@ -219,39 +220,5 @@ void ABullet::SpawnBulletHoleDecal(const FHitResult& Hit)
 		SpawnedDecal->SetFadeScreenSize(0.f);
 		SpawnedDecal->SetLifeSpan(10.f);
 	}
-}
-#pragma endregion
-
-#pragma region ///////////////////// SETTING THE BULLET /////////////////////
-void ABullet::SetBulletVariables(float NewDamage, float NewAmmoSpeed, float NewAmmoDistance, float NewAmmoFallingDown, float NewAmmoImpulseForce)
-{
-	Damage = NewDamage;
-	AmmoSpeed = NewAmmoSpeed;
-	AmmoDistance = NewAmmoDistance;
-	AmmoFallingDown = NewAmmoFallingDown;
-	AmmoImpulseForce = NewAmmoImpulseForce;
-}
-
-void ABullet::SetBulletGoThroughVariables(bool NewCanBulletGoThrough, float NewDamageReduceAfterObject, float NewImpulseReduceAfterObject, int32 NewMaxObjectsForBulletToGoThrough)
-{
-	if (NewCanBulletGoThrough == false) return;
-
-	bCanBulletGoThrough = true;
-	DamageReduceAfterObject = NewDamageReduceAfterObject;
-	ImpulseReduceAfterObject = NewImpulseReduceAfterObject;
-	MaxObjectsForBulletToGoThrough = NewMaxObjectsForBulletToGoThrough;
-}
-
-void ABullet::RadialImpulse(float SphereRadius, bool bShouldDrawDebugSphere)
-{
-	bSphereImpulse = true;
-	SphereImpulseRadius = SphereRadius;
-	bDrawDebugRadialSphere = bShouldDrawDebugSphere;
-}
-
-void ABullet::SetCameraShake(TSubclassOf<UCameraShakeBase> NewCameraShake)
-{
-	bShouldCameraShakeAfterHit = true;
-	CameraShakeAfterHit = NewCameraShake;
 }
 #pragma endregion

@@ -246,14 +246,14 @@ void AEnemyPawn::SpawnBullet()
 		BulletRotation.Pitch += NewPitchRotaton;
 		BulletRotation.Yaw += NewYawRotation;
 	}
-	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, EnemySkeletalMesh->GetSocketLocation(TEXT("Bullet")), BulletRotation);
-	
-	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
-	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, AmmoImpulseForce);
-	SpawnedBullet->SetUpBullet(bShouldUseImpulseOnBullet);
 
-	if (bRadialImpulse) SpawnedBullet->RadialImpulse(RadialSphereRadius, bDrawRadialSphere);
-	if (bShouldCameraShakeAfterHit) SpawnedBullet->SetCameraShake(CameraShakeAfterBulletHit);
+	FTransform BulletTransform = FTransform(BulletRotation, EnemySkeletalMesh->GetSocketLocation(TEXT("Bullet")));
+	ABullet* SpawnedBullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletData.BulletClass, BulletTransform);
+
+	BulletData.Damage = (bManyBulletAtOnce == false ? BulletData.Damage : BulletData.Damage / HowManyBulletsToSpawn);
+
+	SpawnedBullet->SetBulletData(BulletData);
+	SpawnedBullet->FinishSpawning(BulletTransform);
 }
 
 void AEnemyPawn::SpawnBloodDecal(const FHitResult& Hit)

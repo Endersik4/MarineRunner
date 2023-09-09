@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "MarineRunner/Interfaces/InteractInterface.h"
+#include "MarineRunner/GunClasses/BulletData.h"
 
 #include "EnemyPawn.generated.h"
 
@@ -117,6 +118,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		bool bPlayPrepareToShootAnimation;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		FBulletStruct BulletData;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		float Damage;

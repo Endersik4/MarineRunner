@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "MarineRunner/Inventory/InventoryComponent.h"
 #include "CraftingAlbertosWidget.generated.h"
 
 /**
@@ -110,7 +111,7 @@ public:
 
 private:
 
-	TArray<struct FItemStruct> RecipesOfCraftableItems;
+	TArray<FItemStruct> RecipesOfCraftableItems;
 
 	int32 ChoiceOfCraftableItem = 0;
 	int32 CraftingMultiplier = 1;

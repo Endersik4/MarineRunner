@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "BulletData.h"
+
 #include "Bullet.generated.h"
 
 UENUM()
@@ -33,12 +35,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Components", BlueprintReadWrite)
 		class UStaticMeshComponent* BulletMesh;
 
-	void SetBulletVariables(float NewDamage, float NewAmmoSpeed, float NewAmmoDistance, float NewAmmoFallingDown, float NewAmmoImpulseForce);
-	void SetBulletGoThroughVariables(bool bCanBulletGoThrough, float DamageReduceAfterObject, float ImpulseReduceAfterObject, int32 MaxObjectsForBulletToGoThrough);
+	void SetBulletData(const FBulletStruct& NewBulletData) { BulletData = NewBulletData; }
 
-	void SetUpBullet(bool bShouldUseImpulse);
-	void RadialImpulse(float SphereRadius, bool bShouldDrawDebugSphere = false);
-	void SetCameraShake(TSubclassOf<UCameraShakeBase> NewCameraShake);
 private:
 	UFUNCTION()
 		void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
@@ -56,27 +54,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
 		UMaterialInstance* BulletHoleDecalMaterial;
 
-	//Variables for Bullet
-	float Damage;
-	float AmmoSpeed;
-	float AmmoDistance;
-	float AmmoFallingDown;
-	float AmmoImpulseForce;
+	void SetBulletMovementType();
 
-	bool bShouldCameraShakeAfterHit;
-	TSubclassOf<UCameraShakeBase> CameraShakeAfterHit;
+	FBulletStruct BulletData;
 
-	//Radial Sphere Damage
-	bool bSphereImpulse;
-	bool bDrawDebugRadialSphere;
-	float SphereImpulseRadius;
-	void SphereRadialDamage(const FHitResult& Hit);
-
-	//Bullet Through Actors
-	int32 MaxObjectsForBulletToGoThrough;
-	bool bCanBulletGoThrough;
-	float DamageReduceAfterObject;
-	float ImpulseReduceAfterObject;	
+	void SphereRadialDamage(const FHitResult& Hit);	
 	void BulletThroughObject(const FHitResult& Hit);
 
 	//Bullet Movement

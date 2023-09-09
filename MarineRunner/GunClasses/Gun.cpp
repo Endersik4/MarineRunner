@@ -63,7 +63,7 @@ void AGun::Tick(float DeltaTime)
 #pragma region //////////////////////////////////// SHOOT /////////////////////////////////////
 bool AGun::CanShoot()
 {
-	if (BulletClass == NULL || bEquipPositionMoveCompleted == false) return false;
+	if (BulletData.BulletClass == NULL || bEquipPositionMoveCompleted == false) return false;
 	if (bReloadOneBullet && bIsReloading && MagazineCapacity > 0)
 	{
 		CancelReload();
@@ -324,16 +324,14 @@ void AGun::SpawnBullet()
 
 	bFirstBulletWithoutRecoil = false;
 
-	ABullet* SpawnedBullet = GetWorld()->SpawnActor<ABullet>(BulletClass, Location, BulletRotation);
+	FTransform BulletTransform = FTransform(BulletRotation, Location);
+	ABullet* SpawnedBullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletData.BulletClass, BulletTransform);
 
-	float BulletDamage = (bManyBulletAtOnce == false ? Damage : Damage / HowManyBulletsToSpawn);
-	float BulletImpulseForce = (bManyBulletAtOnce == false ? AmmoImpulseForce : AmmoImpulseForce / HowManyBulletsToSpawn);
-	SpawnedBullet->SetBulletVariables(BulletDamage, AmmoSpeed, AmmoDistance, AmmoFallingDown, BulletImpulseForce);
-	SpawnedBullet->SetUpBullet(bShouldUseImpulseOnBullet);
+	BulletData.Damage = (bManyBulletAtOnce == false ? BulletData.Damage : BulletData.Damage / HowManyBulletsToSpawn);
+	BulletData.ImpulseForce = (bManyBulletAtOnce == false ? BulletData.ImpulseForce : BulletData.ImpulseForce / HowManyBulletsToSpawn);
 
-	if (bCanBulletGoThrough == true) SpawnedBullet->SetBulletGoThroughVariables(true, DamageReduceAfterObject, ImpulseReduceAfterObject, MaxObjectsForBulletToGoThrough);
-	if (bRadialImpulse) SpawnedBullet->RadialImpulse(RadialSphereRadius, bDrawRadialSphere);
-	if (bShouldCameraShakeAfterHit) SpawnedBullet->SetCameraShake(CameraShakeAfterBulletHit);
+	SpawnedBullet->SetBulletData(BulletData);
+	SpawnedBullet->FinishSpawning(BulletTransform);
 }
 
 void AGun::RandomBulletDirection(FRotator& NewBulletRotation)
