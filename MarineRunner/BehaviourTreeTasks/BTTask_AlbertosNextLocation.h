@@ -7,7 +7,7 @@
 #include "BTTask_AlbertosNextLocation.generated.h"
 
 /**
- * 
+ * Select a random location near the player to which Albertos will move
  */
 UCLASS()
 class MARINERUNNER_API UBTTask_AlbertosNextLocation : public UBTTask_BlackboardBase
@@ -22,6 +22,6 @@ protected:
 	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
 private:
-	FVector CalculateNextLocation(float Albertos_Z);
+	FVector CalculateNextLocationNearThePlayer(float Albertos_Z);
 	
 };

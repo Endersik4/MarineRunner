@@ -45,4 +45,7 @@ public:
 	void LoadGame(class AMarineCharacter* MarinePawn);
 
 	void ClearTMapValues();
+
+private:
+	void LoadEquipedGuns(class AMarineCharacter* MarinePawn);
 };

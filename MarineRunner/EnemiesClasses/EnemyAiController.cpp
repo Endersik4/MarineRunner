@@ -50,23 +50,11 @@ void AEnemyAiController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulu
 	if (!Actor || !GetBlackboardComponent()) return;
 	if (!Actor->ActorHasTag("Player") || GetBlackboardComponent()->GetValueAsBool(TEXT("isRunningAway"))) return;
 
+	GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
+
 	FTimerDelegate TimerDel;
-
-	if (Stimulus.WasSuccessfullySensed())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
-
-		TimerDel.BindUFunction(this, FName("DetectPlayerWithDelay"), true);
-		GetWorld()->GetTimerManager().SetTimer(DetectPlayerDelayHandle, TimerDel, DetectPlayerTime, false);
-	}
-	else
-	{
-		GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
-
-		TimerDel.BindUFunction(this, FName("DetectPlayerWithDelay"), false);
-		GetWorld()->GetTimerManager().SetTimer(DetectPlayerDelayHandle, TimerDel, LoseSightOfPlayerTime, false);
-	}
-	
+	TimerDel.BindUFunction(this, FName("DetectPlayerWithDelay"), Stimulus.WasSuccessfullySensed());
+	GetWorld()->GetTimerManager().SetTimer(DetectPlayerDelayHandle, TimerDel, Stimulus.WasSuccessfullySensed() ? DetectPlayerTime : LoseSightOfPlayerTime, false);
 }
 
 void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected)

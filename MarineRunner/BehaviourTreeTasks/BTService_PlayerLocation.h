@@ -7,7 +7,7 @@
 #include "BTService_PlayerLocation.generated.h"
 
 /**
- * 
+ * Update Player Location and Last Known Player Location
  */
 UCLASS()
 class MARINERUNNER_API UBTService_PlayerLocation : public UBTService_BlackboardBase

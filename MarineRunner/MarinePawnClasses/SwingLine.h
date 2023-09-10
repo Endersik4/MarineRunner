@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "SwingLine.generated.h"
 
+/// <summary>
+/// Niagara effect that will spawn when player press action key on Hook, when spawned then it will go to the hook location 
+/// </summary>
 UCLASS()
 class MARINERUNNER_API ASwingLine : public AActor
 {
@@ -34,7 +37,7 @@ private:
 	bool bCanTick;
 	FVector HookLocation;
 	float LineTime;
-	float TimeElapsed;
+	float LineTimeElapsed;
 	void LineInterp();
 
 };

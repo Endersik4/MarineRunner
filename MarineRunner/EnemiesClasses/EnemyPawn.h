@@ -89,14 +89,11 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		int32 HowManyLocations = 5;
-
 	UPROPERTY(EditAnywhere, Category = "AI Setup")
 		float WaitTimeShoot = 0.3f;
-
 	//How long does it take to detect the player by enemy
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		float DetectPlayerTime = 0.2f;
-
 	//How long does it take to lose sight of the player by enemy
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		float LoseSightOfPlayerTime = 5.f;
@@ -106,7 +103,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		bool bCanEnemyRunAway = true;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
 		float SpeedOfEnemyWhenIsRunningAway = 1600.f;
 
@@ -119,11 +115,19 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		bool bPlayPrepareToShootAnimation;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet")
 		FBulletStruct BulletData;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		float Damage;
+	//Should spread bullets from barrel like from shotgun
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet")
+		bool bManyBulletAtOnce;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
+		int32 HowManyBulletsToSpawn = 10;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
+		float RecoilImpulseOnEnemy = 3000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
+		TArray<float>PitchBulletRecoilArray = { -5, 5 };
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
+		TArray<float>YawBulletRecoilArray = { -5, 5 };;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		int32 MagazineCapacity = 10;
@@ -131,56 +135,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		FName BoneNameForBulletRotation = TEXT("Koncowka_Drugiego_Palca_R");
 
-	//Should spread bullets from barrel like from shotgun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		bool bManyBulletAtOnce;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
-		int32 HowManyBulletsToSpawn = 10;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
-		float RecoilImpulseOnEnemy = 3000.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
-		UParticleSystem* ShootParticle;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
-		float ShootParticleScale;
 	//Delay time after the enemy runs out of ammunition
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		float DelayTimeMagazine;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		bool bShouldUseImpulseOnBullet;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		bool bRadialImpulse;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bRadialImpulse", EditConditionHides))
-		float RadialSphereRadius;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bRadialImpulse", EditConditionHides))
-		bool bDrawRadialSphere;
-	// How fast ammo is moving forward. If Bullet has physics then this variable is Impulse Force
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		float AmmoSpeed;
-	// What distance should Ammo pass when bullet starts falling down
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bShouldUseImpulseOnBullet", EditConditionHides))
-		float AmmoDistance;
-	// How fast Ammo will falling down when AmmoDistance hit the number
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bShouldUseImpulseOnBullet", EditConditionHides))
-		float AmmoFallingDown;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		float AmmoImpulseForce;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (InlineEditConditionToggle))
-		bool bShouldCameraShakeAfterHit;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bShouldCameraShakeAfterHit"))
-		TSubclassOf<UCameraShakeBase> CameraShakeAfterBulletHit;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
-		TArray<float>PitchBulletRecoilArray = { -5, 5 };
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
-		TArray<float>YawBulletRecoilArray = { -5, 5 };;
-
-	//Bullet Type that will be fired from Gun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		TSubclassOf<AActor> BulletClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
+		UParticleSystem* ShootParticle;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
+		float ShootParticleScale;
 
 	//SOUNDS
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
@@ -205,26 +167,31 @@ private:
 	//Shooting
 	bool bCanShoot = true;
 	void Shoot();
+	void ShootEffects();
 	void PredictWhereToShoot();
+	void PushBackDuringShooting();
 
-	FVector CameraLocation;
-
-	bool bIsDead;
-	bool bIsReloading;
-	bool bIsRunningAway;
+	FVector PlayerCameraLocation;
 
 	//Got Hit
+	bool bIsDead;
 	void SpawnEffectsForImpact(const FHitResult& Hit);
 	void AlertEnemyAboutPlayer();
 	void SpawnBloodDecal(const FHitResult& Hit);
 	void SetIsDead(bool bNewDead);
 	void ShouldRunAway();
 
+	// Damage
+	bool bIsRunningAway;
+	bool KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius);
+	bool EnemyRunAway();
+
 	//If enemy see the player then he will execute given functions
 	void CheckIfEnemySeePlayer();
 	bool ConditionsForEnemyToSeePlayer();
 
 	//Reload
+	bool bIsReloading;
 	FTimerHandle DelayEmptyMagazineHandle;
 	void DelayAfterEmptyMagazine();
 

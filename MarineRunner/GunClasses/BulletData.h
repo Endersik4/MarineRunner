@@ -24,8 +24,9 @@ struct FBulletStruct
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bUsePhysicsForMovement", EditConditionHides))
 		float FallingDown;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		float ImpulseForce;
+		float HitImpulseForce;
 
+	// Spawn Sphere in hit location, objects that are in sphere will take damage
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		bool bUseSphereForDamage;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bUseSphereForDamage", EditConditionHides))
@@ -33,6 +34,7 @@ struct FBulletStruct
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bUseSphereForDamage", EditConditionHides))
 		bool bDrawDebugRadialSphere;
 
+	// Can bullet go through objects that has material with Physics Asset = PM_BulletThrough
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
 		bool bCanBulletGoThroughObjects;
 	// How much damage should be reduced after one object in percentage

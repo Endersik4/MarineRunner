@@ -8,6 +8,14 @@
 
 #include "AlbertosPawn.generated.h"
 
+/// <summary>
+/// A robot that will move around the player until the player is close enough to it. When he is located, the albertos will turn towards him.
+/// The player can press the action button on the albertos when it is close to him, then the CraftingAlbertosWidget will appear.
+/// After pressing the crafting button on the CraftingAlbertosWidget, the Albertos will open, play the crafting animation and play the crafting sound.
+/// If the creating an item is completed, the item will be moved to the "FinalItemPosition" using InterpTo.
+/// The robot can be called by the player, and when it does, Albertos will increase its speed and try to reach the player.
+/// Albertos can play random sounds after TimeForRandomSound
+/// </summary>
 UCLASS()
 class MARINERUNNER_API AAlbertosPawn : public APawn, public ITakeInterface
 {
@@ -30,6 +38,7 @@ public:
 
 	UUserWidget* GetCraftingTableWidget() const;
 
+	// Take Item Interface
 	virtual void TakeItem(class AMarineCharacter* Character, bool& bIsItWeapon) override;
 	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
 	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
@@ -46,7 +55,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void OpenFrontDoor(USkeletalMeshComponent* AlbertosSkeleton, bool bShouldOpen = true);
 
-	// Enable or disable craftign animation
+	// Enable or disable crafting animation
 	UFUNCTION(BlueprintImplementableEvent)
 		void EnableCraftingAnimation(USkeletalMeshComponent* AlbertosSkeleton, bool bShouldPlayMontage = true, float ShouldEnable = 1.f);
 
@@ -83,7 +92,7 @@ private:
 		UMaterialInstance* OnAlbertosUnHoverMaterial;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
-		float SpeedOfItemAfterCrafting = 5.f;
+		float ItemMoveSpeedAfterCrafting = 5.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
 		UMaterialInstance* OverlayCraftingMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds Variables")
@@ -120,9 +129,9 @@ private:
 	void CheckIfThePlayerIsNear();
 	void RotateAlbertosTowardsPlayer(float Delta);
 
-	// Moving an item aftet it has been created
-	bool bShouldMoveToFinalPosition;
-	void InterpToFinalPosition(float Delta);
+	// Moving an item after it has been created
+	bool bMoveCraftedItemToFinalPosition;
+	void MoveCraftedItemToFinalPosition(float Delta);
 
 	// Crafting Sounds
 	FTimerHandle* CraftingTimeHandle;

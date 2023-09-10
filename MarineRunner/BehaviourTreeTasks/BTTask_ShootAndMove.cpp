@@ -46,7 +46,7 @@ void UBTTask_ShootAndMove::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* No
 	MovedSuccessfully();
 }
 
-//If Enemy doesnt see the player then stop shooting, avoiding and end task succesfully
+//If Enemy doesnt see the player then stop shooting, stop avoiding bullets and end task succesfully
 void UBTTask_ShootAndMove::FinishTask(UBehaviorTreeComponent& OwnerComp)
 {
 	if (!EnemyAIController || !EnemyPawn) return;

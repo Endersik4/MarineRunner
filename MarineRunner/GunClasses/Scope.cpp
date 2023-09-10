@@ -4,8 +4,8 @@
 #include "MarineRunner/GunClasses/Scope.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Components/StaticMeshComponent.h"
-#include "Kismet/GameplayStatics.h"
 #include "Components/RectLightComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AScope::AScope()
@@ -60,43 +60,42 @@ void AScope::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FOVZoom.GenerateKeyArray(FOVZoom_Keys);
 	ZoomCamera->ToggleActive();
-}
-
-void AScope::SetNewScope(int32 CurrentScopeIndex)
-{
-	if (FOVZoom.Num() < 1) return;
-	
-	CurrentScope = CurrentScopeIndex;
-	ZoomCamera->FOVAngle = FOVZoom_Keys[CurrentScope];
-
-	Scope_Crosshair->SetRelativeScale3D(FVector(*FOVZoom.Find(FOVZoom_Keys[CurrentScope])));
 }
 
 int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
 {
-	if (FOVZoom.Num() < 1) return 0;
+	if (ZoomData.Num() < 1) return 0;
 
 	if (bShouldRestartScope == true)
 	{
-		SetNewScope(0);
+		ChangeScope(0);
 		return 0;
 	}
 
-	if (WheelAxis > 0.1f && !(FOVZoom_Keys[FOVZoom_Keys.Num() - 1] == ZoomCamera->FOVAngle))
+	if (WheelAxis > 0.1f && CurrentScope + 1 < ZoomData.Num())
 	{
-		SetNewScope(CurrentScope + 1);
+		ChangeScope(CurrentScope + 1);
 	}
-	else if (WheelAxis < -0.1f && !(FOVZoom_Keys[0] == ZoomCamera->FOVAngle) && CurrentScope > 0)
+	else if (WheelAxis < -0.1f && CurrentScope - 1 >= 0)
 	{
-		SetNewScope(CurrentScope - 1);
+		ChangeScope(CurrentScope - 1);
 	}
 	else return CurrentScope;
 
-	if (ZoomSound) UGameplayStatics::PlaySound2D(GetWorld(), ZoomSound);
+	if (ZoomSound) UGameplayStatics::SpawnSound2D(GetWorld(), ZoomSound);
 
 	return CurrentScope;
+}
+
+void AScope::ChangeScope(int32 NextScopeIndex)
+{
+	if (ZoomData.Num() < 1) return;
+
+	CurrentScope = NextScopeIndex;
+	ZoomCamera->FOVAngle = ZoomData[NextScopeIndex].FOVValue;
+
+	Scope_Crosshair->SetRelativeScale3D(FVector(ZoomData[NextScopeIndex].ScopeCrosshairScale));
 }
 
 void AScope::ActiveZoom(bool bShouldActive)
@@ -106,7 +105,6 @@ void AScope::ActiveZoom(bool bShouldActive)
 		Scope_Mesh->SetMaterial(0, RenderTargetMaterial);
 		ZoomCamera->ToggleActive();
 		RectLightForScope->SetVisibility(true);
-		
 	}
 	else
 	{

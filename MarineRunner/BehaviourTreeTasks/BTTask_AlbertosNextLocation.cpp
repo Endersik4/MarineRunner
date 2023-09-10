@@ -17,18 +17,16 @@ UBTTask_AlbertosNextLocation::UBTTask_AlbertosNextLocation()
 EBTNodeResult::Type UBTTask_AlbertosNextLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UBlackboardComponent* BlackBoardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackBoardComp)
-	{
-		return EBTNodeResult::Failed;
-	}
+	if (!BlackBoardComp) return EBTNodeResult::Failed;
 
-	FVector NextLocation = CalculateNextLocation(OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation().Z);
+	FVector NextLocation = CalculateNextLocationNearThePlayer(OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation().Z);
 
 	if (BlackBoardComp->IsVectorValueSet(FName(TEXT("PlayerLocation"))))
 	{
 		NextLocation = BlackBoardComp->GetValueAsVector(FName(TEXT("PlayerLocation")));
 		BlackBoardComp->ClearValue(FName(TEXT("PlayerLocation")));
 	}
+
 	OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), NextLocation);
 
 	return EBTNodeResult::Type();
@@ -39,7 +37,7 @@ EBTNodeResult::Type UBTTask_AlbertosNextLocation::AbortTask(UBehaviorTreeCompone
 	return EBTNodeResult::Type();
 }
 
-FVector UBTTask_AlbertosNextLocation::CalculateNextLocation(float Albertos_Z)
+FVector UBTTask_AlbertosNextLocation::CalculateNextLocationNearThePlayer(float Albertos_Z)
 {
 	FVector Loc = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
 	Loc.Z = Albertos_Z;

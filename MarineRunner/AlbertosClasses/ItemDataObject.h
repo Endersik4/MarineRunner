@@ -8,7 +8,7 @@
 #include "ItemDataObject.generated.h"
 
 /**
- * 
+ * Item Data Object to get cast it as item data object in list entry item
  */
 UCLASS()
 class MARINERUNNER_API UItemDataObject : public UObject

@@ -31,16 +31,15 @@ void UBTServiceGoingToLocations::PickRandomLocation(UBehaviorTreeComponent& Owne
 {
 	if (AIPawn == nullptr || BlackBoardComp == nullptr) return;
 
-	if (BlackBoardComp->GetValueAsInt(TEXT("CurrentLocations")) > 0)
-	{
-		float Rand_X = FMath::FRandRange(-2000.f, 2000.f) + AIPawn->GetActorLocation().X;
-		float Rand_Y = FMath::FRandRange(-2000.f, 2000.f) + AIPawn->GetActorLocation().Y;
-		float Rand_Z = AIPawn->GetActorLocation().Z;
+	if (BlackBoardComp->GetValueAsInt(TEXT("CurrentLocations")) > 0) BlackBoardComp->SetValueAsVector(GetSelectedBlackboardKey(), GetRandomLocation());
+	else BlackBoardComp->ClearValue(GetSelectedBlackboardKey());
+}
 
-		BlackBoardComp->SetValueAsVector(GetSelectedBlackboardKey(), FVector(Rand_X, Rand_Y, Rand_Z));
-	}
-	else
-	{
-		BlackBoardComp->ClearValue(GetSelectedBlackboardKey());
-	}
+FVector UBTServiceGoingToLocations::GetRandomLocation()
+{
+	float Rand_X = FMath::FRandRange(-2000.f, 2000.f) + AIPawn->GetActorLocation().X;
+	float Rand_Y = FMath::FRandRange(-2000.f, 2000.f) + AIPawn->GetActorLocation().Y;
+	float Rand_Z = AIPawn->GetActorLocation().Z;
+
+	return FVector(Rand_X, Rand_Y, Rand_Z);
 }

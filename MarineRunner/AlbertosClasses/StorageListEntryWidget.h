@@ -8,7 +8,7 @@
 #include "StorageListEntryWidget.generated.h"
 
 /**
- * 
+ * List Entry for display an item with Item Icon and Item Amount
  */
 UCLASS()
 class MARINERUNNER_API UStorageListEntryWidget : public UUserWidget, public IUserObjectListEntry
@@ -22,7 +22,6 @@ protected:
 
 public:
 
-	// Funkcja ktora sie odpali gdy item zostanie dodany do listy
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

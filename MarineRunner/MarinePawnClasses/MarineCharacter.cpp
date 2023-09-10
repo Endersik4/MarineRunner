@@ -138,7 +138,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 }
 
 #pragma region //////////////////////////////// MOVEMENT ///////////////////////////////
-
+// TODO: Rewrite whole movement after adding Player Model to game
 void AMarineCharacter::Movement(float Delta)
 {
 	if (bCanSwingLerp || bIsInputDisabled) return;
@@ -148,7 +148,6 @@ void AMarineCharacter::Movement(float Delta)
 
 	GoConstanlyForward(ForwardDirection, RightDirection);
 
-	//When Pawn is close to the wall then dont add impulse in direction of this wall (thanks to that pawn will not stick to the wall)
 	UnstickFromWall(ForwardDirection, RightDirection);
 
 	float DirectionX = ForwardDirection.X - RightDirection.X;

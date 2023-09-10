@@ -62,7 +62,6 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 		Inventory->Inventory_Items.Add(ItemSettings.Item_Name, ItemSettings);
 	}
 
-	//Update HUD to display particular item on hud
 	Character->UpdateHudWidget();
 	
 	UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);

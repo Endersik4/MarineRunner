@@ -328,7 +328,7 @@ void AGun::SpawnBullet()
 	ABullet* SpawnedBullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletData.BulletClass, BulletTransform);
 
 	BulletData.Damage = (bManyBulletAtOnce == false ? BulletData.Damage : BulletData.Damage / HowManyBulletsToSpawn);
-	BulletData.ImpulseForce = (bManyBulletAtOnce == false ? BulletData.ImpulseForce : BulletData.ImpulseForce / HowManyBulletsToSpawn);
+	BulletData.HitImpulseForce = (bManyBulletAtOnce == false ? BulletData.HitImpulseForce : BulletData.HitImpulseForce / HowManyBulletsToSpawn);
 
 	SpawnedBullet->SetBulletData(BulletData);
 	SpawnedBullet->FinishSpawning(BulletTransform);
@@ -359,7 +359,6 @@ bool AGun::CanReload()
 	
 	return true;
 }
-
 
 void AGun::WaitToReload()
 {

@@ -73,7 +73,7 @@ void AAlbertosPawn::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(PlayerIsNearHandle, this, &AAlbertosPawn::CheckIfThePlayerIsNear, 0.5f, true);
 
 	TimeForRandomSound = FMath::FRandRange(4.f, 10.f);
-	GetWorld()->GetTimerManager().SetTimer(RandomSoundHandle, this, &AAlbertosPawn::PlayRandomAlbertoSound, 0.01f, false, TimeForRandomSound);
+	GetWorld()->GetTimerManager().SetTimer(RandomSoundHandle, this, &AAlbertosPawn::PlayRandomAlbertoSound, TimeForRandomSound, false);
 }
 
 // Called every frame
@@ -81,7 +81,7 @@ void AAlbertosPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	InterpToFinalPosition(DeltaTime);
+	MoveCraftedItemToFinalPosition(DeltaTime);
 	RotateAlbertosTowardsPlayer(DeltaTime);
 }
 
@@ -133,13 +133,6 @@ void AAlbertosPawn::ShouldLoopCraftingSound()
 	else GetWorld()->GetTimerManager().ClearTimer(ShouldLoopCraftingSoundHandle);
 }
 
-void AAlbertosPawn::PlayRandomAlbertoSound()
-{
-	if (RandomAlbertoSounds && CraftingTableWidget->IsVisible() == false) SpawnedRandomSound = UGameplayStatics::SpawnSoundAttached(RandomAlbertoSounds, AlbertosSkeletalMesh, FName(TEXT("Root")));
-	TimeForRandomSound = FMath::FRandRange(4.f, 10.f);
-	GetWorld()->GetTimerManager().SetTimer(RandomSoundHandle, this, &AAlbertosPawn::PlayRandomAlbertoSound, 0.01f, false, TimeForRandomSound);
-}
-
 void AAlbertosPawn::CraftingFinished()
 {
 	EnableCraftingAnimation(AlbertosSkeletalMesh, false, 0.f);
@@ -148,7 +141,7 @@ void AAlbertosPawn::CraftingFinished()
 
 	CraftedItem->ChangeSimulatingPhysics(false);
 
-	bShouldMoveToFinalPosition = true;
+	bMoveCraftedItemToFinalPosition = true;
 	FinalLocation = CraftedItem->GetActorLocation() + GetActorForwardVector() * FVector::Distance(AlbertosSkeletalMesh->GetSocketLocation(FName(TEXT("FinalItemPosition"))), CraftedItem->GetActorLocation());
 }
 #pragma endregion
@@ -240,25 +233,25 @@ void AAlbertosPawn::RotateAlbertosTowardsPlayer(float Delta)
 #pragma endregion
 
 #pragma region /////////////////////// Crafted Item ///////////////////////////
-void AAlbertosPawn::InterpToFinalPosition(float Delta)
+void AAlbertosPawn::MoveCraftedItemToFinalPosition(float Delta)
 {
-	if (bShouldMoveToFinalPosition == false || CraftedItem == nullptr) return;
+	if (bMoveCraftedItemToFinalPosition == false || CraftedItem == nullptr) return;
 
 	if (!CraftedItem->GetActorLocation().Equals(FinalLocation, 10.f))
 	{
-		FVector NewLocation = FMath::VInterpTo(CraftedItem->GetActorLocation(), FinalLocation, Delta, SpeedOfItemAfterCrafting);
+		FVector NewLocation = FMath::VInterpTo(CraftedItem->GetActorLocation(), FinalLocation, Delta, ItemMoveSpeedAfterCrafting);
 		CraftedItem->SetActorLocation(NewLocation);
 
 		if (bShouldScaleCraftedItem == false) return;
 
-		FVector NewScale = FMath::VInterpTo(CraftedItem->GetActorScale3D(), TargetScaleOfCraftedItem, Delta, SpeedOfItemAfterCrafting * 2.2f);
+		FVector NewScale = FMath::VInterpTo(CraftedItem->GetActorScale3D(), TargetScaleOfCraftedItem, Delta, ItemMoveSpeedAfterCrafting * 2.2f);
 		CraftedItem->SetActorScale3D(NewScale);
 	}
 	else
 	{
 		if (bShouldScaleCraftedItem == true) CraftedItem->SetActorScale3D(TargetScaleOfCraftedItem);
 
-		bShouldMoveToFinalPosition = false;
+		bMoveCraftedItemToFinalPosition = false;
 		bShouldScaleCraftedItem = false;
 
 		CraftedItem->ChangeSimulatingPhysics(true);
@@ -269,7 +262,6 @@ void AAlbertosPawn::InterpToFinalPosition(float Delta)
 
 		if (bPlayerWasClose == true) CheckIfThePlayerIsNear();
 	}
-	
 }
 #pragma endregion
 
@@ -288,6 +280,14 @@ void AAlbertosPawn::ChangeMaxSpeedOfFloatingMovement(bool bTowardsPlayer)
 {
 	if (bTowardsPlayer == true) AlbertosFloatingMovement->MaxSpeed = MaxSpeedWhenMovingTowardsPlayer;
 	else AlbertosFloatingMovement->MaxSpeed = CopyOfMaxSpeed;
+}
+
+void AAlbertosPawn::PlayRandomAlbertoSound()
+{
+	if (RandomAlbertoSounds && CraftingTableWidget->IsVisible() == false) SpawnedRandomSound = UGameplayStatics::SpawnSoundAttached(RandomAlbertoSounds, AlbertosSkeletalMesh, FName(TEXT("Root")));
+
+	TimeForRandomSound = FMath::FRandRange(4.f, 10.f);
+	GetWorld()->GetTimerManager().SetTimer(RandomSoundHandle, this, &AAlbertosPawn::PlayRandomAlbertoSound, TimeForRandomSound, false);
 }
 
 UUserWidget* AAlbertosPawn::GetCraftingTableWidget() const

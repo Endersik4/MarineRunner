@@ -25,6 +25,7 @@ protected:
 
 private:
 	void PickRandomLocation(UBehaviorTreeComponent& OwnerComp);
+	FVector GetRandomLocation();
 
 	APawn* AIPawn;
 	UBlackboardComponent* BlackBoardComp;

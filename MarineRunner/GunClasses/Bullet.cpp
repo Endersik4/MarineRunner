@@ -142,13 +142,13 @@ void ABullet::UseInterfaceOnActor(const FHitResult& HitResult)
 		if (BulletData.RadialSphereRadius != 0.f)
 		{
 			float RadialDamage = BulletData.Damage / (FVector::Distance(GetActorLocation(), HitResult.GetActor()->GetActorLocation()) / 100);
-			Interface->ApplyDamage(RadialDamage, BulletData.ImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
+			Interface->ApplyDamage(RadialDamage, BulletData.HitImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
 		}
-		else Interface->ApplyDamage(BulletData.Damage, BulletData.ImpulseForce, HitResult, this);
+		else Interface->ApplyDamage(BulletData.Damage, BulletData.HitImpulseForce, HitResult, this);
 	}
 	else if (HitResult.GetActor()->Implements<UInteractInterface>())  //Check if Object has Interface Blueprint Implementation
 	{
-		IInteractInterface::Execute_BreakObject(HitResult.GetActor(), BulletData.ImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
+		IInteractInterface::Execute_BreakObject(HitResult.GetActor(), BulletData.HitImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
 	}
 	else
 	{
@@ -162,11 +162,11 @@ void ABullet::HitActorWithoutInterface(const FHitResult& HitResult)
 	{
 		if (BulletData.RadialSphereRadius != 0.f)
 		{
-			HitResult.GetComponent()->AddRadialImpulse(GetActorLocation(), BulletData.RadialSphereRadius, BulletData.ImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);
+			HitResult.GetComponent()->AddRadialImpulse(GetActorLocation(), BulletData.RadialSphereRadius, BulletData.HitImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);
 		}
 		else
 		{
-			FVector Impulse = GetActorForwardVector() * BulletData.ImpulseForce * 10.f;
+			FVector Impulse = GetActorForwardVector() * BulletData.HitImpulseForce * 10.f;
 			HitResult.GetComponent()->AddImpulse(Impulse);
 		}
 	}
@@ -183,7 +183,7 @@ void ABullet::BulletThroughObject(const FHitResult& Hit)
 	}
 
 	BulletData.Damage *= BulletData.DamageReduceAfterObject;
-	BulletData.ImpulseForce *= BulletData.ImpulseReduceAfterObject;
+	BulletData.HitImpulseForce *= BulletData.ImpulseReduceAfterObject;
 	BulletData.MaxObjectsForBulletToGoThrough--;
 
 	FVector MoveLocation = GetActorLocation() + GetActorForwardVector() * 50.f;

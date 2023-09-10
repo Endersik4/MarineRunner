@@ -8,7 +8,10 @@
 #include "CraftingAlbertosWidget.generated.h"
 
 /**
- * 
+ * A widget that appears when the player presses the action key on Albertos.
+ * The widget stores everything the player takes.
+ * The player can produce items using this widget, and the resource requirements of the items will appear in the ResourcesInventoryTileView
+ * The resources that the player can take will appear in StorageInventoryTileView.
  */
 
 UCLASS()
@@ -116,12 +119,14 @@ private:
 	int32 ChoiceOfCraftableItem = 0;
 	int32 CraftingMultiplier = 1;
 	
+	// Crafting
 	bool bCanCraft = true;
 	bool bCanBeCrafted;
-	void SetVisualDataFromItemToUI(bool bDeleteResources);
-	void AddResourcesToVisualRequirements(bool bDeleteResources);
+	void SetItemDataToUI(bool bDeleteResources);
+	void AddItemResourcesToRequirementsList(bool bDeleteResources);
 	bool DoesHaveEnoughResources(FString Resource, bool bDeleteResources = false);
 
+	// Craft Button Progress Bar
 	float TimeElapsed;
 	float WaitTime;
 	float CopiedItemCraftTime;
@@ -129,8 +134,11 @@ private:
 	void SetPercentOfCraftingProgressBar(float Delta);
 	void SetCanCraftAgain();
 
+	void FillRecipesItem();
+
 	class AAlbertosPawn* AlbertosPawn;
 
+	// Multiplier Buttons
 	int32 ChoiceOfMultiplierChoice = 0;
 	class UButton* MultiplierChoice;
 	void MultiplierClicked(int32 Mutliplier);

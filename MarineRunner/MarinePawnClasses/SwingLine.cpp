@@ -28,19 +28,18 @@ void ASwingLine::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	LineInterp();
-
 }
 
 void ASwingLine::LineInterp()
 {
 	if (bCanTick == false) return;
 
-	if (TimeElapsed < LineTime)
+	if (LineTimeElapsed < LineTime)
 	{
-		FVector LerpLocation = FMath::Lerp(GetActorLocation(), HookLocation, TimeElapsed / LineTime);
+		FVector LerpLocation = FMath::Lerp(GetActorLocation(), HookLocation, LineTimeElapsed / LineTime);
 		SetActorLocation(LerpLocation);
 	}
-	else if (TimeElapsed > 10.f) Destroy();
-	TimeElapsed += GetWorld()->GetDeltaSeconds();
+	else if (LineTimeElapsed > 10.f) Destroy();
+	LineTimeElapsed += GetWorld()->GetDeltaSeconds();
 }
 

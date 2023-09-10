@@ -36,8 +36,6 @@ AEnemyPawn::AEnemyPawn()
 	EnemySkeletalMesh->SetSimulatePhysics(false);
 	EnemySkeletalMesh->SetCollisionProfileName(TEXT("PhysicsActor"));
 	EnemySkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
-	
-	Tags.Add(TEXT("enemy"));
 }
 
 // Called when the game starts or when spawned
@@ -48,7 +46,6 @@ void AEnemyPawn::BeginPlay()
 	CopyOfMagazineCapacity = MagazineCapacity;
 	SetUpMarinePawn();
 	SetUpEnemyAIController();
-	
 }
 
 // Called every frame
@@ -67,10 +64,11 @@ void AEnemyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent
 
 }
 
+#pragma region ///////////////// SHOOT //////////////////
 //Shoot function is executed in ShootAndMove.cpp
 void AEnemyPawn::Shoot()
 {
-	if (BulletClass == NULL || bCanShoot == false || bIsDead == true) return;
+	if (BulletData.BulletClass == NULL || bCanShoot == false || bIsDead == true) return;
 	
 	if (MagazineCapacity <= 0)
 	{
@@ -78,11 +76,7 @@ void AEnemyPawn::Shoot()
 		return;
 	}
 
-	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, EnemySkeletalMesh, TEXT("MuzzleFlash"));
-	if (ShootParticle)
-	{
-		UParticleSystemComponent* SpawnedShootParticle = UGameplayStatics::SpawnEmitterAttached(ShootParticle, EnemySkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));	
-	}
+	ShootEffects();
 
 	//Had to do this in this way because bullet was spawned before bones were on their locations (in shooting animation)
 	GetWorldTimerManager().SetTimer(ImpulseOnBulletHandle, this, &AEnemyPawn::SpawnManyBullets, 0.001f, false);
@@ -91,56 +85,90 @@ void AEnemyPawn::Shoot()
 	PlayAnimMontageInBlueprint();
 	bCanShoot = false;
 
+	PushBackDuringShooting();
+}
+
+void AEnemyPawn::ShootEffects()
+{
+	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, EnemySkeletalMesh, TEXT("MuzzleFlash"));
+	if (ShootParticle)
+	{
+		UParticleSystemComponent* SpawnedShootParticle = UGameplayStatics::SpawnEmitterAttached(ShootParticle, EnemySkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
+	}
+}
+
+void AEnemyPawn::PushBackDuringShooting()
+{
 	FVector RecoilImpulse = -GetActorForwardVector() * RecoilImpulseOnEnemy * 100.f;
 	CapsuleColl->AddImpulse(RecoilImpulse);
 }
 
+void AEnemyPawn::PredictWhereToShoot()
+{
+	PlayerCameraLocation = MarinePawn->GetCamera()->GetComponentLocation();
+
+	if (MarinePawn->GetInputAxisValue("Right") == -1.f)
+	{
+		PlayerCameraLocation += MarinePawn->GetCamera()->GetRightVector() * 150.f;
+	}
+	else if (MarinePawn->GetInputAxisValue("Right") == 1.f)
+	{
+		PlayerCameraLocation -= MarinePawn->GetCamera()->GetRightVector() * 150.f;
+	}
+
+	if (bShouldAlsoPredictVertical == false) return;
+
+	PlayerCameraLocation.Z += FVector::Distance(GetActorLocation(), MarinePawn->GetActorLocation()) / 10;
+}
+#pragma endregion
+
+#pragma region ///////////////// DAMAGE ///////////////////////
 void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
 	Health -= NewDamage;
 	SpawnEffectsForImpact(NewHit);
 	SpawnBloodDecal(NewHit);
 
-	//Kill enemy
-	if (Health <= 0.f)
-	{
-		EnemySkeletalMesh->SetSimulatePhysics(true);
-		bIsDead = true;
+	bool bEnemyKilled = KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadius);
+	if (bEnemyKilled == true) return;
 
-		if (NewSphereRadius != 0.f)
-		{
-			EnemySkeletalMesh->AddRadialImpulse(BulletActor->GetActorLocation(), NewSphereRadius, NewImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);
-		}
-		else
-		{
-			EnemySkeletalMesh->AddImpulse(BulletActor->GetActorForwardVector() * NewImpulseForce * 10.f, NewHit.BoneName);
-		}
-
-		EnemySkeletalMesh->Stop();
-		return;
-	}
-
-	if (Health <= 10.f && bCanEnemyRunAway == true)
-	{
-		float ShouldRunAwayRandom = FMath::FRandRange(0.f, 100.f);
-		if (ShouldRunAwayRandom <= 30.f)
-		{
-			ShouldRunAway();
-			return;
-		}
-	}
+	bool bEnemyIsRunningAway = EnemyRunAway();
+	if (bEnemyIsRunningAway == true) return;
 
 	AlertEnemyAboutPlayer();
 }
 
-void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit)
+bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
-	if (EnemyHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), EnemyHitSound, Hit.ImpactPoint);
-	if (!EnemyBloodParticle) return;
+	if (Health > 0.f) return false;
+	EnemySkeletalMesh->SetSimulatePhysics(true);
+	bIsDead = true;
 
-	FRotator Rotation = Hit.ImpactNormal.Rotation() - FRotator(90.f, 0.f, 0.f);
-	UParticleSystemComponent* SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, Rotation);
-	SpawnedParticle->SetColorParameter(TEXT("ColorOfBlood"), BloodColor);
+	if (NewSphereRadius != 0.f)
+	{
+		EnemySkeletalMesh->AddRadialImpulse(BulletActor->GetActorLocation(), NewSphereRadius, NewImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);
+	}
+	else
+	{
+		EnemySkeletalMesh->AddImpulse(BulletActor->GetActorForwardVector() * NewImpulseForce * 10.f, NewHit.BoneName);
+	}
+
+	EnemySkeletalMesh->Stop();
+	return true;
+}
+
+bool AEnemyPawn::EnemyRunAway()
+{
+	if (Health > 10.f || bCanEnemyRunAway == false) return false;
+
+	float ShouldRunAwayRandom = FMath::FRandRange(0.f, 100.f);
+	if (ShouldRunAwayRandom <= 30.f)
+	{
+		ShouldRunAway();
+		return true;
+	}
+
+	return false;
 }
 
 void AEnemyPawn::AlertEnemyAboutPlayer()
@@ -156,88 +184,13 @@ void AEnemyPawn::AlertEnemyAboutPlayer()
 	EnemyRotation.Yaw = FoundRotationYaw;
 	SetActorRotation(EnemyRotation);
 }
+#pragma endregion 
 
-void AEnemyPawn::CheckIfEnemySeePlayer()
-{
-	if (ConditionsForEnemyToSeePlayer() == false) return;
-
-	PredictWhereToShoot();
-	FocusBonesOnPlayerWhenPlayerDetected();
-}
-
-FRotator AEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
-{
-	FRotator BoneRotation;
-	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName), 
-		(bLookStraight) ? MarinePawn->GetCamera()->GetComponentLocation() : CameraLocation);
-	BoneRotation.Roll = FoundRotation.Pitch * -1.f;
-	BoneRotation.Yaw = FoundRotation.Yaw - GetActorRotation().Yaw;
-
-	return BoneRotation;
-}
-
-void AEnemyPawn::PredictWhereToShoot()
-{
-	CameraLocation = MarinePawn->GetCamera()->GetComponentLocation();
-
-	if (MarinePawn->GetInputAxisValue("Right") == -1.f)
-	{
-		CameraLocation += MarinePawn->GetCamera()->GetRightVector() * 150.f;
-	}
-	else if (MarinePawn->GetInputAxisValue("Right") == 1.f)
-	{
-		CameraLocation -= MarinePawn->GetCamera()->GetRightVector() * 150.f;
-	}
-
-	if (bShouldAlsoPredictVertical == false) return;
-
-	CameraLocation.Z += FVector::Distance(GetActorLocation(), MarinePawn->GetActorLocation()) / 10 ;
-}
-
-void AEnemyPawn::SetIsDead(bool bNewDead)
-{
-	bIsDead = bNewDead;
-	EnemyAIController->KillEnemy();
-}
-
-void AEnemyPawn::ShouldRunAway()
-{
-	bIsRunningAway = true;
-	SetShouldRunningAwayInAnimBP();
-	EnemyAIController->RunAway();
-}
-
-void AEnemyPawn::Reload()
-{
-	bIsReloading = true;
-	bCanShoot = false;
-	GetWorldTimerManager().SetTimer(DelayEmptyMagazineHandle, this, &AEnemyPawn::DelayAfterEmptyMagazine, DelayTimeMagazine, false);
-}
-
-void AEnemyPawn::DelayAfterEmptyMagazine()
-{
-	MagazineCapacity = CopyOfMagazineCapacity;
-	bCanShoot = true;
-	bIsReloading = false;
-}
-
-void AEnemyPawn::SpawnManyBullets()
-{
-	if (bManyBulletAtOnce) for (int i = 0; i != HowManyBulletsToSpawn; i++) SpawnBullet();
-	else SpawnBullet();
-}
-
-bool AEnemyPawn::ConditionsForEnemyToSeePlayer()
-{
-	if (!EnemyAIController || bIsDead == true || !MarinePawn || bIsRunningAway) return false;
-	if (EnemyAIController->GetDoEnemySeePlayer() == false) return false;
-
-	return true;
-}
+#pragma region ///////////// BULLETS /////////////////////
 
 void AEnemyPawn::SpawnBullet()
 {
-	FRotator BulletRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneNameForBulletRotation), CameraLocation);
+	FRotator BulletRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneNameForBulletRotation), PlayerCameraLocation);
 	//Bullet will randomly "go" to other directions 
 	if (PitchBulletRecoilArray.Num() == 2 && YawBulletRecoilArray.Num() == 2 && bManyBulletAtOnce)
 	{
@@ -256,6 +209,14 @@ void AEnemyPawn::SpawnBullet()
 	SpawnedBullet->FinishSpawning(BulletTransform);
 }
 
+void AEnemyPawn::SpawnManyBullets()
+{
+	if (bManyBulletAtOnce) for (int i = 0; i != HowManyBulletsToSpawn; i++) SpawnBullet();
+	else SpawnBullet();
+}
+#pragma endregion
+
+#pragma region ///////////// EFFECTS ////////////////////
 void AEnemyPawn::SpawnBloodDecal(const FHitResult& Hit)
 {
 	if (!BloodDecalMaterial) return;
@@ -283,6 +244,76 @@ void AEnemyPawn::PlayFootstepsSound()
 	GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AEnemyPawn::SetCanPlayFootstepsSound, FootstepsTime, false);
 }
 
+void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit)
+{
+	if (EnemyHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), EnemyHitSound, Hit.ImpactPoint);
+	if (!EnemyBloodParticle) return;
+
+	FRotator Rotation = Hit.ImpactNormal.Rotation() - FRotator(90.f, 0.f, 0.f);
+	UParticleSystemComponent* SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, Rotation);
+	SpawnedParticle->SetColorParameter(TEXT("ColorOfBlood"), BloodColor);
+}
+#pragma endregion
+
+#pragma region ////////////// ENEMY SEE PLAYER //////////////
+bool AEnemyPawn::ConditionsForEnemyToSeePlayer()
+{
+	if (!EnemyAIController || bIsDead == true || !MarinePawn || bIsRunningAway) return false;
+	if (EnemyAIController->GetDoEnemySeePlayer() == false) return false;
+
+	return true;
+}
+
+void AEnemyPawn::CheckIfEnemySeePlayer()
+{
+	if (ConditionsForEnemyToSeePlayer() == false) return;
+
+	PredictWhereToShoot();
+	FocusBonesOnPlayerWhenPlayerDetected();
+}
+#pragma endregion
+
+FRotator AEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
+{
+	FRotator BoneRotation;
+	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName), 
+		(bLookStraight) ? MarinePawn->GetCamera()->GetComponentLocation() : PlayerCameraLocation);
+	BoneRotation.Roll = FoundRotation.Pitch * -1.f;
+	BoneRotation.Yaw = FoundRotation.Yaw - GetActorRotation().Yaw;
+
+	return BoneRotation;
+}
+
+void AEnemyPawn::ShouldRunAway()
+{
+	bIsRunningAway = true;
+	SetShouldRunningAwayInAnimBP();
+	EnemyAIController->RunAway();
+}
+
+#pragma region ///////////////// RELOAD /////////////////
+void AEnemyPawn::Reload()
+{
+	bIsReloading = true;
+	bCanShoot = false;
+	GetWorldTimerManager().SetTimer(DelayEmptyMagazineHandle, this, &AEnemyPawn::DelayAfterEmptyMagazine, DelayTimeMagazine, false);
+}
+
+void AEnemyPawn::DelayAfterEmptyMagazine()
+{
+	MagazineCapacity = CopyOfMagazineCapacity;
+	bCanShoot = true;
+	bIsReloading = false;
+}
+#pragma endregion
+
+#pragma region /////////// SETTERS ////////////////
+void AEnemyPawn::SetIsDead(bool bNewDead)
+{
+	bIsDead = bNewDead;
+	EnemyAIController->KillEnemy();
+}
+
 void AEnemyPawn::SetUpMarinePawn()
 {
 	MarinePawn = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
@@ -300,4 +331,4 @@ void AEnemyPawn::SetUpEnemyAIController()
 		UE_LOG(LogTemp, Error, TEXT("ENEMY AI CONTROLER CAST ERROR IN ENEMY PAWN"));
 	}
 }
-
+#pragma endregion

@@ -51,13 +51,18 @@ void UCraftingAlbertosWidget::NativeTick(const FGeometry& MyGeometry, float Delt
 	SetPercentOfCraftingProgressBar(DeltaTime);
 }
 
-#pragma region /////////////////////// ADD DATE TO INVENTORY ///////////////////
+#pragma region /////////////////////// ADD DATA TO INVENTORY ///////////////////
 void UCraftingAlbertosWidget::SetRecipesData()
 {
 	MarinePawn = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (MarinePawn == nullptr) return;
 	RecipesOfCraftableItems.Empty();
 
+	FillRecipesItem();
+}
+
+void UCraftingAlbertosWidget::FillRecipesItem()
+{
 	for (TSubclassOf<APickupItem> PickableItem : MarinePawn->GetInventoryComponent()->Recipes_Items)
 	{
 		APickupItem* SpawnedItem = GetWorld()->SpawnActor<APickupItem>(PickableItem, FVector(0.f), FRotator(0.f));
@@ -80,33 +85,35 @@ void UCraftingAlbertosWidget::AddItemToTileView(TArray<FItemStruct> InventoryIte
 
 		if (Items.bIsItResource == true) ResourcesInventoryTileView->AddItem(ConstructedItemObject);
 		else StorageInventoryTileView->AddItem(ConstructedItemObject);
+
 		ConstructedItemObject->ConditionalBeginDestroy();
 	}
 }
 #pragma endregion
 
 #pragma region ///////////////// CRAFTING /////////////////////
-void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bDeleteResources)
+void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshInventory)
 {
 	if (bCanCraft == false || MarinePawn == nullptr) return;
 	RequirementsInventoryTileView->ClearListItems();
 	if (RecipesOfCraftableItems.Num() < ChoiceOfCraftableItem) return;
 
-	SetVisualDataFromItemToUI(bDeleteResources);
+	SetItemDataToUI(bRefreshInventory);
 
 	bCanBeCrafted = true;
 	CraftButton->SetIsEnabled(true);
 
-	AddResourcesToVisualRequirements(bDeleteResources);
+	AddItemResourcesToRequirementsList(bRefreshInventory);
 }
 
-void UCraftingAlbertosWidget::SetVisualDataFromItemToUI(bool bDeleteResources)
+void UCraftingAlbertosWidget::SetItemDataToUI(bool bRefreshInventory)
 {
-	if (bDeleteResources == true) return;
+	if (bRefreshInventory == true) return;
 
 	CraftingItemImage->SetBrushFromTexture(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_StorageIcon);
 	ItemNameToBeCraftedText->SetText(FText::FromString(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Name));
 	ItemDescriptionText->SetText(FText::FromString(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Description));
+
 	FString Time = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
 	ItemValue_TimeText->SetText(FText::FromString(Time));
 
@@ -117,7 +124,7 @@ void UCraftingAlbertosWidget::SetVisualDataFromItemToUI(bool bDeleteResources)
 	else SetisEnableAllMultipliers(true);
 }
 
-void UCraftingAlbertosWidget::AddResourcesToVisualRequirements(bool bDeleteResources)
+void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshInventory)
 {
 	TArray<FString> ResourcesName;
 	RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.GenerateKeyArray(ResourcesName);
@@ -125,7 +132,7 @@ void UCraftingAlbertosWidget::AddResourcesToVisualRequirements(bool bDeleteResou
 	{
 		if (MarinePawn->GetInventoryComponent()->Inventory_Items.Find(NameOfResource) == nullptr) continue;
 
-		bool HaveEnough = DoesHaveEnoughResources(NameOfResource, bDeleteResources);
+		bool HaveEnough = DoesHaveEnoughResources(NameOfResource, bRefreshInventory);
 
 		UItemDataObject* ConstructedItemObject = NewObject<UItemDataObject>(ItemDataObject);
 		ConstructedItemObject->ItemData = *MarinePawn->GetInventoryComponent()->Inventory_Items.Find(NameOfResource);

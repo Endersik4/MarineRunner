@@ -208,6 +208,7 @@ private:
 	FVector MovementImpulse;
 	void Movement(float Delta);
 	void DisableCounterMovement(FVector& MovementDir);
+		//When Pawn is close to the wall then dont add impulse in direction of this wall (thanks to that pawn will not stick to the wall)
 	void UnstickFromWall(FVector& ForwardDir, FVector& RightDir);
 	void GoConstanlyForward(FVector& ForwardDir, FVector& RightDir);
 

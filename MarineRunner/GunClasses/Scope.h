@@ -6,8 +6,30 @@
 #include "GameFramework/Actor.h"
 #include "Scope.generated.h"
 
-//Scope for Gun by changing FOV in another camera. 
-//Zoom can be changed by mouse wheel
+USTRUCT(BlueprintType)
+struct FZoomStruct {
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(EditAnywhere, Category = "Zoom")
+		float FOVValue;
+	UPROPERTY(EditAnywhere, Category = "Zoom")
+		float ScopeCrosshairScale;
+
+	FZoomStruct()
+	{
+		FOVValue = 0.f;
+		ScopeCrosshairScale = 0.f;
+	}
+
+	FZoomStruct(float NewFOVValue, float NewCrosshairScale)
+	{
+		FOVValue = NewFOVValue;
+		ScopeCrosshairScale = NewCrosshairScale;
+	}
+};
+
+// Scope for The Gun by changing FOV in another camera. 
+// Zoom can be changed by mouse wheel
 UCLASS()
 class MARINERUNNER_API AScope : public AActor
 {
@@ -44,21 +66,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
 		UMaterialInterface* RenderTargetMaterial;
 
-
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ZoomSound;
 
-	// Keys are FOV, the more FOV, the higher the magnification of the scope.
-	// Values are the Scale of the viewfinder displayed on the scope during magnification.
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		TMap<float, float> FOVZoom = {
-			{16.f, 0.053f},
-			{10.f, 0.034f},
-			{5.f, 0.017f},
-			{1.f, 0.0034f}
-		};
+		TArray<FZoomStruct> ZoomData = {FZoomStruct(16.f, 0.053f), FZoomStruct(10.f, 0.034f), FZoomStruct(5.f, 0.017f), FZoomStruct(1.f, 0.0034f)};
 
 	int32 CurrentScope = 0;
-	TArray<float> FOVZoom_Keys;
-	void SetNewScope(int32 CurrentScopeIndex);
+	void ChangeScope(int32 CurrentScopeIndex);
 };

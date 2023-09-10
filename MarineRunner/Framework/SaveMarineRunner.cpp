@@ -29,7 +29,7 @@ void USaveMarineRunner::SaveGame(float CurrentHealth, AGun* CurrentMarineGun, TM
 	}
 }
 
-void USaveMarineRunner::LoadGame(class AMarineCharacter* MarinePawn)
+void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn)
 {
 	if (MarinePawn == nullptr) return;
 
@@ -37,6 +37,11 @@ void USaveMarineRunner::LoadGame(class AMarineCharacter* MarinePawn)
 	MarinePawn->SetQuickSelect(WeaponsStorageSaved);
 	MarinePawn->GetInventoryComponent()->Inventory_Items = Inventory_ItemsSaved;
 
+	LoadEquipedGuns(MarinePawn);
+}
+
+void USaveMarineRunner::LoadEquipedGuns(AMarineCharacter* MarinePawn)
+{
 	if (!MarineGun) return;
 
 	MarinePawn->SetGun(MarineGun);
@@ -52,7 +57,7 @@ void USaveMarineRunner::LoadGame(class AMarineCharacter* MarinePawn)
 		CurrentWeapon->SetMarinePawn(MarinePawn);
 
 		if (MarinePawn->GetGun() == CurrentWeapon)
-		{	
+		{
 			CurrentWeapon->EquipWeapon();
 			CurrentWeapon->SetGunSwayWhileMovingTimer();
 		}
@@ -63,7 +68,7 @@ void USaveMarineRunner::LoadGame(class AMarineCharacter* MarinePawn)
 			CurrentWeapon->SetActorHiddenInGame(true);
 		}
 		CurrentWeapon->SetCanGunSwayTick(true);
-		CurrentWeapon->SetActorRelativeLocation(MarineGun->GetRelativeLocationInPawn());	
+		CurrentWeapon->SetActorRelativeLocation(MarineGun->GetRelativeLocationInPawn());
 	}
 }
 
