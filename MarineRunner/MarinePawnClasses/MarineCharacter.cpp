@@ -23,6 +23,7 @@
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/Widgets/DashWidget.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/Widgets/Menu/PauseMenuWidget.h"
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Framework/SaveMarineRunner.h"
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
@@ -133,7 +134,10 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, this, &AMarineCharacter::Dash);
 	PlayerInputComponent->BindAction(TEXT("Swing"), IE_Pressed, this, &AMarineCharacter::SwingPressed);
 	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, this, &AMarineCharacter::SlowMotionPressed);
-	
+
+	// Menu
+	PlayerInputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, this, &AMarineCharacter::PauseGame);
+
 	PlayerInputComponent->BindAction(TEXT("CallAlbertos"), IE_Pressed, this, &AMarineCharacter::CallAlbertosPressed);
 }
 
@@ -488,6 +492,36 @@ void AMarineCharacter::UseFirstAidKit()
 }
 #pragma endregion 
 
+#pragma region /////////////////// PAUSE MENU ////////////////
+void AMarineCharacter::PauseGame()
+{
+	if (UGameplayStatics::IsGamePaused(GetWorld()) == true)
+	{
+		UnPauseGame();
+		return;
+	}
+
+	SpawnPauseMenuWidget();
+	
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+}
+
+void AMarineCharacter::UnPauseGame()
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+
+	PauseMenuWidget->RemoveFromParent();
+	PauseMenuWidget = nullptr;
+}
+
+void AMarineCharacter::SpawnPauseMenuWidget()
+{
+	if (PauseMenuWidgetClass == nullptr || MarinePlayerController == nullptr) return;
+
+	PauseMenuWidget = Cast<UPauseMenuWidget>(CreateWidget(MarinePlayerController, PauseMenuWidgetClass));
+	PauseMenuWidget->AddToViewport();
+}
+
 #pragma region ///////////////////////////////// SWING /////////////////////////////////
 void AMarineCharacter::SwingLineCheck()
 {
@@ -729,10 +763,9 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 #pragma region //////////////////////////////// WIDGETS ////////////////////////////////
 void AMarineCharacter::MakeHudWidget()
 {
-	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (HUDClass && MarineController)
+	if (HUDClass && MarinePlayerController)
 	{
-		HudWidget = Cast<UHUDWidget>(CreateWidget(MarineController, HUDClass));
+		HudWidget = Cast<UHUDWidget>(CreateWidget(MarinePlayerController, HUDClass));
 		HudWidget->AddToViewport();
 	}
 }
@@ -741,20 +774,18 @@ void AMarineCharacter::MakeCrosshire()
 {
 	if (CrosshairWidget) return;
 
-	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (CrosshairClass && MarineController)
+	if (CrosshairClass && MarinePlayerController)
 	{
-		CrosshairWidget = CreateWidget(MarineController, CrosshairClass);
+		CrosshairWidget = CreateWidget(MarinePlayerController, CrosshairClass);
 		CrosshairWidget->AddToViewport();
 	}
 }
 
 void AMarineCharacter::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov, bool bAddChromaticAbberation)
 {
-	APlayerController* MarineController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (!DashClass || !bShouldMake) return;
 
-	DashWidget = Cast<UDashWidget>(CreateWidget(MarineController, DashClass));
+	DashWidget = Cast<UDashWidget>(CreateWidget(MarinePlayerController, DashClass));
 	DashWidget->SetFadeTime(FadeTime);
 	DashWidget->ShouldAddChangingFov(bAddFov);
 	DashWidget->ShouldAddChromaticAbberation(bAddChromaticAbberation);

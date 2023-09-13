@@ -177,6 +177,8 @@ private:
 		TSubclassOf<class UUserWidget> DashClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> HUDClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ADSInSound;
@@ -274,6 +276,12 @@ private:
 	FTimerHandle FirstAidKitHandle;
 	void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }
 	void UseFirstAidKit();
+
+	// Pause Menu 
+	class UPauseMenuWidget* PauseMenuWidget;
+	void PauseGame();
+	void UnPauseGame();
+	void SpawnPauseMenuWidget();
 
 	//Aiming
 	void ADSPressed();
