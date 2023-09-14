@@ -5,6 +5,9 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Components/Button.h"
+#include "Kismet/GameplayStatics.h"
+
+#include "MarineRunner/Widgets/Menu/SettingsMenuWidget.h"
 
 void UPauseMenuWidget::NativeConstruct()
 {
@@ -34,23 +37,40 @@ void UPauseMenuWidget::NativeConstruct()
 void UPauseMenuWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+
+	FillMenuButtonsAndTextMap();
+}
+
+void UPauseMenuWidget::FillMenuButtonsAndTextMap()
+{
+	MenuButtonsAndText.Add(ResumeButton, ResumeText);
+	MenuButtonsAndText.Add(LoadGameButton, LoadGameText);
+	MenuButtonsAndText.Add(SettingsButton, SettingsText);
+	MenuButtonsAndText.Add(RestartButton, RestartText);
+	MenuButtonsAndText.Add(QuitGameButton, QuitGameText);
+}
+
+void UPauseMenuWidget::OnHoveredButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim, bool bCanHoverGivenText)
+{
+	if (bCanHoverGivenText || AnimToPlay == nullptr) return;
+
+	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
+	else PlayAnimationReverse(AnimToPlay);
 }
 
 #pragma region //////////////// RESUME /////////////////
 void UPauseMenuWidget::OnClickedResumeButton()
 {
-
 }
 
 void UPauseMenuWidget::OnHoveredResumeButton()
 {
-	ResumeText->SetColorAndOpacity(TextOnHoverColor);
+	OnHoveredButton(ResumeHoverAnim);
 }
 
 void UPauseMenuWidget::OnUnhoveredResumeButton()
 {
-	ResumeText->SetColorAndOpacity(TextOriginalColor);
-
+	OnHoveredButton(ResumeHoverAnim, false);
 }
 #pragma endregion 
 
@@ -61,29 +81,61 @@ void UPauseMenuWidget::OnClickedLoadGameButton()
 
 void UPauseMenuWidget::OnHoveredLoadGameButton()
 {
-	LoadGameText->SetColorAndOpacity(TextOnHoverColor);
+	OnHoveredButton(LoadGameHoverAnim);
 }
 
 void UPauseMenuWidget::OnUnhoveredLoadGameButton()
 {
-	LoadGameText->SetColorAndOpacity(TextOriginalColor);
+	OnHoveredButton(LoadGameHoverAnim, false);
 }
 #pragma endregion 
 
 #pragma region //////////////// SETTINGS /////////////////
 void UPauseMenuWidget::OnClickedSettingsButton()
 {
+	if (bWasSettingsMenuWidgetSpawned)
+	{
+		RemoveSettingsMenuWidgetFromViewport();
+	}
+	else
+	{
+		SpawnSettingsMenuWidget();
+	}
+}
 
+void UPauseMenuWidget::SpawnSettingsMenuWidget()
+{
+	SettingsMenuWidget = Cast<USettingsMenuWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), SettingsMenuWidgetClass));
+	if (SettingsMenuWidget == nullptr) return;
+
+	SetEnableAllMenuButtons(false, SettingsButton);
+	SettingsMenuWidget->AddToViewport();
+	CurrentSpawnedMenuWidgets.Add(SettingsMenuWidget, [this](bool b) { this->RemoveSettingsMenuWidgetFromViewport(b); });
+
+	bWasSettingsMenuWidgetSpawned = true;
+}
+
+void UPauseMenuWidget::RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSettings)
+{
+	if (SettingsMenuWidget == nullptr) return;
+
+	SetEnableAllMenuButtons(true, SettingsButton);
+
+	SettingsMenuWidget->RemoveFromParent();
+	CurrentSpawnedMenuWidgets.Remove(SettingsMenuWidget);
+
+	bWasSettingsMenuWidgetSpawned = false;
+	if (bUnhoverTextSettings == true) OnUnhoveredSettingsButton();
 }
 
 void UPauseMenuWidget::OnHoveredSettingsButton()
 {
-	SettingsText->SetColorAndOpacity(TextOriginalColor);
+	OnHoveredButton(SettingsHoverAnim, true, bWasSettingsMenuWidgetSpawned);
 }
 
 void UPauseMenuWidget::OnUnhoveredSettingsButton()
 {
-	SettingsText->SetColorAndOpacity(TextOriginalColor);
+	OnHoveredButton(SettingsHoverAnim, false, bWasSettingsMenuWidgetSpawned);
 }
 
 #pragma endregion 
@@ -95,12 +147,12 @@ void UPauseMenuWidget::OnClickedRestartButton()
 
 void UPauseMenuWidget::OnHoveredRestartButton()
 {
-	RestartText->SetColorAndOpacity(TextOnHoverColor);
+	OnHoveredButton(RestartHoverAnim);
 }
 
 void UPauseMenuWidget::OnUnhoveredRestartButton()
 {
-	RestartText->SetColorAndOpacity(TextOriginalColor);
+	OnHoveredButton(RestartHoverAnim, false);
 }
 #pragma endregion 
 
@@ -111,11 +163,44 @@ void UPauseMenuWidget::OnClickedQuitGameButton()
 
 void UPauseMenuWidget::OnHoveredQuitGameButton()
 {
-	QuitGameText->SetColorAndOpacity(TextOnHoverColor);
+	OnHoveredButton(QuitGameHoverAnim);
 }
 
 void UPauseMenuWidget::OnUnhoveredQuitGameButton()
 {
-	QuitGameText->SetColorAndOpacity(TextOriginalColor);
+	OnHoveredButton(QuitGameHoverAnim, false);
 }
 #pragma endregion 
+
+bool UPauseMenuWidget::RemoveCurrentMenuWidgetsFromViewport()
+{
+	if (CurrentSpawnedMenuWidgets.Num() == 0) return true;
+
+	TArray<UUserWidget*> Widgets;
+	CurrentSpawnedMenuWidgets.GenerateKeyArray(Widgets);
+
+	if (CurrentSpawnedMenuWidgets.Contains(Widgets.Last()))
+	{
+		TFunction<void(bool)>* FunctionPtr = CurrentSpawnedMenuWidgets.Find(Widgets.Last());
+		(*FunctionPtr)(true);
+		CurrentSpawnedMenuWidgets.Remove(Widgets.Last());
+	}
+	return false;
+}
+
+void UPauseMenuWidget::SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore)
+{
+	TArray<UButton*> AllMenuButtons;
+	MenuButtonsAndText.GenerateKeyArray(AllMenuButtons);
+
+	for (UButton* CurrentMenuButton : AllMenuButtons)
+	{
+		if (ButtonToIgnore == CurrentMenuButton) continue;
+
+		UTextBlock* CurrentButtonText = *MenuButtonsAndText.Find(CurrentMenuButton);
+		if (CurrentButtonText == nullptr) continue;
+
+		CurrentMenuButton->SetIsEnabled(bEnable);
+		CurrentButtonText->SetColorAndOpacity(bEnable ? TextOriginalColor : TextDisabledColor);
+	}
+}

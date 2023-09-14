@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "PauseMenuWidget.generated.h"
+#include "SettingsMenuWidget.generated.h"
 
 /**
  * 
@@ -12,10 +12,10 @@
 class UTextBlock;
 class UButton;
 UCLASS()
-class MARINERUNNER_API UPauseMenuWidget : public UUserWidget
+class MARINERUNNER_API USettingsMenuWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
+	
 protected:
 	virtual void NativeConstruct() override;
 
@@ -23,90 +23,93 @@ protected:
 
 public:
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UTextBlock* GameSettingsText;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UButton* GameSettingsButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* BackgroundBlurImage;
+		UTextBlock* AudioSettingsText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* MarineRunnerTitleImage;
+		UButton* AudioSettingsButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* ResumeText;
+		UTextBlock* VideoSettingsText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* ResumeButton;
+		UButton* VideoSettingsButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* LoadGameText;
+		UTextBlock* BindingsSettingsText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* LoadGameButton;
+		UButton* BindingsSettingsButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* SettingsText;
+		UTextBlock* AcceptSettingsText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* SettingsButton;
+		UButton* AcceptSettingsButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* RestartText;
+		UTextBlock* DefaultsSettingsText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* RestartButton;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* QuitGameText;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* QuitGameButton;
+		UButton* DefaultsSettingsButton;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* ResumeHoverAnim = nullptr;
+		UWidgetAnimation* GameSettingsHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* LoadGameHoverAnim = nullptr;
+		UWidgetAnimation* AudioSettingsHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* SettingsHoverAnim = nullptr;
+		UWidgetAnimation* VideoSettingsHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* RestartHoverAnim = nullptr;
+		UWidgetAnimation* BindingsSettingsHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* QuitGameHoverAnim = nullptr;
+		UWidgetAnimation* AcceptSettingsHoverAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* DefaultsSettingsHoverAnim = nullptr;
 
 	UFUNCTION()
-		void OnClickedResumeButton();
+		void OnClickedGameSettingsButton();
 	UFUNCTION()
-		void OnHoveredResumeButton();
+		void OnHoveredGameSettingsButton();
 	UFUNCTION()
-		void OnUnhoveredResumeButton();
+		void OnUnhoveredGameSettingsButton();
 
 	UFUNCTION()
-		void OnClickedLoadGameButton();
+		void OnClickedAudioSettingsButton();
 	UFUNCTION()
-		void OnHoveredLoadGameButton();
+		void OnHoveredAudioSettingsButton();
 	UFUNCTION()
-		void OnUnhoveredLoadGameButton();
+		void OnUnhoveredAudioSettingsButton();
 
 	UFUNCTION()
-		void OnClickedSettingsButton();
+		void OnClickedVideoSettingsButton();
 	UFUNCTION()
-		void OnHoveredSettingsButton();
+		void OnHoveredVideoSettingsButton();
 	UFUNCTION()
-		void OnUnhoveredSettingsButton();
+		void OnUnhoveredVideoSettingsButton();
 
 	UFUNCTION()
-		void OnClickedRestartButton();
+		void OnClickedBindingsSettingsButton();
 	UFUNCTION()
-		void OnHoveredRestartButton();
+		void OnHoveredBindingsSettingsButton();
 	UFUNCTION()
-		void OnUnhoveredRestartButton();
+		void OnUnhoveredBindingsSettingsButton();
 
 	UFUNCTION()
-		void OnClickedQuitGameButton();
+		void OnClickedAcceptSettingsButton();
 	UFUNCTION()
-		void OnHoveredQuitGameButton();
+		void OnHoveredAcceptSettingsButton();
 	UFUNCTION()
-		void OnUnhoveredQuitGameButton();
+		void OnUnhoveredAcceptSettingsButton();
 
-	// returns true if there is no more left active menu widgets
-	bool RemoveCurrentMenuWidgetsFromViewport();
+	UFUNCTION()
+		void OnClickedDefaultSettingsButton();
+	UFUNCTION()
+		void OnHoveredDefaultSettingsButton();
+	UFUNCTION()
+		void OnUnhoveredDefaultSettingsButton();
+
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Menu")
-		TSubclassOf<UUserWidget> SettingsMenuWidgetClass;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
 		FLinearColor TextOriginalColor;
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
@@ -114,15 +117,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
 		FLinearColor TextDisabledColor;
 
-	TMap<UUserWidget*, TFunction<void(bool)>> CurrentSpawnedMenuWidgets;
-
 	void OnHoveredButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
-
-	// Settings Widget
-	bool bWasSettingsMenuWidgetSpawned;
-	void SpawnSettingsMenuWidget();
-	void RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSettings = false);
-	class USettingsMenuWidget* SettingsMenuWidget;
 
 	// Enable/Disable Menu Buttons
 	void FillMenuButtonsAndTextMap();

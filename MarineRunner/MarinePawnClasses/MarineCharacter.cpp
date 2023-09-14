@@ -11,6 +11,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "TimerManager.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "MarineRunner/MarinePawnClasses/CroachAndSlide.h"
 #include "MarineRunner/MarinePawnClasses/DashComponent.h"
@@ -136,7 +137,8 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, this, &AMarineCharacter::SlowMotionPressed);
 
 	// Menu
-	PlayerInputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, this, &AMarineCharacter::PauseGame);
+	FInputActionBinding& MainMenuToggle = PlayerInputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, this, &AMarineCharacter::PauseGame);
+	MainMenuToggle.bExecuteWhenPaused = true;
 
 	PlayerInputComponent->BindAction(TEXT("CallAlbertos"), IE_Pressed, this, &AMarineCharacter::CallAlbertosPressed);
 }
@@ -501,17 +503,27 @@ void AMarineCharacter::PauseGame()
 		return;
 	}
 
+	MarinePlayerController->SetShowMouseCursor(true);
 	SpawnPauseMenuWidget();
-	
+
+	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(MarinePlayerController, PauseMenuWidget);
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
 
 void AMarineCharacter::UnPauseGame()
 {
+	bool bRemovePauseMenuWidget = PauseMenuWidget->RemoveCurrentMenuWidgetsFromViewport();
+
+	if (bRemovePauseMenuWidget == false) return;
+
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
+
+	MarinePlayerController->SetShowMouseCursor(false);
 
 	PauseMenuWidget->RemoveFromParent();
 	PauseMenuWidget = nullptr;
+
+	UWidgetBlueprintLibrary::SetInputMode_GameOnly(MarinePlayerController);
 }
 
 void AMarineCharacter::SpawnPauseMenuWidget()
