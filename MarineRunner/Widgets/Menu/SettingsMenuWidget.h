@@ -4,13 +4,33 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "SettingsMenuData.h"
+
 #include "SettingsMenuWidget.generated.h"
 
 /**
  * 
  */
+
 class UTextBlock;
 class UButton;
+
+struct FSettingChoiceStruct {
+	UButton* CurrentButton;
+	UWidgetAnimation* AnimationToPlay;
+
+	FSettingChoiceStruct() {
+		CurrentButton = nullptr;
+		AnimationToPlay = nullptr;
+	}
+
+	FSettingChoiceStruct(UButton* NewCurrentButton, UWidgetAnimation* NewAnimationToPlay)
+	{
+		CurrentButton = NewCurrentButton;
+		AnimationToPlay = NewAnimationToPlay;
+	}
+};
+
 UCLASS()
 class MARINERUNNER_API USettingsMenuWidget : public UUserWidget
 {
@@ -23,6 +43,10 @@ protected:
 
 public:
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TSubclassOf<class USettingsMenuEntryObject> MenuSettingsDataObject;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UListView* SettingsListView;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UTextBlock* GameSettingsText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -110,6 +134,15 @@ public:
 
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
+		TArray<FMenuSettings> GameSettingsList;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
+		TArray<FMenuSettings> AudioSettingsList;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
+		TArray<FMenuSettings> VideoSettingsList;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
+		TArray<FMenuSettings> BindingsSettingsList;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
 		FLinearColor TextOriginalColor;
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
@@ -117,10 +150,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
 		FLinearColor TextDisabledColor;
 
-	void OnHoveredButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
+	void OnHoveredButton(UWidgetAnimation* AnimToPlay, UButton* ButtonToHover, bool bPlayForwardAnim = true);
+
+	void FillCurrentMenuSettingsListView(const TArray<FMenuSettings> & DataToFillFrom);
+
+	FSettingChoiceStruct CurrentSettingChoice;
 
 	// Enable/Disable Menu Buttons
 	void FillMenuButtonsAndTextMap();
 	TMap<UButton*, UTextBlock*> MenuButtonsAndText;
 	void SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore = nullptr);
+
+	class AMarineCharacter* MarinePawn;
 };

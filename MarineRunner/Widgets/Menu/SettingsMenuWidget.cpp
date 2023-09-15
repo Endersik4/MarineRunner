@@ -5,6 +5,11 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Components/Button.h"
+#include "Components/ListView.h"
+#include "Kismet/GameplayStatics.h"
+
+#include "MarineRunner/Widgets/Menu/SettingsMenuEntryObject.h"
+#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
 void USettingsMenuWidget::NativeConstruct()
 {
@@ -40,6 +45,12 @@ void USettingsMenuWidget::NativeOnInitialized()
 	Super::NativeOnInitialized();
 
 	FillMenuButtonsAndTextMap();
+
+	PlayAnimation(GameSettingsHoverAnim, 0.17f);
+	CurrentSettingChoice = FSettingChoiceStruct(GameSettingsButton, GameSettingsHoverAnim);
+	FillCurrentMenuSettingsListView(GameSettingsList);
+
+	MarinePawn = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 }
 
 void USettingsMenuWidget::FillMenuButtonsAndTextMap()
@@ -50,9 +61,24 @@ void USettingsMenuWidget::FillMenuButtonsAndTextMap()
 	MenuButtonsAndText.Add(BindingsSettingsButton, BindingsSettingsText);
 }
 
-void USettingsMenuWidget::OnHoveredButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim, bool bCanHoverGivenText)
+void USettingsMenuWidget::FillCurrentMenuSettingsListView(const TArray<FMenuSettings>& DataToFillFrom)
 {
-	if (bCanHoverGivenText || AnimToPlay == nullptr) return;
+	SettingsListView->ClearListItems();
+
+	for (const FMenuSettings & CurrentSetting : DataToFillFrom)
+	{
+		USettingsMenuEntryObject* ConstructedItemObject = NewObject<USettingsMenuEntryObject>(MenuSettingsDataObject);
+		ConstructedItemObject->MenuSettingsData = CurrentSetting;
+
+		SettingsListView->AddItem(ConstructedItemObject);
+
+		ConstructedItemObject->ConditionalBeginDestroy();
+	}
+}
+
+void USettingsMenuWidget::OnHoveredButton(UWidgetAnimation* AnimToPlay, UButton* ButtonToHover, bool bPlayForwardAnim)
+{
+	if (ButtonToHover == CurrentSettingChoice.CurrentButton || AnimToPlay == nullptr) return;
 
 	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
 	else PlayAnimationReverse(AnimToPlay);
@@ -61,33 +87,44 @@ void USettingsMenuWidget::OnHoveredButton(UWidgetAnimation* AnimToPlay, bool bPl
 #pragma region //////////////// GAME SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedGameSettingsButton()
 {
+	if (GameSettingsButton == CurrentSettingChoice.CurrentButton) return;
+
+	OnHoveredButton(CurrentSettingChoice.AnimationToPlay, nullptr, false);
+	CurrentSettingChoice = FSettingChoiceStruct(GameSettingsButton, GameSettingsHoverAnim);
+
+	FillCurrentMenuSettingsListView(GameSettingsList);
 }
 
 void USettingsMenuWidget::OnHoveredGameSettingsButton()
 {
-	OnHoveredButton(GameSettingsHoverAnim);
+	OnHoveredButton(GameSettingsHoverAnim, GameSettingsButton);
 }
 
 void USettingsMenuWidget::OnUnhoveredGameSettingsButton()
 {
-	OnHoveredButton(GameSettingsHoverAnim, false);
+	OnHoveredButton(GameSettingsHoverAnim, GameSettingsButton, false);
 }
 #pragma endregion
 
 #pragma region //////////////// AUDIO SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedAudioSettingsButton()
 {
+	if (AudioSettingsButton == CurrentSettingChoice.CurrentButton) return;
+
+	OnHoveredButton(CurrentSettingChoice.AnimationToPlay, nullptr, false);
+	CurrentSettingChoice = FSettingChoiceStruct(AudioSettingsButton, AudioSettingsHoverAnim);
+
+	FillCurrentMenuSettingsListView(AudioSettingsList);
 }
 
 void USettingsMenuWidget::OnHoveredAudioSettingsButton()
 {
-	OnHoveredButton(AudioSettingsHoverAnim);
-
+	OnHoveredButton(AudioSettingsHoverAnim, AudioSettingsButton);
 }
 
 void USettingsMenuWidget::OnUnhoveredAudioSettingsButton()
 {
-	OnHoveredButton(AudioSettingsHoverAnim, false);
+	OnHoveredButton(AudioSettingsHoverAnim, AudioSettingsButton, false);
 
 }
 #pragma endregion
@@ -95,17 +132,22 @@ void USettingsMenuWidget::OnUnhoveredAudioSettingsButton()
 #pragma region //////////////// VIDEO SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedVideoSettingsButton()
 {
+	if (VideoSettingsButton == CurrentSettingChoice.CurrentButton) return;
+
+	OnHoveredButton(CurrentSettingChoice.AnimationToPlay, nullptr, false);
+	CurrentSettingChoice = FSettingChoiceStruct(VideoSettingsButton, VideoSettingsHoverAnim);
+
+	FillCurrentMenuSettingsListView(VideoSettingsList);
 }
 
 void USettingsMenuWidget::OnHoveredVideoSettingsButton()
 {
-	OnHoveredButton(VideoSettingsHoverAnim);
-
+	OnHoveredButton(VideoSettingsHoverAnim, VideoSettingsButton);
 }
 
 void USettingsMenuWidget::OnUnhoveredVideoSettingsButton()
 {
-	OnHoveredButton(VideoSettingsHoverAnim, false);
+	OnHoveredButton(VideoSettingsHoverAnim, VideoSettingsButton, false);
 
 }
 #pragma endregion
@@ -113,17 +155,23 @@ void USettingsMenuWidget::OnUnhoveredVideoSettingsButton()
 #pragma region //////////////// BINDINGS SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedBindingsSettingsButton()
 {
+	if (BindingsSettingsButton == CurrentSettingChoice.CurrentButton) return;
+
+	OnHoveredButton(CurrentSettingChoice.AnimationToPlay, nullptr, false);
+	CurrentSettingChoice = FSettingChoiceStruct(BindingsSettingsButton, BindingsSettingsHoverAnim);
+
+	FillCurrentMenuSettingsListView(BindingsSettingsList);
 }
 
 void USettingsMenuWidget::OnHoveredBindingsSettingsButton()
 {
-	OnHoveredButton(BindingsSettingsHoverAnim);
+	OnHoveredButton(BindingsSettingsHoverAnim, BindingsSettingsButton);
 
 }
 
 void USettingsMenuWidget::OnUnhoveredBindingsSettingsButton()
 {
-	OnHoveredButton(BindingsSettingsHoverAnim, false);
+	OnHoveredButton(BindingsSettingsHoverAnim, BindingsSettingsButton, false);
 
 }
 #pragma endregion
@@ -132,18 +180,31 @@ void USettingsMenuWidget::OnUnhoveredBindingsSettingsButton()
 
 void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 {
+	TArray<UObject*> AllListElements = SettingsListView->GetListItems();
 
+	for (UObject* CurrentElement : AllListElements)
+	{
+		USettingsMenuEntryObject* SettingMenuObject = Cast<USettingsMenuEntryObject>(CurrentElement);
+		if (SettingMenuObject == nullptr) continue;
+		if (SettingMenuObject->MenuSettingsData.SettingsType == EST_Category) continue;
+
+		if (SettingMenuObject->MenuSettingsData.SettingToApply == ESTA_MouseSensivity)
+		{
+			if (MarinePawn == nullptr) continue;
+			MarinePawn->ChangeMouseSensivity(SettingMenuObject->MenuSettingsData.CurrentSettingsValue);
+		}
+	}
 }
 
 void USettingsMenuWidget::OnHoveredAcceptSettingsButton()
 {
-	OnHoveredButton(AcceptSettingsHoverAnim);
+	OnHoveredButton(AcceptSettingsHoverAnim, nullptr);
 
 }
 
 void USettingsMenuWidget::OnUnhoveredAcceptSettingsButton()
 {
-	OnHoveredButton(AcceptSettingsHoverAnim, false);
+	OnHoveredButton(AcceptSettingsHoverAnim, nullptr, false);
 
 }
 #pragma endregion
@@ -157,12 +218,12 @@ void USettingsMenuWidget::OnClickedDefaultSettingsButton()
 
 void USettingsMenuWidget::OnHoveredDefaultSettingsButton()
 {
-	OnHoveredButton(DefaultsSettingsHoverAnim);
+	OnHoveredButton(DefaultsSettingsHoverAnim, nullptr);
 
 }
 
 void USettingsMenuWidget::OnUnhoveredDefaultSettingsButton()
 {
-	OnHoveredButton(DefaultsSettingsHoverAnim, false);
+	OnHoveredButton(DefaultsSettingsHoverAnim, nullptr, false);
 }
 #pragma endregion
