@@ -29,12 +29,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UHorizontalBox* HorizontalBoxForSettingsText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* SettingsText;
+		class UTextBlock* SubSettingNameText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* CategoryText;
+		class UTextBlock* CategoryNameText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* CurrentSettingsChoice;
+		class UTextBlock* SubSettingQualityText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UButton* LeftArrowButton;
@@ -42,16 +42,21 @@ public:
 		class UButton* RightArrowButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UCheckBox* CurrentSettingsCheckBox;
+		class UCheckBox* SubSettingOnOffCheckBox;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* CurrentSettingsCheckBoxButton;
+		class UButton* SubSettingOnOffButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UButton* SliderButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class USlider* CurrentSettingsSlider;
+		class USlider* SubSettingSlider;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* SliderNumber;
+		class UTextBlock* SubSettingSliderValueText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton* KeyMappingButton;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UInputKeySelector* KeyMappingInputKeySelector;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* LeftArrowHoverAnim = nullptr;
@@ -61,6 +66,8 @@ public:
 		UWidgetAnimation* CheckBoxHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* SliderHoverAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* KeyMappingHoverAnim = nullptr;
 
 	UFUNCTION()
 		void OnClickedLeftArrowButton();
@@ -77,11 +84,11 @@ public:
 		void OnUnhoveredRightArrowButton();
 
 	UFUNCTION()
-		void OnClickedCheckBoxButton();
+		void OnClickedOnOffButton();
 	UFUNCTION()
-		void OnHoveredCheckBoxButton();
+		void OnHoveredOnOffButton();
 	UFUNCTION()
-		void OnUnhoveredCheckBoxButton();
+		void OnUnhoveredOnOffButton();
 
 	UFUNCTION()
 		void OnValueChangedSlider(float Value);
@@ -90,28 +97,43 @@ public:
 	UFUNCTION()
 		void OnUnhoveredSliderButton();
 
+	UFUNCTION()
+		void OnIsSelectingKeyChangedInputKeySelector();
+	UFUNCTION()
+		void OnKeySelectedInputKeySelector(FInputChord SelectedKey);
+	UFUNCTION()
+		void OnHoveredKeyMappingButton();
+	UFUNCTION()
+		void OnUnhoveredKeyMappingButton();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
 		FLinearColor CategoryTextColor;
+	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
+		FLinearColor WhenKeyMapColor;
+
+	FString FunctionNameForCMD;
+	void MakeFunctionName(float Value);
+	void MakeFunctionName(int32 Value);
 
 	void OnHoveredButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
 
+	// Key Mapping
+	bool bIsWaitingForNewKey = false;
+	FText PreviousKeyText;
+
+	// Hide everything in this widget, and then 
 	void HideAllUIElements();
 
-	bool bIsChecked;
+	FMenuSettings SubSettingData;
 
-	FMenuSettings MenuSettingsData;
+	void DisplayProperUIElements();
 
-	// List 
-	// 0 - Low, 1 - Medium, 2 - Hard, 3 - Ultra
-	int32 Settings_ListValue = 3;
-
-	// set this widget to be one of ESettingsType
-	void SettingMenu_Category();
-	void SettingMenu_List();
-	void SettingMenu_KeyBindings();
-	void SettingMenu_Slider();
-	void SettingMenu_CheckBox();
+	void SubSettingType_Category();
+	void SubSettingType_Quality();
+	void SubSettingType_KeyBinding();
+	void SubSettingType_SliderValue();
+	void SubSettingType_OnOff();
 
 	class USettingsMenuEntryObject* ListEntryObject;
 };

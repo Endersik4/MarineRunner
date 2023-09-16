@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/Widgets/Menu/SettingsMenuEntryObject.h"
+#include "MarineRunner/Widgets/Menu/SettingsMenuListEntry.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
 void USettingsMenuWidget::NativeConstruct()
@@ -69,6 +70,7 @@ void USettingsMenuWidget::FillCurrentMenuSettingsListView(const TArray<FMenuSett
 	{
 		USettingsMenuEntryObject* ConstructedItemObject = NewObject<USettingsMenuEntryObject>(MenuSettingsDataObject);
 		ConstructedItemObject->MenuSettingsData = CurrentSetting;
+		ConstructedItemObject->SettingMenuWidget = this;
 
 		SettingsListView->AddItem(ConstructedItemObject);
 
@@ -186,14 +188,32 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 	{
 		USettingsMenuEntryObject* SettingMenuObject = Cast<USettingsMenuEntryObject>(CurrentElement);
 		if (SettingMenuObject == nullptr) continue;
-		if (SettingMenuObject->MenuSettingsData.SettingsType == EST_Category) continue;
+		const FMenuSettings& SubSettingData = SettingMenuObject->MenuSettingsData;
 
-		if (SettingMenuObject->MenuSettingsData.SettingToApply == ESTA_MouseSensivity)
+		if (SubSettingData.SubSettingType == EST_Category) continue;
+
+		if (SubSettingData.SettingApplyType == ESAT_FunctionInCMD)
+		{
+			UGameplayStatics::GetPlayerController(GetWorld(), 0)->ConsoleCommand(SubSettingData.SubSettingFunctionName);
+			continue;
+		}
+
+		if (SubSettingData.SettingApplyType == ESAT_MouseSens)
 		{
 			if (MarinePawn == nullptr) continue;
-			MarinePawn->ChangeMouseSensivity(SettingMenuObject->MenuSettingsData.CurrentSettingsValue);
+			MarinePawn->ChangeMouseSensivity(SubSettingData.SliderCurrentValue);
+			continue;
+		}
+
+		if (SubSettingData.SettingApplyType == ESAT_Sounds)
+		{
+			UGameplayStatics::SetSoundMixClassOverride(GetWorld(), SubSettingData.SoundMixClassToChangeVolume, SubSettingData.SoundClassToChangeVolume, SubSettingData.SliderCurrentValue, 1.f, 0.f);
+			UGameplayStatics::PushSoundMixModifier(GetWorld(), SubSettingData.SoundMixClassToChangeVolume);
+			
+			continue;
 		}
 	}
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->ConsoleCommand("r.MotionBlur.Amount 1");
 }
 
 void USettingsMenuWidget::OnHoveredAcceptSettingsButton()

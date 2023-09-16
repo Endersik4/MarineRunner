@@ -123,6 +123,7 @@ void UPauseMenuWidget::RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSet
 
 	SettingsMenuWidget->RemoveFromParent();
 	CurrentSpawnedMenuWidgets.Remove(SettingsMenuWidget);
+	SettingsMenuWidget = nullptr;
 
 	bWasSettingsMenuWidgetSpawned = false;
 	if (bUnhoverTextSettings == true) OnUnhoveredSettingsButton();

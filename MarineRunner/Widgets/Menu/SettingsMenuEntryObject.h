@@ -18,4 +18,6 @@ class MARINERUNNER_API USettingsMenuEntryObject : public UObject
 public:
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
 		FMenuSettings MenuSettingsData;
+	UPROPERTY(EditAnywhere, Category = "Settings Menu")
+		class USettingsMenuWidget* SettingMenuWidget;
 };

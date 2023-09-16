@@ -132,7 +132,6 @@ public:
 	UFUNCTION()
 		void OnUnhoveredDefaultSettingsButton();
 
-
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
 		TArray<FMenuSettings> GameSettingsList;

@@ -7,7 +7,10 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/HorizontalBox.h"
+#include "Components/InputKeySelector.h"
 #include "Kismet/KismetTextLibrary.h"
+#include "Kismet/KismetInputLibrary.h"
+#include "GameFramework/InputSettings.h"
 
 
 void USettingsMenuListEntry::NativeConstruct()
@@ -20,68 +23,153 @@ void USettingsMenuListEntry::NativeConstruct()
 	RightArrowButton->OnHovered.AddDynamic(this, &USettingsMenuListEntry::OnHoveredRightArrowButton);
 	RightArrowButton->OnUnhovered.AddDynamic(this, &USettingsMenuListEntry::OnUnhoveredRightArrowButton);
 
-	CurrentSettingsCheckBoxButton->OnClicked.AddDynamic(this, &USettingsMenuListEntry::OnClickedCheckBoxButton);
-	CurrentSettingsCheckBoxButton->OnHovered.AddDynamic(this, &USettingsMenuListEntry::OnHoveredCheckBoxButton);
-	CurrentSettingsCheckBoxButton->OnUnhovered.AddDynamic(this, &USettingsMenuListEntry::OnUnhoveredCheckBoxButton);
+	SubSettingOnOffButton->OnClicked.AddDynamic(this, &USettingsMenuListEntry::OnClickedOnOffButton);
+	SubSettingOnOffButton->OnHovered.AddDynamic(this, &USettingsMenuListEntry::OnHoveredOnOffButton);
+	SubSettingOnOffButton->OnUnhovered.AddDynamic(this, &USettingsMenuListEntry::OnUnhoveredOnOffButton);
 
-	CurrentSettingsSlider->OnValueChanged.AddDynamic(this, &USettingsMenuListEntry::OnValueChangedSlider);
+	SubSettingSlider->OnValueChanged.AddDynamic(this, &USettingsMenuListEntry::OnValueChangedSlider);
 	SliderButton->OnHovered.AddDynamic(this, &USettingsMenuListEntry::OnHoveredSliderButton);
 	SliderButton->OnUnhovered.AddDynamic(this, &USettingsMenuListEntry::OnUnhoveredSliderButton);
+
+	KeyMappingInputKeySelector->OnKeySelected.AddDynamic(this, &USettingsMenuListEntry::OnKeySelectedInputKeySelector);
+	KeyMappingInputKeySelector->OnIsSelectingKeyChanged.AddDynamic(this, &USettingsMenuListEntry::OnIsSelectingKeyChangedInputKeySelector);
+	KeyMappingButton->OnHovered.AddDynamic(this, &USettingsMenuListEntry::OnHoveredKeyMappingButton);
+	KeyMappingButton->OnUnhovered.AddDynamic(this, &USettingsMenuListEntry::OnUnhoveredKeyMappingButton);
 }
 
 void USettingsMenuListEntry::NativeOnInitialized()
 {
 }
 
+#pragma region ///////// PREPARE WIDGET //////////
 void USettingsMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	ListEntryObject = Cast<USettingsMenuEntryObject>(ListItemObject);
 	HideAllUIElements();
-	MenuSettingsData = ListEntryObject->MenuSettingsData;
+	SubSettingData = ListEntryObject->MenuSettingsData;
 
-	if (MenuSettingsData.SettingsType == EST_Category)
-	{
-		SettingMenu_Category();
-		return;
-	}
-
-	SettingsText->SetText(MenuSettingsData.SettingsName);
-	SettingsText->SetVisibility(ESlateVisibility::Visible);
-	SettingsText->SetIsEnabled(true);
-
-	if (MenuSettingsData.SettingsType == EST_List)
-	{
-		SettingMenu_List();
-		return;
-	}
-
-	if (MenuSettingsData.SettingsType == EST_KeyBindings)
-	{
-		SettingMenu_KeyBindings();
-		return;
-	}
-
-	if (MenuSettingsData.SettingsType == EST_Slider)
-	{
-		SettingMenu_Slider();
-		return;
-	}
-
-	if (MenuSettingsData.SettingsType == EST_Checked)
-	{
-		SettingMenu_CheckBox();
-		return;
-	}
+	DisplayProperUIElements();
 }
+
+void USettingsMenuListEntry::HideAllUIElements()
+{
+	HorizontalBoxForSettingsText->SetVisibility(ESlateVisibility::Hidden);
+	CategoryNameText->SetVisibility(ESlateVisibility::Hidden);
+
+	SubSettingNameText->SetVisibility(ESlateVisibility::Hidden);
+	SubSettingQualityText->SetVisibility(ESlateVisibility::Hidden);
+
+	LeftArrowButton->SetVisibility(ESlateVisibility::Hidden);
+	RightArrowButton->SetVisibility(ESlateVisibility::Hidden);
+
+	SubSettingOnOffCheckBox->SetVisibility(ESlateVisibility::Hidden);
+	SubSettingOnOffButton->SetVisibility(ESlateVisibility::Hidden);
+
+	KeyMappingButton->SetVisibility(ESlateVisibility::Hidden);
+	KeyMappingInputKeySelector->SetVisibility(ESlateVisibility::Hidden);
+
+	SubSettingSlider->SetVisibility(ESlateVisibility::Hidden);
+	SliderButton->SetVisibility(ESlateVisibility::Hidden);
+	SubSettingSliderValueText->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void USettingsMenuListEntry::DisplayProperUIElements()
+{
+	if (SubSettingData.SubSettingType == EST_Category)
+	{
+		SubSettingType_Category();
+		return;
+	}
+
+	SubSettingNameText->SetText(SubSettingData.SubSettingName);
+	SubSettingNameText->SetVisibility(ESlateVisibility::Visible);
+	SubSettingNameText->SetIsEnabled(true);
+
+	if (SubSettingData.SubSettingType == EST_Quality) SubSettingType_Quality();
+	else if (SubSettingData.SubSettingType == EST_KeyMapping) SubSettingType_KeyBinding();
+	else if (SubSettingData.SubSettingType == EST_SliderValue) SubSettingType_SliderValue();
+	else SubSettingType_OnOff();
+}
+#pragma endregion
+
+#pragma region ////////////// SUBSETTING TYPE ////////////////
+void USettingsMenuListEntry::SubSettingType_Category()
+{
+	CategoryNameText->SetText(SubSettingData.SubSettingName);
+	CategoryNameText->SetColorAndOpacity(CategoryTextColor);
+
+	CategoryNameText->SetVisibility(ESlateVisibility::Visible);
+	HorizontalBoxForSettingsText->SetVisibility(ESlateVisibility::Visible);
+}
+
+void USettingsMenuListEntry::SubSettingType_Quality()
+{
+	SubSettingQualityText->SetVisibility(ESlateVisibility::Visible);
+
+	LeftArrowButton->SetVisibility(ESlateVisibility::Visible);
+	RightArrowButton->SetVisibility(ESlateVisibility::Visible);
+
+	SubSettingQualityText->SetText(SubSettingData.QualityTypes[SubSettingData.QualityCurrentValue]);
+	if (SubSettingData.QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
+	if (SubSettingData.QualityCurrentValue == SubSettingData.QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
+
+	MakeFunctionName(SubSettingData.QualityCurrentValue);
+}
+
+void USettingsMenuListEntry::SubSettingType_KeyBinding()
+{
+	TArray<FInputActionKeyMapping> KeyActionMappings;
+	UInputSettings::GetInputSettings()->GetActionMappingByName(SubSettingData.KeyMappingActionName, KeyActionMappings);
+	FText KeyMap = FText::FromString("-empty-");
+	if (KeyActionMappings.Num() > 0)
+	{
+		KeyMap = FText::FromString("-" + UKismetInputLibrary::Key_GetDisplayName(KeyActionMappings.Last().Key).ToString() + "-");
+	}
+
+	KeyMappingButton->SetVisibility(ESlateVisibility::Visible);
+	KeyMappingInputKeySelector->SetVisibility(ESlateVisibility::Visible);
+	SubSettingQualityText->SetVisibility(ESlateVisibility::Visible);
+	SubSettingQualityText->SetText(KeyMap);
+}
+
+void USettingsMenuListEntry::SubSettingType_SliderValue()
+{
+	SubSettingSlider->SetVisibility(ESlateVisibility::Visible);
+	SliderButton->SetVisibility(ESlateVisibility::Visible);
+	SubSettingSliderValueText->SetVisibility(ESlateVisibility::Visible);
+
+	SubSettingSlider->SetMaxValue(SubSettingData.RangeOfSlider.GetUpperBoundValue());
+	SubSettingSlider->SetMinValue(SubSettingData.RangeOfSlider.GetLowerBoundValue());
+	SubSettingSlider->SetValue(SubSettingData.SliderCurrentValue);
+
+	FString NewValue = "-" + UKismetTextLibrary::Conv_FloatToText(SubSettingData.SliderCurrentValue, ERoundingMode::HalfToEven, false, true, 1, 3, 1, SubSettingData.DecimalNumbers).ToString() + "-";
+	SubSettingSliderValueText->SetText(FText::FromString(NewValue));
+
+	MakeFunctionName(SubSettingData.SliderCurrentValue);
+}
+
+void USettingsMenuListEntry::SubSettingType_OnOff()
+{
+	SubSettingOnOffCheckBox->SetVisibility(ESlateVisibility::Visible);
+	SubSettingOnOffButton->SetVisibility(ESlateVisibility::Visible);
+
+	if (SubSettingData.bSettingEnabled) SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Checked);
+	else SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
+
+	MakeFunctionName(SubSettingData.bSettingEnabled ? 1.f : 0.f);
+}
+#pragma endregion
 
 #pragma region ///////// LEFT ARROW ////////////
 void USettingsMenuListEntry::OnClickedLeftArrowButton()
 {
-	MenuSettingsData.CurrentSettingsListValue--;
-	CurrentSettingsChoice->SetText(MenuSettingsData.SettingsApplyTextes[MenuSettingsData.CurrentSettingsListValue]);
+	SubSettingData.QualityCurrentValue--;
+	SubSettingQualityText->SetText(SubSettingData.QualityTypes[SubSettingData.QualityCurrentValue]);
 
-	if (MenuSettingsData.CurrentSettingsListValue == 0) LeftArrowButton->SetIsEnabled(false);
+	if (SubSettingData.QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
 	RightArrowButton->SetIsEnabled(true);
+
+	MakeFunctionName(SubSettingData.QualityCurrentValue);
 }
 
 void USettingsMenuListEntry::OnHoveredLeftArrowButton()
@@ -98,11 +186,13 @@ void USettingsMenuListEntry::OnUnhoveredLeftArrowButton()
 #pragma region ///////// RIGHT ARROW ////////////
 void USettingsMenuListEntry::OnClickedRightArrowButton()
 {
-	MenuSettingsData.CurrentSettingsListValue++;
-	CurrentSettingsChoice->SetText(MenuSettingsData.SettingsApplyTextes[MenuSettingsData.CurrentSettingsListValue]);
+	SubSettingData.QualityCurrentValue++;
+	SubSettingQualityText->SetText(SubSettingData.QualityTypes[SubSettingData.QualityCurrentValue]);
 
-	if (MenuSettingsData.CurrentSettingsListValue == MenuSettingsData.SettingsApplyTextes.Num() - 1) RightArrowButton->SetIsEnabled(false);
+	if (SubSettingData.QualityCurrentValue == SubSettingData.QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
 	LeftArrowButton->SetIsEnabled(true);
+
+	MakeFunctionName(SubSettingData.QualityCurrentValue);
 }
 
 void USettingsMenuListEntry::OnHoveredRightArrowButton()
@@ -117,18 +207,20 @@ void USettingsMenuListEntry::OnUnhoveredRightArrowButton()
 #pragma endregion
 
 #pragma region ///////// CHECK BOX ////////////
-void USettingsMenuListEntry::OnClickedCheckBoxButton()
+void USettingsMenuListEntry::OnClickedOnOffButton()
 {
-	CurrentSettingsCheckBox->SetCheckedState(bIsChecked ? ECheckBoxState::Unchecked : ECheckBoxState::Checked);
-	bIsChecked = bIsChecked ? false : true;
+	SubSettingOnOffCheckBox->SetCheckedState(SubSettingData.bSettingEnabled ? ECheckBoxState::Unchecked : ECheckBoxState::Checked);
+	SubSettingData.bSettingEnabled = SubSettingData.bSettingEnabled ? false : true;
+
+	MakeFunctionName(SubSettingData.bSettingEnabled ? 1.f : 0.f);
 }
 
-void USettingsMenuListEntry::OnHoveredCheckBoxButton()
+void USettingsMenuListEntry::OnHoveredOnOffButton()
 {
 	OnHoveredButton(CheckBoxHoverAnim);
 }
 
-void USettingsMenuListEntry::OnUnhoveredCheckBoxButton()
+void USettingsMenuListEntry::OnUnhoveredOnOffButton()
 {
 	OnHoveredButton(CheckBoxHoverAnim, false);
 }
@@ -137,13 +229,13 @@ void USettingsMenuListEntry::OnUnhoveredCheckBoxButton()
 #pragma region ///////// SLIDER ////////////
 void USettingsMenuListEntry::OnValueChangedSlider(float Value)
 {
-	FString NewNumber = "-";
-	NewNumber += UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, 2).ToString();
-	NewNumber += "-";
-	SliderNumber->SetText(FText::FromString(NewNumber));
+	FString NewNumber = "-" + UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, SubSettingData.DecimalNumbers).ToString() + "-";
+	SubSettingSliderValueText->SetText(FText::FromString(NewNumber));
 
-	MenuSettingsData.CurrentSettingsValue = Value;
-	if (ListEntryObject) ListEntryObject->MenuSettingsData = MenuSettingsData;
+	SubSettingData.SliderCurrentValue = Value;
+	if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
+
+	MakeFunctionName(Value);
 }
 
 void USettingsMenuListEntry::OnHoveredSliderButton()
@@ -158,23 +250,67 @@ void USettingsMenuListEntry::OnUnhoveredSliderButton()
 
 #pragma endregion
 
-void USettingsMenuListEntry::HideAllUIElements()
+#pragma region //////// KEY MAPPING ////////////
+void USettingsMenuListEntry::OnIsSelectingKeyChangedInputKeySelector()
 {
-	HorizontalBoxForSettingsText->SetVisibility(ESlateVisibility::Hidden);
-	CategoryText->SetVisibility(ESlateVisibility::Hidden);
+	if (bIsWaitingForNewKey == true)
+	{
+		SubSettingQualityText->SetText(PreviousKeyText);
+		bIsWaitingForNewKey = false;
+		OnUnhoveredKeyMappingButton();
+		return;
+	}
 
-	SettingsText->SetVisibility(ESlateVisibility::Hidden);
-	CurrentSettingsChoice->SetVisibility(ESlateVisibility::Hidden);
+	PreviousKeyText = SubSettingQualityText->GetText();
+	SubSettingQualityText->SetText(FText::FromString("-press key-"));
 
-	LeftArrowButton->SetVisibility(ESlateVisibility::Hidden);
-	RightArrowButton->SetVisibility(ESlateVisibility::Hidden);
+	bIsWaitingForNewKey = true;
+}
 
-	CurrentSettingsCheckBox->SetVisibility(ESlateVisibility::Hidden);
-	CurrentSettingsCheckBoxButton->SetVisibility(ESlateVisibility::Hidden);
+void USettingsMenuListEntry::OnKeySelectedInputKeySelector(FInputChord SelectedKey)
+{
+	TArray<FInputActionKeyMapping> KeyActionMappings;
+	UInputSettings::GetInputSettings()->GetActionMappingByName(SubSettingData.KeyMappingActionName, KeyActionMappings);
+	for (int i = 0; i != KeyActionMappings.Num(); i++)
+	{
+		UInputSettings::GetInputSettings()->RemoveActionMapping(KeyActionMappings[0]);
+	}
 
-	CurrentSettingsSlider->SetVisibility(ESlateVisibility::Hidden);
-	SliderButton->SetVisibility(ESlateVisibility::Hidden);
-	SliderNumber->SetVisibility(ESlateVisibility::Hidden);
+	FInputActionKeyMapping NewActionKeyMapping = FInputActionKeyMapping(SubSettingData.KeyMappingActionName, SelectedKey.Key, SelectedKey.bShift, SelectedKey.bCtrl, SelectedKey.bAlt, SelectedKey.bCmd);
+	UInputSettings::GetInputSettings()->AddActionMapping(NewActionKeyMapping, true);
+
+	FText KeyMap = FText::FromString("-" + UKismetInputLibrary::Key_GetDisplayName(SelectedKey.Key).ToString() + "-");
+	SubSettingQualityText->SetText(KeyMap);
+
+	bIsWaitingForNewKey = false;
+}
+
+void USettingsMenuListEntry::OnHoveredKeyMappingButton()
+{
+	if (bIsWaitingForNewKey == true) return;
+
+	OnHoveredButton(KeyMappingHoverAnim);
+}
+void USettingsMenuListEntry::OnUnhoveredKeyMappingButton()
+{
+	if (bIsWaitingForNewKey == true) return;
+
+	OnHoveredButton(KeyMappingHoverAnim, false);
+}
+#pragma endregion
+
+void USettingsMenuListEntry::MakeFunctionName(float Value)
+{
+	FunctionNameForCMD = SubSettingData.SubSettingFunctionName;
+	FString ValueToStr = UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, 1).ToString();
+	FunctionNameForCMD += " " + ValueToStr;
+	UE_LOG(LogTemp, Warning, TEXT("VALUE = %s | FUNCTION = %s"), *ValueToStr, *FunctionNameForCMD);
+}
+
+void USettingsMenuListEntry::MakeFunctionName(int32 Value)
+{
+	FunctionNameForCMD = SubSettingData.SubSettingFunctionName + " " + FString::FromInt(Value);
+	UE_LOG(LogTemp, Warning, TEXT("FUNCTION = %s"), *FunctionNameForCMD);
 }
 
 void USettingsMenuListEntry::OnHoveredButton(UWidgetAnimation* AnimToPlay,bool bPlayForwardAnim)
@@ -184,52 +320,3 @@ void USettingsMenuListEntry::OnHoveredButton(UWidgetAnimation* AnimToPlay,bool b
 	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
 	else PlayAnimationReverse(AnimToPlay);
 }
-
-#pragma region ////////////// SET SETTING TYPE ////////////////
-void USettingsMenuListEntry::SettingMenu_Category()
-{
-	CategoryText->SetText(MenuSettingsData.SettingsName);
-	CategoryText->SetColorAndOpacity(CategoryTextColor);
-
-	CategoryText->SetVisibility(ESlateVisibility::Visible);
-	HorizontalBoxForSettingsText->SetVisibility(ESlateVisibility::Visible);
-}
-
-void USettingsMenuListEntry::SettingMenu_List()
-{
-	CurrentSettingsChoice->SetVisibility(ESlateVisibility::Visible);
-
-	LeftArrowButton->SetVisibility(ESlateVisibility::Visible);
-	RightArrowButton->SetVisibility(ESlateVisibility::Visible);
-	CurrentSettingsChoice->SetText(MenuSettingsData.SettingsApplyTextes[MenuSettingsData.CurrentSettingsListValue]);
-	if (MenuSettingsData.CurrentSettingsListValue == 0) LeftArrowButton->SetIsEnabled(false);
-	if (MenuSettingsData.CurrentSettingsListValue == MenuSettingsData.SettingsApplyTextes.Num() - 1) RightArrowButton->SetIsEnabled(false);
-}
-
-void USettingsMenuListEntry::SettingMenu_KeyBindings()
-{
-	CurrentSettingsChoice->SetVisibility(ESlateVisibility::Visible);
-	CurrentSettingsChoice->SetText(MenuSettingsData.SettingsKeyBindingsValue);
-}
-
-void USettingsMenuListEntry::SettingMenu_Slider()
-{
-	CurrentSettingsSlider->SetVisibility(ESlateVisibility::Visible);
-	SliderButton->SetVisibility(ESlateVisibility::Visible);
-	SliderNumber->SetVisibility(ESlateVisibility::Visible);
-
-	CurrentSettingsSlider->SetMaxValue(MenuSettingsData.RangeOfSlider.GetUpperBoundValue());
-	CurrentSettingsSlider->SetMinValue(MenuSettingsData.RangeOfSlider.GetLowerBoundValue());
-	
-}
-
-void USettingsMenuListEntry::SettingMenu_CheckBox()
-{
-	CurrentSettingsCheckBox->SetVisibility(ESlateVisibility::Visible);
-	CurrentSettingsCheckBoxButton->SetVisibility(ESlateVisibility::Visible);
-	bIsChecked = MenuSettingsData.bChecked;
-
-	if (bIsChecked) CurrentSettingsCheckBox->SetCheckedState(ECheckBoxState::Checked);
-	else CurrentSettingsCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
-}
-#pragma endregion

@@ -141,6 +141,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	MainMenuToggle.bExecuteWhenPaused = true;
 
 	PlayerInputComponent->BindAction(TEXT("CallAlbertos"), IE_Pressed, this, &AMarineCharacter::CallAlbertosPressed);
+
 }
 
 #pragma region //////////////////////////////// MOVEMENT ///////////////////////////////
@@ -533,6 +534,7 @@ void AMarineCharacter::SpawnPauseMenuWidget()
 	PauseMenuWidget = Cast<UPauseMenuWidget>(CreateWidget(MarinePlayerController, PauseMenuWidgetClass));
 	PauseMenuWidget->AddToViewport();
 }
+#pragma endregion
 
 #pragma region ///////////////////////////////// SWING /////////////////////////////////
 void AMarineCharacter::SwingLineCheck()
