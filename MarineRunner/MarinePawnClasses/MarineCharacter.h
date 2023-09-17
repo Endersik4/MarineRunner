@@ -46,7 +46,7 @@ public:
 		class UWallrunComponent* GetWallrunComponent() const { return WallrunComponent; }
 
 	UFUNCTION(BlueprintCallable)
-		void SetShouldDieWhenDash(bool bShould) { bShouldDieWhenDash = bShould; }
+		void SetShouldDieWhenDash(bool bShould) { bShouldDieWhenDash = bShould;  }
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void RotateCameraWhileWallrunning(bool bIsRightSide = false);

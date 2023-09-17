@@ -10,6 +10,7 @@
 #include "Components/InputKeySelector.h"
 #include "Kismet/KismetTextLibrary.h"
 #include "Kismet/KismetInputLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/InputSettings.h"
 
 
@@ -47,6 +48,7 @@ void USettingsMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 	ListEntryObject = Cast<USettingsMenuEntryObject>(ListItemObject);
 	HideAllUIElements();
 	SubSettingData = ListEntryObject->MenuSettingsData;
+	FunctionNameForCMD = SubSettingData.SubSettingFunctionName;
 
 	DisplayProperUIElements();
 }
@@ -109,7 +111,9 @@ void USettingsMenuListEntry::SubSettingType_Quality()
 	LeftArrowButton->SetVisibility(ESlateVisibility::Visible);
 	RightArrowButton->SetVisibility(ESlateVisibility::Visible);
 
+	SubSettingData.QualityCurrentValue = UKismetSystemLibrary::GetConsoleVariableIntValue(SubSettingData.SubSettingFunctionName);
 	SubSettingQualityText->SetText(SubSettingData.QualityTypes[SubSettingData.QualityCurrentValue]);
+
 	if (SubSettingData.QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
 	if (SubSettingData.QualityCurrentValue == SubSettingData.QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
 
@@ -142,8 +146,7 @@ void USettingsMenuListEntry::SubSettingType_SliderValue()
 	SubSettingSlider->SetMinValue(SubSettingData.RangeOfSlider.GetLowerBoundValue());
 	SubSettingSlider->SetValue(SubSettingData.SliderCurrentValue);
 
-	FString NewValue = "-" + UKismetTextLibrary::Conv_FloatToText(SubSettingData.SliderCurrentValue, ERoundingMode::HalfToEven, false, true, 1, 3, 1, SubSettingData.DecimalNumbers).ToString() + "-";
-	SubSettingSliderValueText->SetText(FText::FromString(NewValue));
+	SetSubSettingSliderValueText(SubSettingData.SliderCurrentValue);
 
 	MakeFunctionName(SubSettingData.SliderCurrentValue);
 }
@@ -153,10 +156,11 @@ void USettingsMenuListEntry::SubSettingType_OnOff()
 	SubSettingOnOffCheckBox->SetVisibility(ESlateVisibility::Visible);
 	SubSettingOnOffButton->SetVisibility(ESlateVisibility::Visible);
 
+	SubSettingData.bSettingEnabled = UKismetSystemLibrary::GetConsoleVariableBoolValue(SubSettingData.SubSettingFunctionName);
 	if (SubSettingData.bSettingEnabled) SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Checked);
 	else SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
 
-	MakeFunctionName(SubSettingData.bSettingEnabled ? 1.f : 0.f);
+	MakeFunctionName(SubSettingData.bSettingEnabled ? 1 : 0);
 }
 #pragma endregion
 
@@ -212,7 +216,7 @@ void USettingsMenuListEntry::OnClickedOnOffButton()
 	SubSettingOnOffCheckBox->SetCheckedState(SubSettingData.bSettingEnabled ? ECheckBoxState::Unchecked : ECheckBoxState::Checked);
 	SubSettingData.bSettingEnabled = SubSettingData.bSettingEnabled ? false : true;
 
-	MakeFunctionName(SubSettingData.bSettingEnabled ? 1.f : 0.f);
+	MakeFunctionName(SubSettingData.bSettingEnabled ? 1 : 0);
 }
 
 void USettingsMenuListEntry::OnHoveredOnOffButton()
@@ -229,15 +233,19 @@ void USettingsMenuListEntry::OnUnhoveredOnOffButton()
 #pragma region ///////// SLIDER ////////////
 void USettingsMenuListEntry::OnValueChangedSlider(float Value)
 {
-	FString NewNumber = "-" + UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, SubSettingData.DecimalNumbers).ToString() + "-";
-	SubSettingSliderValueText->SetText(FText::FromString(NewNumber));
+	SetSubSettingSliderValueText(Value);
 
 	SubSettingData.SliderCurrentValue = Value;
-	if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
 
 	MakeFunctionName(Value);
 }
 
+void USettingsMenuListEntry::SetSubSettingSliderValueText(float Value)
+{
+	FString ConvertedValue = SubSettingData.DecimalNumbers == 0 ? FString::FromInt((int)Value) : UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, SubSettingData.DecimalNumbers).ToString();
+	FString NewValue = "-" + ConvertedValue + "-";
+	SubSettingSliderValueText->SetText(FText::FromString(NewValue));
+}
 void USettingsMenuListEntry::OnHoveredSliderButton()
 {
 	OnHoveredButton(SliderHoverAnim);
@@ -301,16 +309,15 @@ void USettingsMenuListEntry::OnUnhoveredKeyMappingButton()
 
 void USettingsMenuListEntry::MakeFunctionName(float Value)
 {
-	FunctionNameForCMD = SubSettingData.SubSettingFunctionName;
 	FString ValueToStr = UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, 1).ToString();
-	FunctionNameForCMD += " " + ValueToStr;
-	UE_LOG(LogTemp, Warning, TEXT("VALUE = %s | FUNCTION = %s"), *ValueToStr, *FunctionNameForCMD);
+	SubSettingData.SubSettingFunctionName = FunctionNameForCMD + " " + ValueToStr;
+	if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
 }
 
 void USettingsMenuListEntry::MakeFunctionName(int32 Value)
 {
-	FunctionNameForCMD = SubSettingData.SubSettingFunctionName + " " + FString::FromInt(Value);
-	UE_LOG(LogTemp, Warning, TEXT("FUNCTION = %s"), *FunctionNameForCMD);
+	SubSettingData.SubSettingFunctionName = FunctionNameForCMD + " " + FString::FromInt(Value);
+	if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
 }
 
 void USettingsMenuListEntry::OnHoveredButton(UWidgetAnimation* AnimToPlay,bool bPlayForwardAnim)

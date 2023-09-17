@@ -125,6 +125,9 @@ private:
 	// Hide everything in this widget, and then 
 	void HideAllUIElements();
 
+	// Slider
+	void SetSubSettingSliderValueText(float Value);
+
 	FMenuSettings SubSettingData;
 
 	void DisplayProperUIElements();

@@ -7,6 +7,7 @@
 #include "Components/Button.h"
 #include "Components/ListView.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 #include "MarineRunner/Widgets/Menu/SettingsMenuEntryObject.h"
 #include "MarineRunner/Widgets/Menu/SettingsMenuListEntry.h"
@@ -198,13 +199,6 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 			continue;
 		}
 
-		if (SubSettingData.SettingApplyType == ESAT_MouseSens)
-		{
-			if (MarinePawn == nullptr) continue;
-			MarinePawn->ChangeMouseSensivity(SubSettingData.SliderCurrentValue);
-			continue;
-		}
-
 		if (SubSettingData.SettingApplyType == ESAT_Sounds)
 		{
 			UGameplayStatics::SetSoundMixClassOverride(GetWorld(), SubSettingData.SoundMixClassToChangeVolume, SubSettingData.SoundClassToChangeVolume, SubSettingData.SliderCurrentValue, 1.f, 0.f);
@@ -213,7 +207,7 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 			continue;
 		}
 	}
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->ConsoleCommand("r.MotionBlur.Amount 1");
+
 }
 
 void USettingsMenuWidget::OnHoveredAcceptSettingsButton()
