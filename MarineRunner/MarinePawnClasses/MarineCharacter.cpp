@@ -22,6 +22,7 @@
 #include "MarineRunner/MarinePawnClasses/SlowMotionComponent.h"
 #include "MarineRunner/MarinePawnClasses/PullUpComponent.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
+#include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 #include "MarineRunner/Widgets/DashWidget.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Widgets/Menu/PauseMenuWidget.h"
@@ -80,7 +81,9 @@ void AMarineCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MarinePlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	MarinePlayerController = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	ChangeMouseSensitivity(MouseSensitivity);
+
 	MakeCrosshire();
 	MakeHudWidget();
 	CopyOfOriginalForce = MovementForce;
@@ -143,6 +146,14 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction(TEXT("CallAlbertos"), IE_Pressed, this, &AMarineCharacter::CallAlbertosPressed);
 
+}
+
+void AMarineCharacter::ChangeMouseSensitivity(float NewMouseSensivity)
+{
+	if (IsValid(MarinePlayerController) == false)
+		return;
+
+	MarinePlayerController->SetMouseSensitivity(NewMouseSensivity);
 }
 
 #pragma region //////////////////////////////// MOVEMENT ///////////////////////////////
@@ -389,7 +400,7 @@ void AMarineCharacter::ADSPressed()
 	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
 	bIsPlayerADS = true;
 	Gun->SetStatusOfGun(StatusOfAimedGun::ADS);
-	if (Gun->GetShouldChangeMouseSensitivityADS() == true) ChangeMouseSensivity(MouseSensivityWhenScope[CurrentScopeIndex]);
+	if (Gun->GetShouldChangeMouseSensitivityADS() == true) ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
 }
 
 void AMarineCharacter::ADSReleased()
@@ -403,7 +414,7 @@ void AMarineCharacter::ADSReleased()
 	Gun->SetStatusOfGun(StatusOfAimedGun::BackToInitialPosition);
 	if (Gun->GetShouldChangeMouseSensitivityADS() == true)
 	{
-		ChangeMouseSensivity(MouseSensivity);
+		ChangeMouseSensitivity(MouseSensitivity);
 		CurrentScopeIndex = Gun->ZoomScope(0.f, true);
 	}
 }
@@ -433,7 +444,7 @@ void AMarineCharacter::Zoom(float WheelAxis)
 {
 	if (Gun == nullptr || bIsPlayerADS == false || WheelAxis == 0.f) return;
 	CurrentScopeIndex = Gun->ZoomScope(WheelAxis);
-	ChangeMouseSensivity(MouseSensivityWhenScope[CurrentScopeIndex]);
+	ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
 }
 #pragma endregion 
 

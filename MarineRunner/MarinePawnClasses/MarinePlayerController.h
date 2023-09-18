@@ -18,14 +18,26 @@ class MARINERUNNER_API AMarinePlayerController : public APlayerController
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	virtual void SetupInputComponent() override;
 
 public:
+	inline void SetMouseSensitivity(float NewMouseSens) { MouseSensitivity = NewMouseSens; }
+	inline float GetMouseSensitivity() { return MouseSensitivity; }
+		
+	float MouseXValue;
+	float MouseYValue;
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Marine Player Controller Settings")
+		FFloatRange MarginForPlayerToMove = FFloatRange(-0.75f, 0.75f);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float MouseXValue;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float MouseYValue;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float MouseSens = 0.7f;
+	void LookUp(float AxisValue);
+	void LookRight(float AxisValue);
+
+	float MouseSensitivity = 0.7f;
+
+	bool bShouldDisableCameraRotate(float CurrentLookValue);
+	// if player moves too much mouse while camera is rotating (for wallrun) then disable camera rotating
+	void DisableCameraRotateWhileWallrunning(float CurrentLookValue);
+
+	class AMarineCharacter* MarinePawn;
 };

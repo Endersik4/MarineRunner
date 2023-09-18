@@ -51,8 +51,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void RotateCameraWhileWallrunning(bool bIsRightSide = false);
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void ChangeMouseSensivity(float NewMouseSensivity);
+	void ChangeMouseSensitivity(float NewMouseSensitivity);
 
 	UPROPERTY(EditAnywhere, Category = "Alberto")
 		class AAlbertosPawn* AlbertoPawn;
@@ -127,9 +126,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float DelayAfterUseFirstAidKit = 1.1f;
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
-		float MouseSensivity = 0.7f;
+		float MouseSensitivity = 0.7f;
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
-		TArray<float> MouseSensivityWhenScope = {0.4f, 0.2f, 0.1f, 0.05f};
+		TArray<float> MouseSensitivityWhenScope = {0.4f, 0.2f, 0.1f, 0.05f};
 
 	//Aka speed movement
 	UPROPERTY(EditAnywhere, Category = "Movement")
@@ -326,5 +325,5 @@ private:
 	bool MakeCheckLine(FHitResult &OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug = false, FColor Color = FColor::Red);
 
 	FVector EaseInQuint(FVector Start, FVector End, float Alpha);
-	APlayerController* MarinePlayerController;
+	class AMarinePlayerController* MarinePlayerController;
 };

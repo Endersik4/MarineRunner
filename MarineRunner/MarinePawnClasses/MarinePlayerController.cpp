@@ -2,27 +2,60 @@
 
 
 #include "MarinePlayerController.h"
-static TAutoConsoleVariable<int32> MouseSensitivity(
-	// Name
-	TEXT("MouseSensitivity"),
 
-	// Default value
-	0.7f,
-
-	// Documentation
-	TEXT("Value responsible for Mouse Sensitivity.\n"),
-
-	// Flags
-	ECVF_SetByConsole | ECVF_RenderThreadSafe);
-
-void MouseSensitivityCallback(IConsoleVariable* Var)
-{
-	UE_LOG(LogTemp, Warning, TEXT("working"));
-}
+#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/MarinePawnClasses/WallrunComponent.h"
 
 void AMarinePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-
-	MouseSensitivity.AsVariable()->SetOnChangedCallback(FConsoleVariableDelegate::CreateStatic(&MouseSensitivityCallback));
+	MarinePawn = Cast<AMarineCharacter>(GetPawn());
 }
+
+void AMarinePlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+
+	if (IsValid(InputComponent) == false)
+		return;
+
+	InputComponent->BindAxis(TEXT("LookUp"), this, &AMarinePlayerController::LookUp);
+	InputComponent->BindAxis(TEXT("LookRight"), this, &AMarinePlayerController::LookRight);
+}
+
+void AMarinePlayerController::LookUp(float AxisValue)
+{
+	AddPitchInput(MouseSensitivity * AxisValue);
+	DisableCameraRotateWhileWallrunning(AxisValue);
+	MouseXValue = AxisValue;
+}
+
+void AMarinePlayerController::LookRight(float AxisValue)
+{
+	AddYawInput(MouseSensitivity * AxisValue);
+	DisableCameraRotateWhileWallrunning(AxisValue);
+	MouseYValue = AxisValue;
+}
+
+bool AMarinePlayerController::bShouldDisableCameraRotate(float CurrentLookValue)
+{
+	if (IsValid(MarinePawn) == false)
+		return false;
+
+	if (MarinePawn->GetWallrunComponent()->GetIsWallrunning() == false)
+		return false;
+
+	if (CurrentLookValue < MarginForPlayerToMove.GetUpperBoundValue() && CurrentLookValue > MarginForPlayerToMove.GetLowerBoundValue())
+		return false;
+
+	return true;
+}
+
+void AMarinePlayerController::DisableCameraRotateWhileWallrunning(float CurrentLookValue)
+{
+	if (bShouldDisableCameraRotate(CurrentLookValue) == false)
+		return;
+
+	MarinePawn->GetWallrunComponent()->SetShouldLerpRotation(false);
+}
+

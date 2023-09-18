@@ -160,5 +160,5 @@ private:
 	TMap<UButton*, UTextBlock*> MenuButtonsAndText;
 	void SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore = nullptr);
 
-	class AMarineCharacter* MarinePawn;
+	class AMarinePlayerController* MarinePlayerController;
 };

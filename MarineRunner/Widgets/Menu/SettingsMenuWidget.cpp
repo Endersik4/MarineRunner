@@ -11,7 +11,7 @@
 
 #include "MarineRunner/Widgets/Menu/SettingsMenuEntryObject.h"
 #include "MarineRunner/Widgets/Menu/SettingsMenuListEntry.h"
-#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 
 void USettingsMenuWidget::NativeConstruct()
 {
@@ -52,7 +52,7 @@ void USettingsMenuWidget::NativeOnInitialized()
 	CurrentSettingChoice = FSettingChoiceStruct(GameSettingsButton, GameSettingsHoverAnim);
 	FillCurrentMenuSettingsListView(GameSettingsList);
 
-	MarinePawn = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	MarinePlayerController = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
 
 void USettingsMenuWidget::FillMenuButtonsAndTextMap()
@@ -193,9 +193,15 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 
 		if (SubSettingData.SubSettingType == EST_Category) continue;
 
-		if (SubSettingData.SettingApplyType == ESAT_FunctionInCMD)
+		if (SubSettingData.SettingApplyType == ESAT_FunctionInCMD && IsValid(MarinePlayerController))
 		{
-			UGameplayStatics::GetPlayerController(GetWorld(), 0)->ConsoleCommand(SubSettingData.SubSettingFunctionName);
+			MarinePlayerController->ConsoleCommand(SubSettingData.SubSettingFunctionName);
+			continue;
+		}
+
+		if (SubSettingData.SettingApplyType == ESAT_MouseSens && IsValid(MarinePlayerController))
+		{
+			MarinePlayerController->SetMouseSensitivity(SubSettingData.SliderCurrentValue);
 			continue;
 		}
 

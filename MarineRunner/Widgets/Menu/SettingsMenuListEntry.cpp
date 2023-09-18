@@ -11,8 +11,10 @@
 #include "Kismet/KismetTextLibrary.h"
 #include "Kismet/KismetInputLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/InputSettings.h"
 
+#include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 
 void USettingsMenuListEntry::NativeConstruct()
 {
@@ -141,6 +143,13 @@ void USettingsMenuListEntry::SubSettingType_SliderValue()
 	SubSettingSlider->SetVisibility(ESlateVisibility::Visible);
 	SliderButton->SetVisibility(ESlateVisibility::Visible);
 	SubSettingSliderValueText->SetVisibility(ESlateVisibility::Visible);
+
+	if (SubSettingData.SettingApplyType == ESAT_MouseSens)
+	{
+		AMarinePlayerController* PC = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+		if (IsValid(PC))
+			SubSettingData.SliderCurrentValue = PC->GetMouseSensitivity();
+	}
 
 	SubSettingSlider->SetMaxValue(SubSettingData.RangeOfSlider.GetUpperBoundValue());
 	SubSettingSlider->SetMinValue(SubSettingData.RangeOfSlider.GetLowerBoundValue());
@@ -309,6 +318,12 @@ void USettingsMenuListEntry::OnUnhoveredKeyMappingButton()
 
 void USettingsMenuListEntry::MakeFunctionName(float Value)
 {
+	if (SubSettingData.SettingApplyType != ESAT_FunctionInCMD)
+	{
+		if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
+		return;
+	}
+
 	FString ValueToStr = UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, 1).ToString();
 	SubSettingData.SubSettingFunctionName = FunctionNameForCMD + " " + ValueToStr;
 	if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
@@ -316,6 +331,12 @@ void USettingsMenuListEntry::MakeFunctionName(float Value)
 
 void USettingsMenuListEntry::MakeFunctionName(int32 Value)
 {
+	if (SubSettingData.SettingApplyType != ESAT_FunctionInCMD)
+	{
+		if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
+		return;
+	}
+
 	SubSettingData.SubSettingFunctionName = FunctionNameForCMD + " " + FString::FromInt(Value);
 	if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
 }
