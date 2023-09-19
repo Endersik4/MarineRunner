@@ -43,19 +43,11 @@ void UPauseMenuWidget::NativeOnInitialized()
 
 void UPauseMenuWidget::FillMenuButtonsAndTextMap()
 {
-	MenuButtonsAndText.Add(ResumeButton, ResumeText);
-	MenuButtonsAndText.Add(LoadGameButton, LoadGameText);
-	MenuButtonsAndText.Add(SettingsButton, SettingsText);
-	MenuButtonsAndText.Add(RestartButton, RestartText);
-	MenuButtonsAndText.Add(QuitGameButton, QuitGameText);
-}
-
-void UPauseMenuWidget::OnHoveredButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim, bool bCanHoverGivenText)
-{
-	if (bCanHoverGivenText || AnimToPlay == nullptr) return;
-
-	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
-	else PlayAnimationReverse(AnimToPlay);
+	AllMenuButtons.Add(ResumeButton);
+	AllMenuButtons.Add(LoadGameButton);
+	AllMenuButtons.Add(SettingsButton);
+	AllMenuButtons.Add(RestartButton);
+	AllMenuButtons.Add(QuitGameButton);
 }
 
 #pragma region //////////////// RESUME /////////////////
@@ -65,12 +57,12 @@ void UPauseMenuWidget::OnClickedResumeButton()
 
 void UPauseMenuWidget::OnHoveredResumeButton()
 {
-	OnHoveredButton(ResumeHoverAnim);
+	PlayAnimatonForButton(ResumeHoverAnim);
 }
 
 void UPauseMenuWidget::OnUnhoveredResumeButton()
 {
-	OnHoveredButton(ResumeHoverAnim, false);
+	PlayAnimatonForButton(ResumeHoverAnim, false);
 }
 #pragma endregion 
 
@@ -81,12 +73,12 @@ void UPauseMenuWidget::OnClickedLoadGameButton()
 
 void UPauseMenuWidget::OnHoveredLoadGameButton()
 {
-	OnHoveredButton(LoadGameHoverAnim);
+	PlayAnimatonForButton(LoadGameHoverAnim);
 }
 
 void UPauseMenuWidget::OnUnhoveredLoadGameButton()
 {
-	OnHoveredButton(LoadGameHoverAnim, false);
+	PlayAnimatonForButton(LoadGameHoverAnim, false);
 }
 #pragma endregion 
 
@@ -110,6 +102,7 @@ void UPauseMenuWidget::SpawnSettingsMenuWidget()
 
 	SetEnableAllMenuButtons(false, SettingsButton);
 	SettingsMenuWidget->AddToViewport();
+
 	CurrentSpawnedMenuWidgets.Add(SettingsMenuWidget, [this](bool b) { this->RemoveSettingsMenuWidgetFromViewport(b); });
 
 	bWasSettingsMenuWidgetSpawned = true;
@@ -131,12 +124,12 @@ void UPauseMenuWidget::RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSet
 
 void UPauseMenuWidget::OnHoveredSettingsButton()
 {
-	OnHoveredButton(SettingsHoverAnim, true, bWasSettingsMenuWidgetSpawned);
+	PlayAnimatonForButton(SettingsHoverAnim, true, bWasSettingsMenuWidgetSpawned);
 }
 
 void UPauseMenuWidget::OnUnhoveredSettingsButton()
 {
-	OnHoveredButton(SettingsHoverAnim, false, bWasSettingsMenuWidgetSpawned);
+	PlayAnimatonForButton(SettingsHoverAnim, false, bWasSettingsMenuWidgetSpawned);
 }
 
 #pragma endregion 
@@ -148,12 +141,12 @@ void UPauseMenuWidget::OnClickedRestartButton()
 
 void UPauseMenuWidget::OnHoveredRestartButton()
 {
-	OnHoveredButton(RestartHoverAnim);
+	PlayAnimatonForButton(RestartHoverAnim);
 }
 
 void UPauseMenuWidget::OnUnhoveredRestartButton()
 {
-	OnHoveredButton(RestartHoverAnim, false);
+	PlayAnimatonForButton(RestartHoverAnim, false);
 }
 #pragma endregion 
 
@@ -164,12 +157,12 @@ void UPauseMenuWidget::OnClickedQuitGameButton()
 
 void UPauseMenuWidget::OnHoveredQuitGameButton()
 {
-	OnHoveredButton(QuitGameHoverAnim);
+	PlayAnimatonForButton(QuitGameHoverAnim);
 }
 
 void UPauseMenuWidget::OnUnhoveredQuitGameButton()
 {
-	OnHoveredButton(QuitGameHoverAnim, false);
+	PlayAnimatonForButton(QuitGameHoverAnim, false);
 }
 #pragma endregion 
 
@@ -177,31 +170,32 @@ bool UPauseMenuWidget::RemoveCurrentMenuWidgetsFromViewport()
 {
 	if (CurrentSpawnedMenuWidgets.Num() == 0) return true;
 
-	TArray<UUserWidget*> Widgets;
-	CurrentSpawnedMenuWidgets.GenerateKeyArray(Widgets);
+	TArray<UUserWidget*> SpawnedMenuWidgets;
+	CurrentSpawnedMenuWidgets.GenerateKeyArray(SpawnedMenuWidgets);
 
-	if (CurrentSpawnedMenuWidgets.Contains(Widgets.Last()))
+	if (CurrentSpawnedMenuWidgets.Contains(SpawnedMenuWidgets.Last()))
 	{
-		TFunction<void(bool)>* FunctionPtr = CurrentSpawnedMenuWidgets.Find(Widgets.Last());
-		(*FunctionPtr)(true);
-		CurrentSpawnedMenuWidgets.Remove(Widgets.Last());
+		TFunction<void(bool)>* DeleteWidgetFunction = CurrentSpawnedMenuWidgets.Find(SpawnedMenuWidgets.Last());
+		(*DeleteWidgetFunction)(true);
+		CurrentSpawnedMenuWidgets.Remove(SpawnedMenuWidgets.Last());
 	}
 	return false;
 }
 
 void UPauseMenuWidget::SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore)
 {
-	TArray<UButton*> AllMenuButtons;
-	MenuButtonsAndText.GenerateKeyArray(AllMenuButtons);
-
 	for (UButton* CurrentMenuButton : AllMenuButtons)
 	{
 		if (ButtonToIgnore == CurrentMenuButton) continue;
 
-		UTextBlock* CurrentButtonText = *MenuButtonsAndText.Find(CurrentMenuButton);
-		if (CurrentButtonText == nullptr) continue;
-
 		CurrentMenuButton->SetIsEnabled(bEnable);
-		CurrentButtonText->SetColorAndOpacity(bEnable ? TextOriginalColor : TextDisabledColor);
 	}
+}
+
+void UPauseMenuWidget::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim, bool bCanHoverGivenText)
+{
+	if (bCanHoverGivenText || AnimToPlay == nullptr) return;
+
+	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
+	else PlayAnimationReverse(AnimToPlay);
 }

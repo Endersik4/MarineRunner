@@ -8,6 +8,7 @@
 #include "Components/TextBlock.h"
 #include "Components/HorizontalBox.h"
 #include "Components/InputKeySelector.h"
+#include "Components/ListView.h"
 #include "Kismet/KismetTextLibrary.h"
 #include "Kismet/KismetInputLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -15,6 +16,7 @@
 #include "GameFramework/InputSettings.h"
 
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
+#include "SettingsMenuWidget.h"
 
 void USettingsMenuListEntry::NativeConstruct()
 {
@@ -48,9 +50,12 @@ void USettingsMenuListEntry::NativeOnInitialized()
 void USettingsMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	ListEntryObject = Cast<USettingsMenuEntryObject>(ListItemObject);
+	SubSettingData = &ListEntryObject->MenuSettingsData;
+
+	FunctionNameForCMD = SubSettingData->SubSettingFunctionName;
+
 	HideAllUIElements();
-	SubSettingData = ListEntryObject->MenuSettingsData;
-	FunctionNameForCMD = SubSettingData.SubSettingFunctionName;
+	EnableEntry(SubSettingData->bEntryWidgetEnabled);
 
 	DisplayProperUIElements();
 }
@@ -79,19 +84,19 @@ void USettingsMenuListEntry::HideAllUIElements()
 
 void USettingsMenuListEntry::DisplayProperUIElements()
 {
-	if (SubSettingData.SubSettingType == EST_Category)
+	if (SubSettingData->SubSettingType == EST_Category)
 	{
 		SubSettingType_Category();
 		return;
 	}
 
-	SubSettingNameText->SetText(SubSettingData.SubSettingName);
+	SubSettingNameText->SetText(SubSettingData->SubSettingName);
 	SubSettingNameText->SetVisibility(ESlateVisibility::Visible);
 	SubSettingNameText->SetIsEnabled(true);
 
-	if (SubSettingData.SubSettingType == EST_Quality) SubSettingType_Quality();
-	else if (SubSettingData.SubSettingType == EST_KeyMapping) SubSettingType_KeyBinding();
-	else if (SubSettingData.SubSettingType == EST_SliderValue) SubSettingType_SliderValue();
+	if (SubSettingData->SubSettingType == EST_Quality) SubSettingType_Quality();
+	else if (SubSettingData->SubSettingType == EST_KeyMapping) SubSettingType_KeyBinding();
+	else if (SubSettingData->SubSettingType == EST_SliderValue) SubSettingType_SliderValue();
 	else SubSettingType_OnOff();
 }
 #pragma endregion
@@ -99,7 +104,7 @@ void USettingsMenuListEntry::DisplayProperUIElements()
 #pragma region ////////////// SUBSETTING TYPE ////////////////
 void USettingsMenuListEntry::SubSettingType_Category()
 {
-	CategoryNameText->SetText(SubSettingData.SubSettingName);
+	CategoryNameText->SetText(SubSettingData->SubSettingName);
 	CategoryNameText->SetColorAndOpacity(CategoryTextColor);
 
 	CategoryNameText->SetVisibility(ESlateVisibility::Visible);
@@ -113,28 +118,33 @@ void USettingsMenuListEntry::SubSettingType_Quality()
 	LeftArrowButton->SetVisibility(ESlateVisibility::Visible);
 	RightArrowButton->SetVisibility(ESlateVisibility::Visible);
 
-	SubSettingData.QualityCurrentValue = UKismetSystemLibrary::GetConsoleVariableIntValue(SubSettingData.SubSettingFunctionName);
-	SubSettingQualityText->SetText(SubSettingData.QualityTypes[SubSettingData.QualityCurrentValue]);
+	SubSettingQualityText->SetText(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]);
 
-	if (SubSettingData.QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
-	if (SubSettingData.QualityCurrentValue == SubSettingData.QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
+	if (SubSettingData->QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
+	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
 
-	MakeFunctionName(SubSettingData.QualityCurrentValue);
+	AddValueToFunctionName(SubSettingData->QualityCurrentValue);
 }
 
 void USettingsMenuListEntry::SubSettingType_KeyBinding()
 {
+	SetProperKeyOnKeyMapText();
+
+	KeyMappingButton->SetVisibility(ESlateVisibility::Visible);
+	KeyMappingInputKeySelector->SetVisibility(ESlateVisibility::Visible);
+	SubSettingQualityText->SetVisibility(ESlateVisibility::Visible);
+}
+
+void USettingsMenuListEntry::SetProperKeyOnKeyMapText()
+{
 	TArray<FInputActionKeyMapping> KeyActionMappings;
-	UInputSettings::GetInputSettings()->GetActionMappingByName(SubSettingData.KeyMappingActionName, KeyActionMappings);
+	UInputSettings::GetInputSettings()->GetActionMappingByName(SubSettingData->KeyMappingActionName, KeyActionMappings);
 	FText KeyMap = FText::FromString("-empty-");
 	if (KeyActionMappings.Num() > 0)
 	{
 		KeyMap = FText::FromString("-" + UKismetInputLibrary::Key_GetDisplayName(KeyActionMappings.Last().Key).ToString() + "-");
 	}
 
-	KeyMappingButton->SetVisibility(ESlateVisibility::Visible);
-	KeyMappingInputKeySelector->SetVisibility(ESlateVisibility::Visible);
-	SubSettingQualityText->SetVisibility(ESlateVisibility::Visible);
 	SubSettingQualityText->SetText(KeyMap);
 }
 
@@ -144,20 +154,27 @@ void USettingsMenuListEntry::SubSettingType_SliderValue()
 	SliderButton->SetVisibility(ESlateVisibility::Visible);
 	SubSettingSliderValueText->SetVisibility(ESlateVisibility::Visible);
 
-	if (SubSettingData.SettingApplyType == ESAT_MouseSens)
+	if (SubSettingData->SettingApplyType == ESAT_MouseSens)
 	{
-		AMarinePlayerController* PC = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-		if (IsValid(PC))
-			SubSettingData.SliderCurrentValue = PC->GetMouseSensitivity();
+		SubSettingData->SliderCurrentValue = GetCurrentMouseSensitivity();
 	}
 
-	SubSettingSlider->SetMaxValue(SubSettingData.RangeOfSlider.GetUpperBoundValue());
-	SubSettingSlider->SetMinValue(SubSettingData.RangeOfSlider.GetLowerBoundValue());
-	SubSettingSlider->SetValue(SubSettingData.SliderCurrentValue);
+	SubSettingSlider->SetMaxValue(SubSettingData->RangeOfSlider.GetUpperBoundValue());
+	SubSettingSlider->SetMinValue(SubSettingData->RangeOfSlider.GetLowerBoundValue());
+	SubSettingSlider->SetValue(SubSettingData->SliderCurrentValue);
 
-	SetSubSettingSliderValueText(SubSettingData.SliderCurrentValue);
+	SetSubSettingSliderValueText(SubSettingData->SliderCurrentValue);
 
-	MakeFunctionName(SubSettingData.SliderCurrentValue);
+	AddValueToFunctionName(SubSettingData->SliderCurrentValue);
+}
+
+float USettingsMenuListEntry::GetCurrentMouseSensitivity()
+{
+	AMarinePlayerController* PC = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	if (IsValid(PC))
+		return PC->GetMouseSensitivity();
+	else return SubSettingData->SliderCurrentValue;
 }
 
 void USettingsMenuListEntry::SubSettingType_OnOff()
@@ -165,78 +182,114 @@ void USettingsMenuListEntry::SubSettingType_OnOff()
 	SubSettingOnOffCheckBox->SetVisibility(ESlateVisibility::Visible);
 	SubSettingOnOffButton->SetVisibility(ESlateVisibility::Visible);
 
-	SubSettingData.bSettingEnabled = UKismetSystemLibrary::GetConsoleVariableBoolValue(SubSettingData.SubSettingFunctionName);
-	if (SubSettingData.bSettingEnabled) SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Checked);
+	if (SubSettingData->bSettingEnabled) SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Checked);
 	else SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
 
-	MakeFunctionName(SubSettingData.bSettingEnabled ? 1 : 0);
+	AddValueToFunctionName(SubSettingData->bSettingEnabled ? 1 : 0);
 }
 #pragma endregion
 
 #pragma region ///////// LEFT ARROW ////////////
 void USettingsMenuListEntry::OnClickedLeftArrowButton()
 {
-	SubSettingData.QualityCurrentValue--;
-	SubSettingQualityText->SetText(SubSettingData.QualityTypes[SubSettingData.QualityCurrentValue]);
+	SubSettingData->QualityCurrentValue--;
+	SubSettingQualityText->SetText(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]);
 
-	if (SubSettingData.QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
+	if (SubSettingData->QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
 	RightArrowButton->SetIsEnabled(true);
 
-	MakeFunctionName(SubSettingData.QualityCurrentValue);
+	AddValueToFunctionName(SubSettingData->QualityCurrentValue);
 }
 
 void USettingsMenuListEntry::OnHoveredLeftArrowButton()
 {
-	OnHoveredButton(LeftArrowHoverAnim);
+	PlayAnimatonForButton(LeftArrowHoverAnim);
 }
 
 void USettingsMenuListEntry::OnUnhoveredLeftArrowButton()
 {
-	OnHoveredButton(LeftArrowHoverAnim, false);
+	PlayAnimatonForButton(LeftArrowHoverAnim, false);
 }
 #pragma endregion
 
 #pragma region ///////// RIGHT ARROW ////////////
 void USettingsMenuListEntry::OnClickedRightArrowButton()
 {
-	SubSettingData.QualityCurrentValue++;
-	SubSettingQualityText->SetText(SubSettingData.QualityTypes[SubSettingData.QualityCurrentValue]);
+	SubSettingData->QualityCurrentValue++;
+	SubSettingQualityText->SetText(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]);
 
-	if (SubSettingData.QualityCurrentValue == SubSettingData.QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
+	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
 	LeftArrowButton->SetIsEnabled(true);
 
-	MakeFunctionName(SubSettingData.QualityCurrentValue);
+	AddValueToFunctionName(SubSettingData->QualityCurrentValue);
 }
 
 void USettingsMenuListEntry::OnHoveredRightArrowButton()
 {
-	OnHoveredButton(RightArrowHoverAnim);
+	PlayAnimatonForButton(RightArrowHoverAnim);
 }
 
 void USettingsMenuListEntry::OnUnhoveredRightArrowButton()
 {
-	OnHoveredButton(RightArrowHoverAnim, false);
+	PlayAnimatonForButton(RightArrowHoverAnim, false);
 }
 #pragma endregion
 
 #pragma region ///////// CHECK BOX ////////////
 void USettingsMenuListEntry::OnClickedOnOffButton()
 {
-	SubSettingOnOffCheckBox->SetCheckedState(SubSettingData.bSettingEnabled ? ECheckBoxState::Unchecked : ECheckBoxState::Checked);
-	SubSettingData.bSettingEnabled = SubSettingData.bSettingEnabled ? false : true;
+	SubSettingOnOffCheckBox->SetCheckedState(SubSettingData->bSettingEnabled ? ECheckBoxState::Unchecked : ECheckBoxState::Checked);
+	SubSettingData->bSettingEnabled = SubSettingData->bSettingEnabled ? false : true;
+	
+	if (SubSettingData->bIsItObjectThatConnects == true)
+	{
+		FillConnectedSettingsEntryFromList();
+		EnableAllConnectedSettingsEntry(SubSettingData->bSettingEnabled);
+	}
 
-	MakeFunctionName(SubSettingData.bSettingEnabled ? 1 : 0);
+	AddValueToFunctionName(SubSettingData->bSettingEnabled ? 1 : 0);
 }
 
 void USettingsMenuListEntry::OnHoveredOnOffButton()
 {
-	OnHoveredButton(CheckBoxHoverAnim);
+	PlayAnimatonForButton(CheckBoxHoverAnim);
 }
 
 void USettingsMenuListEntry::OnUnhoveredOnOffButton()
 {
-	OnHoveredButton(CheckBoxHoverAnim, false);
+	PlayAnimatonForButton(CheckBoxHoverAnim, false);
 }
+
+void USettingsMenuListEntry::FillConnectedSettingsEntryFromList()
+{
+	if (IsValid(ListEntryObject->SettingMenuWidget) == false) return;
+	ConnectedSettingsEntryFromList.Empty();
+
+	int32 IndexOfThisEntry = ListEntryObject->SettingMenuWidget->SettingsListView->GetIndexForItem(ListEntryObject);
+	TArray<UObject*> Objects = ListEntryObject->SettingMenuWidget->SettingsListView->GetListItems();
+	for (int i = IndexOfThisEntry+1; i != Objects.Num(); i++)
+	{
+		if (IsValid(Objects[i]) == false) continue;
+
+		USettingsMenuListEntry* CurrentSettingEntryWidget = Cast<USettingsMenuListEntry>(ListEntryObject->SettingMenuWidget->SettingsListView->GetEntryWidgetFromItem(Objects[i]));
+		if (IsValid(CurrentSettingEntryWidget) == false) continue;
+		if (CurrentSettingEntryWidget->SubSettingData->bIsConnectedToOtherSettings == false)
+			break;
+
+		ConnectedSettingsEntryFromList.Add(CurrentSettingEntryWidget);
+	}
+}
+
+void USettingsMenuListEntry::EnableAllConnectedSettingsEntry(bool bEnable)
+{
+	for (USettingsMenuListEntry* ConnectedEntry : ConnectedSettingsEntryFromList)
+	{
+		if (IsValid(ConnectedEntry) == false) continue;
+
+		ConnectedEntry->EnableEntry(bEnable);
+	}
+}
+
 #pragma endregion
 
 #pragma region ///////// SLIDER ////////////
@@ -244,27 +297,27 @@ void USettingsMenuListEntry::OnValueChangedSlider(float Value)
 {
 	SetSubSettingSliderValueText(Value);
 
-	SubSettingData.SliderCurrentValue = Value;
+	SubSettingData->SliderCurrentValue = Value;
 
-	MakeFunctionName(Value);
+	AddValueToFunctionName(Value);
 }
 
 void USettingsMenuListEntry::SetSubSettingSliderValueText(float Value)
 {
-	FString ConvertedValue = SubSettingData.DecimalNumbers == 0 ? FString::FromInt((int)Value) : UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, SubSettingData.DecimalNumbers).ToString();
+	FString ConvertedValue = SubSettingData->DecimalNumbers == 0 ? FString::FromInt((int)Value) : UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, SubSettingData->DecimalNumbers).ToString();
 	FString NewValue = "-" + ConvertedValue + "-";
 	SubSettingSliderValueText->SetText(FText::FromString(NewValue));
 }
+
 void USettingsMenuListEntry::OnHoveredSliderButton()
 {
-	OnHoveredButton(SliderHoverAnim);
+	PlayAnimatonForButton(SliderHoverAnim);
 }
 
 void USettingsMenuListEntry::OnUnhoveredSliderButton()
 {
-	OnHoveredButton(SliderHoverAnim, false);
+	PlayAnimatonForButton(SliderHoverAnim, false);
 }
-
 #pragma endregion
 
 #pragma region //////// KEY MAPPING ////////////
@@ -284,17 +337,10 @@ void USettingsMenuListEntry::OnIsSelectingKeyChangedInputKeySelector()
 	bIsWaitingForNewKey = true;
 }
 
+
 void USettingsMenuListEntry::OnKeySelectedInputKeySelector(FInputChord SelectedKey)
 {
-	TArray<FInputActionKeyMapping> KeyActionMappings;
-	UInputSettings::GetInputSettings()->GetActionMappingByName(SubSettingData.KeyMappingActionName, KeyActionMappings);
-	for (int i = 0; i != KeyActionMappings.Num(); i++)
-	{
-		UInputSettings::GetInputSettings()->RemoveActionMapping(KeyActionMappings[0]);
-	}
-
-	FInputActionKeyMapping NewActionKeyMapping = FInputActionKeyMapping(SubSettingData.KeyMappingActionName, SelectedKey.Key, SelectedKey.bShift, SelectedKey.bCtrl, SelectedKey.bAlt, SelectedKey.bCmd);
-	UInputSettings::GetInputSettings()->AddActionMapping(NewActionKeyMapping, true);
+	ReplaceKeyMap(SelectedKey);
 
 	FText KeyMap = FText::FromString("-" + UKismetInputLibrary::Key_GetDisplayName(SelectedKey.Key).ToString() + "-");
 	SubSettingQualityText->SetText(KeyMap);
@@ -302,49 +348,81 @@ void USettingsMenuListEntry::OnKeySelectedInputKeySelector(FInputChord SelectedK
 	bIsWaitingForNewKey = false;
 }
 
+void USettingsMenuListEntry::ReplaceKeyMap(const FInputChord & KeyToReplaceFor)
+{
+	TArray<FInputActionKeyMapping> KeyActionMappings;
+	UInputSettings::GetInputSettings()->GetActionMappingByName(SubSettingData->KeyMappingActionName, KeyActionMappings);
+	for (int i = 0; i != KeyActionMappings.Num(); i++)
+	{
+		UInputSettings::GetInputSettings()->RemoveActionMapping(KeyActionMappings[0]);
+	}
+
+	FInputActionKeyMapping NewActionKeyMapping = FInputActionKeyMapping(SubSettingData->KeyMappingActionName, KeyToReplaceFor.Key, KeyToReplaceFor.bShift, KeyToReplaceFor.bCtrl, KeyToReplaceFor.bAlt, KeyToReplaceFor.bCmd);
+	UInputSettings::GetInputSettings()->AddActionMapping(NewActionKeyMapping, true);
+}
+
 void USettingsMenuListEntry::OnHoveredKeyMappingButton()
 {
 	if (bIsWaitingForNewKey == true) return;
 
-	OnHoveredButton(KeyMappingHoverAnim);
+	PlayAnimatonForButton(KeyMappingHoverAnim);
 }
 void USettingsMenuListEntry::OnUnhoveredKeyMappingButton()
 {
 	if (bIsWaitingForNewKey == true) return;
 
-	OnHoveredButton(KeyMappingHoverAnim, false);
+	PlayAnimatonForButton(KeyMappingHoverAnim, false);
 }
 #pragma endregion
 
-void USettingsMenuListEntry::MakeFunctionName(float Value)
+void USettingsMenuListEntry::AddValueToFunctionName(float Value)
 {
-	if (SubSettingData.SettingApplyType != ESAT_FunctionInCMD)
+	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
 	{
-		if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
 		return;
 	}
 
 	FString ValueToStr = UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, 1).ToString();
-	SubSettingData.SubSettingFunctionName = FunctionNameForCMD + " " + ValueToStr;
-	if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
+	ListEntryObject->FunctionNameToApply = FunctionNameForCMD + " " + ValueToStr;
 }
 
-void USettingsMenuListEntry::MakeFunctionName(int32 Value)
+void USettingsMenuListEntry::AddValueToFunctionName(int32 Value)
 {
-	if (SubSettingData.SettingApplyType != ESAT_FunctionInCMD)
+	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
 	{
-		if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
 		return;
 	}
 
-	SubSettingData.SubSettingFunctionName = FunctionNameForCMD + " " + FString::FromInt(Value);
-	if (ListEntryObject) ListEntryObject->MenuSettingsData = SubSettingData;
+	ListEntryObject->FunctionNameToApply = FunctionNameForCMD + " " + FString::FromInt(Value);
 }
 
-void USettingsMenuListEntry::OnHoveredButton(UWidgetAnimation* AnimToPlay,bool bPlayForwardAnim)
+void USettingsMenuListEntry::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay,bool bPlayForwardAnim)
 {
 	if (AnimToPlay == nullptr) return;
 
 	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
 	else PlayAnimationReverse(AnimToPlay);
+}
+
+void USettingsMenuListEntry::EnableEntry(bool bEnable)
+{
+	SubSettingData->bEntryWidgetEnabled = bEnable;
+
+	SubSettingNameText->SetIsEnabled(bEnable);
+	CategoryNameText->SetIsEnabled(bEnable);
+
+	SubSettingQualityText->SetIsEnabled(bEnable);
+
+	LeftArrowButton->SetIsEnabled(bEnable);
+	RightArrowButton->SetIsEnabled(bEnable);
+
+	SubSettingOnOffCheckBox->SetIsEnabled(bEnable);
+	SubSettingOnOffButton->SetIsEnabled(bEnable);
+
+	SliderButton->SetIsEnabled(bEnable);
+	SubSettingSlider->SetIsEnabled(bEnable);
+	SubSettingSliderValueText->SetIsEnabled(bEnable);
+
+	KeyMappingButton->SetIsEnabled(bEnable);
+	KeyMappingInputKeySelector->SetIsEnabled(bEnable);
 }

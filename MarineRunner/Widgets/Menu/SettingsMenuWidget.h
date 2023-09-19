@@ -15,18 +15,18 @@
 class UTextBlock;
 class UButton;
 
-struct FSettingChoiceStruct {
-	UButton* CurrentButton;
+struct FSettingSelectedStruct {
+	UButton* SelectedButton;
 	UWidgetAnimation* AnimationToPlay;
 
-	FSettingChoiceStruct() {
-		CurrentButton = nullptr;
+	FSettingSelectedStruct() {
+		SelectedButton = nullptr;
 		AnimationToPlay = nullptr;
 	}
 
-	FSettingChoiceStruct(UButton* NewCurrentButton, UWidgetAnimation* NewAnimationToPlay)
+	FSettingSelectedStruct(UButton* NewSelectedButton, UWidgetAnimation* NewAnimationToPlay)
 	{
-		CurrentButton = NewCurrentButton;
+		SelectedButton = NewSelectedButton;
 		AnimationToPlay = NewAnimationToPlay;
 	}
 };
@@ -47,6 +47,7 @@ public:
 		TSubclassOf<class USettingsMenuEntryObject> MenuSettingsDataObject;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UListView* SettingsListView;
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UTextBlock* GameSettingsText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -142,23 +143,21 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
 		TArray<FMenuSettings> BindingsSettingsList;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
-		FLinearColor TextOriginalColor;
-	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
-		FLinearColor TextOnClickedColor;
-	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
-		FLinearColor TextDisabledColor;
-
-	void OnHoveredButton(UWidgetAnimation* AnimToPlay, UButton* ButtonToHover, bool bPlayForwardAnim = true);
+	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, UButton* HoveredButton, bool bPlayForwardAnim = true);
 
 	void FillCurrentMenuSettingsListView(const TArray<FMenuSettings> & DataToFillFrom);
 
-	FSettingChoiceStruct CurrentSettingChoice;
+	FSettingSelectedStruct CurrentSelectedSetting;
+
+	void StartOnGameSettingsList();
+	
+	class USettingsMenuEntryObject* ConnectedSettings(USettingsMenuEntryObject* ObjectThatConnectOtherSettings, 	USettingsMenuEntryObject* ConstructedItemObject );
+
+	void ActiveSettingByType(const FMenuSettings& SubSettingData, USettingsMenuEntryObject* SettingMenuObject);
 
 	// Enable/Disable Menu Buttons
 	void FillMenuButtonsAndTextMap();
 	TMap<UButton*, UTextBlock*> MenuButtonsAndText;
-	void SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore = nullptr);
 
 	class AMarinePlayerController* MarinePlayerController;
 };

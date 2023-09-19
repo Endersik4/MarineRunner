@@ -106,6 +106,7 @@ public:
 	UFUNCTION()
 		void OnUnhoveredKeyMappingButton();
 
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
 		FLinearColor CategoryTextColor;
@@ -113,28 +114,40 @@ private:
 		FLinearColor WhenKeyMapColor;
 
 	FString FunctionNameForCMD;
-	void MakeFunctionName(float Value);
-	void MakeFunctionName(int32 Value);
+	void AddValueToFunctionName(float Value);
+	void AddValueToFunctionName(int32 Value);
 
-	void OnHoveredButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
+	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
+	void EnableEntry(bool bEnable);
+
+	// Pointer to Entry Object SettingData
+	FMenuSettings* SubSettingData;
 
 	// Key Mapping
 	bool bIsWaitingForNewKey = false;
 	FText PreviousKeyText;
 
-	// Hide everything in this widget, and then 
+	// Hide everything in this widget
 	void HideAllUIElements();
+
+	// Connect to other sub settings
+	TArray<USettingsMenuListEntry*> ConnectedSettingsEntryFromList;
+	void FillConnectedSettingsEntryFromList();
+	void EnableAllConnectedSettingsEntry(bool bEnable);
 
 	// Slider
 	void SetSubSettingSliderValueText(float Value);
-
-	FMenuSettings SubSettingData;
+	float GetCurrentMouseSensitivity();
 
 	void DisplayProperUIElements();
 
 	void SubSettingType_Category();
 	void SubSettingType_Quality();
+
 	void SubSettingType_KeyBinding();
+	void SetProperKeyOnKeyMapText();
+	void ReplaceKeyMap(const FInputChord& KeyToReplaceFor);
+
 	void SubSettingType_SliderValue();
 	void SubSettingType_OnOff();
 

@@ -48,9 +48,7 @@ void USettingsMenuWidget::NativeOnInitialized()
 
 	FillMenuButtonsAndTextMap();
 
-	PlayAnimation(GameSettingsHoverAnim, 0.17f);
-	CurrentSettingChoice = FSettingChoiceStruct(GameSettingsButton, GameSettingsHoverAnim);
-	FillCurrentMenuSettingsListView(GameSettingsList);
+	StartOnGameSettingsList();
 
 	MarinePlayerController = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
@@ -63,25 +61,57 @@ void USettingsMenuWidget::FillMenuButtonsAndTextMap()
 	MenuButtonsAndText.Add(BindingsSettingsButton, BindingsSettingsText);
 }
 
+void USettingsMenuWidget::StartOnGameSettingsList()
+{
+	PlayAnimation(GameSettingsHoverAnim, 0.17f);
+	CurrentSelectedSetting = FSettingSelectedStruct(GameSettingsButton, GameSettingsHoverAnim);
+	FillCurrentMenuSettingsListView(GameSettingsList);
+}
+
 void USettingsMenuWidget::FillCurrentMenuSettingsListView(const TArray<FMenuSettings>& DataToFillFrom)
 {
 	SettingsListView->ClearListItems();
 
-	for (const FMenuSettings & CurrentSetting : DataToFillFrom)
+	USettingsMenuEntryObject* ObjectThatConnectOtherSettings = nullptr;
+	for (const FMenuSettings& CurrentSetting : DataToFillFrom)
 	{
 		USettingsMenuEntryObject* ConstructedItemObject = NewObject<USettingsMenuEntryObject>(MenuSettingsDataObject);
+		if (IsValid(ConstructedItemObject) == false) continue;
 		ConstructedItemObject->MenuSettingsData = CurrentSetting;
-		ConstructedItemObject->SettingMenuWidget = this;
 
+		ObjectThatConnectOtherSettings = ConnectedSettings(ConstructedItemObject, ObjectThatConnectOtherSettings);
+		
 		SettingsListView->AddItem(ConstructedItemObject);
-
-		ConstructedItemObject->ConditionalBeginDestroy();
 	}
 }
 
-void USettingsMenuWidget::OnHoveredButton(UWidgetAnimation* AnimToPlay, UButton* ButtonToHover, bool bPlayForwardAnim)
+USettingsMenuEntryObject* USettingsMenuWidget::ConnectedSettings(USettingsMenuEntryObject* ConstructedItemObject, USettingsMenuEntryObject* ObjectThatConnectOtherSettings)
 {
-	if (ButtonToHover == CurrentSettingChoice.CurrentButton || AnimToPlay == nullptr) return;
+	if (ConstructedItemObject->MenuSettingsData.bIsItObjectThatConnects == true)
+	{
+		ConstructedItemObject->SettingMenuWidget = this;
+		ObjectThatConnectOtherSettings = ConstructedItemObject;
+		return ObjectThatConnectOtherSettings;
+	}
+
+	if (IsValid(ObjectThatConnectOtherSettings))
+	{
+		if (ObjectThatConnectOtherSettings->MenuSettingsData.bIsItObjectThatConnects == true && ConstructedItemObject->MenuSettingsData.bIsConnectedToOtherSettings == true)
+		{
+			ConstructedItemObject->MenuSettingsData.bEntryWidgetEnabled = ObjectThatConnectOtherSettings->MenuSettingsData.bSettingEnabled;
+		}
+		else if (ConstructedItemObject->MenuSettingsData.bIsConnectedToOtherSettings == false)
+		{
+			ObjectThatConnectOtherSettings = nullptr;
+		}
+	}
+
+	return ObjectThatConnectOtherSettings;
+}
+
+void USettingsMenuWidget::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, UButton* HoveredButton, bool bPlayForwardAnim)
+{
+	if (HoveredButton == CurrentSelectedSetting.SelectedButton || AnimToPlay == nullptr) return;
 
 	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
 	else PlayAnimationReverse(AnimToPlay);
@@ -90,44 +120,44 @@ void USettingsMenuWidget::OnHoveredButton(UWidgetAnimation* AnimToPlay, UButton*
 #pragma region //////////////// GAME SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedGameSettingsButton()
 {
-	if (GameSettingsButton == CurrentSettingChoice.CurrentButton) return;
+	if (GameSettingsButton == CurrentSelectedSetting.SelectedButton) return;
 
-	OnHoveredButton(CurrentSettingChoice.AnimationToPlay, nullptr, false);
-	CurrentSettingChoice = FSettingChoiceStruct(GameSettingsButton, GameSettingsHoverAnim);
+	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
+	CurrentSelectedSetting = FSettingSelectedStruct(GameSettingsButton, GameSettingsHoverAnim);
 
 	FillCurrentMenuSettingsListView(GameSettingsList);
 }
 
 void USettingsMenuWidget::OnHoveredGameSettingsButton()
 {
-	OnHoveredButton(GameSettingsHoverAnim, GameSettingsButton);
+	PlayAnimatonForButton(GameSettingsHoverAnim, GameSettingsButton);
 }
 
 void USettingsMenuWidget::OnUnhoveredGameSettingsButton()
 {
-	OnHoveredButton(GameSettingsHoverAnim, GameSettingsButton, false);
+	PlayAnimatonForButton(GameSettingsHoverAnim, GameSettingsButton, false);
 }
 #pragma endregion
 
 #pragma region //////////////// AUDIO SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedAudioSettingsButton()
 {
-	if (AudioSettingsButton == CurrentSettingChoice.CurrentButton) return;
+	if (AudioSettingsButton == CurrentSelectedSetting.SelectedButton) return;
 
-	OnHoveredButton(CurrentSettingChoice.AnimationToPlay, nullptr, false);
-	CurrentSettingChoice = FSettingChoiceStruct(AudioSettingsButton, AudioSettingsHoverAnim);
+	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
+	CurrentSelectedSetting = FSettingSelectedStruct(AudioSettingsButton, AudioSettingsHoverAnim);
 
 	FillCurrentMenuSettingsListView(AudioSettingsList);
 }
 
 void USettingsMenuWidget::OnHoveredAudioSettingsButton()
 {
-	OnHoveredButton(AudioSettingsHoverAnim, AudioSettingsButton);
+	PlayAnimatonForButton(AudioSettingsHoverAnim, AudioSettingsButton);
 }
 
 void USettingsMenuWidget::OnUnhoveredAudioSettingsButton()
 {
-	OnHoveredButton(AudioSettingsHoverAnim, AudioSettingsButton, false);
+	PlayAnimatonForButton(AudioSettingsHoverAnim, AudioSettingsButton, false);
 
 }
 #pragma endregion
@@ -135,22 +165,22 @@ void USettingsMenuWidget::OnUnhoveredAudioSettingsButton()
 #pragma region //////////////// VIDEO SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedVideoSettingsButton()
 {
-	if (VideoSettingsButton == CurrentSettingChoice.CurrentButton) return;
+	if (VideoSettingsButton == CurrentSelectedSetting.SelectedButton) return;
 
-	OnHoveredButton(CurrentSettingChoice.AnimationToPlay, nullptr, false);
-	CurrentSettingChoice = FSettingChoiceStruct(VideoSettingsButton, VideoSettingsHoverAnim);
+	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
+	CurrentSelectedSetting = FSettingSelectedStruct(VideoSettingsButton, VideoSettingsHoverAnim);
 
 	FillCurrentMenuSettingsListView(VideoSettingsList);
 }
 
 void USettingsMenuWidget::OnHoveredVideoSettingsButton()
 {
-	OnHoveredButton(VideoSettingsHoverAnim, VideoSettingsButton);
+	PlayAnimatonForButton(VideoSettingsHoverAnim, VideoSettingsButton);
 }
 
 void USettingsMenuWidget::OnUnhoveredVideoSettingsButton()
 {
-	OnHoveredButton(VideoSettingsHoverAnim, VideoSettingsButton, false);
+	PlayAnimatonForButton(VideoSettingsHoverAnim, VideoSettingsButton, false);
 
 }
 #pragma endregion
@@ -158,23 +188,23 @@ void USettingsMenuWidget::OnUnhoveredVideoSettingsButton()
 #pragma region //////////////// BINDINGS SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedBindingsSettingsButton()
 {
-	if (BindingsSettingsButton == CurrentSettingChoice.CurrentButton) return;
+	if (BindingsSettingsButton == CurrentSelectedSetting.SelectedButton) return;
 
-	OnHoveredButton(CurrentSettingChoice.AnimationToPlay, nullptr, false);
-	CurrentSettingChoice = FSettingChoiceStruct(BindingsSettingsButton, BindingsSettingsHoverAnim);
+	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
+	CurrentSelectedSetting = FSettingSelectedStruct(BindingsSettingsButton, BindingsSettingsHoverAnim);
 
 	FillCurrentMenuSettingsListView(BindingsSettingsList);
 }
 
 void USettingsMenuWidget::OnHoveredBindingsSettingsButton()
 {
-	OnHoveredButton(BindingsSettingsHoverAnim, BindingsSettingsButton);
+	PlayAnimatonForButton(BindingsSettingsHoverAnim, BindingsSettingsButton);
 
 }
 
 void USettingsMenuWidget::OnUnhoveredBindingsSettingsButton()
 {
-	OnHoveredButton(BindingsSettingsHoverAnim, BindingsSettingsButton, false);
+	PlayAnimatonForButton(BindingsSettingsHoverAnim, BindingsSettingsButton, false);
 
 }
 #pragma endregion
@@ -188,43 +218,45 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 	for (UObject* CurrentElement : AllListElements)
 	{
 		USettingsMenuEntryObject* SettingMenuObject = Cast<USettingsMenuEntryObject>(CurrentElement);
-		if (SettingMenuObject == nullptr) continue;
-		const FMenuSettings& SubSettingData = SettingMenuObject->MenuSettingsData;
+		if (IsValid(SettingMenuObject) == false) continue;
 
-		if (SubSettingData.SubSettingType == EST_Category) continue;
+		ActiveSettingByType(SettingMenuObject->MenuSettingsData, SettingMenuObject);
+	}
+}
 
-		if (SubSettingData.SettingApplyType == ESAT_FunctionInCMD && IsValid(MarinePlayerController))
-		{
-			MarinePlayerController->ConsoleCommand(SubSettingData.SubSettingFunctionName);
-			continue;
-		}
+void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingData, USettingsMenuEntryObject* SettingMenuObject)
+{
+	if (SubSettingData.bEntryWidgetEnabled == false || SubSettingData.SubSettingType == EST_Category) return;
 
-		if (SubSettingData.SettingApplyType == ESAT_MouseSens && IsValid(MarinePlayerController))
-		{
-			MarinePlayerController->SetMouseSensitivity(SubSettingData.SliderCurrentValue);
-			continue;
-		}
-
-		if (SubSettingData.SettingApplyType == ESAT_Sounds)
-		{
-			UGameplayStatics::SetSoundMixClassOverride(GetWorld(), SubSettingData.SoundMixClassToChangeVolume, SubSettingData.SoundClassToChangeVolume, SubSettingData.SliderCurrentValue, 1.f, 0.f);
-			UGameplayStatics::PushSoundMixModifier(GetWorld(), SubSettingData.SoundMixClassToChangeVolume);
-			
-			continue;
-		}
+	if (SubSettingData.SettingApplyType == ESAT_FunctionInCMD && IsValid(MarinePlayerController))
+	{
+		MarinePlayerController->ConsoleCommand(SettingMenuObject->FunctionNameToApply);
 	}
 
+	if (SubSettingData.SettingApplyType == ESAT_MouseSens && IsValid(MarinePlayerController))
+	{
+		MarinePlayerController->SetMouseSensitivity(SubSettingData.SliderCurrentValue);
+		return;
+	}
+
+	if (SubSettingData.SettingApplyType == ESAT_Sounds)
+	{
+		UGameplayStatics::SetSoundMixClassOverride(GetWorld(), SubSettingData.SoundMixClassToChangeVolume, SubSettingData.SoundClassToChangeVolume, SubSettingData.SliderCurrentValue, 1.f, 0.f);
+		UGameplayStatics::PushSoundMixModifier(GetWorld(), SubSettingData.SoundMixClassToChangeVolume);
+
+		return;
+	}
 }
 
 void USettingsMenuWidget::OnHoveredAcceptSettingsButton()
 {
-	OnHoveredButton(AcceptSettingsHoverAnim, nullptr);
+	PlayAnimatonForButton(AcceptSettingsHoverAnim, nullptr);
 
 }
 
 void USettingsMenuWidget::OnUnhoveredAcceptSettingsButton()
 {
-	OnHoveredButton(AcceptSettingsHoverAnim, nullptr, false);
+	PlayAnimatonForButton(AcceptSettingsHoverAnim, nullptr, false);
 
 }
 #pragma endregion
@@ -238,12 +270,12 @@ void USettingsMenuWidget::OnClickedDefaultSettingsButton()
 
 void USettingsMenuWidget::OnHoveredDefaultSettingsButton()
 {
-	OnHoveredButton(DefaultsSettingsHoverAnim, nullptr);
+	PlayAnimatonForButton(DefaultsSettingsHoverAnim, nullptr);
 
 }
 
 void USettingsMenuWidget::OnUnhoveredDefaultSettingsButton()
 {
-	OnHoveredButton(DefaultsSettingsHoverAnim, nullptr, false);
+	PlayAnimatonForButton(DefaultsSettingsHoverAnim, nullptr, false);
 }
 #pragma endregion

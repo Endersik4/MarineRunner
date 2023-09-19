@@ -14,10 +14,23 @@ UCLASS()
 class MARINERUNNER_API USettingsMenuEntryObject : public UObject
 {
 	GENERATED_BODY()
-	
+
+
 public:
+
+	USettingsMenuEntryObject();
+
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
 		FMenuSettings MenuSettingsData;
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
 		class USettingsMenuWidget* SettingMenuWidget;
+	UPROPERTY(EditAnywhere, Category = "Settings Menu")
+		FString FunctionNameToApply;
+
+private:
+	void SetVariablesToCurrent();
+	void QualityValue();
+	void SliderValue();
+	void CheckBoxValue();
+
 };

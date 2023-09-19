@@ -107,16 +107,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Menu")
 		TSubclassOf<UUserWidget> SettingsMenuWidgetClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
-		FLinearColor TextOriginalColor;
-	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
-		FLinearColor TextOnClickedColor;
-	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
-		FLinearColor TextDisabledColor;
-
 	TMap<UUserWidget*, TFunction<void(bool)>> CurrentSpawnedMenuWidgets;
 
-	void OnHoveredButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
+	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
 
 	// Settings Widget
 	bool bWasSettingsMenuWidgetSpawned;
@@ -126,6 +119,6 @@ private:
 
 	// Enable/Disable Menu Buttons
 	void FillMenuButtonsAndTextMap();
-	TMap<UButton*, UTextBlock*> MenuButtonsAndText;
+	TArray<UButton*> AllMenuButtons;
 	void SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore = nullptr);
 };

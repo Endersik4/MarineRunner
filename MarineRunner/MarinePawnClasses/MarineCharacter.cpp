@@ -519,7 +519,6 @@ void AMarineCharacter::PauseGame()
 	MarinePlayerController->SetShowMouseCursor(true);
 	SpawnPauseMenuWidget();
 
-	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(MarinePlayerController, PauseMenuWidget);
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
 
@@ -546,6 +545,7 @@ void AMarineCharacter::SpawnPauseMenuWidget()
 	PauseMenuWidget = Cast<UPauseMenuWidget>(CreateWidget(MarinePlayerController, PauseMenuWidgetClass));
 	PauseMenuWidget->AddToViewport();
 }
+
 #pragma endregion
 
 #pragma region ///////////////////////////////// SWING /////////////////////////////////
