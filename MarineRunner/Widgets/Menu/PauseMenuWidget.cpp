@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/Widgets/Menu/SettingsMenuWidget.h"
+#include "LoadGameMenu/LoadGameMenuWidget.h"
 
 void UPauseMenuWidget::NativeConstruct()
 {
@@ -69,16 +70,51 @@ void UPauseMenuWidget::OnUnhoveredResumeButton()
 #pragma region //////////////// LOAD GAME /////////////////
 void UPauseMenuWidget::OnClickedLoadGameButton()
 {
+	if (bWasLoadGameMenuWidgetSpawned)
+	{
+		RemoveLoadGameMenuWidgetFromViewport();
+	}
+	else
+	{
+		SpawnLoadGameMenuWidget();
+	}
+}
+
+void UPauseMenuWidget::SpawnLoadGameMenuWidget()
+{
+	LoadGameMenuWidget = Cast<ULoadGameMenuWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), LoadGameMenuWidgetClass));
+	if (LoadGameMenuWidget == nullptr) return;
+
+	SetEnableAllMenuButtons(false, LoadGameButton);
+	LoadGameMenuWidget->AddToViewport();
+
+	CurrentSpawnedMenuWidgets.Add(LoadGameMenuWidget, [this](bool b) { this->RemoveLoadGameMenuWidgetFromViewport(b); });
+
+	bWasLoadGameMenuWidgetSpawned = true;
+}
+
+void UPauseMenuWidget::RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame)
+{
+	if (LoadGameMenuWidget == nullptr) return;
+
+	SetEnableAllMenuButtons(true, LoadGameButton);
+
+	LoadGameMenuWidget->RemoveFromParent();
+	CurrentSpawnedMenuWidgets.Remove(LoadGameMenuWidget);
+	LoadGameMenuWidget = nullptr;
+
+	bWasLoadGameMenuWidgetSpawned = false;
+	if (bUnhoverTextLoadGame == true) OnUnhoveredLoadGameButton();
 }
 
 void UPauseMenuWidget::OnHoveredLoadGameButton()
 {
-	PlayAnimatonForButton(LoadGameHoverAnim);
+	PlayAnimatonForButton(LoadGameHoverAnim, true, bWasLoadGameMenuWidgetSpawned);
 }
 
 void UPauseMenuWidget::OnUnhoveredLoadGameButton()
 {
-	PlayAnimatonForButton(LoadGameHoverAnim, false);
+	PlayAnimatonForButton(LoadGameHoverAnim, false, bWasLoadGameMenuWidgetSpawned);
 }
 #pragma endregion 
 

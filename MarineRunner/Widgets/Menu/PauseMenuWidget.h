@@ -104,12 +104,20 @@ public:
 	bool RemoveCurrentMenuWidgetsFromViewport();
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Load Game Menu")
+		TSubclassOf<UUserWidget> LoadGameMenuWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Menu")
 		TSubclassOf<UUserWidget> SettingsMenuWidgetClass;
 
 	TMap<UUserWidget*, TFunction<void(bool)>> CurrentSpawnedMenuWidgets;
 
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
+
+	// Load Game Widget
+	bool bWasLoadGameMenuWidgetSpawned;
+	void SpawnLoadGameMenuWidget();
+	void RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame = false);
+	class ULoadGameMenuWidget* LoadGameMenuWidget;
 
 	// Settings Widget
 	bool bWasSettingsMenuWidgetSpawned;
