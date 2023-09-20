@@ -83,6 +83,7 @@ void AGun::SetCanShoot()
 void AGun::Shoot()
 {
 	if (CanShoot() == false) return;
+
 	if (bIsAutomatic) bConstantlyShoot = true;
 	if (bCanShoot == false || BaseSkeletalMesh->IsPlaying() == true)
 	{
@@ -595,6 +596,7 @@ FVector AGun::CalculateLOBGunSwayWhileMoving()
 
 void AGun::SetGunSwayWhileMovingTimer(bool bShouldClear)
 {
+	bEquipPositionMoveCompleted = true;
 	if (bShouldClear)
 	{
 		GetWorldTimerManager().ClearTimer(GunSwayWhileMovingHandle);

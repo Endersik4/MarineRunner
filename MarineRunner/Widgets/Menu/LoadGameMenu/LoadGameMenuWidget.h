@@ -28,11 +28,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Load Game Menu")
 		TSubclassOf<class ULoadGameMenuEntryObject> MenuSettingsDataObject;
+
 private:
-
-	UPROPERTY(EditDefaultsOnly, Category = "Load Game Menu")
-		TArray<FSaveDataMenuStruct> SavesData;
-
 	void FillSavesListView();
 
 };

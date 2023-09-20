@@ -9,6 +9,7 @@
 
 #include "MarineRunner/Widgets/Menu/SettingsMenuWidget.h"
 #include "LoadGameMenu/LoadGameMenuWidget.h"
+#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
 void UPauseMenuWidget::NativeConstruct()
 {

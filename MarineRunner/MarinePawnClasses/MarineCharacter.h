@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "MarineRunner/Interfaces/InteractInterface.h"
+#include "MarineRunner/Widgets/Menu/LoadGameMenu/LoadGameData.h"
 
 #include "MarineCharacter.generated.h"
 
@@ -97,6 +98,8 @@ public:
 	void UpdateHudWidget();
 
 	void UpdateAlbertosInventory(bool bShouldUpdateInventory = true, bool bShouldUpdateCrafting = false);
+
+	const TArray<FSaveDataMenuStruct>* GetPointerToSaveMenuDataFromSave();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -310,6 +313,7 @@ private:
 	void SlowMotionPressed();
 
 	//Saving/Loading Game
+	class USaveMarineRunner* CurrentSaveGameInstance;
 	void SaveGame(FVector CheckpointLocation = FVector(0));
 	void LoadGame();
 

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+
 #include "PauseMenuWidget.generated.h"
 
 /**
@@ -129,4 +130,5 @@ private:
 	void FillMenuButtonsAndTextMap();
 	TArray<UButton*> AllMenuButtons;
 	void SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore = nullptr);
+
 };

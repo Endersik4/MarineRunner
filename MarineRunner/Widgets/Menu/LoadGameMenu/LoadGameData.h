@@ -15,7 +15,30 @@ struct FSaveDataMenuStruct
 {
 	GENERATED_USTRUCT_BODY();
 
-	int32 asd;
+	UPROPERTY(EditDefaultsOnly)
+		FString SaveName;
+	UPROPERTY(EditDefaultsOnly)
+		FString ScreenshotPathSave;
+	UPROPERTY(EditDefaultsOnly)
+		FString SaveDateTime;
+	UPROPERTY(EditDefaultsOnly)
+		int32 TotalPlayTimeInMinutes;
+
+	FSaveDataMenuStruct()
+	{
+		SaveName = "";
+		ScreenshotPathSave = "";
+		SaveDateTime = "";
+		TotalPlayTimeInMinutes = 0;
+	}
+
+	FSaveDataMenuStruct(FString NewName, FString NewScreenshotPath, FString NewSaveDate, int32 NewTotalTimeInMinutes)
+	{
+		SaveName = NewName;
+		ScreenshotPathSave = NewScreenshotPath;
+		SaveDateTime = NewSaveDate;
+		TotalPlayTimeInMinutes = NewTotalTimeInMinutes;
+	}
 };
 
 class MARINERUNNER_API LoadGameData

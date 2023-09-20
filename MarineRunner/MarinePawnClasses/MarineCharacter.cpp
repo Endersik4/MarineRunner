@@ -741,22 +741,31 @@ void AMarineCharacter::SlowMotionPressed()
 #pragma region /////////////////////////////// SAVE/LOAD ///////////////////////////////
 void AMarineCharacter::SaveGame(FVector NewCheckpointLocation)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SAVED"));
-	USaveMarineRunner* SaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
-	SaveGameInstance->SaveGame(Health, Gun, WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
-	SaveGameInstance->CheckpointLocation = NewCheckpointLocation;
-	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("MySlot"), 0);
+	CurrentSaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+	CurrentSaveGameInstance->SaveGame(Health, Gun, WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
+	CurrentSaveGameInstance->CheckpointLocation = NewCheckpointLocation;
+	CurrentSaveGameInstance->MakeSaveMenuData(MarinePlayerController);
+
+	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName(), 0);
 }
 
 void AMarineCharacter::LoadGame()
 {
-	USaveMarineRunner* SaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
-	if (!UGameplayStatics::LoadGameFromSlot(TEXT("MySlot"), 0)) return;
-	SaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(TEXT("MySlot"), 0));
-	SaveGameInstance->LoadGame(this);
-	if (SaveGameInstance->CheckpointLocation != FVector(0)) SetActorLocation(SaveGameInstance->CheckpointLocation);
+	USaveMarineRunner* LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+	if (!UGameplayStatics::LoadGameFromSlot(TEXT("MySlot"), 0)) 
+		return;
+
+	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(TEXT("MySlot"), 0));
+	SetActorLocation(LoadGameInstance->CheckpointLocation);
+
 	HudWidget->SetHealthPercent();
 	HudWidget->SetCurrentNumberOfFirstAidKits();
+}
+
+const TArray<FSaveDataMenuStruct>* AMarineCharacter::GetPointerToSaveMenuDataFromSave()
+{
+	if (IsValid(CurrentSaveGameInstance) == false) return nullptr;
+	return &CurrentSaveGameInstance->SavesData;
 }
 #pragma endregion 
 
