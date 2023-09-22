@@ -45,7 +45,7 @@ FString USaveMarineRunner::TakeSaveScreenshot(APlayerController* PlayerControlle
 	if (IsValid(PlayerController) == false) return "0";
 
 	FString ScreenshotName = GetSaveGameName()+".jpg";
-	FString SaveGamesDir = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + ScreenshotName;
+	FString SaveGamesDir = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + ScreenshotName;
 	FString TakeScreenShotCommand = "HighResShot 320x180 filename=\"" + SaveGamesDir + "\"";
 
 	PlayerController->ConsoleCommand(TakeScreenShotCommand);
@@ -58,6 +58,13 @@ void USaveMarineRunner::MakeSaveMenuData(APlayerController* PlayerController)
 	FString ClockTime = FString::FromInt(FDateTime::Now().GetHour()) + ":" + FString::FromInt(FDateTime::Now().GetMinute());
 	FString SaveDateText = ClockTime + " " + FString::FromInt(FDateTime::Now().GetDay()) + "/" + FString::FromInt(FDateTime::Now().GetMonth()) + "/" + FString::FromInt(FDateTime::Now().GetYear());
 	
+	FString FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".txt";
+	FString FileContent = GetSaveGameName() + "\n" + SaveDateText + "\n" + FString::FromInt(550);
+	FFileHelper::SaveStringToFile(FileContent, *FilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get());
+	FString FileSaved;
+	FFileHelper::LoadFileToString(FileSaved, *FilePath);
+	UE_LOG(LogTemp, Warning, TEXT("RESULTS = %s"), *FileSaved);
+
 	FSaveDataMenuStruct NewSaveDataMenu = FSaveDataMenuStruct(GetSaveGameName(), PathToScreenshot, SaveDateText, 550);
 	SavesData.Add(NewSaveDataMenu);
 }

@@ -746,18 +746,19 @@ void AMarineCharacter::SaveGame(FVector NewCheckpointLocation)
 	CurrentSaveGameInstance->CheckpointLocation = NewCheckpointLocation;
 	CurrentSaveGameInstance->MakeSaveMenuData(MarinePlayerController);
 
-	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName(), 0);
+	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName()+"/"+ CurrentSaveGameInstance->GetSaveGameName(), 0);
 }
 
-void AMarineCharacter::LoadGame()
+void AMarineCharacter::LoadGame(FString SlotName)
 {
 	USaveMarineRunner* LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
-	if (!UGameplayStatics::LoadGameFromSlot(TEXT("MySlot"), 0)) 
+	if (!UGameplayStatics::LoadGameFromSlot(SlotName, 0))
 		return;
 
-	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(TEXT("MySlot"), 0));
+	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 	SetActorLocation(LoadGameInstance->CheckpointLocation);
 
+	LoadGameInstance->LoadGame(this);
 	HudWidget->SetHealthPercent();
 	HudWidget->SetCurrentNumberOfFirstAidKits();
 }
