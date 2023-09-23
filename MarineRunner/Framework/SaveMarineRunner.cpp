@@ -63,7 +63,12 @@ void USaveMarineRunner::MakeSaveMenuData(APlayerController* PlayerController)
 	FFileHelper::SaveStringToFile(FileContent, *FilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get());
 	FString FileSaved;
 	FFileHelper::LoadFileToString(FileSaved, *FilePath);
-	UE_LOG(LogTemp, Warning, TEXT("RESULTS = %s"), *FileSaved);
+	FJsonSerializableArray asd;
+	FFileHelper::LoadFileToStringArray(asd, *FilePath);
+	for (int i = 0; i != asd.Num(); i++)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("i = %d | text = %s"), i, *asd[i]);
+	}
 
 	FSaveDataMenuStruct NewSaveDataMenu = FSaveDataMenuStruct(GetSaveGameName(), PathToScreenshot, SaveDateText, 550);
 	SavesData.Add(NewSaveDataMenu);
