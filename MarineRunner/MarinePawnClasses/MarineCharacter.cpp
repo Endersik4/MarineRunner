@@ -28,6 +28,7 @@
 #include "MarineRunner/Widgets/Menu/PauseMenuWidget.h"
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Framework/SaveMarineRunner.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
@@ -87,7 +88,7 @@ void AMarineCharacter::BeginPlay()
 	MakeCrosshire();
 	MakeHudWidget();
 	CopyOfOriginalForce = MovementForce;
-	LoadGame();
+	LoadGameFromGameInstance();
 }
 
 // Called every frame
@@ -749,11 +750,26 @@ void AMarineCharacter::SaveGame(FVector NewCheckpointLocation)
 	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName()+"/"+ CurrentSaveGameInstance->GetSaveGameName(), 0);
 }
 
+void AMarineCharacter::LoadGameFromGameInstance()
+{
+	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (IsValid(GameInstance) == false)
+	{
+		LoadGame();
+		return;
+	}
+
+	LoadGame(GameInstance->SlotSaveGameNameToLoad);
+}
+
 void AMarineCharacter::LoadGame(FString SlotName)
 {
+	SlotName += "/" + SlotName;
 	USaveMarineRunner* LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
 	if (!UGameplayStatics::LoadGameFromSlot(SlotName, 0))
+	{
 		return;
+	}
 
 	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 	SetActorLocation(LoadGameInstance->CheckpointLocation);

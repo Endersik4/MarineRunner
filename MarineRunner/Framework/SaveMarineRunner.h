@@ -60,4 +60,6 @@ private:
 
 	// return Screnshot path
 	FString TakeSaveScreenshot(APlayerController* PlayerController);
+
+	void SaveGameInstance();
 };

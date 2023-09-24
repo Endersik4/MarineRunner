@@ -10,7 +10,7 @@
 #include "Kismet/KismetRenderingLibrary.h"
 
 #include "MarineRunner/Framework/SaveMarineRunner.h"
-#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
 void USaveGameMenuListEntry::NativeConstruct()
 {
@@ -53,9 +53,13 @@ void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 void USaveGameMenuListEntry::OnClickedLoadGameButton()
 {
-	AMarineCharacter* Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	UE_LOG(LogTemp, Warning, TEXT("CLIECKED"));
-	Player->LoadGame(ListEntryObject->SavesMenuData.SaveName);
+	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (IsValid(GameInstance) == false || IsValid(ListEntryObject) == false) 
+		return;
+
+	GameInstance->SlotSaveGameNameToLoad = ListEntryObject->SavesMenuData.SaveName;
+
+	UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
 }
 
 void USaveGameMenuListEntry::OnHoveredLoadGameButton()

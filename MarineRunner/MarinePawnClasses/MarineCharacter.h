@@ -99,9 +99,6 @@ public:
 
 	void UpdateAlbertosInventory(bool bShouldUpdateInventory = true, bool bShouldUpdateCrafting = false);
 
-	// LoadGame
-	void LoadGame(FString SlotName = "MySlot");
-
 	const TArray<FSaveDataMenuStruct>* GetPointerToSaveMenuDataFromSave();
 
 private:
@@ -318,6 +315,8 @@ private:
 	//Saving/Loading Game
 	class USaveMarineRunner* CurrentSaveGameInstance;
 	void SaveGame(FVector CheckpointLocation = FVector(0));
+	void LoadGameFromGameInstance();
+	void LoadGame(FString SlotName = "MySlot");
 
 	//Widgets
 	void MakeHudWidget();

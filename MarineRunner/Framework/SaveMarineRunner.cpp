@@ -7,6 +7,7 @@
 
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
 USaveMarineRunner::USaveMarineRunner()
 {
@@ -31,8 +32,18 @@ void USaveMarineRunner::SaveGame(float CurrentHealth, AGun* CurrentMarineGun, TM
 	}
 
 	SaveNumber++;
+
+	SaveGameInstance();
 }
 
+void USaveMarineRunner::SaveGameInstance()
+{
+	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (IsValid(GameInstance) == false)
+		return;
+
+	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
+}
 
 FString USaveMarineRunner::GetSaveGameName()
 {
