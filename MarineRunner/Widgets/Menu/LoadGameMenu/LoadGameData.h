@@ -22,22 +22,22 @@ struct FSaveDataMenuStruct
 	UPROPERTY(EditDefaultsOnly)
 		FString SaveDateTime;
 	UPROPERTY(EditDefaultsOnly)
-		int32 TotalPlayTimeInMinutes;
+		float TotalPlayTimeInSeconds;
 
 	FSaveDataMenuStruct()
 	{
 		SaveName = "";
 		ScreenshotPathSave = "";
 		SaveDateTime = "";
-		TotalPlayTimeInMinutes = 0;
+		TotalPlayTimeInSeconds = 0.f;
 	}
 
-	FSaveDataMenuStruct(FString NewName, FString NewScreenshotPath, FString NewSaveDate, int32 NewTotalTimeInMinutes)
+	FSaveDataMenuStruct(FString NewName, FString NewScreenshotPath, FString NewSaveDate, float NewTotalTimeInMinutes)
 	{
 		SaveName = NewName;
 		ScreenshotPathSave = NewScreenshotPath;
 		SaveDateTime = NewSaveDate;
-		TotalPlayTimeInMinutes = NewTotalTimeInMinutes;
+		TotalPlayTimeInSeconds = NewTotalTimeInMinutes;
 	}
 };
 

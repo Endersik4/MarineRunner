@@ -20,4 +20,6 @@ public:
 		FString SlotSaveGameNameToLoad = "MySlot";
 	UPROPERTY(EditAnywhere)
 		int32 CurrentSaveNumber = 0;
+	UPROPERTY(EditAnywhere)
+		float TotalPlayTimeInSeconds = 0.f;
 };

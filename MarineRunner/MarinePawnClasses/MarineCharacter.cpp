@@ -744,7 +744,7 @@ void AMarineCharacter::SaveGame(FVector NewCheckpointLocation)
 {
 	CurrentSaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
 
-	CurrentSaveGameInstance->SetSlotSaveNameGameInstance(UGameplayStatics::GetGameInstance(GetWorld()));
+	CurrentSaveGameInstance->SetSlotSaveNameGameInstance(GetWorld());
 
 	CurrentSaveGameInstance->SaveGame(Health, Gun, WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
 	CurrentSaveGameInstance->CheckpointLocation = NewCheckpointLocation;

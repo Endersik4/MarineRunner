@@ -44,8 +44,11 @@ public:
 	UPROPERTY(EditAnywhere)
 		int32 SaveNumber = 0;
 
+	UPROPERTY(EditAnywhere)
+		float TotalPlayTimeInSeconds = 0.f;
+
 	void SaveGame(float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
-	void SetSlotSaveNameGameInstance(UGameInstance* CurrGameInstance);
+	void SetSlotSaveNameGameInstance(UWorld* CurrentWorld);
 
 	void MakeSaveMenuData(APlayerController* PlayerController);
 

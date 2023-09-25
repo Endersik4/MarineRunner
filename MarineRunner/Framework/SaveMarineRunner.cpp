@@ -32,9 +32,9 @@ void USaveMarineRunner::SaveGame(float CurrentHealth, AGun* CurrentMarineGun, TM
 	}
 }
 
-void USaveMarineRunner::SetSlotSaveNameGameInstance(UGameInstance* CurrGameInstance)
+void USaveMarineRunner::SetSlotSaveNameGameInstance(UWorld* CurrentWorld)
 {
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(CurrGameInstance);
+	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(CurrentWorld));
 	if (IsValid(GameInstance) == false)
 	{
 		return;
@@ -42,6 +42,8 @@ void USaveMarineRunner::SetSlotSaveNameGameInstance(UGameInstance* CurrGameInsta
 	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
 	GameInstance->CurrentSaveNumber++;
 	SaveNumber = GameInstance->CurrentSaveNumber;
+	GameInstance->TotalPlayTimeInSeconds += UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld);
+	TotalPlayTimeInSeconds = GameInstance->TotalPlayTimeInSeconds;
 }
 
 FString USaveMarineRunner::GetSaveGameName()
@@ -69,8 +71,9 @@ void USaveMarineRunner::MakeSaveMenuData(APlayerController* PlayerController)
 	FString SaveDateText = ClockTime + " " + FString::FromInt(FDateTime::Now().GetDay()) + "/" + FString::FromInt(FDateTime::Now().GetMonth()) + "/" + FString::FromInt(FDateTime::Now().GetYear());
 	
 	FString FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".txt";
-	FString FileContent = GetSaveGameName() + "\n" + PathToScreenshot + "\n" + SaveDateText + "\n" + FString::FromInt(550);
+	FString FileContent = GetSaveGameName() + "\n" + PathToScreenshot + "\n" + SaveDateText + "\n" + FString::SanitizeFloat(TotalPlayTimeInSeconds);
 	FFileHelper::SaveStringToFile(FileContent, *FilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get());
+	
 	/*
 	FString FileSaved;
 	FFileHelper::LoadFileToString(FileSaved, *FilePath);
@@ -100,6 +103,7 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 
 	GameInstance->CurrentSaveNumber = SaveNumber;
 	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
+	GameInstance->TotalPlayTimeInSeconds = TotalPlayTimeInSeconds;
 }
 
 void USaveMarineRunner::LoadEquipedGuns(AMarineCharacter* MarinePawn)
