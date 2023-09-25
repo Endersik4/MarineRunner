@@ -88,7 +88,7 @@ void AMarineCharacter::BeginPlay()
 	MakeCrosshire();
 	MakeHudWidget();
 	CopyOfOriginalForce = MovementForce;
-	LoadGameFromGameInstance();
+	LoadGame();
 }
 
 // Called every frame
@@ -743,6 +743,9 @@ void AMarineCharacter::SlowMotionPressed()
 void AMarineCharacter::SaveGame(FVector NewCheckpointLocation)
 {
 	CurrentSaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+
+	CurrentSaveGameInstance->SetSlotSaveNameGameInstance(UGameplayStatics::GetGameInstance(GetWorld()));
+
 	CurrentSaveGameInstance->SaveGame(Health, Gun, WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
 	CurrentSaveGameInstance->CheckpointLocation = NewCheckpointLocation;
 	CurrentSaveGameInstance->MakeSaveMenuData(MarinePlayerController);
@@ -750,21 +753,12 @@ void AMarineCharacter::SaveGame(FVector NewCheckpointLocation)
 	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName()+"/"+ CurrentSaveGameInstance->GetSaveGameName(), 0);
 }
 
-void AMarineCharacter::LoadGameFromGameInstance()
+void AMarineCharacter::LoadGame()
 {
 	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (IsValid(GameInstance) == false)
-	{
-		LoadGame();
-		return;
-	}
-
-	LoadGame(GameInstance->SlotSaveGameNameToLoad);
-}
-
-void AMarineCharacter::LoadGame(FString SlotName)
-{
+	FString SlotName = IsValid(GameInstance) == false ? "MySlot" : GameInstance->SlotSaveGameNameToLoad;
 	SlotName += "/" + SlotName;
+
 	USaveMarineRunner* LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
 	if (!UGameplayStatics::LoadGameFromSlot(SlotName, 0))
 	{
@@ -774,15 +768,9 @@ void AMarineCharacter::LoadGame(FString SlotName)
 	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 	SetActorLocation(LoadGameInstance->CheckpointLocation);
 
-	LoadGameInstance->LoadGame(this);
+	LoadGameInstance->LoadGame(this, GameInstance);
 	HudWidget->SetHealthPercent();
 	HudWidget->SetCurrentNumberOfFirstAidKits();
-}
-
-const TArray<FSaveDataMenuStruct>* AMarineCharacter::GetPointerToSaveMenuDataFromSave()
-{
-	if (IsValid(CurrentSaveGameInstance) == false) return nullptr;
-	return &CurrentSaveGameInstance->SavesData;
 }
 #pragma endregion 
 

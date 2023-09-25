@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
-#include "MarineRunner/Widgets/Menu/LoadGameMenu/LoadGameData.h"
 
 #include "SaveMarineRunner.generated.h"
 
@@ -45,12 +44,13 @@ public:
 	UPROPERTY(EditAnywhere)
 		int32 SaveNumber = 0;
 
-	UPROPERTY(EditAnywhere)
-		TArray<FSaveDataMenuStruct> SavesData;
-
 	void SaveGame(float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
-	void LoadGame(class AMarineCharacter* MarinePawn);
+	void SetSlotSaveNameGameInstance(UGameInstance* CurrGameInstance);
+
 	void MakeSaveMenuData(APlayerController* PlayerController);
+
+	void LoadGame(class AMarineCharacter* MarinePawn, class UMarineRunnerGameInstance* GameInstance);
+
 
 	void ClearTMapValues();
 	FString GetSaveGameName();
@@ -61,5 +61,4 @@ private:
 	// return Screnshot path
 	FString TakeSaveScreenshot(APlayerController* PlayerController);
 
-	void SaveGameInstance();
 };

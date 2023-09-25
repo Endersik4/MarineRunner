@@ -99,8 +99,6 @@ public:
 
 	void UpdateAlbertosInventory(bool bShouldUpdateInventory = true, bool bShouldUpdateCrafting = false);
 
-	const TArray<FSaveDataMenuStruct>* GetPointerToSaveMenuDataFromSave();
-
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCroachAndSlide* CroachAndSlideComponent;
@@ -315,8 +313,7 @@ private:
 	//Saving/Loading Game
 	class USaveMarineRunner* CurrentSaveGameInstance;
 	void SaveGame(FVector CheckpointLocation = FVector(0));
-	void LoadGameFromGameInstance();
-	void LoadGame(FString SlotName = "MySlot");
+	void LoadGame();
 
 	//Widgets
 	void MakeHudWidget();

@@ -30,19 +30,18 @@ void USaveMarineRunner::SaveGame(float CurrentHealth, AGun* CurrentMarineGun, TM
 	{
 		MagazineCapacityStorage.Add(Storage, Storage->GetMagazineCapacity());
 	}
-
-	SaveNumber++;
-
-	SaveGameInstance();
 }
 
-void USaveMarineRunner::SaveGameInstance()
+void USaveMarineRunner::SetSlotSaveNameGameInstance(UGameInstance* CurrGameInstance)
 {
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(CurrGameInstance);
 	if (IsValid(GameInstance) == false)
+	{
 		return;
-
+	}
 	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
+	GameInstance->CurrentSaveNumber++;
+	SaveNumber = GameInstance->CurrentSaveNumber;
 }
 
 FString USaveMarineRunner::GetSaveGameName()
@@ -70,8 +69,9 @@ void USaveMarineRunner::MakeSaveMenuData(APlayerController* PlayerController)
 	FString SaveDateText = ClockTime + " " + FString::FromInt(FDateTime::Now().GetDay()) + "/" + FString::FromInt(FDateTime::Now().GetMonth()) + "/" + FString::FromInt(FDateTime::Now().GetYear());
 	
 	FString FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".txt";
-	FString FileContent = GetSaveGameName() + "\n" + SaveDateText + "\n" + FString::FromInt(550);
+	FString FileContent = GetSaveGameName() + "\n" + PathToScreenshot + "\n" + SaveDateText + "\n" + FString::FromInt(550);
 	FFileHelper::SaveStringToFile(FileContent, *FilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get());
+	/*
 	FString FileSaved;
 	FFileHelper::LoadFileToString(FileSaved, *FilePath);
 	FJsonSerializableArray asd;
@@ -80,23 +80,26 @@ void USaveMarineRunner::MakeSaveMenuData(APlayerController* PlayerController)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("i = %d | text = %s"), i, *asd[i]);
 	}
-
-	FSaveDataMenuStruct NewSaveDataMenu = FSaveDataMenuStruct(GetSaveGameName(), PathToScreenshot, SaveDateText, 550);
-	SavesData.Add(NewSaveDataMenu);
+	*/
 }
 
 #pragma endregion
 
 #pragma region ////////// LOADING //////////////
-void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn)
+void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGameInstance* GameInstance)
 {
-	if (MarinePawn == nullptr) return;
+	if (IsValid(MarinePawn) == false) return;
 
 	MarinePawn->SetHealth(CurrentHealthSaved);
 	MarinePawn->SetQuickSelect(WeaponsStorageSaved);
 	MarinePawn->GetInventoryComponent()->Inventory_Items = Inventory_ItemsSaved;
 
 	LoadEquipedGuns(MarinePawn);
+
+	if (IsValid(GameInstance) == false) return;
+
+	GameInstance->CurrentSaveNumber = SaveNumber;
+	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
 }
 
 void USaveMarineRunner::LoadEquipedGuns(AMarineCharacter* MarinePawn)

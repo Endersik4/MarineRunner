@@ -23,6 +23,9 @@ protected:
 	virtual void NativeOnInitialized() override;
 
 public:
+	UFUNCTION(BlueprintImplementableEvent)
+		void GetTextFilesFromSaves(TArray<FString> & Txt_Files);
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UListView* SavesListView;
 

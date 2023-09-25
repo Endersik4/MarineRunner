@@ -4,10 +4,10 @@
 #include "MarineRunner/Widgets/Menu/LoadGameMenu/LoadGameMenuWidget.h"
 #include "Components/ListView.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 #include "LoadGameMenuEntryObject.h"
 #include "LoadGameData.h"
-#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
 void ULoadGameMenuWidget::NativeConstruct()
 {
@@ -20,21 +20,30 @@ void ULoadGameMenuWidget::NativeOnInitialized()
 
 void ULoadGameMenuWidget::FillSavesListView()
 {
-	AMarineCharacter* PlayerCharacter = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if (IsValid(PlayerCharacter) == false) return;
-	if (PlayerCharacter->GetPointerToSaveMenuDataFromSave() == nullptr) return;
-
-	TArray<FSaveDataMenuStruct> SaveMenuData = *PlayerCharacter->GetPointerToSaveMenuDataFromSave();
-
 	SavesListView->ClearListItems();
 
-	for (const FSaveDataMenuStruct& CurrentSaveData : SaveMenuData)
+	TArray<FString> Txt_Files;
+	GetTextFilesFromSaves(Txt_Files);
+
+	for (const FString& CurrTxtFilePath : Txt_Files)
 	{
+		FJsonSerializableArray DataFromFile;
+		FFileHelper::LoadFileToStringArray(DataFromFile, *CurrTxtFilePath);
+		if (DataFromFile.Num() < 4)
+		{
+			UE_LOG(LogTemp, Error, TEXT("DATA FROM FOLE NUM < 4"));
+			continue;
+		}
+
+		FSaveDataMenuStruct NewSaveDataMenu = FSaveDataMenuStruct(DataFromFile[0], DataFromFile[1], DataFromFile[2], FCString::Atoi(*DataFromFile[3]));
+
 		ULoadGameMenuEntryObject* ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(MenuSettingsDataObject);
 		if (IsValid(ConstructedItemObject) == false) continue;
 
-		ConstructedItemObject->SavesMenuData = CurrentSaveData;
+		ConstructedItemObject->SavesMenuData = NewSaveDataMenu;
 
-		SavesListView->AddItem(ConstructedItemObject);
+		TArray<UObject*> ListItems = SavesListView->GetListItems();
+		ListItems.Insert(ConstructedItemObject, 0);
+		SavesListView->SetListItems(ListItems);
 	}
 }

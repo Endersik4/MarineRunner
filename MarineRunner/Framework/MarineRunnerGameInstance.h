@@ -13,8 +13,11 @@ UCLASS()
 class MARINERUNNER_API UMarineRunnerGameInstance : public UGameInstance
 {
 	GENERATED_BODY()
-	
+
+
 public:
 	UPROPERTY(EditAnywhere)
 		FString SlotSaveGameNameToLoad = "MySlot";
+	UPROPERTY(EditAnywhere)
+		int32 CurrentSaveNumber = 0;
 };
