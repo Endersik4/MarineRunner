@@ -54,4 +54,7 @@ private:
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
 
 	class ULoadGameMenuEntryObject* ListEntryObject;
+
+	void ConvertTotalPlayTimeInSecondsToText();
+	void SetScreenshotImageFromSave();
 };

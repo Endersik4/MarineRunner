@@ -33,6 +33,7 @@
 #include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
 #include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
+#include "MarineRunner/Objects/Checkpoint.h"
 
 
 // Sets default values
@@ -740,17 +741,19 @@ void AMarineCharacter::SlowMotionPressed()
 #pragma endregion
 
 #pragma region /////////////////////////////// SAVE/LOAD ///////////////////////////////
-void AMarineCharacter::SaveGame(FVector NewCheckpointLocation)
+void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 {
 	CurrentSaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
 
-	CurrentSaveGameInstance->SetSlotSaveNameGameInstance(GetWorld());
+	CurrentSaveGameInstance->PrepareSaveGame();
+	CurrentSaveGameInstance->CopySaveNameToCurrentGameInstance(GetWorld());
 
 	CurrentSaveGameInstance->SaveGame(Health, Gun, WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
-	CurrentSaveGameInstance->CheckpointLocation = NewCheckpointLocation;
-	CurrentSaveGameInstance->MakeSaveMenuData(MarinePlayerController);
+	CurrentSaveGameInstance->CurrentCheckpoint = JustSavedCheckpoint;
+	CurrentSaveGameInstance->CheckpointLocation = GetActorLocation();
+	CurrentSaveGameInstance->MakeSaveMenuData(MarinePlayerController, UGameplayStatics::GetCurrentLevelName(GetWorld()));
 
-	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName()+"/"+ CurrentSaveGameInstance->GetSaveGameName(), 0);
+	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName() +"/"+ CurrentSaveGameInstance->GetSaveGameName(), 0);
 }
 
 void AMarineCharacter::LoadGame()
@@ -767,6 +770,11 @@ void AMarineCharacter::LoadGame()
 
 	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 	SetActorLocation(LoadGameInstance->CheckpointLocation);
+	ACheckpoint* LoadedCheckpoint = Cast<ACheckpoint>(LoadGameInstance->CurrentCheckpoint);
+	if (IsValid(LoadedCheckpoint))
+	{
+		LoadedCheckpoint->DisableCheckpoint();
+	}
 
 	LoadGameInstance->LoadGame(this, GameInstance);
 	HudWidget->SetHealthPercent();

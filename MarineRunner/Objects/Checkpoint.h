@@ -23,12 +23,17 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	void DisableCheckpoint();
+
 private:
 	UFUNCTION()
 		void OnCheckpointBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UBoxComponent* CheckpointBox;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Settings")
+		float MaxGameTimeToSaveGame = 1.f;
 
 	bool bSaved;
 

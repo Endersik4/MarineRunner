@@ -81,7 +81,7 @@ public:
 	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
 	void SetIsCroaching(bool bIs) { bIsCroaching = bIs; }
 
-	void CallSaveGame(FVector CheckpointLocation) { SaveGame(CheckpointLocation); }
+	void CallSaveGame(AActor* JustSavedCheckpoint) { SaveGame(JustSavedCheckpoint); }
 	void CallADSReleased() { ADSReleased(); }
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 	void SetQuickSelect(TMap < int32, class AGun* > NewWeaponsStorage);
@@ -312,7 +312,7 @@ private:
 
 	//Saving/Loading Game
 	class USaveMarineRunner* CurrentSaveGameInstance;
-	void SaveGame(FVector CheckpointLocation = FVector(0));
+	void SaveGame(AActor* JustSavedCheckpoint);
 	void LoadGame();
 
 	//Widgets

@@ -11,14 +11,36 @@
 
 USaveMarineRunner::USaveMarineRunner()
 {
-	CurrentHealthSaved = 0;
-	ClearTMapValues();
+	
+}
+void USaveMarineRunner::PrepareSaveGame(const FString& NewSaveName, bool bNewAddSaveNumber)
+{
+	OriginalSaveName = NewSaveName;
+	bAddSaveNumber = bNewAddSaveNumber;
+}
+
+FString USaveMarineRunner::GetSaveGameName()
+{
+	return OriginalSaveName + (bAddSaveNumber ? FString::FromInt(SaveNumber) : "");
 }
 
 #pragma region ///////// SAVING ////////////
+void USaveMarineRunner::CopySaveNameToCurrentGameInstance(UWorld* CurrentWorld)
+{
+	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(CurrentWorld));
+	if (IsValid(GameInstance) == false)
+		return;
+
+	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
+	GameInstance->CurrentSaveNumber++;
+	GameInstance->TotalPlayTimeInSeconds += UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld);
+
+	SaveNumber = GameInstance->CurrentSaveNumber;
+	TotalPlayTimeInSeconds = GameInstance->TotalPlayTimeInSeconds;
+}
+
 void USaveMarineRunner::SaveGame(float CurrentHealth, AGun* CurrentMarineGun, TMap < int32, AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved)
 {
-	ClearTMapValues();
 	CurrentHealthSaved = CurrentHealth;
 
 	Inventory_ItemsSaved = CurrentInventory_ItemsSaved;
@@ -32,31 +54,11 @@ void USaveMarineRunner::SaveGame(float CurrentHealth, AGun* CurrentMarineGun, TM
 	}
 }
 
-void USaveMarineRunner::SetSlotSaveNameGameInstance(UWorld* CurrentWorld)
-{
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(CurrentWorld));
-	if (IsValid(GameInstance) == false)
-	{
-		return;
-	}
-	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
-	GameInstance->CurrentSaveNumber++;
-	SaveNumber = GameInstance->CurrentSaveNumber;
-	GameInstance->TotalPlayTimeInSeconds += UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld);
-	TotalPlayTimeInSeconds = GameInstance->TotalPlayTimeInSeconds;
-}
-
-FString USaveMarineRunner::GetSaveGameName()
-{
-	FString NewName = "ManualSave_" + FString::FromInt(SaveNumber);
-	return FString(NewName);
-}
-
 FString USaveMarineRunner::TakeSaveScreenshot(APlayerController* PlayerController)
 {
 	if (IsValid(PlayerController) == false) return "0";
 
-	FString ScreenshotName = GetSaveGameName()+".jpg";
+	FString ScreenshotName = GetSaveGameName() +".jpg";
 	FString SaveGamesDir = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + ScreenshotName;
 	FString TakeScreenShotCommand = "HighResShot 320x180 filename=\"" + SaveGamesDir + "\"";
 
@@ -64,26 +66,17 @@ FString USaveMarineRunner::TakeSaveScreenshot(APlayerController* PlayerControlle
 	return SaveGamesDir;
 }
 
-void USaveMarineRunner::MakeSaveMenuData(APlayerController* PlayerController)
+void USaveMarineRunner::MakeSaveMenuData(APlayerController* PlayerController, const FString& CurrentLevelName)
 {
 	const FString& PathToScreenshot = TakeSaveScreenshot(PlayerController);
-	FString ClockTime = FString::FromInt(FDateTime::Now().GetHour()) + ":" + FString::FromInt(FDateTime::Now().GetMinute());
+
+	FString MinutesString = FDateTime::Now().GetMinute() < 10 ? "0" + FString::FromInt(FDateTime::Now().GetMinute()) : FString::FromInt(FDateTime::Now().GetMinute());
+	FString ClockTime = FString::FromInt(FDateTime::Now().GetHour()) + ":" + MinutesString;
 	FString SaveDateText = ClockTime + " " + FString::FromInt(FDateTime::Now().GetDay()) + "/" + FString::FromInt(FDateTime::Now().GetMonth()) + "/" + FString::FromInt(FDateTime::Now().GetYear());
 	
 	FString FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".txt";
-	FString FileContent = GetSaveGameName() + "\n" + PathToScreenshot + "\n" + SaveDateText + "\n" + FString::SanitizeFloat(TotalPlayTimeInSeconds);
+	FString FileContent = GetSaveGameName() + "\n" + PathToScreenshot + "\n" + SaveDateText + "\n" + CurrentLevelName + "\n" + FString::SanitizeFloat(TotalPlayTimeInSeconds);
 	FFileHelper::SaveStringToFile(FileContent, *FilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get());
-	
-	/*
-	FString FileSaved;
-	FFileHelper::LoadFileToString(FileSaved, *FilePath);
-	FJsonSerializableArray asd;
-	FFileHelper::LoadFileToStringArray(asd, *FilePath);
-	for (int i = 0; i != asd.Num(); i++)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("i = %d | text = %s"), i, *asd[i]);
-	}
-	*/
 }
 
 #pragma endregion
@@ -138,11 +131,3 @@ void USaveMarineRunner::LoadEquipedGuns(AMarineCharacter* MarinePawn)
 	}
 }
 #pragma endregion
-
-void USaveMarineRunner::ClearTMapValues()
-{
-	WeaponsSaved.Empty();
-	MagazineCapacityStorage.Empty();
-	Inventory_ItemsSaved.Empty();
-}
-

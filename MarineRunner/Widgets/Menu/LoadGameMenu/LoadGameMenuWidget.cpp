@@ -31,11 +31,11 @@ void ULoadGameMenuWidget::FillSavesListView()
 		FFileHelper::LoadFileToStringArray(DataFromFile, *CurrTxtFilePath);
 		if (DataFromFile.Num() < 4)
 		{
-			UE_LOG(LogTemp, Error, TEXT("DATA FROM FOLE NUM < 4"));
+			UE_LOG(LogTemp, Error, TEXT("DATA FROM FILE NUM < 4"));
 			continue;
 		}
 
-		FSaveDataMenuStruct NewSaveDataMenu = FSaveDataMenuStruct(DataFromFile[0], DataFromFile[1], DataFromFile[2], FCString::Atoi(*DataFromFile[3]));
+		FSaveDataMenuStruct NewSaveDataMenu = FSaveDataMenuStruct(DataFromFile[0], DataFromFile[1], DataFromFile[2], DataFromFile[3], FCString::Atoi(*DataFromFile[4]));
 
 		ULoadGameMenuEntryObject* ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(MenuSettingsDataObject);
 		if (IsValid(ConstructedItemObject) == false) continue;

@@ -47,15 +47,20 @@ public:
 	UPROPERTY(EditAnywhere)
 		float TotalPlayTimeInSeconds = 0.f;
 
-	void SaveGame(float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
-	void SetSlotSaveNameGameInstance(UWorld* CurrentWorld);
+	UPROPERTY(EditAnywhere)
+		AActor* CurrentCheckpoint;
 
-	void MakeSaveMenuData(APlayerController* PlayerController);
+	void PrepareSaveGame(const FString& NewSaveName = "ManualSave_", bool bAddSaveNumber = true);
+	FString OriginalSaveName;
+	bool bAddSaveNumber;
+
+	void SaveGame(float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
+	void CopySaveNameToCurrentGameInstance(UWorld* CurrentWorld);
+
+	void MakeSaveMenuData(APlayerController* PlayerController, const FString & CurrentLevelName);
 
 	void LoadGame(class AMarineCharacter* MarinePawn, class UMarineRunnerGameInstance* GameInstance);
 
-
-	void ClearTMapValues();
 	FString GetSaveGameName();
 
 private:

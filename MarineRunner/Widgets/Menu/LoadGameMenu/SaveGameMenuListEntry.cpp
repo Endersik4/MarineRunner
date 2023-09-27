@@ -32,23 +32,9 @@ void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 	FText Date = FText::FromString("SAVED: " + ListEntryObject->SavesMenuData.SaveDateTime);
 	SaveDateText->SetText(Date);
 
-	int32 Hours = ListEntryObject->SavesMenuData.TotalPlayTimeInSeconds / 3600;
-	int32 RestMinutes = (ListEntryObject->SavesMenuData.TotalPlayTimeInSeconds - (Hours * 3600)) / 60.f;
-	FText TotalTime = FText::FromString("TOTAL TIME: " + FString::FromInt(Hours) + "H "+ FString::FromInt(RestMinutes) + "MIN");
-	TotalTimeText->SetText(TotalTime);
+	ConvertTotalPlayTimeInSecondsToText();
 
-	UTexture2D* ScreenshotFromSaveGame = UKismetRenderingLibrary::ImportFileAsTexture2D(GetWorld(), ListEntryObject->SavesMenuData.ScreenshotPathSave);
-	if (ScreenshotFromSaveGame)
-		ScreenshotSaveImage->SetBrushFromTexture(ScreenshotFromSaveGame);
-
-
-	/*HighResShot 1920x1080 filename="D:/Projekty z UE4/MarineRunner/Saved/SaveGames/plik.png"
-	FString SaveGamesDir = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/plik.png";
-	FString TakeScreenShotCommand = "HighResShot 640x360 filename=\"";
-	TakeScreenShotCommand += SaveGamesDir + "\"";
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->ConsoleCommand(TakeScreenShotCommand);
-	FString SaveNameFile = GetScreenshotSaveDir();
-	SaveNameFile += "ScreenShot00000.png";*/
+	SetScreenshotImageFromSave();
 }
 
 void USaveGameMenuListEntry::OnClickedLoadGameButton()
@@ -59,7 +45,7 @@ void USaveGameMenuListEntry::OnClickedLoadGameButton()
 
 	GameInstance->SlotSaveGameNameToLoad = ListEntryObject->SavesMenuData.SaveName;
 
-	UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
+	UGameplayStatics::OpenLevel(GetWorld(), FName(ListEntryObject->SavesMenuData.LevelNameToLoad));
 }
 
 void USaveGameMenuListEntry::OnHoveredLoadGameButton()
@@ -78,4 +64,26 @@ void USaveGameMenuListEntry::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay,
 
 	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
 	else PlayAnimationReverse(AnimToPlay);
+}
+
+void USaveGameMenuListEntry::ConvertTotalPlayTimeInSecondsToText()
+{
+	const int SecondsInHour = 3600;
+	int32 Hours = ListEntryObject->SavesMenuData.TotalPlayTimeInSeconds / SecondsInHour;
+	int32 RestMinutes = (ListEntryObject->SavesMenuData.TotalPlayTimeInSeconds - (Hours * SecondsInHour)) / 60.f;
+
+	FString MinutesString = RestMinutes < 10 ? "0" + FString::FromInt(RestMinutes) : FString::FromInt(RestMinutes);
+
+	FText TotalTime = FText::FromString("TOTAL TIME: " + FString::FromInt(Hours) + "H " + MinutesString + "MIN");
+
+	TotalTimeText->SetText(TotalTime);
+}
+
+void USaveGameMenuListEntry::SetScreenshotImageFromSave()
+{
+	UTexture2D* ScreenshotFromSaveGame = UKismetRenderingLibrary::ImportFileAsTexture2D(GetWorld(), ListEntryObject->SavesMenuData.ScreenshotPathSave);
+	if (IsValid(ScreenshotFromSaveGame) == false) 
+		return;
+
+	ScreenshotSaveImage->SetBrushFromTexture(ScreenshotFromSaveGame);
 }
