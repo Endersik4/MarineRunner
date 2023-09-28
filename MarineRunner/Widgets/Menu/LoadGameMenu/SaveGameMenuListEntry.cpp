@@ -10,7 +10,7 @@
 #include "Kismet/KismetRenderingLibrary.h"
 
 #include "MarineRunner/Framework/SaveMarineRunner.h"
-#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
+#include "MarineRunner/Widgets/Menu/LoadGameMenu/ConfirmLoadingGameWidget.h"
 
 void USaveGameMenuListEntry::NativeConstruct()
 {
@@ -29,7 +29,7 @@ void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 	SaveNameText->SetText(FText::FromString(ListEntryObject->SavesMenuData.SaveName));
 
-	FText Date = FText::FromString("SAVED: " + ListEntryObject->SavesMenuData.SaveDateTime);
+	FText Date = FText::FromString(SavedDateText + ListEntryObject->SavesMenuData.SaveDateTime);
 	SaveDateText->SetText(Date);
 
 	ConvertTotalPlayTimeInSecondsToText();
@@ -39,13 +39,16 @@ void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 void USaveGameMenuListEntry::OnClickedLoadGameButton()
 {
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (IsValid(GameInstance) == false || IsValid(ListEntryObject) == false) 
+	if (IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)) == false || IsValid(ListEntryObject) == false)
 		return;
 
-	GameInstance->SlotSaveGameNameToLoad = ListEntryObject->SavesMenuData.SaveName;
-
-	UGameplayStatics::OpenLevel(GetWorld(), FName(ListEntryObject->SavesMenuData.LevelNameToLoad));
+	UConfirmLoadingGameWidget* ConfirmLoadingWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
+	if (IsValid(ConfirmLoadingWidget) == false) 
+		return;
+	
+	ConfirmLoadingWidget->AddToViewport();
+	ConfirmLoadingWidget->SetSlotAndLevelName(ListEntryObject->SavesMenuData.SaveName, ListEntryObject->SavesMenuData.LevelNameToLoad);
+	ConfirmLoadingWidget->SetConfirmType(ECT_LoadLastSave);
 }
 
 void USaveGameMenuListEntry::OnHoveredLoadGameButton()
@@ -74,7 +77,7 @@ void USaveGameMenuListEntry::ConvertTotalPlayTimeInSecondsToText()
 
 	FString MinutesString = RestMinutes < 10 ? "0" + FString::FromInt(RestMinutes) : FString::FromInt(RestMinutes);
 
-	FText TotalTime = FText::FromString("TOTAL TIME: " + FString::FromInt(Hours) + "H " + MinutesString + "MIN");
+	FText TotalTime = FText::FromString(SavedTotalTimeText + FString::FromInt(Hours) + "H " + MinutesString + "MIN");
 
 	TotalTimeText->SetText(TotalTime);
 }

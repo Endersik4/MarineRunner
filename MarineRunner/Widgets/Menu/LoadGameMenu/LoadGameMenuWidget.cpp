@@ -3,6 +3,7 @@
 
 #include "MarineRunner/Widgets/Menu/LoadGameMenu/LoadGameMenuWidget.h"
 #include "Components/ListView.h"
+#include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
@@ -24,6 +25,9 @@ void ULoadGameMenuWidget::FillSavesListView()
 
 	TArray<FString> Txt_Files;
 	GetTextFilesFromSaves(Txt_Files);
+
+	if (Txt_Files.Num() > 0)
+		NoSavedDataText->SetVisibility(ESlateVisibility::Hidden);
 
 	for (const FString& CurrTxtFilePath : Txt_Files)
 	{

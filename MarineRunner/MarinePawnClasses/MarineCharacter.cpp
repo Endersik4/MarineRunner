@@ -746,12 +746,15 @@ void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 	CurrentSaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
 
 	CurrentSaveGameInstance->PrepareSaveGame();
-	CurrentSaveGameInstance->CopySaveNameToCurrentGameInstance(GetWorld());
+	CurrentSaveGameInstance->CopySaveInfoToCurrentGameInstance(GetWorld());
 
 	CurrentSaveGameInstance->SaveGame(Health, Gun, WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
 	CurrentSaveGameInstance->CurrentCheckpoint = JustSavedCheckpoint;
-	CurrentSaveGameInstance->CheckpointLocation = GetActorLocation();
-	CurrentSaveGameInstance->MakeSaveMenuData(MarinePlayerController, UGameplayStatics::GetCurrentLevelName(GetWorld()));
+
+	CurrentSaveGameInstance->SavedPlayerLocation = GetActorLocation();
+	CurrentSaveGameInstance->SavedPlayerRotation = GetActorRotation();
+
+	CurrentSaveGameInstance->MakeTxtFileWithSaveInfo(MarinePlayerController, UGameplayStatics::GetCurrentLevelName(GetWorld()));
 
 	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName() +"/"+ CurrentSaveGameInstance->GetSaveGameName(), 0);
 }
@@ -769,7 +772,11 @@ void AMarineCharacter::LoadGame()
 	}
 
 	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
-	SetActorLocation(LoadGameInstance->CheckpointLocation);
+
+	SetActorLocation(LoadGameInstance->SavedPlayerLocation);
+	if (IsValid(MarinePlayerController) == true)
+		MarinePlayerController->SetControlRotation(LoadGameInstance->SavedPlayerRotation);	
+
 	ACheckpoint* LoadedCheckpoint = Cast<ACheckpoint>(LoadGameInstance->CurrentCheckpoint);
 	if (IsValid(LoadedCheckpoint))
 	{
@@ -780,6 +787,12 @@ void AMarineCharacter::LoadGame()
 	HudWidget->SetHealthPercent();
 	HudWidget->SetCurrentNumberOfFirstAidKits();
 }
+
+bool AMarineCharacter::CanPlayerSaveGame()
+{
+	return bIsInAir ? false : true;
+}
+
 #pragma endregion 
 
 #pragma region //////////////////////////////// DAMAGE /////////////////////////////////

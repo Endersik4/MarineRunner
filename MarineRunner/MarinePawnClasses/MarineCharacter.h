@@ -75,13 +75,13 @@ public:
 	class UInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
 	class UCameraComponent* GetCamera() const { return Camera; }
 	class AGun* GetGun() const { return Gun; }
+	class UPauseMenuWidget* GetPauseMenuWidget() const { return PauseMenuWidget; }
 
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
 	void SetGun(class AGun* NewGun) { Gun = NewGun; }
 	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
 	void SetIsCroaching(bool bIs) { bIsCroaching = bIs; }
 
-	void CallSaveGame(AActor* JustSavedCheckpoint) { SaveGame(JustSavedCheckpoint); }
 	void CallADSReleased() { ADSReleased(); }
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 	void SetQuickSelect(TMap < int32, class AGun* > NewWeaponsStorage);
@@ -98,6 +98,11 @@ public:
 	void UpdateHudWidget();
 
 	void UpdateAlbertosInventory(bool bShouldUpdateInventory = true, bool bShouldUpdateCrafting = false);
+
+	void CallUnPauseGame() { UnPauseGame(); }
+
+	void CallSaveGame(AActor* JustSavedCheckpoint = nullptr) { SaveGame(JustSavedCheckpoint); }
+	bool CanPlayerSaveGame();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -312,7 +317,7 @@ private:
 
 	//Saving/Loading Game
 	class USaveMarineRunner* CurrentSaveGameInstance;
-	void SaveGame(AActor* JustSavedCheckpoint);
+	void SaveGame(AActor* JustSavedCheckpoint = nullptr);
 	void LoadGame();
 
 	//Widgets

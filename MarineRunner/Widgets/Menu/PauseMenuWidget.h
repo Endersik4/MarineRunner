@@ -22,6 +22,8 @@ protected:
 
 	virtual void NativeOnInitialized() override;
 
+	virtual void NativeDestruct() override;
+
 public:
 
 
@@ -46,9 +48,9 @@ public:
 		UButton* SettingsButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* RestartText;
+		UTextBlock* SaveGameText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* RestartButton;
+		UButton* SaveGameButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UTextBlock* QuitGameText;
@@ -62,7 +64,7 @@ public:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* SettingsHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* RestartHoverAnim = nullptr;
+		UWidgetAnimation* SaveGameHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* QuitGameHoverAnim = nullptr;
 
@@ -72,6 +74,13 @@ public:
 		void OnHoveredResumeButton();
 	UFUNCTION()
 		void OnUnhoveredResumeButton();
+
+	UFUNCTION()
+		void OnClickedSaveGameButton();
+	UFUNCTION()
+		void OnHoveredSaveGameButton();
+	UFUNCTION()
+		void OnUnhoveredSaveGameButton();
 
 	UFUNCTION()
 		void OnClickedLoadGameButton();
@@ -88,13 +97,6 @@ public:
 		void OnUnhoveredSettingsButton();
 
 	UFUNCTION()
-		void OnClickedRestartButton();
-	UFUNCTION()
-		void OnHoveredRestartButton();
-	UFUNCTION()
-		void OnUnhoveredRestartButton();
-
-	UFUNCTION()
 		void OnClickedQuitGameButton();
 	UFUNCTION()
 		void OnHoveredQuitGameButton();
@@ -103,16 +105,22 @@ public:
 
 	// returns true if there is no more left active menu widgets
 	bool RemoveCurrentMenuWidgetsFromViewport();
+	TMap<UUserWidget*, TFunction<void(bool)>> CurrentSpawnedMenuWidgets;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu Settings")
+		TSubclassOf<UUserWidget> ConfirmLoadingSaveWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu Settings")
+		USoundBase* PauseMenuMusic;
 	UPROPERTY(EditDefaultsOnly, Category = "Load Game Menu")
 		TSubclassOf<UUserWidget> LoadGameMenuWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Menu")
 		TSubclassOf<UUserWidget> SettingsMenuWidgetClass;
 
-	TMap<UUserWidget*, TFunction<void(bool)>> CurrentSpawnedMenuWidgets;
-
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
+
+	class UAudioComponent* CurrentPauseMenuMusic;
+	void StopPauseMenuMusic();
 
 	// Load Game Widget
 	bool bWasLoadGameMenuWidgetSpawned;

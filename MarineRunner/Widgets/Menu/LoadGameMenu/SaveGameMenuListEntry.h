@@ -51,6 +51,13 @@ public:
 		void OnUnhoveredLoadGameButton();
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
+		TSubclassOf<UUserWidget> ConfirmLoadingSaveWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
+		FString SavedDateText = "SAVED: ";
+	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
+		FString SavedTotalTimeText = "TOTAL TIME: ";
+
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
 
 	class ULoadGameMenuEntryObject* ListEntryObject;

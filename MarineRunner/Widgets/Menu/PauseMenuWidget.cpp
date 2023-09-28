@@ -6,9 +6,11 @@
 #include "Components/Image.h"
 #include "Components/Button.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
 
 #include "MarineRunner/Widgets/Menu/SettingsMenuWidget.h"
 #include "LoadGameMenu/LoadGameMenuWidget.h"
+#include "LoadGameMenu/ConfirmLoadingGameWidget.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
 void UPauseMenuWidget::NativeConstruct()
@@ -27,9 +29,9 @@ void UPauseMenuWidget::NativeConstruct()
 	SettingsButton->OnHovered.AddDynamic(this, &UPauseMenuWidget::OnHoveredSettingsButton);
 	SettingsButton->OnUnhovered.AddDynamic(this, &UPauseMenuWidget::OnUnhoveredSettingsButton);
 
-	RestartButton->OnClicked.AddDynamic(this, &UPauseMenuWidget::OnClickedRestartButton);
-	RestartButton->OnHovered.AddDynamic(this, &UPauseMenuWidget::OnHoveredRestartButton);
-	RestartButton->OnUnhovered.AddDynamic(this, &UPauseMenuWidget::OnUnhoveredRestartButton);
+	SaveGameButton->OnClicked.AddDynamic(this, &UPauseMenuWidget::OnClickedSaveGameButton);
+	SaveGameButton->OnHovered.AddDynamic(this, &UPauseMenuWidget::OnHoveredSaveGameButton);
+	SaveGameButton->OnUnhovered.AddDynamic(this, &UPauseMenuWidget::OnUnhoveredSaveGameButton);
 
 	QuitGameButton->OnClicked.AddDynamic(this, &UPauseMenuWidget::OnClickedQuitGameButton);
 	QuitGameButton->OnHovered.AddDynamic(this, &UPauseMenuWidget::OnHoveredQuitGameButton);
@@ -40,7 +42,14 @@ void UPauseMenuWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
+	if (PauseMenuMusic) CurrentPauseMenuMusic = UGameplayStatics::SpawnSound2D(GetWorld(), PauseMenuMusic);
+
 	FillMenuButtonsAndTextMap();
+}
+
+void UPauseMenuWidget::NativeDestruct()
+{
+	StopPauseMenuMusic();
 }
 
 void UPauseMenuWidget::FillMenuButtonsAndTextMap()
@@ -48,13 +57,18 @@ void UPauseMenuWidget::FillMenuButtonsAndTextMap()
 	AllMenuButtons.Add(ResumeButton);
 	AllMenuButtons.Add(LoadGameButton);
 	AllMenuButtons.Add(SettingsButton);
-	AllMenuButtons.Add(RestartButton);
+	AllMenuButtons.Add(SaveGameButton);
 	AllMenuButtons.Add(QuitGameButton);
 }
 
 #pragma region //////////////// RESUME /////////////////
 void UPauseMenuWidget::OnClickedResumeButton()
 {
+	AMarineCharacter* MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (IsValid(MarinePlayer) == false)
+		return;
+
+	MarinePlayer->CallUnPauseGame();
 }
 
 void UPauseMenuWidget::OnHoveredResumeButton()
@@ -119,6 +133,35 @@ void UPauseMenuWidget::OnUnhoveredLoadGameButton()
 }
 #pragma endregion 
 
+#pragma region //////////////// SAVE GAME /////////////////
+void UPauseMenuWidget::OnClickedSaveGameButton()
+{
+	AMarineCharacter* MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (IsValid(MarinePlayer) == false)
+		return;
+
+	if (MarinePlayer->CanPlayerSaveGame() == false)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PLAYER CANT SAVE GAME"));
+		return;
+	}
+
+	MarinePlayer->CallSaveGame();
+	MarinePlayer->CallUnPauseGame();
+}
+
+void UPauseMenuWidget::OnHoveredSaveGameButton()
+{
+	PlayAnimatonForButton(SaveGameHoverAnim);
+}
+
+void UPauseMenuWidget::OnUnhoveredSaveGameButton()
+{
+	PlayAnimatonForButton(SaveGameHoverAnim, false);
+}
+#pragma endregion 
+
+
 #pragma region //////////////// SETTINGS /////////////////
 void UPauseMenuWidget::OnClickedSettingsButton()
 {
@@ -171,25 +214,18 @@ void UPauseMenuWidget::OnUnhoveredSettingsButton()
 
 #pragma endregion 
 
-#pragma region //////////////// RESTART /////////////////
-void UPauseMenuWidget::OnClickedRestartButton()
-{
-}
-
-void UPauseMenuWidget::OnHoveredRestartButton()
-{
-	PlayAnimatonForButton(RestartHoverAnim);
-}
-
-void UPauseMenuWidget::OnUnhoveredRestartButton()
-{
-	PlayAnimatonForButton(RestartHoverAnim, false);
-}
-#pragma endregion 
-
 #pragma region //////////////// QUIT GAME /////////////////
 void UPauseMenuWidget::OnClickedQuitGameButton()
 {
+	if (IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)) == false)
+		return;
+
+	UConfirmLoadingGameWidget* ConfirmQuitingGameWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
+	if (IsValid(ConfirmQuitingGameWidget) == false)
+		return;
+
+	ConfirmQuitingGameWidget->AddToViewport();
+	ConfirmQuitingGameWidget->SetConfirmType(ECT_QuitGame);
 }
 
 void UPauseMenuWidget::OnHoveredQuitGameButton()
@@ -235,4 +271,11 @@ void UPauseMenuWidget::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool 
 
 	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
 	else PlayAnimationReverse(AnimToPlay);
+}
+
+void UPauseMenuWidget::StopPauseMenuMusic()
+{
+	if (IsValid(CurrentPauseMenuMusic) == false) return;
+	CurrentPauseMenuMusic->Stop();
+	CurrentPauseMenuMusic->DestroyComponent();
 }

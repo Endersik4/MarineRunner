@@ -36,7 +36,9 @@ public:
 		class AGun* MarineGun;
 
 	UPROPERTY(EditAnywhere)
-		FVector CheckpointLocation;
+		FVector SavedPlayerLocation;
+	UPROPERTY(EditAnywhere)
+		FRotator SavedPlayerRotation;
 
 	UPROPERTY(EditAnywhere)
 		TMap<FString, FItemStruct> Inventory_ItemsSaved;
@@ -55,9 +57,9 @@ public:
 	bool bAddSaveNumber;
 
 	void SaveGame(float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
-	void CopySaveNameToCurrentGameInstance(UWorld* CurrentWorld);
+	void CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld);
 
-	void MakeSaveMenuData(APlayerController* PlayerController, const FString & CurrentLevelName);
+	void MakeTxtFileWithSaveInfo(APlayerController* PlayerController, const FString & CurrentLevelName);
 
 	void LoadGame(class AMarineCharacter* MarinePawn, class UMarineRunnerGameInstance* GameInstance);
 
@@ -68,5 +70,6 @@ private:
 
 	// return Screnshot path
 	FString TakeSaveScreenshot(APlayerController* PlayerController);
+	FString ConvertCurrentDateToText();
 
 };

@@ -25,7 +25,7 @@ FString USaveMarineRunner::GetSaveGameName()
 }
 
 #pragma region ///////// SAVING ////////////
-void USaveMarineRunner::CopySaveNameToCurrentGameInstance(UWorld* CurrentWorld)
+void USaveMarineRunner::CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld)
 {
 	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(CurrentWorld));
 	if (IsValid(GameInstance) == false)
@@ -66,14 +66,20 @@ FString USaveMarineRunner::TakeSaveScreenshot(APlayerController* PlayerControlle
 	return SaveGamesDir;
 }
 
-void USaveMarineRunner::MakeSaveMenuData(APlayerController* PlayerController, const FString& CurrentLevelName)
+FString USaveMarineRunner::ConvertCurrentDateToText()
+{
+	const FString& CurrentTimeText_Minutes = FDateTime::Now().GetMinute() < 10 ? "0" + FString::FromInt(FDateTime::Now().GetMinute()) : FString::FromInt(FDateTime::Now().GetMinute());
+	const FString& CurrentTimeText = FString::FromInt(FDateTime::Now().GetHour()) + ":" + CurrentTimeText_Minutes;
+
+	const FString& SaveDateText = CurrentTimeText + " " + FString::FromInt(FDateTime::Now().GetDay()) + "/" + FString::FromInt(FDateTime::Now().GetMonth()) + "/" + FString::FromInt(FDateTime::Now().GetYear());
+	return SaveDateText;
+}
+
+void USaveMarineRunner::MakeTxtFileWithSaveInfo(APlayerController* PlayerController, const FString& CurrentLevelName)
 {
 	const FString& PathToScreenshot = TakeSaveScreenshot(PlayerController);
+	const FString& SaveDateText = ConvertCurrentDateToText();
 
-	FString MinutesString = FDateTime::Now().GetMinute() < 10 ? "0" + FString::FromInt(FDateTime::Now().GetMinute()) : FString::FromInt(FDateTime::Now().GetMinute());
-	FString ClockTime = FString::FromInt(FDateTime::Now().GetHour()) + ":" + MinutesString;
-	FString SaveDateText = ClockTime + " " + FString::FromInt(FDateTime::Now().GetDay()) + "/" + FString::FromInt(FDateTime::Now().GetMonth()) + "/" + FString::FromInt(FDateTime::Now().GetYear());
-	
 	FString FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".txt";
 	FString FileContent = GetSaveGameName() + "\n" + PathToScreenshot + "\n" + SaveDateText + "\n" + CurrentLevelName + "\n" + FString::SanitizeFloat(TotalPlayTimeInSeconds);
 	FFileHelper::SaveStringToFile(FileContent, *FilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get());

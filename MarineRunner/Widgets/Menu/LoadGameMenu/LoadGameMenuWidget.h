@@ -27,6 +27,9 @@ public:
 		void GetTextFilesFromSaves(TArray<FString> & Txt_Files);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock* NoSavedDataText;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UListView* SavesListView;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Load Game Menu")
