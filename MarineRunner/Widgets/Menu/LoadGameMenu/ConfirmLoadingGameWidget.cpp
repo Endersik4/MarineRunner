@@ -24,10 +24,10 @@ void UConfirmLoadingGameWidget::NativeConstruct()
 
 void UConfirmLoadingGameWidget::NativeOnInitialized()
 {
-	AddThisWidgetToCurrentSpawnedMenuWidgets();
+	AddThisWidgetToCurrentSpawnedMenuWidgets(false);
 }
 
-void UConfirmLoadingGameWidget::AddThisWidgetToCurrentSpawnedMenuWidgets()
+void UConfirmLoadingGameWidget::AddThisWidgetToCurrentSpawnedMenuWidgets(bool bShouldDeleteExistingOne)
 {
 	AMarineCharacter* MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (IsValid(MarinePlayer) == false)
@@ -36,7 +36,14 @@ void UConfirmLoadingGameWidget::AddThisWidgetToCurrentSpawnedMenuWidgets()
 	if (IsValid(MarinePlayer->GetPauseMenuWidget()) == false)
 		return;
 
-	MarinePlayer->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Add(this, [this](bool b) { this->BackToLoadGame(b); });
+	if (bShouldDeleteExistingOne == true)
+	{
+		MarinePlayer->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Remove(this);
+	}
+	else
+	{
+		MarinePlayer->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Add(this, [this](bool b) { this->BackToLoadGame(b); });
+	}
 }
 
 void UConfirmLoadingGameWidget::BackToLoadGame(bool bShouldBack)
@@ -86,6 +93,7 @@ void UConfirmLoadingGameWidget::YesButton_OnUnhovered()
 #pragma region ////////////// NO BUTTON /////////////
 void UConfirmLoadingGameWidget::NoButton_OnClicked()
 {
+	AddThisWidgetToCurrentSpawnedMenuWidgets(true);
 	RemoveFromParent();
 }
 

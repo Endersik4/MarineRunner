@@ -85,7 +85,7 @@ void APickupItem::ItemUnHover(UHUDWidget* MarineHUDWidget)
 	ItemMesh->SetRenderCustomDepth(false);
 
 	if (MarineHUDWidget == nullptr) return;
-	MarineHUDWidget->HideItemHover();
+	MarineHUDWidget->PlayAppearAnimForItemHover(false);
 }
 
 void APickupItem::SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh)

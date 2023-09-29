@@ -184,6 +184,8 @@ private:
 		TSubclassOf<class UUserWidget> HUDClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ADSInSound;
@@ -319,6 +321,7 @@ private:
 	class USaveMarineRunner* CurrentSaveGameInstance;
 	void SaveGame(AActor* JustSavedCheckpoint = nullptr);
 	void LoadGame();
+	void SpawnGameSavedNotificationWidget();
 
 	//Widgets
 	void MakeHudWidget();

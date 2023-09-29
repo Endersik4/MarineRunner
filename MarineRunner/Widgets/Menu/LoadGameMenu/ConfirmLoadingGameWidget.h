@@ -71,6 +71,6 @@ private:
 	FString SlotNameToLoad;
 	FString LevelNameToLoad;
 
-	void AddThisWidgetToCurrentSpawnedMenuWidgets();
+	void AddThisWidgetToCurrentSpawnedMenuWidgets(bool bShouldDeleteExistingOne);
 	void BackToLoadGame(bool bShouldBack = true);
 };

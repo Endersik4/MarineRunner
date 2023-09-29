@@ -26,6 +26,7 @@
 #include "MarineRunner/Widgets/DashWidget.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Widgets/Menu/PauseMenuWidget.h"
+#include "MarineRunner/Widgets/Menu/GameSavedNotificationWidget.h"
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Framework/SaveMarineRunner.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
@@ -542,9 +543,12 @@ void AMarineCharacter::UnPauseGame()
 
 void AMarineCharacter::SpawnPauseMenuWidget()
 {
-	if (PauseMenuWidgetClass == nullptr || MarinePlayerController == nullptr) return;
+	if (IsValid(MarinePlayerController) == false) return;
 
 	PauseMenuWidget = Cast<UPauseMenuWidget>(CreateWidget(MarinePlayerController, PauseMenuWidgetClass));
+	if (IsValid(PauseMenuWidget) == false)
+		return;
+	
 	PauseMenuWidget->AddToViewport();
 }
 
@@ -757,6 +761,8 @@ void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 	CurrentSaveGameInstance->MakeTxtFileWithSaveInfo(MarinePlayerController, UGameplayStatics::GetCurrentLevelName(GetWorld()));
 
 	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName() +"/"+ CurrentSaveGameInstance->GetSaveGameName(), 0);
+
+	SpawnGameSavedNotificationWidget();
 }
 
 void AMarineCharacter::LoadGame()
@@ -786,6 +792,17 @@ void AMarineCharacter::LoadGame()
 	LoadGameInstance->LoadGame(this, GameInstance);
 	HudWidget->SetHealthPercent();
 	HudWidget->SetCurrentNumberOfFirstAidKits();
+}
+
+void AMarineCharacter::SpawnGameSavedNotificationWidget()
+{
+	if (IsValid(MarinePlayerController) == false) return;
+
+	UGameSavedNotificationWidget* GameSavedNotificationWidget = Cast<UGameSavedNotificationWidget>(CreateWidget(MarinePlayerController, GameSavedNotificationWidgetClass));
+	if (IsValid(GameSavedNotificationWidget) == false)
+		return;
+
+	GameSavedNotificationWidget->AddToViewport();
 }
 
 bool AMarineCharacter::CanPlayerSaveGame()

@@ -49,7 +49,7 @@ void UTakeAndDrop::Take()
 	if (TakeInterface)
 	{
 		TakeInterface->TakeItem(MarinePawn, bIsItWeapon);
-		MarinePawn->GetHudWidget()->HideItemHover(ESlateVisibility::Hidden);
+		MarinePawn->GetHudWidget()->PlayAppearAnimForItemHover(false);
 		if (bIsItWeapon == false) TakeInterface = nullptr;
 	}
 }

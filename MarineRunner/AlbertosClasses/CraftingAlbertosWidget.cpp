@@ -181,7 +181,7 @@ void UCraftingAlbertosWidget::OnItemHovered(UObject* Item, bool bIsHovered)
 		UItemDataObject* NewItem = Cast<UItemDataObject>(Item);
 		MarinePawn->GetHudWidget()->SetItemHoverStuff(NewItem->ItemData);
 	}
-	else MarinePawn->GetHudWidget()->HideItemHover();
+	else MarinePawn->GetHudWidget()->PlayAppearAnimForItemHover(false);
 }
 
 void UCraftingAlbertosWidget::CraftPressed()

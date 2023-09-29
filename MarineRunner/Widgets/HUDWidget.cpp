@@ -21,7 +21,6 @@ void UHUDWidget::NativeOnInitialized()
 	SetUpMarinePawn();
 
 	GotDamageImage->SetRenderOpacity(0.f);
-	HideWeaponUI(true);
 }
 
 void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
@@ -87,12 +86,10 @@ void UHUDWidget::SetGotDamage(bool bGot)
 
 void UHUDWidget::HideWeaponUI(bool bShouldHide)
 {
-	float RenderOpacityValue = 0.f;
-	if (bShouldHide == false) RenderOpacityValue = 1.f;
+	if (WeaponAppearAnim == nullptr) return;
 
-	StoredAmmoText->SetRenderOpacity(RenderOpacityValue);
-	CurrentAmmoInMagazineText->SetRenderOpacity(RenderOpacityValue);
-	WeaponImage->SetRenderOpacity(RenderOpacityValue);
+	if (!bShouldHide) PlayAnimationForward(WeaponAppearAnim);
+	else PlayAnimationReverse(WeaponAppearAnim);
 }
 
 void UHUDWidget::FadeGotDamageImage()
@@ -172,19 +169,21 @@ void UHUDWidget::AddElementToProgress(EUseableElement Element, ElementBar Elemen
 	bShouldProgress = true;
 }
 
-void UHUDWidget::HideItemHover(ESlateVisibility NewVisibility)
+void UHUDWidget::PlayAppearAnimForItemHover(bool bForwardAnim)
 {
-	ItemHoverImage->SetVisibility(NewVisibility);
-	ItemHoverName->SetVisibility(NewVisibility);
-	ItemHoverDescription->SetVisibility(NewVisibility);
+	if (ItemHoverAppearAnim == nullptr) return;
+
+	if (bForwardAnim) PlayAnimationForward(ItemHoverAppearAnim);
+	else PlayAnimationReverse(ItemHoverAppearAnim);
 }
 
 void UHUDWidget::SetItemHoverStuff(FItemStruct ItemStruct)
 {
-	HideItemHover(ESlateVisibility::Visible);
+	PlayAppearAnimForItemHover();
 
 	ItemHoverName->SetText(FText::FromString(ItemStruct.Item_Name));
 	ItemHoverDescription->SetText(FText::FromString(ItemStruct.Item_Description));
+	ItemHoverImage->SetBrushFromTexture(ItemStruct.Item_StorageIcon);
 }
 
 void UHUDWidget::SetUpMarinePawn()

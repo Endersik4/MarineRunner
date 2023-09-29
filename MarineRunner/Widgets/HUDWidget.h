@@ -91,14 +91,21 @@ public:
 
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* ItemHoverImage;
+		class UImage* ItemHoverBackgroundImage;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* ItemHoverName;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* ItemHoverDescription;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UImage* ItemHoverImage;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* ItemHoverAppearAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* WeaponAppearAnim = nullptr;
 
 	// On Item Hover
-	void HideItemHover(ESlateVisibility NewVisibility = ESlateVisibility::Hidden);
+	void PlayAppearAnimForItemHover(bool bForwardAnim = true);
 	void SetItemHoverStuff(struct FItemStruct);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")

@@ -328,10 +328,11 @@ void AGun::SpawnBullet()
 	FTransform BulletTransform = FTransform(BulletRotation, Location);
 	ABullet* SpawnedBullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletData.BulletClass, BulletTransform);
 
-	BulletData.Damage = (bManyBulletAtOnce == false ? BulletData.Damage : BulletData.Damage / HowManyBulletsToSpawn);
-	BulletData.HitImpulseForce = (bManyBulletAtOnce == false ? BulletData.HitImpulseForce : BulletData.HitImpulseForce / HowManyBulletsToSpawn);
+	FBulletStruct BulletDataForSpawnedBullet = BulletData;
+	BulletDataForSpawnedBullet.Damage = (bManyBulletAtOnce == false ? BulletData.Damage : BulletData.Damage / HowManyBulletsToSpawn);
+	BulletDataForSpawnedBullet.HitImpulseForce = (bManyBulletAtOnce == false ? BulletData.HitImpulseForce : BulletData.HitImpulseForce / HowManyBulletsToSpawn);
 
-	SpawnedBullet->SetBulletData(BulletData);
+	SpawnedBullet->SetBulletData(BulletDataForSpawnedBullet);
 	SpawnedBullet->FinishSpawning(BulletTransform);
 }
 
