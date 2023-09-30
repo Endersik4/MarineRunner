@@ -50,9 +50,12 @@ private:
 	bool bIsInSlowMotion = false;
 	FTimerHandle SlowMotionTimeHandle;
 	FTimerHandle SlowMotionDelayHandle;
-	void SlowMotionPressed();
 	void SettingUpSlowMotion();
+
+	void SlowMotionPressed();
+	void SuddentDisabledSlowMotion();
 	void DisableSlowMotion();
+
 	void DelayCompleted();
 	void AddingVelocity();
 	

@@ -39,4 +39,8 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* ItemAmountListEntry;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Storage List Entry")
+		FString TextWhenItemAmountIsMoreThen999 = "+999";
 };

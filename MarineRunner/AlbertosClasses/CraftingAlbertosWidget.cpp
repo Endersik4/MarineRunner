@@ -85,8 +85,6 @@ void UCraftingAlbertosWidget::AddItemToTileView(TArray<FItemStruct> InventoryIte
 
 		if (Items.bIsItResource == true) ResourcesInventoryTileView->AddItem(ConstructedItemObject);
 		else StorageInventoryTileView->AddItem(ConstructedItemObject);
-
-		ConstructedItemObject->ConditionalBeginDestroy();
 	}
 }
 #pragma endregion
@@ -179,7 +177,7 @@ void UCraftingAlbertosWidget::OnItemHovered(UObject* Item, bool bIsHovered)
 	if (bIsHovered == true)
 	{
 		UItemDataObject* NewItem = Cast<UItemDataObject>(Item);
-		MarinePawn->GetHudWidget()->SetItemHoverStuff(NewItem->ItemData);
+		MarinePawn->GetHudWidget()->SetItemHoverInformations(NewItem->ItemData.Item_Name, NewItem->ItemData.Item_Description, NewItem->ItemData.Item_StorageIcon);
 	}
 	else MarinePawn->GetHudWidget()->PlayAppearAnimForItemHover(false);
 }
@@ -241,7 +239,6 @@ void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar(float Delta)
 		FText NewText = FText::FromString(UKismetTextLibrary::Conv_FloatToText(CopiedItemCraftTime, ERoundingMode::HalfToEven, false, true, 1, 3, 1, 2).ToString() + "s");
 		ItemValue_TimeText->SetText(NewText);
 		
-
 		CopiedItemCraftTime -= Delta;
 		TimeElapsed += Delta;
 	}

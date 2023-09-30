@@ -22,10 +22,13 @@ void UStorageListEntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 	UItemDataObject* ItemDataObject = Cast<UItemDataObject>(ListItemObject);
 
 	ItemImageListEntry->SetBrushFromTexture(ItemDataObject->ItemData.Item_StorageIcon);
-	int32 ItemAmountValue = ItemDataObject->ItemData.Item_Amount;
-	if (ItemAmountValue > 999) ItemAmountValue = 999;
 
-	ItemAmountListEntry->SetText(FText::FromString(FString::FromInt(ItemAmountValue)));
+	FString ItemAmountValueString = FString::FromInt(ItemDataObject->ItemData.Item_Amount);
+	if (ItemDataObject->ItemData.Item_Amount > 999)
+	{
+		ItemAmountValueString = TextWhenItemAmountIsMoreThen999;
+	}
+	ItemAmountListEntry->SetText(FText::FromString(ItemAmountValueString));
 
 	UMaterialInstanceDynamic* OutlineMat = ItemAmountListEntry->GetDynamicOutlineMaterial();
 

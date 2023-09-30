@@ -54,7 +54,6 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	if (ItemFromInventory)
 	{ 
 		ItemFromInventory->Item_Amount += ItemSettings.Item_Amount; 
-		if (ItemFromInventory->Item_Amount > 999) ItemFromInventory->Item_Amount -= ItemFromInventory->Item_Amount - 999;
 	}
 	else //if there are no items with the same name, add that item to the inventory
 	{ 
@@ -77,7 +76,7 @@ void APickupItem::ItemHover(UHUDWidget* MarineHUDWidget)
 	ItemMesh->SetRenderCustomDepth(true);
 
 	if (MarineHUDWidget == nullptr) return;
-	MarineHUDWidget->SetItemHoverStuff(GetItemSettings());
+	MarineHUDWidget->SetItemHoverInformations(ItemSettings.Item_Name, ItemSettings.Item_Description, ItemSettings.Item_StorageIcon);
 }
 
 void APickupItem::ItemUnHover(UHUDWidget* MarineHUDWidget)
@@ -109,7 +108,7 @@ void APickupItem::Dissolve(float Delta)
 
 	if (DissolveTimeElapsed <= ItemSettings.Item_TimeCraft)
 	{
-		float NewDissolveValue = FMath::Lerp(0.6f, -0.4f, DissolveTimeElapsed / ItemSettings.Item_TimeCraft);
+		float NewDissolveValue = FMath::Lerp(DissolveStartValue, DissolveEndValue, DissolveTimeElapsed / ItemSettings.Item_TimeCraft);
 
 		DissolveDynamicMaterial->SetScalarParameterValue(TEXT("Dissolve"), NewDissolveValue);
 		DissolveTimeElapsed += Delta;

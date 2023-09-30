@@ -7,50 +7,36 @@
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
-#include "MarineRunner/Inventory/InventoryComponent.h"
-
 void UHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 }
 
-void UHUDWidget::NativeOnInitialized()
-{
-	SetUpMarinePawn();
-
-	GotDamageImage->SetRenderOpacity(0.f);
-}
-
 void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);
 
-	FadeGotDamageImage();
-	FadeFirstAidImage();
 	WhichElementShouldProgress();
 }
 
-void UHUDWidget::SetHealthPercent()
+void UHUDWidget::SetHealthBarPercent(float CurrentHealth)
 {
-	if (!MarinePawn) return;
-
-	float Health = MarinePawn->GetHealth() / 100.f;
+	float Health = CurrentHealth / 100.f;
 	HealthBar->SetPercent(Health);
 }
 
-void UHUDWidget::SetCurrentNumberOfFirstAidKits()
+void UHUDWidget::SetCurrentNumberOfFirstAidKits(int32 CurrentAidKitsNumber)
 {
-	int32 CurrentNumber = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(MarinePawn->GetFirstAidKitName())->Item_Amount;
-	FString CurrentNumberString = FString::FromInt(CurrentNumber);
-	if (CurrentNumber < 10)
+	FString CurrentNumberString = FString::FromInt(CurrentAidKitsNumber);
+	if (CurrentAidKitsNumber < 10)
 	{
-		CurrentNumberString = "0" + FString::FromInt(CurrentNumber);
+		CurrentNumberString = "0" + FString::FromInt(CurrentAidKitsNumber);
 	}
 	CurrentNumbersOfFirstAidKit->SetText(FText::FromString(CurrentNumberString));
 }
 
+#pragma region //////////////////// WEAPON UI //////////////////////////
 void UHUDWidget::SetAmmoText(int32 Ammo, bool bSetStoredAmmo)
 {
 	FString AmmoText = "";
@@ -67,21 +53,10 @@ void UHUDWidget::SetAmmoText(int32 Ammo, bool bSetStoredAmmo)
 
 void UHUDWidget::SetWeaponImage(UTexture2D* Texture, bool bAmmoCounterBelowGunHUD)
 {
-	if (bAmmoCounterBelowGunHUD == true) WeaponImage->SetDesiredSizeOverride(FVector2D(460.f, 260.f));
-	else WeaponImage->SetDesiredSizeOverride(FVector2D(260.f, 150.f));
+	if (bAmmoCounterBelowGunHUD == true) WeaponImage->SetDesiredSizeOverride(WeaponImageSizeWhenAmmoBelow);
+	else WeaponImage->SetDesiredSizeOverride(WeaponImageSizeWhenAmmoOnSide);
 	
 	WeaponImage->SetBrushFromTexture(Texture, true);
-}
-
-void UHUDWidget::SetGotDamage(bool bGot)
-{
-	bGotDamage = bGot;
-	if (bGotDamage)
-	{
-		GotDamageImage->SetRenderOpacity(1.f);
-		FadeGotDamageTimeElapsed = 0.f;
-	}
-	else GotDamageImage->SetRenderOpacity(0.f);
 }
 
 void UHUDWidget::HideWeaponUI(bool bShouldHide)
@@ -91,58 +66,19 @@ void UHUDWidget::HideWeaponUI(bool bShouldHide)
 	if (!bShouldHide) PlayAnimationForward(WeaponAppearAnim);
 	else PlayAnimationReverse(WeaponAppearAnim);
 }
+#pragma endregion
 
-void UHUDWidget::FadeGotDamageImage()
-{
-	if (!bGotDamage) return;
-
-	if (FadeGotDamageTimeElapsed <= FadeGotDamageTime)
-	{
-		float Opacity = FMath::Lerp(1.f, 0, FadeGotDamageTimeElapsed / FadeGotDamageTime);
-
-		GotDamageImage->SetRenderOpacity(Opacity);
-		FadeGotDamageTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
-	}
-	else
-	{
-		GotDamageImage->SetRenderOpacity(0.f);
-		bGotDamage = false;
-	}
-}
-
-void UHUDWidget::FadeFirstAidImage()
-{
-	if (bDidPlayerUseFirstAidKit == false) return;
-
-	if (FadeFirstAidImageTimeElapsed <= FadeFirstAidImageTime)
-	{
-		float Opacity = FMath::Lerp(1.f, 0, FadeFirstAidImageTimeElapsed / FadeFirstAidImageTime);
-
-		UseFirstAidKidImage->SetRenderOpacity(Opacity);
-		FadeFirstAidImageTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
-	}
-	else
-	{
-		FadeFirstAidImageTimeElapsed = 0.f;
-		UseFirstAidKidImage->SetRenderOpacity(0.f);
-		bDidPlayerUseFirstAidKit = false;
-	}
-}
-
-
+#pragma region ////////////// FILL PROGRESS BARS //////////////////
 void UHUDWidget::WhichElementShouldProgress()
 {
 	if (bShouldProgress == false) return;
 
-	ProgressBarForUseableElements(HealBar, EUseableElement::Heal, true);
-	ProgressBarForUseableElements(DashBar, EUseableElement::Dash, true);
-	ProgressBarForUseableElements(SlowMoBar, EUseableElement::SlowMo, true);
-	ProgressBarForUseableElements(Button_HealBar, EUseableElement::Button_Heal);
-	ProgressBarForUseableElements(Button_DashBar, EUseableElement::Button_Dash);
-	ProgressBarForUseableElements(Button_SlowMoBar, EUseableElement::Button_SlowMo);
+	ProgressBarForUseableElements(HealBar, EUseableElement::Heal, ActiveHealAnim);
+	ProgressBarForUseableElements(DashBar, EUseableElement::Dash, ActiveDashAnim);
+	ProgressBarForUseableElements(SlowMoBar, EUseableElement::SlowMo, ActiveSlowMotionAnim);
 }
 
-void UHUDWidget::ProgressBarForUseableElements(UProgressBar* ProgressBarElement, EUseableElement Element, bool bShouldAddSound)
+void UHUDWidget::ProgressBarForUseableElements(UProgressBar* ProgressBarElement, EUseableElement Element, UWidgetAnimation* AnimToPlayAfterFinish)
 {
 	if (!WhichElementToProgress.Contains(Element)) return;
 
@@ -156,7 +92,9 @@ void UHUDWidget::ProgressBarForUseableElements(UProgressBar* ProgressBarElement,
 	}
 	else
 	{
-		if (PowerUpLoadedSound && bShouldAddSound) UGameplayStatics::SpawnSound2D(GetWorld(), PowerUpLoadedSound);
+		if (PowerUpLoadedSound) UGameplayStatics::SpawnSound2D(GetWorld(), PowerUpLoadedSound);
+		PlayAnimationForward(AnimToPlayAfterFinish);
+
 		ProgressBarElement->SetPercent(0.f);
 		WhichElementToProgress.Remove(Element);
 		if (WhichElementToProgress.Num() <= 0) bShouldProgress = false;
@@ -168,28 +106,49 @@ void UHUDWidget::AddElementToProgress(EUseableElement Element, ElementBar Elemen
 	WhichElementToProgress.Add(Element, ElementProgressBar);
 	bShouldProgress = true;
 }
+#pragma endregion
 
+#pragma region ////////////// ANIMATIONS WIDGETS //////////////////
 void UHUDWidget::PlayAppearAnimForItemHover(bool bForwardAnim)
 {
-	if (ItemHoverAppearAnim == nullptr) return;
+	if (ItemHoverAppearAnim == nullptr || ItemHoverName->GetText().ToString() == "") return;
 
 	if (bForwardAnim) PlayAnimationForward(ItemHoverAppearAnim);
 	else PlayAnimationReverse(ItemHoverAppearAnim);
 }
 
-void UHUDWidget::SetItemHoverStuff(FItemStruct ItemStruct)
+void UHUDWidget::PlayUseFirstAidKitAnim()
+{
+	PlayAnimationForward(UseFirstAidKitAnim);
+}
+
+void UHUDWidget::PlayGotDamageAnim()
+{
+	PlayAnimationForward(GotDamageAnim);
+}
+
+void UHUDWidget::PlayButtonAnimation(EAnimationToPlay AnimToPlay)
+{
+	if (AnimToPlay == EATP_PressedButton_Heal)
+	{
+		PlayAnimationForward(PressedHealButtonAnim);
+	}
+	else if (AnimToPlay == EATP_PressedButton_Dash)
+	{
+		PlayAnimationForward(PressedDashButtonAnim);
+	}
+	else if (AnimToPlay == EATP_PressedButton_SlowMo)
+	{
+		PlayAnimationForward(PressedSlowMotionButtonAnim);
+	}
+}
+#pragma endregion
+
+void UHUDWidget::SetItemHoverInformations(const FString& ItemName, const FString& ItemDescription, UTexture2D* ItemIcon)
 {
 	PlayAppearAnimForItemHover();
 
-	ItemHoverName->SetText(FText::FromString(ItemStruct.Item_Name));
-	ItemHoverDescription->SetText(FText::FromString(ItemStruct.Item_Description));
-	ItemHoverImage->SetBrushFromTexture(ItemStruct.Item_StorageIcon);
-}
-
-void UHUDWidget::SetUpMarinePawn()
-{
-	MarinePawn = Cast<AMarineCharacter>(GetOwningPlayerPawn());
-
-	SetHealthPercent();
-	SetCurrentNumberOfFirstAidKits();
+	ItemHoverName->SetText(FText::FromString(ItemName));
+	ItemHoverDescription->SetText(FText::FromString(ItemDescription));
+	ItemHoverImage->SetBrushFromTexture(ItemIcon);
 }

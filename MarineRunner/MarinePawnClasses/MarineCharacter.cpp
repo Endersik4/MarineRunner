@@ -484,10 +484,14 @@ void AMarineCharacter::PlayFootstepsSound()
 
 void AMarineCharacter::UseFirstAidKit()
 {
-	if (bCanUseFirstAidKit == false || Health == 100.f) return;
+	if (bCanUseFirstAidKit == false || Health == 100.f)
+		return;
+
 	FirstAidKitItem = InventoryComponent->Inventory_Items.Find(FirstAidKits_Name);
-	if (FirstAidKitItem == nullptr) return;
-	if (FirstAidKitItem->Item_Amount <= 0) return;
+	if (FirstAidKitItem == nullptr) 
+		return;
+	if (FirstAidKitItem->Item_Amount <= 0) 
+		return;
 
 	FirstAidKitItem->Item_Amount--;
 	Health += FirstAidKitHealth;
@@ -495,13 +499,13 @@ void AMarineCharacter::UseFirstAidKit()
 
 	if (UseFirstAidKitSound) UGameplayStatics::SpawnSound2D(GetWorld(), UseFirstAidKitSound);
 
-	HudWidget->SetHealthPercent();
-	HudWidget->SetCurrentNumberOfFirstAidKits();
-	HudWidget->SetDidPlayerUseFirstAidKit(true);
+	HudWidget->SetHealthBarPercent(Health);
+	HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
+	HudWidget->PlayUseFirstAidKitAnim();
 
-	ElementBar ProgressHealBar{ DelayAfterUseFirstAidKit }, ProgressHealButtonBar{ 0.3f };
+	ElementBar ProgressHealBar{ DelayAfterUseFirstAidKit };
 	HudWidget->AddElementToProgress(EUseableElement::Heal, ProgressHealBar);
-	HudWidget->AddElementToProgress(EUseableElement::Button_Heal, ProgressHealButtonBar);
+	HudWidget->PlayButtonAnimation(EATP_PressedButton_Heal);
 
 	UpdateAlbertosInventory();
 
@@ -767,6 +771,9 @@ void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 
 void AMarineCharacter::LoadGame()
 {
+	HudWidget->SetHealthBarPercent(Health);
+	HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
+
 	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	FString SlotName = IsValid(GameInstance) == false ? "MySlot" : GameInstance->SlotSaveGameNameToLoad;
 	SlotName += "/" + SlotName;
@@ -790,8 +797,6 @@ void AMarineCharacter::LoadGame()
 	}
 
 	LoadGameInstance->LoadGame(this, GameInstance);
-	HudWidget->SetHealthPercent();
-	HudWidget->SetCurrentNumberOfFirstAidKits();
 }
 
 void AMarineCharacter::SpawnGameSavedNotificationWidget()
@@ -832,8 +837,8 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 		UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
 	}
 
-	HudWidget->SetHealthPercent();
-	HudWidget->SetGotDamage(true);
+	HudWidget->SetHealthBarPercent(Health);
+	HudWidget->PlayGotDamageAnim();
 }
 
 #pragma endregion 
@@ -879,7 +884,7 @@ void AMarineCharacter::RemoveDashWidget()
 void AMarineCharacter::UpdateHudWidget()
 {
 	if (Gun) Gun->UpdateWeaponDataInHud(true);
-	HudWidget->SetCurrentNumberOfFirstAidKits();
+	HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
 }
 #pragma endregion 
 

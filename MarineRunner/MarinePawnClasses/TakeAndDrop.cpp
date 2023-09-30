@@ -27,7 +27,6 @@ void UTakeAndDrop::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	
 }
 
 
@@ -36,80 +35,98 @@ void UTakeAndDrop::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	SetLocationOfItem();
-	CheckIfPlayerCanTake();
+	CheckIfWeaponIsInEquipPosition();
+	RaycastForHoverItems();
+}
+
+bool UTakeAndDrop::RaycastForHoverItems()
+{
+	if (IsValid(MarinePawn) == false)
+		return false;
+
+	FVector Start = MarinePawn->GetCamera()->GetComponentLocation();
+	FVector End = Start + (UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetRootComponent()->GetForwardVector() * TakeDistance);
+
+	FHitResult CurrentItemHit;
+	bool bWasHit = GetWorld()->SweepSingleByChannel(CurrentItemHit, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeBox(CollisionBoxSize));
+
+	HoverHitItem(bWasHit, CurrentItemHit);
+
+	if (bWasHit == false || bWeaponIsInEquipPosition == false)
+	{
+		return false;
+	}
+
+	return true;
 }
 
 void UTakeAndDrop::Take()
 {
-	if (CheckIfPlayerCanTake() == false) return;
-	if (HitResult.GetActor() == nullptr) return;
-
-	TakeInterface = Cast<ITakeInterface>(HitResult.GetActor());
-	if (TakeInterface)
+	if (RaycastForHoverItems() == false)
 	{
-		TakeInterface->TakeItem(MarinePawn, bIsItWeapon);
-		MarinePawn->GetHudWidget()->PlayAppearAnimForItemHover(false);
-		if (bIsItWeapon == false) TakeInterface = nullptr;
+		return;
 	}
+	if (IsValid(LastHitResult.GetActor()) == false)
+	{
+		return;
+	}
+
+	TakeInterface = Cast<ITakeInterface>(LastHitResult.GetActor());
+	if (TakeInterface == nullptr)
+		return;
+
+	TakeInterface->TakeItem(MarinePawn, bIsItWeapon);
+	MarinePawn->GetHudWidget()->PlayAppearAnimForItemHover(false);
+	if (bIsItWeapon == false) TakeInterface = nullptr;
 }
 
-bool UTakeAndDrop::CheckIfPlayerCanTake()
+void UTakeAndDrop::HoverHitItem(const bool& bWasHit, const FHitResult& CurrentItemHit)
 {
-	if (MarinePawn == nullptr) return false;
-
-	FVector Start = MarinePawn->GetCamera()->GetComponentLocation();
-	FVector End = Start + (UGameplayStatics::GetPlayerController(GetWorld(),0)->GetRootComponent()->GetForwardVector() * TakeDistance);
-	
-	FHitResult FirstHit;
-	bool bhasHit = GetWorld()->SweepSingleByChannel(FirstHit, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeBox(FVector(20, 20, 20)));
-
-	if (bhasHit == true)
+	if (bWasHit == true)
 	{
-		if (HitResult.GetActor())
-		{
-			ITakeInterface* HoverInterface = Cast<ITakeInterface>(HitResult.GetActor());
-			if (HoverInterface)
-			{
-				HoverInterface->ItemUnHover(MarinePawn->GetHudWidget());
-			}
-		}
-		HitResult = FirstHit;
-		ITakeInterface* HoverInterface = Cast<ITakeInterface>(HitResult.GetActor());
+		DisableLastHoveredItem();
+		LastHitResult = CurrentItemHit;
+
+		ITakeInterface* HoverInterface = Cast<ITakeInterface>(CurrentItemHit.GetActor());
 		if (HoverInterface)
 		{
 			HoverInterface->ItemHover(MarinePawn->GetHudWidget());
 		}
 	}
-	else if (HitResult.GetActor())
+	else if (IsValid(LastHitResult.GetActor()) == true)
 	{
-		ITakeInterface* HoverInterface = Cast<ITakeInterface>(HitResult.GetActor());
-		if (HoverInterface)
-		{
-			HoverInterface->ItemUnHover(MarinePawn->GetHudWidget());
-		}
-		HitResult = FirstHit;
+		DisableLastHoveredItem();
+		LastHitResult = CurrentItemHit;
 	}
-
-	if (bhasHit == false || bIsInterpEnded == false) return false;
-
-	return true;
 }
 
-void UTakeAndDrop::SetLocationOfItem()
+void UTakeAndDrop::DisableLastHoveredItem()
 {
-	if (!MarinePawn || !TakeInterface || bIsItWeapon == false) return;
+	if (IsValid(LastHitResult.GetActor()) == false) return;
 
-	bIsInterpEnded = TakeInterface->MoveItemToEquipPosition(SpeedOfComingGun * GetWorld()->GetDeltaSeconds());
+	ITakeInterface* HoverInterface = Cast<ITakeInterface>(LastHitResult.GetActor());
+	if (HoverInterface == nullptr)
+		return;
+	
+	HoverInterface->ItemUnHover(MarinePawn->GetHudWidget());
+}
+
+void UTakeAndDrop::CheckIfWeaponIsInEquipPosition()
+{
+	if (IsValid(MarinePawn) == false || !TakeInterface || bIsItWeapon == false) 
+		return;
+
+	bWeaponIsInEquipPosition = TakeInterface->MoveItemToEquipPosition(SpeedOfComingGun * GetWorld()->GetDeltaSeconds());
 }
 
 void UTakeAndDrop::DropItem()
 {
-	if (!MarinePawn || bIsInterpEnded == false) return;
-	TakeInterface = Cast<ITakeInterface>(MarinePawn->GetGun());
+	if (IsValid(MarinePawn) == false || bWeaponIsInEquipPosition == false) 
+		return;
 
-	if (TakeInterface)
-	{
-		TakeInterface = Cast<ITakeInterface>(TakeInterface->DropItem());
-	}
+	TakeInterface = Cast<ITakeInterface>(MarinePawn->GetGun());
+	if (TakeInterface == nullptr)
+		return;
+
+	TakeInterface = Cast<ITakeInterface>(TakeInterface->DropItem());
 }

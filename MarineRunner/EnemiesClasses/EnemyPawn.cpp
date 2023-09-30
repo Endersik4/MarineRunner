@@ -203,9 +203,11 @@ void AEnemyPawn::SpawnBullet()
 	FTransform BulletTransform = FTransform(BulletRotation, EnemySkeletalMesh->GetSocketLocation(TEXT("Bullet")));
 	ABullet* SpawnedBullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletData.BulletClass, BulletTransform);
 
-	BulletData.Damage = (bManyBulletAtOnce == false ? BulletData.Damage : BulletData.Damage / HowManyBulletsToSpawn);
+	FBulletStruct BulletDataForSpawnedBullet = BulletData;
+	BulletDataForSpawnedBullet.Damage = (bManyBulletAtOnce == false ? BulletData.Damage : BulletData.Damage / HowManyBulletsToSpawn);
+	BulletDataForSpawnedBullet.HitImpulseForce = (bManyBulletAtOnce == false ? BulletData.HitImpulseForce : BulletData.HitImpulseForce / HowManyBulletsToSpawn);
 
-	SpawnedBullet->SetBulletData(BulletData);
+	SpawnedBullet->SetBulletData(BulletDataForSpawnedBullet);
 	SpawnedBullet->FinishSpawning(BulletTransform);
 }
 

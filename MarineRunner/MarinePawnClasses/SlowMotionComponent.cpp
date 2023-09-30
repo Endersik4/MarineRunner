@@ -20,16 +20,15 @@ USlowMotionComponent::USlowMotionComponent()
 	// ...
 }
 
-
 // Called when the game starts
 void USlowMotionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	if (MarinePawn == nullptr) UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN SLOW MOTIOn COMPONENT!"));
+	if (IsValid(MarinePawn) == false) 
+		UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN SLOW MOTIOn COMPONENT!"));
 }
-
 
 // Called every frame
 void USlowMotionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -41,22 +40,26 @@ void USlowMotionComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void USlowMotionComponent::SlowMotionPressed()
 {
-	if (bIsInSlowMotion)
-	{
-		if (SlowMotionSoundSpawned) SlowMotionSoundSpawned->Stop();
-		if (CancelSlowMotionSound) UGameplayStatics::PlaySound2D(GetWorld(), CancelSlowMotionSound);
-		MarinePawn->RemoveDashWidget();
-
-		GetWorld()->GetTimerManager().ClearTimer(SlowMotionTimeHandle);
-		DisableSlowMotion();
-		
-	}
+	SuddentDisabledSlowMotion();
 
 	if (bCanSlowMotion == false) return;
 
 	SettingUpSlowMotion();
 
 	GetWorld()->GetTimerManager().SetTimer(SlowMotionTimeHandle, this, &USlowMotionComponent::DisableSlowMotion, SlowMotionValue * SlowMotionTime);
+}
+
+void USlowMotionComponent::SuddentDisabledSlowMotion()
+{
+	if (bIsInSlowMotion == false)
+		return;
+
+	if (IsValid(SlowMotionSoundSpawned)) SlowMotionSoundSpawned->Stop();
+	if (CancelSlowMotionSound) UGameplayStatics::PlaySound2D(GetWorld(), CancelSlowMotionSound);
+	MarinePawn->RemoveDashWidget();
+
+	GetWorld()->GetTimerManager().ClearTimer(SlowMotionTimeHandle);
+	DisableSlowMotion();
 }
 
 void USlowMotionComponent::SettingUpSlowMotion()
@@ -92,17 +95,19 @@ void USlowMotionComponent::SettingUpSlowMotion()
 
 	//DashWidget will be on player viewport for some time (SlowMotionTime)
 	MarinePawn->MakeDashWidget(true, SlowMotionTime-1.0f, false); 
-	ElementBar SlowMoElementBar{ SlowMotionDelay + 1.7f}, ButtonSlowMoElementBar{ 0.3f };
+	ElementBar SlowMoElementBar{ SlowMotionDelay + 1.7f };
 	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::SlowMo, SlowMoElementBar);
-	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Button_SlowMo, ButtonSlowMoElementBar);
+
+	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
 }
 
 void USlowMotionComponent::DisableSlowMotion()
 {
 	bIsInSlowMotion = false;
-	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 1.f, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
-	MarinePawn->CustomTimeDilation = 1.f;
+	const float NormalTimeSpeed = 1.f;
+	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), NormalTimeSpeed, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), NormalTimeSpeed);
+	MarinePawn->CustomTimeDilation = NormalTimeSpeed;
 
 	//Enable delay for SlowMotion
 	GetWorld()->GetTimerManager().SetTimer(SlowMotionDelayHandle, this, &USlowMotionComponent::DelayCompleted, SlowMotionDelay);

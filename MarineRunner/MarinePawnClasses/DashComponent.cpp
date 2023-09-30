@@ -43,27 +43,28 @@ void UDashComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 void UDashComponent::Dash()
 {
-	if (MarinePawn == nullptr) return;
-	if (bCanDash)
+	if (IsValid(MarinePawn) == false) 
+		return;
+
+	if (bCanDash == false) return;
+
+	if (!MarinePawn->GetIsOnRamp()) MarinePawn->SetMovementForce(DashForce*10);
+	else if(!MarinePawn->GetIsGoingUp())
 	{
-		if (!MarinePawn->GetIsOnRamp()) MarinePawn->SetMovementForce(DashForce*10);
-		else if(!MarinePawn->GetIsGoingUp())
-		{
-			FVector Impulse = (-MarinePawn->GetActorUpVector() + MarinePawn->GetActorForwardVector()) * DashForce * 300;
-			MarinePawn->CapsulePawn->AddImpulse(Impulse);
-		}
-		bCanDash = false;
-
-		if (DashSound) UGameplayStatics::SpawnSound2D(GetWorld(), DashSound);
-
-		MarinePawn->MakeDashWidget(true, DashWidgetTime);
-
-		ElementBar DashElementBar{ DashCoolDown }, ButtonDashElementBar{0.3f};
-		MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Dash, DashElementBar);
-		MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Button_Dash, ButtonDashElementBar);
-
-		MarinePawn->GetWorldTimerManager().SetTimer(DashLengthHandle, this, &UDashComponent::DashLengthTimer, DashLength, false);
+		FVector Impulse = (-MarinePawn->GetActorUpVector() + MarinePawn->GetActorForwardVector()) * DashForce * 300;
+		MarinePawn->CapsulePawn->AddImpulse(Impulse);
 	}
+	bCanDash = false;
+
+	if (DashSound) UGameplayStatics::SpawnSound2D(GetWorld(), DashSound);
+
+	MarinePawn->MakeDashWidget(true, DashWidgetTime);
+
+	ElementBar DashElementBar{ DashCoolDown };
+	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Dash, DashElementBar);
+	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_Dash);
+
+	MarinePawn->GetWorldTimerManager().SetTimer(DashLengthHandle, this, &UDashComponent::DashLengthTimer, DashLength, false);
 }
 
 void UDashComponent::DashLengthTimer()

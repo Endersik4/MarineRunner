@@ -53,6 +53,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
 		FItemStruct ItemSettings;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
+		float DissolveStartValue = 0.6f;
+	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
+		float DissolveEndValue = -0.4f;
+
 	//Dissolve Material
 	bool bShouldDissolve;
 	float DissolveTimeElapsed;

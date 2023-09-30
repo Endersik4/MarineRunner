@@ -17,6 +17,13 @@ enum EUseableElement
 	Button_SlowMo,
 };
 
+enum EAnimationToPlay
+{
+	EATP_PressedButton_Heal,
+	EATP_PressedButton_Dash,
+	EATP_PressedButton_SlowMo,
+};
+
 struct ElementBar
 {
 	float MaxToZeroTime;
@@ -34,62 +41,98 @@ class MARINERUNNER_API UHUDWidget : public UUserWidget
 protected:
 	virtual void NativeConstruct() override;
 
-	virtual void NativeOnInitialized() override; 
 	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override;
 
 public:
-	void SetHealthPercent();
-	void SetCurrentNumberOfFirstAidKits();
+	void SetHealthBarPercent(float CurrentHealth);
+	void SetCurrentNumberOfFirstAidKits(int32 CurrentAidKitsNumber);
+
 	//if bSetStoredAmmo == false then set ammo text in CurrentAmmoInMagazineText
 	//otherwise set ammo in StoredAmmoText
 	void SetAmmoText(int32 Ammo, bool bSetStoredAmmo = false);
 	void SetWeaponImage(UTexture2D* Texture, bool bAmmoCounterBelowGunHUD);
-	void SetGotDamage(bool bGot);
-	void SetDidPlayerUseFirstAidKit(bool bDid) { bDidPlayerUseFirstAidKit = bDid; }
+
+	void PlayGotDamageAnim();
+	void PlayUseFirstAidKitAnim();
+	void PlayButtonAnimation(EAnimationToPlay AnimToPlay);
+
 	void AddElementToProgress(EUseableElement Element, ElementBar ElementProgressBar);
 
 	void HideWeaponUI(bool bShouldHide);
 
+#pragma region ///////////// USE FIRST AID KIT UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* UseFirstAidKidImage;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* WeaponImage;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* UseFirstAidKitAnim = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UProgressBar* HealthBar;
+#pragma endregion
 
+#pragma region ///////////// HEAL UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UProgressBar* HealBar;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UProgressBar* DashBar;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UProgressBar* SlowMoBar;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UProgressBar* Button_HealBar;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UProgressBar* Button_DashBar;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UProgressBar* Button_SlowMoBar;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* CurrentNumbersOfFirstAidKit;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* KeyText_Heal;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock* CurrentNumbersOfFirstAidKit;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* PressedHealButtonAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* ActiveHealAnim = nullptr;
+#pragma endregion
+
+#pragma region ///////////// DASH UI /////////////
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UProgressBar* DashBar;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UProgressBar* Button_DashBar;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* KeyText_Dash;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* PressedDashButtonAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* ActiveDashAnim = nullptr;
+#pragma endregion
+
+#pragma region ///////////// SLOW MOTION UI /////////////
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UProgressBar* SlowMoBar;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UProgressBar* Button_SlowMoBar;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* KeyText_SlowMo;
 
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* PressedSlowMotionButtonAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* ActiveSlowMotionAnim = nullptr;
+#pragma endregion
+
+#pragma region ///////////// GOT DAMAGE UI /////////////
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UImage* GotDamageImage;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* GotDamageAnim = nullptr;
+#pragma endregion
+
+#pragma region ///////////// WEAPON UI /////////////
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UImage* WeaponImage;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* WeaponAppearAnim = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* CurrentAmmoInMagazineText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* StoredAmmoText;
+#pragma endregion
 
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* GotDamageImage;
-
-
+#pragma region ///////////// ITEM HOVER UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* ItemHoverBackgroundImage;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -98,16 +141,18 @@ public:
 		class UTextBlock* ItemHoverDescription;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* ItemHoverImage;
-
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* ItemHoverAppearAnim = nullptr;
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* WeaponAppearAnim = nullptr;
+#pragma endregion
 
 	// On Item Hover
 	void PlayAppearAnimForItemHover(bool bForwardAnim = true);
-	void SetItemHoverStuff(struct FItemStruct);
+	void SetItemHoverInformations(const FString& ItemName, const FString& ItemDescription, UTexture2D* ItemIcon);
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon UI")
+		FVector2D WeaponImageSizeWhenAmmoBelow = FVector2D(460.f, 260.f);
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon UI")
+		FVector2D WeaponImageSizeWhenAmmoOnSide = FVector2D(260.f, 150.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
 		float FadeGotDamageTime = 1.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
@@ -115,20 +160,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* PowerUpLoadedSound;
 
-	bool bGotDamage;
-	float FadeGotDamageTimeElapsed;
-	void FadeGotDamageImage();
-
-	bool bDidPlayerUseFirstAidKit;
-	float FadeFirstAidImageTimeElapsed;
-	void FadeFirstAidImage();
-
 	// Progress bars (health, slow mo...)
 	bool bShouldProgress;
 	TMap<EUseableElement, ElementBar> WhichElementToProgress;
 	void WhichElementShouldProgress();
-	void ProgressBarForUseableElements(class UProgressBar* ProgressBarElement, EUseableElement Element, bool bShouldAddSound = false);
-
-	void SetUpMarinePawn();
-	class AMarineCharacter* MarinePawn;
+	void ProgressBarForUseableElements(class UProgressBar* ProgressBarElement, EUseableElement Element, UWidgetAnimation* AnimToPlayAfterFinish);
 };
