@@ -406,6 +406,8 @@ void USettingsMenuListEntry::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay,
 
 void USettingsMenuListEntry::EnableEntry(bool bEnable)
 {
+	UE_LOG(LogTemp, Warning, TEXT("ENABLE ENTRY %s, NAME %s"), bEnable ? TEXT("TRUE") : TEXT("FALSE"), *ListEntryObject->GetFName().ToString());
+	
 	SubSettingData->bEntryWidgetEnabled = bEnable;
 
 	SubSettingNameText->SetIsEnabled(bEnable);
@@ -415,6 +417,9 @@ void USettingsMenuListEntry::EnableEntry(bool bEnable)
 
 	LeftArrowButton->SetIsEnabled(bEnable);
 	RightArrowButton->SetIsEnabled(bEnable);
+
+	if (SubSettingData->QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
+	else if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
 
 	SubSettingOnOffCheckBox->SetIsEnabled(bEnable);
 	SubSettingOnOffButton->SetIsEnabled(bEnable);

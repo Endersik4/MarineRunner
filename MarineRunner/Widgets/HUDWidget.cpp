@@ -148,7 +148,7 @@ void UHUDWidget::SetItemHoverInformations(const FString& ItemName, const FString
 {
 	PlayAppearAnimForItemHover();
 
-	ItemHoverName->SetText(FText::FromString(ItemName));
+	ItemHoverName->SetText(FText::FromString("-" + ItemName + "-"));
 	ItemHoverDescription->SetText(FText::FromString(ItemDescription));
 	ItemHoverImage->SetBrushFromTexture(ItemIcon);
 }

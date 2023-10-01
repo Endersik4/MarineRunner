@@ -27,9 +27,9 @@ void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	ListEntryObject = Cast<ULoadGameMenuEntryObject>(ListItemObject);
 
-	SaveNameText->SetText(FText::FromString(ListEntryObject->SavesMenuData.SaveName));
+	SaveNameText->SetText(FText::FromString("-" + ListEntryObject->SavesMenuData.SaveName + "-"));
 
-	FText Date = FText::FromString(SavedDateText + ListEntryObject->SavesMenuData.SaveDateTime);
+	FText Date = FText::FromString(SavedDateText + ListEntryObject->SavesMenuData.SaveDateTime + "-");
 	SaveDateText->SetText(Date);
 
 	ConvertTotalPlayTimeInSecondsToText();
@@ -77,7 +77,7 @@ void USaveGameMenuListEntry::ConvertTotalPlayTimeInSecondsToText()
 
 	FString MinutesString = RestMinutes < 10 ? "0" + FString::FromInt(RestMinutes) : FString::FromInt(RestMinutes);
 
-	FText TotalTime = FText::FromString(SavedTotalTimeText + FString::FromInt(Hours) + "H " + MinutesString + "MIN");
+	FText TotalTime = FText::FromString(SavedTotalTimeText + FString::FromInt(Hours) + "H " + MinutesString + "MIN" + "-");
 
 	TotalTimeText->SetText(TotalTime);
 }

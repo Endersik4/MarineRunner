@@ -54,9 +54,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
 		TSubclassOf<UUserWidget> ConfirmLoadingSaveWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
-		FString SavedDateText = "SAVED: ";
+		FString SavedDateText = "-SAVED: ";
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
-		FString SavedTotalTimeText = "TOTAL TIME: ";
+		FString SavedTotalTimeText = "-TOTAL TIME: ";
 
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
 
