@@ -23,15 +23,6 @@ AScope::AScope()
 	ZoomCamera->CaptureSource = ESceneCaptureSource::SCS_FinalToneCurveHDR;
 	//
 
-	//Setting the crosshair to be visible in zoom mode
-	Scope_Crosshair = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Scope_Crosshair"));
-	Scope_Crosshair->SetupAttachment(ZoomCamera);
-	Scope_Crosshair->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Scope_Crosshair->SetGenerateOverlapEvents(false);
-	Scope_Crosshair->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-	Scope_Crosshair->LightingChannels.bChannel1 = true;
-	//
-
 	//Scope_Mesh that have render material from SceneCaptureComponent 
 	Scope_Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Scope_Mesh"));
 	Scope_Mesh->SetupAttachment(RootComponent);
@@ -65,7 +56,7 @@ void AScope::BeginPlay()
 
 int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
 {
-	if (ZoomData.Num() < 1) return 0;
+	if (Scope_FOVValues.Num() < 1) return 0;
 
 	if (bShouldRestartScope == true)
 	{
@@ -73,7 +64,7 @@ int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
 		return 0;
 	}
 
-	if (WheelAxis > 0.1f && CurrentScope + 1 < ZoomData.Num())
+	if (WheelAxis > 0.1f && CurrentScope + 1 < Scope_FOVValues.Num())
 	{
 		ChangeScope(CurrentScope + 1);
 	}
@@ -90,12 +81,10 @@ int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
 
 void AScope::ChangeScope(int32 NextScopeIndex)
 {
-	if (ZoomData.Num() < 1) return;
+	if (Scope_FOVValues.Num() < 1) return;
 
 	CurrentScope = NextScopeIndex;
-	ZoomCamera->FOVAngle = ZoomData[NextScopeIndex].FOVValue;
-
-	Scope_Crosshair->SetRelativeScale3D(FVector(ZoomData[NextScopeIndex].ScopeCrosshairScale));
+	ZoomCamera->FOVAngle = Scope_FOVValues[NextScopeIndex];
 }
 
 void AScope::ActiveZoom(bool bShouldActive)

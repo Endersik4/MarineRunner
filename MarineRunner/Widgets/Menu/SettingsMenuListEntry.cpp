@@ -92,7 +92,6 @@ void USettingsMenuListEntry::DisplayProperUIElements()
 
 	SubSettingNameText->SetText(SubSettingData->SubSettingName);
 	SubSettingNameText->SetVisibility(ESlateVisibility::Visible);
-	SubSettingNameText->SetIsEnabled(true);
 
 	if (SubSettingData->SubSettingType == EST_Quality) SubSettingType_Quality();
 	else if (SubSettingData->SubSettingType == EST_KeyMapping) SubSettingType_KeyBinding();

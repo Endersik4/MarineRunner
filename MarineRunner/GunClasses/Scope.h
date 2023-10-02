@@ -6,28 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "Scope.generated.h"
 
-USTRUCT(BlueprintType)
-struct FZoomStruct {
-	GENERATED_USTRUCT_BODY();
-
-	UPROPERTY(EditAnywhere, Category = "Zoom")
-		float FOVValue;
-	UPROPERTY(EditAnywhere, Category = "Zoom")
-		float ScopeCrosshairScale;
-
-	FZoomStruct()
-	{
-		FOVValue = 0.f;
-		ScopeCrosshairScale = 0.f;
-	}
-
-	FZoomStruct(float NewFOVValue, float NewCrosshairScale)
-	{
-		FOVValue = NewFOVValue;
-		ScopeCrosshairScale = NewCrosshairScale;
-	}
-};
-
 // Scope for The Gun by changing FOV in another camera. 
 // Zoom can be changed by mouse wheel
 UCLASS()
@@ -57,8 +35,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* Scope_Mesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UStaticMeshComponent* Scope_Crosshair;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class URectLightComponent* RectLightForScope;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
@@ -70,8 +46,8 @@ private:
 		USoundBase* ZoomSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		TArray<FZoomStruct> ZoomData = {FZoomStruct(16.f, 0.053f), FZoomStruct(10.f, 0.034f), FZoomStruct(5.f, 0.017f), FZoomStruct(1.f, 0.0034f)};
-
+		TArray<float> Scope_FOVValues = { 16.f, 10.f, 5.f, 1.f };
+	
 	int32 CurrentScope = 0;
 	void ChangeScope(int32 CurrentScopeIndex);
 };

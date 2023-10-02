@@ -664,14 +664,14 @@ void AGun::UpdateWeaponDataInHud(bool bChangeStoredAmmoText, bool bChangeWeaponI
 #pragma region ////////////////////////////////// TAKE ////////////////////////////////////////
 void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 {
-	Super::TakeItem(MarineCharacter, bIsItWeapon);
-
 	bool bIsTooManyItems = MarineCharacter->GetWeaponInventoryComponent()->GetWeaponsStorageAmount() >= MarineCharacter->GetWeaponInventoryComponent()->GetMaxAmount();
 	if (bIsTooManyItems)
 	{
 		bIsItWeapon = false;
 		return;
 	}
+
+	Super::TakeItem(MarineCharacter, bIsItWeapon);
 
 	bEquipPositionMoveCompleted = false;
 	bIsItWeapon = true;
