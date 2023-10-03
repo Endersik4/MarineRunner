@@ -33,13 +33,13 @@ void ULoadGameMenuWidget::FillSavesListView()
 	{
 		FJsonSerializableArray DataFromFile;
 		FFileHelper::LoadFileToStringArray(DataFromFile, *CurrTxtFilePath);
-		if (DataFromFile.Num() < 4)
+		if (DataFromFile.Num() < 5)
 		{
 			UE_LOG(LogTemp, Error, TEXT("DATA FROM FILE NUM < 4"));
 			continue;
 		}
 
-		FSaveDataMenuStruct NewSaveDataMenu = FSaveDataMenuStruct(DataFromFile[0], DataFromFile[1], DataFromFile[2], DataFromFile[3], FCString::Atoi(*DataFromFile[4]));
+		FSaveDataMenuStruct NewSaveDataMenu = FSaveDataMenuStruct(DataFromFile[0], FCString::Atoi(*DataFromFile[1]), DataFromFile[2], DataFromFile[3], DataFromFile[4], FCString::Atoi(*DataFromFile[5]));
 
 		ULoadGameMenuEntryObject* ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(MenuSettingsDataObject);
 		if (IsValid(ConstructedItemObject) == false) continue;
@@ -48,6 +48,7 @@ void ULoadGameMenuWidget::FillSavesListView()
 
 		TArray<UObject*> ListItems = SavesListView->GetListItems();
 		ListItems.Insert(ConstructedItemObject, 0);
+		ListItems.Sort();
 		SavesListView->SetListItems(ListItems);
 	}
 }

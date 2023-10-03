@@ -19,4 +19,6 @@ class MARINERUNNER_API ULoadGameMenuEntryObject : public UObject
 public:
 	UPROPERTY(EditAnywhere)
 		FSaveDataMenuStruct SavesMenuData;
+
+	bool operator<(const ULoadGameMenuEntryObject&);
 };

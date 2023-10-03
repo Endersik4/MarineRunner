@@ -81,7 +81,7 @@ void USaveMarineRunner::MakeTxtFileWithSaveInfo(APlayerController* PlayerControl
 	const FString& SaveDateText = ConvertCurrentDateToText();
 
 	FString FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".txt";
-	FString FileContent = GetSaveGameName() + "\n" + PathToScreenshot + "\n" + SaveDateText + "\n" + CurrentLevelName + "\n" + FString::SanitizeFloat(TotalPlayTimeInSeconds);
+	FString FileContent = GetSaveGameName() + "\n" + FString::FromInt(SaveNumber) + "\n" + PathToScreenshot + "\n" + SaveDateText + "\n" + CurrentLevelName + "\n" + FString::SanitizeFloat(TotalPlayTimeInSeconds);
 	FFileHelper::SaveStringToFile(FileContent, *FilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get());
 }
 
@@ -100,7 +100,7 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 
 	if (IsValid(GameInstance) == false) return;
 
-	GameInstance->CurrentSaveNumber = SaveNumber;
+	GameInstance->SetSaveNumberAccordingToNumOfFiles();
 	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
 	GameInstance->TotalPlayTimeInSeconds = TotalPlayTimeInSeconds;
 }

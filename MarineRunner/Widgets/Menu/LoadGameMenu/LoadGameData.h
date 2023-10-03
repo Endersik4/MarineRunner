@@ -18,6 +18,8 @@ struct FSaveDataMenuStruct
 	UPROPERTY(EditDefaultsOnly)
 		FString SaveName;
 	UPROPERTY(EditDefaultsOnly)
+		int32 SaveNumber = 1;
+	UPROPERTY(EditDefaultsOnly)
 		FString ScreenshotPathSave;
 	UPROPERTY(EditDefaultsOnly)
 		FString SaveDateTime;
@@ -29,14 +31,16 @@ struct FSaveDataMenuStruct
 	FSaveDataMenuStruct()
 	{
 		SaveName = "";
+		SaveNumber = 1;
 		ScreenshotPathSave = "";
 		SaveDateTime = "";
 		TotalPlayTimeInSeconds = 0.f;
 	}
 
-	FSaveDataMenuStruct(FString NewName, FString NewScreenshotPath, FString NewSaveDate, FString NewLevelName, float NewTotalTimeInMinutes)
+	FSaveDataMenuStruct(FString NewName, int32 NewSaveNumber, FString NewScreenshotPath, FString NewSaveDate, FString NewLevelName, float NewTotalTimeInMinutes)
 	{
 		SaveName = NewName;
+		SaveNumber = NewSaveNumber;
 		ScreenshotPathSave = NewScreenshotPath;
 		SaveDateTime = NewSaveDate;
 		LevelNameToLoad = NewLevelName;
