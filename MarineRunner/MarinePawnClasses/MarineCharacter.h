@@ -103,6 +103,7 @@ public:
 
 	void CallSaveGame(AActor* JustSavedCheckpoint = nullptr) { SaveGame(JustSavedCheckpoint); }
 	bool CanPlayerSaveGame();
+	void SpawnCannotSavedWidget() { SpawnPassingWidget(CannotSavedNotificationWidgetClass); }
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -186,6 +187,8 @@ private:
 		TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UUserWidget> CannotSavedNotificationWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ADSInSound;
@@ -321,7 +324,7 @@ private:
 	class USaveMarineRunner* CurrentSaveGameInstance;
 	void SaveGame(AActor* JustSavedCheckpoint = nullptr);
 	void LoadGame();
-	void SpawnGameSavedNotificationWidget();
+	void SpawnPassingWidget(const TSubclassOf<class UUserWidget> & WidgetClassToSpawn);
 
 	//Widgets
 	void MakeHudWidget();

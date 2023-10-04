@@ -142,7 +142,7 @@ void UPauseMenuWidget::OnClickedSaveGameButton()
 
 	if (MarinePlayer->CanPlayerSaveGame() == false)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("PLAYER CANT SAVE GAME"));
+		MarinePlayer->SpawnCannotSavedWidget();
 		return;
 	}
 
@@ -199,7 +199,8 @@ void UPauseMenuWidget::RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSet
 	SettingsMenuWidget = nullptr;
 
 	bWasSettingsMenuWidgetSpawned = false;
-	if (bUnhoverTextSettings == true) OnUnhoveredSettingsButton();
+	if (bUnhoverTextSettings == true && SettingsButton->IsHovered() == false) 
+		OnUnhoveredSettingsButton();
 }
 
 void UPauseMenuWidget::OnHoveredSettingsButton()

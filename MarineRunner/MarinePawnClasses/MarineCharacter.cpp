@@ -766,7 +766,7 @@ void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 
 	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName() +"/"+ CurrentSaveGameInstance->GetSaveGameName(), 0);
 
-	SpawnGameSavedNotificationWidget();
+	SpawnPassingWidget(GameSavedNotificationWidgetClass);
 }
 
 void AMarineCharacter::LoadGame()
@@ -799,15 +799,15 @@ void AMarineCharacter::LoadGame()
 	LoadGameInstance->LoadGame(this, GameInstance);
 }
 
-void AMarineCharacter::SpawnGameSavedNotificationWidget()
+void AMarineCharacter::SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn)
 {
 	if (IsValid(MarinePlayerController) == false) return;
 
-	UGameSavedNotificationWidget* GameSavedNotificationWidget = Cast<UGameSavedNotificationWidget>(CreateWidget(MarinePlayerController, GameSavedNotificationWidgetClass));
-	if (IsValid(GameSavedNotificationWidget) == false)
+	UGameSavedNotificationWidget* SpawnedWidget = Cast<UGameSavedNotificationWidget>(CreateWidget(MarinePlayerController, WidgetClassToSpawn));
+	if (IsValid(SpawnedWidget) == false)
 		return;
 
-	GameSavedNotificationWidget->AddToViewport();
+	SpawnedWidget->AddToViewport();
 }
 
 bool AMarineCharacter::CanPlayerSaveGame()

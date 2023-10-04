@@ -9,7 +9,7 @@ UENUM(BlueprintType)
 enum ESettingsType
 {
 	EST_Quality, // Quality - player can choose quality from QualityTypes where Index mean quality (eg. 0 - low, 1 - medium...)
-	EST_KeyMapping, // KeyMapping - when player click on KeyMappingActionName then wait for player to press any button and assign new key to the bindings
+	EST_KeyMapping, // KeyMapping - when player click on KeyMappingName then wait for player to press any button and assign new key to the bindings
 	EST_OnOff, // OnOff - Turn On/Off (CheckBox)
 	EST_Category, // Category - SubSettingName will be in the center of the SettingsMenuListEntry with diffrent color, no action
 	EST_SliderValue // SlideValue - Slider with Max/Min Range  
@@ -57,7 +57,9 @@ struct FMenuSettings
 		int32 QualityCurrentValue = 3;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_KeyMapping", EditConditionHides))
-		FName KeyMappingActionName;
+		FName KeyMappingName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_KeyMapping", EditConditionHides))
+		int32 IndexOfKey = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_OnOff", EditConditionHides))
 		bool bSettingEnabled = false;

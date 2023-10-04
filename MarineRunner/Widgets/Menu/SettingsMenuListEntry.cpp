@@ -136,14 +136,18 @@ void USettingsMenuListEntry::SubSettingType_KeyBinding()
 
 void USettingsMenuListEntry::SetProperKeyOnKeyMapText()
 {
-	TArray<FInputActionKeyMapping> KeyActionMappings;
-	UInputSettings::GetInputSettings()->GetActionMappingByName(SubSettingData->KeyMappingActionName, KeyActionMappings);
 	FText KeyMap = FText::FromString("-empty-");
-	if (KeyActionMappings.Num() > 0)
+
+	if (UInputSettings::GetInputSettings()->DoesActionExist(FName(SubSettingData->KeyMappingName)))
 	{
-		KeyMap = FText::FromString("-" + UKismetInputLibrary::Key_GetDisplayName(KeyActionMappings.Last().Key).ToString() + "-");
+		KeyMap = FText::FromString(GetKeyActionName());
+	}
+	else if (UInputSettings::GetInputSettings()->DoesAxisExist(FName(SubSettingData->KeyMappingName)))
+	{
+		KeyMap = FText::FromString(GetKeyAxisName());
 	}
 
+	UInputSettings::GetInputSettings()->SaveKeyMappings();
 	SubSettingQualityText->SetText(KeyMap);
 }
 
@@ -341,7 +345,7 @@ void USettingsMenuListEntry::OnKeySelectedInputKeySelector(FInputChord SelectedK
 {
 	ReplaceKeyMap(SelectedKey);
 
-	FText KeyMap = FText::FromString("-" + UKismetInputLibrary::Key_GetDisplayName(SelectedKey.Key).ToString() + "-");
+	FText KeyMap = FText::FromString("-" + UKismetInputLibrary::Key_GetDisplayName(SelectedKey.Key, false).ToString() + "-");
 	SubSettingQualityText->SetText(KeyMap);
 
 	bIsWaitingForNewKey = false;
@@ -349,15 +353,23 @@ void USettingsMenuListEntry::OnKeySelectedInputKeySelector(FInputChord SelectedK
 
 void USettingsMenuListEntry::ReplaceKeyMap(const FInputChord & KeyToReplaceFor)
 {
-	TArray<FInputActionKeyMapping> KeyActionMappings;
-	UInputSettings::GetInputSettings()->GetActionMappingByName(SubSettingData->KeyMappingActionName, KeyActionMappings);
-	for (int i = 0; i != KeyActionMappings.Num(); i++)
+	if (UInputSettings::GetInputSettings()->DoesActionExist(FName(SubSettingData->KeyMappingName)))
 	{
-		UInputSettings::GetInputSettings()->RemoveActionMapping(KeyActionMappings[0]);
-	}
+		UInputSettings::GetInputSettings()->RemoveActionMapping(CurrentMappedActionKey);
 
-	FInputActionKeyMapping NewActionKeyMapping = FInputActionKeyMapping(SubSettingData->KeyMappingActionName, KeyToReplaceFor.Key, KeyToReplaceFor.bShift, KeyToReplaceFor.bCtrl, KeyToReplaceFor.bAlt, KeyToReplaceFor.bCmd);
-	UInputSettings::GetInputSettings()->AddActionMapping(NewActionKeyMapping, true);
+		FInputActionKeyMapping NewActionKeyMapping = FInputActionKeyMapping(SubSettingData->KeyMappingName, KeyToReplaceFor.Key, KeyToReplaceFor.bShift, KeyToReplaceFor.bCtrl, KeyToReplaceFor.bAlt, KeyToReplaceFor.bCmd);
+		UInputSettings::GetInputSettings()->AddActionMapping(NewActionKeyMapping, true);
+		CurrentMappedActionKey = NewActionKeyMapping;
+	}
+	else if (UInputSettings::GetInputSettings()->DoesAxisExist(FName(SubSettingData->KeyMappingName)))
+	{
+		UInputSettings::GetInputSettings()->RemoveAxisMapping(CurrentMappedAxisKey);
+
+		FInputAxisKeyMapping NewAxisKeyMapping = FInputAxisKeyMapping(SubSettingData->KeyMappingName, KeyToReplaceFor.Key, CurrentMappedAxisKey.Scale);
+		UInputSettings::GetInputSettings()->AddAxisMapping(NewAxisKeyMapping, true);
+		CurrentMappedAxisKey = NewAxisKeyMapping;
+	}
+	UInputSettings::GetInputSettings()->SaveKeyMappings();
 }
 
 void USettingsMenuListEntry::OnHoveredKeyMappingButton()
@@ -372,6 +384,31 @@ void USettingsMenuListEntry::OnUnhoveredKeyMappingButton()
 
 	PlayAnimatonForButton(KeyMappingHoverAnim, false);
 }
+
+FString USettingsMenuListEntry::GetKeyActionName()
+{
+	TArray<FInputActionKeyMapping> KeyActionMappings;
+	UInputSettings::GetInputSettings()->GetActionMappingByName(SubSettingData->KeyMappingName, KeyActionMappings);
+	if (KeyActionMappings.Num() <= SubSettingData->IndexOfKey) 
+		return "";
+
+	CurrentMappedActionKey = KeyActionMappings[SubSettingData->IndexOfKey];
+	FString CurrentMappedKeyName = "-" + UKismetInputLibrary::Key_GetDisplayName(KeyActionMappings[SubSettingData->IndexOfKey].Key, false).ToString() + "-";
+	return CurrentMappedKeyName;
+}
+
+FString USettingsMenuListEntry::GetKeyAxisName()
+{
+	TArray<FInputAxisKeyMapping> KeyAxisMappings;
+	UInputSettings::GetInputSettings()->GetAxisMappingByName(SubSettingData->KeyMappingName, KeyAxisMappings);
+	if (KeyAxisMappings.Num() <= SubSettingData->IndexOfKey)
+		return "";
+
+	CurrentMappedAxisKey = KeyAxisMappings[SubSettingData->IndexOfKey];
+	FString CurrentMappedKeyName = "-" + UKismetInputLibrary::Key_GetDisplayName(KeyAxisMappings[SubSettingData->IndexOfKey].Key, false).ToString() + "-";
+	return CurrentMappedKeyName;
+}
+
 #pragma endregion
 
 void USettingsMenuListEntry::AddValueToFunctionName(float Value)

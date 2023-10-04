@@ -124,6 +124,10 @@ private:
 	FMenuSettings* SubSettingData;
 
 	// Key Mapping
+	FInputActionKeyMapping CurrentMappedActionKey;
+	FInputAxisKeyMapping CurrentMappedAxisKey;
+	FString GetKeyActionName();
+	FString GetKeyAxisName();
 	bool bIsWaitingForNewKey = false;
 	FText PreviousKeyText;
 

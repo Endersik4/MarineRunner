@@ -25,6 +25,7 @@ void ULoadGameMenuWidget::FillSavesListView()
 
 	TArray<FString> Txt_Files;
 	GetTextFilesFromSaves(Txt_Files);
+	Txt_Files.Sort();
 
 	if (Txt_Files.Num() > 0)
 		NoSavedDataText->SetVisibility(ESlateVisibility::Hidden);
@@ -35,7 +36,7 @@ void ULoadGameMenuWidget::FillSavesListView()
 		FFileHelper::LoadFileToStringArray(DataFromFile, *CurrTxtFilePath);
 		if (DataFromFile.Num() < 5)
 		{
-			UE_LOG(LogTemp, Error, TEXT("DATA FROM FILE NUM < 4"));
+			UE_LOG(LogTemp, Error, TEXT("DATA FROM FILE NUM < 5"));
 			continue;
 		}
 
@@ -48,7 +49,6 @@ void ULoadGameMenuWidget::FillSavesListView()
 
 		TArray<UObject*> ListItems = SavesListView->GetListItems();
 		ListItems.Insert(ConstructedItemObject, 0);
-		ListItems.Sort();
 		SavesListView->SetListItems(ListItems);
 	}
 }
