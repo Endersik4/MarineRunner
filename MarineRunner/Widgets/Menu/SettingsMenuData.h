@@ -24,6 +24,15 @@ enum ESettingApplyType
 	ESAT_None
 };
 
+UENUM(BlueprintType)
+enum EMouseSensType
+{
+	EMST_Normal,
+	EMST_2xScope,
+	EMST_4xScope,
+	EMST_8xScope,
+	EMST_16xScope
+};
 
 // The FMenuSettings structure defines various types of game menu settings, such as texture quality, key mapping, volume, etc.
 // Each setting has different parameters, such as name, application method, and type-specific values.
@@ -80,6 +89,9 @@ struct FMenuSettings
 	// Defines the range of values for the slider
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_SliderValue", EditConditionHides))
 		FFloatRange RangeOfSlider = FFloatRange(0.f, 100.f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SettingApplyType == ESettingApplyType::ESAT_MouseSens", EditConditionHides))
+		TEnumAsByte<EMouseSensType> MouseSensitivityType = EMST_Normal;
 
 	// Is a flag that determines if the entry widget is enabled
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings")

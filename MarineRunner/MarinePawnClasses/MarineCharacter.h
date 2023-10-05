@@ -77,6 +77,12 @@ public:
 	class AGun* GetGun() const { return Gun; }
 	class UPauseMenuWidget* GetPauseMenuWidget() const { return PauseMenuWidget; }
 
+	float GetMouseSensitivity() const { return MouseSensitivity; }
+	float GetMouseSensitivityWhenScope(int32 Index) const { return MouseSensitivityWhenScope[Index]; }
+	void SetMouseSensitivity(float NewSens) { MouseSensitivity = NewSens; ChangeMouseSensitivity(MouseSensitivity); }
+	void SetMouseSensitivityWhenScope(float NewSens, int32 Index) { MouseSensitivityWhenScope[Index] = NewSens; }
+
+
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
 	void SetGun(class AGun* NewGun) { Gun = NewGun; }
 	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
@@ -264,8 +270,8 @@ private:
 	bool bIsCroaching;
 	bool bSlideOnRamp;
 	bool bIsGoingUp;
-	void CroachPressed();
-	void CroachReleased();
+	void CrouchPressed();
+	void CrouchReleased();
 
 	//Taking Items
 	void KeyEPressed();

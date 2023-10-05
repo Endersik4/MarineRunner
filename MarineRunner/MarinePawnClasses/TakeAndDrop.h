@@ -45,6 +45,7 @@ private:
 	void CheckIfWeaponIsInEquipPosition();
 		
 	FHitResult LastHitResult;
+	bool WhetherRaycastOnTheSameItem(const FHitResult& CurrentItemHit);
 	void HoverHitItem(const bool& bWasHit, const FHitResult& ItemHit);
 	void DisableLastHoveredItem();
 };

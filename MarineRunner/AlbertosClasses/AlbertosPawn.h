@@ -122,6 +122,9 @@ private:
 
 	float CopyOfMaxSpeed;
 
+	// On Hovered Albertos
+	bool bIsHovered = false;
+
 	// When Players is near Albertos
 	bool bPlayerWasClose;
 	bool bCanRotateAlbertos;

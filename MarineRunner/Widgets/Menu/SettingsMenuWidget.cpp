@@ -12,6 +12,7 @@
 #include "MarineRunner/Widgets/Menu/SettingsMenuEntryObject.h"
 #include "MarineRunner/Widgets/Menu/SettingsMenuListEntry.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
+#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
 void USettingsMenuWidget::NativeConstruct()
 {
@@ -77,7 +78,9 @@ void USettingsMenuWidget::FillCurrentMenuSettingsListView(const TArray<FMenuSett
 	{
 		USettingsMenuEntryObject* ConstructedItemObject = NewObject<USettingsMenuEntryObject>(MenuSettingsDataObject);
 		if (IsValid(ConstructedItemObject) == false) continue;
+		ConstructedItemObject->PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 		ConstructedItemObject->MenuSettingsData = CurrentSetting;
+		ConstructedItemObject->SetVariablesToCurrent();
 
 		ObjectThatConnectOtherSettings = ConnectedSettings(ConstructedItemObject, ObjectThatConnectOtherSettings);
 		
@@ -235,7 +238,19 @@ void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingDat
 
 	if (SubSettingData.SettingApplyType == ESAT_MouseSens && IsValid(MarinePlayerController))
 	{
-		MarinePlayerController->SetMouseSensitivity(SubSettingData.SliderCurrentValue);
+		AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(MarinePlayerController->GetPawn());
+
+		if (IsValid(MarinePawn) == false)
+			return;
+
+		if (SubSettingData.MouseSensitivityType == EMST_Normal)
+		{
+			MarinePawn->SetMouseSensitivity(SubSettingData.SliderCurrentValue);
+		}
+		else
+		{
+			MarinePawn->SetMouseSensitivityWhenScope(SubSettingData.SliderCurrentValue, GetScopeIndex(SubSettingData.MouseSensitivityType));
+		}
 		return;
 	}
 
@@ -246,6 +261,24 @@ void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingDat
 
 		return;
 	}
+}
+
+int32 USettingsMenuWidget::GetScopeIndex(EMouseSensType MouseSensType)
+{
+	if (MouseSensType == EMST_16xScope)
+	{
+		return 3;
+	}
+	else if (MouseSensType == EMST_8xScope)
+	{
+		return 2;
+	}
+	else if (MouseSensType == EMST_4xScope)
+	{
+		return 1;
+	}
+
+	return 0;
 }
 
 void USettingsMenuWidget::OnHoveredAcceptSettingsButton()

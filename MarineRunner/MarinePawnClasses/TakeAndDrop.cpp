@@ -80,10 +80,22 @@ void UTakeAndDrop::Take()
 	if (bIsItWeapon == false) TakeInterface = nullptr;
 }
 
+bool UTakeAndDrop::WhetherRaycastOnTheSameItem(const FHitResult& CurrentItemHit)
+{
+	if (IsValid(LastHitResult.GetActor()))
+	{
+		if (LastHitResult.GetActor() == CurrentItemHit.GetActor()) return false;
+	}
+
+	return true;
+}
+
 void UTakeAndDrop::HoverHitItem(const bool& bWasHit, const FHitResult& CurrentItemHit)
 {
 	if (bWasHit == true)
 	{
+		if (WhetherRaycastOnTheSameItem(CurrentItemHit) == false) return;
+
 		DisableLastHoveredItem();
 		LastHitResult = CurrentItemHit;
 

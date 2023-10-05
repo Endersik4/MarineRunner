@@ -159,5 +159,7 @@ private:
 	void FillMenuButtonsAndTextMap();
 	TMap<UButton*, UTextBlock*> MenuButtonsAndText;
 
+	int32 GetScopeIndex(enum EMouseSensType);
+
 	class AMarinePlayerController* MarinePlayerController;
 };

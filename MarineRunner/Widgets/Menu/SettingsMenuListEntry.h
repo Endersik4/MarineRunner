@@ -141,7 +141,6 @@ private:
 
 	// Slider
 	void SetSubSettingSliderValueText(float Value);
-	float GetCurrentMouseSensitivity();
 
 	void DisplayProperUIElements();
 

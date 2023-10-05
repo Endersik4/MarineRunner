@@ -27,10 +27,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
 		FString FunctionNameToApply;
 
-private:
 	void SetVariablesToCurrent();
+	APawn* PlayerPawn;
+private:
 	void QualityValue();
 	void SliderValue();
 	void CheckBoxValue();
 
+	float GetMouseSensitivityFromMenuSettingsData();
 };

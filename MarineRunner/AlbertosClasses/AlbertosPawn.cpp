@@ -157,18 +157,19 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 
 void AAlbertosPawn::ItemHover(UHUDWidget* MarineHUDWidget)
 {
-	if (OnAlbertosHoverMaterial == nullptr) return;
+	if (OnAlbertosHoverMaterial == nullptr || bIsHovered == true) return;
 
 	AlbertosSkeletalMesh->SetMaterial(3, OnAlbertosHoverMaterial);
 	if (HoverSound) UGameplayStatics::SpawnSoundAttached(HoverSound, AlbertosSkeletalMesh, FName(TEXT("Root")));
+	bIsHovered = true;
 }
 
 void AAlbertosPawn::ItemUnHover(UHUDWidget* MarineHUDWidget)
 {
-	if (OnAlbertosUnHoverMaterial == nullptr) return;
+	if (OnAlbertosUnHoverMaterial == nullptr || bIsHovered == false) return;
 
 	AlbertosSkeletalMesh->SetMaterial(3, OnAlbertosUnHoverMaterial);
-	if (HoverSound) UGameplayStatics::SpawnSoundAttached(HoverSound, AlbertosSkeletalMesh, FName(TEXT("Root")));
+	bIsHovered = false;
 }
 
 void AAlbertosPawn::ToggleVisibilityInventory(bool bCheckIfHidden)

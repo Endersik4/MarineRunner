@@ -112,8 +112,8 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	//Gun
-	PlayerInputComponent->BindAction(TEXT("Action"), IE_Pressed, this, &AMarineCharacter::Shoot);
-	PlayerInputComponent->BindAction(TEXT("Action"), IE_Released, this, &AMarineCharacter::ReleasedShoot);
+	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Pressed, this, &AMarineCharacter::Shoot);
+	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Released, this, &AMarineCharacter::ReleasedShoot);
 	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, this, &AMarineCharacter::Reload);
 
 	PlayerInputComponent->BindAxis(TEXT("Zoom"), this, &AMarineCharacter::Zoom);
@@ -135,8 +135,8 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	//Movement
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AMarineCharacter::Jump);
-	PlayerInputComponent->BindAction(TEXT("Croach"), IE_Pressed, this, &AMarineCharacter::CroachPressed);
-	PlayerInputComponent->BindAction(TEXT("Croach"), IE_Released, this, &AMarineCharacter::CroachReleased);
+	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &AMarineCharacter::CrouchPressed);
+	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &AMarineCharacter::CrouchReleased);
 
 	//Gameplay components
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, this, &AMarineCharacter::Dash);
@@ -661,17 +661,17 @@ void AMarineCharacter::SwingInterp()
 #pragma endregion 
 
 #pragma region /////////////////////////////// CROACHING ///////////////////////////////
-void AMarineCharacter::CroachPressed()
+void AMarineCharacter::CrouchPressed()
 {
 	if (bCanSwingLerp || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion()) return;
 
 	bIsCroaching = true;
-	CroachAndSlideComponent->CroachPressed();
+	CroachAndSlideComponent->CrouchPressed();
 }
 
-void AMarineCharacter::CroachReleased()
+void AMarineCharacter::CrouchReleased()
 {
-	CroachAndSlideComponent->CroachReleased();
+	CroachAndSlideComponent->CrouchReleased();
 }
 #pragma endregion 
 
@@ -812,7 +812,7 @@ void AMarineCharacter::SpawnPassingWidget(const TSubclassOf<class UUserWidget>& 
 
 bool AMarineCharacter::CanPlayerSaveGame()
 {
-	return bIsInAir ? false : true;
+	return bIsInAir || bIsPlayerADS ? false : true;
 }
 
 #pragma endregion 
@@ -920,7 +920,7 @@ void AMarineCharacter::CallAlbertosPressed()
 void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings)
 {
 	bIsJumping = false;
-	CroachReleased();
+	CrouchReleased();
 
 	if (!bShouldCancelGameplayThings) return;
 

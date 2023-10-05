@@ -157,11 +157,6 @@ void USettingsMenuListEntry::SubSettingType_SliderValue()
 	SliderButton->SetVisibility(ESlateVisibility::Visible);
 	SubSettingSliderValueText->SetVisibility(ESlateVisibility::Visible);
 
-	if (SubSettingData->SettingApplyType == ESAT_MouseSens)
-	{
-		SubSettingData->SliderCurrentValue = GetCurrentMouseSensitivity();
-	}
-
 	SubSettingSlider->SetMaxValue(SubSettingData->RangeOfSlider.GetUpperBoundValue());
 	SubSettingSlider->SetMinValue(SubSettingData->RangeOfSlider.GetLowerBoundValue());
 	SubSettingSlider->SetValue(SubSettingData->SliderCurrentValue);
@@ -169,15 +164,6 @@ void USettingsMenuListEntry::SubSettingType_SliderValue()
 	SetSubSettingSliderValueText(SubSettingData->SliderCurrentValue);
 
 	AddValueToFunctionName(SubSettingData->SliderCurrentValue);
-}
-
-float USettingsMenuListEntry::GetCurrentMouseSensitivity()
-{
-	AMarinePlayerController* PC = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-
-	if (IsValid(PC))
-		return PC->GetMouseSensitivity();
-	else return SubSettingData->SliderCurrentValue;
 }
 
 void USettingsMenuListEntry::SubSettingType_OnOff()
@@ -442,8 +428,6 @@ void USettingsMenuListEntry::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay,
 
 void USettingsMenuListEntry::EnableEntry(bool bEnable)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ENABLE ENTRY %s, NAME %s"), bEnable ? TEXT("TRUE") : TEXT("FALSE"), *ListEntryObject->GetFName().ToString());
-	
 	SubSettingData->bEntryWidgetEnabled = bEnable;
 
 	SubSettingNameText->SetIsEnabled(bEnable);

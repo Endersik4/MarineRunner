@@ -25,8 +25,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void CroachPressed();
-	void CroachReleased();
+	void CrouchPressed();
+	void CrouchReleased();
 
 	float GetCroachWalkingSpeed() const { return CroachForceSpeed; }
 	bool GetIsSliding() const { return bShouldSlide; }

@@ -39,7 +39,7 @@ void UCroachAndSlide::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 
 	if (bShouldStillCroach == true)
 	{
-		CroachReleased();
+		CrouchReleased();
 	}
 	CroachLerp();
 	Sliding();
@@ -80,7 +80,7 @@ void UCroachAndSlide::Sliding()
 	MarinePawn->SetMovementForce(MovementForce);
 }
 
-void UCroachAndSlide::CroachPressed()
+void UCroachAndSlide::CrouchPressed()
 {
 	if (bShouldStillCroach) return;
 
@@ -119,7 +119,7 @@ void UCroachAndSlide::CroachLerp()
 	}
 }
 
-void UCroachAndSlide::CroachReleased()
+void UCroachAndSlide::CrouchReleased()
 {
 	//Check if Pawn can stand
 	if (SweepBox(GetOwner()->GetActorUpVector(), 100.f))
