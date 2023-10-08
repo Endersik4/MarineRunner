@@ -2,7 +2,6 @@
 
 ## MarineRunner = Ghostrunner + Cyberpunk 2077 My biggest and most ambitious project. <br/>
 
-Tekst tłumaczenia
 In this game I wanted to create movement like in Ghostrunner and shooting mechanics like in Cyberpunk 2077.<br/>
 
 But after some time I added my own stuff and I plan to make a fps with emotional campign (similar to titanfall) with one tough boss.<br/>
