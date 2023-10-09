@@ -762,7 +762,7 @@ void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 	CurrentSaveGameInstance->SavedPlayerLocation = GetActorLocation();
 	CurrentSaveGameInstance->SavedPlayerRotation = GetActorRotation();
 
-	CurrentSaveGameInstance->MakeTxtFileWithSaveInfo(MarinePlayerController, UGameplayStatics::GetCurrentLevelName(GetWorld()));
+	CurrentSaveGameInstance->MakeJsonFileWithSaveInfo(MarinePlayerController, UGameplayStatics::GetCurrentLevelName(GetWorld()));
 
 	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName() +"/"+ CurrentSaveGameInstance->GetSaveGameName(), 0);
 

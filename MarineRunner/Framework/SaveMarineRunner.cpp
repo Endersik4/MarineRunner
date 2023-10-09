@@ -8,6 +8,7 @@
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
+#include "MarineRunner/SaveGame/SaveGameJsonFile.h"
 
 USaveMarineRunner::USaveMarineRunner()
 {
@@ -75,14 +76,22 @@ FString USaveMarineRunner::ConvertCurrentDateToText()
 	return SaveDateText;
 }
 
-void USaveMarineRunner::MakeTxtFileWithSaveInfo(APlayerController* PlayerController, const FString& CurrentLevelName)
+void USaveMarineRunner::MakeJsonFileWithSaveInfo(APlayerController* PlayerController, const FString& CurrentLevelName)
 {
 	const FString& PathToScreenshot = TakeSaveScreenshot(PlayerController);
 	const FString& SaveDateText = ConvertCurrentDateToText();
 
-	FString FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".txt";
-	FString FileContent = GetSaveGameName() + "\n" + FString::FromInt(SaveNumber) + "\n" + PathToScreenshot + "\n" + SaveDateText + "\n" + CurrentLevelName + "\n" + FString::SanitizeFloat(TotalPlayTimeInSeconds);
-	FFileHelper::SaveStringToFile(FileContent, *FilePath, FFileHelper::EEncodingOptions::AutoDetect, &IFileManager::Get());
+	FString FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".json";
+
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+	JsonObject->SetStringField("SavedDataName", GetSaveGameName());
+	JsonObject->SetNumberField("SavedDataNumber", SaveNumber);
+	JsonObject->SetStringField("PathToThumbnail", PathToScreenshot);
+	JsonObject->SetStringField("SavedGameDate", ConvertCurrentDateToText());
+	JsonObject->SetStringField("SavedLevelName", CurrentLevelName);
+	JsonObject->SetNumberField("TotalPlayTime", TotalPlayTimeInSeconds);
+
+	USaveGameJsonFile::WriteJson(JsonObject, FilePath);
 }
 
 #pragma endregion

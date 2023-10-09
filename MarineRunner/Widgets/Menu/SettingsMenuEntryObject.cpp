@@ -5,7 +5,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/SaveGame/SaveGameJsonFile.h"
+
 
 USettingsMenuEntryObject::USettingsMenuEntryObject()
 {
@@ -14,6 +15,14 @@ USettingsMenuEntryObject::USettingsMenuEntryObject()
 void USettingsMenuEntryObject::SetVariablesToCurrent()
 {
 	MenuSettingsData.bEntryWidgetEnabled = true;
+
+	if (MenuSettingsData.bSaveValueToConfig == true)
+	{
+		FString ConfigPath = FPaths::GeneratedConfigDir();
+		ConfigPath += "MarineRunner/Config/Settings.json";
+		bWasJsonDeserialized = USaveGameJsonFile::ReadJson(ConfigPath, SavedDataJsonFile);
+	}
+
 	QualityValue();
 	SliderValue();
 	CheckBoxValue();
@@ -21,58 +30,87 @@ void USettingsMenuEntryObject::SetVariablesToCurrent()
 
 void USettingsMenuEntryObject::QualityValue()
 {
-	if (MenuSettingsData.SubSettingType != EST_Quality || MenuSettingsData.SettingApplyType != ESAT_FunctionInCMD) return;
+	if (MenuSettingsData.SubSettingType != EST_Quality) 
+		return;
+
+	if (WasValueLoadedFromJsonFile(MenuSettingsData.QualityCurrentValue))
+		return;
+
+	if (MenuSettingsData.SettingApplyType != ESAT_FunctionInCMD)
+		return;
 
 	MenuSettingsData.QualityCurrentValue = UKismetSystemLibrary::GetConsoleVariableIntValue(MenuSettingsData.SubSettingFunctionName);
 }
 void USettingsMenuEntryObject::SliderValue()
 {
-	if (MenuSettingsData.SubSettingType != EST_SliderValue) return;
-
-	if (MenuSettingsData.SettingApplyType == ESAT_MouseSens)
-	{
-		MenuSettingsData.SliderCurrentValue = GetMouseSensitivityFromMenuSettingsData();
-
+	if (MenuSettingsData.SubSettingType != EST_SliderValue) 
 		return;
-	}
 
-	if (MenuSettingsData.SettingApplyType != ESAT_FunctionInCMD) return;
+	if (WasValueLoadedFromJsonFile(MenuSettingsData.SliderCurrentValue))
+		return;
+
+	if (MenuSettingsData.SettingApplyType != ESAT_FunctionInCMD) 
+		return;
 
 	MenuSettingsData.SliderCurrentValue = UKismetSystemLibrary::GetConsoleVariableIntValue(MenuSettingsData.SubSettingFunctionName);
 }
 void USettingsMenuEntryObject::CheckBoxValue() 
 {
-	if (MenuSettingsData.SubSettingType != EST_OnOff || MenuSettingsData.SettingApplyType != ESAT_FunctionInCMD) return;
+	if (MenuSettingsData.SubSettingType != EST_OnOff) 
+		return;
+
+	if (WasValueLoadedFromJsonFile(MenuSettingsData.bSettingEnabled))
+		return;
+
+	if (MenuSettingsData.SettingApplyType != ESAT_FunctionInCMD)
+		return;
 
 	// sometimes value from ConsoleVariable can be -1 so this line prevent form wrong boolean value;
 	MenuSettingsData.bSettingEnabled = UKismetSystemLibrary::GetConsoleVariableIntValue(MenuSettingsData.SubSettingFunctionName) <= 0 ? false : true;
 }
 
-float USettingsMenuEntryObject::GetMouseSensitivityFromMenuSettingsData()
+bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(float& Value)
 {
-	AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(PlayerPawn);
+	if (MenuSettingsData.bSaveValueToConfig == true)
+	{
+		if (bWasJsonDeserialized && SavedDataJsonFile->TryGetField(MenuSettingsData.SavedValueName))
+		{		
+			Value = SavedDataJsonFile->GetNumberField(MenuSettingsData.SavedValueName);
+		}
 
-	if (IsValid(MarinePawn) == false)
-		return 0.7f;
+		return true;
+	}
 
-	if (MenuSettingsData.MouseSensitivityType == EMST_16xScope)
-	{
-		return MarinePawn->GetMouseSensitivityWhenScope(3);
-	}
-	else if (MenuSettingsData.MouseSensitivityType == EMST_8xScope)
-	{
-		return MarinePawn->GetMouseSensitivityWhenScope(2);
-	}
-	else if (MenuSettingsData.MouseSensitivityType == EMST_4xScope)
-	{
-		return MarinePawn->GetMouseSensitivityWhenScope(1);
-	}
-	else if (MenuSettingsData.MouseSensitivityType == EMST_2xScope)
-	{
-		return MarinePawn->GetMouseSensitivityWhenScope(0);
-	}
-	else
-	{
-		return MarinePawn->GetMouseSensitivity();
-	} 
+	return false;
 }
+
+bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(int32& Value)
+{
+	if (MenuSettingsData.bSaveValueToConfig == true)
+	{
+		if (bWasJsonDeserialized && SavedDataJsonFile->TryGetField(MenuSettingsData.SavedValueName))
+		{
+			Value = SavedDataJsonFile->GetNumberField(MenuSettingsData.SavedValueName);
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(bool& Value)
+{
+	if (MenuSettingsData.bSaveValueToConfig == true)
+	{
+		if (bWasJsonDeserialized && SavedDataJsonFile->TryGetField(MenuSettingsData.SavedValueName))
+		{
+			Value = SavedDataJsonFile->GetBoolField(MenuSettingsData.SavedValueName);
+		}
+
+		return true;
+	}
+
+	return false;
+}
+

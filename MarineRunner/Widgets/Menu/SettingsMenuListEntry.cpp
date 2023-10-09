@@ -122,7 +122,11 @@ void USettingsMenuListEntry::SubSettingType_Quality()
 	if (SubSettingData->QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
 	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
 
-	AddValueToFunctionName(SubSettingData->QualityCurrentValue);
+	if (SubSettingData->bUseQualityTypesAsConsolVariable == false)
+	{
+		AddValueToFunctionName(SubSettingData->QualityCurrentValue);
+	}
+
 }
 
 void USettingsMenuListEntry::SubSettingType_KeyBinding()
@@ -286,8 +290,8 @@ void USettingsMenuListEntry::OnValueChangedSlider(float Value)
 {
 	SetSubSettingSliderValueText(Value);
 
-	SubSettingData->SliderCurrentValue = Value;
-
+	SubSettingData->SliderCurrentValue = SubSettingData->DecimalNumbers == 0 ? (int)Value : Value;
+	
 	AddValueToFunctionName(Value);
 }
 
@@ -400,9 +404,7 @@ FString USettingsMenuListEntry::GetKeyAxisName()
 void USettingsMenuListEntry::AddValueToFunctionName(float Value)
 {
 	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
-	{
 		return;
-	}
 
 	FString ValueToStr = UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, 1).ToString();
 	ListEntryObject->FunctionNameToApply = FunctionNameForCMD + " " + ValueToStr;
@@ -411,11 +413,17 @@ void USettingsMenuListEntry::AddValueToFunctionName(float Value)
 void USettingsMenuListEntry::AddValueToFunctionName(int32 Value)
 {
 	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
-	{
 		return;
-	}
 
 	ListEntryObject->FunctionNameToApply = FunctionNameForCMD + " " + FString::FromInt(Value);
+}
+
+void USettingsMenuListEntry::AddValueToFunctionName(FString Value)
+{
+	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
+		return;
+
+	ListEntryObject->FunctionNameToApply = FunctionNameForCMD + " " + Value;
 }
 
 void USettingsMenuListEntry::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay,bool bPlayForwardAnim)

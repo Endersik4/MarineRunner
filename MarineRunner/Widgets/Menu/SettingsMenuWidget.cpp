@@ -13,6 +13,7 @@
 #include "MarineRunner/Widgets/Menu/SettingsMenuListEntry.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/SaveGame/SaveGameJsonFile.h"
 
 void USettingsMenuWidget::NativeConstruct()
 {
@@ -78,7 +79,6 @@ void USettingsMenuWidget::FillCurrentMenuSettingsListView(const TArray<FMenuSett
 	{
 		USettingsMenuEntryObject* ConstructedItemObject = NewObject<USettingsMenuEntryObject>(MenuSettingsDataObject);
 		if (IsValid(ConstructedItemObject) == false) continue;
-		ConstructedItemObject->PlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 		ConstructedItemObject->MenuSettingsData = CurrentSetting;
 		ConstructedItemObject->SetVariablesToCurrent();
 
@@ -218,13 +218,21 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 {
 	TArray<UObject*> AllListElements = SettingsListView->GetListItems();
 
+	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
+	
 	for (UObject* CurrentElement : AllListElements)
 	{
 		USettingsMenuEntryObject* SettingMenuObject = Cast<USettingsMenuEntryObject>(CurrentElement);
 		if (IsValid(SettingMenuObject) == false) continue;
 
 		ActiveSettingByType(SettingMenuObject->MenuSettingsData, SettingMenuObject);
+
+		SaveValueToConfigByType(SettingMenuObject->MenuSettingsData, JsonObject);
 	}
+
+	FString ConfigPath = FPaths::GeneratedConfigDir();
+	ConfigPath += "MarineRunner/Config/Settings.json";
+	USaveGameJsonFile::WriteJson(JsonObject, ConfigPath);
 }
 
 void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingData, USettingsMenuEntryObject* SettingMenuObject)
@@ -260,6 +268,25 @@ void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingDat
 		UGameplayStatics::PushSoundMixModifier(GetWorld(), SubSettingData.SoundMixClassToChangeVolume);
 
 		return;
+	}
+}
+
+void USettingsMenuWidget::SaveValueToConfigByType(const FMenuSettings& SubSettingData, const TSharedPtr<FJsonObject>& JsonObject)
+{
+	if (SubSettingData.bSaveValueToConfig == false)
+		return;
+
+	if (SubSettingData.SubSettingType == EST_Quality)
+	{
+		JsonObject->SetNumberField(SubSettingData.SavedValueName, SubSettingData.QualityCurrentValue);
+	}
+	else if (SubSettingData.SubSettingType == EST_SliderValue)
+	{
+		JsonObject->SetNumberField(SubSettingData.SavedValueName, SubSettingData.SliderCurrentValue);
+	}
+	else if (SubSettingData.SubSettingType == EST_OnOff)
+	{
+		JsonObject->SetBoolField(SubSettingData.SavedValueName, SubSettingData.bSettingEnabled);
 	}
 }
 

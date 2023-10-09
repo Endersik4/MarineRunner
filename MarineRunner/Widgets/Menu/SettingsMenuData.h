@@ -48,6 +48,12 @@ struct FMenuSettings
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings")
 		TEnumAsByte<ESettingApplyType> SettingApplyType = ESAT_FunctionInCMD;
 
+	// If true, the value will be stored in the config or loaded from the config
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings|Save Config")
+		bool bSaveValueToConfig = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings|Save Config", meta = (EditCondition = "bSaveValueToConfig", EditConditionHides))
+		FString SavedValueName;
+
 	// If SettingApplyType is set to ESAT_FunctionInCMD, this field holds the function name.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SettingApplyType == ESettingApplyType::ESAT_FunctionInCMD", EditConditionHides))
 		FString SubSettingFunctionName = "sg.TextureQuality";
@@ -62,6 +68,8 @@ struct FMenuSettings
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_Quality", EditConditionHides))
 		TArray<FText> QualityTypes = { FText(FText::FromString("Low")),  FText(FText::FromString("Medium")),  FText(FText::FromString("High")),  FText(FText::FromString("Ultra")), };
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_Quality", EditConditionHides))
+		bool bUseQualityTypesAsConsolVariable = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_Quality", EditConditionHides))
 		int32 QualityCurrentValue = 3;
 

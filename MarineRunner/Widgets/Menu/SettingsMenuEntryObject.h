@@ -28,11 +28,15 @@ public:
 		FString FunctionNameToApply;
 
 	void SetVariablesToCurrent();
-	APawn* PlayerPawn;
 private:
 	void QualityValue();
 	void SliderValue();
 	void CheckBoxValue();
 
-	float GetMouseSensitivityFromMenuSettingsData();
+	bool WasValueLoadedFromJsonFile(float& Value);
+	bool WasValueLoadedFromJsonFile(int32& Value);
+	bool WasValueLoadedFromJsonFile(bool& Value);
+	bool bWasJsonDeserialized;
+	TSharedPtr<FJsonObject> SavedDataJsonFile;
+
 };

@@ -154,6 +154,7 @@ private:
 	class USettingsMenuEntryObject* ConnectedSettings(USettingsMenuEntryObject* ObjectThatConnectOtherSettings, 	USettingsMenuEntryObject* ConstructedItemObject );
 
 	void ActiveSettingByType(const FMenuSettings& SubSettingData, USettingsMenuEntryObject* SettingMenuObject);
+	void SaveValueToConfigByType(const FMenuSettings& SubSettingData, const TSharedPtr<FJsonObject> & JsonObject);
 
 	// Enable/Disable Menu Buttons
 	void FillMenuButtonsAndTextMap();

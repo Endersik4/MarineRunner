@@ -6,9 +6,11 @@
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
 
 #include "LoadGameMenuEntryObject.h"
 #include "LoadGameData.h"
+#include "MarineRunner/SaveGame/SaveGameJsonFile.h"
 
 void ULoadGameMenuWidget::NativeConstruct()
 {
@@ -32,16 +34,21 @@ void ULoadGameMenuWidget::FillSavesListView()
 
 	for (const FString& CurrTxtFilePath : Txt_Files)
 	{
-		FJsonSerializableArray DataFromFile;
-		FFileHelper::LoadFileToStringArray(DataFromFile, *CurrTxtFilePath);
-		if (DataFromFile.Num() < 5)
+		FSaveDataMenuStruct NewSaveDataMenu;
+
+		TSharedPtr<FJsonObject> JsonObject;
+		bool bWasJsonDeserialize = USaveGameJsonFile::ReadJson(CurrTxtFilePath, JsonObject);
+		if (bWasJsonDeserialize)
 		{
-			UE_LOG(LogTemp, Error, TEXT("DATA FROM FILE NUM < 5"));
-			continue;
+			NewSaveDataMenu.SaveName = JsonObject->GetStringField("SavedDataName");
+			NewSaveDataMenu.SaveNumber = JsonObject->GetNumberField("SavedDataNumber");
+			NewSaveDataMenu.ScreenshotPathSave = JsonObject->GetStringField("PathToThumbnail");
+			NewSaveDataMenu.SaveDateTime = JsonObject->GetStringField("SavedGameDate");
+			NewSaveDataMenu.LevelNameToLoad = JsonObject->GetStringField("SavedLevelName");
+			NewSaveDataMenu.TotalPlayTimeInSeconds = JsonObject->GetNumberField("TotalPlayTime");
 		}
-
-		FSaveDataMenuStruct NewSaveDataMenu = FSaveDataMenuStruct(DataFromFile[0], FCString::Atoi(*DataFromFile[1]), DataFromFile[2], DataFromFile[3], DataFromFile[4], FCString::Atoi(*DataFromFile[5]));
-
+		else return;
+		
 		ULoadGameMenuEntryObject* ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(MenuSettingsDataObject);
 		if (IsValid(ConstructedItemObject) == false) continue;
 

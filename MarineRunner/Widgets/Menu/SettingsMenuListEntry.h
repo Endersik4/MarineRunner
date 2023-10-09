@@ -116,6 +116,7 @@ private:
 	FString FunctionNameForCMD;
 	void AddValueToFunctionName(float Value);
 	void AddValueToFunctionName(int32 Value);
+	void AddValueToFunctionName(FString Value);
 
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
 	void EnableEntry(bool bEnable);
