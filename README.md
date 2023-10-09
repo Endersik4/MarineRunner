@@ -1,8 +1,17 @@
 # MarineRunner
 
 ## MarineRunner = Ghostrunner + Cyberpunk 2077 My biggest and most ambitious project. <br/>
-It was time for more complex games, not some tiny ones. <br/>
-I wanted to create movement like in Ghostrunner and shooting mechanics like in Cyberpunk 2077 <br/>
+
+In this game I wanted to create movement like in Ghostrunner and shooting mechanics like in Cyberpunk 2077.<br/>
+
+But after some time I added my own stuff and I plan to make a fps with emotional campign (similar to titanfall) with one tough boss.<br/>
+
+Sound ambitious? It probably does, but I think I can do it.<br/>
+
+Deadline is June 2024 (ztgk).<br/>
+
+Below is a demo that shows the current status of this game<br/>
+
 The game is in development, there is still a lot to do. <br/>
 I started this project on 27.01.2023 and by 31.07.2023 I have spent 953h on this game (673 Unreal Engine, 280 Blender). <br/>
 MarineRunner runs on Unreal Engine 5. <br/>
@@ -20,6 +29,7 @@ Currently the game features: <br/>
 **- Picking up and dropping items** <br/>
 **- chest with random items or resources with or without a pin** <br/>
 **- exploding barrels**  <br/>
+**- Main Menu** - with resume,load game, save game, settings (game,audio,bindings,video) and quit buttons  <br/>
 **- Five different types of weapons** - _pistol_, _machine gun_, _shotgun_, _sniper rifle_, _grenade launcher_  <br/>
 **- Five different types of enemies** - enemy with a _pistol_, _machine gun_, _shotgun_, _sniper rifle_ or _grenade launcher_ <br/>
 **-<a href="https://www.youtube.com/watch?v=dtFB4vfd2Eg"> ALBERTOS** </a> - a robot friend that can craft items such as ammunition, weapons, first aid kits....  <br/>
