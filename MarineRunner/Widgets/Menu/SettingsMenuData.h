@@ -12,26 +12,17 @@ enum ESettingsType
 	EST_KeyMapping, // KeyMapping - when player click on KeyMappingName then wait for player to press any button and assign new key to the bindings
 	EST_OnOff, // OnOff - Turn On/Off (CheckBox)
 	EST_Category, // Category - SubSettingName will be in the center of the SettingsMenuListEntry with diffrent color, no action
-	EST_SliderValue // SlideValue - Slider with Max/Min Range  
+	EST_SliderValue, // SlideValue - Slider with Max/Min Range  
+	EST_SetResolution, 
+	EST_SetFullscreen,
 };
 
 UENUM(BlueprintType)
 enum ESettingApplyType
 {
 	ESAT_FunctionInCMD,
-	ESAT_MouseSens,
 	ESAT_Sounds,
 	ESAT_None
-};
-
-UENUM(BlueprintType)
-enum EMouseSensType
-{
-	EMST_Normal,
-	EMST_2xScope,
-	EMST_4xScope,
-	EMST_8xScope,
-	EMST_16xScope
 };
 
 // The FMenuSettings structure defines various types of game menu settings, such as texture quality, key mapping, volume, etc.
@@ -50,12 +41,13 @@ struct FMenuSettings
 
 	// If true, the value will be stored in the config or loaded from the config
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings|Save Config")
-		bool bSaveValueToConfig = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings|Save Config", meta = (EditCondition = "bSaveValueToConfig", EditConditionHides))
+		bool bSaveValueToGameInstance = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings|Save Config", meta = (EditCondition = "bSaveValueToGameInstance", EditConditionHides))
 		FString SavedValueName;
 
 	// If SettingApplyType is set to ESAT_FunctionInCMD, this field holds the function name.
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SettingApplyType == ESettingApplyType::ESAT_FunctionInCMD", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", 
+		meta = (EditCondition = "SettingApplyType == ESettingApplyType::ESAT_FunctionInCMD", EditConditionHides))
 		FString SubSettingFunctionName = "sg.TextureQuality";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SettingApplyType == ESettingApplyType::ESAT_Sounds", EditConditionHides))
@@ -66,12 +58,17 @@ struct FMenuSettings
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings")
 		TEnumAsByte<ESettingsType> SubSettingType = EST_Quality;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_Quality", EditConditionHides))
-		TArray<FText> QualityTypes = { FText(FText::FromString("Low")),  FText(FText::FromString("Medium")),  FText(FText::FromString("High")),  FText(FText::FromString("Ultra")), };
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_Quality", EditConditionHides))
-		bool bUseQualityTypesAsConsolVariable = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_Quality", EditConditionHides))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", 
+		meta = (EditCondition = "SubSettingType == ESettingsType::EST_Quality || SubSettingType == ESettingsType::EST_SetFullscreen", EditConditionHides))
+		TArray<FString> QualityTypes = { "Low",  "Medium",  "High", "Ultra"};
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings",
+		meta = (EditCondition = "SubSettingType == ESettingsType::EST_Quality || SubSettingType == ESettingsType::EST_SetFullscreen", EditConditionHides))
 		int32 QualityCurrentValue = 3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_SetFullscreen", EditConditionHides))
+		TArray<TEnumAsByte<EWindowMode::Type>> AllWindowTypes = { EWindowMode::Type::Fullscreen ,EWindowMode::Type::WindowedFullscreen ,EWindowMode::Type::Windowed };
+	
+	TArray<FIntPoint> SupportedResolutionsList;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_KeyMapping", EditConditionHides))
 		FName KeyMappingName;
@@ -97,9 +94,6 @@ struct FMenuSettings
 	// Defines the range of values for the slider
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SubSettingType == ESettingsType::EST_SliderValue", EditConditionHides))
 		FFloatRange RangeOfSlider = FFloatRange(0.f, 100.f);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SettingApplyType == ESettingApplyType::ESAT_MouseSens", EditConditionHides))
-		TEnumAsByte<EMouseSensType> MouseSensitivityType = EMST_Normal;
 
 	// Is a flag that determines if the entry widget is enabled
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings")

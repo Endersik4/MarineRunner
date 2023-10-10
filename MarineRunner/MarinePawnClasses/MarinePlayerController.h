@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
+
 #include "MarinePlayerController.generated.h"
 
 /**
@@ -21,9 +23,9 @@ protected:
 	virtual void SetupInputComponent() override;
 
 public:
-	inline void SetMouseSensitivity(float NewMouseSens) { MouseSensitivity = NewMouseSens; }
-	inline float GetMouseSensitivity() { return MouseSensitivity; }
-		
+	FORCEINLINE void SetMouseSensitivity(const FSettingSavedInJsonFile &NewMouseSensitivity) { MouseSensitivity = NewMouseSensitivity; }
+	FORCEINLINE const FSettingSavedInJsonFile &GetMouseSensitivity() const { return MouseSensitivity; }
+
 	float MouseXValue;
 	float MouseYValue;
 private:
@@ -33,7 +35,7 @@ private:
 	void LookUp(float AxisValue);
 	void LookRight(float AxisValue);
 
-	float MouseSensitivity = 0.7f;
+	FSettingSavedInJsonFile MouseSensitivity = FSettingSavedInJsonFile("MouseSensitivity", 0.7f);
 
 	bool bShouldDisableCameraRotate(float CurrentLookValue);
 	// if player moves too much mouse while camera is rotating (for wallrun) then disable camera rotating

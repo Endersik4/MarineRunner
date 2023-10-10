@@ -28,15 +28,21 @@ public:
 		FString FunctionNameToApply;
 
 	void SetVariablesToCurrent();
+	FORCEINLINE void SetGameInstance(class UMarineRunnerGameInstance* NewGameInstance) { GameInstance = NewGameInstance; }
 private:
 	void QualityValue();
 	void SliderValue();
 	void CheckBoxValue();
 
+	// Custom Settings
+	void SetResolutionSetting();
+	void FillSupportedResolutions();
+	void SetFullscreenModeSetting();
+
+	class UMarineRunnerGameInstance* GameInstance;
+
 	bool WasValueLoadedFromJsonFile(float& Value);
 	bool WasValueLoadedFromJsonFile(int32& Value);
 	bool WasValueLoadedFromJsonFile(bool& Value);
-	bool bWasJsonDeserialized;
-	TSharedPtr<FJsonObject> SavedDataJsonFile;
 
 };

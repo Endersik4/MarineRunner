@@ -142,6 +142,8 @@ private:
 		TArray<FMenuSettings> VideoSettingsList;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
 		TArray<FMenuSettings> BindingsSettingsList;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation")
+		float TimeToStartAnimationOnInitialized = 0.17f;
 
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, UButton* HoveredButton, bool bPlayForwardAnim = true);
 
@@ -154,13 +156,14 @@ private:
 	class USettingsMenuEntryObject* ConnectedSettings(USettingsMenuEntryObject* ObjectThatConnectOtherSettings, 	USettingsMenuEntryObject* ConstructedItemObject );
 
 	void ActiveSettingByType(const FMenuSettings& SubSettingData, USettingsMenuEntryObject* SettingMenuObject);
-	void SaveValueToConfigByType(const FMenuSettings& SubSettingData, const TSharedPtr<FJsonObject> & JsonObject);
+	void ReplaceValueInGameInstanceByName(const FMenuSettings& SubSettingData);
 
 	// Enable/Disable Menu Buttons
 	void FillMenuButtonsAndTextMap();
 	TMap<UButton*, UTextBlock*> MenuButtonsAndText;
 
-	int32 GetScopeIndex(enum EMouseSensType);
+	void LoadSavedSettingsToPlayer();
 
 	class AMarinePlayerController* MarinePlayerController;
+	class UMarineRunnerGameInstance* MarineGameInstance;
 };

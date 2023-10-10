@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "MarineRunner/Interfaces/InteractInterface.h"
 #include "MarineRunner/Widgets/Menu/LoadGameMenu/LoadGameData.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
 #include "MarineCharacter.generated.h"
 
@@ -52,7 +53,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void RotateCameraWhileWallrunning(bool bIsRightSide = false);
 
-	void ChangeMouseSensitivity(float NewMouseSensitivity);
+	void ChangeMouseSensitivity(const FSettingSavedInJsonFile &NewMouseSensitivity);
 
 	UPROPERTY(EditAnywhere, Category = "Alberto")
 		class AAlbertosPawn* AlbertoPawn;
@@ -76,12 +77,11 @@ public:
 	class UCameraComponent* GetCamera() const { return Camera; }
 	class AGun* GetGun() const { return Gun; }
 	class UPauseMenuWidget* GetPauseMenuWidget() const { return PauseMenuWidget; }
-
-	float GetMouseSensitivity() const { return MouseSensitivity; }
-	float GetMouseSensitivityWhenScope(int32 Index) const { return MouseSensitivityWhenScope[Index]; }
-	void SetMouseSensitivity(float NewSens) { MouseSensitivity = NewSens; ChangeMouseSensitivity(MouseSensitivity); }
-	void SetMouseSensitivityWhenScope(float NewSens, int32 Index) { MouseSensitivityWhenScope[Index] = NewSens; }
-
+	/*
+	FORCEINLINE float GetMouseSensitivity() const { return MouseSensitivityJSON.FieldValue; }
+	FORCEINLINE float GetMouseSensitivityWhenScope(int32 Index) const { return MouseSensitivityWhenScopeJSON[Index].FieldValue; }
+	FORCEINLINE void SetMouseSensitivity(float NewSens) { MouseSensitivityJSON.FieldValue = NewSens; ChangeMouseSensitivity(MouseSensitivityJSON.FieldValue); }
+	FORCEINLINE void SetMouseSensitivityWhenScope(float NewSens, int32 Index) { MouseSensitivityWhenScopeJSON[Index].FieldValue = NewSens; }*/
 
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
 	void SetGun(class AGun* NewGun) { Gun = NewGun; }
@@ -111,6 +111,8 @@ public:
 	bool CanPlayerSaveGame();
 	void SpawnCannotSavedWidget() { SpawnPassingWidget(CannotSavedNotificationWidgetClass); }
 
+	void LoadSavedSettingsFromGameInstance();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCroachAndSlide* CroachAndSlideComponent;
@@ -139,9 +141,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float DelayAfterUseFirstAidKit = 1.1f;
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
-		float MouseSensitivity = 0.7f;
+		FSettingSavedInJsonFile MouseSensitivityJSON = FSettingSavedInJsonFile("MouseSensitivity", 0.7f);
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
-		TArray<float> MouseSensitivityWhenScope = {0.4f, 0.2f, 0.1f, 0.05f};
+		TArray<FSettingSavedInJsonFile> MouseSensitivityWhenScopeJSON;
 
 	//Aka speed movement
 	UPROPERTY(EditAnywhere, Category = "Movement")
@@ -167,8 +169,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
 		float DelayIsInAirTime = 0.55f;
 
-	//Impuls before Interp/*
-	
+	//Impuls before Interp
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|Swing")
 		float SwingForce = 900.f;
 	//Multiplier that is multiplying X and Y Velocity after Pawn got to Hook

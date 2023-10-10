@@ -76,7 +76,6 @@ AMarineCharacter::AMarineCharacter()
 
 	bUseControllerRotationYaw = true;
 	Tags.Add(TEXT("Player"));
-
 }
 
 // Called when the game starts or when spawned
@@ -85,7 +84,8 @@ void AMarineCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePlayerController = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	ChangeMouseSensitivity(MouseSensitivity);
+
+	LoadSavedSettingsFromGameInstance();
 
 	MakeCrosshire();
 	MakeHudWidget();
@@ -151,12 +151,12 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-void AMarineCharacter::ChangeMouseSensitivity(float NewMouseSensivity)
+void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& NewMouseSensitivity)
 {
 	if (IsValid(MarinePlayerController) == false)
 		return;
 
-	MarinePlayerController->SetMouseSensitivity(NewMouseSensivity);
+	MarinePlayerController->SetMouseSensitivity(NewMouseSensitivity);
 }
 
 #pragma region //////////////////////////////// MOVEMENT ///////////////////////////////
@@ -403,7 +403,7 @@ void AMarineCharacter::ADSPressed()
 	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
 	bIsPlayerADS = true;
 	Gun->SetStatusOfGun(StatusOfAimedGun::ADS);
-	if (Gun->GetShouldChangeMouseSensitivityADS() == true) ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
+	if (Gun->GetShouldChangeMouseSensitivityADS() == true) ChangeMouseSensitivity(MouseSensitivityWhenScopeJSON[CurrentScopeIndex]);
 }
 
 void AMarineCharacter::ADSReleased()
@@ -417,7 +417,7 @@ void AMarineCharacter::ADSReleased()
 	Gun->SetStatusOfGun(StatusOfAimedGun::BackToInitialPosition);
 	if (Gun->GetShouldChangeMouseSensitivityADS() == true)
 	{
-		ChangeMouseSensitivity(MouseSensitivity);
+		ChangeMouseSensitivity(MouseSensitivityJSON);
 		CurrentScopeIndex = Gun->ZoomScope(0.f, true);
 	}
 }
@@ -447,9 +447,26 @@ void AMarineCharacter::Zoom(float WheelAxis)
 {
 	if (Gun == nullptr || bIsPlayerADS == false || WheelAxis == 0.f) return;
 	CurrentScopeIndex = Gun->ZoomScope(WheelAxis);
-	ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
+	ChangeMouseSensitivity(MouseSensitivityWhenScopeJSON[CurrentScopeIndex]);
 }
 #pragma endregion 
+
+void AMarineCharacter::LoadSavedSettingsFromGameInstance()
+{
+	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (IsValid(GameInstance) == false || IsValid(MarinePlayerController) == false)
+		return;
+
+	const FSettingSavedInJsonFile& CurrentMouseSensName = MarinePlayerController->GetMouseSensitivity();
+	GameInstance->SetValueBySavedSettingName(MouseSensitivityJSON.FieldName, MouseSensitivityJSON.FieldValue);
+	if (CurrentMouseSensName == MouseSensitivityJSON) ChangeMouseSensitivity(MouseSensitivityJSON);
+
+	for (FSettingSavedInJsonFile &CurrSetting : MouseSensitivityWhenScopeJSON)
+	{
+		GameInstance->SetValueBySavedSettingName(CurrSetting.FieldName, CurrSetting.FieldValue);
+		if (CurrentMouseSensName == CurrSetting) ChangeMouseSensitivity(CurrSetting);
+	}
+}
 
 #pragma region //////////////////////////// FOOTSTEPS SOUND ////////////////////////////
 void AMarineCharacter::PlayFootstepsSound()

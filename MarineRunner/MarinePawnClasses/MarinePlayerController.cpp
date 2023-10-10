@@ -25,14 +25,14 @@ void AMarinePlayerController::SetupInputComponent()
 
 void AMarinePlayerController::LookUp(float AxisValue)
 {
-	AddPitchInput(MouseSensitivity * AxisValue);
+	AddPitchInput(MouseSensitivity.FieldValue * AxisValue);
 	DisableCameraRotateWhileWallrunning(AxisValue);
 	MouseXValue = AxisValue;
 }
 
 void AMarinePlayerController::LookRight(float AxisValue)
 {
-	AddYawInput(MouseSensitivity * AxisValue);
+	AddYawInput(MouseSensitivity.FieldValue * AxisValue);
 	DisableCameraRotateWhileWallrunning(AxisValue);
 	MouseYValue = AxisValue;
 }

@@ -93,10 +93,10 @@ void USettingsMenuListEntry::DisplayProperUIElements()
 	SubSettingNameText->SetText(SubSettingData->SubSettingName);
 	SubSettingNameText->SetVisibility(ESlateVisibility::Visible);
 
-	if (SubSettingData->SubSettingType == EST_Quality) SubSettingType_Quality();
+	if (SubSettingData->SubSettingType == EST_OnOff)  SubSettingType_OnOff();
 	else if (SubSettingData->SubSettingType == EST_KeyMapping) SubSettingType_KeyBinding();
 	else if (SubSettingData->SubSettingType == EST_SliderValue) SubSettingType_SliderValue();
-	else SubSettingType_OnOff();
+	else SubSettingType_Quality();
 }
 #pragma endregion
 
@@ -117,16 +117,12 @@ void USettingsMenuListEntry::SubSettingType_Quality()
 	LeftArrowButton->SetVisibility(ESlateVisibility::Visible);
 	RightArrowButton->SetVisibility(ESlateVisibility::Visible);
 
-	SubSettingQualityText->SetText(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]);
-
 	if (SubSettingData->QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
 	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
 
-	if (SubSettingData->bUseQualityTypesAsConsolVariable == false)
-	{
-		AddValueToFunctionName(SubSettingData->QualityCurrentValue);
-	}
+	SubSettingQualityText->SetText(FText::FromString(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]));
 
+	AddValueToFunctionName(SubSettingData->QualityCurrentValue);
 }
 
 void USettingsMenuListEntry::SubSettingType_KeyBinding()
@@ -186,10 +182,11 @@ void USettingsMenuListEntry::SubSettingType_OnOff()
 void USettingsMenuListEntry::OnClickedLeftArrowButton()
 {
 	SubSettingData->QualityCurrentValue--;
-	SubSettingQualityText->SetText(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]);
-
+	
 	if (SubSettingData->QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
 	RightArrowButton->SetIsEnabled(true);
+
+	SubSettingQualityText->SetText(FText::FromString(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]));
 
 	AddValueToFunctionName(SubSettingData->QualityCurrentValue);
 }
@@ -209,10 +206,11 @@ void USettingsMenuListEntry::OnUnhoveredLeftArrowButton()
 void USettingsMenuListEntry::OnClickedRightArrowButton()
 {
 	SubSettingData->QualityCurrentValue++;
-	SubSettingQualityText->SetText(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]);
 
 	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
 	LeftArrowButton->SetIsEnabled(true);
+
+	SubSettingQualityText->SetText(FText::FromString(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]));
 
 	AddValueToFunctionName(SubSettingData->QualityCurrentValue);
 }

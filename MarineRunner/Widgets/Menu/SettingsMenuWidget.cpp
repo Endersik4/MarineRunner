@@ -8,12 +8,13 @@
 #include "Components/ListView.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "GameFramework/GameUserSettings.h"
 
 #include "MarineRunner/Widgets/Menu/SettingsMenuEntryObject.h"
 #include "MarineRunner/Widgets/Menu/SettingsMenuListEntry.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
-#include "MarineRunner/SaveGame/SaveGameJsonFile.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
 void USettingsMenuWidget::NativeConstruct()
 {
@@ -48,11 +49,12 @@ void USettingsMenuWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
+	MarinePlayerController = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	MarineGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
 	FillMenuButtonsAndTextMap();
 
 	StartOnGameSettingsList();
-
-	MarinePlayerController = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
 
 void USettingsMenuWidget::FillMenuButtonsAndTextMap()
@@ -65,7 +67,7 @@ void USettingsMenuWidget::FillMenuButtonsAndTextMap()
 
 void USettingsMenuWidget::StartOnGameSettingsList()
 {
-	PlayAnimation(GameSettingsHoverAnim, 0.17f);
+	PlayAnimation(GameSettingsHoverAnim, TimeToStartAnimationOnInitialized);
 	CurrentSelectedSetting = FSettingSelectedStruct(GameSettingsButton, GameSettingsHoverAnim);
 	FillCurrentMenuSettingsListView(GameSettingsList);
 }
@@ -79,7 +81,9 @@ void USettingsMenuWidget::FillCurrentMenuSettingsListView(const TArray<FMenuSett
 	{
 		USettingsMenuEntryObject* ConstructedItemObject = NewObject<USettingsMenuEntryObject>(MenuSettingsDataObject);
 		if (IsValid(ConstructedItemObject) == false) continue;
+
 		ConstructedItemObject->MenuSettingsData = CurrentSetting;
+		ConstructedItemObject->SetGameInstance(MarineGameInstance);
 		ConstructedItemObject->SetVariablesToCurrent();
 
 		ObjectThatConnectOtherSettings = ConnectedSettings(ConstructedItemObject, ObjectThatConnectOtherSettings);
@@ -218,8 +222,6 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 {
 	TArray<UObject*> AllListElements = SettingsListView->GetListItems();
 
-	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
-	
 	for (UObject* CurrentElement : AllListElements)
 	{
 		USettingsMenuEntryObject* SettingMenuObject = Cast<USettingsMenuEntryObject>(CurrentElement);
@@ -227,38 +229,31 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 
 		ActiveSettingByType(SettingMenuObject->MenuSettingsData, SettingMenuObject);
 
-		SaveValueToConfigByType(SettingMenuObject->MenuSettingsData, JsonObject);
+		ReplaceValueInGameInstanceByName(SettingMenuObject->MenuSettingsData);
 	}
 
-	FString ConfigPath = FPaths::GeneratedConfigDir();
-	ConfigPath += "MarineRunner/Config/Settings.json";
-	USaveGameJsonFile::WriteJson(JsonObject, ConfigPath);
+	UGameUserSettings::GetGameUserSettings()->ApplyResolutionSettings(false);
+	MarineGameInstance->SaveCustomSavedSettingsToConfig();
+
+	LoadSavedSettingsToPlayer();
 }
 
 void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingData, USettingsMenuEntryObject* SettingMenuObject)
 {
 	if (SubSettingData.bEntryWidgetEnabled == false || SubSettingData.SubSettingType == EST_Category) return;
 
+	if (SubSettingData.SubSettingType == EST_SetFullscreen)
+	{
+		UGameUserSettings::GetGameUserSettings()->SetFullscreenMode(SubSettingData.AllWindowTypes[SubSettingData.QualityCurrentValue]);
+	}
+	else if (SubSettingData.SubSettingType == EST_SetResolution)
+	{
+		UGameUserSettings::GetGameUserSettings()->SetScreenResolution(SubSettingData.SupportedResolutionsList[SubSettingData.QualityCurrentValue]);
+	}
+
 	if (SubSettingData.SettingApplyType == ESAT_FunctionInCMD && IsValid(MarinePlayerController))
 	{
 		MarinePlayerController->ConsoleCommand(SettingMenuObject->FunctionNameToApply);
-	}
-
-	if (SubSettingData.SettingApplyType == ESAT_MouseSens && IsValid(MarinePlayerController))
-	{
-		AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(MarinePlayerController->GetPawn());
-
-		if (IsValid(MarinePawn) == false)
-			return;
-
-		if (SubSettingData.MouseSensitivityType == EMST_Normal)
-		{
-			MarinePawn->SetMouseSensitivity(SubSettingData.SliderCurrentValue);
-		}
-		else
-		{
-			MarinePawn->SetMouseSensitivityWhenScope(SubSettingData.SliderCurrentValue, GetScopeIndex(SubSettingData.MouseSensitivityType));
-		}
 		return;
 	}
 
@@ -271,41 +266,35 @@ void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingDat
 	}
 }
 
-void USettingsMenuWidget::SaveValueToConfigByType(const FMenuSettings& SubSettingData, const TSharedPtr<FJsonObject>& JsonObject)
+void USettingsMenuWidget::ReplaceValueInGameInstanceByName(const FMenuSettings& SubSettingData)
 {
-	if (SubSettingData.bSaveValueToConfig == false)
+	if (SubSettingData.bSaveValueToGameInstance == false)
 		return;
 
 	if (SubSettingData.SubSettingType == EST_Quality)
 	{
-		JsonObject->SetNumberField(SubSettingData.SavedValueName, SubSettingData.QualityCurrentValue);
+		MarineGameInstance->ReplaceValueInSavedSettingByName(SubSettingData.QualityCurrentValue, SubSettingData.SavedValueName);
 	}
 	else if (SubSettingData.SubSettingType == EST_SliderValue)
 	{
-		JsonObject->SetNumberField(SubSettingData.SavedValueName, SubSettingData.SliderCurrentValue);
+		MarineGameInstance->ReplaceValueInSavedSettingByName(SubSettingData.SliderCurrentValue, SubSettingData.SavedValueName);
 	}
 	else if (SubSettingData.SubSettingType == EST_OnOff)
 	{
-		JsonObject->SetBoolField(SubSettingData.SavedValueName, SubSettingData.bSettingEnabled);
+		//JsonObject->SetBoolField(SubSettingData.SavedValueName, SubSettingData.bSettingEnabled);
 	}
 }
 
-int32 USettingsMenuWidget::GetScopeIndex(EMouseSensType MouseSensType)
+void USettingsMenuWidget::LoadSavedSettingsToPlayer()
 {
-	if (MouseSensType == EMST_16xScope)
-	{
-		return 3;
-	}
-	else if (MouseSensType == EMST_8xScope)
-	{
-		return 2;
-	}
-	else if (MouseSensType == EMST_4xScope)
-	{
-		return 1;
-	}
+	if (IsValid(MarinePlayerController) == false)
+		return;
 
-	return 0;
+	AMarineCharacter* Player = Cast<AMarineCharacter>(MarinePlayerController->GetPawn());
+	if (IsValid(Player) == false)
+		return;
+
+	Player->LoadSavedSettingsFromGameInstance();
 }
 
 void USettingsMenuWidget::OnHoveredAcceptSettingsButton()
