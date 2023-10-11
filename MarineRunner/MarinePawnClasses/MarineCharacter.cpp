@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 
 #include "MarineCharacter.h"
@@ -23,7 +23,6 @@
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/PauseMenuComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SwingComponent.h"
-#include "MarineRunner/Widgets/DashWidget.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Widgets/Menu/GameSavedNotificationWidget.h"
 #include "MarineRunner/GunClasses/Gun.h"
@@ -57,12 +56,11 @@ AMarineCharacter::AMarineCharacter()
 	CroachAndSlideComponent = CreateDefaultSubobject<UCroachAndSlide>(TEXT("CroachAndSlideComponent"));
 	CroachAndSlideComponent->SetupAttachment(CapsulePawn);
 
-	DashComponent = CreateDefaultSubobject<UDashComponent>(TEXT("DashComponent"));
-	DashComponent->SetupAttachment(CapsulePawn);
 
 	TakeAndDropComponent = CreateDefaultSubobject<UTakeAndDrop>(TEXT("TakeAndDropComponent"));
 	TakeAndDropComponent->SetupAttachment(CapsulePawn);
 
+	DashComponent = CreateDefaultSubobject<UDashComponent>(TEXT("DashComponent"));
 	WallrunComponent = CreateDefaultSubobject<UWallrunComponent>(TEXT("WallrunComponent"));
 	SlowMotionComponent = CreateDefaultSubobject<USlowMotionComponent>(TEXT("SlowMotionComponent"));
 	PullUpComponent = CreateDefaultSubobject<UPullUpComponent>(TEXT("PullUpComponent"));
@@ -137,7 +135,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &AMarineCharacter::CrouchReleased);
 
 	//Gameplay components
-	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, this, &AMarineCharacter::Dash);
+	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, DashComponent, &UDashComponent::Dash);
 	PlayerInputComponent->BindAction(TEXT("Swing"), IE_Pressed, SwingComponent, &USwingComponent::SwingPressed);
 	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, this, &AMarineCharacter::SlowMotionPressed);
 
@@ -160,7 +158,7 @@ void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& New
 // TODO: Rewrite whole movement after adding Player Model to game
 void AMarineCharacter::Movement(float Delta)
 {
-	if (SwingComponent->GetCanSwingLerp() || bIsInputDisabled) return;
+	if (SwingComponent->GetIsPlayerLerpingToHookPosition() || bIsInputDisabled) return;
 
 	FVector ForwardDirection;
 	FVector RightDirection;
@@ -360,7 +358,7 @@ void AMarineCharacter::CheckIfIsInAir()
 
 			if (ImpactOnFloorSound) UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, CapsulePawn);
 			
-			if (!bIsCroaching) MovementForce = CopyOfOriginalForce;
+			if (!bIsCrouching) MovementForce = CopyOfOriginalForce;
 			MovementSpeedMultiplier = 1.f;
 		}
 
@@ -463,7 +461,7 @@ void AMarineCharacter::PlayFootstepsSound()
 			TimeOfHandle = 0.17f;
 			UGameplayStatics::SpawnSound2D(GetWorld(), FootstepsWallrunSound);
 		}
-		else if (bIsCroaching == true && FootstepsCroachSound)
+		else if (bIsCrouching == true && FootstepsCroachSound)
 		{
 			TimeOfHandle = 0.43f;
 			UGameplayStatics::SpawnSoundAttached(FootstepsCroachSound, CapsulePawn);
@@ -514,9 +512,9 @@ void AMarineCharacter::UseFirstAidKit()
 #pragma region /////////////////////////////// CROACHING ///////////////////////////////
 void AMarineCharacter::CrouchPressed()
 {
-	if (SwingComponent->GetCanSwingLerp() || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion()) return;
+	if (SwingComponent->GetIsPlayerLerpingToHookPosition() || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion()) return;
 
-	bIsCroaching = true;
+	bIsCrouching = true;
 	CroachAndSlideComponent->CrouchPressed();
 }
 
@@ -579,21 +577,10 @@ void AMarineCharacter::DropItem()
 #pragma endregion 
 
 #pragma region ////////////////////////// COMPONENTS PRESSED ///////////////////////////
-void AMarineCharacter::Dash()
-{
-	if (SwingComponent->GetCanSwingLerp() || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion() || bIsCroaching) return;
-
-	//If Dash is forbidden in the current stage of level then kill the player
-	if (bShouldDieWhenDash == true) UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
-
-	bShouldAddCounterMovement = true;
-	DashComponent->Dash();
-}
-
 void AMarineCharacter::SlowMotionPressed()
 {
 	//Cant do Slowmotion when Player isnt in AIr or is wallrunning or swinging
-	if (!bIsInAir || WallrunComponent->GetIsWallrunning() || SwingComponent->GetCanSwingLerp()) return;
+	if (!bIsInAir || WallrunComponent->GetIsWallrunning() || SwingComponent->GetIsPlayerLerpingToHookPosition()) return;
 
 	SlowMotionComponent->TurnOnSlowMotion();
 }
@@ -723,30 +710,14 @@ void AMarineCharacter::MakeHudWidget()
 
 void AMarineCharacter::MakeCrosshire()
 {
-	if (CrosshairWidget) return;
+	if (IsValid(CrosshairWidget)) 
+		return;
 
-	if (CrosshairClass && MarinePlayerController)
-	{
-		CrosshairWidget = CreateWidget(MarinePlayerController, CrosshairClass);
-		CrosshairWidget->AddToViewport();
-	}
-}
+	if (CrosshairClass == nullptr && IsValid(MarinePlayerController) == false)
+		return;
 
-void AMarineCharacter::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov, bool bAddChromaticAbberation)
-{
-	if (!DashClass || !bShouldMake) return;
-
-	DashWidget = Cast<UDashWidget>(CreateWidget(MarinePlayerController, DashClass));
-	DashWidget->SetFadeTime(FadeTime);
-	DashWidget->ShouldAddChangingFov(bAddFov);
-	DashWidget->ShouldAddChromaticAbberation(bAddChromaticAbberation);
-	DashWidget->AddToViewport();
-}
-
-void AMarineCharacter::RemoveDashWidget()
-{
-	if (!DashWidget) return;
-	DashWidget->ResetDashWidget();
+	CrosshairWidget = CreateWidget(MarinePlayerController, CrosshairClass);
+	CrosshairWidget->AddToViewport();
 }
 
 void AMarineCharacter::UpdateHudWidget()
@@ -823,5 +794,15 @@ FVector AMarineCharacter::EaseInQuint(FVector Start, FVector End, float Alpha)
 bool AMarineCharacter::GetIsWallrunning() const
 {
 	return WallrunComponent->GetIsWallrunning();
+}
+
+bool AMarineCharacter::GetIsPlayerLerpingToHookLocation() const
+{
+	return SwingComponent->GetIsPlayerLerpingToHookPosition();
+}
+
+bool AMarineCharacter::GetIsInSlowMotion() const
+{
+	return SlowMotionComponent->GetIsInSlowMotion();
 }
 #pragma endregion 

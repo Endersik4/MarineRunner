@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "DashComponent.h"
 #include "TimerManager.h"
@@ -7,6 +6,7 @@
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/Widgets/DashWidget.h"
 
 // Sets default values for this component's properties
 UDashComponent::UDashComponent()
@@ -25,10 +25,9 @@ void UDashComponent::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	if (MarinePawn)
-	{
-		CopyForce = MarinePawn->GetMovementForce();
-	}
+	if (IsValid(MarinePawn) == false)
+		return;
+	OriginalForce = MarinePawn->GetMovementForce();
 }
 
 
@@ -43,22 +42,18 @@ void UDashComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 void UDashComponent::Dash()
 {
-	if (IsValid(MarinePawn) == false) 
+	if (CanPlayerPerformDash() == false)
 		return;
 
-	if (bCanDash == false) return;
+	MarinePawn->SetShouldAddCounterMovement(true);
 
-	if (!MarinePawn->GetIsOnRamp()) MarinePawn->SetMovementForce(DashForce*10);
-	else if(!MarinePawn->GetIsGoingUp())
-	{
-		FVector Impulse = (-MarinePawn->GetActorUpVector() + MarinePawn->GetActorForwardVector()) * DashForce * 300;
-		MarinePawn->CapsulePawn->AddImpulse(Impulse);
-	}
+	DashOnRamp();
+
 	bCanDash = false;
 
 	if (DashSound) UGameplayStatics::SpawnSound2D(GetWorld(), DashSound);
 
-	MarinePawn->MakeDashWidget(true, DashWidgetTime);
+	MakeDashWidget(true, DashWidgetTime);
 
 	ElementBar DashElementBar{ DashCoolDown };
 	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Dash, DashElementBar);
@@ -67,13 +62,57 @@ void UDashComponent::Dash()
 	MarinePawn->GetWorldTimerManager().SetTimer(DashLengthHandle, this, &UDashComponent::DashLengthTimer, DashLength, false);
 }
 
-void UDashComponent::DashLengthTimer()
+void UDashComponent::DashOnRamp()
 {
-	MarinePawn->SetMovementForce(CopyForce);
-	MarinePawn->GetWorldTimerManager().SetTimer(DashCooldownHandle, this, &UDashComponent::DashCooldownTimer, DashCoolDown, false);
+	if (MarinePawn->GetIsOnRamp() == false)
+	{
+		MarinePawn->SetMovementForce(DashForce * 10);
+	}
+	else if (MarinePawn->GetIsGoingUp() == false)
+	{
+		FVector Impulse = (-MarinePawn->GetActorUpVector() + MarinePawn->GetActorForwardVector()) * DashForce * 300;
+		MarinePawn->CapsulePawn->AddImpulse(Impulse);
+	}
 }
 
-void UDashComponent::DashCooldownTimer()
+void UDashComponent::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov, bool bAddChromaticAbberation)
 {
-	bCanDash = true;
+	if (!DashWidgetClass || !bShouldMake) 
+		return;
+
+	DashWidget = Cast<UDashWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), DashWidgetClass));
+
+	DashWidget->SetFadeTime(FadeTime);
+	DashWidget->ShouldAddChangingFov(bAddFov);
+	DashWidget->ShouldAddChromaticAbberation(bAddChromaticAbberation);
+
+	DashWidget->AddToViewport();
+}
+
+void UDashComponent::RemoveDashWidget()
+{
+	if (IsValid(DashWidget) == false) 
+		return;
+
+	DashWidget->ResetDashWidget();
+}
+
+void UDashComponent::DashLengthTimer()
+{
+	MarinePawn->SetMovementForce(OriginalForce);
+	MarinePawn->GetWorldTimerManager().SetTimer(DashCooldownHandle, this, &UDashComponent::EndDashCooldown, DashCoolDown, false);
+}
+
+bool UDashComponent::CanPlayerPerformDash() const
+{
+	if (IsValid(MarinePawn) == false || bCanDash == false)
+		return false;
+
+	if (MarinePawn->GetIsPlayerLerpingToHookLocation() == true || MarinePawn->GetIsWallrunning() == true) 
+		return false;
+
+	if (MarinePawn->GetIsInSlowMotion() == true || MarinePawn->GetIsCrouching() == true)
+		return false;
+
+	return true;
 }

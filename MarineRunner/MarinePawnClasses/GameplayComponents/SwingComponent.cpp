@@ -114,11 +114,10 @@ void USwingComponent::StartSwingToHook()
 {
 	if (IsValid(CurrentFocusedHook) == false) return;
 
-	MarinePlayer->CapsulePawn->SetPhysicsLinearVelocity(FVector(0, 0, 0));
+	MarinePlayer->CapsulePawn->SetPhysicsLinearVelocity(FVector(0));
 	bIsPlayerLerpingToHookPosition = true;
 
-	HookLocation = CurrentFocusedHook->GetActorLocation();
-	HookLocation.Z -= 50.f;
+	HookLocation = CurrentFocusedHook->GetActorLocation() - HookLocationOffset;
 
 	FVector DirectionOfVector = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(MarinePlayer->GetActorLocation(), HookLocation));
 	SwingImpulse = DirectionOfVector * SwingForce;
@@ -136,19 +135,27 @@ void USwingComponent::StartSwingToHook()
 //Interp player to location of the Hook
 void USwingComponent::SwingInterp()
 {
-	if (!bIsPlayerLerpingToHookPosition || IsValid(CurrentFocusedHook) == false) return;
+	if (!bIsPlayerLerpingToHookPosition || IsValid(CurrentFocusedHook) == false) 
+		return;
 
 	FVector LocationInterp = FMath::VInterpTo(MarinePlayer->GetActorLocation(), HookLocation, GetWorld()->GetDeltaSeconds(), SwingSpeed);
-	if (MarinePlayer->Camera->GetComponentLocation().Equals(HookLocation, 300))
-	{
-		bWasSwingPressed = false;
-		bIsPlayerLerpingToHookPosition = false;
-		bCanMakeSwingLineCheck = true;
-		FVector Velocity = MarinePlayer->CapsulePawn->GetPhysicsLinearVelocity() * SwingLinearPhysicsMultiplier;
-		Velocity.Z = MarinePlayer->CapsulePawn->GetPhysicsLinearVelocity().Z;
-		MarinePlayer->CapsulePawn->SetPhysicsLinearVelocity(Velocity);
-	}
+
+	StopSwingInterp();
+
 	MarinePlayer->SetActorLocation(LocationInterp);
+}
+void USwingComponent::StopSwingInterp()
+{
+	if (MarinePlayer->Camera->GetComponentLocation().Equals(HookLocation, MaxHookDistanceToFinishInterp) == false)
+		return;
+
+	bWasSwingPressed = false;
+	bIsPlayerLerpingToHookPosition = false;
+	bCanMakeSwingLineCheck = true;
+
+	FVector Velocity = MarinePlayer->CapsulePawn->GetPhysicsLinearVelocity() * SwingLinearPhysicsMultiplier;
+	Velocity.Z = MarinePlayer->CapsulePawn->GetPhysicsLinearVelocity().Z;
+	MarinePlayer->CapsulePawn->SetPhysicsLinearVelocity(Velocity);
 }
 #pragma endregion 
 

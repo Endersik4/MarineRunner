@@ -36,8 +36,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		float SwingDelay = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
-
+		FVector HookLocationOffset = FVector(0.f, 0.f, 50.f);
+	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
+		float MaxHookDistanceToFinishInterp = 300.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		TSubclassOf<class ASwingLine> SwingLineClass;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Raycast")
 		float LengthOfSwingLineRaycast = 2500.f;
 
@@ -49,7 +53,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Sounds")
 		USoundBase* SwingSound;
 
-	bool GetCanSwingLerp() const { return bIsPlayerLerpingToHookPosition; }
+	bool GetIsPlayerLerpingToHookPosition() const { return bIsPlayerLerpingToHookPosition; }
 	void SwingPressed();
 private:
 
@@ -63,8 +67,10 @@ private:
 	FTimerHandle SwingHandle;
 
 	void StartSwingToHook();
-	void SwingInterp();
 	void SwingLineCheck();
+
+	void SwingInterp();
+	void StopSwingInterp();
 
 	void SpawnSwingEffects();
 

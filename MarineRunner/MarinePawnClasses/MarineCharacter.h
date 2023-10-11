@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -47,9 +47,6 @@ public:
 	UFUNCTION(BlueprintPure)
 		class UWallrunComponent* GetWallrunComponent() const { return WallrunComponent; }
 
-	UFUNCTION(BlueprintCallable)
-		void SetShouldDieWhenDash(bool bShould) { bShouldDieWhenDash = bShould;  }
-
 	UFUNCTION(BlueprintImplementableEvent)
 		void RotateCameraWhileWallrunning(bool bIsRightSide = false);
 
@@ -66,10 +63,13 @@ public:
 	float GetMovementForce() const { return MovementForce; }
 	float GetHealth() const { return Health; }
 	bool GetIsWallrunning() const;
+	bool GetIsPlayerLerpingToHookLocation() const;
+	bool GetIsInSlowMotion() const;
 	bool GetIsJumping() const { return bIsJumping; }
 	bool GetIsOnRamp() const { return bSlideOnRamp; }
 	bool GetIsGoingUp() const { return bIsGoingUp; }
 	bool GetIsInAir() const { return bIsInAir; }
+	bool GetIsCrouching() const { return bIsCrouching; }
 	bool GetShouldAddCounterMovement() const { return bShouldAddCounterMovement; }
 	class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
@@ -77,11 +77,12 @@ public:
 	class UCameraComponent* GetCamera() const { return Camera; }
 	class AGun* GetGun() const { return Gun; }
 	class UPauseMenuComponent* GetPauseMenuComponent()const { return PauseMenuComponent; }
+	class UDashComponent* GetDashComponent() const { return DashComponent; }
 
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
 	void SetGun(class AGun* NewGun) { Gun = NewGun; }
 	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
-	void SetIsCroaching(bool bIs) { bIsCroaching = bIs; }
+	void SetIsCroaching(bool bIs) { bIsCrouching = bIs; }
 
 	void CallADSReleased() { ADSReleased(); }
 	void SetHealth(float NewHealth) { Health = NewHealth; }
@@ -94,8 +95,6 @@ public:
 	void MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings = false);
 	void HideGunAndAddTheNewOne(class AGun* NewGun);
 
-	void MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov = true, bool bAddChromaticAbberation = true);
-	void RemoveDashWidget();
 	void UpdateHudWidget();
 
 	void UpdateAlbertosInventory(bool bShouldUpdateInventory = true, bool bShouldUpdateCrafting = false);
@@ -169,8 +168,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> CrosshairClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget> DashClass;
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> HUDClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
@@ -242,12 +239,8 @@ private:
 	bool bIsInAir;
 	void CheckIfIsInAir();
 
-	//Dashing
-	bool bShouldDieWhenDash;
-	void Dash();
-
-	//Croaching
-	bool bIsCroaching;
+	//Crouching
+	bool bIsCrouching;
 	bool bSlideOnRamp;
 	bool bIsGoingUp;
 	void CrouchPressed();
@@ -296,7 +289,6 @@ private:
 	void MakeHudWidget();
 	void MakeCrosshire();
 	UUserWidget* CrosshairWidget;
-	class UDashWidget* DashWidget;
 	class UHUDWidget* HudWidget;
 
 	//Checking Stuff

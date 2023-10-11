@@ -9,6 +9,7 @@
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
+#include "DashComponent.h"
 
 // Sets default values for this component's properties
 USlowMotionComponent::USlowMotionComponent()
@@ -56,7 +57,7 @@ void USlowMotionComponent::SuddentDisabledSlowMotion()
 
 	if (IsValid(SlowMotionSoundSpawned)) SlowMotionSoundSpawned->Stop();
 	if (CancelSlowMotionSound) UGameplayStatics::PlaySound2D(GetWorld(), CancelSlowMotionSound);
-	MarinePawn->RemoveDashWidget();
+	MarinePawn->GetDashComponent()->RemoveDashWidget();
 
 	GetWorld()->GetTimerManager().ClearTimer(SlowMotionTimeHandle);
 	DisableSlowMotion();
@@ -94,7 +95,7 @@ void USlowMotionComponent::SettingUpSlowMotion()
 	MarinePawn->CustomTimeDilation = 2.5f;
 
 	//DashWidget will be on player viewport for some time (SlowMotionTime)
-	MarinePawn->MakeDashWidget(true, SlowMotionTime-1.0f, false); 
+	MarinePawn->GetDashComponent()->MakeDashWidget(true, SlowMotionTime-1.0f, false);
 	ElementBar SlowMoElementBar{ SlowMotionDelay + 1.7f };
 	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::SlowMo, SlowMoElementBar);
 
