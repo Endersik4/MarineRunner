@@ -38,7 +38,7 @@ void AHook::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AHook::HookPressed()
+void AHook::StartHookCooldown()
 {
 	bCanGrabTheHook = false;
 	CheckSphere->SetSphereRadius(0.f);
@@ -46,16 +46,14 @@ void AHook::HookPressed()
 	GetWorld()->GetTimerManager().SetTimer(HookPressedHandle, this, &AHook::DelayForGrabbingTheHook, 1.5f, false);
 }
 
-void AHook::HookActivate()
+void AHook::HookActivate(bool bActive)
 {
-	HookMesh->SetMaterial(0, M_PlayerInRange);
-}
+	if (bActive) 
+		HookMesh->SetMaterial(0, M_PlayerInRange);
+	else 
+		HookMesh->SetMaterial(0, M_PlayerOutRange);
 
-void AHook::HookInactiv()
-{
-	HookMesh->SetMaterial(0, M_PlayerOutRange);
 }
-
 void AHook::DelayForGrabbingTheHook()
 {
 	bCanGrabTheHook = true;

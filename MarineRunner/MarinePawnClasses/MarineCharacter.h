@@ -76,12 +76,7 @@ public:
 	class UInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
 	class UCameraComponent* GetCamera() const { return Camera; }
 	class AGun* GetGun() const { return Gun; }
-	class UPauseMenuWidget* GetPauseMenuWidget() const { return PauseMenuWidget; }
-	/*
-	FORCEINLINE float GetMouseSensitivity() const { return MouseSensitivityJSON.FieldValue; }
-	FORCEINLINE float GetMouseSensitivityWhenScope(int32 Index) const { return MouseSensitivityWhenScopeJSON[Index].FieldValue; }
-	FORCEINLINE void SetMouseSensitivity(float NewSens) { MouseSensitivityJSON.FieldValue = NewSens; ChangeMouseSensitivity(MouseSensitivityJSON.FieldValue); }
-	FORCEINLINE void SetMouseSensitivityWhenScope(float NewSens, int32 Index) { MouseSensitivityWhenScopeJSON[Index].FieldValue = NewSens; }*/
+	class UPauseMenuComponent* GetPauseMenuComponent()const { return PauseMenuComponent; }
 
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
 	void SetGun(class AGun* NewGun) { Gun = NewGun; }
@@ -104,8 +99,6 @@ public:
 	void UpdateHudWidget();
 
 	void UpdateAlbertosInventory(bool bShouldUpdateInventory = true, bool bShouldUpdateCrafting = false);
-
-	void CallUnPauseGame() { UnPauseGame(); }
 
 	void CallSaveGame(AActor* JustSavedCheckpoint = nullptr) { SaveGame(JustSavedCheckpoint); }
 	bool CanPlayerSaveGame();
@@ -130,6 +123,10 @@ private:
 		class UWeaponInventoryComponent* WeaponInventoryComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetInteractionComponent* WidgetInteractionComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UPauseMenuComponent* PauseMenuComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class USwingComponent* SwingComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;
@@ -167,22 +164,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
 		float DelayJumpTime = 0.15f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
-		float DelayIsInAirTime = 0.55f;
-
-	//Impuls before Interp
-	UPROPERTY(EditDefaultsOnly, Category = "Movement|Swing")
-		float SwingForce = 900.f;
-	//Multiplier that is multiplying X and Y Velocity after Pawn got to Hook
-	UPROPERTY(EditDefaultsOnly, Category = "Movement|Swing")
-		float SwingLinearPhysicsMultiplier = 1.5f;
-	//Pawn Interp Speed From Pawn location to Hook Locaiton
-	UPROPERTY(EditDefaultsOnly, Category = "Movement|Swing")
-		float SwingSpeed = 4.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement|Swing")
-		float SwingDelay = 0.2f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Actors to Spawn")
-		TSubclassOf<class ASwingLine> SwingLineClass;
+		float DelayIsInAirTime = 0.3f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> CrosshairClass;
@@ -190,8 +172,7 @@ private:
 		TSubclassOf<class UUserWidget> DashClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> HUDClass;
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
@@ -211,8 +192,6 @@ private:
 		USoundBase* MarineHitSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* UseFirstAidKitSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* SwingSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds|Footsteps")
 		USoundBase* FootstepsSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds|Footsteps")
@@ -294,12 +273,6 @@ private:
 	void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }
 	void UseFirstAidKit();
 
-	// Pause Menu 
-	class UPauseMenuWidget* PauseMenuWidget;
-	void PauseGame();
-	void UnPauseGame();
-	void SpawnPauseMenuWidget();
-
 	//Aiming
 	void ADSPressed();
 	void ADSReleased();
@@ -309,20 +282,6 @@ private:
 	void FirstWeapon();
 	void SecondWeapon();
 	bool bCanChangeWeapon = true;
-	
-	//Swing
-	bool bIsSwingPressed = false;
-	bool bCanMarineSwing;
-	bool bShouldCheckForSwing = true;
-	bool bCanSwingLerp;
-	FVector HookLocation;
-	FVector SwingImpulse;
-	FTimerHandle SwingHandle;
-	void SwingPressed();
-	void Swing();
-	void SwingInterp();
-	void SwingLineCheck();
-	class AHook* HookCast;
 
 	//SlowMotion
 	void SlowMotionPressed();

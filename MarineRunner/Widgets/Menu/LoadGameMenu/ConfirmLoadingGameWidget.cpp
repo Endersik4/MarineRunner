@@ -10,6 +10,7 @@
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Widgets/Menu/PauseMenuWidget.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/PauseMenuComponent.h"
 
 void UConfirmLoadingGameWidget::NativeConstruct()
 {
@@ -33,16 +34,16 @@ void UConfirmLoadingGameWidget::AddThisWidgetToCurrentSpawnedMenuWidgets(bool bS
 	if (IsValid(MarinePlayer) == false)
 		return;
 
-	if (IsValid(MarinePlayer->GetPauseMenuWidget()) == false)
+	if (IsValid(MarinePlayer->GetPauseMenuComponent()->GetPauseMenuWidget()) == false)
 		return;
 
 	if (bShouldDeleteExistingOne == true)
 	{
-		MarinePlayer->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Remove(this);
+		MarinePlayer->GetPauseMenuComponent()->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Remove(this);
 	}
 	else
 	{
-		MarinePlayer->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Add(this, [this](bool b) { this->BackToLoadGame(b); });
+		MarinePlayer->GetPauseMenuComponent()->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Add(this, [this](bool b) { this->BackToLoadGame(b); });
 	}
 }
 

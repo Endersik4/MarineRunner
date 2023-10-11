@@ -26,9 +26,9 @@ public:
 	bool bCanGrabTheHook = true;
 	
 	
-	void HookPressed();
-	void HookActivate();
-	void HookInactiv();
+	void StartHookCooldown();
+	void HookActivate(bool bActive = true);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		class USphereComponent* CheckSphere;
 private:

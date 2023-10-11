@@ -12,6 +12,7 @@ void UMarineRunnerGameInstance::Init()
 	SetSaveNumberAccordingToNumOfFiles();
 
 	LoadCustomSavedSettingsFromConfig();
+	LoadSoundsVolumeFromConfig(CustomSavedSettings);
 }
 
 void UMarineRunnerGameInstance::SetSaveNumberAccordingToNumOfFiles()

@@ -139,4 +139,6 @@ private:
 	TArray<UButton*> AllMenuButtons;
 	void SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore = nullptr);
 
+	class AMarineCharacter* MarinePlayer;
+
 };

@@ -11,21 +11,20 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "TimerManager.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "MarineRunner/MarinePawnClasses/CroachAndSlide.h"
 #include "MarineRunner/MarinePawnClasses/DashComponent.h"
 #include "MarineRunner/MarinePawnClasses/TakeAndDrop.h"
-#include "MarineRunner/MarinePawnClasses/Hook.h"
-#include "MarineRunner/MarinePawnClasses/SwingLine.h"
+
 #include "MarineRunner/MarinePawnClasses/WallrunComponent.h"
 #include "MarineRunner/MarinePawnClasses/SlowMotionComponent.h"
 #include "MarineRunner/MarinePawnClasses/PullUpComponent.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/PauseMenuComponent.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/SwingComponent.h"
 #include "MarineRunner/Widgets/DashWidget.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
-#include "MarineRunner/Widgets/Menu/PauseMenuWidget.h"
 #include "MarineRunner/Widgets/Menu/GameSavedNotificationWidget.h"
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Framework/SaveMarineRunner.h"
@@ -69,7 +68,9 @@ AMarineCharacter::AMarineCharacter()
 	PullUpComponent = CreateDefaultSubobject<UPullUpComponent>(TEXT("PullUpComponent"));
 	WeaponInventoryComponent = CreateDefaultSubobject<UWeaponInventoryComponent>(TEXT("WeaponInventoryComponent"));
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
-
+	PauseMenuComponent = CreateDefaultSubobject<UPauseMenuComponent>(TEXT("PauseMenuComponent"));
+	SwingComponent = CreateDefaultSubobject<USwingComponent>(TEXT("SwingComponent"));
+	
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
 	WidgetInteractionComponent->SetupAttachment(Camera);
 	WidgetInteractionComponent->InteractionSource = EWidgetInteractionSource::CenterScreen;
@@ -97,9 +98,6 @@ void AMarineCharacter::BeginPlay()
 void AMarineCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	SwingInterp();
-	SwingLineCheck();
 
 	Movement(DeltaTime);
 	JumpTick(DeltaTime);
@@ -140,15 +138,14 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	//Gameplay components
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, this, &AMarineCharacter::Dash);
-	PlayerInputComponent->BindAction(TEXT("Swing"), IE_Pressed, this, &AMarineCharacter::SwingPressed);
+	PlayerInputComponent->BindAction(TEXT("Swing"), IE_Pressed, SwingComponent, &USwingComponent::SwingPressed);
 	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, this, &AMarineCharacter::SlowMotionPressed);
 
 	// Menu
-	FInputActionBinding& MainMenuToggle = PlayerInputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, this, &AMarineCharacter::PauseGame);
+	FInputActionBinding& MainMenuToggle = PlayerInputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, PauseMenuComponent, &UPauseMenuComponent::PauseGame);
 	MainMenuToggle.bExecuteWhenPaused = true;
 
 	PlayerInputComponent->BindAction(TEXT("CallAlbertos"), IE_Pressed, this, &AMarineCharacter::CallAlbertosPressed);
-
 }
 
 void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& NewMouseSensitivity)
@@ -163,7 +160,7 @@ void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& New
 // TODO: Rewrite whole movement after adding Player Model to game
 void AMarineCharacter::Movement(float Delta)
 {
-	if (bCanSwingLerp || bIsInputDisabled) return;
+	if (SwingComponent->GetCanSwingLerp() || bIsInputDisabled) return;
 
 	FVector ForwardDirection;
 	FVector RightDirection;
@@ -451,23 +448,6 @@ void AMarineCharacter::Zoom(float WheelAxis)
 }
 #pragma endregion 
 
-void AMarineCharacter::LoadSavedSettingsFromGameInstance()
-{
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (IsValid(GameInstance) == false || IsValid(MarinePlayerController) == false)
-		return;
-
-	const FSettingSavedInJsonFile& CurrentMouseSensName = MarinePlayerController->GetMouseSensitivity();
-	GameInstance->SetValueBySavedSettingName(MouseSensitivityJSON.FieldName, MouseSensitivityJSON.FieldValue);
-	if (CurrentMouseSensName == MouseSensitivityJSON) ChangeMouseSensitivity(MouseSensitivityJSON);
-
-	for (FSettingSavedInJsonFile &CurrSetting : MouseSensitivityWhenScopeJSON)
-	{
-		GameInstance->SetValueBySavedSettingName(CurrSetting.FieldName, CurrSetting.FieldValue);
-		if (CurrentMouseSensName == CurrSetting) ChangeMouseSensitivity(CurrSetting);
-	}
-}
-
 #pragma region //////////////////////////// FOOTSTEPS SOUND ////////////////////////////
 void AMarineCharacter::PlayFootstepsSound()
 {
@@ -531,156 +511,10 @@ void AMarineCharacter::UseFirstAidKit()
 }
 #pragma endregion 
 
-#pragma region /////////////////// PAUSE MENU ////////////////
-void AMarineCharacter::PauseGame()
-{
-	if (UGameplayStatics::IsGamePaused(GetWorld()) == true)
-	{
-		UnPauseGame();
-		return;
-	}
-
-	MarinePlayerController->SetShowMouseCursor(true);
-	SpawnPauseMenuWidget();
-
-	UGameplayStatics::SetGamePaused(GetWorld(), true);
-}
-
-void AMarineCharacter::UnPauseGame()
-{
-	bool bRemovePauseMenuWidget = PauseMenuWidget->RemoveCurrentMenuWidgetsFromViewport();
-
-	if (bRemovePauseMenuWidget == false) return;
-
-	UGameplayStatics::SetGamePaused(GetWorld(), false);
-
-	MarinePlayerController->SetShowMouseCursor(false);
-
-	PauseMenuWidget->RemoveFromParent();
-	PauseMenuWidget = nullptr;
-
-	UWidgetBlueprintLibrary::SetInputMode_GameOnly(MarinePlayerController);
-}
-
-void AMarineCharacter::SpawnPauseMenuWidget()
-{
-	if (IsValid(MarinePlayerController) == false) return;
-
-	PauseMenuWidget = Cast<UPauseMenuWidget>(CreateWidget(MarinePlayerController, PauseMenuWidgetClass));
-	if (IsValid(PauseMenuWidget) == false)
-		return;
-	
-	PauseMenuWidget->AddToViewport();
-}
-
-#pragma endregion
-
-#pragma region ///////////////////////////////// SWING /////////////////////////////////
-void AMarineCharacter::SwingLineCheck()
-{
-	if (bCanSwingLerp || bShouldCheckForSwing == false) return;
-
-	FVector LineStart = Camera->GetComponentLocation();
-	FVector LineEnd = LineStart + (MarinePlayerController->GetRootComponent()->GetForwardVector() * 2500.f);
-	TArray<AActor*> ActorsToIgnore;
-	FHitResult HitResults;
-	if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2), false, ActorsToIgnore, EDrawDebugTrace::None, HitResults, true))
-	{
-		AHook* TempHook;
-		if (HitResults.GetActor()->ActorHasTag("Hook"))
-		{
-			TempHook = Cast<AHook>(HitResults.GetActor());
-
-			if (HookCast && TempHook != HookCast) HookCast->HookInactiv();
-			if (TempHook->bCanGrabTheHook == true)
-			{
-				TempHook->HookActivate();
-				HookCast = TempHook;
-				bCanMarineSwing = true;
-
-				return;
-			}
-		}
-	}
-
-	if (HookCast)
-	{
-		HookCast->HookInactiv();
-		bCanMarineSwing = false;
-	}
-}
-
-//If the player press the Swing button then spawn the Line that is going to the Hook and then wait for SwingDelay to elapsed
-void AMarineCharacter::SwingPressed()
-{
-	if (!bCanMarineSwing || HookCast == nullptr || bCanSwingLerp == true || bIsSwingPressed == true) return;
-
-	HookCast->HookPressed();
-	bIsSwingPressed = true;
-	bShouldCheckForSwing = false;
-	FVector SpawnLocation = Camera->GetComponentLocation();
-	SpawnLocation += MarinePlayerController->GetRootComponent()->GetForwardVector() * 100.f;
-	SpawnLocation += Camera->GetRightVector() * 70.f;
-	ASwingLine* SwingLine = GetWorld()->SpawnActor<ASwingLine>(SwingLineClass, SpawnLocation, FRotator(0, 0, 0));
-	if (SwingLine)
-	{
-		SwingLine->SetHookLocation(HookCast->GetActorLocation());
-		SwingLine->SetSpeedLine(SwingDelay);
-		SwingLine->SetCanTick(true);
-	}
-
-	if (SwingSound) UGameplayStatics::SpawnSound2D(GetWorld(), SwingSound);
-
-	GetWorldTimerManager().SetTimer(SwingHandle, this, &AMarineCharacter::Swing, SwingDelay);
-}
-
-void AMarineCharacter::Swing()
-{
-	if (HookCast == nullptr) return;
-
-	CapsulePawn->SetPhysicsLinearVelocity(FVector(0, 0, 0));
-	bCanSwingLerp = true;
-
-	HookLocation = HookCast->GetActorLocation();
-	HookLocation.Z -= 50.f;
-
-	FVector DirectionOfVector = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HookLocation));
-	SwingImpulse = DirectionOfVector * SwingForce * 1000.f;
-	CapsulePawn->AddImpulse(SwingImpulse);
-
-	//Get Direction To Hook but only in X and Z Axis. Its for Pawn Physics
-	SwingImpulse = FRotator(0, SwingImpulse.Rotation().Yaw, 0).Vector();
-	MovementImpulse = SwingImpulse;
-	bShouldAddCounterMovement = false;
-
-	//Things that cannot happen while Swing
-	MovementStuffThatCannotHappen();
-}
-
-//Interp player to location of the Hook
-void AMarineCharacter::SwingInterp()
-{
-	if (!bCanSwingLerp || HookCast == nullptr) return;
-	
-	FVector LocationInterp = FMath::VInterpTo(GetActorLocation(), HookLocation, GetWorld()->GetDeltaSeconds(), SwingSpeed);
-	if (Camera->GetComponentLocation().Equals(HookLocation, 200))
-	{
-		bIsSwingPressed = false;
-		bCanSwingLerp = false;
-		bShouldCheckForSwing = true;
-		FVector Velocity = CapsulePawn->GetPhysicsLinearVelocity() * SwingLinearPhysicsMultiplier;
-		Velocity.Z = CapsulePawn->GetPhysicsLinearVelocity().Z;
-		CapsulePawn->SetPhysicsLinearVelocity(Velocity);
-	}
-	SetActorLocation(LocationInterp);
-
-}
-#pragma endregion 
-
 #pragma region /////////////////////////////// CROACHING ///////////////////////////////
 void AMarineCharacter::CrouchPressed()
 {
-	if (bCanSwingLerp || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion()) return;
+	if (SwingComponent->GetCanSwingLerp() || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion()) return;
 
 	bIsCroaching = true;
 	CroachAndSlideComponent->CrouchPressed();
@@ -747,7 +581,7 @@ void AMarineCharacter::DropItem()
 #pragma region ////////////////////////// COMPONENTS PRESSED ///////////////////////////
 void AMarineCharacter::Dash()
 {
-	if (bCanSwingLerp || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion() || bIsCroaching) return;
+	if (SwingComponent->GetCanSwingLerp() || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion() || bIsCroaching) return;
 
 	//If Dash is forbidden in the current stage of level then kill the player
 	if (bShouldDieWhenDash == true) UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
@@ -759,7 +593,7 @@ void AMarineCharacter::Dash()
 void AMarineCharacter::SlowMotionPressed()
 {
 	//Cant do Slowmotion when Player isnt in AIr or is wallrunning or swinging
-	if (!bIsInAir || WallrunComponent->GetIsWallrunning() || bCanSwingLerp) return;
+	if (!bIsInAir || WallrunComponent->GetIsWallrunning() || SwingComponent->GetCanSwingLerp()) return;
 
 	SlowMotionComponent->TurnOnSlowMotion();
 }
@@ -814,6 +648,23 @@ void AMarineCharacter::LoadGame()
 	}
 
 	LoadGameInstance->LoadGame(this, GameInstance);
+}
+
+void AMarineCharacter::LoadSavedSettingsFromGameInstance()
+{
+	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (IsValid(GameInstance) == false || IsValid(MarinePlayerController) == false)
+		return;
+
+	const FSettingSavedInJsonFile& CurrentMouseSensName = MarinePlayerController->GetMouseSensitivity();
+	GameInstance->SetValueBySavedSettingName(MouseSensitivityJSON.FieldName, MouseSensitivityJSON.FieldValue);
+	if (CurrentMouseSensName == MouseSensitivityJSON) ChangeMouseSensitivity(MouseSensitivityJSON);
+
+	for (FSettingSavedInJsonFile& CurrSetting : MouseSensitivityWhenScopeJSON)
+	{
+		GameInstance->SetValueBySavedSettingName(CurrSetting.FieldName, CurrSetting.FieldValue);
+		if (CurrentMouseSensName == CurrSetting) ChangeMouseSensitivity(CurrSetting);
+	}
 }
 
 void AMarineCharacter::SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn)

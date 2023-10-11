@@ -12,6 +12,7 @@
 #include "LoadGameMenu/LoadGameMenuWidget.h"
 #include "LoadGameMenu/ConfirmLoadingGameWidget.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/PauseMenuComponent.h"
 
 void UPauseMenuWidget::NativeConstruct()
 {
@@ -42,6 +43,8 @@ void UPauseMenuWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
+	MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+
 	if (PauseMenuMusic) CurrentPauseMenuMusic = UGameplayStatics::SpawnSound2D(GetWorld(), PauseMenuMusic);
 
 	FillMenuButtonsAndTextMap();
@@ -64,11 +67,12 @@ void UPauseMenuWidget::FillMenuButtonsAndTextMap()
 #pragma region //////////////// RESUME /////////////////
 void UPauseMenuWidget::OnClickedResumeButton()
 {
-	AMarineCharacter* MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (IsValid(MarinePlayer) == false)
 		return;
+	if (IsValid(MarinePlayer->GetPauseMenuComponent()) == false)
+		return;
 
-	MarinePlayer->CallUnPauseGame();
+	MarinePlayer->GetPauseMenuComponent()->CallUnPauseGame();
 }
 
 void UPauseMenuWidget::OnHoveredResumeButton()
@@ -98,7 +102,8 @@ void UPauseMenuWidget::OnClickedLoadGameButton()
 void UPauseMenuWidget::SpawnLoadGameMenuWidget()
 {
 	LoadGameMenuWidget = Cast<ULoadGameMenuWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), LoadGameMenuWidgetClass));
-	if (LoadGameMenuWidget == nullptr) return;
+	if (LoadGameMenuWidget == nullptr) 
+		return;
 
 	SetEnableAllMenuButtons(false, LoadGameButton);
 	LoadGameMenuWidget->AddToViewport();
@@ -136,7 +141,6 @@ void UPauseMenuWidget::OnUnhoveredLoadGameButton()
 #pragma region //////////////// SAVE GAME /////////////////
 void UPauseMenuWidget::OnClickedSaveGameButton()
 {
-	AMarineCharacter* MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (IsValid(MarinePlayer) == false)
 		return;
 
@@ -147,7 +151,11 @@ void UPauseMenuWidget::OnClickedSaveGameButton()
 	}
 
 	MarinePlayer->CallSaveGame();
-	MarinePlayer->CallUnPauseGame();
+
+	if (IsValid(MarinePlayer->GetPauseMenuComponent()) == false)
+		return;
+
+	MarinePlayer->GetPauseMenuComponent()->CallUnPauseGame();
 }
 
 void UPauseMenuWidget::OnHoveredSaveGameButton()

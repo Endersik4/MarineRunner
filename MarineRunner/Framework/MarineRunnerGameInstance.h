@@ -15,9 +15,9 @@ struct FSettingSavedInJsonFile {
 
 public:
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FString FieldName;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float FieldValue;
 
 	FSettingSavedInJsonFile() {
@@ -71,6 +71,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		TArray<FSettingSavedInJsonFile> CustomSavedSettings;
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void LoadSoundsVolumeFromConfig(const TArray<FSettingSavedInJsonFile> & AllSavedValuesFromConfig);
 
 	// Get all files with wildcard from SaveGames dir, for example: "ManualSave" will give number of all files with word "ManualSave" in file name
 	UFUNCTION(BlueprintImplementableEvent)
