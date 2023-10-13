@@ -81,11 +81,19 @@ private:
 		class UStaticMeshComponent* Hologram_2;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UFloatingPawnMovement* AlbertosFloatingMovement;
+	UPROPERTY(EditDefaultsOnly)
+		class UChildActorComponent* DissolveBox_Left;
+	UPROPERTY(EditDefaultsOnly)
+		class UChildActorComponent* DissolveBox_Right;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
 		float ActiveAlbertosRadius = 1000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
 		float MaxSpeedWhenMovingTowardsPlayer = 3000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Crafting Widget Animation")
+		float CraftingWidgetAnimationTime = 0.4f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Crafting Widget Animation")
+		FVector DissolveBoxesOffsetForAnim = FVector(0.f, 2130.f, 0.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Hover")
 		UMaterialInstance* OnAlbertosHoverMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Hover")
@@ -118,7 +126,8 @@ private:
 	FVector TargetScaleOfCraftedItem;
 	class APickupItem* CraftedItem;
 
-	void ToggleVisibilityInventory(bool bCheckIfHidden = false);
+	void ToggleInventoryVisibility();
+	void ToggleVisibilityCraftingWidget();
 
 	float CopyOfMaxSpeed;
 
@@ -127,10 +136,22 @@ private:
 
 	// When Players is near Albertos
 	bool bPlayerWasClose;
-	bool bCanRotateAlbertos;
+	bool bCanAlbertosRotate;
 	FTimerHandle PlayerIsNearHandle;
 	void CheckIfThePlayerIsNear();
 	void RotateAlbertosTowardsPlayer(float Delta);
+
+	// Animation for opening/closing crafting table widget
+	bool bPlayCraftingWidgetAnimation;
+	bool bWasCraftingWidgetClosed;
+	float CraftingWidgetAnimationTimeElapsed;
+	FVector DissolveBox_Left_StartLoc;
+	FVector DissolveBox_Left_EndLoc;
+	FVector DissolveBox_Right_StartLoc;
+	FVector DissolveBox_Right_EndLoc;
+	void ToggleVisibilityForDissolveBoxes();
+	void PrepareCraftingWidgetAnimation(bool bForwardAnim);
+	void CraftingWidgetAnimation(float Delta);
 
 	// Moving an item after it has been created
 	bool bMoveCraftedItemToFinalPosition;

@@ -76,7 +76,7 @@ void UTakeAndDrop::Take()
 		return;
 
 	TakeInterface->TakeItem(MarinePawn, bIsItWeapon);
-	MarinePawn->GetHudWidget()->PlayAppearAnimForItemHover(false);
+	
 	if (bIsItWeapon == false) TakeInterface = nullptr;
 }
 

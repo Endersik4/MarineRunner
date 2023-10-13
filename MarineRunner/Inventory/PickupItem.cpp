@@ -62,6 +62,7 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	}
 
 	Character->UpdateHudWidget();
+	Character->GetHudWidget()->PlayAppearAnimForItemHover(false);
 	
 	UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
 	if (ItemSettings.bIsItWeapon == true) return;

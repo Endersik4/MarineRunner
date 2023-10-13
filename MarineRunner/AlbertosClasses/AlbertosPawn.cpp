@@ -55,6 +55,13 @@ AAlbertosPawn::AAlbertosPawn()
 	Hologram_2->SetCollisionProfileName(FName(TEXT("NoCollision")));
 	Hologram_2->SetupAttachment(CraftingTableWidget);
 	Hologram_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	DissolveBox_Left = CreateOptionalDefaultSubobject<UChildActorComponent>(TEXT("DissolveBox_Left"));
+	DissolveBox_Left->SetupAttachment(CraftingTableWidget);
+	DissolveBox_Left->SetVisibility(false);
+	DissolveBox_Right = CreateOptionalDefaultSubobject<UChildActorComponent>(TEXT("DissolveBox_Right"));
+	DissolveBox_Right->SetupAttachment(CraftingTableWidget);
+	DissolveBox_Right->SetVisibility(false);
 }
 
 
@@ -83,6 +90,7 @@ void AAlbertosPawn::Tick(float DeltaTime)
 
 	MoveCraftedItemToFinalPosition(DeltaTime);
 	RotateAlbertosTowardsPlayer(DeltaTime);
+	CraftingWidgetAnimation(DeltaTime);
 }
 
 // Called to bind functionality to input
@@ -150,14 +158,19 @@ void AAlbertosPawn::CraftingFinished()
 void AAlbertosPawn::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 {
 	bIsItWeapon = false;
-	ToggleVisibilityInventory();
+
+	if (bPlayCraftingWidgetAnimation == true) 
+		return;
+
+	ToggleInventoryVisibility();
 	if (CraftingTableWidget->IsVisible()) Character->UpdateAlbertosInventory(true, true);
-	if (SpawnedRandomSound) SpawnedRandomSound->Stop();
+	if (IsValid(SpawnedRandomSound)) SpawnedRandomSound->Stop();
 }
 
 void AAlbertosPawn::ItemHover(UHUDWidget* MarineHUDWidget)
 {
-	if (OnAlbertosHoverMaterial == nullptr || bIsHovered == true) return;
+	if (OnAlbertosHoverMaterial == nullptr || bIsHovered == true || bPlayCraftingWidgetAnimation == true) 
+		return;
 
 	AlbertosSkeletalMesh->SetMaterial(3, OnAlbertosHoverMaterial);
 	if (HoverSound) UGameplayStatics::SpawnSoundAttached(HoverSound, AlbertosSkeletalMesh, FName(TEXT("Root")));
@@ -166,24 +179,31 @@ void AAlbertosPawn::ItemHover(UHUDWidget* MarineHUDWidget)
 
 void AAlbertosPawn::ItemUnHover(UHUDWidget* MarineHUDWidget)
 {
-	if (OnAlbertosUnHoverMaterial == nullptr || bIsHovered == false) return;
+	if (OnAlbertosUnHoverMaterial == nullptr || bIsHovered == false) 
+		return;
 
 	AlbertosSkeletalMesh->SetMaterial(3, OnAlbertosUnHoverMaterial);
 	bIsHovered = false;
 }
 
-void AAlbertosPawn::ToggleVisibilityInventory(bool bCheckIfHidden)
+void AAlbertosPawn::ToggleInventoryVisibility()
 {
-	if (bCheckIfHidden == false)
+	if (CraftingTableWidget->IsVisible() == false)
 	{
-		CraftingTableWidget->ToggleVisibility();
-		Hologram_1->ToggleVisibility();
-		Hologram_2->ToggleVisibility();
+		ToggleVisibilityCraftingWidget();
+		PrepareCraftingWidgetAnimation(true);
 	}
-	else if(CraftingTableWidget->IsVisible())
+	else
 	{
-		ToggleVisibilityInventory();
+		PrepareCraftingWidgetAnimation(false);
 	}
+}
+
+void AAlbertosPawn::ToggleVisibilityCraftingWidget()
+{
+	CraftingTableWidget->ToggleVisibility();
+	Hologram_1->ToggleVisibility();
+	Hologram_2->ToggleVisibility();
 }
 #pragma endregion;
 
@@ -191,24 +211,26 @@ void AAlbertosPawn::ToggleVisibilityInventory(bool bCheckIfHidden)
 
 void AAlbertosPawn::CheckIfThePlayerIsNear()
 {
-	if (AlbertosAI == nullptr) return;
+	if (IsValid(AlbertosAI) == false) return;
 
 	if (FVector::Distance(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation(), GetActorLocation()) <= ActiveAlbertosRadius)
 	{
 		if (bPlayerWasClose == true) return;
 		
-		AlbertosAI->SetCanMove(true);
+		AlbertosAI->SetCanMove(true); // powinno byc false
 		AlbertosAI->StopMovement();
 
-		bCanRotateAlbertos = true;
+		bCanAlbertosRotate = true;
 
 		bPlayerWasClose = true;
 	}
-	else if (bPlayerWasClose == true && CraftedItem == nullptr)
+	else if (bPlayerWasClose == true && IsValid(CraftedItem) == false) // Prevents the item from not leaving Albertos
 	{
 		AlbertosAI->SetCanMove(false);
 
-		ToggleVisibilityInventory(true);
+		if (CraftingTableWidget->IsVisible() == true) 
+			ToggleInventoryVisibility();
+
 		if (bIsFrontDoorOpen == true)
 		{
 			OpenFrontDoor(AlbertosSkeletalMesh, false);
@@ -221,14 +243,14 @@ void AAlbertosPawn::CheckIfThePlayerIsNear()
 
 void AAlbertosPawn::RotateAlbertosTowardsPlayer(float Delta)
 {
-	if (bCanRotateAlbertos == false) return;
+	if (bCanAlbertosRotate == false) return;
 
 	FRotator RotatorLook = GetActorRotation();
 	RotatorLook.Yaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation()).Yaw;
 	FRotator NewRotation = UKismetMathLibrary::RInterpTo(GetActorRotation(), RotatorLook, Delta, 8.f);
 	SetActorRotation(NewRotation);
 
-	if (FMath::IsNearlyEqual(RotatorLook.Yaw, NewRotation.Yaw, 2.f)) bCanRotateAlbertos = false;
+	if (FMath::IsNearlyEqual(RotatorLook.Yaw, NewRotation.Yaw, 2.f)) bCanAlbertosRotate = false;
 }
 
 #pragma endregion
@@ -264,6 +286,65 @@ void AAlbertosPawn::MoveCraftedItemToFinalPosition(float Delta)
 		if (bPlayerWasClose == true) CheckIfThePlayerIsNear();
 	}
 }
+#pragma endregion
+
+#pragma region /////////////// CRAFTING WIDGET ANIMATION ///////////////
+void AAlbertosPawn::CraftingWidgetAnimation(float Delta)
+{
+	if (bPlayCraftingWidgetAnimation == false)
+		return;
+
+	if (CraftingWidgetAnimationTimeElapsed >= CraftingWidgetAnimationTime)
+	{
+		ToggleVisibilityForDissolveBoxes();
+		bPlayCraftingWidgetAnimation = false;
+
+		if (bWasCraftingWidgetClosed == true)
+		{
+			ToggleVisibilityCraftingWidget();
+			bWasCraftingWidgetClosed = false;
+		}
+	}
+
+	FVector NewBoxLeftLoc = FMath::Lerp(DissolveBox_Left_StartLoc, DissolveBox_Left_EndLoc, CraftingWidgetAnimationTimeElapsed / CraftingWidgetAnimationTime);
+	FVector NewBoxRightLoc = FMath::Lerp(DissolveBox_Right_StartLoc, DissolveBox_Right_EndLoc, CraftingWidgetAnimationTimeElapsed / CraftingWidgetAnimationTime);
+
+	DissolveBox_Left->SetRelativeLocation(NewBoxLeftLoc);
+	DissolveBox_Right->SetRelativeLocation(NewBoxRightLoc);
+
+	CraftingWidgetAnimationTimeElapsed += Delta;
+}
+
+void AAlbertosPawn::PrepareCraftingWidgetAnimation(bool bForwardAnim)
+{
+	bPlayCraftingWidgetAnimation = true;
+
+	DissolveBox_Left_StartLoc = DissolveBox_Left->GetRelativeLocation();
+	DissolveBox_Right_StartLoc = DissolveBox_Right->GetRelativeLocation();
+
+	CraftingWidgetAnimationTimeElapsed = 0.f;
+
+	if (bForwardAnim)
+	{
+		DissolveBox_Left_EndLoc = DissolveBox_Left_StartLoc + DissolveBoxesOffsetForAnim;
+		DissolveBox_Right_EndLoc = DissolveBox_Right_StartLoc - DissolveBoxesOffsetForAnim;
+	}
+	else
+	{
+		DissolveBox_Left_EndLoc = DissolveBox_Left_StartLoc - DissolveBoxesOffsetForAnim;
+		DissolveBox_Right_EndLoc = DissolveBox_Right_StartLoc + DissolveBoxesOffsetForAnim;
+		bWasCraftingWidgetClosed = true;
+	}
+
+	ToggleVisibilityForDissolveBoxes();
+}
+
+void AAlbertosPawn::ToggleVisibilityForDissolveBoxes()
+{
+	DissolveBox_Left->ToggleVisibility();
+	DissolveBox_Right->ToggleVisibility();
+}
+
 #pragma endregion
 
 void AAlbertosPawn::CallAlbertoToThePlayer(FVector PlayerLoc)
