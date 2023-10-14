@@ -10,6 +10,8 @@
 
 #include "MarineCharacter.generated.h"
 
+DECLARE_DELEGATE_OneParam(FSelectWeaponDelegate, int32);
+
 UCLASS()
 class MARINERUNNER_API AMarineCharacter : public APawn, public IInteractInterface
 {
@@ -64,12 +66,12 @@ public:
 	float GetHealth() const { return Health; }
 	bool GetIsWallrunning() const;
 	bool GetIsPlayerLerpingToHookLocation() const;
+	bool GetIsCrouching() const;
 	bool GetIsInSlowMotion() const;
 	bool GetIsJumping() const { return bIsJumping; }
 	bool GetIsOnRamp() const { return bSlideOnRamp; }
 	bool GetIsGoingUp() const { return bIsGoingUp; }
 	bool GetIsInAir() const { return bIsInAir; }
-	bool GetIsCrouching() const { return bIsCrouching; }
 	bool GetShouldAddCounterMovement() const { return bShouldAddCounterMovement; }
 	class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
@@ -82,7 +84,6 @@ public:
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
 	void SetGun(class AGun* NewGun) { Gun = NewGun; }
 	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
-	void SetIsCroaching(bool bIs) { bIsCrouching = bIs; }
 
 	void CallADSReleased() { ADSReleased(); }
 	void SetHealth(float NewHealth) { Health = NewHealth; }
@@ -240,16 +241,12 @@ private:
 	void CheckIfIsInAir();
 
 	//Crouching
-	bool bIsCrouching;
 	bool bSlideOnRamp;
 	bool bIsGoingUp;
-	void CrouchPressed();
-	void CrouchReleased();
 
 	//Taking Items
 	void KeyEPressed();
 	void KeyEReleased();
-	void DropItem();
 
 	//Gun
 	void Shoot();
@@ -272,12 +269,8 @@ private:
 	bool bIsPlayerADS;
 
 	//Weapon Inventory
-	void FirstWeapon();
-	void SecondWeapon();
 	bool bCanChangeWeapon = true;
-
-	//SlowMotion
-	void SlowMotionPressed();
+	void SelectWeaponFromQuickInventory(int32 HandNumber);
 
 	//Saving/Loading Game
 	class USaveMarineRunner* CurrentSaveGameInstance;

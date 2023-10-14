@@ -82,6 +82,10 @@ void UCroachAndSlide::Sliding()
 
 void UCroachAndSlide::CrouchPressed()
 {
+	if (MarinePawn->GetIsPlayerLerpingToHookLocation() || MarinePawn->GetIsWallrunning() || MarinePawn->GetIsInSlowMotion()) return;
+	
+	bIsCrouching = true;
+
 	if (bShouldStillCroach) return;
 
 	MovementForce = CroachForceSpeed;
@@ -127,7 +131,7 @@ void UCroachAndSlide::CrouchReleased()
 		bShouldStillCroach = true;
 		return;
 	}
-	MarinePawn->SetIsCroaching(false);
+	bIsCrouching = false;
 	bShouldSlide = false;
 	TurnOffSlideSound();
 	bShouldPlaySound = true;

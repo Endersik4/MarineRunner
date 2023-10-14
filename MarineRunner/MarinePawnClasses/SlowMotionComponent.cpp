@@ -41,6 +41,10 @@ void USlowMotionComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void USlowMotionComponent::SlowMotionPressed()
 {
+	//Cant do Slowmotion when Player isnt in AIr or is wallrunning or swinging
+	if (MarinePawn->GetIsInAir() == false || MarinePawn->GetIsWallrunning() == true || MarinePawn->GetIsPlayerLerpingToHookLocation() == true) 
+		return;
+	
 	SuddentDisabledSlowMotion();
 
 	if (bCanSlowMotion == false) return;

@@ -30,6 +30,7 @@ public:
 
 	float GetCroachWalkingSpeed() const { return CroachForceSpeed; }
 	bool GetIsSliding() const { return bShouldSlide; }
+	bool GetIsCrouching() const { return bIsCrouching; }
 
 	void SetShouldSlide(bool bShould) { bShouldSlide = bShould; }
 	void SetIsPressedForward(bool bShould) { bIsPressedForward = bShould; }
@@ -65,6 +66,7 @@ private:
 
 	float CopyMovementForce;
 	float MovementForce;
+	bool bIsCrouching;
 	
 	bool SweepBox(FVector Where, float Distance);
 	bool bShouldStillCroach = false;

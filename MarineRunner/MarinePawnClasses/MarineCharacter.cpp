@@ -75,6 +75,7 @@ AMarineCharacter::AMarineCharacter()
 
 	bUseControllerRotationYaw = true;
 	Tags.Add(TEXT("Player"));
+
 }
 
 // Called when the game starts or when spawned
@@ -121,23 +122,23 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Released, this, &AMarineCharacter::ADSReleased);
 
 	//Weapon Inventory
-	PlayerInputComponent->BindAction(TEXT("First_Weapon"), IE_Pressed, this, &AMarineCharacter::FirstWeapon);
-	PlayerInputComponent->BindAction(TEXT("Second_Weapon"), IE_Pressed, this, &AMarineCharacter::SecondWeapon);
+	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("First_Weapon"), IE_Pressed, this, &AMarineCharacter::SelectWeaponFromQuickInventory, 1); 
+	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Second_Weapon"), IE_Pressed, this, &AMarineCharacter::SelectWeaponFromQuickInventory, 2);
 
 	//TakeAndDrop
 	PlayerInputComponent->BindAction(TEXT("Take"), IE_Pressed, this, &AMarineCharacter::KeyEPressed);
 	PlayerInputComponent->BindAction(TEXT("Take"), IE_Released, this, &AMarineCharacter::KeyEReleased);
-	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, this, &AMarineCharacter::DropItem);
+	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, TakeAndDropComponent, &UTakeAndDrop::DropItem);
 
 	//Movement
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AMarineCharacter::Jump);
-	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, this, &AMarineCharacter::CrouchPressed);
-	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, this, &AMarineCharacter::CrouchReleased);
+	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, CroachAndSlideComponent, &UCroachAndSlide::CrouchPressed);
+	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, CroachAndSlideComponent, &UCroachAndSlide::CrouchReleased);
 
 	//Gameplay components
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, DashComponent, &UDashComponent::Dash);
 	PlayerInputComponent->BindAction(TEXT("Swing"), IE_Pressed, SwingComponent, &USwingComponent::SwingPressed);
-	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, this, &AMarineCharacter::SlowMotionPressed);
+	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, SlowMotionComponent, &USlowMotionComponent::TurnOnSlowMotion);
 
 	// Menu
 	FInputActionBinding& MainMenuToggle = PlayerInputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, PauseMenuComponent, &UPauseMenuComponent::PauseGame);
@@ -358,7 +359,7 @@ void AMarineCharacter::CheckIfIsInAir()
 
 			if (ImpactOnFloorSound) UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, CapsulePawn);
 			
-			if (!bIsCrouching) MovementForce = CopyOfOriginalForce;
+			if (CroachAndSlideComponent->GetIsCrouching() == false) MovementForce = CopyOfOriginalForce;
 			MovementSpeedMultiplier = 1.f;
 		}
 
@@ -461,8 +462,8 @@ void AMarineCharacter::PlayFootstepsSound()
 			TimeOfHandle = 0.17f;
 			UGameplayStatics::SpawnSound2D(GetWorld(), FootstepsWallrunSound);
 		}
-		else if (bIsCrouching == true && FootstepsCroachSound)
-		{
+		else if (GetIsCrouching() == true && FootstepsCroachSound)
+		{	
 			TimeOfHandle = 0.43f;
 			UGameplayStatics::SpawnSoundAttached(FootstepsCroachSound, CapsulePawn);
 		}
@@ -509,43 +510,21 @@ void AMarineCharacter::UseFirstAidKit()
 }
 #pragma endregion 
 
-#pragma region /////////////////////////////// CROACHING ///////////////////////////////
-void AMarineCharacter::CrouchPressed()
-{
-	if (SwingComponent->GetIsPlayerLerpingToHookPosition() || WallrunComponent->GetIsWallrunning() || SlowMotionComponent->GetIsInSlowMotion()) return;
-
-	bIsCrouching = true;
-	CroachAndSlideComponent->CrouchPressed();
-}
-
-void AMarineCharacter::CrouchReleased()
-{
-	CroachAndSlideComponent->CrouchReleased();
-}
-#pragma endregion 
-
 #pragma region ////////////////////// EQUIP WEAPON FROM INVENTORY //////////////////////
-void AMarineCharacter::FirstWeapon()
+void AMarineCharacter::SelectWeaponFromQuickInventory(int32 HandNumber)
 {
-	if (!bCanChangeWeapon) return;
-	if (WeaponInventoryComponent->GetWeaponFromStorage(1, Gun) == Gun) return;
+	if (!bCanChangeWeapon)
+		return;
+	if (WeaponInventoryComponent->GetWeaponFromStorage(HandNumber, Gun) == Gun)
+		return;
 
-	Gun = WeaponInventoryComponent->GetWeaponFromStorage(1, Gun);
-	if (QuickSelectSound) UGameplayStatics::SpawnSound2D(GetWorld(), QuickSelectSound);
-}
-
-void AMarineCharacter::SecondWeapon()
-{
-	if (!bCanChangeWeapon) return;
-	if (WeaponInventoryComponent->GetWeaponFromStorage(2, Gun) == Gun) return;
-
-	Gun = WeaponInventoryComponent->GetWeaponFromStorage(2, Gun);
+	Gun = WeaponInventoryComponent->GetWeaponFromStorage(HandNumber, Gun);
 	if (QuickSelectSound) UGameplayStatics::SpawnSound2D(GetWorld(), QuickSelectSound);
 }
 
 void AMarineCharacter::HideGunAndAddTheNewOne(AGun* NewGun)
 {
-	if (Gun)
+	if (IsValid(Gun))
 	{
 		Gun->SetActorHiddenInGame(true);
 		Gun->SetGunSwayWhileMovingTimer(true);
@@ -569,22 +548,7 @@ void AMarineCharacter::KeyEReleased()
 {
 	WidgetInteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
 }
-
-void AMarineCharacter::DropItem()
-{
-	TakeAndDropComponent->DropItem();
-}
 #pragma endregion 
-
-#pragma region ////////////////////////// COMPONENTS PRESSED ///////////////////////////
-void AMarineCharacter::SlowMotionPressed()
-{
-	//Cant do Slowmotion when Player isnt in AIr or is wallrunning or swinging
-	if (!bIsInAir || WallrunComponent->GetIsWallrunning() || SwingComponent->GetIsPlayerLerpingToHookPosition()) return;
-
-	SlowMotionComponent->TurnOnSlowMotion();
-}
-#pragma endregion
 
 #pragma region /////////////////////////////// SAVE/LOAD ///////////////////////////////
 void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
@@ -677,8 +641,6 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 {
 	if (MarineHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, NewHit.ImpactPoint);
 
-	if (!HudWidget) return;
-
 	if (NewSphereRadius != 0.f)
 	{
 		CapsulePawn->AddRadialImpulse(BulletActor->GetActorLocation(), NewSphereRadius, NewImpulseForce, ERadialImpulseFalloff::RIF_Linear, true);
@@ -692,6 +654,8 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 		UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
 	}
 
+	if (IsValid(HudWidget) == false) return;
+
 	HudWidget->SetHealthBarPercent(Health);
 	HudWidget->PlayGotDamageAnim();
 }
@@ -701,11 +665,11 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 #pragma region //////////////////////////////// WIDGETS ////////////////////////////////
 void AMarineCharacter::MakeHudWidget()
 {
-	if (HUDClass && MarinePlayerController)
-	{
-		HudWidget = Cast<UHUDWidget>(CreateWidget(MarinePlayerController, HUDClass));
-		HudWidget->AddToViewport();
-	}
+	if (HUDClass == nullptr && IsValid(MarinePlayerController) == false)
+		return;
+
+	HudWidget = Cast<UHUDWidget>(CreateWidget(MarinePlayerController, HUDClass));
+	HudWidget->AddToViewport();
 }
 
 void AMarineCharacter::MakeCrosshire()
@@ -722,7 +686,9 @@ void AMarineCharacter::MakeCrosshire()
 
 void AMarineCharacter::UpdateHudWidget()
 {
-	if (Gun) Gun->UpdateWeaponDataInHud(true);
+	if (IsValid(Gun)) 
+		Gun->UpdateWeaponDataInHud(true);
+
 	HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
 }
 #pragma endregion 
@@ -749,7 +715,9 @@ void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool
 
 void AMarineCharacter::CallAlbertosPressed()
 {
-	if (AlbertoPawn == nullptr) return;
+	if (IsValid(AlbertoPawn) == false) 
+		return;
+
 	AlbertoPawn->CallAlbertoToThePlayer(GetActorLocation());
 }
 
@@ -759,7 +727,7 @@ void AMarineCharacter::CallAlbertosPressed()
 void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings)
 {
 	bIsJumping = false;
-	CrouchReleased();
+	CroachAndSlideComponent->CrouchReleased();
 
 	if (!bShouldCancelGameplayThings) return;
 
@@ -790,7 +758,9 @@ FVector AMarineCharacter::EaseInQuint(FVector Start, FVector End, float Alpha)
 	End -= Start;
 	return End * (Alpha * Alpha * Alpha * Alpha * Alpha + 1) + Start;
 }
+#pragma endregion 
 
+#pragma region //////////// GETTERS //////////////////
 bool AMarineCharacter::GetIsWallrunning() const
 {
 	return WallrunComponent->GetIsWallrunning();
@@ -804,5 +774,10 @@ bool AMarineCharacter::GetIsPlayerLerpingToHookLocation() const
 bool AMarineCharacter::GetIsInSlowMotion() const
 {
 	return SlowMotionComponent->GetIsInSlowMotion();
+}
+
+bool AMarineCharacter::GetIsCrouching() const
+{
+	return CroachAndSlideComponent->GetIsCrouching();
 }
 #pragma endregion 
