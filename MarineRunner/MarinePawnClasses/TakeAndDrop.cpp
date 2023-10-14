@@ -10,6 +10,7 @@
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Interfaces/TakeInterface.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 
 // Sets default values for this component's properties
 UTakeAndDrop::UTakeAndDrop()
@@ -136,7 +137,7 @@ void UTakeAndDrop::DropItem()
 	if (IsValid(MarinePawn) == false || bWeaponIsInEquipPosition == false) 
 		return;
 
-	TakeInterface = Cast<ITakeInterface>(MarinePawn->GetGun());
+	TakeInterface = Cast<ITakeInterface>(MarinePawn->GetWeaponHandlerComponent()->GetGun());
 	if (TakeInterface == nullptr)
 		return;
 

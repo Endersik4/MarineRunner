@@ -13,6 +13,7 @@
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Inventory/PickupItem.h"
 
@@ -372,7 +373,7 @@ void AGun::WaitToReload()
 	ShootReleased();
 
 	bIsReloading = true;
-	MarinePawn->CallADSReleased();
+	MarinePawn->GetWeaponHandlerComponent()->ADSReleased();
 	GetWorldTimerManager().SetTimer(ReloadHandle, this, &AGun::Reload, ReloadTime, false);
 }
 
@@ -682,9 +683,9 @@ void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 
 	EquipWeapon();
 
-	MarinePawn->SetCanChangeWeapon(false);
-	MarinePawn->HideGunAndAddTheNewOne(this);
-	MarinePawn->SetGun(this);
+	MarinePawn->GetWeaponHandlerComponent()->SetCanChangeWeapon(false);
+	MarinePawn->GetWeaponHandlerComponent()->HideGunAndAddTheNewOne(this);
+	MarinePawn->GetWeaponHandlerComponent()->SetGun(this);
 	MarinePawn->UpdateAlbertosInventory(true, true);
 }
 
@@ -745,7 +746,7 @@ bool AGun::IsGunAtTheEquipLocation()
 	SetCanGunSwayTick(true);
 	SetActorRelativeLocation(RelativeLocationInPawn);
 
-	MarinePawn->SetCanChangeWeapon(true);
+	MarinePawn->GetWeaponHandlerComponent()->SetCanChangeWeapon(true);
 	return true;
 }
 #pragma endregion
@@ -754,7 +755,7 @@ bool AGun::IsGunAtTheEquipLocation()
 AActor* AGun::DropItem()
 {
 	if (bEquipPositionMoveCompleted == false) return this;
-	if (this != MarinePawn->GetGun()) return this;
+	if (this != MarinePawn->GetWeaponHandlerComponent()->GetGun()) return this;
 
 	if (bCanDropTheGun == false) return this;
 
@@ -852,13 +853,13 @@ AActor* AGun::EquipAnotherWeapon(int32 AmountOfWeapons)
 	if (AmountOfWeapons > 0)
 	{
 		GunFromStorage = MarinePawn->GetWeaponInventoryComponent()->GetWeaponFromStorage(AmountOfWeapons, nullptr);
-		MarinePawn->SetGun(GunFromStorage);
+		MarinePawn->GetWeaponHandlerComponent()->SetGun(GunFromStorage);
 	}
 	else 
 	{
 		MarinePawn->GetHudWidget()->HideWeaponUI(true);
 		GunFromStorage = nullptr;
-		MarinePawn->SetGun(nullptr);
+		MarinePawn->GetWeaponHandlerComponent()->SetGun(nullptr);
 	}
 	return GunFromStorage;
 }

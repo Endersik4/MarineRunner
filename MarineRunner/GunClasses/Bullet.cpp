@@ -100,17 +100,15 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 		UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(BulletData.CameraShakeAfterBulletHit, CameraShakeScale);
 	}
 
-	SphereRadialDamage(Hit);
-	
-	UseInterfaceOnActor(Hit);
-	
+	if (BulletData.bUseSphereForDamage == true)
+		SphereRadialDamage(Hit);
+	else UseInterfaceOnActor(Hit);
+
 	BulletThroughObject(Hit);
 }
 
 void ABullet::SphereRadialDamage(const FHitResult& Hit)
 {
-	if (BulletData.bUseSphereForDamage == false) return;
-
 	TArray<FHitResult> HitArray;
 	GetWorld()->SweepMultiByChannel(HitArray, GetActorLocation(), GetActorLocation(), FQuat::Identity, ECC_GameTraceChannel3, FCollisionShape::MakeSphere(BulletData.RadialSphereRadius));
 
@@ -123,7 +121,7 @@ void ABullet::SphereRadialDamage(const FHitResult& Hit)
 	//Use interface on every actors that was hit by SweepMultiByChannel
 	for (const FHitResult& HitResult : HitArray)
 	{
-		if (HitActors.Find(HitResult.GetActor()) >= 0)
+		if (HitActors.Find(HitResult.GetActor()) != INDEX_NONE)
 		{
 			UseInterfaceOnActor(HitResult);
 			HitActors.Remove(HitResult.GetActor());

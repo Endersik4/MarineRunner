@@ -78,4 +78,5 @@ private:
 	//Effects
 	void SpawnEffectsWhenHit(const FHitResult& Hit);
 	void SpawnBulletHoleDecal(const FHitResult& Hit);
+
 };

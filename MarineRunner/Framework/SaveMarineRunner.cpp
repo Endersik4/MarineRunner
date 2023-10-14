@@ -7,6 +7,7 @@
 
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/SaveGame/SaveGameJsonFile.h"
 
@@ -118,7 +119,7 @@ void USaveMarineRunner::LoadEquipedGuns(AMarineCharacter* MarinePawn)
 {
 	if (!MarineGun) return;
 
-	MarinePawn->SetGun(MarineGun);
+	MarinePawn->GetWeaponHandlerComponent()->SetGun(MarineGun);
 
 	for (auto& CurrentWeapon : WeaponsSaved)
 	{
@@ -130,7 +131,7 @@ void USaveMarineRunner::LoadEquipedGuns(AMarineCharacter* MarinePawn)
 		CurrentWeapon->SetItemFromInventory(Inventory_ItemsSaved.Find(CurrentWeapon->GetAmmoName()));
 		CurrentWeapon->SetMarinePawn(MarinePawn);
 
-		if (MarinePawn->GetGun() == CurrentWeapon)
+		if (MarinePawn->GetWeaponHandlerComponent()->GetGun() == CurrentWeapon)
 		{
 			CurrentWeapon->EquipWeapon();
 			CurrentWeapon->SetGunSwayWhileMovingTimer();

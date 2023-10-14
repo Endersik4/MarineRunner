@@ -10,8 +10,6 @@
 
 #include "MarineCharacter.generated.h"
 
-DECLARE_DELEGATE_OneParam(FSelectWeaponDelegate, int32);
-
 UCLASS()
 class MARINERUNNER_API AMarineCharacter : public APawn, public IInteractInterface
 {
@@ -52,7 +50,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void RotateCameraWhileWallrunning(bool bIsRightSide = false);
 
-	void ChangeMouseSensitivity(const FSettingSavedInJsonFile &NewMouseSensitivity);
+	void ChangeMouseSensitivity(const FSettingSavedInJsonFile &NewMouseSensitivity, bool bResetMouseSensitivity = false);
 
 	UPROPERTY(EditAnywhere, Category = "Alberto")
 		class AAlbertosPawn* AlbertoPawn;
@@ -77,15 +75,12 @@ public:
 	class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
 	class UInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
 	class UCameraComponent* GetCamera() const { return Camera; }
-	class AGun* GetGun() const { return Gun; }
 	class UPauseMenuComponent* GetPauseMenuComponent()const { return PauseMenuComponent; }
 	class UDashComponent* GetDashComponent() const { return DashComponent; }
+	class UWeaponHandlerComponent* GetWeaponHandlerComponent() const { return WeaponHandlerComponent; }
 
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
-	void SetGun(class AGun* NewGun) { Gun = NewGun; }
-	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
 
-	void CallADSReleased() { ADSReleased(); }
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 	void SetQuickSelect(TMap < int32, class AGun* > NewWeaponsStorage);
 
@@ -94,7 +89,6 @@ public:
 	void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMultiplier = NewSpeed; }
 
 	void MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings = false);
-	void HideGunAndAddTheNewOne(class AGun* NewGun);
 
 	void UpdateHudWidget();
 
@@ -106,6 +100,7 @@ public:
 
 	void LoadSavedSettingsFromGameInstance();
 
+	void MakeCrosshire(bool bShouldRemoveFromParent = false);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCroachAndSlide* CroachAndSlideComponent;
@@ -127,6 +122,8 @@ private:
 		class UPauseMenuComponent* PauseMenuComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USwingComponent* SwingComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UWeaponHandlerComponent* WeaponHandlerComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;
@@ -139,8 +136,6 @@ private:
 		float DelayAfterUseFirstAidKit = 1.1f;
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		FSettingSavedInJsonFile MouseSensitivityJSON = FSettingSavedInJsonFile("MouseSensitivity", 0.7f);
-	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
-		TArray<FSettingSavedInJsonFile> MouseSensitivityWhenScopeJSON;
 
 	//Aka speed movement
 	UPROPERTY(EditAnywhere, Category = "Movement")
@@ -177,15 +172,9 @@ private:
 		TSubclassOf<class UUserWidget> CannotSavedNotificationWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* ADSInSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* ADSOutSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ImpactOnFloorSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* JumpSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* QuickSelectSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* MarineHitSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
@@ -248,29 +237,12 @@ private:
 	void KeyEPressed();
 	void KeyEReleased();
 
-	//Gun
-	void Shoot();
-	void ReleasedShoot();
-	void Reload();
-	void Zoom(float WheelAxis);
-	int32 CurrentScopeIndex;
-	class AGun* Gun;
-
 	//FirstAidKit
 	bool bCanUseFirstAidKit = true;
 	struct FItemStruct* FirstAidKitItem;
 	FTimerHandle FirstAidKitHandle;
 	void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }
 	void UseFirstAidKit();
-
-	//Aiming
-	void ADSPressed();
-	void ADSReleased();
-	bool bIsPlayerADS;
-
-	//Weapon Inventory
-	bool bCanChangeWeapon = true;
-	void SelectWeaponFromQuickInventory(int32 HandNumber);
 
 	//Saving/Loading Game
 	class USaveMarineRunner* CurrentSaveGameInstance;
@@ -280,7 +252,6 @@ private:
 
 	//Widgets
 	void MakeHudWidget();
-	void MakeCrosshire();
 	UUserWidget* CrosshairWidget;
 	class UHUDWidget* HudWidget;
 

@@ -15,7 +15,6 @@
 #include "MarineRunner/MarinePawnClasses/CroachAndSlide.h"
 #include "MarineRunner/MarinePawnClasses/DashComponent.h"
 #include "MarineRunner/MarinePawnClasses/TakeAndDrop.h"
-
 #include "MarineRunner/MarinePawnClasses/WallrunComponent.h"
 #include "MarineRunner/MarinePawnClasses/SlowMotionComponent.h"
 #include "MarineRunner/MarinePawnClasses/PullUpComponent.h"
@@ -23,11 +22,10 @@
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/PauseMenuComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SwingComponent.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Widgets/Menu/GameSavedNotificationWidget.h"
-#include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Framework/SaveMarineRunner.h"
-#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
@@ -68,6 +66,7 @@ AMarineCharacter::AMarineCharacter()
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("InventoryComponent"));
 	PauseMenuComponent = CreateDefaultSubobject<UPauseMenuComponent>(TEXT("PauseMenuComponent"));
 	SwingComponent = CreateDefaultSubobject<USwingComponent>(TEXT("SwingComponent"));
+	WeaponHandlerComponent = CreateDefaultSubobject<UWeaponHandlerComponent>(TEXT("WeaponHandlerComponent"));
 	
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
 	WidgetInteractionComponent->SetupAttachment(Camera);
@@ -109,21 +108,21 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	//Gun
-	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Pressed, this, &AMarineCharacter::Shoot);
-	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Released, this, &AMarineCharacter::ReleasedShoot);
-	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, this, &AMarineCharacter::Reload);
+	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::Shoot);
+	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Released, WeaponHandlerComponent, &UWeaponHandlerComponent::ReleasedShoot);
+	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::Reload);
 
-	PlayerInputComponent->BindAxis(TEXT("Zoom"), this, &AMarineCharacter::Zoom);
+	PlayerInputComponent->BindAxis(TEXT("Zoom"), WeaponHandlerComponent, &UWeaponHandlerComponent::Zoom);
 
 	PlayerInputComponent->BindAction(TEXT("FirstAidKit"), IE_Pressed, this, &AMarineCharacter::UseFirstAidKit);
 
 	//Aiming
-	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Pressed, this, &AMarineCharacter::ADSPressed);
-	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Released, this, &AMarineCharacter::ADSReleased);
+	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::ADSPressed);
+	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Released, WeaponHandlerComponent, &UWeaponHandlerComponent::ADSReleased);
 
 	//Weapon Inventory
-	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("First_Weapon"), IE_Pressed, this, &AMarineCharacter::SelectWeaponFromQuickInventory, 1); 
-	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Second_Weapon"), IE_Pressed, this, &AMarineCharacter::SelectWeaponFromQuickInventory, 2);
+	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("First_Weapon"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 1);
+	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Second_Weapon"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 2);
 
 	//TakeAndDrop
 	PlayerInputComponent->BindAction(TEXT("Take"), IE_Pressed, this, &AMarineCharacter::KeyEPressed);
@@ -147,10 +146,16 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("CallAlbertos"), IE_Pressed, this, &AMarineCharacter::CallAlbertosPressed);
 }
 
-void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& NewMouseSensitivity)
+void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& NewMouseSensitivity, bool bResetMouseSensitivity)
 {
 	if (IsValid(MarinePlayerController) == false)
 		return;
+
+	if (bResetMouseSensitivity == true)
+	{
+		MarinePlayerController->SetMouseSensitivity(MouseSensitivityJSON);
+		return;
+	}
 
 	MarinePlayerController->SetMouseSensitivity(NewMouseSensitivity);
 }
@@ -183,7 +188,7 @@ void AMarineCharacter::Movement(float Delta)
 	FVector CounterMovement = FVector(DeltaCounterMovementForce * Velocity.X, DeltaCounterMovementForce * Velocity.Y, 0);
 
 	//Add Movement
-	float DeltaForce = (bIsPlayerADS ? (MovementForce / DividerOfMovementWhenADS) : MovementForce) * Delta * (1000 * MovementSpeedMultiplier);
+	float DeltaForce = (WeaponHandlerComponent->GetIsPlayerInAds() ? (MovementForce / DividerOfMovementWhenADS) : MovementForce) * Delta * (1000 * MovementSpeedMultiplier);
 	MovementDirection.Normalize();
 	CapsulePawn->AddImpulse((MovementDirection * DeltaForce) + CounterMovement);
 	
@@ -384,69 +389,6 @@ void AMarineCharacter::CheckIfIsInAir()
 }
 #pragma endregion 
 
-#pragma region ////////////////////////////////// GUN //////////////////////////////////
-void AMarineCharacter::ADSPressed()
-{
-	if (Gun == nullptr || WallrunComponent->GetIsWallrunning()) return;
-	if (Gun->GetIsGrabbingEnded() == false || Gun->GetIsReloading()) return;
-
-	if (CrosshairWidget)
-	{
-		CrosshairWidget->RemoveFromParent();
-		CrosshairWidget = nullptr;
-	}
-
-	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
-	bIsPlayerADS = true;
-	Gun->SetStatusOfGun(StatusOfAimedGun::ADS);
-	if (Gun->GetShouldChangeMouseSensitivityADS() == true) ChangeMouseSensitivity(MouseSensitivityWhenScopeJSON[CurrentScopeIndex]);
-}
-
-void AMarineCharacter::ADSReleased()
-{
-	if (Gun == nullptr || WallrunComponent->GetIsWallrunning() || bIsPlayerADS == false) return;
-
-	MakeCrosshire();
-
-	if (ADSOutSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
-	bIsPlayerADS = false;
-	Gun->SetStatusOfGun(StatusOfAimedGun::BackToInitialPosition);
-	if (Gun->GetShouldChangeMouseSensitivityADS() == true)
-	{
-		ChangeMouseSensitivity(MouseSensitivityJSON);
-		CurrentScopeIndex = Gun->ZoomScope(0.f, true);
-	}
-}
-
-void AMarineCharacter::Shoot()
-{
-	if (Gun == nullptr) return;
-
-	Gun->Shoot();
-}
-
-void AMarineCharacter::ReleasedShoot()
-{
-	if (Gun == nullptr) return;
-
-	Gun->ShootReleased();
-}
-
-void AMarineCharacter::Reload()
-{
-	if (Gun == nullptr) return;
-
-	Gun->WaitToReload();
-}
-
-void AMarineCharacter::Zoom(float WheelAxis)
-{
-	if (Gun == nullptr || bIsPlayerADS == false || WheelAxis == 0.f) return;
-	CurrentScopeIndex = Gun->ZoomScope(WheelAxis);
-	ChangeMouseSensitivity(MouseSensitivityWhenScopeJSON[CurrentScopeIndex]);
-}
-#pragma endregion 
-
 #pragma region //////////////////////////// FOOTSTEPS SOUND ////////////////////////////
 void AMarineCharacter::PlayFootstepsSound()
 {
@@ -510,30 +452,6 @@ void AMarineCharacter::UseFirstAidKit()
 }
 #pragma endregion 
 
-#pragma region ////////////////////// EQUIP WEAPON FROM INVENTORY //////////////////////
-void AMarineCharacter::SelectWeaponFromQuickInventory(int32 HandNumber)
-{
-	if (!bCanChangeWeapon)
-		return;
-	if (WeaponInventoryComponent->GetWeaponFromStorage(HandNumber, Gun) == Gun)
-		return;
-
-	Gun = WeaponInventoryComponent->GetWeaponFromStorage(HandNumber, Gun);
-	if (QuickSelectSound) UGameplayStatics::SpawnSound2D(GetWorld(), QuickSelectSound);
-}
-
-void AMarineCharacter::HideGunAndAddTheNewOne(AGun* NewGun)
-{
-	if (IsValid(Gun))
-	{
-		Gun->SetActorHiddenInGame(true);
-		Gun->SetGunSwayWhileMovingTimer(true);
-		Gun->ShootReleased();
-	}
-	WeaponInventoryComponent->AddNewWeaponToStorage(NewGun);
-}
-#pragma endregion 
-
 #pragma region ///////////////////////////// TAKE/DROP ITEM ////////////////////////////
 void AMarineCharacter::KeyEPressed()
 {
@@ -558,7 +476,7 @@ void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 	CurrentSaveGameInstance->PrepareSaveGame();
 	CurrentSaveGameInstance->CopySaveInfoToCurrentGameInstance(GetWorld());
 
-	CurrentSaveGameInstance->SaveGame(Health, Gun, WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
+	CurrentSaveGameInstance->SaveGame(Health, WeaponHandlerComponent->GetGun(), WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
 	CurrentSaveGameInstance->CurrentCheckpoint = JustSavedCheckpoint;
 
 	CurrentSaveGameInstance->SavedPlayerLocation = GetActorLocation();
@@ -610,12 +528,6 @@ void AMarineCharacter::LoadSavedSettingsFromGameInstance()
 	const FSettingSavedInJsonFile& CurrentMouseSensName = MarinePlayerController->GetMouseSensitivity();
 	GameInstance->SetValueBySavedSettingName(MouseSensitivityJSON.FieldName, MouseSensitivityJSON.FieldValue);
 	if (CurrentMouseSensName == MouseSensitivityJSON) ChangeMouseSensitivity(MouseSensitivityJSON);
-
-	for (FSettingSavedInJsonFile& CurrSetting : MouseSensitivityWhenScopeJSON)
-	{
-		GameInstance->SetValueBySavedSettingName(CurrSetting.FieldName, CurrSetting.FieldValue);
-		if (CurrentMouseSensName == CurrSetting) ChangeMouseSensitivity(CurrSetting);
-	}
 }
 
 void AMarineCharacter::SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn)
@@ -631,7 +543,7 @@ void AMarineCharacter::SpawnPassingWidget(const TSubclassOf<class UUserWidget>& 
 
 bool AMarineCharacter::CanPlayerSaveGame()
 {
-	return bIsInAir || bIsPlayerADS ? false : true;
+	return bIsInAir || WeaponHandlerComponent->GetIsPlayerInAds() ? false : true;
 }
 
 #pragma endregion 
@@ -672,10 +584,17 @@ void AMarineCharacter::MakeHudWidget()
 	HudWidget->AddToViewport();
 }
 
-void AMarineCharacter::MakeCrosshire()
+void AMarineCharacter::MakeCrosshire(bool bShouldRemoveFromParent)
 {
-	if (IsValid(CrosshairWidget)) 
+	if (IsValid(CrosshairWidget))
+	{
+		if (bShouldRemoveFromParent == true)
+		{
+			CrosshairWidget->RemoveFromParent();
+			CrosshairWidget = nullptr;
+		}
 		return;
+	}
 
 	if (CrosshairClass == nullptr && IsValid(MarinePlayerController) == false)
 		return;
@@ -686,8 +605,7 @@ void AMarineCharacter::MakeCrosshire()
 
 void AMarineCharacter::UpdateHudWidget()
 {
-	if (IsValid(Gun)) 
-		Gun->UpdateWeaponDataInHud(true);
+	WeaponHandlerComponent->UpdateWeaponInformationOnHud();
 
 	HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
 }
@@ -732,7 +650,7 @@ void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayT
 	if (!bShouldCancelGameplayThings) return;
 
 	if (bCanDelayJump) DelayJump();
-	if (bIsPlayerADS) ADSReleased();
+	if (WeaponHandlerComponent->GetIsPlayerInAds()) WeaponHandlerComponent->ADSReleased();
 }
 
 void AMarineCharacter::SetQuickSelect(TMap < int32, AGun* > NewWeaponsStorage)
@@ -780,4 +698,5 @@ bool AMarineCharacter::GetIsCrouching() const
 {
 	return CroachAndSlideComponent->GetIsCrouching();
 }
+
 #pragma endregion 

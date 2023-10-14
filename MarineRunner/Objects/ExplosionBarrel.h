@@ -59,5 +59,7 @@ private:
 	void UseInterfaceOnActor(const FHitResult& HitResult);
 	void SpawnEffects();
 
+	void SpawnExplosionBarrelGeometry();
+
 	bool bExploded;
 };

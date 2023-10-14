@@ -23,7 +23,9 @@ void AExplosionBarrel::ApplyDamage(float NewDamage, float NewImpulseForce, const
 	if (bExploded == true) return;
 	bExploded = true;
 
-	GetWorld()->SpawnActor<AActor>(ExplosionBarrelGeometryClass, GetActorLocation(), GetActorRotation());
+	FTimerHandle SpawnExplosionBarrelGeometryHandle;
+	const float SpawnExplosionBarrelAfterTime = 0.02f; // There is a bug when the bullet has physics turned on then Spawning Expolsion Barrel frezzes the game and timer solves it
+	GetWorld()->GetTimerManager().SetTimer(SpawnExplosionBarrelGeometryHandle, this, &AExplosionBarrel::SpawnExplosionBarrelGeometry, 0.02f, false);
 
 	FTimerHandle ExplodeHandle;
 	GetWorld()->GetTimerManager().SetTimer(ExplodeHandle, this, &AExplosionBarrel::Explode, 0.05f, false);
@@ -55,6 +57,7 @@ void AExplosionBarrel::Explode()
 	for (int i = 0; i != HitArray.Num(); i++) { HitActors.AddUnique(HitArray[i].GetActor()); }
 
 	//Use interface on every actors that was hit by SweepMultiByChannel
+	
 	for (const FHitResult& HitResult : HitArray)
 	{
 		if (HitActors.Find(HitResult.GetActor()) >= 0)
@@ -107,5 +110,10 @@ void AExplosionBarrel::SpawnEffects()
 	{
 		SpawnedDecal->SetFadeScreenSize(0.f);
 	}
+}
+
+void AExplosionBarrel::SpawnExplosionBarrelGeometry()
+{
+	GetWorld()->SpawnActor<AActor>(ExplosionBarrelGeometryClass, GetActorLocation(), GetActorRotation());
 }
 
