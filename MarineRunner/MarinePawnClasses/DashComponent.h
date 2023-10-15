@@ -28,6 +28,8 @@ public:
 
 	void Dash();
 	void RemoveDashWidget();
+	
+	bool GetIsPerformingDash() const { return bIsPerformingDash; }
 private:
 	//Dash Speed
 	UPROPERTY(EditAnywhere, Category = "Dash Settings")
@@ -50,6 +52,7 @@ private:
 
 
 	bool bCanDash = true;
+	bool bIsPerformingDash;
 	float OriginalForce;
 
 	void DashLengthTimer();

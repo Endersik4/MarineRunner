@@ -45,7 +45,7 @@ void UDashComponent::Dash()
 	if (CanPlayerPerformDash() == false)
 		return;
 
-	MarinePawn->SetShouldAddCounterMovement(true);
+	bIsPerformingDash = true;
 
 	DashOnRamp();
 
@@ -99,6 +99,7 @@ void UDashComponent::RemoveDashWidget()
 
 void UDashComponent::DashLengthTimer()
 {
+	bIsPerformingDash = false;
 	MarinePawn->SetMovementForce(OriginalForce);
 	MarinePawn->GetWorldTimerManager().SetTimer(DashCooldownHandle, this, &UDashComponent::EndDashCooldown, DashCoolDown, false);
 }

@@ -52,12 +52,14 @@ private:
 	FTimerHandle SlowMotionDelayHandle;
 	void SettingUpSlowMotion();
 
+	FVector SavedVel;
+	void ShowCurrentVelocity();
+
 	void SlowMotionPressed();
 	void SuddentDisabledSlowMotion();
 	void DisableSlowMotion();
 
 	void DelayCompleted();
-	void AddingVelocity();
 	
 	class AMarineCharacter* MarinePawn;
 	class UAudioComponent* SlowMotionSoundSpawned;

@@ -53,7 +53,6 @@ void UPullUpComponent::EdgePullUp()
 	if (MakeCheckLine(Line1Hit, StartTrueLine, StartTrueLine + MarinePawn->GetActorForwardVector() * 100.f) == true &&
 		MakeCheckLine(Line2Hit, StartFalseLine, StartFalseLine + MarinePawn->GetActorForwardVector() * 100.f) == false)
 	{
-		MarinePawn->SetShouldAddCounterMovement(true);
 		
 		//Setting a line that is in the direction of the object the player wants to pull up.
 		FHitResult HitResult;

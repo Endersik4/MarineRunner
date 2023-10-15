@@ -44,6 +44,8 @@ private:
 		float CroachForceSpeed = 3000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
 		float SpeedOfCroachLerp = 10.f;
+	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
+		float CrouchPressedVignetteIntensity = 1.1f;
 
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
@@ -78,7 +80,7 @@ private:
 	class UAudioComponent* SpawnedSlideSound;
 	void TurnOffSlideSound();
 
-	float VignetteIntensityValue = 1.2f;
+	float VignetteIntensityValue = 1.1f;
 
 	void CroachLerp();
 	bool bCanCroachLerp;

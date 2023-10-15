@@ -97,7 +97,6 @@ void AMarineCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	Movement(DeltaTime);
 	JumpTick(DeltaTime);
 	CheckIfIsInAir();
 }
@@ -115,6 +114,9 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("Zoom"), WeaponHandlerComponent, &UWeaponHandlerComponent::Zoom);
 
 	PlayerInputComponent->BindAction(TEXT("FirstAidKit"), IE_Pressed, this, &AMarineCharacter::UseFirstAidKit);
+
+	PlayerInputComponent->BindAxis(TEXT("Forward"), this, &AMarineCharacter::Forward);
+	PlayerInputComponent->BindAxis(TEXT("Right"), this, &AMarineCharacter::Right);
 
 	//Aiming
 	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::ADSPressed);
@@ -161,73 +163,48 @@ void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& New
 }
 
 #pragma region //////////////////////////////// MOVEMENT ///////////////////////////////
-// TODO: Rewrite whole movement after adding Player Model to game
-void AMarineCharacter::Movement(float Delta)
+void AMarineCharacter::Forward(float Axis)
 {
-	if (SwingComponent->GetIsPlayerLerpingToHookPosition() || bIsInputDisabled) return;
+	// There is a bug where ForwardVector is not correct and had to use Controller->RootComponent but this way have other bug, when player looks up or down then he cant 
+	// go forward/backward and to fix this i had to rotate RightVector by -90.f
+	const float DegreeForForwardVector = -90.f;
+	FVector Dir = MarinePlayerController->GetRootComponent()->GetRightVector().RotateAngleAxis(DegreeForForwardVector, FVector(0.f,0.f,1.f));
 
-	FVector ForwardDirection;
-	FVector RightDirection;
+	Move(Dir, Axis, FName(TEXT("Right")));
+}
+void AMarineCharacter::Right(float Axis)
+{
+	Move(MarinePlayerController->GetRootComponent()->GetRightVector(), Axis, FName(TEXT("Forward")));
+}
+void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxisName)
+{
+	float Speed = MovementForce / (GetInputAxisValue(InputAxisName) != 0.f ? 1.3f : 1);
 
-	GoConstanlyForward(ForwardDirection, RightDirection);
+	if (bIsInAir == true)
+	{
+		Speed /= DividerForMovementWhenInAir;
+	}
 
-	UnstickFromWall(ForwardDirection, RightDirection);
+	Direction.Z = 0.f;
+	FVector Force = (Axis * Direction * Speed) + CalculateCounterMovement();
 
-	float DirectionX = ForwardDirection.X - RightDirection.X;
-	float DirectionY = ForwardDirection.Y - RightDirection.Y;
-	FVector MovementDirection = FVector(DirectionX, DirectionY, 0);
-	if (bSlideOnRamp && CroachAndSlideComponent->GetIsSliding()) MovementDirection += 1.f * -GetActorUpVector();
+	PlayFootstepsSound();
+	//float DeltaForce = (WeaponHandlerComponent->GetIsPlayerInAds() ? (MovementForce / DividerOfMovementWhenADS) : MovementForce) * Delta * (1000 * MovementSpeedMultiplier);
 
-	DisableCounterMovement(MovementDirection);
-
-	//CounterMovement, thanks for that the pawn will not move like skating because of Physics.
+	CapsulePawn->AddImpulse(Force);
+}
+FVector AMarineCharacter::CalculateCounterMovement()
+{
 	FVector Velocity = GetVelocity();
 	Velocity.X *= -1.f;
 	Velocity.Y *= -1.f;
-	float DeltaCounterMovementForce = CounterMovementForce * Delta;
-	FVector CounterMovement = FVector(DeltaCounterMovementForce * Velocity.X, DeltaCounterMovementForce * Velocity.Y, 0);
-
-	//Add Movement
-	float DeltaForce = (WeaponHandlerComponent->GetIsPlayerInAds() ? (MovementForce / DividerOfMovementWhenADS) : MovementForce) * Delta * (1000 * MovementSpeedMultiplier);
-	MovementDirection.Normalize();
-	CapsulePawn->AddImpulse((MovementDirection * DeltaForce) + CounterMovement);
-	
-	PlayFootstepsSound();
-}
-
-//Thanks to that Pawn will "Fly" after Impulse and not stopping because of CounterMovement
-void AMarineCharacter::DisableCounterMovement(FVector& MovementDir)
-{
-	if (bShouldAddCounterMovement) return;
-	
-	//Check if there is obstacle in direction of MovementImpulse. If there is then The Pawn will stop "flying" and will add CounterMovement
-	FHitResult HitsInCounterMovement;
-	TArray<AActor*> ActorsToIgnore;
-	if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), GetActorLocation(), GetActorLocation() + MovementImpulse * 100.f, FVector(20, 20, 120), FRotator(0, 0, 0), UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitsInCounterMovement, true))
+	float CounterForce = CounterMovementForce;
+	if (bIsInAir == true && SlowMotionComponent->GetIsInSlowMotion() == false)
 	{
-		bShouldAddCounterMovement = true;
-		return;
+		CounterForce = CounterMovementForce / DividerForMovementWhenInAir;
 	}
 
-	if (GetInputAxisValue(TEXT("Forward")) < -0.1f)
-	{
-		MovementImpulse = FRotator(0, 100, 0).RotateVector(MovementImpulse);
-	}
-	MovementDir += MovementImpulse;
-}
-
-void AMarineCharacter::GoConstanlyForward(FVector& ForwardDir, FVector& RightDir)
-{
-	if (WallrunComponent->GetShouldPlayerGoForward())
-	{
-		ForwardDir = GetActorForwardVector();
-		RightDir = FVector(0, 0, 0);
-	}
-	else
-	{
-		ForwardDir = GetInputAxisValue(TEXT("Forward")) * GetActorForwardVector();
-		RightDir = GetInputAxisValue(TEXT("Right")) * GetActorRightVector();
-	}
+	return FVector(CounterForce * Velocity.X, CounterForce * Velocity.Y, 0);
 }
 #pragma endregion
 
@@ -301,38 +278,6 @@ void AMarineCharacter::DelayJump()
 #pragma endregion 
 
 #pragma region ////////////////////////////////// AIR //////////////////////////////////
-
-void AMarineCharacter::UnstickFromWall(FVector& ForwardDir, FVector& RightDir)
-{
-	if (bIsInAir == false) return;
-
-	FHitResult HitResult;
-	FVector Start = GetActorLocation();
-	Start.Z += 100.f;
-	FVector Size = FVector(20, 20, 120);
-	TArray<AActor*> ActorsToIgnore;
-
-	//Check in front of the pawn and behind it if there is any obstacle. If there is, then don't add a impulse in the direction the player is pressing (forward button...).
-	if (GetInputAxisValue("Forward") != 0)
-	{
-		if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), Start, Start + GetActorForwardVector() * 50.f, Size, FRotator(0, 0, 0), UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true) //in Front of The Pawn
-			|| (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), Start, Start + -GetActorForwardVector() * 50.f, Size, FRotator(0, 0, 0), UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true))) //Behind
-		{
-			ForwardDir = FVector(0, 0, 0);
-		}
-	}
-
-	//Its the same but with right direction (right button, left button)
-	if (GetInputAxisValue("Right") != 0)
-	{
-		if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), Start, Start + GetActorRightVector() * 50.f, Size, FRotator(0, 0, 0), UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true) //Right Side
-			|| (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), Start, Start + -GetActorRightVector() * 50.f, Size, FRotator(0, 0, 0), UEngineTypes::ConvertToTraceType(ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true))) //Left Side 
-		{
-			RightDir = FVector(0, 0, 0);
-		}
-	}
-}
-
 void AMarineCharacter::CheckIfIsInAir()
 {
 	FHitResult Hit;
@@ -356,7 +301,6 @@ void AMarineCharacter::CheckIfIsInAir()
 			WallrunComponent->CallResetWallrunningAfterLanding();
 
 			IsOnGround = true;
-			bShouldAddCounterMovement = true;
 
 			bIsInAir = false;
 			bDelayIsInAir = false;
@@ -365,7 +309,6 @@ void AMarineCharacter::CheckIfIsInAir()
 			if (ImpactOnFloorSound) UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, CapsulePawn);
 			
 			if (CroachAndSlideComponent->GetIsCrouching() == false) MovementForce = CopyOfOriginalForce;
-			MovementSpeedMultiplier = 1.f;
 		}
 
 		if (Hit.GetActor()->ActorHasTag("Ramp"))

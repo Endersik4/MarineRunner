@@ -90,7 +90,7 @@ void UCroachAndSlide::CrouchPressed()
 
 	MovementForce = CroachForceSpeed;
 	ScaleZ = 1.5f;
-	VignetteIntensityValue = 1.2f;
+	VignetteIntensityValue = CrouchPressedVignetteIntensity;
 
 	bCanCroachLerp = true;
 	if (MarinePawn->GetIsGoingUp() == false)

@@ -41,9 +41,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		class UInventoryComponent* InventoryComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool bIsInputDisabled;
-
 	UFUNCTION(BlueprintPure)
 		class UWallrunComponent* GetWallrunComponent() const { return WallrunComponent; }
 
@@ -70,7 +67,6 @@ public:
 	bool GetIsOnRamp() const { return bSlideOnRamp; }
 	bool GetIsGoingUp() const { return bIsGoingUp; }
 	bool GetIsInAir() const { return bIsInAir; }
-	bool GetShouldAddCounterMovement() const { return bShouldAddCounterMovement; }
 	class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
 	class UInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
@@ -83,10 +79,6 @@ public:
 
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 	void SetQuickSelect(TMap < int32, class AGun* > NewWeaponsStorage);
-
-	void SetMovementImpulse(FVector NewImpulse) { MovementImpulse = NewImpulse; }
-	void SetShouldAddCounterMovement(bool bShould) { bShouldAddCounterMovement = bShould; }
-	void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMultiplier = NewSpeed; }
 
 	void MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings = false);
 
@@ -145,6 +137,9 @@ private:
 		float CounterMovementForce = 4800.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 		float DividerOfMovementWhenADS = 1.4f;
+	// Divide Movement speed and CounterMovementForce by this value when in Air
+	UPROPERTY(EditDefaultsOnly, Category = "Movement")
+		float DividerForMovementWhenInAir = 10.f;
 
 	//InitialJumpForce is lerping to -50.f and then applied to Velocity Z
 	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
@@ -187,15 +182,11 @@ private:
 		USoundBase* FootstepsCroachSound;
 
 	//Movement
-	float MovementSpeedMultiplier = 1.f;
+	void Forward(float Axis);
+	void Right(float Axis);
+	void Move(FVector Direction, float Axis, const FName InputAxisName);
+	FVector CalculateCounterMovement();
 	float CopyOfOriginalForce;
-	bool bShouldAddCounterMovement = true;
-	FVector MovementImpulse;
-	void Movement(float Delta);
-	void DisableCounterMovement(FVector& MovementDir);
-		//When Pawn is close to the wall then dont add impulse in direction of this wall (thanks to that pawn will not stick to the wall)
-	void UnstickFromWall(FVector& ForwardDir, FVector& RightDir);
-	void GoConstanlyForward(FVector& ForwardDir, FVector& RightDir);
 
 	//Footstepts sounds
 	void PlayFootstepsSound();

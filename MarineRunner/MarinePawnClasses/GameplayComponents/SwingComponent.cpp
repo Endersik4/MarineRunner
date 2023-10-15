@@ -125,8 +125,7 @@ void USwingComponent::StartSwingToHook()
 
 	//Get Direction To Hook but only in X and Z Axis. Its for Pawn Physics
 	SwingImpulse = FRotator(0, SwingImpulse.Rotation().Yaw, 0).Vector();
-	MarinePlayer->SetMovementImpulse(SwingImpulse);
-	MarinePlayer->SetShouldAddCounterMovement(false);
+	//MarinePlayer->SetMovementImpulse(SwingImpulse);
 
 	//Things that cannot happen while Swing
 	MarinePlayer->MovementStuffThatCannotHappen();
