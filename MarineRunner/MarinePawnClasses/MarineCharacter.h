@@ -76,6 +76,7 @@ public:
 	class UWeaponHandlerComponent* GetWeaponHandlerComponent() const { return WeaponHandlerComponent; }
 
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
+	void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMutliplier = NewSpeed; }
 
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 	void SetQuickSelect(TMap < int32, class AGun* > NewWeaponsStorage);
@@ -187,6 +188,7 @@ private:
 	void Move(FVector Direction, float Axis, const FName InputAxisName);
 	FVector CalculateCounterMovement();
 	float CopyOfOriginalForce;
+	float MovementSpeedMutliplier = 1.f;
 
 	//Footstepts sounds
 	void PlayFootstepsSound();

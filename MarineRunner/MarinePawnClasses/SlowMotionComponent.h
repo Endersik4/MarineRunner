@@ -52,9 +52,6 @@ private:
 	FTimerHandle SlowMotionDelayHandle;
 	void SettingUpSlowMotion();
 
-	FVector SavedVel;
-	void ShowCurrentVelocity();
-
 	void SlowMotionPressed();
 	void SuddentDisabledSlowMotion();
 	void DisableSlowMotion();

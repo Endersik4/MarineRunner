@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SceneComponent.h"
+#include "Components/ActorComponent.h"
 #include "TakeAndDrop.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class MARINERUNNER_API UTakeAndDrop : public USceneComponent
+class MARINERUNNER_API UTakeAndDrop : public UActorComponent
 {
 	GENERATED_BODY()
 

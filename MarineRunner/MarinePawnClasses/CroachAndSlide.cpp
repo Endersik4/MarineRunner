@@ -26,6 +26,7 @@ void UCroachAndSlide::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
+
 	MovementForce = MarinePawn->GetMovementForce();
 
 	CopyMovementForce = MovementForce;
@@ -60,10 +61,9 @@ void UCroachAndSlide::Sliding()
 	{
 		if (MarinePawn->GetIsGoingUp() == false)
 		{
-			MovementForce += (MovementForce < MaxSlideForce) ? (RampForce)*Delta : 0;
+			MovementForce += (MovementForce < MaxSlideForce) ? (RampForce) * Delta : 0;
 		}
-		else MovementForce -= (SlideSpeed * 2.5) * Delta;
-
+		else MovementForce -= SlideSpeedRamp * Delta;
 	}
 	else
 	{
@@ -125,6 +125,9 @@ void UCroachAndSlide::CroachLerp()
 
 void UCroachAndSlide::CrouchReleased()
 {
+	if (MarinePawn->GetIsOnRamp()) 
+		return;
+
 	//Check if Pawn can stand
 	if (SweepBox(GetOwner()->GetActorUpVector(), 100.f))
 	{

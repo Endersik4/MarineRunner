@@ -42,6 +42,7 @@ public:
 	//Getters
 	bool GetShouldPlayerGoForward() const { return bShouldPlayerGoForward; }
 	bool GetCanJump() const { return bCanJumpWhileWallrunning; }
+	FVector GetWallrunDirection() const { return WallrunDirection; }
 
 	bool ShouldAddImpulseAfterWallrun(bool bShould); //Check If Should Add This Impulse. Return true if Pawn is wallrunning, false otherwise
 	void AddImpulseAfterWallrun(float JumpTimeElapsed); //When Player jumps while in wallrunning then Add Impulse to push player away from Obstacle.
@@ -57,7 +58,8 @@ private:
 	//Impulse added to Stick with Obstacle
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float StickWithObstacleImpulse = 2000.f;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
+		float JumpFromWallrunImpulse = 140000.f;
 	//How much should change the angle of the impact vector
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float AngleOfHitImpact = 85.f;
@@ -65,13 +67,13 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float CameraYawSpeed = 8.f;
 
-	class AMarineCharacter* MarinePawn;
 
 	//Wallrunning
 	bool bIsWallrunning;
 	bool bShouldAddImpulseAfterWallrun;
 	bool bCanJumpWhileWallrunning = true;
 	bool bShouldPlayerGoForward; //If true then in the Movement function in MarineCharacter the player will always walk forward
+	FVector WallrunDirection;
 
 	float WallrunTimeElapsed = 0.6f; //After the jump, this time must pass to do the wallrun again
 	FVector WallrunningWhereToJump; //ImpactNormal of Obstacle HitResult
@@ -90,17 +92,11 @@ private:
 	bool IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& OutCurrentSide, ESideOfLine WhichSideToLook = ESideOfLine::Left);
 	bool CanDoWallrun();
 
-	//Is the player held down the Forward button long enough
-	//bool bIsForwardButtonPressed;
-	//void CheckIfForwardButtonIsPressed();
-	//FTimerHandle ForwardButtonHandle;
-	//void SetIsForwardButtonPressed() { bIsForwardButtonPressed = true; }
-
 	FRotator PlayerRotationWallrun;
 	FRotator PlayerRotationWhileWallrun;
 
 	//Other
 	FTimerHandle CanJumpHandle;
 
-		
+	class AMarineCharacter* MarinePawn;
 };

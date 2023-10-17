@@ -46,16 +46,10 @@ void USlowMotionComponent::SlowMotionPressed()
 	SuddentDisabledSlowMotion();
 
 	if (bCanSlowMotion == false) return;
-	SavedVel = MarinePawn->GetVelocity();
-	UE_LOG(LogTemp, Warning, TEXT("PRZED VELOCITY %s"), *MarinePawn->GetVelocity().ToString());
 	SettingUpSlowMotion();
 
 	GetWorld()->GetTimerManager().SetTimer(SlowMotionTimeHandle, this, &USlowMotionComponent::DisableSlowMotion, SlowMotionValue * SlowMotionTime);
-
-	FTimerHandle cos;
-	GetWorld()->GetTimerManager().SetTimer(cos, this, &USlowMotionComponent::ShowCurrentVelocity, 0.01f);
-
-}
+}	
 
 void USlowMotionComponent::SuddentDisabledSlowMotion()
 {
@@ -80,7 +74,7 @@ void USlowMotionComponent::SettingUpSlowMotion()
 
 	//SlowMotion command
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowMotionValue);
-	//MarinePawn->CustomTimeDilation = 10.f;
+	MarinePawn->CustomTimeDilation = SlowMotionValue;
 	
 	//DashWidget will be on player viewport for some time (SlowMotionTime)
 	MarinePawn->GetDashComponent()->MakeDashWidget(true, SlowMotionValue * SlowMotionTime, false);
@@ -90,19 +84,13 @@ void USlowMotionComponent::SettingUpSlowMotion()
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
 }
 
-void USlowMotionComponent::ShowCurrentVelocity()
-{
-	UE_LOG(LogTemp, Warning, TEXT("PO VELOCITY %s"), *MarinePawn->GetVelocity().ToString());
-	MarinePawn->CapsulePawn->SetPhysicsLinearVelocity(SavedVel);
-}
-
 void USlowMotionComponent::DisableSlowMotion()
 {
 	bIsInSlowMotion = false;
 	const float NormalTimeSpeed = 1.f;
 	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), NormalTimeSpeed, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), NormalTimeSpeed);
-	//MarinePawn->CustomTimeDilation = NormalTimeSpeed;
+	MarinePawn->CustomTimeDilation = NormalTimeSpeed;
 
 	//Enable delay for SlowMotion
 	GetWorld()->GetTimerManager().SetTimer(SlowMotionDelayHandle, this, &USlowMotionComponent::DelayCompleted, SlowMotionDelay);

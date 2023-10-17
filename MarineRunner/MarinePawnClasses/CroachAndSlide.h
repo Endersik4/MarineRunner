@@ -3,13 +3,13 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/SceneComponent.h"
+#include "Components/ActorComponent.h"
 #include "CroachAndSlide.generated.h"
 
 /// This component let you Croach and Slide
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class MARINERUNNER_API UCroachAndSlide : public USceneComponent
+class MARINERUNNER_API UCroachAndSlide : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -59,6 +59,9 @@ private:
 	//How fast Pawn will gain speed on ramp when sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 		float RampForce = 3000.f;
+	//How fast Velocity will be subtracted from Initial Velocity Of Sliding on ramp (multiply by Delta Time)
+	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
+		float SlideSpeedRamp = 10000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* SlideSound;

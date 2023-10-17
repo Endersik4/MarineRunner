@@ -37,7 +37,6 @@ void UWallrunComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	// ...
 	
-	//CheckIfForwardButtonIsPressed();
 	//Calling Wallrunning functione when Player is In Air
 	if (MarinePawn->GetIsInAir())
 	{
@@ -58,7 +57,11 @@ void UWallrunComponent::Wallrunning()
 		PlayerRotationWhileWallrun = MarinePawn->GetActorRotation();
 		StickToTheObstacle(CurrentSide, HitNormal);
 	}
-	else  if (bIsWallrunning) ResetWallrunning(); //If There is no obstacle around then Wallrun should be disabled
+	else  if (bIsWallrunning)
+	{
+		ResetWallrunning(); //If There is no obstacle around then Wallrun should be disabled
+		MarinePawn->CapsulePawn->AddImpulse(WallrunningWhereToJump * JumpFromWallrunImpulse);
+	}
 }
 
 void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitNormal)
@@ -68,16 +71,17 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 		//The player must move forward to perform the wallrun
 		if (!(MarinePawn->GetInputAxisValue("Forward") > 0.5f)) return;
 		WallrunTimeElapsed = 0.6f;
+		//MarinePawn->CapsulePawn->SetPhysicsLinearVelocity(FVector(0.f));
 
-		MarinePawn->MovementStuffThatCannotHappen(true); //Things that cannot happen while WAllrunning
+		MarinePawn->MovementStuffThatCannotHappen(true); //Things that cannot happen while Wallrunning
 
 		//Setting up MarinePawn variables
-		//MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
+		MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
 		MarinePawn->RotateCameraWhileWallrunning(CurrentSide == Right ? true : false);//Rotating the camera in Roll, Definition of this function is in Blueprint of MarineCharacter
-		
+
 		RotateCameraYaw(CurrentSide, HitNormal);
 		float YawMovementImpulse = HitNormal.Rotation().Yaw + (85 * (CurrentSide == Left ? -1 : 1));
-		//MarinePawn->SetMovementImpulse(FRotator(0, YawMovementImpulse, 0).Vector());
+		WallrunDirection = FRotator(0, YawMovementImpulse, 0).Vector();
 
 		bShouldPlayerGoForward = true;
 		bIsWallrunning = true;
@@ -87,7 +91,7 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 	}
 	WallrunningWhereToJump = HitNormal;
 
-	//Impulse added to Stick with Obstacle
+	//added Impulse to Stick with Obstacle
 	FVector Impulse = (-HitNormal) * StickWithObstacleImpulse * 100.f;
 	MarinePawn->CapsulePawn->AddImpulse(Impulse);
 }
@@ -118,7 +122,7 @@ bool UWallrunComponent::IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& Ou
 		else EndLocationOfLinesTrace.Add(StartLocationOfLinesTrace[i] + (MarinePawn->GetActorRightVector() * 150.f));
 		
 		//If Line hit wall then Add 1 to HowManyBools
-		HowManyBools += UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocationOfLinesTrace[i], EndLocationOfLinesTrace[i], UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ignor, EDrawDebugTrace::None, HitResult, true);
+		HowManyBools += UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocationOfLinesTrace[i], EndLocationOfLinesTrace[i], UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4), false, ignor, EDrawDebugTrace::None, HitResult, true);
 		if (HitResult.GetActor()) if (HitResult.GetActor()->ActorHasTag("NoWall")) HowManyBools--;
 		if (i == 0) HitNormal = HitResult.ImpactNormal; //Take out HitResult from the first line
 
@@ -143,6 +147,7 @@ void UWallrunComponent::ResetWallrunning()
 	bIsWallrunning = false;
 	bShouldPlayerGoForward = false;
 	bShouldLerpRotation = false;
+	MarinePawn->SetMovementSpeedMutliplier(1.f);
 
 	MarinePawn->RotateCameraWhileWallrunning();
 }
@@ -178,7 +183,7 @@ void UWallrunComponent::AddImpulseAfterWallrun(float JumpTimeElapsed)
 	if (JumpTimeElapsed > 0.02f && bShouldAddImpulseAfterWallrun == true)
 	{
 		ResetWallrunning();
-		MarinePawn->CapsulePawn->AddImpulse(WallrunningWhereToJump * 1200000.f);
+		MarinePawn->CapsulePawn->AddImpulse(WallrunningWhereToJump * JumpFromWallrunImpulse);
 	}
 }
 

@@ -52,11 +52,8 @@ AMarineCharacter::AMarineCharacter()
 	Camera->bUsePawnControlRotation = true;
 
 	CroachAndSlideComponent = CreateDefaultSubobject<UCroachAndSlide>(TEXT("CroachAndSlideComponent"));
-	CroachAndSlideComponent->SetupAttachment(CapsulePawn);
-
 
 	TakeAndDropComponent = CreateDefaultSubobject<UTakeAndDrop>(TEXT("TakeAndDropComponent"));
-	TakeAndDropComponent->SetupAttachment(CapsulePawn);
 
 	DashComponent = CreateDefaultSubobject<UDashComponent>(TEXT("DashComponent"));
 	WallrunComponent = CreateDefaultSubobject<UWallrunComponent>(TEXT("WallrunComponent"));
@@ -82,8 +79,8 @@ void AMarineCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MarinePlayerController = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-
+	MarinePlayerController = Cast<AMarinePlayerController>(GetController());
+	
 	LoadSavedSettingsFromGameInstance();
 
 	MakeCrosshire();
@@ -170,6 +167,15 @@ void AMarineCharacter::Forward(float Axis)
 	const float DegreeForForwardVector = -90.f;
 	FVector Dir = MarinePlayerController->GetRootComponent()->GetRightVector().RotateAngleAxis(DegreeForForwardVector, FVector(0.f,0.f,1.f));
 
+	if (WallrunComponent->GetShouldPlayerGoForward() == true)
+	{
+		Axis = 1.f;
+	}
+	if (GetIsWallrunning() == true)
+	{
+		Dir = WallrunComponent->GetWallrunDirection();
+	}
+
 	Move(Dir, Axis, FName(TEXT("Right")));
 }
 void AMarineCharacter::Right(float Axis)
@@ -180,12 +186,24 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 {
 	float Speed = MovementForce / (GetInputAxisValue(InputAxisName) != 0.f ? 1.3f : 1);
 
-	if (bIsInAir == true)
+	if (GetIsWallrunning() == true)
+	{
+		//Direction = WallrunComponent->GetWallrunDirection();
+		Speed = MovementForce * MovementSpeedMutliplier;
+	}
+	//if (bSlideOnRamp && CroachAndSlideComponent->GetIsSliding()) MovementDirection += 1.f * -GetActorUpVector();
+	if (bIsInAir == true && GetIsWallrunning() == false)
 	{
 		Speed /= DividerForMovementWhenInAir;
 	}
+	if (SlowMotionComponent->GetIsInSlowMotion() == true)
+	{
+		if (bIsInAir == true) Speed /= 3.f;
+		else Speed *= 2.4f;
+	}
 
 	Direction.Z = 0.f;
+
 	FVector Force = (Axis * Direction * Speed) + CalculateCounterMovement();
 
 	PlayFootstepsSound();
@@ -199,9 +217,10 @@ FVector AMarineCharacter::CalculateCounterMovement()
 	Velocity.X *= -1.f;
 	Velocity.Y *= -1.f;
 	float CounterForce = CounterMovementForce;
-	if (bIsInAir == true && SlowMotionComponent->GetIsInSlowMotion() == false)
+	if (bIsInAir == true && GetIsWallrunning() == false)
 	{
 		CounterForce = CounterMovementForce / DividerForMovementWhenInAir;
+		if (SlowMotionComponent->GetIsInSlowMotion() == true) CounterForce /= 3.f;
 	}
 
 	return FVector(CounterForce * Velocity.X, CounterForce * Velocity.Y, 0);
@@ -284,6 +303,7 @@ void AMarineCharacter::CheckIfIsInAir()
 	//Check if there is ground under the player, if not, the player is in the air
 	if (!MakeCheckBox(FVector(25.f,25.f, 2.f), GetActorLocation(), GetActorLocation(), Hit))
 	{
+		UE_LOG(LogTemp, Error, TEXT("ARI"));
 		//The first moment a player is in the air
 		if (bIsInAir == false)
 		{
@@ -295,6 +315,7 @@ void AMarineCharacter::CheckIfIsInAir()
 	}
 	else
 	{
+		UE_LOG(LogTemp, Warning, TEXT("not"));
 		//The first moment a player touches the ground
 		if (bIsInAir)
 		{
@@ -307,7 +328,7 @@ void AMarineCharacter::CheckIfIsInAir()
 			PullUpComponent->SetPulledHimselfUp(false);
 
 			if (ImpactOnFloorSound) UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, CapsulePawn);
-			
+
 			if (CroachAndSlideComponent->GetIsCrouching() == false) MovementForce = CopyOfOriginalForce;
 		}
 
@@ -330,6 +351,7 @@ void AMarineCharacter::CheckIfIsInAir()
 		
 	}
 }
+
 #pragma endregion 
 
 #pragma region //////////////////////////// FOOTSTEPS SOUND ////////////////////////////
@@ -434,8 +456,11 @@ void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 
 void AMarineCharacter::LoadGame()
 {
-	HudWidget->SetHealthBarPercent(Health);
-	HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
+	if (IsValid(HudWidget))
+	{
+		HudWidget->SetHealthBarPercent(Health);
+		HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
+	}
 
 	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	FString SlotName = IsValid(GameInstance) == false ? "MySlot" : GameInstance->SlotSaveGameNameToLoad;

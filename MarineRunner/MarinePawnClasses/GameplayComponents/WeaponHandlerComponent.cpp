@@ -43,7 +43,7 @@ void UWeaponHandlerComponent::TickComponent(float DeltaTime, ELevelTick TickType
 #pragma region ////////////////////////////////// GUN //////////////////////////////////
 void UWeaponHandlerComponent::ADSPressed()
 {
-	if (IsValid(Gun) == false|| MarinePawn->GetIsWallrunning()) return;
+	if (IsValid(Gun) == false) return;
 	if (Gun->GetIsGrabbingEnded() == false || Gun->GetIsReloading()) return;
 
 	MarinePawn->MakeCrosshire(true);
@@ -57,7 +57,7 @@ void UWeaponHandlerComponent::ADSPressed()
 
 void UWeaponHandlerComponent::ADSReleased()
 {
-	if (IsValid(Gun) == false|| MarinePawn->GetIsWallrunning() || bIsPlayerADS == false) return;
+	if (IsValid(Gun) == false || bIsPlayerADS == false) return;
 
 	MarinePawn->MakeCrosshire();
 

@@ -42,9 +42,6 @@ void UTakeAndDrop::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 
 bool UTakeAndDrop::RaycastForHoverItems()
 {
-	if (IsValid(MarinePawn) == false)
-		return false;
-
 	FVector Start = MarinePawn->GetCamera()->GetComponentLocation();
 	FVector End = Start + (UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetRootComponent()->GetForwardVector() * TakeDistance);
 
