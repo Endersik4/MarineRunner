@@ -13,6 +13,7 @@
 #include "LoadGameMenu/ConfirmLoadingGameWidget.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/PauseMenuComponent.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
 void UPauseMenuWidget::NativeConstruct()
 {
@@ -45,14 +46,15 @@ void UPauseMenuWidget::NativeOnInitialized()
 
 	MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
-	if (PauseMenuMusic) CurrentPauseMenuMusic = UGameplayStatics::SpawnSound2D(GetWorld(), PauseMenuMusic);
+	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_MainMenu);
 
 	FillMenuButtonsAndTextMap();
 }
 
 void UPauseMenuWidget::NativeDestruct()
 {
-	StopPauseMenuMusic();
+	MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_Exploration);
 }
 
 void UPauseMenuWidget::FillMenuButtonsAndTextMap()
@@ -280,11 +282,4 @@ void UPauseMenuWidget::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool 
 
 	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
 	else PlayAnimationReverse(AnimToPlay);
-}
-
-void UPauseMenuWidget::StopPauseMenuMusic()
-{
-	if (IsValid(CurrentPauseMenuMusic) == false) return;
-	CurrentPauseMenuMusic->Stop();
-	CurrentPauseMenuMusic->DestroyComponent();
 }

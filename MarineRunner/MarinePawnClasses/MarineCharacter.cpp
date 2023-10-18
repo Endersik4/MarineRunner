@@ -71,7 +71,6 @@ AMarineCharacter::AMarineCharacter()
 
 	bUseControllerRotationYaw = true;
 	Tags.Add(TEXT("Player"));
-
 }
 
 // Called when the game starts or when spawned
@@ -188,10 +187,9 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 
 	if (GetIsWallrunning() == true)
 	{
-		//Direction = WallrunComponent->GetWallrunDirection();
 		Speed = MovementForce * MovementSpeedMutliplier;
 	}
-	//if (bSlideOnRamp && CroachAndSlideComponent->GetIsSliding()) MovementDirection += 1.f * -GetActorUpVector();
+	//if (bIsOnRamp && CroachAndSlideComponent->GetIsSliding()) MovementDirection += 1.f * -GetActorUpVector();
 	if (bIsInAir == true && GetIsWallrunning() == false)
 	{
 		Speed /= DividerForMovementWhenInAir;
@@ -303,7 +301,6 @@ void AMarineCharacter::CheckIfIsInAir()
 	//Check if there is ground under the player, if not, the player is in the air
 	if (!MakeCheckBox(FVector(25.f,25.f, 2.f), GetActorLocation(), GetActorLocation(), Hit))
 	{
-		UE_LOG(LogTemp, Error, TEXT("ARI"));
 		//The first moment a player is in the air
 		if (bIsInAir == false)
 		{
@@ -311,11 +308,10 @@ void AMarineCharacter::CheckIfIsInAir()
 			GetWorldTimerManager().SetTimer(DelayIsInAirHandle, this, &AMarineCharacter::SetDelayIsInAir, DelayIsInAirTime, false);
 		}
 		bIsInAir = true;
-		bSlideOnRamp = false;
+		bIsOnRamp = false;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("not"));
 		//The first moment a player touches the ground
 		if (bIsInAir)
 		{
@@ -334,7 +330,7 @@ void AMarineCharacter::CheckIfIsInAir()
 
 		if (Hit.GetActor()->ActorHasTag("Ramp"))
 		{
-			bSlideOnRamp = true;
+			bIsOnRamp = true;
 			//Check if Pawn is going UP on ramp, if he is then he cant slide
 			if (!Hit.GetActor()->GetActorForwardVector().Equals(GetActorForwardVector(), 1.1f))
 			{
@@ -345,14 +341,14 @@ void AMarineCharacter::CheckIfIsInAir()
 				bIsGoingUp = false;
 			}
 		}
-		else bSlideOnRamp = false;
+		else bIsOnRamp = false;
 
 		DelayJump();
 		
 	}
 }
 
-#pragma endregion 
+#pragma endregion
 
 #pragma region //////////////////////////// FOOTSTEPS SOUND ////////////////////////////
 void AMarineCharacter::PlayFootstepsSound()

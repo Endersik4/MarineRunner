@@ -62,6 +62,8 @@ private:
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding on ramp (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 		float SlideSpeedRamp = 10000.f;
+	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
+		TSubclassOf<UCameraShakeBase> RampCameraShake;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* SlideSound;
@@ -75,6 +77,10 @@ private:
 	
 	bool SweepBox(FVector Where, float Distance);
 	bool bShouldStillCroach = false;
+
+	// Camera Shake while sliding on ramp
+	bool bStartRampCameraShake = false;
+	UCameraShakeBase* CameraShakeBase;
 
 	void Sliding();
 	bool bShouldSlide;

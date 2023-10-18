@@ -8,6 +8,7 @@
 #include "TimerManager.h"
 
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
 AEnemyAiController::AEnemyAiController()
 {
@@ -23,6 +24,7 @@ void AEnemyAiController::BeginPlay()
 	Super::BeginPlay();
 
 	SetAIVariables();
+	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 }
 
 void AEnemyAiController::Tick(float DeltaTime)
@@ -60,6 +62,12 @@ void AEnemyAiController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulu
 void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected)
 {
 	bDoEnemySeePlayer = bIsDetected;
+
+	if (IsValid(MarineRunnerGameInstance) == false)
+		return;
+
+	if (bIsDetected == true) MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn());
+	else MarineRunnerGameInstance->RemoveDetectedEnemy(GetPawn());
 }
 
 void AEnemyAiController::SetAIVariables()

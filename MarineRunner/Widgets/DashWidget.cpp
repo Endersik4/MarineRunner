@@ -12,39 +12,35 @@ void UDashWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	SetMarinePawn();
-
+	PrepareDashWidget();
 }
 
 void UDashWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);
 	
-	FadingImage();
+	DashEffects();
 }
 
-void UDashWidget::FadingImage()
+void UDashWidget::DashEffects()
 {
 	if (MarineCamera == nullptr) return;
 
 	if (FadeTimeElapsed <= FadeTime)
 	{
 		float Opacity = FMath::Lerp(1.f, 0, FadeTimeElapsed / FadeTime);
-		float NewFov = FMath::Lerp(Fov + StartingFOV, Fov, FadeTimeElapsed / FadeTime);
-		float NewCA = FMath::Lerp(StartingChromaticAbberation, 0, FadeTimeElapsed / FadeTime);
-		float NewOffsetCA = FMath::Lerp(StartingOffsetCA, 1, FadeTimeElapsed / FadeTime);
+		float NewFov = FMath::Lerp(OriginalPlayerFOV + StartingFOV, OriginalPlayerFOV, FadeTimeElapsed / FadeTime);
+		float NewCA = FMath::Lerp(StartingChromaticAbberation, OriginalChromaticAbberation, FadeTimeElapsed / FadeTime);
+		float NewOffsetCA = FMath::Lerp(StartingOffsetCA, OriginalOffsetCA, FadeTimeElapsed / FadeTime);
 
 		DashImage->SetRenderOpacity(Opacity);
-		if (bShouldAddFov) MarineCamera->SetFieldOfView(NewFov);
+		MarineCamera->SetFieldOfView(NewFov);
 
-		if (bShouldAddChromaticAbberation)
-		{
-			MarineCamera->PostProcessSettings.ChromaticAberrationStartOffset = NewOffsetCA;
-			MarineCamera->PostProcessSettings.SceneFringeIntensity = NewCA;
-		}
+		MarineCamera->PostProcessSettings.ChromaticAberrationStartOffset = NewOffsetCA;
+		MarineCamera->PostProcessSettings.SceneFringeIntensity = NewCA;
 
 		FadeTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
-		if (FadeTimeElapsed >= FadeTime) FadeTimeElapsed = FadeTime;
+		if (FadeTimeElapsed >= FadeTime) FadeTimeElapsed += FadeTime;
 	}
 	else
 	{
@@ -52,22 +48,19 @@ void UDashWidget::FadingImage()
 	}
 }
 
-void UDashWidget::SetMarinePawn()
+void UDashWidget::PrepareDashWidget()
 {
 	MarineCamera = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0))->GetCamera();
 
-	if (bShouldAddFov)
-	{
-		Fov = MarineCamera->FieldOfView;
-		MarineCamera->SetFieldOfView(Fov + StartingFOV);
-	}
+	OriginalPlayerFOV = MarineCamera->FieldOfView;
+	MarineCamera->SetFieldOfView(OriginalPlayerFOV + StartingFOV);
 
-	if (bShouldAddChromaticAbberation)
-	{
-		MarineCamera->PostProcessSettings.bOverride_SceneFringeIntensity = true;
-		MarineCamera->PostProcessSettings.bOverride_ChromaticAberrationStartOffset = true;
+	MarineCamera->PostProcessSettings.bOverride_SceneFringeIntensity = true;
+	MarineCamera->PostProcessSettings.bOverride_ChromaticAberrationStartOffset = true;
 
-		MarineCamera->PostProcessSettings.ChromaticAberrationStartOffset = StartingOffsetCA;
-		MarineCamera->PostProcessSettings.SceneFringeIntensity = StartingChromaticAbberation;
-	}
+	OriginalOffsetCA = MarineCamera->PostProcessSettings.ChromaticAberrationStartOffset;
+	OriginalChromaticAbberation = MarineCamera->PostProcessSettings.SceneFringeIntensity;
+
+	MarineCamera->PostProcessSettings.ChromaticAberrationStartOffset = StartingOffsetCA;
+	MarineCamera->PostProcessSettings.SceneFringeIntensity = StartingChromaticAbberation;
 }

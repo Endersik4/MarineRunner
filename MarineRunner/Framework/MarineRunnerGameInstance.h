@@ -51,6 +51,12 @@ public:
 	}
 };
 
+enum EMusicType {
+	EMT_Exploration,
+	EMT_MainMenu,
+	EMT_Combat
+};
+
 UCLASS()
 class MARINERUNNER_API UMarineRunnerGameInstance : public UGameInstance
 {
@@ -59,17 +65,24 @@ class MARINERUNNER_API UMarineRunnerGameInstance : public UGameInstance
 protected:
 		virtual void Init() override;
 public:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Saving")
 		FString CustomSavedSettingsConfigPath = "MarineRunner/Config/Settings.json";
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Saving")
 		FString SlotSaveGameNameToLoad = "MySlot";
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Saving")
 		int32 CurrentSaveNumber = 0;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Saving")
 		float TotalPlayTimeInSeconds = 0.f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Saving")
 		TArray<FSettingSavedInJsonFile> CustomSavedSettings;
+
+	UPROPERTY(EditAnywhere, Category = "Music")
+		USoundBase* MainMenuMusic;
+	UPROPERTY(EditAnywhere, Category = "Music")
+		USoundBase* ExplorationMusic;
+	UPROPERTY(EditAnywhere, Category = "Music")
+		USoundBase* CombatMusic;
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void LoadSoundsVolumeFromConfig(const TArray<FSettingSavedInJsonFile> & AllSavedValuesFromConfig);
@@ -85,9 +98,22 @@ public:
 	void SetValueBySavedSettingName(const FString& SavedSettingName, float& Value);
 	void ReplaceValueInSavedSettingByName(float NewValue, const FString& SavedSettingName);
 
+	void AddNewDetectedEnemy(AActor* NewEnemy);
+	void RemoveDetectedEnemy(AActor* NewEnemy);
+
+	void ChangeBackgroundMusic(EMusicType MusicType);
 private:
 
 	bool bWasJsonDeserialized;
 	TSharedPtr<FJsonObject> SavedDataJsonFile;
 	void LoadCustomSavedSettingsFromConfig();
+
+	// Enemies that see the player
+	TArray<AActor*> DetectedPlayerEnemies;
+	bool bIsDetectedByEnemies = false;
+
+	void SpawnMusic();
+
+	// Music
+	UAudioComponent* CurrentPlayingMusic;
 };

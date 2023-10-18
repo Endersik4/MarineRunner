@@ -62,8 +62,16 @@ void UCroachAndSlide::Sliding()
 		if (MarinePawn->GetIsGoingUp() == false)
 		{
 			MovementForce += (MovementForce < MaxSlideForce) ? (RampForce) * Delta : 0;
+			if (bStartRampCameraShake == false)
+			{
+				CameraShakeBase = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(RampCameraShake, 1.f);
+				bStartRampCameraShake = true;
+			}
 		}
-		else MovementForce -= SlideSpeedRamp * Delta;
+		else
+		{
+			MovementForce -= SlideSpeedRamp * Delta;
+		}
 	}
 	else
 	{
@@ -139,6 +147,10 @@ void UCroachAndSlide::CrouchReleased()
 	TurnOffSlideSound();
 	bShouldPlaySound = true;
 	bShouldStillCroach = false;
+
+	bStartRampCameraShake = false;
+	if (IsValid(CameraShakeBase))
+		CameraShakeBase->StopShake(false);
 
 	ScaleZ = 2.5f;
 	VignetteIntensityValue = 0.f;

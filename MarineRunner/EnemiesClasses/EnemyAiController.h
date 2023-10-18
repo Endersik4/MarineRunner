@@ -54,4 +54,5 @@ private:
 	float LoseSightOfPlayerTime;
 
 	void SetAIVariables();
+	class UMarineRunnerGameInstance* MarineRunnerGameInstance;
 };

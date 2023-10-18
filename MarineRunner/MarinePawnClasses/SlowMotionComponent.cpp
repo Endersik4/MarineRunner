@@ -9,7 +9,6 @@
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
-#include "DashComponent.h"
 
 // Sets default values for this component's properties
 USlowMotionComponent::USlowMotionComponent()
@@ -58,7 +57,6 @@ void USlowMotionComponent::SuddentDisabledSlowMotion()
 
 	if (IsValid(SlowMotionSoundSpawned)) SlowMotionSoundSpawned->Stop();
 	if (CancelSlowMotionSound) UGameplayStatics::PlaySound2D(GetWorld(), CancelSlowMotionSound);
-	MarinePawn->GetDashComponent()->RemoveDashWidget();
 
 	GetWorld()->GetTimerManager().ClearTimer(SlowMotionTimeHandle);
 	DisableSlowMotion();
@@ -68,20 +66,37 @@ void USlowMotionComponent::SettingUpSlowMotion()
 {
 	bCanSlowMotion = false;
 	bIsInSlowMotion = true;
-	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 0.5f, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
-
-	if (SlowMotionSound) SlowMotionSoundSpawned = UGameplayStatics::SpawnSound2D(GetWorld(), SlowMotionSound);
 
 	//SlowMotion command
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowMotionValue);
 	MarinePawn->CustomTimeDilation = SlowMotionValue;
-	
-	//DashWidget will be on player viewport for some time (SlowMotionTime)
-	MarinePawn->GetDashComponent()->MakeDashWidget(true, SlowMotionValue * SlowMotionTime, false);
 
-	ElementBar SlowMoElementBar{ SlowMotionDelay};
+	SlowMotionEffects();
+}
+
+void USlowMotionComponent::SlowMotionEffects()
+{
+	if (SlowMotionSound) SlowMotionSoundSpawned = UGameplayStatics::SpawnSound2D(GetWorld(), SlowMotionSound);
+
+	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 0.5f, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
+
+	if (IsValid(MarinePawn) == false)
+		return;
+
+	ElementBar SlowMoElementBar{ SlowMotionDelay };
 	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::SlowMo, SlowMoElementBar);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
+
+	MarinePawn->GetCamera()->PostProcessSettings.bOverride_ColorGain = true;
+	MarinePawn->GetCamera()->PostProcessSettings.ColorGain = ScreenColorWhenInSlowMotion;
+
+	MarinePawn->GetCamera()->PostProcessSettings.bOverride_SceneFringeIntensity = true;
+	MarinePawn->GetCamera()->PostProcessSettings.bOverride_ChromaticAberrationStartOffset = true;
+
+	MarinePawn->GetCamera()->PostProcessSettings.ChromaticAberrationStartOffset = 0.f;
+	MarinePawn->GetCamera()->PostProcessSettings.SceneFringeIntensity = StartingChromaticAbberation;
+
+	MarinePawn->GetHudWidget()->SetColorAndOpacity(ScreenColorWhenInSlowMotion);
 }
 
 void USlowMotionComponent::DisableSlowMotion()
@@ -91,6 +106,11 @@ void USlowMotionComponent::DisableSlowMotion()
 	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), NormalTimeSpeed, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), NormalTimeSpeed);
 	MarinePawn->CustomTimeDilation = NormalTimeSpeed;
+
+	MarinePawn->GetCamera()->PostProcessSettings.bOverride_ColorGain = false;
+	MarinePawn->GetCamera()->PostProcessSettings.ChromaticAberrationStartOffset = 1.f;
+	MarinePawn->GetCamera()->PostProcessSettings.SceneFringeIntensity = 0.f;
+	MarinePawn->GetHudWidget()->SetColorAndOpacity(FLinearColor::White);
 
 	//Enable delay for SlowMotion
 	GetWorld()->GetTimerManager().SetTimer(SlowMotionDelayHandle, this, &USlowMotionComponent::DelayCompleted, SlowMotionDelay);

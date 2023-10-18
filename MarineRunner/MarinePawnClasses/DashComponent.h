@@ -24,25 +24,21 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov = true, bool bAddChromaticAbberation = true);
 
 	void Dash();
-	void RemoveDashWidget();
 	
 	bool GetIsPerformingDash() const { return bIsPerformingDash; }
 private:
-	//Dash Speed
 	UPROPERTY(EditAnywhere, Category = "Dash Settings")
-		float DashForce = 6000.f;
+		float DashDistance = 3000.f;
+	UPROPERTY(EditAnywhere, Category = "Dash Settings")
+		float DashTime = 0.2f;
 	//Dash cooldown in Seconds
 	UPROPERTY(EditAnywhere, Category = "Dash Settings")
 		float DashCoolDown = 1.4f;
-	//How long Player Dash in Seconds (DashForce is applied per frame so after DashLength it will stop apply dash froce to the player)
+	// Offset from obstacle that is on the dash way 
 	UPROPERTY(EditAnywhere, Category = "Dash Settings")
-		float DashLength = 0.1f;
-	//How long DashWidget will be in player viewport
-	UPROPERTY(EditAnywhere, Category = "Dash Settings")
-		float DashWidgetTime = 0.5f;
+		float OffsetFromObstacle = 100.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Dash Settings")
 		TSubclassOf<class UUserWidget> DashWidgetClass;
@@ -50,23 +46,24 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Dash Sounds")
 		USoundBase* DashSound;
 
+	bool CanPlayerPerformDash() const;
 
 	bool bCanDash = true;
 	bool bIsPerformingDash;
-	float OriginalForce;
 
-	void DashLengthTimer();
-	void DashOnRamp();
+	float DashTimeElapsed = 0.f;
+	FVector InitialPlayerPosition;
+	FVector DashLocation;
+	void LerpToDashLocation(float Delta);
+	FVector CalculateEndDashPosition();
+	const FVector CalculateDashDirection();
 
+	void TurnOffDash();
+	void DashEffects();
+
+	FTimerHandle DashCooldownHandle;
 	FORCEINLINE void EndDashCooldown() { bCanDash = true; }
 
-	FTimerHandle DashLengthHandle;
-	FTimerHandle DashCooldownHandle;
-
-
-	bool CanPlayerPerformDash() const;
-
-	class UDashWidget* DashWidget;
 	class AMarineCharacter* MarinePawn;
 
 };

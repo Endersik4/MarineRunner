@@ -18,13 +18,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UImage* DashImage;
 
-	void SetFadeTime(float NewTime) { FadeTime = NewTime; }
-	void ShouldAddChromaticAbberation(bool bShould) { bShouldAddChromaticAbberation = bShould; }
-	void ShouldAddChangingFov(bool bShould) { bShouldAddFov = bShould; }
-	void ResetDashWidget() { FadeTimeElapsed = FadeTime - 0.01f; }
-
 protected:
-	virtual void NativeConstruct() override; //konstruktor
+	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override; //Tick
 
 private:
@@ -32,18 +27,17 @@ private:
 		float FadeTime = 2.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
 		float StartingFOV = 10.f;
-	//Chromatic Abberation
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
 		float StartingChromaticAbberation = 30.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
 		float StartingOffsetCA = 0.7f;
 
-	bool bShouldAddFov = true;
-	bool bShouldAddChromaticAbberation = true;
-	float Fov;
+	float OriginalPlayerFOV;
+	float OriginalChromaticAbberation;
+	float OriginalOffsetCA;
 	float FadeTimeElapsed;
-	void FadingImage();
+	void DashEffects();
 
-	void SetMarinePawn();	
+	void PrepareDashWidget();
 	class UCameraComponent* MarineCamera;
 };

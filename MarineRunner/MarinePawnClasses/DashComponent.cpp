@@ -25,9 +25,6 @@ void UDashComponent::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	if (IsValid(MarinePawn) == false)
-		return;
-	OriginalForce = MarinePawn->GetMovementForce();
 }
 
 
@@ -36,8 +33,7 @@ void UDashComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
-
+	LerpToDashLocation(DeltaTime);
 }
 
 void UDashComponent::Dash()
@@ -46,61 +42,71 @@ void UDashComponent::Dash()
 		return;
 
 	bIsPerformingDash = true;
+	bCanDash = true;
 
-	DashOnRamp();
+	InitialPlayerPosition = MarinePawn->GetActorLocation();
+	DashLocation = CalculateEndDashPosition();
 
-	bCanDash = false;
+	DashEffects();
+}
 
+FVector UDashComponent::CalculateEndDashPosition()
+{
+	FVector EndRaycastLoc = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
+
+	// if there is obstacle on the way then set actor location to Hit Location with offset
+	FHitResult HitResult;
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, InitialPlayerPosition, EndRaycastLoc, ECollisionChannel::ECC_Visibility);
+
+	return (bHit ? HitResult.Location : EndRaycastLoc) - CalculateDashDirection() * OffsetFromObstacle;
+}
+
+const FVector UDashComponent::CalculateDashDirection()
+{
+	const float ForwardVectorDegree = -90.f;
+	FVector PlayerForwardVector = MarinePawn->GetController()->GetRootComponent()->GetRightVector().RotateAngleAxis(ForwardVectorDegree, FVector(0.f, 0.f, 1.f));
+
+	FVector CalculatedDashDirection = MarinePawn->GetController()->GetRootComponent()->GetRightVector() * MarinePawn->GetInputAxisValue("Right") + PlayerForwardVector * MarinePawn->GetInputAxisValue("Forward");
+	return CalculatedDashDirection;
+}
+
+void UDashComponent::DashEffects()
+{
 	if (DashSound) UGameplayStatics::SpawnSound2D(GetWorld(), DashSound);
 
-	MakeDashWidget(true, DashWidgetTime);
+	UDashWidget* DashWidget = Cast<UDashWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), DashWidgetClass));
+	if (IsValid(DashWidget))
+		DashWidget->AddToViewport();
+
+	if (IsValid(MarinePawn) == false)
+		return;
 
 	ElementBar DashElementBar{ DashCoolDown };
 	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Dash, DashElementBar);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_Dash);
-
-	MarinePawn->GetWorldTimerManager().SetTimer(DashLengthHandle, this, &UDashComponent::DashLengthTimer, DashLength, false);
 }
 
-void UDashComponent::DashOnRamp()
+void UDashComponent::LerpToDashLocation(float Delta)
 {
-	if (MarinePawn->GetIsOnRamp() == false)
-	{
-		MarinePawn->SetMovementForce(DashForce * 10);
-	}
-	else if (MarinePawn->GetIsGoingUp() == false)
-	{
-		FVector Impulse = (-MarinePawn->GetActorUpVector() + MarinePawn->GetActorForwardVector()) * DashForce * 300;
-		MarinePawn->CapsulePawn->AddImpulse(Impulse);
-	}
-}
-
-void UDashComponent::MakeDashWidget(bool bShouldMake, float FadeTime, bool bAddFov, bool bAddChromaticAbberation)
-{
-	if (!DashWidgetClass || !bShouldMake) 
+	if (bIsPerformingDash == false)
 		return;
 
-	DashWidget = Cast<UDashWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), DashWidgetClass));
-
-	DashWidget->SetFadeTime(FadeTime);
-	DashWidget->ShouldAddChangingFov(bAddFov);
-	DashWidget->ShouldAddChromaticAbberation(bAddChromaticAbberation);
-
-	DashWidget->AddToViewport();
+	if (DashTimeElapsed <= DashTime)
+	{
+		FVector NewLoc = FMath::Lerp(InitialPlayerPosition, DashLocation, DashTimeElapsed / DashTime);
+		MarinePawn->SetActorLocation(NewLoc);
+	}
+	else
+	{
+		TurnOffDash();
+	}
+	DashTimeElapsed += Delta;
 }
 
-void UDashComponent::RemoveDashWidget()
+void UDashComponent::TurnOffDash()
 {
-	if (IsValid(DashWidget) == false) 
-		return;
-
-	DashWidget->ResetDashWidget();
-}
-
-void UDashComponent::DashLengthTimer()
-{
+	DashTimeElapsed = 0.f;
 	bIsPerformingDash = false;
-	MarinePawn->SetMovementForce(OriginalForce);
 	MarinePawn->GetWorldTimerManager().SetTimer(DashCooldownHandle, this, &UDashComponent::EndDashCooldown, DashCoolDown, false);
 }
 
@@ -112,7 +118,7 @@ bool UDashComponent::CanPlayerPerformDash() const
 	if (MarinePawn->GetIsPlayerLerpingToHookLocation() == true || MarinePawn->GetIsWallrunning() == true) 
 		return false;
 
-	if (MarinePawn->GetIsInSlowMotion() == true || MarinePawn->GetIsCrouching() == true)
+	if (MarinePawn->GetIsCrouching() == true)
 		return false;
 
 	return true;

@@ -64,7 +64,7 @@ public:
 	bool GetIsCrouching() const;
 	bool GetIsInSlowMotion() const;
 	bool GetIsJumping() const { return bIsJumping; }
-	bool GetIsOnRamp() const { return bSlideOnRamp; }
+	bool GetIsOnRamp() const { return bIsOnRamp; }
 	bool GetIsGoingUp() const { return bIsGoingUp; }
 	bool GetIsInAir() const { return bIsInAir; }
 	class UHUDWidget* GetHudWidget() const { return HudWidget; }
@@ -223,7 +223,7 @@ private:
 	void CheckIfIsInAir();
 
 	//Crouching
-	bool bSlideOnRamp;
+	bool bIsOnRamp;
 	bool bIsGoingUp;
 
 	//Taking Items

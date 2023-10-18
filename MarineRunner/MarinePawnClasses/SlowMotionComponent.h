@@ -40,7 +40,10 @@ private:
 	//Delay of Slow Motion before the next one
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float SlowMotionDelay = 8.f;
-
+	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
+		float StartingChromaticAbberation = 5.f;
+	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
+		FLinearColor ScreenColorWhenInSlowMotion = FLinearColor(FVector4(0.05f, 1.f, 0.24f,1.f));
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* SlowMotionSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
@@ -55,6 +58,8 @@ private:
 	void SlowMotionPressed();
 	void SuddentDisabledSlowMotion();
 	void DisableSlowMotion();
+
+	void SlowMotionEffects();
 
 	void DelayCompleted();
 	
