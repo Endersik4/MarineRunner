@@ -53,7 +53,7 @@ public:
 
 enum EMusicType {
 	EMT_Exploration,
-	EMT_MainMenu,
+	EMT_PauseMusic,
 	EMT_Combat
 };
 
@@ -98,10 +98,10 @@ public:
 	void SetValueBySavedSettingName(const FString& SavedSettingName, float& Value);
 	void ReplaceValueInSavedSettingByName(float NewValue, const FString& SavedSettingName);
 
-	void AddNewDetectedEnemy(AActor* NewEnemy);
-	void RemoveDetectedEnemy(AActor* NewEnemy);
+	void AddNewDetectedEnemy(AActor* NewEnemy, bool bIsEnemyDead = false);
+	void RemoveDetectedEnemy(AActor* NewEnemy, bool bIsEnemyDead = false);
 
-	void ChangeBackgroundMusic(EMusicType MusicType);
+	void ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut = false);
 private:
 
 	bool bWasJsonDeserialized;
@@ -112,8 +112,13 @@ private:
 	TArray<AActor*> DetectedPlayerEnemies;
 	bool bIsDetectedByEnemies = false;
 
-	void SpawnMusic();
+	UFUNCTION()
+		void SpawnMusic(USoundBase* SoundToSpawn);
+	FTimerHandle BackgroundMusicHandle;
+	EMusicType CurrentMusicType;
+	void ChangeMusicAfterFadeOut();
 
 	// Music
-	UAudioComponent* CurrentPlayingMusic;
+	UPROPERTY()
+		UAudioComponent* CurrentPlayingMusic;
 };

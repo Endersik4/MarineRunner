@@ -29,6 +29,7 @@ public:
 
 	void KillEnemy();
 	void RunAway();
+	void AddEnemyToDetected(bool bWas);
 
 private:
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;

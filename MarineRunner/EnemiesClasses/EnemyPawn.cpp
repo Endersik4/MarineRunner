@@ -53,6 +53,8 @@ void AEnemyPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bIsDead == true)
+		return;
 	CheckIfEnemySeePlayer();
 	PlayFootstepsSound();
 }
@@ -141,8 +143,14 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitR
 bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
 	if (Health > 0.f) return false;
-	EnemySkeletalMesh->SetSimulatePhysics(true);
-	bIsDead = true;
+
+	if (bIsDead == false)
+	{
+		EnemySkeletalMesh->Stop();
+		EnemySkeletalMesh->SetSimulatePhysics(true);
+		SetIsDead(true);
+		EnemyAIController->AddEnemyToDetected(false);
+	}
 
 	if (NewSphereRadius != 0.f)
 	{
@@ -153,7 +161,6 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AAct
 		EnemySkeletalMesh->AddImpulse(BulletActor->GetActorForwardVector() * NewImpulseForce * 10.f, NewHit.BoneName);
 	}
 
-	EnemySkeletalMesh->Stop();
 	return true;
 }
 

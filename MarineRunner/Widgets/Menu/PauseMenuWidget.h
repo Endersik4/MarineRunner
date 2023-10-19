@@ -110,12 +110,18 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu Settings")
 		TSubclassOf<UUserWidget> ConfirmLoadingSaveWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu Settings")
+		USoundBase* PauseMenuMusic;
 	UPROPERTY(EditDefaultsOnly, Category = "Load Game Menu")
 		TSubclassOf<UUserWidget> LoadGameMenuWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Menu")
 		TSubclassOf<UUserWidget> SettingsMenuWidgetClass;
 
+
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
+
+	class UAudioComponent* CurrentPauseMenuMusic;
+	void StopPauseMenuMusic();
 
 	// Load Game Widget
 	bool bWasLoadGameMenuWidgetSpawned;

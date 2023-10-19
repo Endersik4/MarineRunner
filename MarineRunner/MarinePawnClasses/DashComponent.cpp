@@ -42,7 +42,7 @@ void UDashComponent::Dash()
 		return;
 
 	bIsPerformingDash = true;
-	bCanDash = true;
+	bCanDash = false;
 
 	InitialPlayerPosition = MarinePawn->GetActorLocation();
 	DashLocation = CalculateEndDashPosition();

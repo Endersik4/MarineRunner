@@ -33,11 +33,12 @@ void USaveMarineRunner::CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld)
 	if (IsValid(GameInstance) == false)
 		return;
 
-	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
 	GameInstance->CurrentSaveNumber++;
+	SaveNumber = GameInstance->CurrentSaveNumber;
+
+	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
 	GameInstance->TotalPlayTimeInSeconds += UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld);
 
-	SaveNumber = GameInstance->CurrentSaveNumber;
 	TotalPlayTimeInSeconds = GameInstance->TotalPlayTimeInSeconds;
 }
 
@@ -111,7 +112,6 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 	if (IsValid(GameInstance) == false) return;
 
 	GameInstance->SetSaveNumberAccordingToNumOfFiles();
-	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
 	GameInstance->TotalPlayTimeInSeconds = TotalPlayTimeInSeconds;
 }
 

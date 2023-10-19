@@ -86,6 +86,12 @@ void AMarineCharacter::BeginPlay()
 	MakeHudWidget();
 	CopyOfOriginalForce = MovementForce;
 	LoadGame();
+
+	if (IsValid(HudWidget))
+	{
+		HudWidget->SetHealthBarPercent(Health);
+		HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
+	}
 }
 
 // Called every frame
@@ -452,12 +458,6 @@ void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 
 void AMarineCharacter::LoadGame()
 {
-	if (IsValid(HudWidget))
-	{
-		HudWidget->SetHealthBarPercent(Health);
-		HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
-	}
-
 	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	FString SlotName = IsValid(GameInstance) == false ? "MySlot" : GameInstance->SlotSaveGameNameToLoad;
 	SlotName += "/" + SlotName;

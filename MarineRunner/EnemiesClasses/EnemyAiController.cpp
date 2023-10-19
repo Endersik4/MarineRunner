@@ -6,6 +6,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "TimerManager.h"
+#include "BrainComponent.h"
 
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
@@ -49,11 +50,10 @@ void AEnemyAiController::OnMoveCompleted(FAIRequestID RequestID, const FPathFoll
 
 void AEnemyAiController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
-	if (!Actor || !GetBlackboardComponent()) return;
-	if (!Actor->ActorHasTag("Player") || GetBlackboardComponent()->GetValueAsBool(TEXT("isRunningAway"))) return;
+	if (IsValid(Actor) ==  false || IsValid(GetBlackboardComponent()) == false) return;
+	if (!Actor->ActorHasTag("Player") || GetBlackboardComponent()->GetValueAsBool(TEXT("isRunningAway")) || GetBlackboardComponent()->GetValueAsBool(TEXT("IsDead"))) return;
 
 	GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
-
 	FTimerDelegate TimerDel;
 	TimerDel.BindUFunction(this, FName("DetectPlayerWithDelay"), Stimulus.WasSuccessfullySensed());
 	GetWorld()->GetTimerManager().SetTimer(DetectPlayerDelayHandle, TimerDel, Stimulus.WasSuccessfullySensed() ? DetectPlayerTime : LoseSightOfPlayerTime, false);
@@ -66,8 +66,13 @@ void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected)
 	if (IsValid(MarineRunnerGameInstance) == false)
 		return;
 
-	if (bIsDetected == true) MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn());
-	else MarineRunnerGameInstance->RemoveDetectedEnemy(GetPawn());
+	AddEnemyToDetected(bIsDetected);
+}
+
+void AEnemyAiController::AddEnemyToDetected(bool bWas)
+{
+	if (bWas == true) MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn(), GetBlackboardComponent()->GetValueAsBool(TEXT("IsDead")));
+	else MarineRunnerGameInstance->RemoveDetectedEnemy(GetPawn(), GetBlackboardComponent()->GetValueAsBool(TEXT("IsDead")));
 }
 
 void AEnemyAiController::SetAIVariables()

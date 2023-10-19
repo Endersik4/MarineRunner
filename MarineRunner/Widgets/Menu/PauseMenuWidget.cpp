@@ -47,14 +47,33 @@ void UPauseMenuWidget::NativeOnInitialized()
 	MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
 	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_MainMenu);
+	MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_PauseMusic);
+	if (PauseMenuMusic)
+	{
+		CurrentPauseMenuMusic = UGameplayStatics::SpawnSound2D(GetWorld(), PauseMenuMusic);
+		CurrentPauseMenuMusic->FadeIn(1.f);
+	}
 
 	FillMenuButtonsAndTextMap();
 }
 
 void UPauseMenuWidget::NativeDestruct()
 {
-	MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_Exploration);
+	StopPauseMenuMusic();
+}
+
+void UPauseMenuWidget::StopPauseMenuMusic()
+{
+	if (IsValid(MarineRunnerGameInstance) == true)
+	{
+		MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_Exploration, true);
+	}
+
+	if (IsValid(CurrentPauseMenuMusic) == false) 
+		return;
+
+	CurrentPauseMenuMusic->Stop();
+	CurrentPauseMenuMusic->DestroyComponent();
 }
 
 void UPauseMenuWidget::FillMenuButtonsAndTextMap()
