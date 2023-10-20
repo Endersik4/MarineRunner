@@ -36,6 +36,7 @@ void AEnemyAiController::Tick(float DeltaTime)
 void AEnemyAiController::KillEnemy()
 {
 	GetBlackboardComponent()->SetValueAsBool(TEXT("IsDead"), true);
+	bIsDead = true;
 }
 
 void AEnemyAiController::RunAway()
@@ -51,7 +52,7 @@ void AEnemyAiController::OnMoveCompleted(FAIRequestID RequestID, const FPathFoll
 void AEnemyAiController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
 	if (IsValid(Actor) ==  false || IsValid(GetBlackboardComponent()) == false) return;
-	if (!Actor->ActorHasTag("Player") || GetBlackboardComponent()->GetValueAsBool(TEXT("isRunningAway")) || GetBlackboardComponent()->GetValueAsBool(TEXT("IsDead"))) return;
+	if (!Actor->ActorHasTag("Player") || GetBlackboardComponent()->GetValueAsBool(TEXT("isRunningAway")) || bIsDead) return;
 
 	GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
 	FTimerDelegate TimerDel;
@@ -71,8 +72,8 @@ void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected)
 
 void AEnemyAiController::AddEnemyToDetected(bool bWas)
 {
-	if (bWas == true) MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn(), GetBlackboardComponent()->GetValueAsBool(TEXT("IsDead")));
-	else MarineRunnerGameInstance->RemoveDetectedEnemy(GetPawn(), GetBlackboardComponent()->GetValueAsBool(TEXT("IsDead")));
+	if (bWas == true) MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn(), bIsDead);
+	else MarineRunnerGameInstance->RemoveDetectedEnemy(GetPawn());
 }
 
 void AEnemyAiController::SetAIVariables()

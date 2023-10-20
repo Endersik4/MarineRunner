@@ -10,6 +10,9 @@
 
 #include "MarineCharacter.generated.h"
 
+/// <summary>
+/// Add Physics material to player so the player cant bounce too much on obstacles
+/// </summary>
 UCLASS()
 class MARINERUNNER_API AMarineCharacter : public APawn, public IInteractInterface
 {
@@ -132,15 +135,17 @@ private:
 
 	//Aka speed movement
 	UPROPERTY(EditAnywhere, Category = "Movement")
-		float MovementForce = 7000.f;
+		float MovementForce = 90000.f;
 	//Prevent from Sliding on the ground like Fish
 	UPROPERTY(EditAnywhere, Category = "Movement")
-		float CounterMovementForce = 4800.f;
+		float CounterMovementForce = 30.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 		float DividerOfMovementWhenADS = 1.4f;
 	// Divide Movement speed and CounterMovementForce by this value when in Air
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-		float DividerForMovementWhenInAir = 10.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|In Air")
+		float DividerForCounterForceWhenInAir = 13.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|In Air")
+		float DividerForMovementWhenInAir = 8.f;
 
 	//InitialJumpForce is lerping to -50.f and then applied to Velocity Z
 	UPROPERTY(EditAnywhere, Category = "Movement|Jump")

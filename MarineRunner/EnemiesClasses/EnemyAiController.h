@@ -48,6 +48,7 @@ private:
 
 	bool bDoEnemySeePlayer;
 	bool bIsMoveToCompleted;
+	bool bIsDead;
 
 	FTimerHandle DetectPlayerDelayHandle;
 	

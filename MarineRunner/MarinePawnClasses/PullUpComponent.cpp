@@ -23,7 +23,10 @@ void UPullUpComponent::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	if (MarinePawn == nullptr) UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN SLOW MOTIOn COMPONENT!"));
+	if (IsValid(MarinePawn) == false) 
+		UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN SLOW MOTIOn COMPONENT!"));
+
+	GetWorld()->GetTimerManager().SetTimer(CheckIfShouldPullUpHandle, this, &UPullUpComponent::EdgePullUp, CheckLinesForPullUpTime, true);
 }
 
 
@@ -32,16 +35,20 @@ void UPullUpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (MarinePawn)
+	if (IsValid(MarinePawn))
 	{
-		EdgePullUp();
 		PullupLerp();
 	}
 }
 
 void UPullUpComponent::EdgePullUp()
 {
+	if (IsValid(MarinePawn) == false)
+		return;
+
 	if (PulledHimselfUp || !MarinePawn->GetIsInAir()) return;
+
+	FVector PlayerForwardVector = CalculateForwardVectorForPlayer();
 
 	//Locations of Lines 
 	FVector StartTrueLine = MarinePawn->GetActorLocation();
@@ -50,16 +57,15 @@ void UPullUpComponent::EdgePullUp()
 	StartFalseLine.Z += PullupFalseLineZ;
 	FHitResult Line1Hit, Line2Hit;
 
-	if (MakeCheckLine(Line1Hit, StartTrueLine, StartTrueLine + MarinePawn->GetActorForwardVector() * 100.f) == true &&
-		MakeCheckLine(Line2Hit, StartFalseLine, StartFalseLine + MarinePawn->GetActorForwardVector() * 100.f) == false)
+	if (MakeCheckLine(Line1Hit, StartTrueLine, StartTrueLine + PlayerForwardVector * 100.f) == true &&
+		MakeCheckLine(Line2Hit, StartFalseLine, StartFalseLine + PlayerForwardVector * 100.f) == false)
 	{
-		
 		//Setting a line that is in the direction of the object the player wants to pull up.
 		FHitResult HitResult;
 		TArray<AActor*> ActorsToIgnore;
 		FVector LineStart = MarinePawn->GetActorLocation();
 		LineStart.Z += 150.f;
-		LineStart += MarinePawn->GetActorForwardVector() * 100.f;
+		LineStart += PlayerForwardVector * 100.f;
 		FVector LineEnd = LineStart + (MarinePawn->GetActorUpVector() * 200.f);
 
 		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true))
@@ -89,8 +95,8 @@ void UPullUpComponent::PullupLerp()
 	{
 		ShouldPullUpLerp = false;
 		PulledHimselfUp = false;
-		FVector Impulse = MarinePawn->GetActorForwardVector() * PullUpForceForward * 100;
-		Impulse.Z += PullUpForceUp * 100;
+		FVector Impulse = CalculateForwardVectorForPlayer() * PullUpForceForward;
+		Impulse.Z += PullUpForceUp;
 		MarinePawn->CapsulePawn->AddImpulse(Impulse);
 	}
 }
@@ -99,4 +105,10 @@ bool UPullUpComponent::MakeCheckLine(FHitResult& OutHitResult, FVector NewStart,
 {
 	if (bDebug) DrawDebugLine(GetWorld(), NewStart, NewEnd, Color, false, 0.5f);
 	return GetWorld()->LineTraceSingleByChannel(OutHitResult, NewStart, NewEnd, ECC_Visibility);
+}
+
+const FVector UPullUpComponent::CalculateForwardVectorForPlayer()
+{
+	const float ForwardVectorDegree = -90.f;
+	return MarinePawn->GetController()->GetRootComponent()->GetRightVector().RotateAngleAxis(ForwardVectorDegree, FVector(0.f, 0.f, 1.f));
 }

@@ -99,7 +99,7 @@ public:
 	void ReplaceValueInSavedSettingByName(float NewValue, const FString& SavedSettingName);
 
 	void AddNewDetectedEnemy(AActor* NewEnemy, bool bIsEnemyDead = false);
-	void RemoveDetectedEnemy(AActor* NewEnemy, bool bIsEnemyDead = false);
+	void RemoveDetectedEnemy(AActor* NewEnemy);
 
 	void ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut = false);
 private:
@@ -112,13 +112,14 @@ private:
 	TArray<AActor*> DetectedPlayerEnemies;
 	bool bIsDetectedByEnemies = false;
 
-	UFUNCTION()
-		void SpawnMusic(USoundBase* SoundToSpawn);
+	// Background music
 	FTimerHandle BackgroundMusicHandle;
 	EMusicType CurrentMusicType;
-	void ChangeMusicAfterFadeOut();
-
-	// Music
+	void SpawnBackgroundMusicFirstTime();
+	UFUNCTION()
+		void SpawnBackgroundMusic(USoundBase* SoundToSpawn);
 	UPROPERTY()
 		UAudioComponent* CurrentPlayingMusic;
+	void ChangeMusicAfterFadeOut();
+
 };

@@ -30,25 +30,27 @@ public:
 	void SetPulledHimselfUp(bool bSet) { PulledHimselfUp = bSet; }
 
 private:
-	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullUpForce = 2000.f;
-	//Z Location of Line that need to hit something for example: edge. This line must be true to Pullup
-	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullupTrueLineZ = 150.f;
-	//Z Location of Line that shouldnt hit something, This line must be false to Pullup
-	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullupFalseLineZ = 210.f;
-	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullupLinesDistance = 100.f;
-	//How Fast (in seconds) lerp will be done 
+	//How Fast (in seconds) lerp to PullUp location will be done 
 	UPROPERTY(EditAnywhere, Category = "PullUp")
 		float PullUpTime = 0.23f;
 	//Forward Force that will be applied to player when he pull up on the edge
 	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullUpForceForward = 9000.f;
+		float PullUpForceForward = 500000.f;
 	//Up Force that will be applied to player when he pull up on the edge
 	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullUpForceUp = 6000.f;
+		float PullUpForceUp = 400000.f;
+	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
+		float CheckLinesForPullUpTime = 0.05f;
+	//Z Location of Line that need to hit something for example: edge. This line must be true to Pullup
+	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
+		float PullupTrueLineZ = 150.f;
+	//Z Location of Line that shouldnt hit something, This line must be false to Pullup
+	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
+		float PullupFalseLineZ = 210.f;
+	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
+		float PullupLinesDistance = 100.f;
+
+	FTimerHandle CheckIfShouldPullUpHandle;
 
 	//EdgePullUp
 	bool PulledHimselfUp;
@@ -60,6 +62,8 @@ private:
 	FVector MarineLocation;
 
 	class AMarineCharacter* MarinePawn;
+	// There is a bug where MarinePawn->GetActorForwardVector() is not correct
+	const FVector CalculateForwardVectorForPlayer();
 
 	bool MakeCheckLine(FHitResult& OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug = false, FColor Color = FColor::Red);
 

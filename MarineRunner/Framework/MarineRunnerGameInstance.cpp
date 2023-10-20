@@ -16,9 +16,7 @@ void UMarineRunnerGameInstance::Init()
 	LoadCustomSavedSettingsFromConfig();
 	LoadSoundsVolumeFromConfig(CustomSavedSettings);
 
-	FTimerDelegate MusicDel;
-	MusicDel.BindUFunction(this, FName("SpawnMusic"), ExplorationMusic);
-	GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, MusicDel, 0.2f, false);
+	SpawnBackgroundMusicFirstTime();
 }
 
 #pragma region ///////// SAVING/LOADIGN///////////////
@@ -94,7 +92,7 @@ void UMarineRunnerGameInstance::AddNewDetectedEnemy(AActor* NewEnemy, bool bIsEn
 	}
 }
 
-void UMarineRunnerGameInstance::RemoveDetectedEnemy(AActor* NewEnemy, bool bIsEnemyDead)
+void UMarineRunnerGameInstance::RemoveDetectedEnemy(AActor* NewEnemy)
 {
 	DetectedPlayerEnemies.Remove(NewEnemy);
 
@@ -105,24 +103,15 @@ void UMarineRunnerGameInstance::RemoveDetectedEnemy(AActor* NewEnemy, bool bIsEn
 	}
 }
 
-void UMarineRunnerGameInstance::ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut)
+#pragma region /////////////////// BACKGROUND MUSIC /////////////////////////
+void UMarineRunnerGameInstance::SpawnBackgroundMusicFirstTime()
 {
-	CurrentMusicType = MusicType;
-	
-	GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, this, &UMarineRunnerGameInstance::ChangeMusicAfterFadeOut, 1.81f, false);
-
-	if (bIgnoreFadeOut == true)
-		return;
-
-	if (IsValid(CurrentPlayingMusic) == false)
-	{
-		return;
-	}
-
-	CurrentPlayingMusic->FadeOut(1.8f, 0.f);
+	FTimerDelegate MusicDel;
+	MusicDel.BindUFunction(this, FName("SpawnBackgroundMusic"), ExplorationMusic);
+	GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, MusicDel, 0.2f, false);
 }
 
-void UMarineRunnerGameInstance::SpawnMusic(USoundBase* SoundToSpawn)
+void UMarineRunnerGameInstance::SpawnBackgroundMusic(USoundBase* SoundToSpawn)
 {
 	if (SoundToSpawn == nullptr)
 		return;
@@ -130,14 +119,29 @@ void UMarineRunnerGameInstance::SpawnMusic(USoundBase* SoundToSpawn)
 	CurrentPlayingMusic->FadeIn(2.f, 1.f);
 }
 
+void UMarineRunnerGameInstance::ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut)
+{
+	CurrentMusicType = MusicType;
+
+	GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, this, &UMarineRunnerGameInstance::ChangeMusicAfterFadeOut, 1.81f, false);
+
+	if (bIgnoreFadeOut == true)
+		return;
+
+	if (IsValid(CurrentPlayingMusic) == false)
+		return;
+
+	CurrentPlayingMusic->FadeOut(1.8f, 0.f);
+}
+
 void UMarineRunnerGameInstance::ChangeMusicAfterFadeOut()
 {
 	if (CurrentMusicType == EMT_Combat)
-		SpawnMusic(CombatMusic);
+		SpawnBackgroundMusic(CombatMusic);
 	else if (CurrentMusicType == EMT_PauseMusic)
 	{
 		CurrentPlayingMusic->Stop();
 		return;
 	}
-	else SpawnMusic(ExplorationMusic);
+	else SpawnBackgroundMusic(ExplorationMusic);
 }

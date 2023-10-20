@@ -202,8 +202,8 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 	}
 	if (SlowMotionComponent->GetIsInSlowMotion() == true)
 	{
-		if (bIsInAir == true) Speed /= 3.f;
-		else Speed *= 2.4f;
+		//if (bIsInAir == true) Speed /= 7.f;
+		if (bIsInAir == false) Speed *= 2.4f;
 	}
 
 	Direction.Z = 0.f;
@@ -224,7 +224,7 @@ FVector AMarineCharacter::CalculateCounterMovement()
 	if (bIsInAir == true && GetIsWallrunning() == false)
 	{
 		CounterForce = CounterMovementForce / DividerForMovementWhenInAir;
-		if (SlowMotionComponent->GetIsInSlowMotion() == true) CounterForce /= 3.f;
+		if (SlowMotionComponent->GetIsInSlowMotion() == true) CounterForce *= 2.f;
 	}
 
 	return FVector(CounterForce * Velocity.X, CounterForce * Velocity.Y, 0);
@@ -252,7 +252,7 @@ void AMarineCharacter::Jump()
 void AMarineCharacter::JumpTick(float DeltaTime)
 {
 	if (bIsJumping == false) return;
-	
+
 	if (JumpTimeElapsed < JumpUpTime)
 	{
 		FVector Start = GetActorLocation();
@@ -273,12 +273,12 @@ void AMarineCharacter::JumpTick(float DeltaTime)
 
 		WallrunComponent->AddImpulseAfterWallrun(JumpTimeElapsed);
 
-		JumpTimeElapsed += DeltaTime;	
+		JumpTimeElapsed += DeltaTime / UGameplayStatics::GetGlobalTimeDilation(GetWorld());
 	}
 	else if (bDownForce == false)
 	{
 		//Down Physics applied when TimeJump is over
-		FVector DownJumpImpulse = -GetActorUpVector() * JumpDownForce * 10;
+		FVector DownJumpImpulse = (-GetActorUpVector() * JumpDownForce * 10) / UGameplayStatics::GetGlobalTimeDilation(GetWorld());;
 		CapsulePawn->AddImpulse(DownJumpImpulse);
 
 		bDownForce = true;
