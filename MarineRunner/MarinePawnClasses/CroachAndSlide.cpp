@@ -42,14 +42,13 @@ void UCroachAndSlide::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	{
 		CrouchReleased();
 	}
-	CroachLerp();
-	Sliding();
+	CroachLerp(DeltaTime);
+	Sliding(DeltaTime);
 }
 
-void UCroachAndSlide::Sliding()
+void UCroachAndSlide::Sliding(float Delta)
 {
 	if (bShouldSlide == false) return;
-	float Delta = GetWorld()->GetDeltaSeconds();
  
 	if (bShouldPlaySound == true && SlideSound)
 	{
@@ -90,7 +89,7 @@ void UCroachAndSlide::Sliding()
 
 void UCroachAndSlide::CrouchPressed()
 {
-	if (MarinePawn->GetIsPlayerLerpingToHookLocation() || MarinePawn->GetIsWallrunning() || MarinePawn->GetIsInSlowMotion()) return;
+	if (MarinePawn->GetIsPlayerLerpingToHookLocation() || MarinePawn->GetIsWallrunning()) return;
 	
 	bIsCrouching = true;
 
@@ -114,10 +113,9 @@ void UCroachAndSlide::CrouchPressed()
 	MarinePawn->SetMovementForce(MovementForce);
 }
 
-void UCroachAndSlide::CroachLerp()
+void UCroachAndSlide::CroachLerp(float Delta)
 {
 	if (bCanCroachLerp == false) return;
-	float Delta = GetWorld()->GetDeltaSeconds();
 
 	float NewVignetteIntensity = FMath::Lerp(MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity, VignetteIntensityValue, Delta * SpeedOfCroachLerp);
 	MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;

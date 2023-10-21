@@ -36,7 +36,7 @@ private:
 	float OriginalChromaticAbberation;
 	float OriginalOffsetCA;
 	float FadeTimeElapsed;
-	void DashEffects();
+	void DashEffects(float Delta);
 
 	void PrepareDashWidget();
 	class UCameraComponent* MarineCamera;

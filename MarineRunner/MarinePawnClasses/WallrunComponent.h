@@ -82,14 +82,14 @@ private:
 	bool bShouldLerpRotation;
 	float WhereToInterp;
 	void RotateCameraYaw(ESideOfLine CurrentSide, FVector HitNormal);
-	void CameraRotationInterp();
+	void CameraRotationInterp(float Delta);
 
 	//Wallrunning Functions
-	void Wallrunning(); 
+	void Wallrunning(float Delta); 
 	void ResetWallrunning(); //Disable Wallrun
 	void StickToTheObstacle(ESideOfLine CurrentSide, FVector HitNormal);
 	bool IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& OutCurrentSide, ESideOfLine WhichSideToLook = ESideOfLine::Left);
-	bool CanDoWallrun();
+	bool CanDoWallrun(float Delta);
 
 	FRotator PlayerRotationWallrun;
 	FRotator PlayerRotationWhileWallrun;

@@ -40,15 +40,15 @@ void UWallrunComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	//Calling Wallrunning functione when Player is In Air
 	if (MarinePawn->GetIsInAir())
 	{
-		Wallrunning();
+		Wallrunning(DeltaTime);
 	}
-	CameraRotationInterp();
+	CameraRotationInterp(DeltaTime);
 }
 
-void UWallrunComponent::Wallrunning()
+void UWallrunComponent::Wallrunning(float Delta)
 {
 	//Checking if Pawn Can do wallrun
-	if (CanDoWallrun() == false) return;
+	if (CanDoWallrun(Delta) == false) return;
 
 	ESideOfLine CurrentSide;
 	FVector HitNormal; //Hit.ImpactNormal Vector from HitResult of Obstacle
@@ -152,12 +152,12 @@ void UWallrunComponent::ResetWallrunning()
 	MarinePawn->RotateCameraWhileWallrunning();
 }
 
-bool UWallrunComponent::CanDoWallrun()
+bool UWallrunComponent::CanDoWallrun(float Delta)
 {
 	if (WallrunTimeElapsed < 0.3f) //Wait a little bit before the next wallrun
 	{
 		if (bIsWallrunning && MarinePawn->GetIsJumping() == false) ResetWallrunning();
-		else WallrunTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+		else WallrunTimeElapsed += Delta;
 		return false;
 	}
 
@@ -201,7 +201,7 @@ void UWallrunComponent::RotateCameraYaw(ESideOfLine CurrentSide, FVector HitNorm
 	PlayerRotationWallrun.Yaw = WhereToInterp;
 }
 
-void UWallrunComponent::CameraRotationInterp()
+void UWallrunComponent::CameraRotationInterp(float Delta)
 {
 	if (!bShouldLerpRotation) return;
 
@@ -211,7 +211,7 @@ void UWallrunComponent::CameraRotationInterp()
 	FRotator TargetRotation = CurrentRotation;
 	TargetRotation.Yaw = WhereToInterp;
 
-	FRotator NewRotation = UKismetMathLibrary::RInterpTo(CurrentRotation, TargetRotation, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), CameraYawSpeed);
+	FRotator NewRotation = UKismetMathLibrary::RInterpTo(CurrentRotation, TargetRotation, Delta, CameraYawSpeed);
 	PC->SetControlRotation(NewRotation);
 	//In Blueprint BP_MarinePlayerController when player moves mouse (with some tolerance) then bShouldLerpRotation = false
 }

@@ -19,10 +19,10 @@ void UDashWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);
 	
-	DashEffects();
+	DashEffects(DeltaTime);
 }
 
-void UDashWidget::DashEffects()
+void UDashWidget::DashEffects(float Delta)
 {
 	if (MarineCamera == nullptr) return;
 
@@ -39,7 +39,7 @@ void UDashWidget::DashEffects()
 		MarineCamera->PostProcessSettings.ChromaticAberrationStartOffset = NewOffsetCA;
 		MarineCamera->PostProcessSettings.SceneFringeIntensity = NewCA;
 
-		FadeTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+		FadeTimeElapsed += Delta;
 		if (FadeTimeElapsed >= FadeTime) FadeTimeElapsed += FadeTime;
 	}
 	else

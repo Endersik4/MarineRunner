@@ -24,9 +24,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-
 	void Dash();
-	
 	bool GetIsPerformingDash() const { return bIsPerformingDash; }
 private:
 	UPROPERTY(EditAnywhere, Category = "Dash Settings")
@@ -52,11 +50,14 @@ private:
 	bool bIsPerformingDash;
 
 	float DashTimeElapsed = 0.f;
+	float CalculatedDashTime;
+
 	FVector InitialPlayerPosition;
 	FVector DashLocation;
 	void LerpToDashLocation(float Delta);
 	FVector CalculateEndDashPosition();
 	const FVector CalculateDashDirection();
+	bool GetCloserHitResult(FHitResult& OutHitResult);
 
 	void TurnOffDash();
 	void DashEffects();

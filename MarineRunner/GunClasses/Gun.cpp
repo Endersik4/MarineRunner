@@ -55,10 +55,10 @@ void AGun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	GunSway();
+	GunSway(DeltaTime);
 	AimTheGun(DeltaTime);
-	UpRecoilCamera();
-	CameraInterpBackToInitialPosition();
+	UpRecoilCamera(DeltaTime);
+	CameraInterpBackToInitialPosition(DeltaTime);
 }
 
 #pragma region //////////////////////////////////// SHOOT /////////////////////////////////////
@@ -152,7 +152,6 @@ void AGun::RecoilAnimTimelineCallback(float RecoilDirection)
 	if (RecoilAnimCurveScale)
 	{
 		float RecoilScale = RecoilAnimCurveScale->GetFloatValue(RecoilAnimTimeline->GetPlaybackPosition());
-		//if (StatusOfGun == ADS) RecoilScale /= DividerOfRecoilWhileADS;
 		BaseSkeletalMesh->SetRelativeScale3D(FVector(RecoilScale));
 	}
 
@@ -190,9 +189,10 @@ void AGun::RecoilAnimTimelineFinishedCallback()
 
 		FTimerHandle DropCasingHandle;
 		GetWorldTimerManager().SetTimer(DropCasingHandle, this, &AGun::DropCasing, 0.2f, false);
-
+		
 		FTimerHandle PlayAfterFireHandle;
 		GetWorldTimerManager().SetTimer(PlayAfterFireHandle, this, &AGun::SetCanShoot, ShootAnimation->GetPlayLength(), false);
+		
 	}
 	else SetCanShoot();
 
@@ -239,7 +239,7 @@ void AGun::SetCameraRecoil()
 	}
 }
 
-void AGun::UpRecoilCamera()
+void AGun::UpRecoilCamera(float Delta)
 {
 	if (bCanRecoilCamera == false) return;
 	
@@ -248,7 +248,7 @@ void AGun::UpRecoilCamera()
 		float ControlRotationPitch = (DistanceFromStart * 0.375) * TimeRecoilCameraElapsed / ((CopyOfMagazineCapacity * RecoilAnimTimelineLength) + 0.2f);
 		PC->AddPitchInput(-ControlRotationPitch);
 	}
-	TimeRecoilCameraElapsed = UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+	TimeRecoilCameraElapsed = Delta;
 }
 
 void AGun::BackCameraToItsInitialRotation()
@@ -282,7 +282,7 @@ void AGun::BackCameraToItsInitialRotation()
 	bShouldCameraInterpBack = true;
 }
 
-void AGun::CameraInterpBackToInitialPosition()
+void AGun::CameraInterpBackToInitialPosition(float Delta)
 {
 	if (!MarinePawn) return;
 	
@@ -301,7 +301,7 @@ void AGun::CameraInterpBackToInitialPosition()
 		return;
 	}
 	
-	FRotator NewRotation = UKismetMathLibrary::RInterpTo(PC->GetControlRotation(), InitialCameraRotation, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()), InitalCameraPositionSpeed);
+	FRotator NewRotation = UKismetMathLibrary::RInterpTo(PC->GetControlRotation(), InitialCameraRotation, Delta, InitalCameraPositionSpeed);
 	PC->SetControlRotation(NewRotation);
 }
 
@@ -506,12 +506,10 @@ void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveCom
 }
 
 #pragma region //////////////////////////////// GUN SWAY //////////////////////////////////////
-void AGun::GunSway()
+void AGun::GunSway(float Delta)
 {
 	if (MarinePawn == nullptr || bActivateGunSway == false || bCanSway == false) return;
 	
-	float Delta = UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
-
 	FVector GunLocationInterp = BaseSkeletalMesh->GetRelativeLocation();
 
 	bool bADSGunSway = CalculateGunSway(GunLocationInterp, GunRotationSway, Delta);

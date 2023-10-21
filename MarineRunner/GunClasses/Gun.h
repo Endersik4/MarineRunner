@@ -422,8 +422,8 @@ private:
 	void SetCameraRecoil();
 	void ResetVariablesForCameraRecoil();
 	void BackCameraToItsInitialRotation();
-	void UpRecoilCamera();
-	void CameraInterpBackToInitialPosition();
+	void UpRecoilCamera(float Delta);
+	void CameraInterpBackToInitialPosition(float Delta);
 	////////////////////
 
 	///////////////// Gun Sway ////////////////
@@ -433,7 +433,7 @@ private:
 	bool CalculateGunSway(FVector & CalculatedLocation, FRotator &CalculatedRotation, float Delta);
 		//Using Lemniscate Of Bernoulli to sway gun while moving 
 	FVector CalculateLOBGunSwayWhileMoving();
-	void GunSway();
+	void GunSway(float Delta);
 	FRotator GunRotationSway;
 	FTimerHandle GunSwayWhileMovingHandle;
 	/////////////////////////////////

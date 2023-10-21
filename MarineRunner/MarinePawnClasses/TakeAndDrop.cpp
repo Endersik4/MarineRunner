@@ -36,7 +36,7 @@ void UTakeAndDrop::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	CheckIfWeaponIsInEquipPosition();
+	CheckIfWeaponIsInEquipPosition(DeltaTime);
 	RaycastForHoverItems();
 }
 
@@ -121,12 +121,12 @@ void UTakeAndDrop::DisableLastHoveredItem()
 	HoverInterface->ItemUnHover(MarinePawn->GetHudWidget());
 }
 
-void UTakeAndDrop::CheckIfWeaponIsInEquipPosition()
+void UTakeAndDrop::CheckIfWeaponIsInEquipPosition(float Delta)
 {
 	if (IsValid(MarinePawn) == false || !TakeInterface || bIsItWeapon == false) 
 		return;
 
-	bWeaponIsInEquipPosition = TakeInterface->MoveItemToEquipPosition(SpeedOfComingGun * GetWorld()->GetDeltaSeconds());
+	bWeaponIsInEquipPosition = TakeInterface->MoveItemToEquipPosition(SpeedOfComingGun * Delta);
 }
 
 void UTakeAndDrop::DropItem()

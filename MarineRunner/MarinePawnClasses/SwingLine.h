@@ -38,6 +38,6 @@ private:
 	FVector HookLocation;
 	float LineTime;
 	float LineTimeElapsed;
-	void LineInterp();
+	void LineInterp(float Delta);
 
 };

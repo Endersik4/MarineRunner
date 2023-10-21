@@ -70,6 +70,7 @@ public:
 	bool GetIsOnRamp() const { return bIsOnRamp; }
 	bool GetIsGoingUp() const { return bIsGoingUp; }
 	bool GetIsInAir() const { return bIsInAir; }
+	FVector GetCameraLocation() const;
 	class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
 	class UInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
@@ -97,6 +98,8 @@ public:
 	void LoadSavedSettingsFromGameInstance();
 
 	void MakeCrosshire(bool bShouldRemoveFromParent = false);
+
+	void SetCustomTimeDilation(float NewTimeDilation);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCroachAndSlide* CroachAndSlideComponent;
@@ -106,8 +109,10 @@ private:
 		class UTakeAndDrop* TakeAndDropComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWallrunComponent* WallrunComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USlowMotionComponent* SlowMotionComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UPullUpComponent* PullUpComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")

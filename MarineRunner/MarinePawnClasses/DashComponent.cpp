@@ -1,7 +1,6 @@
 // Copyright Adam Bartela.All Rights Reserved
 
 #include "DashComponent.h"
-#include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
@@ -52,13 +51,48 @@ void UDashComponent::Dash()
 
 FVector UDashComponent::CalculateEndDashPosition()
 {
-	FVector EndRaycastLoc = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
+	FHitResult HitResult;
+	bool bHit = GetCloserHitResult(HitResult);
+
+	// If object that was hit is closer then DashDistance then calculate time for new distance
+	CalculatedDashTime = bHit ? (HitResult.Distance * DashTime) / DashDistance : DashTime;
+
+	FVector EndRaycastLocation = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
+	return (bHit ? HitResult.Location : EndRaycastLocation) - CalculateDashDirection() * OffsetFromObstacle;
+}
+
+bool UDashComponent::GetCloserHitResult(FHitResult& OutHitResult)
+{
+	FVector EndRaycastLowerLoc = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
+	FVector EndRaycastHigherLoc = MarinePawn->GetCameraLocation() + (CalculateDashDirection() * DashDistance);
 
 	// if there is obstacle on the way then set actor location to Hit Location with offset
-	FHitResult HitResult;
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, InitialPlayerPosition, EndRaycastLoc, ECollisionChannel::ECC_Visibility);
+	FHitResult HitResultLower, HitResultHigher;
+	bool bHitLower = GetWorld()->LineTraceSingleByChannel(HitResultLower, InitialPlayerPosition, EndRaycastLowerLoc, ECollisionChannel::ECC_Visibility);
+	bool bHitHigher = GetWorld()->LineTraceSingleByChannel(HitResultHigher, MarinePawn->GetCameraLocation(), EndRaycastHigherLoc, ECollisionChannel::ECC_Visibility);
 
-	return (bHit ? HitResult.Location : EndRaycastLoc) - CalculateDashDirection() * OffsetFromObstacle;
+	if (bHitLower == true || bHitHigher == true)
+	{
+		HitResultHigher.Location.Z = InitialPlayerPosition.Z;
+		if (bHitHigher == false)
+		{
+			OutHitResult = HitResultLower;
+		}
+		else if (bHitLower == false)
+		{
+			OutHitResult = HitResultHigher;
+		}
+		else if (HitResultLower.Distance <= HitResultHigher.Distance)
+		{
+			OutHitResult = HitResultLower;
+		}
+		else
+			OutHitResult = HitResultHigher;
+
+		return true;
+	}
+	else 
+		return false;
 }
 
 const FVector UDashComponent::CalculateDashDirection()
@@ -91,9 +125,9 @@ void UDashComponent::LerpToDashLocation(float Delta)
 	if (bIsPerformingDash == false)
 		return;
 
-	if (DashTimeElapsed <= DashTime)
+	if (DashTimeElapsed <= CalculatedDashTime)
 	{
-		FVector NewLoc = FMath::Lerp(InitialPlayerPosition, DashLocation, DashTimeElapsed / DashTime);
+		FVector NewLoc = FMath::Lerp(InitialPlayerPosition, DashLocation, DashTimeElapsed / CalculatedDashTime);
 		MarinePawn->SetActorLocation(NewLoc);
 	}
 	else
@@ -107,7 +141,7 @@ void UDashComponent::TurnOffDash()
 {
 	DashTimeElapsed = 0.f;
 	bIsPerformingDash = false;
-	MarinePawn->GetWorldTimerManager().SetTimer(DashCooldownHandle, this, &UDashComponent::EndDashCooldown, DashCoolDown, false);
+	GetWorld()->GetTimerManager().SetTimer(DashCooldownHandle, this, &UDashComponent::EndDashCooldown, DashCoolDown, false);
 }
 
 bool UDashComponent::CanPlayerPerformDash() const

@@ -37,8 +37,8 @@ void USwingComponent::BeginPlay()
 void USwingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	SwingInterp();
+	
+	SwingInterp(DeltaTime);
 	SwingLineCheck();
 }
 
@@ -132,12 +132,12 @@ void USwingComponent::StartSwingToHook()
 }
 
 //Interp player to location of the Hook
-void USwingComponent::SwingInterp()
+void USwingComponent::SwingInterp(float Delta)
 {
 	if (!bIsPlayerLerpingToHookPosition || IsValid(CurrentFocusedHook) == false) 
 		return;
 
-	FVector LocationInterp = FMath::VInterpTo(MarinePlayer->GetActorLocation(), HookLocation, GetWorld()->GetDeltaSeconds(), SwingSpeed);
+	FVector LocationInterp = FMath::VInterpTo(MarinePlayer->GetActorLocation(), HookLocation, Delta, SwingSpeed);
 
 	StopSwingInterp();
 

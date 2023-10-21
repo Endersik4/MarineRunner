@@ -42,7 +42,7 @@ private:
 	bool bWeaponIsInEquipPosition = true;
 
 	bool RaycastForHoverItems();
-	void CheckIfWeaponIsInEquipPosition();
+	void CheckIfWeaponIsInEquipPosition(float Delta);
 		
 	FHitResult LastHitResult;
 	bool WhetherRaycastOnTheSameItem(const FHitResult& CurrentItemHit);

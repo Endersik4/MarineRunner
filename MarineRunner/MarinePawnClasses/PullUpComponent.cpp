@@ -37,7 +37,7 @@ void UPullUpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 	if (IsValid(MarinePawn))
 	{
-		PullupLerp();
+		PullupLerp(DeltaTime);
 	}
 }
 
@@ -71,7 +71,7 @@ void UPullUpComponent::EdgePullUp()
 		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true))
 		{
 			PullupLocationZ = MarinePawn->GetActorLocation();
-			PullupLocationZ.Z = HitResult.ImpactPoint.Z + 75.f;
+			PullupLocationZ.Z = HitResult.ImpactPoint.Z + 100.f;
 			ShouldPullUpLerp = true;
 			MarineLocation = MarinePawn->GetActorLocation();
 			PullupTimeElapsed = 0.f;
@@ -81,7 +81,7 @@ void UPullUpComponent::EdgePullUp()
 
 }
 
-void UPullUpComponent::PullupLerp()
+void UPullUpComponent::PullupLerp(float Delta)
 {
 	if (!ShouldPullUpLerp) return;
 
@@ -89,7 +89,7 @@ void UPullUpComponent::PullupLerp()
 	{
 		FVector LerpLocation = FMath::Lerp(MarineLocation, PullupLocationZ, PullupTimeElapsed / PullUpTime);
 		MarinePawn->SetActorLocation(LerpLocation);
-		PullupTimeElapsed += GetWorld()->GetDeltaSeconds();
+		PullupTimeElapsed += Delta;
 	}
 	else
 	{

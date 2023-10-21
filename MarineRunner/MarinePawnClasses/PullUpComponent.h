@@ -57,7 +57,7 @@ private:
 	bool ShouldPullUpLerp;
 	float PullupTimeElapsed;
 	FVector PullupLocationZ;
-	void PullupLerp();
+	void PullupLerp(float Delta);
 	void EdgePullUp();
 	FVector MarineLocation;
 

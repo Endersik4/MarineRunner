@@ -193,17 +193,12 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 
 	if (GetIsWallrunning() == true)
 	{
-		Speed = MovementForce * MovementSpeedMutliplier;
+		Speed = MovementForce * (MovementSpeedMutliplier / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
 	}
 	//if (bIsOnRamp && CroachAndSlideComponent->GetIsSliding()) MovementDirection += 1.f * -GetActorUpVector();
 	if (bIsInAir == true && GetIsWallrunning() == false)
 	{
 		Speed /= DividerForMovementWhenInAir;
-	}
-	if (SlowMotionComponent->GetIsInSlowMotion() == true)
-	{
-		//if (bIsInAir == true) Speed /= 7.f;
-		if (bIsInAir == false) Speed *= 2.4f;
 	}
 
 	Direction.Z = 0.f;
@@ -223,8 +218,8 @@ FVector AMarineCharacter::CalculateCounterMovement()
 	float CounterForce = CounterMovementForce;
 	if (bIsInAir == true && GetIsWallrunning() == false)
 	{
-		CounterForce = CounterMovementForce / DividerForMovementWhenInAir;
-		if (SlowMotionComponent->GetIsInSlowMotion() == true) CounterForce *= 2.f;
+		CounterForce = CounterMovementForce / (DividerForMovementWhenInAir);
+		CounterForce *= UGameplayStatics::GetGlobalTimeDilation(GetWorld());
 	}
 
 	return FVector(CounterForce * Velocity.X, CounterForce * Velocity.Y, 0);
@@ -273,12 +268,13 @@ void AMarineCharacter::JumpTick(float DeltaTime)
 
 		WallrunComponent->AddImpulseAfterWallrun(JumpTimeElapsed);
 
-		JumpTimeElapsed += DeltaTime / UGameplayStatics::GetGlobalTimeDilation(GetWorld());
+		JumpTimeElapsed += DeltaTime;
 	}
 	else if (bDownForce == false)
 	{
 		//Down Physics applied when TimeJump is over
-		FVector DownJumpImpulse = (-GetActorUpVector() * JumpDownForce * 10) / UGameplayStatics::GetGlobalTimeDilation(GetWorld());;
+		FVector DownJumpImpulse = (-GetActorUpVector() * JumpDownForce * 10);
+		//if (GetIsInSlowMotion() == true) DownJumpImpulse *= 3.f;
 		CapsulePawn->AddImpulse(DownJumpImpulse);
 
 		bDownForce = true;
@@ -567,6 +563,11 @@ void AMarineCharacter::MakeCrosshire(bool bShouldRemoveFromParent)
 	CrosshairWidget->AddToViewport();
 }
 
+void AMarineCharacter::SetCustomTimeDilation(float NewTimeDilation)
+{
+	CustomTimeDilation = NewTimeDilation;
+}
+
 void AMarineCharacter::UpdateHudWidget()
 {
 	WeaponHandlerComponent->UpdateWeaponInformationOnHud();
@@ -661,6 +662,11 @@ bool AMarineCharacter::GetIsInSlowMotion() const
 bool AMarineCharacter::GetIsCrouching() const
 {
 	return CroachAndSlideComponent->GetIsCrouching();
+}
+
+FVector AMarineCharacter::GetCameraLocation() const
+{
+	return Camera->GetComponentLocation();
 }
 
 #pragma endregion 

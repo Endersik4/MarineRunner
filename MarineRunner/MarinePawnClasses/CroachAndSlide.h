@@ -82,7 +82,7 @@ private:
 	bool bStartRampCameraShake = false;
 	UCameraShakeBase* CameraShakeBase;
 
-	void Sliding();
+	void Sliding(float Delta);
 	bool bShouldSlide;
 
 	bool bShouldPlaySound = true;
@@ -91,7 +91,7 @@ private:
 
 	float VignetteIntensityValue = 1.1f;
 
-	void CroachLerp();
+	void CroachLerp(float Delta);
 	bool bCanCroachLerp;
 	float ScaleZ = 1.5f;
 		

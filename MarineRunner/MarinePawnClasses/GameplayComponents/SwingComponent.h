@@ -69,7 +69,7 @@ private:
 	void StartSwingToHook();
 	void SwingLineCheck();
 
-	void SwingInterp();
+	void SwingInterp(float Delta);
 	void StopSwingInterp();
 
 	void SpawnSwingEffects();
