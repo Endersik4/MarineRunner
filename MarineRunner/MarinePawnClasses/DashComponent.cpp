@@ -134,7 +134,7 @@ void UDashComponent::LerpToDashLocation(float Delta)
 	{
 		TurnOffDash();
 	}
-	DashTimeElapsed += Delta;
+	DashTimeElapsed += (Delta / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
 }
 
 void UDashComponent::TurnOffDash()

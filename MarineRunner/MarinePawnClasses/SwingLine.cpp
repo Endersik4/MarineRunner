@@ -3,6 +3,7 @@
 
 #include "SwingLine.h"
 #include "NiagaraComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ASwingLine::ASwingLine()
@@ -40,6 +41,6 @@ void ASwingLine::LineInterp(float Delta)
 		SetActorLocation(LerpLocation);
 	}
 	else if (LineTimeElapsed > 10.f) Destroy();
-	LineTimeElapsed += Delta;
+	LineTimeElapsed += Delta / UGameplayStatics::GetGlobalTimeDilation(GetWorld());
 }
 

@@ -102,6 +102,8 @@ public:
 	void RemoveDetectedEnemy(AActor* NewEnemy);
 
 	void ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut = false);
+
+	FORCEINLINE EMusicType GetCurrentMusicType() const {return CurrentMusicType;}
 private:
 
 	bool bWasJsonDeserialized;

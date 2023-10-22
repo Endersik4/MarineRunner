@@ -152,7 +152,8 @@ void USwingComponent::StopSwingInterp()
 	bIsPlayerLerpingToHookPosition = false;
 	bCanMakeSwingLineCheck = true;
 
-	FVector Velocity = MarinePlayer->CapsulePawn->GetPhysicsLinearVelocity() * SwingLinearPhysicsMultiplier;
+	float Multiplier = (SwingLinearPhysicsMultiplier / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
+	FVector Velocity = MarinePlayer->CapsulePawn->GetPhysicsLinearVelocity() * Multiplier;
 	Velocity.Z = MarinePlayer->CapsulePawn->GetPhysicsLinearVelocity().Z;
 	MarinePlayer->CapsulePawn->SetPhysicsLinearVelocity(Velocity);
 }

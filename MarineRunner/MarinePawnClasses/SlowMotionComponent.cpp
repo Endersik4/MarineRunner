@@ -69,7 +69,6 @@ void USlowMotionComponent::SettingUpSlowMotion()
 
 	//SlowMotion command
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowMotionValue);
-	//MarinePawn->SetCustomTimeDilation(1.f / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
 
 	SlowMotionEffects();
 }
@@ -105,7 +104,6 @@ void USlowMotionComponent::DisableSlowMotion()
 	const float NormalTimeSpeed = 1.f;
 	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), NormalTimeSpeed, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), NormalTimeSpeed);
-	MarinePawn->SetCustomTimeDilation(NormalTimeSpeed);
 
 	MarinePawn->GetCamera()->PostProcessSettings.bOverride_ColorGain = false;
 	MarinePawn->GetCamera()->PostProcessSettings.ChromaticAberrationStartOffset = 1.f;

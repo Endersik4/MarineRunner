@@ -120,6 +120,7 @@ private:
 
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
 
+	enum EMusicType MusicTypeBeforePause;
 	class UAudioComponent* CurrentPauseMenuMusic;
 	void StopPauseMenuMusic();
 

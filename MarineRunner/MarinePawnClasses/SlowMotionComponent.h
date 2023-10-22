@@ -28,8 +28,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void TurnOnSlowMotion() { SlowMotionPressed(); };
-	bool GetIsInSlowMotion() const { return bIsInSlowMotion; }
-
+	FORCEINLINE bool GetIsInSlowMotion() const { return bIsInSlowMotion; }
+	FORCEINLINE float GetCounterForceMultiplierWhenInAir() const {return CounterForceMultiplierWhenInAir;}
 private:
 	//Speed of SlowMotion
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
@@ -40,6 +40,8 @@ private:
 	//Delay of Slow Motion before the next one
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float SlowMotionDelay = 8.f;
+	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
+		float CounterForceMultiplierWhenInAir = 5.f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float StartingChromaticAbberation = 5.f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")

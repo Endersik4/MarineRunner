@@ -47,6 +47,7 @@ void UPauseMenuWidget::NativeOnInitialized()
 	MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
 	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	MusicTypeBeforePause = MarineRunnerGameInstance->GetCurrentMusicType();
 	MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_PauseMusic);
 	if (PauseMenuMusic)
 	{
@@ -66,7 +67,7 @@ void UPauseMenuWidget::StopPauseMenuMusic()
 {
 	if (IsValid(MarineRunnerGameInstance) == true)
 	{
-		MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_Exploration, true);
+		MarineRunnerGameInstance->ChangeBackgroundMusic(MusicTypeBeforePause, true);
 	}
 
 	if (IsValid(CurrentPauseMenuMusic) == false) 

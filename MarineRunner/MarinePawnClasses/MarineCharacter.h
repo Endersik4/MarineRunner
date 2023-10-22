@@ -99,7 +99,6 @@ public:
 
 	void MakeCrosshire(bool bShouldRemoveFromParent = false);
 
-	void SetCustomTimeDilation(float NewTimeDilation);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCroachAndSlide* CroachAndSlideComponent;

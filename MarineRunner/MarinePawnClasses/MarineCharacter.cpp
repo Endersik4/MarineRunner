@@ -193,7 +193,7 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 
 	if (GetIsWallrunning() == true)
 	{
-		Speed = MovementForce * (MovementSpeedMutliplier / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
+		Speed = MovementForce * MovementSpeedMutliplier;
 	}
 	//if (bIsOnRamp && CroachAndSlideComponent->GetIsSliding()) MovementDirection += 1.f * -GetActorUpVector();
 	if (bIsInAir == true && GetIsWallrunning() == false)
@@ -218,8 +218,7 @@ FVector AMarineCharacter::CalculateCounterMovement()
 	float CounterForce = CounterMovementForce;
 	if (bIsInAir == true && GetIsWallrunning() == false)
 	{
-		CounterForce = CounterMovementForce / (DividerForMovementWhenInAir);
-		CounterForce *= UGameplayStatics::GetGlobalTimeDilation(GetWorld());
+		CounterForce = CounterMovementForce / DividerForMovementWhenInAir;
 	}
 
 	return FVector(CounterForce * Velocity.X, CounterForce * Velocity.Y, 0);
@@ -343,7 +342,10 @@ void AMarineCharacter::CheckIfIsInAir()
 				bIsGoingUp = false;
 			}
 		}
-		else bIsOnRamp = false;
+		else if (bIsOnRamp == true)
+		{
+			bIsOnRamp = false;
+		}
 
 		DelayJump();
 		
@@ -561,11 +563,6 @@ void AMarineCharacter::MakeCrosshire(bool bShouldRemoveFromParent)
 
 	CrosshairWidget = CreateWidget(MarinePlayerController, CrosshairClass);
 	CrosshairWidget->AddToViewport();
-}
-
-void AMarineCharacter::SetCustomTimeDilation(float NewTimeDilation)
-{
-	CustomTimeDilation = NewTimeDilation;
 }
 
 void AMarineCharacter::UpdateHudWidget()
