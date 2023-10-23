@@ -152,6 +152,9 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AAct
 		EnemyAIController->AddEnemyToDetected(false);
 	}
 
+	if (IsValid(BulletActor) == false)
+		return true;
+
 	if (NewSphereRadius != 0.f)
 	{
 		EnemySkeletalMesh->AddRadialImpulse(BulletActor->GetActorLocation(), NewSphereRadius, NewImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);

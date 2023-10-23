@@ -515,7 +515,7 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 {
 	if (MarineHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, NewHit.ImpactPoint);
 
-	if (NewSphereRadius != 0.f)
+	if (NewSphereRadius != 0.f && IsValid(BulletActor))
 	{
 		CapsulePawn->AddRadialImpulse(BulletActor->GetActorLocation(), NewSphereRadius, NewImpulseForce, ERadialImpulseFalloff::RIF_Linear, true);
 		Health -= NewDamage / 15;
