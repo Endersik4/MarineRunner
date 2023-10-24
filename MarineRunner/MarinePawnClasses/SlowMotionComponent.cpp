@@ -47,7 +47,7 @@ void USlowMotionComponent::SlowMotionPressed()
 	if (bCanSlowMotion == false) return;
 	SettingUpSlowMotion();
 
-	GetWorld()->GetTimerManager().SetTimer(SlowMotionTimeHandle, this, &USlowMotionComponent::DisableSlowMotion, SlowMotionValue * SlowMotionTime);
+	GetWorld()->GetTimerManager().SetTimer(SlowMotionTimeHandle, this, &USlowMotionComponent::DisableSlowMotion, SlowMotionTime * SlowMotionValue);
 }	
 
 void USlowMotionComponent::SuddentDisabledSlowMotion()
@@ -82,7 +82,7 @@ void USlowMotionComponent::SlowMotionEffects()
 	if (IsValid(MarinePawn) == false)
 		return;
 
-	ElementBar SlowMoElementBar{ SlowMotionDelay };
+	ElementBar SlowMoElementBar{ SlowMotionDelay + SlowMotionTime * SlowMotionValue };
 	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::SlowMo, SlowMoElementBar);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
 
@@ -117,6 +117,5 @@ void USlowMotionComponent::DisableSlowMotion()
 void USlowMotionComponent::DelayCompleted()
 {
 	bCanSlowMotion = true;
-
 }
 
