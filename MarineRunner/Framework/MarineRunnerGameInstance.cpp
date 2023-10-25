@@ -138,7 +138,7 @@ void UMarineRunnerGameInstance::ChangeMusicAfterFadeOut()
 {
 	if (CurrentMusicType == EMT_Combat)
 		SpawnBackgroundMusic(CombatMusic);
-	else if (CurrentMusicType == EMT_PauseMusic)
+	else if (CurrentMusicType == EMT_PauseMusic && IsValid(CurrentPlayingMusic))
 	{
 		CurrentPlayingMusic->Stop();
 		return;

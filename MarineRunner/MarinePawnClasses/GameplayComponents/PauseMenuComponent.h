@@ -29,12 +29,13 @@ public:
 
 	class UPauseMenuWidget* GetPauseMenuWidget() const { return PauseMenuWidget; }
 
-	void CallUnPauseGame() { UnPauseGame(); }
 	void PauseGame();
+	void UnPauseGame();
 private:
 	class UPauseMenuWidget* PauseMenuWidget;
-	void UnPauseGame();
 	void SpawnPauseMenuWidget();
+	bool CanPauseGame();
 
 	APlayerController* PlayerController;
+	class AMarineCharacter* MarinePawn;
 };

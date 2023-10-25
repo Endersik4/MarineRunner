@@ -58,6 +58,8 @@ public:
 		UButton* QuitGameButton;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* ShowPauseWidgetAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* ResumeHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* LoadGameHoverAnim = nullptr;

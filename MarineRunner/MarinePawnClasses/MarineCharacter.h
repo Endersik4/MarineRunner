@@ -59,25 +59,26 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Movement|Jump", BlueprintReadWrite)
 		bool IsOnGround;
 
-	FString GetFirstAidKitName() const { return FirstAidKits_Name; }
-	float GetMovementForce() const { return MovementForce; }
-	float GetHealth() const { return Health; }
+	FORCEINLINE FString GetFirstAidKitName() const { return FirstAidKits_Name; }
+	FORCEINLINE float GetMovementForce() const { return MovementForce; }
+	FORCEINLINE float GetHealth() const { return Health; }
 	bool GetIsWallrunning() const;
 	bool GetIsPlayerLerpingToHookLocation() const;
 	bool GetIsCrouching() const;
 	bool GetIsInSlowMotion() const;
-	bool GetIsJumping() const { return bIsJumping; }
-	bool GetIsOnRamp() const { return bIsOnRamp; }
-	bool GetIsGoingUp() const { return bIsGoingUp; }
-	bool GetIsInAir() const { return bIsInAir; }
+	FORCEINLINE bool GetIsJumping() const { return bIsJumping; }
+	FORCEINLINE bool GetIsDead() const { return bIsDead; }
+	FORCEINLINE bool GetIsOnRamp() const { return bIsOnRamp; }
+	FORCEINLINE bool GetIsGoingUp() const { return bIsGoingUp; }
+	FORCEINLINE bool GetIsInAir() const { return bIsInAir; }
 	FVector GetCameraLocation() const;
-	class UHUDWidget* GetHudWidget() const { return HudWidget; }
-	class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
-	class UInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
-	class UCameraComponent* GetCamera() const { return Camera; }
-	class UPauseMenuComponent* GetPauseMenuComponent()const { return PauseMenuComponent; }
-	class UDashComponent* GetDashComponent() const { return DashComponent; }
-	class UWeaponHandlerComponent* GetWeaponHandlerComponent() const { return WeaponHandlerComponent; }
+	FORCEINLINE class UHUDWidget* GetHudWidget() const { return HudWidget; }
+	FORCEINLINE class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
+	FORCEINLINE class UInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
+	FORCEINLINE class UCameraComponent* GetCamera() const { return Camera; }
+	FORCEINLINE class UPauseMenuComponent* GetPauseMenuComponent()const { return PauseMenuComponent; }
+	FORCEINLINE class UDashComponent* GetDashComponent() const { return DashComponent; }
+	FORCEINLINE class UWeaponHandlerComponent* GetWeaponHandlerComponent() const { return WeaponHandlerComponent; }
 
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
 	void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMutliplier = NewSpeed; }
@@ -124,6 +125,8 @@ private:
 		class USwingComponent* SwingComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWeaponHandlerComponent* WeaponHandlerComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class USpawnDeathWidgetComponent* SpawnDeathWidgetComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;
@@ -199,6 +202,7 @@ private:
 	float CopyOfOriginalForce;
 	float MovementSpeedMutliplier = 1.f;
 
+
 	//Footstepts sounds
 	void PlayFootstepsSound();
 	bool bCanPlayFootstepsSound = true;
@@ -220,6 +224,8 @@ private:
 	bool bDelayIsInAir;
 	FTimerHandle DelayIsInAirHandle;
 	void SetDelayIsInAir() { bDelayIsInAir = false; }
+
+	bool bIsDead;
 
 	//Delayed jump
 	bool bCanDelayJump;

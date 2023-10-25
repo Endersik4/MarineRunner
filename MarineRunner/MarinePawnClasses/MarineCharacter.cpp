@@ -23,6 +23,7 @@
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/PauseMenuComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SwingComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/SpawnDeathWidgetComponent.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Widgets/Menu/GameSavedNotificationWidget.h"
 #include "MarineRunner/Framework/SaveMarineRunner.h"
@@ -64,6 +65,7 @@ AMarineCharacter::AMarineCharacter()
 	PauseMenuComponent = CreateDefaultSubobject<UPauseMenuComponent>(TEXT("PauseMenuComponent"));
 	SwingComponent = CreateDefaultSubobject<USwingComponent>(TEXT("SwingComponent"));
 	WeaponHandlerComponent = CreateDefaultSubobject<UWeaponHandlerComponent>(TEXT("WeaponHandlerComponent"));
+	SpawnDeathWidgetComponent = CreateDefaultSubobject<USpawnDeathWidgetComponent>(TEXT("SpawnDeathWidgetComponent"));
 	
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
 	WidgetInteractionComponent->SetupAttachment(Camera);
@@ -135,8 +137,11 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	//Movement
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AMarineCharacter::Jump);
-	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Pressed, CroachAndSlideComponent, &UCroachAndSlide::CrouchPressed);
+	PlayerInputComponent->BindAction<FCrouchSlideDelegate>(TEXT("Crouch"), IE_Pressed, CroachAndSlideComponent, &UCroachAndSlide::CrouchPressed, false);
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, CroachAndSlideComponent, &UCroachAndSlide::CrouchReleased);
+
+	PlayerInputComponent->BindAction<FCrouchSlideDelegate>(TEXT("Slide"), IE_Pressed, CroachAndSlideComponent, &UCroachAndSlide::CrouchPressed, true);
+	PlayerInputComponent->BindAction(TEXT("Slide"), IE_Released, CroachAndSlideComponent, &UCroachAndSlide::CrouchReleased);
 
 	//Gameplay components
 	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, DashComponent, &UDashComponent::Dash);
@@ -146,6 +151,12 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// Menu
 	FInputActionBinding& MainMenuToggle = PlayerInputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, PauseMenuComponent, &UPauseMenuComponent::PauseGame);
 	MainMenuToggle.bExecuteWhenPaused = true;
+
+	// You Died Bindings
+	FInputActionBinding& YouDiedRestartToggle = PlayerInputComponent->BindAction(TEXT("RestartGameWhenDead"), IE_Pressed, SpawnDeathWidgetComponent, &USpawnDeathWidgetComponent::RestartGameInYouDiedWidget);
+	YouDiedRestartToggle.bExecuteWhenPaused = true;
+	FInputActionBinding& YouDiedQuitToggle = PlayerInputComponent->BindAction(TEXT("QuitGameWhenDead"), IE_Pressed, SpawnDeathWidgetComponent, &USpawnDeathWidgetComponent::QuitGameInYouDiedWidget);
+	YouDiedQuitToggle.bExecuteWhenPaused = true;
 
 	PlayerInputComponent->BindAction(TEXT("CallAlbertos"), IE_Pressed, this, &AMarineCharacter::CallAlbertosPressed);
 }
@@ -513,6 +524,9 @@ bool AMarineCharacter::CanPlayerSaveGame()
 #pragma region //////////////////////////////// DAMAGE /////////////////////////////////
 void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
+	if (bIsDead == true)
+		return;
+
 	if (MarineHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, NewHit.ImpactPoint);
 
 	if (NewSphereRadius != 0.f && IsValid(BulletActor))
@@ -522,18 +536,19 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 	}
 	else Health -= NewDamage;
 
-	if (Health < 0.f)
+	if (IsValid(HudWidget) == true)
 	{
-		Health = 0.f;
-		UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
+		HudWidget->SetHealthBarPercent(Health);
+		HudWidget->PlayGotDamageAnim();
 	}
 
-	if (IsValid(HudWidget) == false) return;
-
-	HudWidget->SetHealthBarPercent(Health);
-	HudWidget->PlayGotDamageAnim();
+	if (Health <= 0.f)
+	{
+		bIsDead = true;
+		Health = 0.f;
+		SpawnDeathWidgetComponent->SpawnDeathWidget(MarinePlayerController);
+	}
 }
-
 #pragma endregion 
 
 #pragma region //////////////////////////////// WIDGETS ////////////////////////////////

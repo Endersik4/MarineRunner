@@ -56,6 +56,9 @@ void UPauseMenuWidget::NativeOnInitialized()
 	}
 
 	FillMenuButtonsAndTextMap();
+
+	if (ShowPauseWidgetAnim)
+		PlayAnimationForward(ShowPauseWidgetAnim, 1.f, true);
 }
 
 void UPauseMenuWidget::NativeDestruct()
@@ -94,7 +97,7 @@ void UPauseMenuWidget::OnClickedResumeButton()
 	if (IsValid(MarinePlayer->GetPauseMenuComponent()) == false)
 		return;
 
-	MarinePlayer->GetPauseMenuComponent()->CallUnPauseGame();
+	MarinePlayer->GetPauseMenuComponent()->UnPauseGame();
 }
 
 void UPauseMenuWidget::OnHoveredResumeButton()
@@ -177,7 +180,7 @@ void UPauseMenuWidget::OnClickedSaveGameButton()
 	if (IsValid(MarinePlayer->GetPauseMenuComponent()) == false)
 		return;
 
-	MarinePlayer->GetPauseMenuComponent()->CallUnPauseGame();
+	MarinePlayer->GetPauseMenuComponent()->UnPauseGame();
 }
 
 void UPauseMenuWidget::OnHoveredSaveGameButton()

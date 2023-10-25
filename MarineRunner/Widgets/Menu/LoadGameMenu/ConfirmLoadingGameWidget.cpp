@@ -61,7 +61,7 @@ void UConfirmLoadingGameWidget::YesButton_OnClicked()
 		if (IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)) == false)
 			return;
 
-		UKismetSystemLibrary::QuitGame(GetWorld(), UGameplayStatics::GetPlayerController(GetWorld(), 0), EQuitPreference::Background, true);
+		UKismetSystemLibrary::QuitGame(GetWorld(), UGameplayStatics::GetPlayerController(GetWorld(), 0), EQuitPreference::Quit, true);
 	}
 	else
 	{

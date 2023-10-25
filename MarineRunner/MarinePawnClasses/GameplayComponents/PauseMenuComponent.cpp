@@ -6,6 +6,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "MarineRunner/Widgets/Menu/PauseMenuWidget.h"
+#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
 
 // Sets default values for this component's properties
@@ -25,6 +26,7 @@ void UPauseMenuComponent::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	MarinePawn = Cast<AMarineCharacter>(GetOwner());
 }
 
 
@@ -38,13 +40,7 @@ void UPauseMenuComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void UPauseMenuComponent::PauseGame()
 {
-	if (UGameplayStatics::IsGamePaused(GetWorld()) == true)
-	{
-		UnPauseGame();
-		return;
-	}
-
-	if (IsValid(PlayerController) == false)
+	if (CanPauseGame() == false)
 		return;
 
 	PlayerController->SetShowMouseCursor(true);
@@ -80,4 +76,24 @@ void UPauseMenuComponent::SpawnPauseMenuWidget()
 		return;
 
 	PauseMenuWidget->AddToViewport();
+}
+
+bool UPauseMenuComponent::CanPauseGame()
+{
+	if (IsValid(MarinePawn) == false)
+		return false;
+
+	if (MarinePawn->GetIsDead() == true)
+		return false;
+
+	if (UGameplayStatics::IsGamePaused(GetWorld()) == true)
+	{
+		UnPauseGame();
+		return false;
+	}
+
+	if (IsValid(PlayerController) == false)
+		return false;
+
+	return true;
 }

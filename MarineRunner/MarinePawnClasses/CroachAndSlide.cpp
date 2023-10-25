@@ -87,9 +87,9 @@ void UCroachAndSlide::Sliding(float Delta)
 	MarinePawn->SetMovementForce(MovementForce);
 }
 
-void UCroachAndSlide::CrouchPressed()
+void UCroachAndSlide::CrouchPressed(bool bSlide)
 {
-	if (MarinePawn->GetIsPlayerLerpingToHookLocation() || MarinePawn->GetIsWallrunning()) return;
+	if (MarinePawn->GetIsPlayerLerpingToHookLocation() || MarinePawn->GetIsWallrunning() || bIsCrouching == true) return;
 	
 	bIsCrouching = true;
 
@@ -100,17 +100,25 @@ void UCroachAndSlide::CrouchPressed()
 	VignetteIntensityValue = CrouchPressedVignetteIntensity;
 
 	bCanCroachLerp = true;
-	if (MarinePawn->GetIsGoingUp() == false)
+	if (bSlide)
 	{
-		if (MarinePawn->GetInputAxisValue(TEXT("Forward")) == 1.f || MarinePawn->GetInputAxisValue(TEXT("Right")) != 0)
-		{
-			if (MarinePawn->GetIsJumping()) return;
-			MovementForce = CopyMovementForce + InitialVelocityOfSliding;
-			bShouldSlide = true;
-		}
+		GetWorld()->GetTimerManager().SetTimer(SlideDelayHandle, this, &UCroachAndSlide::BeginSlide, SlideDelayInSeconds, false);
 	}
 
 	MarinePawn->SetMovementForce(MovementForce);
+}
+
+void UCroachAndSlide::BeginSlide()
+{
+	if (MarinePawn->GetIsGoingUp() == true)
+		return;
+	if (MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0)
+		return;
+	if (MarinePawn->GetIsJumping())
+		return;
+
+	MovementForce = CopyMovementForce + InitialVelocityOfSliding;
+	bShouldSlide = true;
 }
 
 void UCroachAndSlide::CroachLerp(float Delta)
@@ -141,10 +149,12 @@ void UCroachAndSlide::CrouchReleased()
 		return;
 	}
 	bIsCrouching = false;
+	bShouldPlaySound = true;
+
+	bShouldStillCroach = false;
 	bShouldSlide = false;
 	TurnOffSlideSound();
-	bShouldPlaySound = true;
-	bShouldStillCroach = false;
+	GetWorld()->GetTimerManager().ClearTimer(SlideDelayHandle);
 
 	bStartRampCameraShake = false;
 	if (IsValid(CameraShakeBase))

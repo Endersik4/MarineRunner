@@ -7,6 +7,7 @@
 #include "CroachAndSlide.generated.h"
 
 /// This component let you Croach and Slide
+DECLARE_DELEGATE_OneParam(FCrouchSlideDelegate, bool);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MARINERUNNER_API UCroachAndSlide : public UActorComponent
@@ -25,7 +26,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void CrouchPressed();
+	void CrouchPressed(bool bSlide = false);
 	void CrouchReleased();
 
 	float GetCroachWalkingSpeed() const { return CroachForceSpeed; }
@@ -56,13 +57,15 @@ private:
 		float InitialVelocityOfSliding = 110000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 		float MaxSlideForce = 500000.f;
-	//How fast Pawn will gain speed on ramp when sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
+		float SlideDelayInSeconds = 0.2f;
+	//How fast Pawn will gain speed on ramp when sliding
+	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 		float RampForce = 80000.f;
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding on ramp (multiply by Delta Time)
-	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
+	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 		float SlideSpeedRamp = 450000.f;
-	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
+	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 		TSubclassOf<UCameraShakeBase> RampCameraShake;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
@@ -82,6 +85,11 @@ private:
 	bool bStartRampCameraShake = false;
 	UCameraShakeBase* CameraShakeBase;
 
+
+	// Delay for start sliding
+	FTimerHandle SlideDelayHandle;
+	void CheckIfShouldSlide();
+	void BeginSlide();
 	void Sliding(float Delta);
 	bool bShouldSlide;
 
