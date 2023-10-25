@@ -618,6 +618,7 @@ void AGun::AimTheGun(float Delta)
 	{
 		BaseSkeletalMesh->SetRelativeLocation(FMath::Lerp(Location, RelativeLocationInPawnWhileADS, Delta * SpeedOfInterpADS));
 		bCanDropTheGun = false;
+		ChangeScopeResolution(StatusOfGun);
 	}
 	else
 	{
@@ -626,6 +627,7 @@ void AGun::AimTheGun(float Delta)
 		{
 			bCanDropTheGun = true;
 			StatusOfGun = HipFire;
+			ChangeScopeResolution(StatusOfGun);
 		}
 	}
 }

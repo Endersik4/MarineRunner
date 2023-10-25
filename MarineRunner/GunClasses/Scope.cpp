@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/RectLightComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/TextureRenderTarget2D.h"
 
 // Sets default values
 AScope::AScope()
@@ -52,6 +53,7 @@ void AScope::BeginPlay()
 	Super::BeginPlay();
 
 	ZoomCamera->ToggleActive();
+	DynamicScopeMaterial = UMaterialInstanceDynamic::Create(RenderTargetMaterial, this);
 }
 
 int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
@@ -91,8 +93,9 @@ void AScope::ActiveZoom(bool bShouldActive)
 {
 	if (bShouldActive)
 	{
-		Scope_Mesh->SetMaterial(0, RenderTargetMaterial);
+		Scope_Mesh->SetMaterial(0, DynamicScopeMaterial);
 		ZoomCamera->ToggleActive();
+
 		RectLightForScope->SetVisibility(true);
 	}
 	else
@@ -103,3 +106,8 @@ void AScope::ActiveZoom(bool bShouldActive)
 	}
 }
 
+void AScope::ChangeScopeResolution(UTextureRenderTarget2D* NewRenderTarget)
+{
+	DynamicScopeMaterial->SetTextureParameterValue(FName(TEXT("RT_Texture")), NewRenderTarget);
+	ZoomCamera->TextureTarget = NewRenderTarget;
+}

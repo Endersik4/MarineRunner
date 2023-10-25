@@ -27,6 +27,8 @@ private:
 
 	UFUNCTION(BlueprintCallable, meta = (AllowPrivateAccess = "true"))
 		void ActiveZoom(bool bShouldActive);
+	UFUNCTION(BlueprintCallable, meta = (AllowPrivateAccess = "true"))
+		void ChangeScopeResolution(class UTextureRenderTarget2D* NewRenderTarget);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		USceneComponent* SceneRootComponent;
@@ -50,4 +52,6 @@ private:
 	
 	int32 CurrentScope = 0;
 	void ChangeScope(int32 CurrentScopeIndex);
+
+	UMaterialInstanceDynamic* DynamicScopeMaterial;
 };

@@ -10,8 +10,8 @@
 
 #include "Gun.generated.h"
 
-UENUM()
-enum StatusOfAimedGun
+UENUM(BlueprintType)
+enum EStatusOfAimedGun
 {
 	ADS UMETA(DisplayName = "ADS"),
 	HipFire UMETA(DisplayName = "Hip-Fire"),
@@ -53,6 +53,8 @@ public:
 		int32 ZoomScope(float WheelAxis, bool bShouldRestartScope = false);
 	UFUNCTION(BlueprintImplementableEvent)
 		int32 ActivateZoom(bool bShouldActivate = false);
+	UFUNCTION(BlueprintImplementableEvent)
+		void ChangeScopeResolution(EStatusOfAimedGun CurrentStatusOfGun);
 
 	void WaitToReload();
 	void CancelReload();
@@ -75,7 +77,7 @@ public:
 	void SetCanSway(bool bCan) { bCanSway = bCan; }
 
 	void SetMarinePawn(class AMarineCharacter* NewActor) { MarinePawn = NewActor; }
-	void SetStatusOfGun(StatusOfAimedGun NewStatus) { StatusOfGun = NewStatus; }
+	void SetStatusOfGun(EStatusOfAimedGun NewStatus) { StatusOfGun = NewStatus; }
 
 	void SetMagazineCapacity(int32 NewMagazineCapacity) { MagazineCapacity = NewMagazineCapacity; }
 
@@ -446,7 +448,7 @@ private:
 
 	/////////////// ADS GUN //////////////////
 	void AimTheGun(float Delta);
-	StatusOfAimedGun StatusOfGun = HipFire;
+	EStatusOfAimedGun StatusOfGun = HipFire;
 	///////////////////////////
 
 	class AMarineCharacter* MarinePawn;

@@ -51,7 +51,7 @@ void UWeaponHandlerComponent::ADSPressed()
 	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
 
 	bIsPlayerADS = true;
-	Gun->SetStatusOfGun(StatusOfAimedGun::ADS);
+	Gun->SetStatusOfGun(EStatusOfAimedGun::ADS);
 	if (Gun->GetShouldChangeMouseSensitivityADS() == true) MarinePawn->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
 }
 
@@ -63,7 +63,7 @@ void UWeaponHandlerComponent::ADSReleased()
 
 	if (ADSOutSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
 	bIsPlayerADS = false;
-	Gun->SetStatusOfGun(StatusOfAimedGun::BackToInitialPosition);
+	Gun->SetStatusOfGun(EStatusOfAimedGun::BackToInitialPosition);
 	if (Gun->GetShouldChangeMouseSensitivityADS() == true)
 	{
 		MarinePawn->ChangeMouseSensitivity(FSettingSavedInJsonFile(), true);
