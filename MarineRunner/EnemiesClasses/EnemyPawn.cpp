@@ -28,14 +28,17 @@ AEnemyPawn::AEnemyPawn()
 	//CapsuleColl->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	//CapsuleColl->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic, ECollisionResponse::ECR_Block);
 	//CapsuleColl->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldDynamic, ECollisionResponse::ECR_Block);
+	CapsuleColl->SetCollisionProfileName(FName(TEXT("EnemyCapsuleProf")));
 
 	EnemyFloatingMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("EnemyFloatingMovement"));
 	
 	EnemySkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("EnemySkeletalMesh"));
 	EnemySkeletalMesh->SetupAttachment(CapsuleColl);
 	EnemySkeletalMesh->SetSimulatePhysics(false);
-	EnemySkeletalMesh->SetCollisionProfileName(TEXT("PhysicsActor"));
-	EnemySkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+	//EnemySkeletalMesh->SetCollisionProfileName(TEXT("PhysicsActor"));
+	//EnemySkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
+	EnemySkeletalMesh->SetCollisionProfileName(FName(TEXT("EnemySkeletalProf")));
+
 }
 
 // Called when the game starts or when spawned
@@ -129,7 +132,8 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitR
 {
 	Health -= NewDamage;
 	SpawnEffectsForImpact(NewHit);
-	SpawnBloodDecal(NewHit);
+	SpawnShotBloodDecal(NewHit);
+	SpawnBloodOnObjectDecal(BulletActor, NewHit.Location);
 
 	bool bEnemyKilled = KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadius);
 	if (bEnemyKilled == true) return;
@@ -229,14 +233,15 @@ void AEnemyPawn::SpawnManyBullets()
 #pragma endregion
 
 #pragma region ///////////// EFFECTS ////////////////////
-void AEnemyPawn::SpawnBloodDecal(const FHitResult& Hit)
+void AEnemyPawn::SpawnShotBloodDecal(const FHitResult& Hit)
 {
-	if (!BloodDecalMaterial) return;
+	if (!ShotBloodDecalMaterial) return;
 
-	FVector Size = FVector(FMath::FRandRange(5.f, 20.f));
+	FVector Size = FVector(FMath::FRandRange(8.f,18.f));
 	FRotator Rotation = Hit.ImpactNormal.Rotation();
-	UDecalComponent* SpawnedDecal = UGameplayStatics::SpawnDecalAttached(BloodDecalMaterial, Size, EnemySkeletalMesh, Hit.BoneName, Hit.Location, Rotation, EAttachLocation::KeepWorldPosition);
-	if (SpawnedDecal) SpawnedDecal->SetFadeScreenSize(0.f);
+	UDecalComponent* SpawnedDecal = UGameplayStatics::SpawnDecalAttached(ShotBloodDecalMaterial, Size, EnemySkeletalMesh, Hit.BoneName, Hit.Location, Rotation, EAttachLocation::KeepWorldPosition, 10.f);
+	if (IsValid(SpawnedDecal)) 
+		SpawnedDecal->SetFadeScreenSize(0.f);
 }
 
 void AEnemyPawn::PlayFootstepsSound()
@@ -264,6 +269,28 @@ void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit)
 	FRotator Rotation = Hit.ImpactNormal.Rotation() - FRotator(90.f, 0.f, 0.f);
 	UParticleSystemComponent* SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, Rotation);
 	SpawnedParticle->SetColorParameter(TEXT("ColorOfBlood"), BloodColor);
+}
+
+void AEnemyPawn::SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const FVector& HitLocation)
+{
+	if (BloodOnObjectDecalMaterial == nullptr)
+		return;
+
+	FHitResult HitResult;
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, HitLocation, HitLocation + BulletThatHitEnemy->GetActorForwardVector() * MaxDistanceToObjectForBlood, ECC_GameTraceChannel5);
+
+	if (bHit == false)
+		return;
+
+	FVector DecalSizeAccordingToDistance = FVector(FMath::Clamp(HitResult.Distance * BloodDistanceSizeMutliplier, ClampBloodOnObjectSize.GetLowerBoundValue(), ClampBloodOnObjectSize.GetUpperBoundValue()));
+	DecalSizeAccordingToDistance.X = 0.03f;
+	UDecalComponent* SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BloodOnObjectDecalMaterial, DecalSizeAccordingToDistance, HitResult.Location, (HitResult.Normal * -1.f).Rotation());
+
+	if (IsValid(SpawnedDecal))
+	{
+		SpawnedDecal->SetFadeScreenSize(0.f);
+		SpawnedDecal->SetFadeOut(BloodFadeOutStartDelay, BloodFadeOutDuration);
+	}
 }
 #pragma endregion
 

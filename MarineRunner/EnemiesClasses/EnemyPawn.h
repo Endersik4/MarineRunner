@@ -115,6 +115,19 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		bool bPlayPrepareToShootAnimation;
 
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
+		float MaxDistanceToObjectForBlood = 600.f;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
+		float BloodDistanceSizeMutliplier = 0.8f;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
+		FFloatRange ClampBloodOnObjectSize = FFloatRange(40.f, 140.f);
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
+		float BloodFadeOutStartDelay = 3.f;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
+		float BloodFadeOutDuration = 5.f;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
+		UMaterialInstance* BloodOnObjectDecalMaterial;
+		
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet")
 		FBulletStruct BulletData;
 	//Should spread bullets from barrel like from shotgun
@@ -156,7 +169,7 @@ private:
 
 	//Materials
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
-		UMaterialInstance* BloodDecalMaterial;
+		UMaterialInstance* ShotBloodDecalMaterial;
 
 	//Particles
 	UPROPERTY(EditDefaultsOnly, Category = "Particles")
@@ -175,11 +188,14 @@ private:
 
 	//Got Hit
 	bool bIsDead;
-	void SpawnEffectsForImpact(const FHitResult& Hit);
 	void AlertEnemyAboutPlayer();
-	void SpawnBloodDecal(const FHitResult& Hit);
 	void SetIsDead(bool bNewDead);
 	void ShouldRunAway();
+
+	// Effects
+	void SpawnEffectsForImpact(const FHitResult& Hit);
+	void SpawnShotBloodDecal(const FHitResult& Hit);
+	void SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const FVector& HitLocation);
 
 	// Damage
 	bool bIsRunningAway;
