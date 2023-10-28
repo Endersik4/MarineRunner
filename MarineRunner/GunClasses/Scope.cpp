@@ -91,7 +91,7 @@ void AScope::ChangeScope(int32 NextScopeIndex)
 
 void AScope::ActiveZoom(bool bShouldActive)
 {
-	if (bShouldActive)
+	if (bShouldActive && DynamicScopeMaterial)
 	{
 		Scope_Mesh->SetMaterial(0, DynamicScopeMaterial);
 		ZoomCamera->ToggleActive();

@@ -130,8 +130,14 @@ void AEnemyPawn::PredictWhereToShoot()
 #pragma region ///////////////// DAMAGE ///////////////////////
 void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
+	FHitBoneType* FoundBone = HitBoneTypes.FindByKey(NewHit.BoneName);
+	if (FoundBone)
+	{
+		NewDamage *= FoundBone->DamageMultiplier;
+	}
+
 	Health -= NewDamage;
-	SpawnEffectsForImpact(NewHit);
+	SpawnEffectsForImpact(NewHit, FoundBone);
 	SpawnShotBloodDecal(NewHit);
 	SpawnBloodOnObjectDecal(BulletActor, NewHit.Location);
 
@@ -154,6 +160,7 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AAct
 		EnemySkeletalMesh->SetSimulatePhysics(true);
 		SetIsDead(true);
 		EnemyAIController->AddEnemyToDetected(false);
+		SetLifeSpan(LifeSpanAfterDeath);
 	}
 
 	if (IsValid(BulletActor) == false)
@@ -261,14 +268,27 @@ void AEnemyPawn::PlayFootstepsSound()
 	GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AEnemyPawn::SetCanPlayFootstepsSound, FootstepsTime, false);
 }
 
-void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit)
+void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType* PtrHitBoneType)
 {
-	if (EnemyHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), EnemyHitSound, Hit.ImpactPoint);
-	if (!EnemyBloodParticle) return;
+	if (EnemyBloodParticle)
+	{
+		FRotator Rotation = Hit.ImpactNormal.Rotation() - FRotator(90.f, 0.f, 0.f);
+		UParticleSystemComponent* SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, Rotation);
+		SpawnedParticle->SetColorParameter(TEXT("ColorOfBlood"), BloodColor);
+	}
 
-	FRotator Rotation = Hit.ImpactNormal.Rotation() - FRotator(90.f, 0.f, 0.f);
-	UParticleSystemComponent* SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, Rotation);
-	SpawnedParticle->SetColorParameter(TEXT("ColorOfBlood"), BloodColor);
+	if (PtrHitBoneType)
+	{
+		if (PtrHitBoneType->bCustomSoundForHitBone == true && PtrHitBoneType->BoneHitSound)
+		{
+			UGameplayStatics::PlaySound2D(GetWorld(), PtrHitBoneType->BoneHitSound);
+			return;
+		}
+	}
+
+	if (DefaultBoneHitSound) 
+		UGameplayStatics::PlaySound2D(GetWorld(), DefaultBoneHitSound);
+
 }
 
 void AEnemyPawn::SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const FVector& HitLocation)

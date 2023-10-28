@@ -9,6 +9,46 @@
 
 #include "EnemyPawn.generated.h"
 
+USTRUCT(BlueprintType)
+struct FHitBoneType {
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		FName BoneName;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		float DamageMultiplier = 1.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (InlineEditConditionToggle))
+		bool bCustomSoundForHitBone = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bCustomSoundForHitBone"))
+		USoundBase* BoneHitSound = nullptr;
+
+	FHitBoneType()
+	{
+		BoneName = "";
+		DamageMultiplier = 1.f;
+		bCustomSoundForHitBone = true;
+		BoneHitSound = nullptr;
+	}
+
+	FHitBoneType(FName _BoneName, float _DamageMultiplier, bool _bCustomSound = true, USoundBase* _BoneHitSound = nullptr)
+	{
+		BoneName = _BoneName;
+		DamageMultiplier = _DamageMultiplier;
+		bCustomSoundForHitBone = _bCustomSound;
+		BoneHitSound = _BoneHitSound;
+	}
+
+
+	bool operator==(const FHitBoneType& OtherHitBone)
+	{
+		return BoneName == OtherHitBone.BoneName;
+	}
+	bool operator==(const FName& OtherHitBoneName)
+	{
+		return BoneName == OtherHitBoneName;
+	}
+};
+
 UCLASS()
 class MARINERUNNER_API AEnemyPawn : public APawn, public IInteractInterface
 {
@@ -115,6 +155,14 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		bool bPlayPrepareToShootAnimation;
 
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
+		float LifeSpanAfterDeath = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Custom Hit on Bone")
+		TArray<FHitBoneType> HitBoneTypes;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Custom Hit on Bone")
+		USoundBase* DefaultBoneHitSound;
+
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
 		float MaxDistanceToObjectForBlood = 600.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
@@ -164,8 +212,6 @@ private:
 		USoundBase* FootstepsSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
 		USoundBase* FootstepsRunningAwaySound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* EnemyHitSound;
 
 	//Materials
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
@@ -193,7 +239,7 @@ private:
 	void ShouldRunAway();
 
 	// Effects
-	void SpawnEffectsForImpact(const FHitResult& Hit);
+	void SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType* PtrHitBoneType);
 	void SpawnShotBloodDecal(const FHitResult& Hit);
 	void SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const FVector& HitLocation);
 
