@@ -28,10 +28,12 @@ public:
 		TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
 
 	class UPauseMenuWidget* GetPauseMenuWidget() const { return PauseMenuWidget; }
+	FORCEINLINE const bool &GetIsInPauseMenu() const { return bIsInPauseMenu; }
 
 	void PauseGame();
 	void UnPauseGame();
 private:
+	bool bIsInPauseMenu;
 	class UPauseMenuWidget* PauseMenuWidget;
 	void SpawnPauseMenuWidget();
 	bool CanPauseGame();

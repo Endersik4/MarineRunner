@@ -1,0 +1,5 @@
+- Movement based on physics
+- Wallrun
+- Dash
+- Slow Motion
+- HUD 

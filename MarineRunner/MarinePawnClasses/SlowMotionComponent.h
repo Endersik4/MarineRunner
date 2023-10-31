@@ -33,15 +33,15 @@ public:
 private:
 	//Speed of SlowMotion
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionValue = 0.4f;
+		float SlowMotionValue = 0.3f;
 	//How long should Slow Motion be on
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionTime = 4.7f;
+		float SlowMotionTime = 5.f;
 	//Delay of Slow Motion before the next one
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionDelay = 8.f;
+		float SlowMotionDelay = 2.f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float CounterForceMultiplierWhenInAir = 5.f;
+		float CounterForceMultiplierWhenInAir = 0.7f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float StartingChromaticAbberation = 5.f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")

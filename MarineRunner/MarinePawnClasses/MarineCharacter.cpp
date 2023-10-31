@@ -24,6 +24,7 @@
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SwingComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SpawnDeathWidgetComponent.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/MessageHandlerComponent.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Widgets/Menu/GameSavedNotificationWidget.h"
 #include "MarineRunner/Framework/SaveMarineRunner.h"
@@ -66,6 +67,7 @@ AMarineCharacter::AMarineCharacter()
 	SwingComponent = CreateDefaultSubobject<USwingComponent>(TEXT("SwingComponent"));
 	WeaponHandlerComponent = CreateDefaultSubobject<UWeaponHandlerComponent>(TEXT("WeaponHandlerComponent"));
 	SpawnDeathWidgetComponent = CreateDefaultSubobject<USpawnDeathWidgetComponent>(TEXT("SpawnDeathWidgetComponent"));
+	MessageHandlerComponent = CreateDefaultSubobject<UMessageHandlerComponent>(TEXT("MessageHandlerComponent"));
 	
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
 	WidgetInteractionComponent->SetupAttachment(Camera);
@@ -151,6 +153,9 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	// Menu
 	FInputActionBinding& MainMenuToggle = PlayerInputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, PauseMenuComponent, &UPauseMenuComponent::PauseGame);
 	MainMenuToggle.bExecuteWhenPaused = true;
+
+	FInputActionBinding& CloseMessageToggle = PlayerInputComponent->BindAction<FCloseMessageDelegate>(TEXT("CloseMessage"), IE_Pressed, MessageHandlerComponent, &UMessageHandlerComponent::DeleteCurrentDisplayedMessage, this);
+	CloseMessageToggle.bExecuteWhenPaused = true;
 
 	// You Died Bindings
 	FInputActionBinding& YouDiedRestartToggle = PlayerInputComponent->BindAction(TEXT("RestartGameWhenDead"), IE_Pressed, SpawnDeathWidgetComponent, &USpawnDeathWidgetComponent::RestartGameInYouDiedWidget);
@@ -681,4 +686,13 @@ FVector AMarineCharacter::GetCameraLocation() const
 	return Camera->GetComponentLocation();
 }
 
+bool AMarineCharacter::GetIsMessageDisplayed() const
+{
+	return MessageHandlerComponent->GetIsMessageDisplayed();
+}
+
+bool AMarineCharacter::GetIsInPauseMenu() const
+{
+	return PauseMenuComponent->GetIsInPauseMenu();
+}
 #pragma endregion 

@@ -32,13 +32,13 @@ public:
 private:
 	//How Fast (in seconds) lerp to PullUp location will be done 
 	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullUpTime = 0.23f;
+		float PullUpTime = 0.2f;
 	//Forward Force that will be applied to player when he pull up on the edge
 	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullUpForceForward = 500000.f;
+		float PullUpForceForward = 350000.f;
 	//Up Force that will be applied to player when he pull up on the edge
 	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullUpForceUp = 400000.f;
+		float PullUpForceUp = 350000.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
 		float CheckLinesForPullUpTime = 0.05f;
 	//Z Location of Line that need to hit something for example: edge. This line must be true to Pullup

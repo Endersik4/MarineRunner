@@ -40,7 +40,7 @@ void UDashWidget::DashEffects(float Delta)
 		MarineCamera->PostProcessSettings.SceneFringeIntensity = NewCA;
 
 		FadeTimeElapsed += Delta;
-		if (FadeTimeElapsed >= FadeTime) FadeTimeElapsed += FadeTime;
+		if (FadeTimeElapsed >= FadeTime) FadeTimeElapsed = FadeTime;
 	}
 	else
 	{

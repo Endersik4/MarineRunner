@@ -50,15 +50,15 @@ private:
 
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float SlideSpeed = 180000.f;
+		float SlideSpeed = 200000.f;
 	//Initial Velocity of Sliding is added to Walking Distance from MarineCharacter
 	//and then we have Initial Velocity of Sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float InitialVelocityOfSliding = 110000.f;
+		float InitialVelocityOfSliding = 115000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 		float MaxSlideForce = 500000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float SlideDelayInSeconds = 0.2f;
+		float SlideDelayInSeconds = 0.08f;
 	//How fast Pawn will gain speed on ramp when sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 		float RampForce = 80000.f;

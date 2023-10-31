@@ -44,6 +44,7 @@ void UPauseMenuComponent::PauseGame()
 		return;
 
 	PlayerController->SetShowMouseCursor(true);
+	bIsInPauseMenu = true;
 	SpawnPauseMenuWidget();
 
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
@@ -56,14 +57,16 @@ void UPauseMenuComponent::UnPauseGame()
 	if (bRemovePauseMenuWidget == false || IsValid(PlayerController) == false) 
 		return;
 
-	UGameplayStatics::SetGamePaused(GetWorld(), false);
-
-	PlayerController->SetShowMouseCursor(false);
+	if (MarinePawn->GetIsMessageDisplayed() == false)
+	{
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
+		PlayerController->SetShowMouseCursor(false);
+		UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
+	}
+	bIsInPauseMenu = false;
 
 	PauseMenuWidget->RemoveFromParent();
 	PauseMenuWidget = nullptr;
-
-	UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
 }
 
 void UPauseMenuComponent::SpawnPauseMenuWidget()
@@ -76,6 +79,7 @@ void UPauseMenuComponent::SpawnPauseMenuWidget()
 		return;
 
 	PauseMenuWidget->AddToViewport();
+	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerController, PauseMenuWidget);
 }
 
 bool UPauseMenuComponent::CanPauseGame()
@@ -86,7 +90,7 @@ bool UPauseMenuComponent::CanPauseGame()
 	if (MarinePawn->GetIsDead() == true)
 		return false;
 
-	if (UGameplayStatics::IsGamePaused(GetWorld()) == true)
+	if (bIsInPauseMenu == true)
 	{
 		UnPauseGame();
 		return false;

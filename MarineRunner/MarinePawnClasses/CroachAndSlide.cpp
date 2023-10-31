@@ -178,7 +178,7 @@ bool UCroachAndSlide::SweepBox(FVector Where, float Distance)
 
 	FHitResult HitResult;
 	//DrawDebugBox(GetWorld(), Start, FVector(20, 20,60), FColor::Red, true);
-	return GetWorld()->SweepSingleByChannel(HitResult, Start, Start, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(FVector(30, 30, 60)));
+	return GetWorld()->SweepSingleByChannel(HitResult, Start, Start, FQuat::Identity, ECC_GameTraceChannel6, FCollisionShape::MakeBox(FVector(30, 30, 60)));
 }
 
 

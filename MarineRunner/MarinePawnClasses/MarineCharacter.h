@@ -79,6 +79,9 @@ public:
 	FORCEINLINE class UPauseMenuComponent* GetPauseMenuComponent()const { return PauseMenuComponent; }
 	FORCEINLINE class UDashComponent* GetDashComponent() const { return DashComponent; }
 	FORCEINLINE class UWeaponHandlerComponent* GetWeaponHandlerComponent() const { return WeaponHandlerComponent; }
+	FORCEINLINE class UMessageHandlerComponent* GetMessageHandlerComponent() const { return MessageHandlerComponent; }
+	bool GetIsMessageDisplayed() const;
+	bool GetIsInPauseMenu() const;
 
 	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
 	void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMutliplier = NewSpeed; }
@@ -127,6 +130,8 @@ private:
 		class UWeaponHandlerComponent* WeaponHandlerComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USpawnDeathWidgetComponent* SpawnDeathWidgetComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UMessageHandlerComponent* MessageHandlerComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;
@@ -142,7 +147,7 @@ private:
 
 	//Aka speed movement
 	UPROPERTY(EditAnywhere, Category = "Movement")
-		float MovementForce = 90000.f;
+		float MovementForce = 80000.f;
 	//Prevent from Sliding on the ground like Fish
 	UPROPERTY(EditAnywhere, Category = "Movement")
 		float CounterMovementForce = 30.f;

@@ -28,12 +28,12 @@ public:
 	bool GetIsPerformingDash() const { return bIsPerformingDash; }
 private:
 	UPROPERTY(EditAnywhere, Category = "Dash Settings")
-		float DashDistance = 3000.f;
+		float DashDistance = 2500.f;
 	UPROPERTY(EditAnywhere, Category = "Dash Settings")
 		float DashTime = 0.2f;
 	//Dash cooldown in Seconds
 	UPROPERTY(EditAnywhere, Category = "Dash Settings")
-		float DashCoolDown = 1.4f;
+		float DashCoolDown = 1.8f;
 	// Offset from obstacle that is on the dash way 
 	UPROPERTY(EditAnywhere, Category = "Dash Settings")
 		float OffsetFromObstacle = 100.f;

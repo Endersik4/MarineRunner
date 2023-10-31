@@ -80,6 +80,8 @@ void ABullet::SetBulletMovementType()
 #pragma region /////////////////// HIT //////////////////////
 bool ABullet::BulletStuckInActor(const FHitResult& Hit)
 {
+	if (BulletData.bCanBulletGoThroughObjects == false) return false;
+
 	if (Hit.GetActor() == HitActor) //If bullet is stuck in the same actor then teleport it a bit forward
 	{
 		FVector NewLocation = GetActorLocation() + GetActorForwardVector() * 50.f;
@@ -156,19 +158,22 @@ void ABullet::UseInterfaceOnActor(const FHitResult& HitResult)
 
 void ABullet::HitActorWithoutInterface(const FHitResult& HitResult)
 {
-	if (HitResult.GetComponent()->IsSimulatingPhysics() == true)
+	if (BulletData.bUseSphereForDamage == true)
 	{
-		if (BulletData.RadialSphereRadius != 0.f)
+		if (HitResult.GetComponent()->IsSimulatingPhysics() == true)
 		{
 			HitResult.GetComponent()->AddRadialImpulse(GetActorLocation(), BulletData.RadialSphereRadius, BulletData.HitImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);
 		}
-		else
-		{
-			FVector Impulse = GetActorForwardVector() * BulletData.HitImpulseForce * 10.f;
-			HitResult.GetComponent()->AddImpulse(Impulse);
-		}
+		return;
 	}
-	if (BulletData.RadialSphereRadius == 0.f) SpawnEffectsWhenHit(HitResult);
+
+	if (HitResult.GetComponent()->IsSimulatingPhysics() == true)
+	{
+		FVector Impulse = GetActorForwardVector() * BulletData.HitImpulseForce * 10.f;
+		HitResult.GetComponent()->AddImpulse(Impulse);
+	}
+
+	SpawnEffectsWhenHit(HitResult);
 }
 
 void ABullet::BulletThroughObject(const FHitResult& Hit)
@@ -210,13 +215,12 @@ void ABullet::SpawnBulletHoleDecal(const FHitResult& Hit)
 {
 	if (!BulletHoleDecalMaterial) return;
 
-	FVector Size = FVector(FMath::FRandRange(7.f, 8.f));
 	FRotator Rotation = Hit.ImpactNormal.Rotation();
-	UDecalComponent* SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalMaterial, Size, Hit.Location, Rotation);
+	UDecalComponent* SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalMaterial, BulletHoleDecalSize, Hit.Location, Rotation);
 	if (SpawnedDecal)
 	{
 		SpawnedDecal->SetFadeScreenSize(0.f);
-		SpawnedDecal->SetLifeSpan(10.f);
+		SpawnedDecal->SetFadeOut(BulletHoleFadeOutStartDelay, BulletHoleFadeOutDuration);
 	}
 }
 #pragma endregion
