@@ -40,7 +40,7 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 - Every settings (game, audio etc) is in List View and one entry == one setting <br/>
 - Any Entry value can be saved to config and is loaded When the game is first launched <br/>
 - Entry can be set to: <br/>
-	- Category (centered text with diffrent color) <br/>
+        - Category (centered text with diffrent color) <br/>
 	- Quality (like Low, Med, High, Ultra - 0,1,2,3 value) <br/>
 	- Checkbox (true, false value) and checkbox can be connected to other settings <br/>
 	- Slider value (slider range or number of decimal digits that can be set) <br/>
