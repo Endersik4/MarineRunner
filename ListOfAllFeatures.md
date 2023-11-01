@@ -40,13 +40,15 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 - Every settings (game, audio etc) is in List View and one entry == one setting <br/>
 - Any Entry value can be saved to config and is loaded When the game is first launched <br/>
 - Entry can be set to: <br/>
-        - Category (centered text with diffrent color) <br/>
-	- Quality (like Low, Med, High, Ultra - 0,1,2,3 value) <br/>
-	- Checkbox (true, false value) and checkbox can be connected to other settings <br/>
-	- Slider value (slider range or number of decimal digits that can be set) <br/>
-	- Key mapping (changed by Key mapping name) <br/>
-	- Set resolution of screen (gets list of possible resolutions) <br/>
-	- Set Window Type (FullScreen, Windowed etc) <br/>
+<ol>
+       <li> - Category (centered text with diffrent color) <br/></li>
+	<li> - Quality (like Low, Med, High, Ultra - 0,1,2,3 value) <br/></li>
+	<li> - Checkbox (true, false value) and checkbox can be connected to other settings <br/></li>
+	<li> - Slider value (slider range or number of decimal digits that can be set) <br/></li>
+	<li> - Key mapping (changed by Key mapping name) <br/></li>
+	<li> - Set resolution of screen (gets list of possible resolutions) <br/></li>
+	<li> - Set Window Type (FullScreen, Windowed etc) <br/></li>
+</ol>
 - Entry value can be applied by: <br/>
 	- executing command in console <br/>
 	- sounds (value is saved as volume in given sound class and mix sound class) <br/>
