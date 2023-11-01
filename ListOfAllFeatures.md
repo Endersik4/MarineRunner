@@ -26,7 +26,8 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 - When you hover over an item, information (name, description, icon) about that item will appear <br/>
 - (First Aid Kit, Dash, Slow Motion) information (when to use, how much left, what button to press) <br/>
 - Hit, Dash, Slow Motion animation <br/>
-<h2> Pause Menu </h2> 
+
+<h2> Pause Menu <a href="https://youtu.be/TWsT171ZXYA?t=9"> Showcase </a></h2> 
 - Pause Menu with working resume, load game, save game, settings and quit buttons<br/>
 <h4> - Load Game </h4>
 - List View with all saves  <br/>
