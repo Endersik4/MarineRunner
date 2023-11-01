@@ -1,5 +1,5 @@
-List of all features MarineRunner has, this is described in brief without details, each of these things has many more smaller things in it that make it all work nicely. <br/>
-Some of the features may be unclear. I recommend watching the latest demo version for better context. <br/>
+<h2>List of all features MarineRunner has, this is described in brief without details, each of these things has many more smaller things in it that make it all work nicely. <br/>
+Some of the features may be unclear. I recommend watching the latest demo version for better context. </h2>
 
 <h2> Player </h2>
 - Physics-based movement  <br/>
@@ -40,19 +40,21 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 - Every settings (game, audio etc) is in List View and one entry == one setting <br/>
 - Any Entry value can be saved to config and is loaded When the game is first launched <br/>
 - Entry can be set to: <br/>
-<ol>
-       <li> - Category (centered text with diffrent color) <br/></li>
+<ul>
+        <li> - Category (centered text with diffrent color) <br/></li>
 	<li> - Quality (like Low, Med, High, Ultra - 0,1,2,3 value) <br/></li>
 	<li> - Checkbox (true, false value) and checkbox can be connected to other settings <br/></li>
 	<li> - Slider value (slider range or number of decimal digits that can be set) <br/></li>
 	<li> - Key mapping (changed by Key mapping name) <br/></li>
 	<li> - Set resolution of screen (gets list of possible resolutions) <br/></li>
 	<li> - Set Window Type (FullScreen, Windowed etc) <br/></li>
-</ol>
+</ul>
 - Entry value can be applied by: <br/>
-	- executing command in console <br/>
-	- sounds (value is saved as volume in given sound class and mix sound class) <br/>
-	- none <br/>
+<ul>
+	<li>- executing command in console <br/></li>
+	<li>- sounds (value is saved as volume in given sound class and mix sound class) <br/></li>
+	<li>- none <br/></li>
+</ul>
 - Entry can be disabled and grayed out <br/>
 <h4> - Quit Game </h4> 
 - The message "Confirm quiting" will appear <br/>v
