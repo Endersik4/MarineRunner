@@ -52,20 +52,23 @@ void UCraftingAlbertosWidget::NativeTick(const FGeometry& MyGeometry, float Delt
 }
 
 #pragma region /////////////////////// ADD DATA TO INVENTORY ///////////////////
-void UCraftingAlbertosWidget::SetRecipesData()
+void UCraftingAlbertosWidget::SetRecipesData(AMarineCharacter* Player)
 {
-	MarinePawn = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if (MarinePawn == nullptr) return;
-	RecipesOfCraftableItems.Empty();
+	MarinePawn = Player;
 
-	FillRecipesItem();
+	if (IsValid(MarinePawn) == false) 
+		return;
+
+	RecipesOfCraftableItems.Empty();
+	
+	FillRecipesItem();	
 }
 
 void UCraftingAlbertosWidget::FillRecipesItem()
 {
 	for (TSubclassOf<APickupItem> PickableItem : MarinePawn->GetInventoryComponent()->Recipes_Items)
 	{
-		APickupItem* SpawnedItem = GetWorld()->SpawnActor<APickupItem>(PickableItem, FVector(0.f), FRotator(0.f));
+		APickupItem* SpawnedItem = MarinePawn->GetWorld()->SpawnActor<APickupItem>(PickableItem, FVector(0.f), FRotator(0.f));
 		if (SpawnedItem == nullptr) continue;
 
 		RecipesOfCraftableItems.Add(SpawnedItem->GetItemSettings());

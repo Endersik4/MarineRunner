@@ -601,7 +601,7 @@ void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool
 	
 	if (bShouldUpdateCrafting == true)
 	{
-		CraftingWidget->SetRecipesData();
+		CraftingWidget->SetRecipesData(this);
 		CraftingWidget->SwitchCurrentCraftingItem();
 	}
 

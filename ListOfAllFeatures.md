@@ -34,7 +34,7 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 - The message "Confirm Loading" will appear. <br/>
 <h4> - Save Game </h4>
 - Saves game when can (cant save while in Air or in Combat) <br/>
-- The notification appear after saving the game <br/>
+- The notification "Saved Game" appear after saving the game <br/>
 <h4> - Settings </h4>
 - (Game, Audio, Video, Bindings) Settings, Accept, Back to Defaults <br/>
 - Every settings (game, audio etc) is in List View and one entry == one setting <br/>
@@ -53,9 +53,26 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 	- none <br/>
 - Entry can be disabled and grayed out <br/>
 <h4> - Quit Game </h4> 
-- The message "Confirm quiting" will appear <br/>v
+- The message "Confirm quiting" will appear <br/>
 <h2> Weapons </h2>
-	
+	- The player can fire the weapon in hipfire or ADS mode. 
+	- Shooting mechanic:
+	<ul>
+		<li> When the player shoots, the bullet spawns </li>
+		<li> The bullet moves based on physics or custom (you can set how far it can move, at what speed, etc.). </li>
+		<li> Camera, Fov and Gun (curves) recoil will play in timeline. Based on what is set </li>
+	</ul>
+	- ADS is more precise then Hipfire
+	- When shooting camera can go up (its go as far as it was set and then returns to the starting posiiton)
+	- Bullet Casing ejection after the shot
+	- Scope with zoom (when in ADS player can zoom in or out)
+	- Reload (reload the entire magazine or one bullet)
+	- Ammunition based on pickable item
+	- Can spawn more bullets at once (like shotgun)
+	- The weapon can be set to automatic (by holding down the button, the weapon will fire continuously).
+	- When a bullet spawns then a random value from the range is selected for the bullet rotation
+	- The gun can sway while moving the camera or in motion  (diffrent sway for other case)
+	- Animation: Shoot, Reload and empty magazine
 <h2> Albertos (crafting item robot)</h2>
 <h2> Enemies </h2>
 <h2> Objects </h2>

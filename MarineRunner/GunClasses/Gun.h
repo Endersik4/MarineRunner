@@ -454,4 +454,6 @@ private:
 	class AMarineCharacter* MarinePawn;
 	class AMarinePlayerController* PC;
 	class UHUDWidget* HudWidget;
+
+
 };

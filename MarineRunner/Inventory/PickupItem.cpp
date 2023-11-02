@@ -69,6 +69,7 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 
 	if (ItemSettings.bIsItCraftable == true) Character->UpdateAlbertosInventory(true, true);
 	else Character->UpdateAlbertosInventory();
+	
 	Destroy();
 }
 

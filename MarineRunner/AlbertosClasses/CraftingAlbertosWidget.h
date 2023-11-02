@@ -35,7 +35,7 @@ public:
 		TArray<UTexture2D*> OriginalMultiplierChoiceTextures;
 
 	void AddItemToTileView(TArray<struct FItemStruct> InventoryItems);
-	void SetRecipesData();
+	void SetRecipesData(class AMarineCharacter* Player);
 	void SwitchCurrentCraftingItem(bool bDeleteResources = false);
 
 	void SetAlbertosPawn(class AAlbertosPawn* NewAlbertos) { AlbertosPawn = NewAlbertos; }
