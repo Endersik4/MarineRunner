@@ -60,24 +60,24 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 <h4> - Quit Game </h4> 
 - The message "Confirm quiting" will appear <br/>
 <h2> Weapons </h2>
-	- The player can fire the weapon in hipfire or ADS mode. 
-	- Shooting mechanic:
+	- The player can fire the weapon in hipfire or ADS mode. <br/
+	- Shooting mechanic:<br/
 	<ul>
-		<li> When the player shoots, the bullet spawns </li>
-		<li> The bullet moves based on physics or custom (you can set how far it can move, at what speed, etc.). </li>
-		<li> Camera, Fov and Gun (curves) recoil will play in timeline. Based on what is set </li>
+		<li> When the player shoots, the bullet spawns </li><br/
+		<li> The bullet moves based on physics or custom (you can set how far it can move, at what speed, etc.). </li><br/
+		<li> Camera, Fov and Gun (curves) recoil will play in timeline. Based on what is set </li><br/
 	</ul>
-	- ADS is more precise then Hipfire
-	- When shooting camera can go up (its go as far as it was set and then returns to the starting posiiton)
-	- Bullet Casing ejection after the shot
-	- Scope with zoom (when in ADS player can zoom in or out)
-	- Reload (reload the entire magazine or one bullet)
-	- Ammunition based on pickable item
-	- Can spawn more bullets at once (like shotgun)
-	- The weapon can be set to automatic (by holding down the button, the weapon will fire continuously).
-	- When a bullet spawns then a random value from the range is selected for the bullet rotation
-	- The gun can sway while moving the camera or in motion  (diffrent sway for other case)
-	- Animation: Shoot, Reload and empty magazine
+	- ADS is more precise then Hipfire<br/
+	- When shooting camera can go up (its go as far as it was set and then returns to the starting posiiton)<br/
+	- Bullet Casing ejection after the shot<br/
+	- Scope with zoom (when in ADS player can zoom in or out)<br/
+	- Reload (reload the entire magazine or one bullet)<br/
+	- Ammunition based on pickable item<br/
+	- Can spawn more bullets at once (like shotgun)<br/
+	- The weapon can be set to automatic (by holding down the button, the weapon will fire continuously).<br/
+	- When a bullet spawns then a random value from the range is selected for the bullet rotation<br/
+	- The gun can sway while moving the camera or in motion  (diffrent sway for other case)<br/
+	- Animation: Shoot, Reload and empty magazine<br/
 <h2> Albertos (crafting item robot)</h2>
 <h2> Enemies </h2>
 <h2> Objects </h2>
