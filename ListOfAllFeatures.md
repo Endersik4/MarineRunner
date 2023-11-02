@@ -1,5 +1,5 @@
-List of all features MarineRunner has, this is described in brief without details, each of these things has many more smaller things in it that make it all work nicely. <br/>
-Some of the features may be unclear. I recommend watching the latest demo version for better context. <br/>
+<h3>List of all features MarineRunner has, this is described in brief without details, each of these things has many more smaller things in it that make it all work nicely. <br/>
+Some of the features may be unclear. I recommend watching the latest demo version for better context. </h3>
 
 <h2> Player </h2>
 - Physics-based movement  <br/>
@@ -26,7 +26,8 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 - When you hover over an item, information (name, description, icon) about that item will appear <br/>
 - (First Aid Kit, Dash, Slow Motion) information (when to use, how much left, what button to press) <br/>
 - Hit, Dash, Slow Motion animation <br/>
-<h2> Pause Menu </h2> 
+
+<h2> Pause Menu <a href="https://youtu.be/TWsT171ZXYA?t=9"> Showcase </a></h2> 
 - Pause Menu with working resume, load game, save game, settings and quit buttons<br/>
 <h4> - Load Game </h4>
 - List View with all saves  <br/>
@@ -39,18 +40,22 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 - (Game, Audio, Video, Bindings) Settings, Accept, Back to Defaults <br/>
 - Every settings (game, audio etc) is in List View and one entry == one setting <br/>
 - Any Entry value can be saved to config and is loaded When the game is first launched <br/>
-- Entry can be set to: <br/>
-	- Category (centered text with diffrent color) <br/>
-	- Quality (like Low, Med, High, Ultra - 0,1,2,3 value) <br/>
-	- Checkbox (true, false value) and checkbox can be connected to other settings <br/>
-	- Slider value (slider range or number of decimal digits that can be set) <br/>
-	- Key mapping (changed by Key mapping name) <br/>
-	- Set resolution of screen (gets list of possible resolutions) <br/>
-	- Set Window Type (FullScreen, Windowed etc) <br/>
-- Entry value can be applied by: <br/>
-	- executing command in console <br/>
-	- sounds (value is saved as volume in given sound class and mix sound class) <br/>
-	- none <br/>
+- Entry can be set to: 
+<ul>
+        <li>Category (centered text with diffrent color) </li>
+	<li>Quality (like Low, Med, High, Ultra - 0,1,2,3 value) </li>
+	<li>Checkbox (true, false value) and checkbox can be connected to other settings </li>
+	<li>Slider value (slider range or number of decimal digits that can be set) </li>
+	<li>Key mapping (changed by Key mapping name) </li>
+	<li>Set resolution of screen (gets list of possible resolutions)</li>
+	<li>Set Window Type (FullScreen, Windowed etc) </li>
+</ul>
+- Entry value can be applied by:
+<ul>
+	<li>executing command in console <br/></li>
+	<li>sounds (value is saved as volume in given sound class and mix sound class) <br/></li>
+	<li>none <br/></li>
+</ul>
 - Entry can be disabled and grayed out <br/>
 <h4> - Quit Game </h4> 
 - The message "Confirm quiting" will appear <br/>
