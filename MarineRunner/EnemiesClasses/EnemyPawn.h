@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "MarineRunner/Interfaces/InteractInterface.h"
 #include "MarineRunner/GunClasses/BulletData.h"
+#include "MarineRunner/EnemiesClasses/EnemyInterface.h"
 
 #include "EnemyPawn.generated.h"
 
@@ -50,7 +51,7 @@ struct FHitBoneType {
 };
 
 UCLASS()
-class MARINERUNNER_API AEnemyPawn : public APawn, public IInteractInterface
+class MARINERUNNER_API AEnemyPawn : public APawn, public IInteractInterface, public IEnemyInterface
 {
 	GENERATED_BODY()
 
@@ -72,6 +73,12 @@ public:
 	//Function From Interface
 	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
 
+	FORCEINLINE virtual USkeletalMeshComponent* GetSkeletalMesh() override { return EnemySkeletalMesh; }
+	FORCEINLINE virtual const FVector GetPlayerCameraLocation() override { return PlayerCameraLocation; }
+	FORCEINLINE virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) override;
+	FORCEINLINE virtual void PlayShootAnimation() override { PlayAnimMontageInBlueprint(); }
+	FORCEINLINE virtual const bool GetIsDead() override { return bIsDead; }
+
 	//AI
 	bool GetShouldAvoidBullets() const { return bShouldAvoidBullet; }
 	bool GetPlayPrepareToShootAnimation() const { return bPlayPrepareToShootAnimation; }
@@ -79,10 +86,6 @@ public:
 	float GetWaitTimeShoot() const { return WaitTimeShoot; }
 	float GetDetectPlayerTime() const { return DetectPlayerTime; }
 	float GetLoseSightOfPlayerTime() const { return LoseSightOfPlayerTime; }
-
-	void ShootBullet() { Shoot(); }
-
-	void Reload();
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void PlayPrepareToShootAnimation(bool bShouldPlay);
@@ -100,20 +103,19 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void FocusBonesOnPlayerWhenPlayerDetected();
 
+	UFUNCTION(BlueprintCallable)
+		void ShootAgain(bool & bShoot);
+
+	void Reload();
+	void Shoot();
+
 	// Bone Rotation - Bone will be looking at the player when he is detected.
 	// bLookStraight means whether Bone should look directly at the player's camera or with some margin
 	UFUNCTION(BlueprintCallable)
 		FRotator FocusBoneOnPlayer(FName BoneName, bool bLookStraight);
 
-	UFUNCTION(BlueprintCallable)
-		void SetCanShoot(bool bCan) { bCanShoot = bCan; }
-
 	UFUNCTION(BlueprintPure)
-		int32 GetCurrentMagazineCapacity() const { return MagazineCapacity; }
-	UFUNCTION(BlueprintPure)
-		bool GetIsReloading() const { return bIsReloading; }
-	UFUNCTION(BlueprintPure)
-		bool GetIsDead() const { return bIsDead; }
+		bool GetIsDeadBP() const { return bIsDead; }
 	UFUNCTION(BlueprintPure)
 		float GetSpeedOfEnemyWhenIsRunningAway() const { return SpeedOfEnemyWhenIsRunningAway; }
 
@@ -126,6 +128,8 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCapsuleComponent* CapsuleColl;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+		class UEnemyGunComponent* EnemyGunComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		int32 HowManyLocations = 5;
@@ -138,6 +142,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		float LoseSightOfPlayerTime = 5.f;
 
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
+		bool bCanEnemyBeKilled = true;	
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		float Health = 100.f;
 
@@ -176,38 +182,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
 		UMaterialInstance* BloodOnObjectDecalMaterial;
 		
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet")
-		FBulletStruct BulletData;
-	//Should spread bullets from barrel like from shotgun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet")
-		bool bManyBulletAtOnce;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
-		int32 HowManyBulletsToSpawn = 10;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
-		float RecoilImpulseOnEnemy = 3000.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
-		TArray<float>PitchBulletRecoilArray = { -5, 5 };
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
-		TArray<float>YawBulletRecoilArray = { -5, 5 };;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		int32 MagazineCapacity = 10;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		FName BoneNameForBulletRotation = TEXT("Koncowka_Drugiego_Palca_R");
-
-	//Delay time after the enemy runs out of ammunition
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
-		float DelayTimeMagazine;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
-		UParticleSystem* ShootParticle;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
-		float ShootParticleScale;
-
 	//SOUNDS
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* ShootingSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* FootstepsSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
@@ -224,12 +199,7 @@ private:
 		UParticleSystem* EnemyBloodParticle;
 
 	//Shooting
-	bool bCanShoot = true;
-	void Shoot();
-	void ShootEffects();
 	void PredictWhereToShoot();
-	void PushBackDuringShooting();
-
 	FVector PlayerCameraLocation;
 
 	//Got Hit
@@ -252,16 +222,6 @@ private:
 	void CheckIfEnemySeePlayer();
 	bool ConditionsForEnemyToSeePlayer();
 
-	//Reload
-	bool bIsReloading;
-	FTimerHandle DelayEmptyMagazineHandle;
-	void DelayAfterEmptyMagazine();
-
-	//Bullet
-	FTimerHandle ImpulseOnBulletHandle;
-	void SpawnManyBullets();
-	void SpawnBullet();
-
 	//Footsteps sound
 	void PlayFootstepsSound();
 	bool bCanPlayFootstepsSound = true;
@@ -275,7 +235,4 @@ private:
 	//EnemyAIController
 	class AEnemyAiController* EnemyAIController;
 	void SetUpEnemyAIController();
-
-	//Other
-	int32 CopyOfMagazineCapacity;
 };

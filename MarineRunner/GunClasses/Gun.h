@@ -392,7 +392,7 @@ private:
 	//////////////////////////////////////////////////
 
 	/////////////// Reloading ////////////////
-	float CopyOfMagazineCapacity;
+	float OriginalMagazineCapacity;
 	bool bIsReloading;
 	FTimerHandle ReloadHandle;
 	class UAudioComponent* SpawnedReloadSound;

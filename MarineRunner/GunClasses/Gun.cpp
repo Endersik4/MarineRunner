@@ -46,7 +46,7 @@ void AGun::BeginPlay()
 	RecoilAnimTimeline = SetupTimeline(RecoilAnimTimeline, RecoilAnimCurveLocationX, FName("RecoilAnimTimeline"), FName("RecoilAnimTimelineDirection"), RecoilAnimTimelineLength, FName("RecoilAnimTimelineCallback"), FName("RecoilAnimTimelineFinishedCallback"));
 	if (bShouldUseCurveRecoil) RecoilCameraTimeline = SetupTimeline(RecoilCameraTimeline, RecoilCameraCurveY, FName("RecoilCameraTimeline"), FName("RecoilCameraTimelineDirection"), RecoilCameraTimelineLength, FName("RecoilCameraTimelineCallback"), FName("RecoilCameraTimelineFinishedCallback"));
 
-	CopyOfMagazineCapacity = MagazineCapacity;
+	OriginalMagazineCapacity = MagazineCapacity;
 	PC = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 }
 
@@ -247,7 +247,7 @@ void AGun::UpRecoilCamera(float Delta)
 
 	if (bShouldUseCurveRecoil)
 	{
-		float ControlRotationPitch = (DistanceFromStart * 0.375) * TimeRecoilCameraElapsed / ((CopyOfMagazineCapacity * RecoilAnimTimelineLength) + 0.2f);
+		float ControlRotationPitch = (DistanceFromStart * 0.375) * TimeRecoilCameraElapsed / ((OriginalMagazineCapacity * RecoilAnimTimelineLength) + 0.2f);
 		PC->AddPitchInput(-ControlRotationPitch);
 	}
 	TimeRecoilCameraElapsed = Delta;
@@ -359,7 +359,7 @@ void AGun::RandomBulletDirection(FRotator& NewBulletRotation)
 #pragma region ////////////////////////////////// RELOAD //////////////////////////////////////
 bool AGun::CanReload()
 {
-	if (GetPointerToAmmoFromInventory() == false || MagazineCapacity == CopyOfMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return false;
+	if (GetPointerToAmmoFromInventory() == false || MagazineCapacity == OriginalMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return false;
 	if (AmmunitionFromInventory->Item_Amount <= 0) return false;
 
 	return true;
@@ -425,7 +425,7 @@ void AGun::RemoveAmmunitionFromInventory()
 	}
 	else
 	{
-		int32 RestAmmo = CopyOfMagazineCapacity - MagazineCapacity;
+		int32 RestAmmo = OriginalMagazineCapacity - MagazineCapacity;
 		if (AmmunitionFromInventory->Item_Amount < RestAmmo)
 		{
 			MagazineCapacity += AmmunitionFromInventory->Item_Amount;
@@ -434,7 +434,7 @@ void AGun::RemoveAmmunitionFromInventory()
 		else
 		{
 			AmmunitionFromInventory->Item_Amount -= RestAmmo;
-			MagazineCapacity = CopyOfMagazineCapacity;
+			MagazineCapacity = OriginalMagazineCapacity;
 		}
 	}
 }
