@@ -41,6 +41,8 @@ void UEnemyGunComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 void UEnemyGunComponent::Shoot()
 {
+	UE_LOG(LogTemp, Warning, TEXT("shhot"));
+
 	if (BulletData.BulletClass == NULL || bCanShoot == false || OwningEnemyInterface->GetIsDead() == true) return;
 
 	if (MagazineCapacity <= 0)
