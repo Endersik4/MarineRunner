@@ -23,9 +23,19 @@ public:
 	UFUNCTION()
 		void HandleTargetPerceptionUpdated(AActor* Actor, struct FAIStimulus Stimulus);
 
+	void AddEnemyToDetected(bool bWas);
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UAIPerceptionComponent* EnemyPerception;
-	
+	UPROPERTY(EditDefaultsOnly, Category = "Turret AI Settings")
+		float StopSeeingTheActorTime = 15.f;
+
+	FTimerHandle StopSeeingTheActorHandle;
+
+	bool bActorWasSeen = false;
+	void StopSeeingActor();
 	class AEnemyTurretPawn* TurretPawn;
+	class UMarineRunnerGameInstance* MarineRunnerGameInstance;
+
 };

@@ -29,7 +29,8 @@ public:
 	void Shoot();
 	void Reload();
 
-	const bool bCanShootAgain();
+	UFUNCTION(BlueprintPure)
+		const bool CanShootAgain();
 private:
 	//  Bullet settings
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet")
@@ -49,12 +50,22 @@ private:
 	// A random number is taken from this range and then added to the bullet Yaw rotation
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
 		TArray<float>YawBulletRecoilArray = { -5, 5 };
+	// A random number is taken from this range and then added to the bullet Pitch rotation
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
+		FFloatRange RandomRangeForPitchBullet;
+	// A random number is taken from this range and then added to the bullet Yaw rotation
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
+		FFloatRange RandomRangeForYawBullet;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		int32 MagazineCapacity = 10;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		bool bFindBulletRotationTowardsTarget = true;
 	// Rotation for bullet will be taken from bone 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		FName BoneNameForBulletRotation = TEXT("Koncowka_Drugiego_Palca_R");
+		TArray<FName> BulletSocketsNames = { TEXT("Koncowka_Drugiego_Palca_R") };
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		TArray<FName> MuzzleFleshSocketNames = { TEXT("Koncowka_Drugiego_Palca_R") };
 
 	//Delay time after the enemy runs out of ammunition
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
@@ -69,19 +80,23 @@ private:
 		USoundBase* ShootingSound;
 
 	bool bCanShoot = true;
-
-	FTimerHandle ImpulseOnBulletHandle;
+	bool CanShoot();
+	int32 CurrentSocketNameIndex = 0;
 
 	void ShootEffects();
+
+	FTimerHandle ImpulseOnBulletHandle;
 	void SpawnManyBullets();
 	void SpawnBullet();
+	FRotator CalculateBulletRotation();
+
+
 	void AddImpulseDuringShooting();
 
+	int32 InitialMagazineCapacity;
 	bool bIsReloading;
 	FTimerHandle DelayEmptyMagazineHandle;
 	void DelayAfterEmptyMagazine();
-
-	int32 InitialMagazineCapacity;
 
 	class IEnemyInterface* OwningEnemyInterface;
 };

@@ -3,6 +3,7 @@
 
 #include "MarineRunner/EnemiesClasses/EnemyTurretPawn.h"
 #include "Kismet/KismetMathLibrary.h"
+
 #include "EnemyGunComponent.h"
 
 // Sets default values
@@ -39,8 +40,15 @@ void AEnemyTurretPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
+void AEnemyTurretPawn::Shoot()
+{
+	TurretGunComponent->CanShootAgain();
+	TurretGunComponent->Shoot();
+}
+
 void AEnemyTurretPawn::PlayerWasSeen(bool bWas, AActor* ActorSeen)
 {
+	// first time turret saw it
 	if (bRotateBones == false && bWas == true)
 	{
 		GetWorld()->GetTimerManager().SetTimer(StartShootingHandle, this, &AEnemyTurretPawn::Shoot, TimeBetweenShoots, true);
@@ -69,7 +77,7 @@ void AEnemyTurretPawn::RotateBonesTowardDetectedActor(float Delta)
 		FoundRot.Yaw *= RotateBone.RotateInAxis.Yaw;
 		FoundRot.Roll *= RotateBone.RotateInAxis.Roll;
 
-		PlayerCameraLocation = FocusedActor->GetActorLocation();
+		PredictWhereToShoot(FocusedActor);
 
 		if (RotateBone.bLimitedRotation == true)
 		{
@@ -82,10 +90,20 @@ void AEnemyTurretPawn::RotateBonesTowardDetectedActor(float Delta)
 	}
 }
 
-void AEnemyTurretPawn::Shoot()
+void AEnemyTurretPawn::PredictWhereToShoot(AActor* Actor)
 {
-	TurretGunComponent->bCanShootAgain();
-	TurretGunComponent->Shoot();
+	FocusedActorLocation = Actor->GetActorLocation();
+
+	FocusedActorLocation.Z += 100.f;
+
+	if (Actor->GetInputAxisValue("Right") == 1.f)
+	{
+		FocusedActorLocation += Actor->GetActorRightVector() * 100.f;
+	}
+	else if (Actor->GetInputAxisValue("Right") == -1.f)
+	{
+		FocusedActorLocation -= Actor->GetActorRightVector() * 100.f;
+	}
 }
 
 void AEnemyTurretPawn::LimitAngleAccordingToRange(double& Angle, const FFloatRange& Range)
@@ -100,3 +118,7 @@ void AEnemyTurretPawn::LimitAngleAccordingToRange(double& Angle, const FFloatRan
 	}
 }
 
+bool AEnemyTurretPawn::IsStillShooting()
+{
+	return GetWorld()->GetTimerManager().IsTimerActive(StartShootingHandle);
+}

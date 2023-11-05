@@ -41,15 +41,8 @@ void UEnemyGunComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 void UEnemyGunComponent::Shoot()
 {
-	UE_LOG(LogTemp, Warning, TEXT("shhot"));
-
-	if (BulletData.BulletClass == NULL || bCanShoot == false || OwningEnemyInterface->GetIsDead() == true) return;
-
-	if (MagazineCapacity <= 0)
-	{
-		Reload();
+	if (CanShoot() == false)
 		return;
-	}
 
 	ShootEffects();
 
@@ -58,17 +51,18 @@ void UEnemyGunComponent::Shoot()
 
 	MagazineCapacity--;
 	OwningEnemyInterface->PlayShootAnimation();
-	bCanShoot = false;
 
 	AddImpulseDuringShooting();
+
+	bCanShoot = false;
 }
 
 void UEnemyGunComponent::ShootEffects()
 {
-	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, OwningEnemyInterface->GetSkeletalMesh(), TEXT("MuzzleFlash"));
+	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, OwningEnemyInterface->GetSkeletalMesh(), MuzzleFleshSocketNames[CurrentSocketNameIndex]);
 	if (ShootParticle)
 	{
-		UParticleSystemComponent* SpawnedShootParticle = UGameplayStatics::SpawnEmitterAttached(ShootParticle, OwningEnemyInterface->GetSkeletalMesh(), TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
+		UParticleSystemComponent* SpawnedShootParticle = UGameplayStatics::SpawnEmitterAttached(ShootParticle, OwningEnemyInterface->GetSkeletalMesh(), MuzzleFleshSocketNames[CurrentSocketNameIndex], FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
 	}
 }
 
@@ -80,17 +74,9 @@ void UEnemyGunComponent::SpawnManyBullets()
 
 void UEnemyGunComponent::SpawnBullet()
 {
-	FRotator BulletRotation = UKismetMathLibrary::FindLookAtRotation(OwningEnemyInterface->GetSkeletalMesh()->GetSocketLocation(BoneNameForBulletRotation), OwningEnemyInterface->GetPlayerCameraLocation());
-	//Bullet will randomly "go" to other directions 
-	if (PitchBulletRecoilArray.Num() == 2 && YawBulletRecoilArray.Num() == 2 && bManyBulletAtOnce)
-	{
-		float NewPitchRotaton = FMath::FRandRange(PitchBulletRecoilArray[0], PitchBulletRecoilArray[1]);
-		float NewYawRotation = FMath::FRandRange(YawBulletRecoilArray[0], YawBulletRecoilArray[1]);
-		BulletRotation.Pitch += NewPitchRotaton;
-		BulletRotation.Yaw += NewYawRotation;
-	}
+	FRotator BulletRotation = CalculateBulletRotation();
 
-	FTransform BulletTransform = FTransform(BulletRotation, OwningEnemyInterface->GetSkeletalMesh()->GetSocketLocation(TEXT("Bullet")));
+	FTransform BulletTransform = FTransform(BulletRotation, OwningEnemyInterface->GetSkeletalMesh()->GetSocketLocation(BulletSocketsNames[CurrentSocketNameIndex]));
 	ABullet* SpawnedBullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletData.BulletClass, BulletTransform);
 
 	FBulletStruct BulletDataForSpawnedBullet = BulletData;
@@ -99,6 +85,34 @@ void UEnemyGunComponent::SpawnBullet()
 
 	SpawnedBullet->SetBulletData(BulletDataForSpawnedBullet);
 	SpawnedBullet->FinishSpawning(BulletTransform);
+
+	CurrentSocketNameIndex++;
+	if (CurrentSocketNameIndex >= BulletSocketsNames.Num())
+	{
+		CurrentSocketNameIndex = 0;
+	}
+}
+
+FRotator UEnemyGunComponent::CalculateBulletRotation()
+{
+	FRotator BulletRotation;
+	if (bFindBulletRotationTowardsTarget == true)
+	{
+		BulletRotation = UKismetMathLibrary::FindLookAtRotation(OwningEnemyInterface->GetSkeletalMesh()->GetSocketLocation(BulletSocketsNames[CurrentSocketNameIndex]), OwningEnemyInterface->GetPlayerCameraLocation());
+	}
+	else
+	{
+		BulletRotation = OwningEnemyInterface->GetSkeletalMesh()->GetSocketTransform(BulletSocketsNames[CurrentSocketNameIndex]).Rotator();
+	}
+
+	//Bullet will randomly "go" to other directions 
+	if (bManyBulletAtOnce)
+	{
+		BulletRotation.Pitch += FMath::FRandRange(RandomRangeForPitchBullet.GetLowerBoundValue(), RandomRangeForPitchBullet.GetUpperBoundValue());
+		BulletRotation.Yaw += FMath::FRandRange(RandomRangeForYawBullet.GetLowerBoundValue(), RandomRangeForYawBullet.GetUpperBoundValue());
+	}
+
+	return BulletRotation;
 }
 
 void UEnemyGunComponent::AddImpulseDuringShooting()
@@ -124,10 +138,27 @@ void UEnemyGunComponent::DelayAfterEmptyMagazine()
 	bIsReloading = false;
 }
 
-const bool UEnemyGunComponent::bCanShootAgain()
+const bool UEnemyGunComponent::CanShootAgain()
 {
-	bCanShoot = true;
-	return (bIsReloading == false && MagazineCapacity > 0);
+	bCanShoot = bIsReloading == false && MagazineCapacity > 0;
+	return bCanShoot;
+}
+
+bool UEnemyGunComponent::CanShoot()
+{
+	if (BulletData.BulletClass == NULL || OwningEnemyInterface->GetIsDead() == true)
+		return false;
+
+	if (MagazineCapacity <= 0)
+	{
+		Reload();
+		return false;
+	}
+
+	if (bCanShoot == false)
+		return false;
+
+	return true;
 }
 
 

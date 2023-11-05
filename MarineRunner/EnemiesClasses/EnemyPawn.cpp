@@ -314,7 +314,7 @@ void AEnemyPawn::AddImpulseToPhysicsMesh(const FVector& Impulse)
 
 void AEnemyPawn::ShootAgain(bool& bShoot)
 {
-	bShoot = EnemyGunComponent->bCanShootAgain();
+	bShoot = EnemyGunComponent->CanShootAgain();
 }
 
 void AEnemyPawn::Reload()

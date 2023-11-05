@@ -59,7 +59,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	FORCEINLINE virtual USkeletalMeshComponent* GetSkeletalMesh() override { return TurretSkeletalMesh; }
-	FORCEINLINE virtual const FVector GetPlayerCameraLocation() override { return PlayerCameraLocation; }
+	FORCEINLINE virtual const FVector GetPlayerCameraLocation() override { return FocusedActorLocation; }
 	FORCEINLINE virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) override {};
 	FORCEINLINE virtual void PlayShootAnimation() override { PlayShootAnimMontage(); }
 	FORCEINLINE virtual const bool GetIsDead() override { return false; }
@@ -71,10 +71,14 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void PlayShootAnimMontage();
+
+	UFUNCTION(BlueprintPure)
+		bool IsStillShooting();
+
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		USkeletalMeshComponent* TurretSkeletalMesh;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UEnemyGunComponent* TurretGunComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Turret Settings")
@@ -84,11 +88,12 @@ private:
 
 	FTimerHandle StartShootingHandle;
 	void Shoot();
+	void PredictWhereToShoot(AActor* Actor);
 
 	bool bRotateBones;
 	AActor* FocusedActor;
 	void LimitAngleAccordingToRange(double& Angle, const FFloatRange& Range);
 	void RotateBonesTowardDetectedActor(float Delta);
 
-	FVector PlayerCameraLocation;
+	FVector FocusedActorLocation;
 };
