@@ -85,6 +85,12 @@ private:
 		TArray<FRotateTurretBone> RotateTurretBones;
 	UPROPERTY(EditAnywhere, Category = "Turret Settings")
 		float TimeBetweenShoots = 0.1f;
+	UPROPERTY(EditAnywhere, Category = "Turret Settings")
+		float PredictWhereToShootOffset_UP = 100.f;
+	UPROPERTY(EditAnywhere, Category = "Turret Settings")
+		float PredictWhereToShootOffset_Right = 100.f;
+	UPROPERTY(EditAnywhere, Category = "Turret Settings")
+		float PredictWhereToShootDistanceDivider = 100.f;
 
 	FTimerHandle StartShootingHandle;
 	void Shoot();

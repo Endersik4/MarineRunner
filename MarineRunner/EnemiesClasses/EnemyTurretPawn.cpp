@@ -93,16 +93,25 @@ void AEnemyTurretPawn::RotateBonesTowardDetectedActor(float Delta)
 void AEnemyTurretPawn::PredictWhereToShoot(AActor* Actor)
 {
 	FocusedActorLocation = Actor->GetActorLocation();
+	float Distance = UKismetMathLibrary::Vector_Distance(GetActorLocation(), Actor->GetActorLocation()) / PredictWhereToShootDistanceDivider;
 
-	FocusedActorLocation.Z += 100.f;
+	FocusedActorLocation += Actor->GetActorUpVector() * PredictWhereToShootOffset_UP * Distance;
 
 	if (Actor->GetInputAxisValue("Right") == 1.f)
 	{
-		FocusedActorLocation += Actor->GetActorRightVector() * 100.f;
+		FocusedActorLocation += Actor->GetActorRightVector() * PredictWhereToShootOffset_Right * Distance;
 	}
 	else if (Actor->GetInputAxisValue("Right") == -1.f)
 	{
-		FocusedActorLocation -= Actor->GetActorRightVector() * 100.f;
+		FocusedActorLocation -= Actor->GetActorRightVector() * PredictWhereToShootOffset_Right * Distance;
+	}
+	if (Actor->GetInputAxisValue("Forward") == 1.f)
+	{
+		FocusedActorLocation += Actor->GetRootComponent()->GetForwardVector() * PredictWhereToShootOffset_Right * Distance;
+	}
+	else if (Actor->GetInputAxisValue("Forward") == -1.f)
+	{
+		FocusedActorLocation -= Actor->GetRootComponent()->GetForwardVector() * PredictWhereToShootOffset_Right * Distance;
 	}
 }
 

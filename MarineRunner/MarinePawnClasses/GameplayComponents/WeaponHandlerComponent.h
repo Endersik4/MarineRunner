@@ -69,7 +69,5 @@ private:
 
 	void LoadSavedSettingsFromGameInstance();
 
-
-	AMarineCharacter* MarinePawn;
-		
+	class AMarineCharacter* MarinePawn;	
 };

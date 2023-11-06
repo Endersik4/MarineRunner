@@ -37,7 +37,9 @@ private:
 	float OriginalOffsetCA;
 	float FadeTimeElapsed;
 	void DashEffects(float Delta);
+	bool bRemoveDashWidget;
 
 	void PrepareDashWidget();
-	class UCameraComponent* MarineCamera;
+	class AMarineCharacter* MarinePawn;
+	class UCameraComponent* PlayerCamera;
 };
