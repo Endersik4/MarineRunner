@@ -38,14 +38,22 @@ private:
 	// X = roll, Y = Pitch, Z = Yaw
 	UPROPERTY(EditDefaultsOnly, Category = "Rotation Settings")
 		class UCurveVector* RelativeRotationCurve;
+	UPROPERTY(EditDefaultsOnly, Category = "Rotation Settings")
+		float ResetToInitialRotationTime = 6.f;
 
 	UFUNCTION()
 		void OnTimelineCallback(FVector NewRotation);
+	UFUNCTION()
+		void OnTimelineFinished();
 
 	UFUNCTION()
 		void OnActivateRotateBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& OutHit);
 
 	bool bWasRotated = false;
+	bool bResetingRotation;
+
+	FTimerHandle ResetToInitialRotationHandle;
+	void ResetRotateMeshTimeline();
 
 	void StartRotateMeshTimeline();
 	FTimeline RotateMeshTimeline;
