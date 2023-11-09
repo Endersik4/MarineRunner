@@ -100,6 +100,7 @@ public:
 
 	void AddNewDetectedEnemy(AActor* NewEnemy, bool bIsEnemyDead = false);
 	void RemoveDetectedEnemy(AActor* NewEnemy);
+	FORCEINLINE bool IsPlayerInCombat() const { return DetectedPlayerEnemies.Num() > 0; }
 
 	void ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut = false);
 

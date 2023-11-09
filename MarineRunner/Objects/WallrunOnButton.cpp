@@ -4,6 +4,7 @@
 #include "MarineRunner/Objects/WallrunOnButton.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/TextRenderComponent.h"
 
 // Sets default values
 AWallrunOnButton::AWallrunOnButton()
@@ -19,17 +20,23 @@ AWallrunOnButton::AWallrunOnButton()
 
 	MeshToRotateComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshToRotateComponent"));
 	MeshToRotateComponent->SetupAttachment(SocketRotateMeshComponent);
-
+	
 	ActivateRotateBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("ActivateRotateBoxComponent"));
 	ActivateRotateBoxComponent->SetupAttachment(RootComponent);
 	ActivateRotateBoxComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 	ActivateRotateBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Block);
+
+	ResetCurrentTimeText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("ResetCurrentTimeText"));
+	ResetCurrentTimeText->SetupAttachment(ActivateRotateBoxComponent);
 }
 
 // Called when the game starts or when spawned
 void AWallrunOnButton::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CurrentResetSecond = FMath::RoundToInt(ResetToInitialRotationTime);
+	ResetCurrentTimeText->SetText(FText::AsNumber(CurrentResetSecond));
 
 	ActivateRotateBoxComponent->OnComponentHit.AddDynamic(this, &AWallrunOnButton::OnActivateRotateBoxHit);
 }
@@ -76,18 +83,32 @@ void AWallrunOnButton::OnTimelineCallback(FVector NewRotation)
 
 void AWallrunOnButton::OnTimelineFinished()
 {
+	CurrentResetSecond = FMath::RoundToInt(ResetToInitialRotationTime);
+	ResetCurrentTimeText->SetText(FText::AsNumber(CurrentResetSecond));
+
 	if (bResetingRotation == true)
 	{
 		bWasRotated = false;
 		bResetingRotation = false;
+
 		return;
 	}
 
 	GetWorldTimerManager().SetTimer(ResetToInitialRotationHandle, this, &AWallrunOnButton::ResetRotateMeshTimeline, ResetToInitialRotationTime, false);
+	GetWorldTimerManager().SetTimer(DisplayResetTimeHandle, this, &AWallrunOnButton::ResetTimeSeconds, 1.f, true);
 }
 
 void AWallrunOnButton::ResetRotateMeshTimeline()
 {
 	bResetingRotation = true;
 	RotateMeshTimeline.ReverseFromEnd();
+}
+
+void AWallrunOnButton::ResetTimeSeconds()
+{
+	CurrentResetSecond--;
+	ResetCurrentTimeText->SetText(FText::AsNumber(CurrentResetSecond));
+
+	if (CurrentResetSecond <= 0)
+		GetWorldTimerManager().ClearTimer(DisplayResetTimeHandle);
 }

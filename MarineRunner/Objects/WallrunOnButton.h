@@ -34,11 +34,13 @@ private:
 		class UStaticMeshComponent* MeshToRotateComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UBoxComponent* ActivateRotateBoxComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UTextRenderComponent* ResetCurrentTimeText;
 
 	// X = roll, Y = Pitch, Z = Yaw
-	UPROPERTY(EditDefaultsOnly, Category = "Rotation Settings")
+	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
 		class UCurveVector* RelativeRotationCurve;
-	UPROPERTY(EditDefaultsOnly, Category = "Rotation Settings")
+	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
 		float ResetToInitialRotationTime = 6.f;
 
 	UFUNCTION()
@@ -53,7 +55,10 @@ private:
 	bool bResetingRotation;
 
 	FTimerHandle ResetToInitialRotationHandle;
+	FTimerHandle DisplayResetTimeHandle;
+	int32 CurrentResetSecond = 0;
 	void ResetRotateMeshTimeline();
+	void ResetTimeSeconds();
 
 	void StartRotateMeshTimeline();
 	FTimeline RotateMeshTimeline;

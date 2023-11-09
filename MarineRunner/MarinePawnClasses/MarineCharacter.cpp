@@ -83,12 +83,13 @@ void AMarineCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePlayerController = Cast<AMarinePlayerController>(GetController());
-	
+	GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
 	LoadSavedSettingsFromGameInstance();
 
 	MakeCrosshire();
 	MakeHudWidget();
-	CopyOfOriginalForce = MovementForce;
+	InitialMovementForce = MovementForce;
 	LoadGame();
 
 	if (IsValid(HudWidget))
@@ -96,6 +97,8 @@ void AMarineCharacter::BeginPlay()
 		HudWidget->SetHealthBarPercent(Health);
 		HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
 	}
+
+	ReplaceRootComponentRotation();
 }
 
 // Called every frame
@@ -185,7 +188,6 @@ void AMarineCharacter::Forward(float Axis)
 {
 	// There is a bug where ForwardVector is not correct and had to use Controller->RootComponent but this way have other bug, when player looks up or down then he cant 
 	// go forward/backward and to fix this i had to rotate RightVector by -90.f
-	const float DegreeForForwardVector = -90.f;
 	FVector Dir = MarinePlayerController->GetRootComponent()->GetRightVector().RotateAngleAxis(DegreeForForwardVector, FVector(0.f,0.f,1.f));
 
 	if (WallrunComponent->GetShouldPlayerGoForward() == true)
@@ -342,7 +344,7 @@ void AMarineCharacter::CheckIfIsInAir()
 
 			if (ImpactOnFloorSound) UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, CapsulePawn);
 
-			if (CroachAndSlideComponent->GetIsCrouching() == false) MovementForce = CopyOfOriginalForce;
+			if (CroachAndSlideComponent->GetIsCrouching() == false) MovementForce = InitialMovementForce;
 		}
 
 		if (Hit.GetActor()->ActorHasTag("Ramp"))
@@ -472,7 +474,6 @@ void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 
 void AMarineCharacter::LoadGame()
 {
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	FString SlotName = IsValid(GameInstance) == false ? "MySlot" : GameInstance->SlotSaveGameNameToLoad;
 	SlotName += "/" + SlotName;
 
@@ -499,7 +500,6 @@ void AMarineCharacter::LoadGame()
 
 void AMarineCharacter::LoadSavedSettingsFromGameInstance()
 {
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (IsValid(GameInstance) == false || IsValid(MarinePlayerController) == false)
 		return;
 
@@ -521,7 +521,7 @@ void AMarineCharacter::SpawnPassingWidget(const TSubclassOf<class UUserWidget>& 
 
 bool AMarineCharacter::CanPlayerSaveGame()
 {
-	return bIsInAir || WeaponHandlerComponent->GetIsPlayerInAds() ? false : true;
+	return (bIsInAir || WeaponHandlerComponent->GetIsPlayerInAds() || GameInstance->IsPlayerInCombat()) ? false : true;
 }
 
 #pragma endregion 
@@ -633,6 +633,15 @@ void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayT
 
 	if (bCanDelayJump) DelayJump();
 	if (WeaponHandlerComponent->GetIsPlayerInAds()) WeaponHandlerComponent->ADSReleased();
+}
+
+// When the player does not move the mouse during the pawn's spawn, the rotation of the RootComponent is not updated and, 
+// because of this, the RootComponent Forward vector may point in the wrong direction
+void AMarineCharacter::ReplaceRootComponentRotation()
+{
+	FRotator RootCompRot = MarinePlayerController->GetRootComponent()->GetComponentRotation();
+	RootCompRot.Yaw = GetActorRotation().Yaw;
+	MarinePlayerController->GetRootComponent()->SetWorldRotation(RootCompRot);
 }
 
 void AMarineCharacter::SetQuickSelect(TMap < int32, AGun* > NewWeaponsStorage)

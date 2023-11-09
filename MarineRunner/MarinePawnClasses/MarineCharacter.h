@@ -204,8 +204,9 @@ private:
 	void Right(float Axis);
 	void Move(FVector Direction, float Axis, const FName InputAxisName);
 	FVector CalculateCounterMovement();
-	float CopyOfOriginalForce;
+	float InitialMovementForce;
 	float MovementSpeedMutliplier = 1.f;
+	const float DegreeForForwardVector = -90.f;
 
 
 	//Footstepts sounds
@@ -220,6 +221,8 @@ private:
 	float JumpTimeElapsed;
 	void Jump();
 	void JumpTick(float DeltaTime);
+
+	void ReplaceRootComponentRotation();
 
 	//Albertos
 	void CallAlbertosPressed();
@@ -274,4 +277,5 @@ private:
 
 	FVector EaseInQuint(FVector Start, FVector End, float Alpha);
 	class AMarinePlayerController* MarinePlayerController;
+	UMarineRunnerGameInstance* GameInstance;
 };
