@@ -10,9 +10,8 @@
 
 void UElevatorPanelWidget::NativeOnInitialized()
 {
-	ElevatorGoesDownImage->SetVisibility(ESlateVisibility::Hidden);
-	ElevatorGoesUpImage->SetVisibility(ESlateVisibility::Hidden);
-	WaitForElevatorImage->SetVisibility(ESlateVisibility::Hidden);
+	ElevatorGoesUpDownImage->SetVisibility(ESlateVisibility::Hidden);
+	WaitForElevatorTextBlock->SetVisibility(ESlateVisibility::Hidden);
 
 	SelectFloorsHorizontalBox->SetVisibility(ESlateVisibility::Visible);
 }
@@ -26,43 +25,75 @@ void UElevatorPanelWidget::SelectFloor(int32 FloorToGo)
 	if (FoundFloor == nullptr)
 		return;
 
-	UnhideWaitForElevatorImage();
-
 	ElevatorActor->StartElevator(FoundFloor->FloorLocation);
 
-	SetIsElevatorInMove(true);
+	ActiveSelectFloorPanel(false);
 }
 
-void UElevatorPanelWidget::UnhideWaitForElevatorImage()
+void UElevatorPanelWidget::ActivateWaitForElevatorText(bool bActivate)
 {
-	ElevatorGoesUpImage->SetVisibility(ESlateVisibility::Hidden);
-	ElevatorGoesDownImage->SetVisibility(ESlateVisibility::Hidden);
+	if (bActivate) WaitForElevatorTextBlock->SetVisibility(ESlateVisibility::Visible);
 
-	WaitForElevatorImage->SetVisibility(ESlateVisibility::Visible);
+	if (bActivate && WaitTextBlockActiveAnim)
+	{
+		PlayAnimation(WaitTextBlockAppearAnim);
+	}
+	else if (WaitTextBlockDisappearAnim)
+	{
+		StopAnimation(WaitTextBlockActiveAnim);
+		PlayAnimation(WaitTextBlockDisappearAnim);
+	}
 }
 
-void UElevatorPanelWidget::UnhideCorrectElevatorGoesUpImage(FVector FloorLocationToGo)
+void UElevatorPanelWidget::ActivateElevatorGoesUpDownImage(bool bActivate, FVector FloorLocationToGo)
 {
 	if (IsValid(ElevatorActor) == false)
 		return;
 
-	WaitForElevatorImage->SetVisibility(ESlateVisibility::Hidden);
+	if (bActivate == true)
+	{
+		ActivateWaitForElevatorText(false);
+		ElevatorGoesUpDownImage->SetVisibility(ESlateVisibility::Visible);
+	}
+
+	if (bActivate && ElevatorGoesUpDownAppearAnim)
+	{
+		PlayAnimation(ElevatorGoesUpDownAppearAnim);
+	}
+	else if (ElevatorGoesUpDownDisappearAnim)
+	{
+		PlayAnimation(ElevatorGoesUpDownDisappearAnim);
+	}
+
+	if (bActivate == false)
+	{
+		return;
+	}
 
 	if (FloorLocationToGo.Z < ElevatorActor->GetActorLocation().Z)
 	{
-		ElevatorGoesDownImage->SetVisibility(ESlateVisibility::Visible);
+		ElevatorGoesUpDownImage->SetRenderTransformAngle(ElevatorGoesDownImageAngle);
 	}
 	else
 	{
-		ElevatorGoesUpImage->SetVisibility(ESlateVisibility::Visible);
+		ElevatorGoesUpDownImage->SetRenderTransformAngle(ElevatorGoesUpImageAngle);
 	}
 }
 
-void UElevatorPanelWidget::SetIsElevatorInMove(bool NewIsElevatorInMove)
+void UElevatorPanelWidget::ActiveSelectFloorPanel(bool bActivate)
 {
-	WaitForElevatorImage->SetVisibility(ESlateVisibility::Hidden);
+	ActivateWaitForElevatorText(!bActivate);
 
-	SelectFloorsHorizontalBox->SetVisibility(NewIsElevatorInMove ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
-	SelectFloorsHorizontalBox->SetIsEnabled(!NewIsElevatorInMove);
-	bIsElevatorInMove = NewIsElevatorInMove;
+	if (bActivate) SelectFloorsHorizontalBox->SetVisibility(ESlateVisibility::Visible);
+	SelectFloorsHorizontalBox->SetIsEnabled(bActivate);
+	bIsElevatorInMove = !bActivate;
+
+	if (bActivate && SelectFloorsAppearAnim)
+	{
+		PlayAnimation(SelectFloorsAppearAnim);
+	}
+	else if (SelectFloorsDisappearAnim)
+	{
+		PlayAnimation(SelectFloorsDisappearAnim);
+	}
 }

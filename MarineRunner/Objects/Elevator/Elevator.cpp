@@ -58,7 +58,7 @@ void AElevator::StartElevator(FVector Location)
 
 void AElevator::StartMovingElevator()
 {
-	ElevatorPanelWidget->UnhideCorrectElevatorGoesUpImage(FloorLocationToGo);
+	ElevatorPanelWidget->ActivateElevatorGoesUpDownImage(true, FloorLocationToGo);
 	bShouldMove = true;
 }
 
@@ -84,13 +84,15 @@ void AElevator::MovedToNewFoor()
 {
 	SetActorLocation(FloorLocationToGo);
 	bShouldMove = false;
+	MoveTimeElapsed = 0.f;
 
 	PlayElevatorEffects(OpenElevatorDoorsAnim, OpenElevatorDoorsSound);
 
-	ElevatorPanelWidget->UnhideWaitForElevatorImage();
+	ElevatorPanelWidget->ActivateElevatorGoesUpDownImage(false);
+	ElevatorPanelWidget->ActivateWaitForElevatorText();
 
 	FTimerDelegate CanSelectFloorTimerDel;
-	CanSelectFloorTimerDel.BindUFunction(ElevatorPanelWidget, FName("SetIsElevatorInMove"), false);
+	CanSelectFloorTimerDel.BindUFunction(ElevatorPanelWidget, FName("ActiveSelectFloorPanel"), true);
 	GetWorld()->GetTimerManager().SetTimer(StartElevatorHandle, CanSelectFloorTimerDel, CanUseElevatorAgainDelay, false);
 
 }

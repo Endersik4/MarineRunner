@@ -48,12 +48,10 @@ public:
 		UImage* BackgroundImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UImage* ElevatorGoesUpImage;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UImage* ElevatorGoesDownImage;
+		UImage* ElevatorGoesUpDownImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UImage* WaitForElevatorImage;
+		UTextBlock* WaitForElevatorTextBlock;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UTextBlock* MaintanceTextBlock;
@@ -63,19 +61,40 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UVerticalBox* SelectFloorsHorizontalBox;
 
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* SelectFloorsAppearAnim;
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* SelectFloorsDisappearAnim;
+
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* WaitTextBlockAppearAnim;
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* WaitTextBlockDisappearAnim;
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* WaitTextBlockActiveAnim;
+
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* ElevatorGoesUpDownAppearAnim;
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* ElevatorGoesUpDownDisappearAnim;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
 		TArray<FElevatorFloor> ElevatorFloors;
+	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
+		float ElevatorGoesUpImageAngle = 0.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
+		float ElevatorGoesDownImageAngle = 180.f;
 
 	FORCEINLINE void SetElevator(class AElevator* NewElevatorActor) { ElevatorActor = NewElevatorActor; }
 
 	UFUNCTION()
-		void SetIsElevatorInMove(bool NewIsElevatorInMove);
+		void ActiveSelectFloorPanel(bool NewIsElevatorInMove);
 
 	UFUNCTION(BlueprintCallable)
 		void SelectFloor(int32 FloorToGo);
 
-	void UnhideWaitForElevatorImage();
-	void UnhideCorrectElevatorGoesUpImage(FVector FloorLocationToGo);
+	void ActivateWaitForElevatorText(bool bActivate = true);
+	void ActivateElevatorGoesUpDownImage(bool bActivate = true, FVector FloorLocationToGo = FVector(0.f));
 
 private:
 	class AElevator* ElevatorActor;

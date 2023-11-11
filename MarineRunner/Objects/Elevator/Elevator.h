@@ -26,6 +26,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void StartElevator(FVector Location);
+
+	//  DELETE
+	UFUNCTION(BlueprintPure)
+		FORCEINLINE bool GetShouldMove() const { return bShouldMove; }
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* ElevatorMesh;
