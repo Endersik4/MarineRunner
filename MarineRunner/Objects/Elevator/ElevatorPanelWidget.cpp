@@ -5,6 +5,7 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
+#include "Components/ListView.h"
 
 #include "MarineRunner/Objects/Elevator/Elevator.h"
 
@@ -13,7 +14,9 @@ void UElevatorPanelWidget::NativeOnInitialized()
 	ElevatorGoesUpDownImage->SetVisibility(ESlateVisibility::Hidden);
 	WaitForElevatorTextBlock->SetVisibility(ESlateVisibility::Hidden);
 
-	SelectFloorsHorizontalBox->SetVisibility(ESlateVisibility::Visible);
+	SelectFloorsListView->SetVisibility(ESlateVisibility::Visible);
+
+
 }
 
 void UElevatorPanelWidget::SelectFloor(int32 FloorToGo)
@@ -84,8 +87,8 @@ void UElevatorPanelWidget::ActiveSelectFloorPanel(bool bActivate)
 {
 	ActivateWaitForElevatorText(!bActivate);
 
-	if (bActivate) SelectFloorsHorizontalBox->SetVisibility(ESlateVisibility::Visible);
-	SelectFloorsHorizontalBox->SetIsEnabled(bActivate);
+	if (bActivate) SelectFloorsListView->SetVisibility(ESlateVisibility::Visible);
+	SelectFloorsListView->SetIsEnabled(bActivate);
 	bIsElevatorInMove = !bActivate;
 
 	if (bActivate && SelectFloorsAppearAnim)

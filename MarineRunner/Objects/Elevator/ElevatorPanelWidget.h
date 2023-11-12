@@ -12,19 +12,27 @@ struct FElevatorFloor
 	GENERATED_USTRUCT_BODY();
 
 	UPROPERTY(EditAnywhere)
+		int32 IndexInList;
+	UPROPERTY(EditAnywhere)
 		int32 Floor;
+	UPROPERTY(EditAnywhere)
+		bool bAccessible = true;
+	UPROPERTY(EditAnywhere, meta = (EditConditionHides = "bAccessible"))
+		FName NotAccessibleText;
 	UPROPERTY(EditAnywhere)
 		FVector FloorLocation;
 
 	FElevatorFloor()
 	{
 		Floor = 0;
+		bAccessible = true;
 		FloorLocation = FVector(0.f);
 	}
 
-	FElevatorFloor(int32 _Floor, FVector _FloorLocation)
+	FElevatorFloor(int32 _Floor, bool _bAccessible, FVector _FloorLocation)
 	{
 		Floor = _Floor;
+		bAccessible = _bAccessible;
 		FloorLocation = _FloorLocation;
 	}
 
@@ -59,7 +67,7 @@ public:
 		UTextBlock* MaintanceModeTextBlock;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UVerticalBox* SelectFloorsHorizontalBox;
+		class UListView* SelectFloorsListView;
 
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
 		UWidgetAnimation* SelectFloorsAppearAnim;
