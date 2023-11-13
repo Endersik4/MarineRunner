@@ -4,43 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "MarineRunner/Objects/Elevator/ElevatorPanelData.h"
 #include "ElevatorPanelWidget.generated.h"
 
-USTRUCT(BlueprintType)
-struct FElevatorFloor
-{
-	GENERATED_USTRUCT_BODY();
 
-	UPROPERTY(EditAnywhere)
-		int32 IndexInList;
-	UPROPERTY(EditAnywhere)
-		int32 Floor;
-	UPROPERTY(EditAnywhere)
-		bool bAccessible = true;
-	UPROPERTY(EditAnywhere, meta = (EditConditionHides = "bAccessible"))
-		FName NotAccessibleText;
-	UPROPERTY(EditAnywhere)
-		FVector FloorLocation;
-
-	FElevatorFloor()
-	{
-		Floor = 0;
-		bAccessible = true;
-		FloorLocation = FVector(0.f);
-	}
-
-	FElevatorFloor(int32 _Floor, bool _bAccessible, FVector _FloorLocation)
-	{
-		Floor = _Floor;
-		bAccessible = _bAccessible;
-		FloorLocation = _FloorLocation;
-	}
-
-	bool operator==(const int32& OtherFloor)
-	{
-		return Floor == OtherFloor;
-	}
-};
 class UTextBlock;
 class UImage;
 UCLASS()
@@ -89,6 +56,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
 		TArray<FElevatorFloor> ElevatorFloors;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
+		TSubclassOf<class USelectFloorEntryObject> SelectedFloorEntryObject;
+	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
 		float ElevatorGoesUpImageAngle = 0.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
 		float ElevatorGoesDownImageAngle = 180.f;
@@ -104,7 +73,13 @@ public:
 	void ActivateWaitForElevatorText(bool bActivate = true);
 	void ActivateElevatorGoesUpDownImage(bool bActivate = true, FVector FloorLocationToGo = FVector(0.f));
 
+	FORCEINLINE class USelectFloorEntryObject* GetCurrentSelectedFloor() const { return CurrentSelectedFloor; }
+	FORCEINLINE void SetCurrentSelectedFloor(class USelectFloorEntryObject* NewCurrentFloor) {CurrentSelectedFloor = NewCurrentFloor;}
+
 private:
 	class AElevator* ElevatorActor;
 	bool bIsElevatorInMove = false;
+
+	void FillSelectFloorsListView();
+	class USelectFloorEntryObject* CurrentSelectedFloor;
 };

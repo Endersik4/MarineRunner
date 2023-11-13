@@ -8,6 +8,7 @@
 #include "Components/ListView.h"
 
 #include "MarineRunner/Objects/Elevator/Elevator.h"
+#include "MarineRunner/Objects/Elevator/SelectFloorEntryObject.h"
 
 void UElevatorPanelWidget::NativeOnInitialized()
 {
@@ -16,7 +17,25 @@ void UElevatorPanelWidget::NativeOnInitialized()
 
 	SelectFloorsListView->SetVisibility(ESlateVisibility::Visible);
 
+	FillSelectFloorsListView();
+}
 
+void UElevatorPanelWidget::FillSelectFloorsListView()
+{
+	for (const FElevatorFloor& SelectedFloor : ElevatorFloors)
+	{
+		USelectFloorEntryObject* ConstructedItemObject = NewObject<USelectFloorEntryObject>(SelectedFloorEntryObject);
+		if (IsValid(ConstructedItemObject) == false)
+			continue;
+
+		ConstructedItemObject->ElevatorFloor = SelectedFloor;
+		ConstructedItemObject->ElevatorPanelWidget = this;
+
+		if (SelectedFloor.bStartingFloor == true)
+			CurrentSelectedFloor = ConstructedItemObject;
+
+		SelectFloorsListView->AddItem(ConstructedItemObject);
+	}
 }
 
 void UElevatorPanelWidget::SelectFloor(int32 FloorToGo)

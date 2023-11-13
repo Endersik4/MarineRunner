@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "MarineRunner/Objects/Elevator/ElevatorPanelData.h"
 #include "SelectFloorEntryObject.generated.h"
 
 /**
@@ -14,4 +15,9 @@ class MARINERUNNER_API USelectFloorEntryObject : public UObject
 {
 	GENERATED_BODY()
 	
+public:
+	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
+		FElevatorFloor ElevatorFloor;
+	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
+		class UElevatorPanelWidget* ElevatorPanelWidget;
 };

@@ -23,6 +23,8 @@ protected:
 
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
+public:
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UButton* SelectFloorButton;
 
@@ -38,5 +40,10 @@ protected:
 		void OnHoveredSelectFloorButton();
 	UFUNCTION()
 		void OnUnhoveredSelectFloorButton();
+
+	void DisableElevatorPanelEntry(bool bDisable = true);
+private:
+	class USelectFloorEntryObject* EntryFloor;
+
 };
 
