@@ -24,7 +24,12 @@ void UElevatorPanelListEntry::NativeOnInitialized()
 void UElevatorPanelListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	EntryFloor = Cast<USelectFloorEntryObject>(ListItemObject);
-	
+
+	SetUpEntry();
+}
+
+void UElevatorPanelListEntry::SetUpEntry()
+{
 	if (EntryFloor->ElevatorFloor.bAccessible == true)
 	{
 		FString NewText = "-" + FString::FromInt(EntryFloor->ElevatorFloor.Floor) + "-";
@@ -39,6 +44,13 @@ void UElevatorPanelListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 	{
 		DisableElevatorPanelEntry(true);
 	}
+
+	if (EntryFloor->ElevatorFloor.bAccessible == false)
+	{
+		FloorTextBlock->SetColorAndOpacity(EntryFloor->ElevatorFloor.NotAccessibleTextColor);
+		SelectFloorButton->SetBackgroundColor(EntryFloor->ElevatorFloor.NotAccessibleButtonColor);
+		DisableElevatorPanelEntry(true);
+	}
 }
 
 void UElevatorPanelListEntry::OnClickedSelectFloorButton()
@@ -51,13 +63,18 @@ void UElevatorPanelListEntry::OnClickedSelectFloorButton()
 
 	EntryFloor->ElevatorPanelWidget->SelectFloor(EntryFloor->ElevatorFloor.Floor);
 
-	EntryFloor->ElevatorPanelWidget->GetCurrentSelectedFloor()->ElevatorFloor.bStartingFloor = false;
-	UElevatorPanelListEntry* Entry = Cast<UElevatorPanelListEntry>(EntryFloor->ElevatorPanelWidget->SelectFloorsListView->GetEntryWidgetFromItem(EntryFloor->ElevatorPanelWidget->GetCurrentSelectedFloor()));
-	Entry->DisableElevatorPanelEntry(false);
+	DisablePreviousSelectedFloor();
 
 	EntryFloor->ElevatorPanelWidget->SetCurrentSelectedFloor(EntryFloor);
 	DisableElevatorPanelEntry(true);
 	EntryFloor->ElevatorFloor.bStartingFloor = true;
+}
+
+void UElevatorPanelListEntry::DisablePreviousSelectedFloor()
+{
+	EntryFloor->ElevatorPanelWidget->GetCurrentSelectedFloor()->ElevatorFloor.bStartingFloor = false;
+	UElevatorPanelListEntry* Entry = Cast<UElevatorPanelListEntry>(EntryFloor->ElevatorPanelWidget->SelectFloorsListView->GetEntryWidgetFromItem(EntryFloor->ElevatorPanelWidget->GetCurrentSelectedFloor()));
+	Entry->DisableElevatorPanelEntry(false);
 }
 
 void UElevatorPanelListEntry::DisableElevatorPanelEntry(bool bDisable)

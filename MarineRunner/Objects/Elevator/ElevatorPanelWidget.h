@@ -67,8 +67,7 @@ public:
 	UFUNCTION()
 		void ActiveSelectFloorPanel(bool NewIsElevatorInMove);
 
-	UFUNCTION(BlueprintCallable)
-		void SelectFloor(int32 FloorToGo);
+	void SelectFloor(int32 FloorToGo);
 
 	void ActivateWaitForElevatorText(bool bActivate = true);
 	void ActivateElevatorGoesUpDownImage(bool bActivate = true, FVector FloorLocationToGo = FVector(0.f));

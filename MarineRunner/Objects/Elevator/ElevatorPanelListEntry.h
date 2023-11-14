@@ -44,6 +44,7 @@ public:
 	void DisableElevatorPanelEntry(bool bDisable = true);
 private:
 	class USelectFloorEntryObject* EntryFloor;
-
+	void SetUpEntry();
+	void DisablePreviousSelectedFloor();
 };
 
