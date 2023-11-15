@@ -25,7 +25,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void StartElevator(FVector Location);
+	void StartElevator(FVector Location, int32 Floor);
 
 	//  DELETE
 	UFUNCTION(BlueprintPure)
@@ -44,6 +44,8 @@ private:
 		float CanUseElevatorAgainDelay;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
 		float TimeToMoveOnFloor = 4.f;
+	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
+		TMap<int32, class AOutsideElevatorDoor*> OutsideElevatorDoors;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Animations")
 		UAnimationAsset* OpenElevatorDoorsAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Animations")
@@ -59,11 +61,14 @@ private:
 	FTimerHandle StartElevatorHandle;
 	void StartMovingElevator();
 
+	int32 FloorToGo;
 	FVector StartLocation;
 	FVector FloorLocationToGo;
 	bool bShouldMove;
 	float MoveTimeElapsed;
 	void MoveToFloor(float Delta);
+
+	bool bDoorOpen = false;
 
 	void MovedToNewFoor();
 

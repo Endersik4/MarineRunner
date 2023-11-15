@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "ElevatorPanelWidget.h"
+#include "MarineRunner/Objects/Elevator/OutsideElevatorDoor.h"
 
 // Sets default values
 AElevator::AElevator()
@@ -36,7 +37,7 @@ void AElevator::BeginPlay()
 
 	ElevatorPanelWidget->SetElevator(this);
 
-	PlayElevatorEffects(OpenElevatorDoorsAnim, OpenElevatorDoorsSound);
+	//PlayElevatorEffects(OpenElevatorDoorsAnim, OpenElevatorDoorsSound);
 }
 
 // Called every frame
@@ -47,12 +48,24 @@ void AElevator::Tick(float DeltaTime)
 	MoveToFloor(DeltaTime);
 }
 
-void AElevator::StartElevator(FVector Location)
+void AElevator::StartElevator(FVector Location, int32 Floor)
 {
 	StartLocation = GetActorLocation();
 	FloorLocationToGo = Location;
+	FloorToGo = Floor;
 
-	PlayElevatorEffects(CloseElevatorDoorsAnim, OpenElevatorDoorsSound);
+	if (bDoorOpen == true)
+	{
+		PlayElevatorEffects(CloseElevatorDoorsAnim, OpenElevatorDoorsSound);
+		bDoorOpen = false;
+
+		AOutsideElevatorDoor* CurrentOutsideElevatorDoor = *OutsideElevatorDoors.Find(FloorToGo);
+		if (IsValid(CurrentOutsideElevatorDoor) == true)
+		{
+			CurrentOutsideElevatorDoor->CloseOutsideElevatorDoor();
+		}
+	}
+
 	GetWorld()->GetTimerManager().SetTimer(StartElevatorHandle, this, &AElevator::StartMovingElevator, StartElevatorDelay, false);
 }
 
@@ -86,7 +99,17 @@ void AElevator::MovedToNewFoor()
 	bShouldMove = false;
 	MoveTimeElapsed = 0.f;
 
-	PlayElevatorEffects(OpenElevatorDoorsAnim, OpenElevatorDoorsSound);
+	if (bDoorOpen == false)
+	{
+		PlayElevatorEffects(OpenElevatorDoorsAnim, OpenElevatorDoorsSound);
+		bDoorOpen = true;
+
+		AOutsideElevatorDoor * CurrentOutsideElevatorDoor = *OutsideElevatorDoors.Find(FloorToGo);
+		if (IsValid(CurrentOutsideElevatorDoor) == true)
+		{
+			CurrentOutsideElevatorDoor->OpenOutsideElevatorDoor();
+		}
+	}
 
 	ElevatorPanelWidget->ActivateElevatorGoesUpDownImage(false);
 	ElevatorPanelWidget->ActivateWaitForElevatorText();

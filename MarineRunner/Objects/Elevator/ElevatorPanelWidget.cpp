@@ -47,7 +47,7 @@ void UElevatorPanelWidget::SelectFloor(int32 FloorToGo)
 	if (FoundFloor == nullptr)
 		return;
 
-	ElevatorActor->StartElevator(FoundFloor->FloorLocation);
+	ElevatorActor->StartElevator(FoundFloor->FloorLocation, FoundFloor->Floor);
 
 	ActiveSelectFloorPanel(false);
 }
