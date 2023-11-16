@@ -108,6 +108,7 @@ void AElevator::MovedToNewFoor()
 		if (IsValid(CurrentOutsideElevatorDoor) == true)
 		{
 			CurrentOutsideElevatorDoor->OpenOutsideElevatorDoor();
+			CurrentOutsideElevatorDoor->ActiveCallElevatorPanel();
 		}
 	}
 

@@ -5,10 +5,10 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/StaticMeshComponent.h"
-
+#include "Kismet/GameplayStatics.h"
 
 #include "Elevator.h"
-#include "ElevatorPanelWidget.h"
+#include "CallElevatorPanel.h"
 
 // Sets default values
 AOutsideElevatorDoor::AOutsideElevatorDoor()
@@ -32,10 +32,11 @@ void AOutsideElevatorDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	ElevatorPanelWidget = Cast<UElevatorPanelWidget>(OutsideElevatorPanel->GetUserWidgetObject());
+	ElevatorPanelWidget = Cast<UCallElevatorPanel>(OutsideElevatorPanel->GetUserWidgetObject());
 	if (ElevatorPanelWidget == nullptr) return;
 
 	ElevatorPanelWidget->SetElevator(ElevatorToCall);
+	ElevatorPanelWidget->SetFloor(Floor);
 }
 
 // Called every frame
@@ -61,6 +62,11 @@ void AOutsideElevatorDoor::CloseOutsideElevatorDoor()
 
 	PlayElevatorEffects(CloseElevatorDoorsAnim, OpenElevatorDoorsSound);
 	bDoorsOpen = false;
+}
+
+void AOutsideElevatorDoor::ActiveCallElevatorPanel()
+{
+	ElevatorPanelWidget->ActiveCallElevatorPanel();
 }
 
 void AOutsideElevatorDoor::PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* SoundToPlay)

@@ -25,6 +25,8 @@ public:
 
 	void OpenOutsideElevatorDoor();
 	void CloseOutsideElevatorDoor();
+
+	void ActiveCallElevatorPanel();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USkeletalMeshComponent* OutsideElevatorDoorsSkeletalMesh;
@@ -35,6 +37,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings")
 		class AElevator* ElevatorToCall;
+	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings")
+		int32 Floor;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Animations")
 		UAnimationAsset* OpenElevatorDoorsAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Animations")
@@ -44,7 +48,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Sounds")
 		USoundBase* OpenElevatorDoorsSound;
 
-	class UElevatorPanelWidget* ElevatorPanelWidget;
+	class UCallElevatorPanel* ElevatorPanelWidget;
 
 	bool bDoorsOpen = false;
 	void PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* SoundToPlay);

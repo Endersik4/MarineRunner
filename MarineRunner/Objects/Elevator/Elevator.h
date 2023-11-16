@@ -30,6 +30,10 @@ public:
 	//  DELETE
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool GetShouldMove() const { return bShouldMove; }
+
+
+	FORCEINLINE class UElevatorPanelWidget* GetElevatorPanelWidget() const { return ElevatorPanelWidget; }
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* ElevatorMesh;
