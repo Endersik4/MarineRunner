@@ -50,8 +50,8 @@ void UCallElevatorPanel::OnUnhoveredCallElevatorButton()
 
 void UCallElevatorPanel::ActiveCallElevatorPanel()
 {
-	if (AppearCallElevatorAnim)
-		PlayAnimationForward(AppearCallElevatorAnim);
+	//if (AppearCallElevatorAnim)
+	//	PlayAnimationForward(AppearCallElevatorAnim);
 
 	if (ActiveWaitForElevatorAnim)
 		StopAnimation(ActiveWaitForElevatorAnim);

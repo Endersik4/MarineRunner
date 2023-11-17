@@ -45,6 +45,5 @@ public:
 private:
 	class USelectFloorEntryObject* EntryFloor;
 	void SetUpEntry();
-	void DisablePreviousSelectedFloor();
 };
 

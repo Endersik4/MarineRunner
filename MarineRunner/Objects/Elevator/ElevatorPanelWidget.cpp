@@ -9,6 +9,8 @@
 
 #include "MarineRunner/Objects/Elevator/Elevator.h"
 #include "MarineRunner/Objects/Elevator/SelectFloorEntryObject.h"
+#include "MarineRunner/Objects/Elevator/ElevatorPanelListEntry.h"
+
 
 void UElevatorPanelWidget::NativeOnInitialized()
 {
@@ -22,6 +24,8 @@ void UElevatorPanelWidget::NativeOnInitialized()
 
 void UElevatorPanelWidget::FillSelectFloorsListView()
 {
+	SelectFloorsListView->ClearListItems();
+
 	for (const FElevatorFloor& SelectedFloor : ElevatorFloors)
 	{
 		USelectFloorEntryObject* ConstructedItemObject = NewObject<USelectFloorEntryObject>(SelectedFloorEntryObject);
@@ -117,5 +121,15 @@ void UElevatorPanelWidget::ActiveSelectFloorPanel(bool bActivate)
 	else if (SelectFloorsDisappearAnim)
 	{
 		PlayAnimation(SelectFloorsDisappearAnim);
+	}
+}
+
+void UElevatorPanelWidget::DisablePreviousSelectedFloor()
+{
+	CurrentSelectedFloor->ElevatorFloor.bStartingFloor = false;
+	UElevatorPanelListEntry* Entry = Cast<UElevatorPanelListEntry>(SelectFloorsListView->GetEntryWidgetFromItem(CurrentSelectedFloor));
+	if (Entry)
+	{
+		Entry->DisableElevatorPanelEntry(false);
 	}
 }

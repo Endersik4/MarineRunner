@@ -75,10 +75,11 @@ public:
 	FORCEINLINE class USelectFloorEntryObject* GetCurrentSelectedFloor() const { return CurrentSelectedFloor; }
 	FORCEINLINE void SetCurrentSelectedFloor(class USelectFloorEntryObject* NewCurrentFloor) {CurrentSelectedFloor = NewCurrentFloor;}
 
+	void FillSelectFloorsListView();
+	void DisablePreviousSelectedFloor();
 private:
 	class AElevator* ElevatorActor;
 	bool bIsElevatorInMove = false;
 
-	void FillSelectFloorsListView();
 	class USelectFloorEntryObject* CurrentSelectedFloor;
 };
