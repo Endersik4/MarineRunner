@@ -52,14 +52,6 @@ void AElevator::StartElevator(FVector Location, int32 Floor)
 {
 	StartLocation = GetActorLocation();
 	FloorLocationToGo = Location;
-	FloorToGo = Floor;
-
-	FElevatorFloor* ElevatorFloorOnPanel = ElevatorPanelWidget->ElevatorFloors.FindByKey(Floor);
-	if (ElevatorFloorOnPanel)
-	{
-		ElevatorFloorOnPanel->bStartingFloor = true;
-		ElevatorPanelWidget->FillSelectFloorsListView();
-	}
 
 	// If the door is open, wait until it closes and start moving the elevator, if it is not open, start moving the elevator.
 	if (bDoorOpen == true)
@@ -67,15 +59,19 @@ void AElevator::StartElevator(FVector Location, int32 Floor)
 		PlayElevatorEffects(CloseElevatorDoorsAnim, OpenElevatorDoorsSound);
 		bDoorOpen = false;
 
-		AOutsideElevatorDoor* CurrentOutsideElevatorDoor = *OutsideElevatorDoors.Find(FloorToGo);
+		AOutsideElevatorDoor* CurrentOutsideElevatorDoor = OutsideElevatorDoors.Find(FloorToGo) ? *OutsideElevatorDoors.Find(FloorToGo) : nullptr;
 		if (IsValid(CurrentOutsideElevatorDoor) == true)
 		{
 			CurrentOutsideElevatorDoor->CloseOutsideElevatorDoor();
 		}
+		FloorToGo = Floor;
 
 		GetWorld()->GetTimerManager().SetTimer(StartElevatorHandle, this, &AElevator::StartMovingElevator, StartElevatorDelay, false);
+		return;
 	}
-	else StartMovingElevator();
+
+	FloorToGo = Floor;
+	StartMovingElevator();
 }
 
 void AElevator::StartMovingElevator()
@@ -113,7 +109,8 @@ void AElevator::MovedToNewFoor()
 		PlayElevatorEffects(OpenElevatorDoorsAnim, OpenElevatorDoorsSound);
 		bDoorOpen = true;
 
-		AOutsideElevatorDoor * CurrentOutsideElevatorDoor = *OutsideElevatorDoors.Find(FloorToGo);
+		AOutsideElevatorDoor** DbPtrToOutsideElevatorDoor = OutsideElevatorDoors.Find(FloorToGo);
+		AOutsideElevatorDoor* CurrentOutsideElevatorDoor = DbPtrToOutsideElevatorDoor ? *DbPtrToOutsideElevatorDoor : nullptr;
 		if (IsValid(CurrentOutsideElevatorDoor) == true)
 		{
 			CurrentOutsideElevatorDoor->OpenOutsideElevatorDoor();

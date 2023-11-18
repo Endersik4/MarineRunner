@@ -3,3 +3,19 @@
 
 #include "MarineRunner/Objects/Elevator/SelectFloorEntryObject.h"
 
+bool USelectFloorEntryObject::operator==(const USelectFloorEntryObject& OtherElevatorPanel)
+{
+    return ElevatorFloor.Floor == OtherElevatorPanel.ElevatorFloor.Floor;
+
+}
+
+bool USelectFloorEntryObject::operator==(const int32 FloorToGo)
+{
+    return ElevatorFloor.Floor == FloorToGo;
+
+}
+bool USelectFloorEntryObject::operator!=(const int32 FloorToGo)
+{
+    return ElevatorFloor.Floor != FloorToGo;
+
+}

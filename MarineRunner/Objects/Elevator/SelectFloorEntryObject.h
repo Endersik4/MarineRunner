@@ -20,4 +20,9 @@ public:
 		FElevatorFloor ElevatorFloor;
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
 		class UElevatorPanelWidget* ElevatorPanelWidget;
+
+	bool operator==(const USelectFloorEntryObject& OtherElevatorPanel);
+	bool operator==(const int32 FloorToGo);
+	bool operator!=(const int32 FloorToGo);
+
 };

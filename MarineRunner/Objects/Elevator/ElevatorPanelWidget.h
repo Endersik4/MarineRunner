@@ -77,6 +77,7 @@ public:
 
 	void FillSelectFloorsListView();
 	void DisablePreviousSelectedFloor();
+	void EnableCurrentSelectedFloor(int32 CurrentFloor);
 private:
 	class AElevator* ElevatorActor;
 	bool bIsElevatorInMove = false;

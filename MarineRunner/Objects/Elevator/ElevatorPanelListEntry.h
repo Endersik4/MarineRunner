@@ -42,6 +42,7 @@ public:
 		void OnUnhoveredSelectFloorButton();
 
 	void DisableElevatorPanelEntry(bool bDisable = true);
+
 private:
 	class USelectFloorEntryObject* EntryFloor;
 	void SetUpEntry();

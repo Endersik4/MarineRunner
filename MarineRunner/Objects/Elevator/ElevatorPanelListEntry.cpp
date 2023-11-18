@@ -62,11 +62,6 @@ void UElevatorPanelListEntry::OnClickedSelectFloorButton()
 		return;
 
 	EntryFloor->ElevatorPanelWidget->SelectFloor(EntryFloor->ElevatorFloor.Floor);
-	EntryFloor->ElevatorPanelWidget->DisablePreviousSelectedFloor();
-
-	EntryFloor->ElevatorPanelWidget->SetCurrentSelectedFloor(EntryFloor);
-	DisableElevatorPanelEntry(true);
-	EntryFloor->ElevatorFloor.bStartingFloor = true;
 }
 
 void UElevatorPanelListEntry::DisableElevatorPanelEntry(bool bDisable)
