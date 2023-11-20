@@ -9,6 +9,8 @@
 #include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/Objects/ObjectsComponents/SoundOnHitComponent.h"
+
 
 // Sets default values
 APickupItem::APickupItem()
@@ -25,6 +27,8 @@ APickupItem::APickupItem()
 	ItemMesh->SetGenerateOverlapEvents(false);
 	ItemMesh->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 	ItemMesh->bRenderCustomDepth = false; //Its for outline material 
+
+	SoundOnHitComponent = CreateDefaultSubobject<USoundOnHitComponent>(TEXT("Sound On Hit Comp"));
 }
 
 // Called when the game starts or when spawned
@@ -77,7 +81,9 @@ void APickupItem::ItemHover(UHUDWidget* MarineHUDWidget)
 {
 	ItemMesh->SetRenderCustomDepth(true);
 
-	if (MarineHUDWidget == nullptr) return;
+	if (IsValid(MarineHUDWidget) == false) 
+		return;
+
 	MarineHUDWidget->SetItemHoverInformations(ItemSettings.Item_Name, ItemSettings.Item_Description, ItemSettings.Item_StorageIcon);
 }
 
@@ -85,7 +91,9 @@ void APickupItem::ItemUnHover(UHUDWidget* MarineHUDWidget)
 {
 	ItemMesh->SetRenderCustomDepth(false);
 
-	if (MarineHUDWidget == nullptr) return;
+	if (IsValid(MarineHUDWidget) == false) 
+		return;
+
 	MarineHUDWidget->PlayAppearAnimForItemHover(false);
 }
 

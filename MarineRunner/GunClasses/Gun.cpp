@@ -39,8 +39,6 @@ void AGun::BeginPlay()
 {
 	Super::BeginPlay();
 
-	BaseSkeletalMesh->OnComponentHit.AddDynamic(this, &AGun::OnHit);
-
 	SpawnAmmunitionObjectForVariables();
 
 	RecoilAnimTimeline = SetupTimeline(RecoilAnimTimeline, RecoilAnimCurveLocationX, FName("RecoilAnimTimeline"), FName("RecoilAnimTimelineDirection"), RecoilAnimTimelineLength, FName("RecoilAnimTimelineCallback"), FName("RecoilAnimTimelineFinishedCallback"));
@@ -483,29 +481,7 @@ void AGun::DropCasing()
 	AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, BaseSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), DropBulletRotation);
 	DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 }
-
-void AGun::PlayGunHitObjectSound(AActor* OtherActor, const FHitResult& Hit)
-{
-	// TODO: Rewrite the entire function because it works poorly
-	if (!HitGroundSound) return;
-
-	ITakeInterface* TakeInterface = Cast<ITakeInterface>(Hit.GetActor());
-	if (TakeInterface) return;
-
-	if (SpawnedHitGroundSound && HitActor)
-	{
-		if (SpawnedHitGroundSound->IsActive() && HitActor == OtherActor) return;
-	}
-
-	SpawnedHitGroundSound = UGameplayStatics::SpawnSoundAtLocation(GetWorld(), HitGroundSound, GetActorLocation());
-	HitActor = OtherActor;
-}
 #pragma endregion
-
-void AGun::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
-{
-	PlayGunHitObjectSound(OtherActor, Hit);
-}
 
 #pragma region //////////////////////////////// GUN SWAY //////////////////////////////////////
 void AGun::GunSway(float Delta)

@@ -110,9 +110,6 @@ private:
 	UFUNCTION()
 		void RecoilCameraTimelineFinishedCallback() {};
 
-	UFUNCTION()
-		void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		FVector RelativeLocationInPawn;
 
@@ -329,8 +326,6 @@ private:
 		USoundBase* EmptyMagazineSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ReloadSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* HitGroundSound;
 
 	//RecoilTimeline
 	void Playtimeline(class UTimelineComponent* TimeLineComp);
@@ -355,7 +350,6 @@ private:
 	void PlayGunShootAnimation();
 	void AddEffectsToShooting();
 	void DropCasing();
-	void PlayGunHitObjectSound(AActor* OtherActor, const FHitResult& Hit);
 
 	/////////// GUN and CAMERA RECOIL /////////////////
 	void PlayRecoil();
@@ -407,10 +401,6 @@ private:
 	void ShouldFirstBulletGoStraight() { bFirstBulletWithoutRecoil = true; }
 	FTimerHandle FirstBulletHandle;
 	/////////////////////////////////
-
-	////////////////////// OnHit ////////////////////
-	class UAudioComponent* SpawnedHitGroundSound;
-	AActor* HitActor;
 
 	////////////// RecoilCamera ///////////////
 	bool bCanRecoilCamera;

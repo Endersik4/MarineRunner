@@ -46,6 +46,8 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* ItemMesh;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class USoundOnHitComponent* SoundOnHitComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* PickUpSound;
