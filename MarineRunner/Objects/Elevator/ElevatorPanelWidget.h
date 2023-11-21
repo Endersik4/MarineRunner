@@ -72,15 +72,14 @@ public:
 	void ActivateWaitForElevatorText(bool bActivate = true);
 	void ActivateElevatorGoesUpDownImage(bool bActivate = true, FVector FloorLocationToGo = FVector(0.f));
 
-	FORCEINLINE class USelectFloorEntryObject* GetCurrentSelectedFloor() const { return CurrentSelectedFloor; }
-	FORCEINLINE void SetCurrentSelectedFloor(class USelectFloorEntryObject* NewCurrentFloor) {CurrentSelectedFloor = NewCurrentFloor;}
-
 	void FillSelectFloorsListView();
 	void DisablePreviousSelectedFloor();
 	void EnableCurrentSelectedFloor(int32 CurrentFloor);
+
+	int32 GetStartingFloor();
 private:
 	class AElevator* ElevatorActor;
 	bool bIsElevatorInMove = false;
 
-	class USelectFloorEntryObject* CurrentSelectedFloor;
+	class USelectFloorEntryObject* CurrentSelectedFloorEntry;
 };

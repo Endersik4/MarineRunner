@@ -57,10 +57,12 @@ public:
 	FORCEINLINE void SetElevator(class AElevator* NewElevatorActor) { ElevatorActor = NewElevatorActor; }
 	FORCEINLINE void SetFloor(int32 NewFloor) { Floor = NewFloor; }
 
-	void ActiveCallElevatorPanel();
+	void CallElevatorAction(const enum ECallElevatorAction ActionToDo);
 
 private:
 	int32 Floor;
 	class AElevator* ElevatorActor;
 
+	void ShowWaitText(bool bShow = true);
+	void ShowCallElevatorPanel(bool bShow = true);
 };

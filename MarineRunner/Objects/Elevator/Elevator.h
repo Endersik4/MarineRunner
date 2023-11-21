@@ -31,9 +31,8 @@ public:
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE bool GetShouldMove() const { return bShouldMove; }
 
-
 	FORCEINLINE class UElevatorPanelWidget* GetElevatorPanelWidget() const { return ElevatorPanelWidget; }
-
+	FORCEINLINE int32 GetCurrentFloor() const { return FloorToGo; }
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* ElevatorMesh;
@@ -42,11 +41,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetComponent* ElevatorPanel;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
+	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
 		float StartElevatorDelay;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
 		float CanUseElevatorAgainDelay;
-	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
+	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
 		float TimeToMoveOnFloor = 4.f;
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
 		TMap<int32, class AOutsideElevatorDoor*> OutsideElevatorDoors;
@@ -65,12 +64,16 @@ private:
 	FTimerHandle StartElevatorHandle;
 	void StartMovingElevator();
 
+	void CanUseElevatorAgain();
+
 	int32 FloorToGo;
 	FVector StartLocation;
 	FVector FloorLocationToGo;
 	bool bShouldMove;
 	float MoveTimeElapsed;
 	void MoveToFloor(float Delta);
+
+	class AOutsideElevatorDoor* CurrentOutsideElevatorDoor;
 
 	bool bDoorOpen = false;
 

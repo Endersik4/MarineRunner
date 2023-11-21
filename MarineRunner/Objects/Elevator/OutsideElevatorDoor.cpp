@@ -35,8 +35,17 @@ void AOutsideElevatorDoor::BeginPlay()
 	ElevatorPanelWidget = Cast<UCallElevatorPanel>(OutsideElevatorPanel->GetUserWidgetObject());
 	if (ElevatorPanelWidget == nullptr) return;
 
-	ElevatorPanelWidget->SetElevator(ElevatorToCall);
 	ElevatorPanelWidget->SetFloor(Floor);
+
+	if (IsValid(ElevatorToCall) == true)
+	{
+		ElevatorPanelWidget->SetElevator(ElevatorToCall);
+
+		if (ElevatorToCall->GetCurrentFloor() == Floor)
+		{
+			ElevatorPanelWidget->CallElevatorAction(ECEA_HideCall);
+		}
+	}
 }
 
 // Called every frame
@@ -64,9 +73,9 @@ void AOutsideElevatorDoor::CloseOutsideElevatorDoor()
 	bDoorsOpen = false;
 }
 
-void AOutsideElevatorDoor::ActiveCallElevatorPanel()
+void AOutsideElevatorDoor::CallElevatorAction(ECallElevatorAction ActionToDo)
 {
-	ElevatorPanelWidget->ActiveCallElevatorPanel();
+	ElevatorPanelWidget->CallElevatorAction(ActionToDo);
 }
 
 void AOutsideElevatorDoor::PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* SoundToPlay)

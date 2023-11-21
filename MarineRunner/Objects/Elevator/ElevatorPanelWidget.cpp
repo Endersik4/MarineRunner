@@ -34,7 +34,9 @@ void UElevatorPanelWidget::FillSelectFloorsListView()
 		ConstructedItemObject->ElevatorPanelWidget = this;
 
 		if (SelectedFloor.bStartingFloor == true)
-			CurrentSelectedFloor = ConstructedItemObject;
+		{
+			CurrentSelectedFloorEntry = ConstructedItemObject;
+		}
 
 		SelectFloorsListView->AddItem(ConstructedItemObject);
 	}
@@ -127,11 +129,11 @@ void UElevatorPanelWidget::ActiveSelectFloorPanel(bool bActivate)
 
 void UElevatorPanelWidget::DisablePreviousSelectedFloor()
 {
-	if (IsValid(CurrentSelectedFloor) == false)
+	if (IsValid(CurrentSelectedFloorEntry) == false)
 		return;
 
-	CurrentSelectedFloor->ElevatorFloor.bStartingFloor = false;
-	UElevatorPanelListEntry* Entry = Cast<UElevatorPanelListEntry>(SelectFloorsListView->GetEntryWidgetFromItem(CurrentSelectedFloor));
+	CurrentSelectedFloorEntry->ElevatorFloor.bStartingFloor = false;
+	UElevatorPanelListEntry* Entry = Cast<UElevatorPanelListEntry>(SelectFloorsListView->GetEntryWidgetFromItem(CurrentSelectedFloorEntry));
 	if (Entry)
 	{
 		Entry->DisableElevatorPanelEntry(false);
@@ -149,7 +151,7 @@ void UElevatorPanelWidget::EnableCurrentSelectedFloor(int32 CurrentFloor)
 		if (*ConstructedItemObject != CurrentFloor)
 			continue;
 	
-		CurrentSelectedFloor = ConstructedItemObject;
+		CurrentSelectedFloorEntry = ConstructedItemObject;
 		ConstructedItemObject->ElevatorFloor.bStartingFloor = true;
 		UElevatorPanelListEntry* Entry = Cast<UElevatorPanelListEntry>(SelectFloorsListView->GetEntryWidgetFromItem(ConstructedItemObject));
 		if (Entry)
@@ -157,4 +159,12 @@ void UElevatorPanelWidget::EnableCurrentSelectedFloor(int32 CurrentFloor)
 			Entry->DisableElevatorPanelEntry(true);
 		}
 	}
+}
+
+int32 UElevatorPanelWidget::GetStartingFloor()
+{
+	if (IsValid(CurrentSelectedFloorEntry) == false)
+		return -1;
+
+	return CurrentSelectedFloorEntry->ElevatorFloor.Floor;
 }

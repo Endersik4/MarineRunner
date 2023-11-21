@@ -32,15 +32,20 @@ private:
 	UFUNCTION()
 		void OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
-		void MoveHammerTimelineProgresss(float Value);
+		void MoveHammerTimelineProgress(float Value);
+	UFUNCTION()
+		void MoveHammerTimelineFinished();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Hammer Setup")
+	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
 		UCurveFloat* CurveZLocation;
-	UPROPERTY(EditAnywhere, Category = "Hammer Sounds")
-		USoundBase* PrepareToHitSound;
-	UPROPERTY(EditAnywhere, Category = "Hammer Sounds")
+	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
+		float TimeToPlayHitSound = 0.4f;
+	UPROPERTY(EditDefaultsOnly, Category = "Hammer Sounds")
 		USoundBase* HitSound;
 
 	FTimeline MoveObjectTimeline;
 	void SetupMoveTimeline();
+
+	FTimerHandle HitSoundHandle;
+	void PlayHitSound();
 };

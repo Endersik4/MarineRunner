@@ -8,6 +8,8 @@
 
 #include "MarineRunner/Objects/Elevator/Elevator.h"
 #include "MarineRunner/Objects/Elevator/ElevatorPanelWidget.h"
+#include "MarineRunner/Objects/Elevator/OutsideElevatorDoor.h"
+
 
 void UCallElevatorPanel::NativeOnInitialized()
 {
@@ -25,11 +27,7 @@ void UCallElevatorPanel::OnClickedCallElevatorButton()
 
 	ElevatorActor->GetElevatorPanelWidget()->SelectFloor(Floor);
 
-	if (DisappearCallElevatorAnim)
-		PlayAnimationForward(DisappearCallElevatorAnim);
-
-	if (AppearWaitForElevatorAnim)
-		PlayAnimationForward(AppearWaitForElevatorAnim);
+	CallElevatorAction(ECEA_HideCallAndShowWait);
 }
 
 void UCallElevatorPanel::OnHoveredCallElevatorButton()
@@ -48,14 +46,59 @@ void UCallElevatorPanel::OnUnhoveredCallElevatorButton()
 	PlayAnimationReverse(HoverCallElevatorAnim);
 }
 
-void UCallElevatorPanel::ActiveCallElevatorPanel()
+void UCallElevatorPanel::ShowWaitText(bool bShow)
 {
-	//if (AppearCallElevatorAnim)
-	//	PlayAnimationForward(AppearCallElevatorAnim);
+	if (bShow)
+	{
+		if (AppearWaitForElevatorAnim)
+			PlayAnimationForward(AppearWaitForElevatorAnim);
+	}
+	else
+	{
+		if (DisappearWaitForElevatorAnim)
+			PlayAnimationForward(DisappearWaitForElevatorAnim);
+	}
+}
 
-	if (ActiveWaitForElevatorAnim)
-		StopAnimation(ActiveWaitForElevatorAnim);
+void UCallElevatorPanel::ShowCallElevatorPanel(bool bShow)
+{
+	if (bShow)
+	{
+		if (AppearCallElevatorAnim)
+			PlayAnimationForward(AppearCallElevatorAnim);
+	}
+	else
+	{
+		if (DisappearCallElevatorAnim)
+			PlayAnimationForward(DisappearCallElevatorAnim);
+	}
+}
 
-	if (DisappearWaitForElevatorAnim)
-		PlayAnimationForward(DisappearWaitForElevatorAnim);
+void UCallElevatorPanel::CallElevatorAction(const ECallElevatorAction ActionToDo)
+{
+	switch (ActionToDo)
+	{
+		case ECallElevatorAction::ECEA_ShowCall:
+		{
+			ShowCallElevatorPanel(true);
+		}break;
+		case ECallElevatorAction::ECEA_HideCallAndShowWait: 
+		{
+			ShowCallElevatorPanel(false);
+			ShowWaitText(true);
+		} break;
+		case ECallElevatorAction::ECEA_HideCall:
+		{
+			ShowCallElevatorPanel(false);
+		} break;
+		case ECallElevatorAction::ECEA_ShowWaitEffect:
+		{
+			ShowWaitText(true);
+		}break;
+		case ECallElevatorAction::ECEA_HideWaitEffect:
+		{
+			ShowWaitText(false);
+		}break;
+		default: break;
+	}
 }

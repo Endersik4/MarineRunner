@@ -53,7 +53,7 @@ void ABigHammer::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	InteractInterface->ApplyDamage(1000.f, 0.f, SweepResult, nullptr);
 }
 
-void ABigHammer::MoveHammerTimelineProgresss(float Value)
+void ABigHammer::MoveHammerTimelineProgress(float Value)
 {
 	FVector ActorLocation = GetActorLocation();
 	ActorLocation.Z = Value;
@@ -63,10 +63,25 @@ void ABigHammer::MoveHammerTimelineProgresss(float Value)
 void ABigHammer::SetupMoveTimeline()
 {
 	FOnTimelineFloat TimelineProgress;
-	TimelineProgress.BindUFunction(this, FName("MoveHammerTimelineProgresss"));
+	TimelineProgress.BindUFunction(this, FName("MoveHammerTimelineProgress"));
 	MoveObjectTimeline.AddInterpFloat(CurveZLocation, TimelineProgress);
-	MoveObjectTimeline.SetLooping(true);
-	
+
+	FOnTimelineEventStatic TimelineEnd;
+	TimelineEnd.BindUFunction(this, FName("MoveHammerTimelineFinished"));
+	MoveObjectTimeline.SetTimelineFinishedFunc(TimelineEnd);
+
 	MoveObjectTimeline.PlayFromStart();
+
+	GetWorldTimerManager().SetTimer(HitSoundHandle, this, &ABigHammer::PlayHitSound, TimeToPlayHitSound, false);
+}
+
+void ABigHammer::PlayHitSound()
+{
+	if (HitSound) UGameplayStatics::SpawnSoundAttached(HitSound, HammerMesh);
+}
+
+void ABigHammer::MoveHammerTimelineFinished()
+{
+	SetupMoveTimeline();
 }
 

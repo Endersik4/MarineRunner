@@ -6,6 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "OutsideElevatorDoor.generated.h"
 
+enum ECallElevatorAction
+{
+	ECEA_ShowCall,
+	ECEA_HideCallAndShowWait,
+	ECEA_HideCall,
+	ECEA_ShowWaitEffect,
+	ECEA_HideWaitEffect,
+};
+
 UCLASS()
 class MARINERUNNER_API AOutsideElevatorDoor : public AActor
 {
@@ -26,7 +35,7 @@ public:
 	void OpenOutsideElevatorDoor();
 	void CloseOutsideElevatorDoor();
 
-	void ActiveCallElevatorPanel();
+	void CallElevatorAction(ECallElevatorAction ActionToDo);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USkeletalMeshComponent* OutsideElevatorDoorsSkeletalMesh;

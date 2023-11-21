@@ -36,8 +36,7 @@ void AElevator::BeginPlay()
 	if (ElevatorPanelWidget == nullptr) return;
 
 	ElevatorPanelWidget->SetElevator(this);
-
-	//PlayElevatorEffects(OpenElevatorDoorsAnim, OpenElevatorDoorsSound);
+	FloorToGo = ElevatorPanelWidget->GetStartingFloor();
 }
 
 // Called every frame
@@ -53,17 +52,19 @@ void AElevator::StartElevator(FVector Location, int32 Floor)
 	StartLocation = GetActorLocation();
 	FloorLocationToGo = Location;
 
+	CurrentOutsideElevatorDoor = OutsideElevatorDoors.Find(FloorToGo) ? *OutsideElevatorDoors.Find(FloorToGo) : nullptr;
+	if (IsValid(CurrentOutsideElevatorDoor) == true)
+	{
+		CurrentOutsideElevatorDoor->CloseOutsideElevatorDoor();
+		CurrentOutsideElevatorDoor->CallElevatorAction(ECEA_ShowWaitEffect);
+	}
+
 	// If the door is open, wait until it closes and start moving the elevator, if it is not open, start moving the elevator.
 	if (bDoorOpen == true)
 	{
 		PlayElevatorEffects(CloseElevatorDoorsAnim, OpenElevatorDoorsSound);
 		bDoorOpen = false;
 
-		AOutsideElevatorDoor* CurrentOutsideElevatorDoor = OutsideElevatorDoors.Find(FloorToGo) ? *OutsideElevatorDoors.Find(FloorToGo) : nullptr;
-		if (IsValid(CurrentOutsideElevatorDoor) == true)
-		{
-			CurrentOutsideElevatorDoor->CloseOutsideElevatorDoor();
-		}
 		FloorToGo = Floor;
 
 		GetWorld()->GetTimerManager().SetTimer(StartElevatorHandle, this, &AElevator::StartMovingElevator, StartElevatorDelay, false);
@@ -104,27 +105,39 @@ void AElevator::MovedToNewFoor()
 	bShouldMove = false;
 	MoveTimeElapsed = 0.f;
 
+	if (IsValid(CurrentOutsideElevatorDoor))
+	{
+		CurrentOutsideElevatorDoor->CallElevatorAction(ECEA_HideWaitEffect);
+		CurrentOutsideElevatorDoor->CallElevatorAction(ECEA_ShowCall);
+	}
+
 	if (bDoorOpen == false)
 	{
 		PlayElevatorEffects(OpenElevatorDoorsAnim, OpenElevatorDoorsSound);
 		bDoorOpen = true;
+	}
 
-		AOutsideElevatorDoor** DbPtrToOutsideElevatorDoor = OutsideElevatorDoors.Find(FloorToGo);
-		AOutsideElevatorDoor* CurrentOutsideElevatorDoor = DbPtrToOutsideElevatorDoor ? *DbPtrToOutsideElevatorDoor : nullptr;
-		if (IsValid(CurrentOutsideElevatorDoor) == true)
-		{
-			CurrentOutsideElevatorDoor->OpenOutsideElevatorDoor();
-			CurrentOutsideElevatorDoor->ActiveCallElevatorPanel();
-		}
+	AOutsideElevatorDoor** DbPtrToOutsideElevatorDoor = OutsideElevatorDoors.Find(FloorToGo);
+	CurrentOutsideElevatorDoor = DbPtrToOutsideElevatorDoor ? *DbPtrToOutsideElevatorDoor : nullptr;
+	if (IsValid(CurrentOutsideElevatorDoor) == true)
+	{
+		CurrentOutsideElevatorDoor->OpenOutsideElevatorDoor();
 	}
 
 	ElevatorPanelWidget->ActivateElevatorGoesUpDownImage(false);
 	ElevatorPanelWidget->ActivateWaitForElevatorText();
 
-	FTimerDelegate CanSelectFloorTimerDel;
-	CanSelectFloorTimerDel.BindUFunction(ElevatorPanelWidget, FName("ActiveSelectFloorPanel"), true);
-	GetWorld()->GetTimerManager().SetTimer(StartElevatorHandle, CanSelectFloorTimerDel, CanUseElevatorAgainDelay, false);
+	GetWorld()->GetTimerManager().SetTimer(StartElevatorHandle, this, &AElevator::CanUseElevatorAgain, CanUseElevatorAgainDelay, false);
+}
 
+void AElevator::CanUseElevatorAgain()
+{
+	ElevatorPanelWidget->ActiveSelectFloorPanel(true);
+
+	if (IsValid(CurrentOutsideElevatorDoor) == true)
+	{
+		CurrentOutsideElevatorDoor->CallElevatorAction(ECEA_HideWaitEffect);
+	}
 }
 
 void AElevator::PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* SoundToPlay)
