@@ -15,9 +15,6 @@ struct FElevatorFloor
 
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bAccessible", EditConditionHides))
 		int32 Floor;
-	// This is the floor where the elevator starts
-	UPROPERTY(EditAnywhere)
-		bool bStartingFloor = false;
 	UPROPERTY(EditAnywhere)
 		bool bAccessible = true;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bAccessible", EditConditionHides))
@@ -26,14 +23,13 @@ struct FElevatorFloor
 		FSlateColor NotAccessibleTextColor;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bAccessible", EditConditionHides))
 		FLinearColor NotAccessibleButtonColor;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "bAccessible", EditConditionHides))
 		FVector FloorLocation;
 
 public:
 	FElevatorFloor()
 	{
 		Floor = 0;
-		bStartingFloor = false;
 		bAccessible = true;
 		NotAccessibleText = FText();
 		NotAccessibleTextColor = FSlateColor();

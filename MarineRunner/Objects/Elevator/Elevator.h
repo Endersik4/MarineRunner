@@ -32,7 +32,7 @@ public:
 		FORCEINLINE bool GetShouldMove() const { return bShouldMove; }
 
 	FORCEINLINE class UElevatorPanelWidget* GetElevatorPanelWidget() const { return ElevatorPanelWidget; }
-	FORCEINLINE int32 GetCurrentFloor() const { return FloorToGo; }
+	FORCEINLINE int32 GetCurrentFloor() const { return CurrentFloor; }
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* ElevatorMesh;
@@ -42,9 +42,13 @@ private:
 		class UWidgetComponent* ElevatorPanel;
 
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
-		float StartElevatorDelay;
+		int32 CurrentFloor = 1;
+	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
+		float StartElevatorDelay = 4.f;
+	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
+		float TimeToCloseDoorsAfterInactivity = 4.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
-		float CanUseElevatorAgainDelay;
+		float CanUseElevatorAgainDelay = 4.f;
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
 		float TimeToMoveOnFloor = 4.f;
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
@@ -57,6 +61,8 @@ private:
 		FName SoundLocationSocketName;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Sounds")
 		USoundBase* OpenElevatorDoorsSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Sounds")
+		USoundBase* AmbientElevatorSound;
 
 	class UElevatorPanelWidget* ElevatorPanelWidget;
 
@@ -66,7 +72,6 @@ private:
 
 	void CanUseElevatorAgain();
 
-	int32 FloorToGo;
 	FVector StartLocation;
 	FVector FloorLocationToGo;
 	bool bShouldMove;
@@ -74,11 +79,14 @@ private:
 	void MoveToFloor(float Delta);
 
 	class AOutsideElevatorDoor* CurrentOutsideElevatorDoor;
+	class AOutsideElevatorDoor* BeforeCurrentOutsideElevatorDoor;
 
 	bool bDoorOpen = false;
 
 	void MovedToNewFoor();
 
 	void PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* SoundToPlay);
+	void CloseElevatorDoors();
 
+	class UAudioComponent* SpawnedAmbientElevatorSound;
 };

@@ -19,8 +19,6 @@ class MARINERUNNER_API UElevatorPanelListEntry : public UUserWidget, public IUse
 protected:
 	virtual void NativeConstruct() override;
 
-	virtual void NativeOnInitialized() override;
-
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 public:
@@ -41,9 +39,9 @@ public:
 	UFUNCTION()
 		void OnUnhoveredSelectFloorButton();
 
+private:
 	void DisableElevatorPanelEntry(bool bDisable = true);
 
-private:
 	class USelectFloorEntryObject* EntryFloor;
 	void SetUpEntry();
 };

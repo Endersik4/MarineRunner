@@ -63,6 +63,7 @@ public:
 		float ElevatorGoesDownImageAngle = 180.f;
 
 	FORCEINLINE void SetElevator(class AElevator* NewElevatorActor) { ElevatorActor = NewElevatorActor; }
+	int32 GetCurrentFloor() const;
 
 	UFUNCTION()
 		void ActiveSelectFloorPanel(bool NewIsElevatorInMove);
@@ -73,13 +74,8 @@ public:
 	void ActivateElevatorGoesUpDownImage(bool bActivate = true, FVector FloorLocationToGo = FVector(0.f));
 
 	void FillSelectFloorsListView();
-	void DisablePreviousSelectedFloor();
-	void EnableCurrentSelectedFloor(int32 CurrentFloor);
 
-	int32 GetStartingFloor();
 private:
 	class AElevator* ElevatorActor;
-	bool bIsElevatorInMove = false;
 
-	class USelectFloorEntryObject* CurrentSelectedFloorEntry;
 };

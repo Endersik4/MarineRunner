@@ -9,7 +9,6 @@
 
 #include "MarineRunner/Objects/Elevator/Elevator.h"
 #include "MarineRunner/Objects/Elevator/SelectFloorEntryObject.h"
-#include "MarineRunner/Objects/Elevator/ElevatorPanelListEntry.h"
 
 
 void UElevatorPanelWidget::NativeOnInitialized()
@@ -18,12 +17,12 @@ void UElevatorPanelWidget::NativeOnInitialized()
 	WaitForElevatorTextBlock->SetVisibility(ESlateVisibility::Hidden);
 
 	SelectFloorsListView->SetVisibility(ESlateVisibility::Visible);
-
-	FillSelectFloorsListView();
 }
 
 void UElevatorPanelWidget::FillSelectFloorsListView()
 {
+	SelectFloorsListView->ClearListItems();
+
 	for (const FElevatorFloor& SelectedFloor : ElevatorFloors)
 	{
 		USelectFloorEntryObject* ConstructedItemObject = NewObject<USelectFloorEntryObject>(SelectedFloorEntryObject);
@@ -32,11 +31,6 @@ void UElevatorPanelWidget::FillSelectFloorsListView()
 
 		ConstructedItemObject->ElevatorFloor = SelectedFloor;
 		ConstructedItemObject->ElevatorPanelWidget = this;
-
-		if (SelectedFloor.bStartingFloor == true)
-		{
-			CurrentSelectedFloorEntry = ConstructedItemObject;
-		}
 
 		SelectFloorsListView->AddItem(ConstructedItemObject);
 	}
@@ -50,9 +44,6 @@ void UElevatorPanelWidget::SelectFloor(int32 FloorToGo)
 	FElevatorFloor* FoundFloor = ElevatorFloors.FindByKey(FloorToGo);
 	if (FoundFloor == nullptr)
 		return;
-
-	DisablePreviousSelectedFloor();
-	EnableCurrentSelectedFloor(FloorToGo);
 
 	ElevatorActor->StartElevator(FoundFloor->FloorLocation, FoundFloor->Floor);
 
@@ -109,62 +100,28 @@ void UElevatorPanelWidget::ActivateElevatorGoesUpDownImage(bool bActivate, FVect
 	}
 }
 
+int32 UElevatorPanelWidget::GetCurrentFloor() const
+{
+	return ElevatorActor->GetCurrentFloor();
+}
+
 void UElevatorPanelWidget::ActiveSelectFloorPanel(bool bActivate)
 {
 	ActivateWaitForElevatorText(!bActivate);
 
-	if (bActivate) SelectFloorsListView->SetVisibility(ESlateVisibility::Visible);
 	SelectFloorsListView->SetIsEnabled(bActivate);
-	bIsElevatorInMove = !bActivate;
-
-	if (bActivate && SelectFloorsAppearAnim)
+	if (bActivate)
 	{
-		PlayAnimation(SelectFloorsAppearAnim);
+		FillSelectFloorsListView();
+		SelectFloorsListView->SetVisibility(ESlateVisibility::Visible);
+
+		if (SelectFloorsAppearAnim)
+			PlayAnimation(SelectFloorsAppearAnim);
 	}
 	else if (SelectFloorsDisappearAnim)
 	{
 		PlayAnimation(SelectFloorsDisappearAnim);
+
 	}
-}
 
-void UElevatorPanelWidget::DisablePreviousSelectedFloor()
-{
-	if (IsValid(CurrentSelectedFloorEntry) == false)
-		return;
-
-	CurrentSelectedFloorEntry->ElevatorFloor.bStartingFloor = false;
-	UElevatorPanelListEntry* Entry = Cast<UElevatorPanelListEntry>(SelectFloorsListView->GetEntryWidgetFromItem(CurrentSelectedFloorEntry));
-	if (Entry)
-	{
-		Entry->DisableElevatorPanelEntry(false);
-	}
-}
-
-void UElevatorPanelWidget::EnableCurrentSelectedFloor(int32 CurrentFloor)
-{
-	for (UObject* CurrentFloorEntryObject : SelectFloorsListView->GetListItems())
-	{
-		USelectFloorEntryObject* ConstructedItemObject = Cast<USelectFloorEntryObject>(CurrentFloorEntryObject);
-		if (IsValid(ConstructedItemObject) == false)
-			return;
-
-		if (*ConstructedItemObject != CurrentFloor)
-			continue;
-	
-		CurrentSelectedFloorEntry = ConstructedItemObject;
-		ConstructedItemObject->ElevatorFloor.bStartingFloor = true;
-		UElevatorPanelListEntry* Entry = Cast<UElevatorPanelListEntry>(SelectFloorsListView->GetEntryWidgetFromItem(ConstructedItemObject));
-		if (Entry)
-		{
-			Entry->DisableElevatorPanelEntry(true);
-		}
-	}
-}
-
-int32 UElevatorPanelWidget::GetStartingFloor()
-{
-	if (IsValid(CurrentSelectedFloorEntry) == false)
-		return -1;
-
-	return CurrentSelectedFloorEntry->ElevatorFloor.Floor;
 }

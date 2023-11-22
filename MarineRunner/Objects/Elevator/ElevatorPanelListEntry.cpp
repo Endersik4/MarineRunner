@@ -6,7 +6,6 @@
 #include "Components/TextBlock.h"
 #include "Components/ListView.h"
 
-
 #include "MarineRunner/Objects/Elevator/ElevatorPanelWidget.h"
 #include "MarineRunner/Objects/Elevator/SelectFloorEntryObject.h"
 
@@ -15,10 +14,6 @@ void UElevatorPanelListEntry::NativeConstruct()
 	SelectFloorButton->OnClicked.AddDynamic(this, &UElevatorPanelListEntry::OnClickedSelectFloorButton);
 	SelectFloorButton->OnHovered.AddDynamic(this, &UElevatorPanelListEntry::OnHoveredSelectFloorButton);
 	SelectFloorButton->OnUnhovered.AddDynamic(this, &UElevatorPanelListEntry::OnUnhoveredSelectFloorButton);
-}
-
-void UElevatorPanelListEntry::NativeOnInitialized()
-{
 }
 
 void UElevatorPanelListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
@@ -34,19 +29,19 @@ void UElevatorPanelListEntry::SetUpEntry()
 	{
 		FString NewText = "-" + FString::FromInt(EntryFloor->ElevatorFloor.Floor) + "-";
 		FloorTextBlock->SetText(FText::FromString(NewText));
+
+		if (EntryFloor->ElevatorFloor.Floor == EntryFloor->ElevatorPanelWidget->GetCurrentFloor())
+		{
+			DisableElevatorPanelEntry(true);
+		}
+		else
+		{
+			DisableElevatorPanelEntry(false);
+		}
 	}
 	else
 	{
 		FloorTextBlock->SetText(EntryFloor->ElevatorFloor.NotAccessibleText);
-	}
-
-	if (EntryFloor->ElevatorFloor.bStartingFloor == true)
-	{
-		DisableElevatorPanelEntry(true);
-	}
-
-	if (EntryFloor->ElevatorFloor.bAccessible == false)
-	{
 		FloorTextBlock->SetColorAndOpacity(EntryFloor->ElevatorFloor.NotAccessibleTextColor);
 		SelectFloorButton->SetBackgroundColor(EntryFloor->ElevatorFloor.NotAccessibleButtonColor);
 		DisableElevatorPanelEntry(true);
@@ -66,6 +61,7 @@ void UElevatorPanelListEntry::OnClickedSelectFloorButton()
 
 void UElevatorPanelListEntry::DisableElevatorPanelEntry(bool bDisable)
 {
+
 	SelectFloorButton->SetIsEnabled(!bDisable);
 }
 

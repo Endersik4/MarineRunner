@@ -35,6 +35,7 @@ public:
 	void OpenOutsideElevatorDoor();
 	void CloseOutsideElevatorDoor();
 
+	bool CanCallElevator() const;
 	void CallElevatorAction(ECallElevatorAction ActionToDo);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")

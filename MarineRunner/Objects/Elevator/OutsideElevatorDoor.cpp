@@ -36,16 +36,7 @@ void AOutsideElevatorDoor::BeginPlay()
 	if (ElevatorPanelWidget == nullptr) return;
 
 	ElevatorPanelWidget->SetFloor(Floor);
-
-	if (IsValid(ElevatorToCall) == true)
-	{
-		ElevatorPanelWidget->SetElevator(ElevatorToCall);
-
-		if (ElevatorToCall->GetCurrentFloor() == Floor)
-		{
-			ElevatorPanelWidget->CallElevatorAction(ECEA_HideCall);
-		}
-	}
+	ElevatorPanelWidget->SetElevator(ElevatorToCall);
 }
 
 // Called every frame
@@ -71,6 +62,11 @@ void AOutsideElevatorDoor::CloseOutsideElevatorDoor()
 
 	PlayElevatorEffects(CloseElevatorDoorsAnim, OpenElevatorDoorsSound);
 	bDoorsOpen = false;
+}
+
+bool AOutsideElevatorDoor::CanCallElevator() const
+{
+	return ElevatorPanelWidget->CanCallElevator();
 }
 
 void AOutsideElevatorDoor::CallElevatorAction(ECallElevatorAction ActionToDo)

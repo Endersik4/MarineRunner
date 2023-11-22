@@ -68,8 +68,8 @@ bool UDashComponent::GetCloserHitResult(FHitResult& OutHitResult)
 
 	// if there is obstacle on the way then set actor location to Hit Location with offset
 	FHitResult HitResultLower, HitResultHigher;
-	bool bHitLower = GetWorld()->LineTraceSingleByChannel(HitResultLower, InitialPlayerPosition, EndRaycastLowerLoc, ECollisionChannel::ECC_Visibility);
-	bool bHitHigher = GetWorld()->LineTraceSingleByChannel(HitResultHigher, MarinePawn->GetCameraLocation(), EndRaycastHigherLoc, ECollisionChannel::ECC_Visibility);
+	bool bHitLower = GetWorld()->LineTraceSingleByChannel(HitResultLower, InitialPlayerPosition, EndRaycastLowerLoc, ECC_GameTraceChannel7);
+	bool bHitHigher = GetWorld()->LineTraceSingleByChannel(HitResultHigher, MarinePawn->GetCameraLocation(), EndRaycastHigherLoc, ECC_GameTraceChannel7);
 
 	if (bHitLower == true || bHitHigher == true)
 	{

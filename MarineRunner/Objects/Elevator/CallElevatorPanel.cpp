@@ -102,3 +102,8 @@ void UCallElevatorPanel::CallElevatorAction(const ECallElevatorAction ActionToDo
 		default: break;
 	}
 }
+
+bool UCallElevatorPanel::CanCallElevator() const
+{
+	return CallElevatorButton->GetIsEnabled();
+}
