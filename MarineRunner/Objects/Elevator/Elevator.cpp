@@ -56,6 +56,11 @@ void AElevator::StartElevator(FVector Location, int32 Floor)
 	if (CurrentFloor == Floor)
 	{
 		MoveTimeElapsed += TimeToMoveOnFloor;
+		CurrentOutsideElevatorDoor = nullptr;
+		UE_LOG(LogTemp, Error, TEXT("=="));
+
+		MovedToNewFoor();
+		return;
 	}
 
 	CurrentOutsideElevatorDoor = OutsideElevatorDoors.Find(CurrentFloor) ? *OutsideElevatorDoors.Find(CurrentFloor) : nullptr;
@@ -120,7 +125,8 @@ void AElevator::MovedToNewFoor()
 		SpawnedAmbientElevatorSound->FadeOut(2.f, 0.f);
 	}
 
-	BeforeCurrentOutsideElevatorDoor = CurrentOutsideElevatorDoor;
+	if (IsValid(CurrentOutsideElevatorDoor)) 
+		BeforeCurrentOutsideElevatorDoor = CurrentOutsideElevatorDoor;
 
 	if (bDoorOpen == false)
 	{
@@ -182,6 +188,21 @@ void AElevator::CloseElevatorDoors()
 
 	if (IsValid(CurrentOutsideElevatorDoor) == true)
 	{
+		CurrentOutsideElevatorDoor->CloseOutsideElevatorDoor();
 		CurrentOutsideElevatorDoor->CallElevatorAction(ECEA_ShowWaitEffect);
+	}
+
+	FTimerHandle ElevatorDoorHandle;
+	GetWorldTimerManager().SetTimer(ElevatorDoorHandle, this, &AElevator::ActivateElevatorDoors, StartElevatorDelay, false);
+}
+
+void AElevator::ActivateElevatorDoors()
+{
+	ElevatorPanelWidget->ActiveSelectFloorPanel(true);
+
+	if (IsValid(CurrentOutsideElevatorDoor) == true)
+	{
+		CurrentOutsideElevatorDoor->CallElevatorAction(ECEA_HideWaitEffect);
+		CurrentOutsideElevatorDoor->CallElevatorAction(ECEA_ShowCall);
 	}
 }

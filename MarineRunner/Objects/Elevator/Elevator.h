@@ -87,6 +87,7 @@ private:
 
 	void PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* SoundToPlay);
 	void CloseElevatorDoors();
+	void ActivateElevatorDoors();
 
 	class UAudioComponent* SpawnedAmbientElevatorSound;
 };
