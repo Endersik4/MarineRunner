@@ -224,7 +224,7 @@ void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType
 
 void AEnemyPawn::SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const FVector& HitLocation)
 {
-	if (BloodOnObjectDecalMaterial == nullptr)
+	if (BloodOnObjectDecalMaterial == nullptr || IsValid(BulletThatHitEnemy) == false)
 		return;
 
 	FHitResult HitResult;
