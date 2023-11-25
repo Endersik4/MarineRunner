@@ -6,8 +6,6 @@
 #include "GameFramework/Actor.h"
 #include "Elevator.generated.h"
 
-
-
 UCLASS()
 class MARINERUNNER_API AElevator : public AActor
 {
@@ -25,15 +23,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void StartElevator(FVector Location, int32 Floor);
-
-	//  DELETE
-	UFUNCTION(BlueprintPure)
-		FORCEINLINE bool GetShouldMove() const { return bShouldMove; }
+	void PrepareElevatorToMove(FVector Location, int32 Floor);
 
 	FORCEINLINE class UElevatorPanelWidget* GetElevatorPanelWidget() const { return ElevatorPanelWidget; }
 	FORCEINLINE int32 GetCurrentFloor() const { return CurrentFloor; }
-private:
+	FORCEINLINE bool GetDoorOpen() const {return bDoorOpen;}
+private: 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* ElevatorMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -43,8 +38,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
 		int32 CurrentFloor = 1;
-	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
-		float StartElevatorDelay = 4.f;
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
 		float TimeToCloseDoorsAfterInactivity = 4.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
@@ -58,7 +51,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Animations")
 		UAnimationAsset* CloseElevatorDoorsAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Sounds")
-		FName SoundLocationSocketName;
+		FName DoorSoundSocketName;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Sounds")
 		USoundBase* OpenElevatorDoorsSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Sounds")
@@ -66,28 +59,31 @@ private:
 
 	class UElevatorPanelWidget* ElevatorPanelWidget;
 
+	void CanUseElevatorAgain();
+
 	// Start Elevator Delay
 	FTimerHandle StartElevatorHandle;
 	void StartMovingElevator();
 
-	void CanUseElevatorAgain();
-
+	// Moving Elevator
+	bool bCanMoveToFloorLocation;
+	float MoveTimeElapsed;
 	FVector StartLocation;
 	FVector FloorLocationToGo;
-	bool bShouldMove;
-	float MoveTimeElapsed;
-	void MoveToFloor(float Delta);
-
-	class AOutsideElevatorDoor* CurrentOutsideElevatorDoor;
-	class AOutsideElevatorDoor* BeforeCurrentOutsideElevatorDoor;
+	void ElevatorIsMoving(float Delta);
+	void MovedToNewFoor();
 
 	bool bDoorOpen = false;
-
-	void MovedToNewFoor();
 
 	void PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* SoundToPlay);
 	void CloseElevatorDoors();
 	void ActivateElevatorDoors();
+
+	void SetUpElevatorPanel();
+
+	class AOutsideElevatorDoor* CurrentOutsideElevatorDoor;
+	class AOutsideElevatorDoor* BeforeCurrentOutsideElevatorDoor;
+	void OpenOutsideElevatorDoors();
 
 	class UAudioComponent* SpawnedAmbientElevatorSound;
 };

@@ -63,4 +63,5 @@ private:
 	bool bDoorsOpen = false;
 	void PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* SoundToPlay);
 
+	void SetUpElevatorPanel();
 };

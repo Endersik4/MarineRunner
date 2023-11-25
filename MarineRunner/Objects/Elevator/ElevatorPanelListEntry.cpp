@@ -30,7 +30,7 @@ void UElevatorPanelListEntry::SetUpEntry()
 		FString NewText = "-" + FString::FromInt(EntryFloor->ElevatorFloor.Floor) + "-";
 		FloorTextBlock->SetText(FText::FromString(NewText));
 
-		if (EntryFloor->ElevatorFloor.Floor == EntryFloor->ElevatorPanelWidget->GetCurrentFloor())
+		if (EntryFloor->ElevatorFloor.Floor == EntryFloor->ElevatorPanelWidget->GetCurrentFloor() && EntryFloor->ElevatorPanelWidget->GetDoorOpen() == true)
 		{
 			DisableElevatorPanelEntry(true);
 		}

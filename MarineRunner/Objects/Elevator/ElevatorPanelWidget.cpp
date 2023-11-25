@@ -10,7 +10,6 @@
 #include "MarineRunner/Objects/Elevator/Elevator.h"
 #include "MarineRunner/Objects/Elevator/SelectFloorEntryObject.h"
 
-
 void UElevatorPanelWidget::NativeOnInitialized()
 {
 	ElevatorGoesUpDownImage->SetVisibility(ESlateVisibility::Hidden);
@@ -25,14 +24,14 @@ void UElevatorPanelWidget::FillSelectFloorsListView()
 
 	for (const FElevatorFloor& SelectedFloor : ElevatorFloors)
 	{
-		USelectFloorEntryObject* ConstructedItemObject = NewObject<USelectFloorEntryObject>(SelectedFloorEntryObject);
-		if (IsValid(ConstructedItemObject) == false)
+		USelectFloorEntryObject* ConstructedFloorEntryObject = NewObject<USelectFloorEntryObject>(SelectedFloorEntryObject);
+		if (IsValid(ConstructedFloorEntryObject) == false)
 			continue;
 
-		ConstructedItemObject->ElevatorFloor = SelectedFloor;
-		ConstructedItemObject->ElevatorPanelWidget = this;
+		ConstructedFloorEntryObject->ElevatorFloor = SelectedFloor;
+		ConstructedFloorEntryObject->ElevatorPanelWidget = this;
 
-		SelectFloorsListView->AddItem(ConstructedItemObject);
+		SelectFloorsListView->AddItem(ConstructedFloorEntryObject);
 	}
 }
 
@@ -45,16 +44,18 @@ void UElevatorPanelWidget::SelectFloor(int32 FloorToGo)
 	if (FoundFloor == nullptr)
 		return;
 
-	ElevatorActor->StartElevator(FoundFloor->FloorLocation, FoundFloor->Floor);
+	ElevatorActor->PrepareElevatorToMove(FoundFloor->FloorLocation, FoundFloor->Floor);
 
-	ActiveSelectFloorPanel(false);
+	ShowSelectFloorPanel(false);
 }
 
-void UElevatorPanelWidget::ActivateWaitForElevatorText(bool bActivate)
+/// <summary>
+/// Show WaitForElevator Text by playing animations
+/// </summary>
+/// <param name="bShow">if true then play WaitTextBlockAppearAnim, play WaitTextBlockDisappearAnim and stop WaitTextBlockActiveAnim otherwise</param>
+void UElevatorPanelWidget::ShowWaitForElevatorText(bool bShow)
 {
-	if (bActivate) WaitForElevatorTextBlock->SetVisibility(ESlateVisibility::Visible);
-
-	if (bActivate && WaitTextBlockActiveAnim)
+	if (bShow && WaitTextBlockActiveAnim)
 	{
 		PlayAnimation(WaitTextBlockAppearAnim);
 	}
@@ -65,38 +66,47 @@ void UElevatorPanelWidget::ActivateWaitForElevatorText(bool bActivate)
 	}
 }
 
-void UElevatorPanelWidget::ActivateElevatorGoesUpDownImage(bool bActivate, FVector FloorLocationToGo)
+/// <summary>
+/// Show Elevator Goes Up/Down Image by playing animation ElevatorGoesUpDownAppearAnim/ElevatorGoesUpDownDisappearAnim 
+/// and hide WaitEffect. Sets if this should be Up or Down 
+/// </summary>
+/// <param name="bShow"> if true then show Up/Down Image, hide otherwise </param>
+/// <param name="FloorLocationToGo">Compares the Z location of the floor with the current Z location of the ElevatorActor and if it is smaller, down, otherwise up</param>
+void UElevatorPanelWidget::ShowElevatorGoesUpDownImage(bool bShow, FVector FloorLocationToGo)
 {
 	if (IsValid(ElevatorActor) == false)
 		return;
 
-	if (bActivate == true)
+	// Hide WaitEffect if Elevator Goes Up/Down
+	if (bShow == true)
 	{
-		ActivateWaitForElevatorText(false);
-		ElevatorGoesUpDownImage->SetVisibility(ESlateVisibility::Visible);
+		float& RotateImageAngle = FloorLocationToGo.Z < ElevatorActor->GetActorLocation().Z ? ElevatorGoesDownImageAngle : ElevatorGoesUpImageAngle;
+		ElevatorGoesUpDownImage->SetRenderTransformAngle(RotateImageAngle);
 	}
 
-	if (bActivate && ElevatorGoesUpDownAppearAnim)
+	if (bShow && ElevatorGoesUpDownAppearAnim && ElevatorGoesUpDownImage->GetVisibility() == ESlateVisibility::Hidden)
 	{
 		PlayAnimation(ElevatorGoesUpDownAppearAnim);
 	}
-	else if (ElevatorGoesUpDownDisappearAnim)
+	else if (ElevatorGoesUpDownDisappearAnim && ElevatorGoesUpDownImage->GetVisibility() == ESlateVisibility::Visible)
 	{
 		PlayAnimation(ElevatorGoesUpDownDisappearAnim);
 	}
+}
 
-	if (bActivate == false)
+void UElevatorPanelWidget::ShowSelectFloorPanel(bool bActivate)
+{
+	SelectFloorsListView->SetIsEnabled(bActivate);
+	if (bActivate)
 	{
-		return;
-	}
+		FillSelectFloorsListView();
 
-	if (FloorLocationToGo.Z < ElevatorActor->GetActorLocation().Z)
-	{
-		ElevatorGoesUpDownImage->SetRenderTransformAngle(ElevatorGoesDownImageAngle);
+		if (SelectFloorsAppearAnim)
+			PlayAnimation(SelectFloorsAppearAnim);
 	}
-	else
+	else if (SelectFloorsDisappearAnim)
 	{
-		ElevatorGoesUpDownImage->SetRenderTransformAngle(ElevatorGoesUpImageAngle);
+		PlayAnimation(SelectFloorsDisappearAnim);
 	}
 }
 
@@ -105,23 +115,8 @@ int32 UElevatorPanelWidget::GetCurrentFloor() const
 	return ElevatorActor->GetCurrentFloor();
 }
 
-void UElevatorPanelWidget::ActiveSelectFloorPanel(bool bActivate)
+bool UElevatorPanelWidget::GetDoorOpen() const
 {
-	ActivateWaitForElevatorText(!bActivate);
-
-	SelectFloorsListView->SetIsEnabled(bActivate);
-	if (bActivate)
-	{
-		FillSelectFloorsListView();
-		SelectFloorsListView->SetVisibility(ESlateVisibility::Visible);
-
-		if (SelectFloorsAppearAnim)
-			PlayAnimation(SelectFloorsAppearAnim);
-	}
-	else if (SelectFloorsDisappearAnim)
-	{
-		PlayAnimation(SelectFloorsDisappearAnim);
-
-	}
+	return ElevatorActor->GetDoorOpen();
 
 }

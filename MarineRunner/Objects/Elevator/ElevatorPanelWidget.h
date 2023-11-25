@@ -63,19 +63,18 @@ public:
 		float ElevatorGoesDownImageAngle = 180.f;
 
 	FORCEINLINE void SetElevator(class AElevator* NewElevatorActor) { ElevatorActor = NewElevatorActor; }
+	bool GetDoorOpen() const;
 	int32 GetCurrentFloor() const;
 
 	UFUNCTION()
-		void ActiveSelectFloorPanel(bool NewIsElevatorInMove);
+		void ShowSelectFloorPanel(bool NewIsElevatorInMove);
 
 	void SelectFloor(int32 FloorToGo);
 
-	void ActivateWaitForElevatorText(bool bActivate = true);
-	void ActivateElevatorGoesUpDownImage(bool bActivate = true, FVector FloorLocationToGo = FVector(0.f));
+	void ShowWaitForElevatorText(bool bActivate = true);
+	void ShowElevatorGoesUpDownImage(bool bActivate = true, FVector FloorLocationToGo = FVector(0.f));
 
 	void FillSelectFloorsListView();
-
 private:
 	class AElevator* ElevatorActor;
-
 };

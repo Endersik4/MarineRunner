@@ -32,20 +32,18 @@ void AOutsideElevatorDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	ElevatorPanelWidget = Cast<UCallElevatorPanel>(OutsideElevatorPanel->GetUserWidgetObject());
-	if (ElevatorPanelWidget == nullptr) return;
-
-	ElevatorPanelWidget->SetFloor(Floor);
-	ElevatorPanelWidget->SetElevator(ElevatorToCall);
+	SetUpElevatorPanel();
 }
 
 // Called every frame
 void AOutsideElevatorDoor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
+/// <summary>
+/// Opens the door if it can
+/// </summary>
 void AOutsideElevatorDoor::OpenOutsideElevatorDoor()
 {
 	if (bDoorsOpen == true)
@@ -55,6 +53,9 @@ void AOutsideElevatorDoor::OpenOutsideElevatorDoor()
 	bDoorsOpen = true;
 }
 
+/// <summary>
+/// Closes the door if it can
+/// </summary>
 void AOutsideElevatorDoor::CloseOutsideElevatorDoor()
 {
 	if (bDoorsOpen == false)
@@ -62,16 +63,6 @@ void AOutsideElevatorDoor::CloseOutsideElevatorDoor()
 
 	PlayElevatorEffects(CloseElevatorDoorsAnim, OpenElevatorDoorsSound);
 	bDoorsOpen = false;
-}
-
-bool AOutsideElevatorDoor::CanCallElevator() const
-{
-	return ElevatorPanelWidget->CanCallElevator();
-}
-
-void AOutsideElevatorDoor::CallElevatorAction(ECallElevatorAction ActionToDo)
-{
-	ElevatorPanelWidget->CallElevatorAction(ActionToDo);
 }
 
 void AOutsideElevatorDoor::PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* SoundToPlay)
@@ -83,3 +74,21 @@ void AOutsideElevatorDoor::PlayElevatorEffects(UAnimationAsset* AnimToPlay, USou
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SoundToPlay, OutsideElevatorDoorsSkeletalMesh->GetSocketLocation(SoundLocationSocketName));
 }
 
+void AOutsideElevatorDoor::SetUpElevatorPanel()
+{
+	ElevatorPanelWidget = Cast<UCallElevatorPanel>(OutsideElevatorPanel->GetUserWidgetObject());
+	if (ElevatorPanelWidget == nullptr) return;
+
+	ElevatorPanelWidget->SetFloor(Floor);
+	ElevatorPanelWidget->SetElevator(ElevatorToCall);
+}
+
+bool AOutsideElevatorDoor::CanCallElevator() const
+{
+	return ElevatorPanelWidget->CanCallElevator();
+}
+
+void AOutsideElevatorDoor::CallElevatorAction(ECallElevatorAction ActionToDo)
+{
+	ElevatorPanelWidget->CallElevatorAction(ActionToDo);
+}

@@ -6,7 +6,6 @@
 bool USelectFloorEntryObject::operator==(const USelectFloorEntryObject& OtherElevatorPanel)
 {
     return ElevatorFloor.Floor == OtherElevatorPanel.ElevatorFloor.Floor;
-
 }
 
 bool USelectFloorEntryObject::operator==(const int32 FloorToGo)
