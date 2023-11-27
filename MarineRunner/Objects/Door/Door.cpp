@@ -22,7 +22,7 @@ ADoor::ADoor()
 	DoorPanelMesh->SetupAttachment(RootComponent);
 
 	DoorPanelWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Door Panel Widget Component"));
-	DoorPanelWidgetComponent->SetupAttachment(RootComponent);
+	DoorPanelWidgetComponent->SetupAttachment(DoorPanelMesh);
 	DoorPanelWidgetComponent->SetDrawAtDesiredSize(true);
 }
 
@@ -57,7 +57,7 @@ void ADoor::OpenDoor()
 
 void ADoor::CloseDoor()
 {
-	if (bDoorOpen == false || CloseDoorAnim)
+	if (bDoorOpen == false || CloseDoorAnim == nullptr)
 		return;
 
 	DoorSkeletalMesh->PlayAnimation(CloseDoorAnim, false);

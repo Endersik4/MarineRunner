@@ -86,7 +86,7 @@ void AElevator::PrepareElevatorToMove(FVector Location, int32 Floor)
 		ElevatorPanelWidget->ShowWaitForElevatorText(true);
 		bDoorOpen = false;
 
-		GetWorld()->GetTimerManager().SetTimer(StartElevatorHandle, this, &AElevator::StartMovingElevator, CloseElevatorDoorsAnim->GetMaxCurrentTime(), false);
+		GetWorld()->GetTimerManager().SetTimer(StartElevatorHandle, this, &AElevator::StartMovingElevator, CloseElevatorDoorsAnim->GetPlayLength(), false);
 		return;
 	}
 
@@ -197,7 +197,7 @@ void AElevator::CloseElevatorDoors()
 	}
 
 	FTimerHandle ElevatorDoorHandle;
-	GetWorldTimerManager().SetTimer(ElevatorDoorHandle, this, &AElevator::ActivateElevatorDoors, CloseElevatorDoorsAnim->GetMaxCurrentTime(), false);
+	GetWorldTimerManager().SetTimer(ElevatorDoorHandle, this, &AElevator::ActivateElevatorDoors, CloseElevatorDoorsAnim->GetPlayLength(), false);
 }
 
 void AElevator::ActivateElevatorDoors()

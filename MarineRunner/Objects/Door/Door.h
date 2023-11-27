@@ -51,7 +51,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Sounds")
 		USoundBase* CloseDoorSound;
 
-	bool bDoorOpen;
+	bool bDoorOpen = false;
 
 	class UDoorPanelWidget* DoorPanelWidget;
 	void SetUpDoorPanel();
