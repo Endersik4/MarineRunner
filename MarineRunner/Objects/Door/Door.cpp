@@ -51,7 +51,6 @@ void ADoor::OpenDoor()
 
 	bDoorOpen = true;
 
-	FTimerHandle CloseAfterInactivityHandle;
 	GetWorldTimerManager().SetTimer(CloseAfterInactivityHandle, this, &ADoor::CloseDoor, CloseDoorAfterInactivityTime, false);
 }
 
@@ -59,6 +58,8 @@ void ADoor::CloseDoor()
 {
 	if (bDoorOpen == false || CloseDoorAnim == nullptr)
 		return;
+
+	GetWorldTimerManager().ClearTimer(CloseAfterInactivityHandle);
 
 	DoorSkeletalMesh->PlayAnimation(CloseDoorAnim, false);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), CloseDoorSound, DoorSkeletalMesh->GetSocketLocation(DoorSoundSocketName));
@@ -73,5 +74,8 @@ void ADoor::SetUpDoorPanel()
 		return;
 
 	DoorPanelWidget->SetDoorActor(this);
+
+	if (bUsePinCode == true)
+		DoorPanelWidget->ChangeDoorPanelToUsePin();
 }
 

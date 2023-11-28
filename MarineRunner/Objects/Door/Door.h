@@ -25,6 +25,8 @@ public:
 
 	void OpenDoor();
 	void CloseDoor();
+
+	FORCEINLINE int32 GetPinCode() const { return PinCode; }
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USkeletalMeshComponent* DoorSkeletalMesh;
@@ -36,9 +38,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 		float CloseDoorAfterInactivityTime = 4.f;
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
-		bool bUsePin = false;
-	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (EditCondition = "bUsePin", EditConditionHides))
-		int32 Pin;
+		bool bUsePinCode = false;
+	UPROPERTY(EditAnywhere, Category = "Chest Settings", meta = (EditCondition = "bUsePinCode", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
+		int32 PinCode = 1111;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Animations")
 		UAnimationAsset* OpenDoorAnim;
@@ -52,6 +54,7 @@ private:
 		USoundBase* CloseDoorSound;
 
 	bool bDoorOpen = false;
+	FTimerHandle CloseAfterInactivityHandle;
 
 	class UDoorPanelWidget* DoorPanelWidget;
 	void SetUpDoorPanel();

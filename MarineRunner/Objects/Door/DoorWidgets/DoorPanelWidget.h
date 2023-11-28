@@ -14,12 +14,21 @@ class MARINERUNNER_API UDoorPanelWidget : public UUserWidget
 protected:
 
 	virtual void NativeConstruct() override;
+
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UButton* InteractDoorButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* InteractDoorText;
+
+	// If pin is in use
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UImage* BackgroundPinImage;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTextBlock* PinCodeText;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UTileView* PinNumbersTileView;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* OnClickedInteractDoorAnim = nullptr;
@@ -37,10 +46,29 @@ public:
 		FText OpenDoorText;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings")
 		FText CloseDoorText;
+	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings")
+		float TimeToChangeDoorStatusText = 0.3f;
+	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
+		USoundBase* WrongCodeSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
+		TArray<int32> PinNumberEntries;
+	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
+		TSubclassOf<class UPinNumberEntryObject> PinNumberEntryObjectClass;
 
 	FORCEINLINE void SetDoorActor(class ADoor* NewDoorActor) { DoorActor = NewDoorActor; }
+
+	void AddNumberToEnteredPin(int32 Number);
+	void ChangeDoorPanelToUsePin();
+
 private:
 
 	bool bDoorOpen = false;
 	class ADoor* DoorActor;
+
+	FTimerHandle ChangeDoorStatusHandle;
+	void ChangeDoorStatus();
+
+	FString CurrentlyEnteredPin;
+	FString CurrentlyEnteredPin_Text;
+	void PinIsCorrect();
 };
