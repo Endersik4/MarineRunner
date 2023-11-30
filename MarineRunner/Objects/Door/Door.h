@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Door.generated.h"
 
+class UDoorPanelWidget;
 UCLASS()
 class MARINERUNNER_API ADoor : public AActor
 {
@@ -25,15 +26,22 @@ public:
 
 	void OpenDoor();
 	void CloseDoor();
+	UDoorPanelWidget* GetOtherDoorPanelWidget(UDoorPanelWidget* PanelActivatedByPlayer);
 
 	FORCEINLINE int32 GetPinCode() const { return PinCode; }
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USkeletalMeshComponent* DoorSkeletalMesh;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UStaticMeshComponent* DoorPanelMesh;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetComponent* DoorPanelWidgetComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UStaticMeshComponent* DoorPanelMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UWidgetComponent* DoorPanelSecondWidgetComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UStaticMeshComponent* DoorPanelSecondMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 		float CloseDoorAfterInactivityTime = 4.f;
@@ -55,7 +63,9 @@ private:
 
 	bool bDoorOpen = false;
 	FTimerHandle CloseAfterInactivityHandle;
+	void CloseDoorsAfterInactivity();
 
-	class UDoorPanelWidget* DoorPanelWidget;
+	UDoorPanelWidget* DoorPanelWidget;
+	UDoorPanelWidget* DoorPanelSecondWidget;
 	void SetUpDoorPanel();
 };

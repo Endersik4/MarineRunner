@@ -59,6 +59,7 @@ public:
 
 	void AddNumberToEnteredPin(int32 Number);
 	void ChangeDoorPanelToUsePin();
+	void PlayOpenCloseEffects();
 
 private:
 
@@ -70,5 +71,6 @@ private:
 
 	FString CurrentlyEnteredPin;
 	FString CurrentlyEnteredPin_Text;
-	void PinIsCorrect();
+	void PinIsCorrect(bool bClickedByOwner = false);
+
 };

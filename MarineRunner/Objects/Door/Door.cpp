@@ -24,6 +24,16 @@ ADoor::ADoor()
 	DoorPanelWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Door Panel Widget Component"));
 	DoorPanelWidgetComponent->SetupAttachment(DoorPanelMesh);
 	DoorPanelWidgetComponent->SetDrawAtDesiredSize(true);
+	DoorPanelWidgetComponent->SetTickWhenOffscreen(true);
+
+
+	DoorPanelSecondMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Door Panel Second Mesh"));
+	DoorPanelSecondMesh->SetupAttachment(RootComponent);
+
+	DoorPanelSecondWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Door Panel Second Widget Component"));
+	DoorPanelSecondWidgetComponent->SetupAttachment(DoorPanelSecondMesh);
+	DoorPanelSecondWidgetComponent->SetDrawAtDesiredSize(true);
+	DoorPanelSecondWidgetComponent->SetTickWhenOffscreen(true);
 }
 
 // Called when the game starts or when spawned
@@ -51,7 +61,7 @@ void ADoor::OpenDoor()
 
 	bDoorOpen = true;
 
-	GetWorldTimerManager().SetTimer(CloseAfterInactivityHandle, this, &ADoor::CloseDoor, CloseDoorAfterInactivityTime, false);
+	GetWorldTimerManager().SetTimer(CloseAfterInactivityHandle, this, &ADoor::CloseDoorsAfterInactivity, CloseDoorAfterInactivityTime, false);
 }
 
 void ADoor::CloseDoor()
@@ -67,15 +77,51 @@ void ADoor::CloseDoor()
 	bDoorOpen = false;
 }
 
+void ADoor::CloseDoorsAfterInactivity()
+{
+	CloseDoor();
+
+	if (IsValid(DoorPanelWidget))
+		DoorPanelWidget->PlayOpenCloseEffects();
+
+	if (IsValid(DoorPanelSecondWidget))
+		DoorPanelSecondWidget->PlayOpenCloseEffects();
+}
+
+UDoorPanelWidget* ADoor::GetOtherDoorPanelWidget(UDoorPanelWidget* PanelActivatedByPlayer)
+{
+	if (DoorPanelWidget == PanelActivatedByPlayer)
+	{
+		return DoorPanelSecondWidget;
+	}
+	else if (DoorPanelSecondWidget == PanelActivatedByPlayer)
+	{
+		return DoorPanelWidget;
+	}
+
+	return nullptr;
+}
+
 void ADoor::SetUpDoorPanel()
 {
 	DoorPanelWidget = Cast<UDoorPanelWidget>(DoorPanelWidgetComponent->GetUserWidgetObject());
-	if (IsValid(DoorPanelWidget) == false)
-		return;
 
-	DoorPanelWidget->SetDoorActor(this);
+	if (IsValid(DoorPanelWidget) == true)
+	{
+		DoorPanelWidget->SetDoorActor(this);
 
-	if (bUsePinCode == true)
-		DoorPanelWidget->ChangeDoorPanelToUsePin();
+		if (bUsePinCode == true)
+			DoorPanelWidget->ChangeDoorPanelToUsePin();
+	}
+
+	DoorPanelSecondWidget = Cast<UDoorPanelWidget>(DoorPanelSecondWidgetComponent->GetUserWidgetObject());
+
+	if (IsValid(DoorPanelSecondWidget) == true)
+	{
+		DoorPanelSecondWidget->SetDoorActor(this);
+
+		if (bUsePinCode == true)
+			DoorPanelSecondWidget->ChangeDoorPanelToUsePin();
+	}
 }
 

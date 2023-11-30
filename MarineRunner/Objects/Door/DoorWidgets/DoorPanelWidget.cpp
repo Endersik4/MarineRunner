@@ -36,6 +36,15 @@ void UDoorPanelWidget::OnClickedInteractDoorButton()
 		DoorActor->CloseDoor();
 	}
 
+	if (IsValid(DoorActor->GetOtherDoorPanelWidget(this)))
+	{
+		DoorActor->GetOtherDoorPanelWidget(this)->PlayOpenCloseEffects();
+	}
+	PlayOpenCloseEffects();
+}
+
+void UDoorPanelWidget::PlayOpenCloseEffects()
+{
 	GetWorld()->GetTimerManager().SetTimer(ChangeDoorStatusHandle, this, &UDoorPanelWidget::ChangeDoorStatus, TimeToChangeDoorStatusText, false);
 
 	PlayAnimationForward(OnClickedInteractDoorAnim);
@@ -101,7 +110,7 @@ void UDoorPanelWidget::AddNumberToEnteredPin(int32 Number)
 
 	if (FString::FromInt(DoorActor->GetPinCode()) == CurrentlyEnteredPin)
 	{
-		PinIsCorrect();
+		PinIsCorrect(true);
 	}
 	else if (CurrentlyEnteredPin.Len() == 4 && WrongCodeSound)
 	{
@@ -113,7 +122,7 @@ void UDoorPanelWidget::AddNumberToEnteredPin(int32 Number)
 	PinCodeText->SetText(FText::FromString(CurrentlyEnteredPin_Text));
 }
 
-void UDoorPanelWidget::PinIsCorrect()
+void UDoorPanelWidget::PinIsCorrect(bool bClickedByOwner)
 {
 	PinCodeText->SetVisibility(ESlateVisibility::Hidden);
 	PinNumbersTileView->SetVisibility(ESlateVisibility::Hidden);
@@ -121,4 +130,12 @@ void UDoorPanelWidget::PinIsCorrect()
 
 	InteractDoorButton->SetVisibility(ESlateVisibility::Visible);
 	InteractDoorText->SetVisibility(ESlateVisibility::Visible);
+
+	if (bClickedByOwner == false)
+		return;
+
+	if (IsValid(DoorActor->GetOtherDoorPanelWidget(this)))
+	{
+		DoorActor->GetOtherDoorPanelWidget(this)->PinIsCorrect();
+	}
 }
