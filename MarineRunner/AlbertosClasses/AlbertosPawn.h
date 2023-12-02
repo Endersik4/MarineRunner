@@ -90,6 +90,8 @@ private:
 		float ActiveAlbertosRadius = 1000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
 		float MaxSpeedWhenMovingTowardsPlayer = 3000.f;
+	UPROPERTY(EditAnywhere, Category = "Setting up Albertos")
+		bool bLookForPlayer = true;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Crafting Widget Animation")
 		float CraftingWidgetAnimationTime = 0.4f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Crafting Widget Animation")

@@ -211,7 +211,8 @@ void AAlbertosPawn::ToggleVisibilityCraftingWidget()
 
 void AAlbertosPawn::CheckIfThePlayerIsNear()
 {
-	if (IsValid(AlbertosAI) == false) return;
+	if (IsValid(AlbertosAI) == false || bLookForPlayer == false) 
+		return;
 
 	if (FVector::Distance(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation(), GetActorLocation()) <= ActiveAlbertosRadius)
 	{

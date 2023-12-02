@@ -48,6 +48,8 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UButton* QuitGameButton;
 
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* ShowPauseWidgetAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* ContinueHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
@@ -95,6 +97,9 @@ public:
 	UFUNCTION()
 		void OnUnhoveredQuitGameButton();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlayMainMenuAnim();
+
 	// returns true if there is no more left active menu widgets
 	bool RemoveCurrentMenuWidgetsFromViewport();
 	TMap<UUserWidget*, TFunction<void(bool)>> CurrentSpawnedMenuWidgets;
@@ -108,6 +113,8 @@ private:
 		TSubclassOf<class ULoadGameMenuWidget> LoadGameMenuWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Menu")
 		TSubclassOf<class USettingsMenuWidget> SettingsMenuWidgetClass;
+
+	class UAudioComponent* CurrentPauseMenuMusic;
 
 	// Load Game Widget
 	bool bWasLoadGameMenuWidgetSpawned;
@@ -127,5 +134,6 @@ private:
 	void SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore = nullptr);
 
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
+	class UMarineRunnerGameInstance* MarineRunnerGameInstance;
 
 };

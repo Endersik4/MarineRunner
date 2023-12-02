@@ -33,6 +33,7 @@ public:
 	void PauseGame();
 	void UnPauseGame();
 private:
+
 	bool bIsInPauseMenu;
 	class UPauseMenuWidget* PauseMenuWidget;
 	void SpawnPauseMenuWidget();

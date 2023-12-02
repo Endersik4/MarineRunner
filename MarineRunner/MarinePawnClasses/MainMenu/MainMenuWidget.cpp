@@ -13,7 +13,6 @@
 #include "MarineRunner/Widgets/Menu/LoadGameMenu/ConfirmLoadingGameWidget.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
-
 void UMainMenuWidget::NativeConstruct()
 {
 	ContinueButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OnClickedContinueButton);
@@ -40,6 +39,19 @@ void UMainMenuWidget::NativeConstruct()
 void UMainMenuWidget::NativeOnInitialized()
 {
 	FillMenuButtonsAndTextMap();
+
+	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_PauseMusic);
+
+	if (PauseMenuMusic)
+	{
+		CurrentPauseMenuMusic = UGameplayStatics::SpawnSound2D(GetWorld(), PauseMenuMusic);
+		CurrentPauseMenuMusic->FadeIn(1.f);
+	}
+
+	//if (ShowPauseWidgetAnim)
+		//PlayAnimationForward(ShowPauseWidgetAnim);
+	PlayMainMenuAnim();
 }
 
 void UMainMenuWidget::OnClickedContinueButton()
