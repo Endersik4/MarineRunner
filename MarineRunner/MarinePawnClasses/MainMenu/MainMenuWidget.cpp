@@ -12,6 +12,7 @@
 #include "MarineRunner/Widgets/Menu/LoadGameMenu/LoadGameMenuWidget.h"
 #include "MarineRunner/Widgets/Menu/LoadGameMenu/ConfirmLoadingGameWidget.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
+#include "MarineRunner/Framework/SaveMarineRunner.h"
 
 void UMainMenuWidget::NativeConstruct()
 {
@@ -56,6 +57,29 @@ void UMainMenuWidget::NativeOnInitialized()
 
 void UMainMenuWidget::OnClickedContinueButton()
 {
+	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+	FString SlotName = IsValid(GameInstance) == false ? "MySlot" : GameInstance->SlotSaveGameNameToLoad;
+	SlotName += "/" + SlotName;
+
+	USaveMarineRunner* LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+	if (!UGameplayStatics::LoadGameFromSlot(SlotName, 0))
+	{
+		return;
+	}
+
+	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
+
+	SetActorLocation(LoadGameInstance->SavedPlayerLocation);
+	if (IsValid(MarinePlayerController) == true)
+		MarinePlayerController->SetControlRotation(LoadGameInstance->SavedPlayerRotation);
+
+	ACheckpoint* LoadedCheckpoint = Cast<ACheckpoint>(LoadGameInstance->CurrentCheckpoint);
+	if (IsValid(LoadedCheckpoint))
+	{
+		LoadedCheckpoint->DisableCheckpoint();
+	}
+	LoadGameInstance->LoadGame(this, GameInstance);
 }
 
 void UMainMenuWidget::OnHoveredContinueButton()
