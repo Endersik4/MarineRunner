@@ -84,13 +84,15 @@ void AMarineCharacter::BeginPlay()
 
 	MarinePlayerController = Cast<AMarinePlayerController>(GetController());
 	GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-
+	
 	LoadSavedSettingsFromGameInstance();
 
 	MakeCrosshire();
 	MakeHudWidget();
 	InitialMovementForce = MovementForce;
+
 	LoadGame();
+	GameInstance->bNewGame = false;
 
 	if (IsValid(HudWidget))
 	{
@@ -474,7 +476,13 @@ void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 
 void AMarineCharacter::LoadGame()
 {
-	FString SlotName = IsValid(GameInstance) == false ? "MySlot" : GameInstance->SlotSaveGameNameToLoad;
+	if (IsValid(GameInstance) == false)
+		return;
+
+	if (GameInstance->bNewGame == true)
+		return;
+	
+	FString SlotName = GameInstance->SlotSaveGameNameToLoad;
 	SlotName += "/" + SlotName;
 
 	USaveMarineRunner* LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));

@@ -16,7 +16,7 @@ void UMarineRunnerGameInstance::Init()
 	LoadCustomSavedSettingsFromConfig();
 	LoadSoundsVolumeFromConfig(CustomSavedSettings);
 
-	SpawnBackgroundMusicFirstTime();
+	//SpawnBackgroundMusicFirstTime();
 }
 
 #pragma region ///////// SAVING/LOADIGN///////////////
@@ -104,12 +104,13 @@ void UMarineRunnerGameInstance::RemoveDetectedEnemy(AActor* NewEnemy)
 }
 
 #pragma region /////////////////// BACKGROUND MUSIC /////////////////////////
+/*
 void UMarineRunnerGameInstance::SpawnBackgroundMusicFirstTime()
 {
 	FTimerDelegate MusicDel;
 	MusicDel.BindUFunction(this, FName("SpawnBackgroundMusic"), ExplorationMusic);
 	GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, MusicDel, 0.2f, false);
-}
+}*/
 
 void UMarineRunnerGameInstance::SpawnBackgroundMusic(USoundBase* SoundToSpawn)
 {

@@ -105,6 +105,8 @@ public:
 	void ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut = false);
 
 	FORCEINLINE EMusicType GetCurrentMusicType() const {return CurrentMusicType;}
+
+	bool bNewGame = false;
 private:
 
 	bool bWasJsonDeserialized;
@@ -118,7 +120,7 @@ private:
 	// Background music
 	FTimerHandle BackgroundMusicHandle;
 	EMusicType CurrentMusicType;
-	void SpawnBackgroundMusicFirstTime();
+	//void SpawnBackgroundMusicFirstTime();
 	UFUNCTION()
 		void SpawnBackgroundMusic(USoundBase* SoundToSpawn);
 	UPROPERTY()

@@ -20,6 +20,7 @@ void AMainMenuPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
+
 	SpawnMainMenuWidget();
 }
 
@@ -51,7 +52,6 @@ void AMainMenuPawn::SpawnMainMenuWidget()
 		return;
 
 	MainMenuWidget->AddToViewport();
-	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PC, MainMenuWidget);
 
 	bIsInMainMenu = true;
 }

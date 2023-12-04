@@ -10,9 +10,8 @@
 
 #include "MarineRunner/Widgets/Menu/SettingsMenuWidget.h"
 #include "MarineRunner/Widgets/Menu/LoadGameMenu/LoadGameMenuWidget.h"
-#include "MarineRunner/Widgets/Menu/LoadGameMenu/ConfirmLoadingGameWidget.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
-#include "MarineRunner/Framework/SaveMarineRunner.h"
+#include "MarineRunner/SaveGame/SaveGameJsonFile.h"
 
 void UMainMenuWidget::NativeConstruct()
 {
@@ -50,36 +49,39 @@ void UMainMenuWidget::NativeOnInitialized()
 		CurrentPauseMenuMusic->FadeIn(1.f);
 	}
 
-	//if (ShowPauseWidgetAnim)
-		//PlayAnimationForward(ShowPauseWidgetAnim);
 	PlayMainMenuAnim();
+
+	GetTextFilesFromSaves(SavesNamePath);
+	if (SavesNamePath.Num() <= 0)
+	{
+		ContinueButton->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void UMainMenuWidget::OnClickedContinueButton()
 {
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	FSaveDataMenuStruct NewSaveDataMenu;
 
-	FString SlotName = IsValid(GameInstance) == false ? "MySlot" : GameInstance->SlotSaveGameNameToLoad;
-	SlotName += "/" + SlotName;
-
-	USaveMarineRunner* LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
-	if (!UGameplayStatics::LoadGameFromSlot(SlotName, 0))
+	for (const FString& CurrTxtFilePath : SavesNamePath)
 	{
+		TSharedPtr<FJsonObject> JsonObject;
+		bool bWasJsonDeserialize = USaveGameJsonFile::ReadJson(CurrTxtFilePath, JsonObject);
+		if (bWasJsonDeserialize)
+		{
+			if (JsonObject->GetNumberField("SavedDataNumber") < NewSaveDataMenu.SaveNumber)
+				continue;
+
+			NewSaveDataMenu.SaveName = JsonObject->GetStringField("SavedDataName");
+			NewSaveDataMenu.SaveNumber = JsonObject->GetNumberField("SavedDataNumber");
+			NewSaveDataMenu.LevelNameToLoad = JsonObject->GetStringField("SavedLevelName");
+		}
+	}
+
+	if (IsValid(MarineRunnerGameInstance) == false)
 		return;
-	}
 
-	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
-
-	SetActorLocation(LoadGameInstance->SavedPlayerLocation);
-	if (IsValid(MarinePlayerController) == true)
-		MarinePlayerController->SetControlRotation(LoadGameInstance->SavedPlayerRotation);
-
-	ACheckpoint* LoadedCheckpoint = Cast<ACheckpoint>(LoadGameInstance->CurrentCheckpoint);
-	if (IsValid(LoadedCheckpoint))
-	{
-		LoadedCheckpoint->DisableCheckpoint();
-	}
-	LoadGameInstance->LoadGame(this, GameInstance);
+	MarineRunnerGameInstance->SlotSaveGameNameToLoad = NewSaveDataMenu.SaveName;
+	UGameplayStatics::OpenLevel(GetWorld(), FName(NewSaveDataMenu.LevelNameToLoad));
 }
 
 void UMainMenuWidget::OnHoveredContinueButton()
@@ -95,6 +97,12 @@ void UMainMenuWidget::OnUnhoveredContinueButton()
 
 void UMainMenuWidget::OnClickedNewGameButton()
 {
+	if (IsValid(MarineRunnerGameInstance) == true)
+	{
+		MarineRunnerGameInstance->bNewGame = true;
+	}
+
+	UGameplayStatics::OpenLevel(GetWorld(), NewGameLevelName);
 }
 
 void UMainMenuWidget::OnHoveredNewGameButton()
@@ -234,12 +242,7 @@ void UMainMenuWidget::OnClickedQuitGameButton()
 	if (IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)) == false)
 		return;
 
-	UConfirmLoadingGameWidget* ConfirmQuitingGameWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
-	if (IsValid(ConfirmQuitingGameWidget) == false)
-		return;
-
-	ConfirmQuitingGameWidget->AddToViewport();
-	ConfirmQuitingGameWidget->SetConfirmType(ECT_QuitGame);
+	UKismetSystemLibrary::QuitGame(GetWorld(), UGameplayStatics::GetPlayerController(GetWorld(), 0), EQuitPreference::Quit, true);
 }
 
 void UMainMenuWidget::OnHoveredQuitGameButton()

@@ -100,14 +100,19 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void PlayMainMenuAnim();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void GetTextFilesFromSaves(TArray<FString>& Txt_Files);
+
 	// returns true if there is no more left active menu widgets
 	bool RemoveCurrentMenuWidgetsFromViewport();
 	TMap<UUserWidget*, TFunction<void(bool)>> CurrentSpawnedMenuWidgets;
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Main Menu Settings")
+		FName NewGameLevelName = "DemoV2";
+	UPROPERTY(EditDefaultsOnly, Category = "Main Menu Settings")
 		USoundBase* PauseMenuMusic;
-	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Menu Menu Settings")
 		TSubclassOf<class UConfirmLoadingGameWidget> ConfirmLoadingSaveWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Load Game Menu")
 		TSubclassOf<class ULoadGameMenuWidget> LoadGameMenuWidgetClass;
@@ -132,6 +137,9 @@ private:
 	void FillMenuButtonsAndTextMap();
 	TArray<UButton*> AllMenuButtons;
 	void SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore = nullptr);
+
+	// Continue Game
+	TArray<FString> SavesNamePath;
 
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
 	class UMarineRunnerGameInstance* MarineRunnerGameInstance;
