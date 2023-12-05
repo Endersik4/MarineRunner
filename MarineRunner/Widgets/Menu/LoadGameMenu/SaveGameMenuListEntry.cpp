@@ -11,6 +11,7 @@
 
 #include "MarineRunner/Framework/SaveMarineRunner.h"
 #include "MarineRunner/Widgets/Menu/LoadGameMenu/ConfirmLoadingGameWidget.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
 void USaveGameMenuListEntry::NativeConstruct()
 {
@@ -42,10 +43,28 @@ void USaveGameMenuListEntry::OnClickedLoadGameButton()
 	if (IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)) == false || IsValid(ListEntryObject) == false)
 		return;
 
-	UConfirmLoadingGameWidget* ConfirmLoadingWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
-	if (IsValid(ConfirmLoadingWidget) == false) 
+	if (bShowConfirmLoadingWidget == false)
+	{
+		UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+		if (IsValid(GameInstance) == false)
+			return;
+
+		GameInstance->SlotSaveGameNameToLoad = ListEntryObject->SavesMenuData.SaveName;
+
+		UGameplayStatics::OpenLevel(GetWorld(), FName(ListEntryObject->SavesMenuData.LevelNameToLoad));
+
 		return;
-	
+	}
+
+	ShowConfirmLoadingWidget();
+}
+
+void USaveGameMenuListEntry::ShowConfirmLoadingWidget()
+{
+	UConfirmLoadingGameWidget* ConfirmLoadingWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
+	if (IsValid(ConfirmLoadingWidget) == false)
+		return;
+
 	ConfirmLoadingWidget->AddToViewport();
 	ConfirmLoadingWidget->SetSlotAndLevelName(ListEntryObject->SavesMenuData.SaveName, ListEntryObject->SavesMenuData.LevelNameToLoad);
 	ConfirmLoadingWidget->SetConfirmType(ECT_LoadLastSave);

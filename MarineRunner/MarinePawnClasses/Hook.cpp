@@ -14,11 +14,11 @@ AHook::AHook()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	HookMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HookMesh"));
-	RootComponent = HookMesh;
-
 	CheckSphere = CreateDefaultSubobject<USphereComponent>(TEXT("CheckSphere"));
-	CheckSphere->SetupAttachment(HookMesh);
+	RootComponent = CheckSphere;
+
+	HookMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HookMesh"));
+	HookMesh->SetupAttachment(CheckSphere);
 
 	Tags.Add(TEXT("Hook"));
 }
@@ -49,9 +49,9 @@ void AHook::StartHookCooldown()
 void AHook::HookActivate(bool bActive)
 {
 	if (bActive) 
-		HookMesh->SetMaterial(0, M_PlayerInRange);
+		HookMesh->SetMaterial(PlayerInRangeIndexMaterial, M_PlayerInRange);
 	else 
-		HookMesh->SetMaterial(0, M_PlayerOutRange);
+		HookMesh->SetMaterial(PlayerInRangeIndexMaterial, M_PlayerOutRange);
 
 }
 void AHook::DelayForGrabbingTheHook()

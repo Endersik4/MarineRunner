@@ -27,6 +27,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* DeadlyFanBaseMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UStaticMeshComponent* RotatingMeshAnchor;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* DeadlyFanMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Fan Setup")

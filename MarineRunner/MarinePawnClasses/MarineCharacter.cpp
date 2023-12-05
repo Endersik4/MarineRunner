@@ -377,7 +377,8 @@ void AMarineCharacter::CheckIfIsInAir()
 #pragma region //////////////////////////// FOOTSTEPS SOUND ////////////////////////////
 void AMarineCharacter::PlayFootstepsSound()
 {
-	if (bCanPlayFootstepsSound == false) return;
+	UE_LOG(LogTemp, Warning, TEXT("VEL %f"), GetVelocity().Length());
+	if (bCanPlayFootstepsSound == false || (GetVelocity().Length() >= 0.f && GetVelocity().Length() <= 150.f)) return;
 	if (WallrunComponent->GetIsWallrunning() == false && bIsInAir == true) return;
 	if (CroachAndSlideComponent->GetIsSliding() == true) return;
 

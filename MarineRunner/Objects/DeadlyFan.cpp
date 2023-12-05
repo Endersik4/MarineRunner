@@ -16,8 +16,13 @@ ADeadlyFan::ADeadlyFan()
 	RootComponent = DeadlyFanBaseMesh;
 	DeadlyFanBaseMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);
 
+	RotatingMeshAnchor = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RotatingMeshAnchor"));
+	RotatingMeshAnchor->SetupAttachment(RootComponent);
+
+	RotatingMeshAnchor->SetCollisionResponseToChannel(ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);
+
 	DeadlyFanMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DeadlyFanMesh"));
-	DeadlyFanMesh->SetupAttachment(RootComponent);
+	DeadlyFanMesh->SetupAttachment(RotatingMeshAnchor);
 	DeadlyFanMesh->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	DeadlyFanMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);
 }

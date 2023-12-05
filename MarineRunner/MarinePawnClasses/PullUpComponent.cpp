@@ -68,7 +68,7 @@ void UPullUpComponent::EdgePullUp()
 		LineStart += PlayerForwardVector * 100.f;
 		FVector LineEnd = LineStart + (MarinePawn->GetActorUpVector() * 200.f);
 
-		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_Visibility), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true))
+		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel8), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true))
 		{
 			PullupLocationZ = MarinePawn->GetActorLocation();
 			PullupLocationZ.Z = HitResult.ImpactPoint.Z + 100.f;
@@ -104,7 +104,7 @@ void UPullUpComponent::PullupLerp(float Delta)
 bool UPullUpComponent::MakeCheckLine(FHitResult& OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug, FColor Color)
 {
 	if (bDebug) DrawDebugLine(GetWorld(), NewStart, NewEnd, Color, false, 0.5f);
-	return GetWorld()->LineTraceSingleByChannel(OutHitResult, NewStart, NewEnd, ECC_Visibility);
+	return GetWorld()->LineTraceSingleByChannel(OutHitResult, NewStart, NewEnd, ECC_GameTraceChannel8);
 }
 
 const FVector UPullUpComponent::CalculateForwardVectorForPlayer()

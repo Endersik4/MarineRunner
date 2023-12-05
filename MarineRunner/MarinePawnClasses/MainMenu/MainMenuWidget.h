@@ -27,41 +27,8 @@ public:
 		UTextBlock* ContinueText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		UButton* ContinueButton;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* NewGameText;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* NewGameButton;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* LoadGameText;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* LoadGameButton;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* SettingsText;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* SettingsButton;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* QuitGameText;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* QuitGameButton;
-
-	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* ShowPauseWidgetAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* ContinueHoverAnim = nullptr;
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* NewGameHoverAnim = nullptr;
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* LoadGameHoverAnim = nullptr;
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* SettingsHoverAnim = nullptr;
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* QuitGameHoverAnim = nullptr;
-	
-
 	UFUNCTION()
 		void OnClickedContinueButton();
 	UFUNCTION()
@@ -69,6 +36,12 @@ public:
 	UFUNCTION()
 		void OnUnhoveredContinueButton();
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UTextBlock* NewGameText;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UButton* NewGameButton;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* NewGameHoverAnim = nullptr;
 	UFUNCTION()
 		void OnClickedNewGameButton();
 	UFUNCTION()
@@ -76,6 +49,12 @@ public:
 	UFUNCTION()
 		void OnUnhoveredNewGameButton();
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UTextBlock* LoadGameText;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UButton* LoadGameButton;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* LoadGameHoverAnim = nullptr;
 	UFUNCTION()
 		void OnClickedLoadGameButton();
 	UFUNCTION()
@@ -83,6 +62,12 @@ public:
 	UFUNCTION()
 		void OnUnhoveredLoadGameButton();
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UTextBlock* SettingsText;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UButton* SettingsButton;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* SettingsHoverAnim = nullptr;
 	UFUNCTION()
 		void OnClickedSettingsButton();
 	UFUNCTION()
@@ -90,6 +75,12 @@ public:
 	UFUNCTION()
 		void OnUnhoveredSettingsButton();
 
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UTextBlock* QuitGameText;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		UButton* QuitGameButton;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* QuitGameHoverAnim = nullptr;
 	UFUNCTION()
 		void OnClickedQuitGameButton();
 	UFUNCTION()
@@ -97,11 +88,19 @@ public:
 	UFUNCTION()
 		void OnUnhoveredQuitGameButton();
 
+
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* ShowPauseWidgetAnim = nullptr;
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* StartGameWidgetAnim = nullptr;
+
+	// Play Show Main Menu Animation after delay
 	UFUNCTION(BlueprintImplementableEvent)
 		void PlayMainMenuAnim();
 
+	// Returns all .json files from save game folder
 	UFUNCTION(BlueprintImplementableEvent)
-		void GetTextFilesFromSaves(TArray<FString>& Txt_Files);
+		void GetJsonFilesFromSaveFolder(TArray<FString>& Json_FilesPath);
 
 	// returns true if there is no more left active menu widgets
 	bool RemoveCurrentMenuWidgetsFromViewport();
@@ -112,8 +111,6 @@ private:
 		FName NewGameLevelName = "DemoV2";
 	UPROPERTY(EditDefaultsOnly, Category = "Main Menu Settings")
 		USoundBase* PauseMenuMusic;
-	UPROPERTY(EditDefaultsOnly, Category = "Menu Menu Settings")
-		TSubclassOf<class UConfirmLoadingGameWidget> ConfirmLoadingSaveWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Load Game Menu")
 		TSubclassOf<class ULoadGameMenuWidget> LoadGameMenuWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Menu")
@@ -134,14 +131,22 @@ private:
 	class USettingsMenuWidget* SettingsMenuWidget;
 
 	// Enable/Disable Menu Buttons
-	void FillMenuButtonsAndTextMap();
+	void AddAllMenuButtonsToArray();
 	TArray<UButton*> AllMenuButtons;
 	void SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore = nullptr);
 
 	// Continue Game
-	TArray<FString> SavesNamePath;
+	TArray<FString> Json_SaveFilesPath;
+	struct FSaveDataMenuStruct GetLastSavedSaveGame();
+
+	// Fade out when starting/loading game
+	FTimerHandle StartGameHandle;
+	void ContinueGame();
+	void StartNewGame();
+	void MainMenuFadeOut();
 
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
 	class UMarineRunnerGameInstance* MarineRunnerGameInstance;
+	APlayerController* PlayerController;
 
 };

@@ -20,7 +20,6 @@ void AMainMenuPawn::BeginPlay()
 {
 	Super::BeginPlay();
 	
-
 	SpawnMainMenuWidget();
 }
 
@@ -42,7 +41,7 @@ void AMainMenuPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 void AMainMenuPawn::SpawnMainMenuWidget()
 {
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (IsValid(PC) == false)
+	if (IsValid(PC) == false || MainMenuWidgetClass == nullptr)
 		return;
 
 	PC->SetShowMouseCursor(true);

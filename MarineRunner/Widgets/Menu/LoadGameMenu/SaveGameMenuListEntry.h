@@ -52,6 +52,8 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
+		bool bShowConfirmLoadingWidget = true;
+	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings", meta = (EditCondition = "bShowConfirmLoadingWidget"))
 		TSubclassOf<UUserWidget> ConfirmLoadingSaveWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
 		FString SavedDateText = "-SAVED: ";
@@ -61,6 +63,7 @@ private:
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
 
 	class ULoadGameMenuEntryObject* ListEntryObject;
+	void ShowConfirmLoadingWidget();
 
 	void ConvertTotalPlayTimeInSecondsToText();
 	void SetScreenshotImageFromSave();

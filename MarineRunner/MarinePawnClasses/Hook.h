@@ -25,7 +25,6 @@ public:
 
 	bool bCanGrabTheHook = true;
 	
-	
 	void StartHookCooldown();
 	void HookActivate(bool bActive = true);
 
@@ -35,6 +34,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* HookMesh;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
+		int32 PlayerInRangeIndexMaterial = 0;
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
 		UMaterialInstance* M_PlayerInRange;
 
