@@ -40,7 +40,7 @@ void ADoorVent::Tick(float DeltaTime)
 
 void ADoorVent::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (bVentDoorsBasedOnPhysics == false)
+	if (bVentDoorsBasedOnPhysics == false && DoorVentMesh->IsSimulatingPhysics() == false)
 		return;
 
 	DoorVentMesh->SetSimulatePhysics(true);
@@ -48,7 +48,7 @@ void ADoorVent::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpul
 
 void ADoorVent::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 {
-	if (IsValid(Character) == false || bIsOpen == true)
+	if (IsValid(Character) == false || bIsOpen == true || DoorVentMesh->IsSimulatingPhysics() == true)
 		return;
 
 	PlayOpenDoorVentLocTimeline();

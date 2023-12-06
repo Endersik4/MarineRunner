@@ -3,6 +3,7 @@
 
 #include "MarineRunner/Objects/DeadlyFan.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/Interfaces/InteractInterface.h"
 
@@ -33,6 +34,9 @@ void ADeadlyFan::BeginPlay()
 	Super::BeginPlay();
 	
 	DeadlyFanMesh->OnComponentBeginOverlap.AddDynamic(this, &ADeadlyFan::OnFanMeshBeginOverlap);
+
+	if (FanSound) 
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FanSound, GetActorLocation());
 }
 
 // Called every frame
