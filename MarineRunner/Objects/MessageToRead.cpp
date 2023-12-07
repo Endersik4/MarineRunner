@@ -4,12 +4,12 @@
 #include "MarineRunner/Objects/MessageToRead.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Objects/MessageToReadWidget.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/MessageHandlerComponent.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
 
 // Sets default values
 AMessageToRead::AMessageToRead()

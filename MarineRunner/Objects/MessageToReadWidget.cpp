@@ -4,6 +4,7 @@
 #include "MarineRunner/Objects/MessageToReadWidget.h"
 #include "Components/TextBlock.h"
 #include "Kismet/GameplayStatics.h"
+#include "Animation/WidgetAnimation.h"
 
 void UMessageToReadWidget::NativeOnInitialized()
 {
@@ -17,4 +18,18 @@ void UMessageToReadWidget::SetMessageInformation(const FText& _MessageTitle, con
 {
 	MessageTitle->SetText(_MessageTitle);
 	MessageText->SetText(_MessageText);
+}
+
+void UMessageToReadWidget::HideMessageAfterTime(float Time)
+{
+	GetWorld()->GetTimerManager().SetTimer(HideMessageHandle, this, &UMessageToReadWidget::HideMessage, Time, false);
+}
+
+void UMessageToReadWidget::HideMessage()
+{
+	PlayAnimationReverse(OpenMessageAnim, 1.f, true);
+	
+	FTimerHandle RemoveFromViewportHandle;
+	GetWorld()->GetTimerManager().SetTimer(RemoveFromViewportHandle, this, &UMessageToReadWidget::RemoveFromViewport, OpenMessageAnim->GetEndTime(), false);
+
 }

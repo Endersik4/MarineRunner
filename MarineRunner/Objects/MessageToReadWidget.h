@@ -31,4 +31,11 @@ public:
 		UWidgetAnimation* OpenMessageAnim = nullptr;
 
 	void SetMessageInformation(const FText & _MessageTitle, const FText & _MessageText);
+
+	void HideMessageAfterTime(float Time);
+private:
+
+	FTimerHandle HideMessageHandle;
+	void HideMessage();
+
 };

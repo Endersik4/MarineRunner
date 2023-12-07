@@ -4,10 +4,9 @@
 #include "MarineRunner/Objects/Tutorial/ShowTutorialMessage.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/BoxComponent.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 
-#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
-#include "MarineRunner/Objects/Tutorial/TutorialMessageWidget.h"
-
+#include "MarineRunner/Objects/MessageToReadWidget.h"
 
 // Sets default values
 AShowTutorialMessage::AShowTutorialMessage()
@@ -25,7 +24,8 @@ AShowTutorialMessage::AShowTutorialMessage()
 void AShowTutorialMessage::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	ShowMessageBoxComp->OnComponentBeginOverlap.AddDynamic(this, &AShowTutorialMessage::ShowMessageBoxBeginOverlap);
 }
 
 // Called every frame
@@ -37,7 +37,7 @@ void AShowTutorialMessage::Tick(float DeltaTime)
 
 void AShowTutorialMessage::ShowMessageBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (TutorialMessageWidgetClass == nullptr || bCanShowTutorialMessage == false)
+	if (MessageWidgetClass == nullptr || bCanShowTutorialMessage == false)
 		return;
 
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
@@ -45,10 +45,17 @@ void AShowTutorialMessage::ShowMessageBoxBeginOverlap(UPrimitiveComponent* Overl
 		return;
 
 	if (PC->GetPawn() != OtherActor)
+	{
 		return;
+	}
 	
-	UTutorialMessageWidget* TutorialMessageWidget = Cast<UTutorialMessageWidget>(CreateWidget(PC, TutorialMessageWidgetClass));
-	TutorialMessageWidget->AddToViewport();
+	UMessageToReadWidget* MessageWidget = Cast<UMessageToReadWidget>(CreateWidget(PC, MessageWidgetClass));
+	if (IsValid(MessageWidget) == false)
+		return;
+
+	MessageWidget->AddToViewport();
+	MessageWidget->SetMessageInformation(MessageTitle, MessageText);
+	MessageWidget->HideMessageAfterTime(HideMessageAfterTime);
 
 	bCanShowTutorialMessage = false;
 }
