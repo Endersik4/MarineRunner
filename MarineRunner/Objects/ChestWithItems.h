@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MarineRunner/Objects/Door/UsePinToEnterInterface.h"
+
 #include "ChestWithItems.generated.h"
 
 USTRUCT(BlueprintType)
@@ -34,7 +36,7 @@ struct FItemRandomSpawnStruct
 };
 
 UCLASS()
-class MARINERUNNER_API AChestWithItems : public AActor
+class MARINERUNNER_API AChestWithItems : public AActor, public IUsePinToEnterInterface
 {
 	GENERATED_BODY()
 	
@@ -46,11 +48,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void ClickedOpenButton() override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void OpenChest(FString PinCodeText = "0000");
+	void OpenChest();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -61,8 +65,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Chest Settings")
 		UMaterialInstance* UpperOpenLockMaterial;
 	UPROPERTY(EditAnywhere, Category = "Chest Settings")
-		bool bPinCodeChest;
-	UPROPERTY(EditAnywhere, Category = "Chest Settings", meta = (EditCondition = "bPinCodeChest", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
+		bool bUsePin;
+	UPROPERTY(EditAnywhere, Category = "Chest Settings", meta = (EditCondition = "bUsePin", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
 		int32 PinCode = 1111;
 
 	UPROPERTY(EditAnywhere, Category = "Spawn Items")

@@ -79,12 +79,13 @@ public:
 	UFUNCTION()
 		void NumberNinePressed();
 
-	void DisableOpenButton(bool bDisable);
 	void ResetPinCodeStrings();
 
+	FORCEINLINE void SetUsePin(bool bUse) { bUsePin = bUse; }
 private:
 	class AChestWithItems* ChestActor;
 
+	bool bUsePin;
 	FString PinCodeString;
 	FString PinCodeNotVisibleString;
 	void PinNumbersClicked(FString Number);

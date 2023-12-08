@@ -36,9 +36,14 @@ void AChestWithItems::BeginPlay()
 	if (FrontChestPanelWidget == nullptr) return;
 
 	FrontChestPanelWidget->SetCurrentChest(this);
+	FrontChestPanelWidget->SetUsePin(bUsePin);
+}
 
-	if (bPinCodeChest == true) FrontChestPanelWidget->DisableOpenButton(false);
-	else FrontChestPanelWidget->DisableOpenButton(true);
+void AChestWithItems::ClickedOpenButton()
+{
+	if (bIsChestOpen == true) return;
+
+	OpenChest();
 }
 
 // Called every frame
@@ -48,22 +53,8 @@ void AChestWithItems::Tick(float DeltaTime)
 
 }
 
-void AChestWithItems::OpenChest(FString PinCodeText)
+void AChestWithItems::OpenChest()
 {
-	if (bIsChestOpen == true) return;
-
-	if (bPinCodeChest == true)
-	{
-		int32 PlayerPin = FCString::Atoi(*PinCodeText);
-		if (PlayerPin != PinCode)
-		{
-			FrontChestPanelWidget->ResetPinCodeStrings();
-			if (WrongCodeSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), WrongCodeSound, ChestSkeletalMesh->GetSocketLocation(FName(TEXT("temSpawnLocation"))));
-			return;
-		}
-		else FrontChestPanelWidget->DisableOpenButton(true);
-	}
-
 	if (OpenChestSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), OpenChestSound, ChestSkeletalMesh->GetSocketLocation(FName(TEXT("temSpawnLocation"))));
 	ChestSkeletalMesh->SetMaterial(3, UpperOpenLockMaterial);
 	ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
