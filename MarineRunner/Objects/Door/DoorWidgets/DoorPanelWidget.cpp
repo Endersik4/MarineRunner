@@ -10,6 +10,7 @@
 
 #include "MarineRunner/Objects/Door/Door.h"
 #include "PinNumberEntryObject.h"
+#include "MarineRunner/Objects/Door/UsePinToEnterInterface.h"
 
 
 void UDoorPanelWidget::NativeConstruct()
@@ -24,28 +25,34 @@ void UDoorPanelWidget::NativeConstruct()
 #pragma region ///////////// DOOR IS UNLOCKED /////////////
 void UDoorPanelWidget::OnClickedInteractDoorButton()
 {
-	if (IsValid(DoorActor) == false)
+	if (ActorWithWidget == nullptr)
 		return;
 
+	ActorWithWidget->ClickedOpenButton();
+
+	/*
 	if (bDoorOpen == false) 
 	{
-		DoorActor->OpenDoor();
+		ActorWithWidget->OpenDoor();
 	}
 	else 
 	{
-		DoorActor->CloseDoor();
+		ActorWithWidget->CloseDoor();
 	}
 
-	if (IsValid(DoorActor->GetOtherDoorPanelWidget(this)))
+	if (IsValid(ActorWithWidget->GetOtherDoorPanelWidget(this)))
 	{
-		DoorActor->GetOtherDoorPanelWidget(this)->PlayOpenCloseEffects();
-	}
+		ActorWithWidget->GetOtherDoorPanelWidget(this)->PlayOpenCloseEffects();
+	}*/
 	PlayOpenCloseEffects();
 }
 
 void UDoorPanelWidget::PlayOpenCloseEffects()
 {
-	GetWorld()->GetTimerManager().SetTimer(ChangeDoorStatusHandle, this, &UDoorPanelWidget::ChangeDoorStatus, TimeToChangeDoorStatusText, false);
+	if (bCanCloseObject == true)
+	{
+		GetWorld()->GetTimerManager().SetTimer(ChangeDoorStatusHandle, this, &UDoorPanelWidget::ChangeDoorStatus, TimeToChangeDoorStatusText, false);
+	}
 
 	PlayAnimationForward(OnClickedInteractDoorAnim);
 }
@@ -81,7 +88,7 @@ void UDoorPanelWidget::OnUnhoveredInteractDoorButton()
 }
 #pragma endregion
 
-void UDoorPanelWidget::ChangeDoorPanelToUsePin()
+void UDoorPanelWidget::ChangeDoorPanelToUsePin(int32 PinCode)
 {
 	InteractDoorButton->SetVisibility(ESlateVisibility::Hidden);
 	InteractDoorText->SetVisibility(ESlateVisibility::Hidden);
@@ -101,6 +108,8 @@ void UDoorPanelWidget::ChangeDoorPanelToUsePin()
 
 		PinNumbersTileView->AddItem(CreatedPinEntryObject);
 	}
+
+	CurrentPinCode = PinCode;
 }
 
 void UDoorPanelWidget::AddNumberToEnteredPin(int32 Number)
@@ -108,7 +117,7 @@ void UDoorPanelWidget::AddNumberToEnteredPin(int32 Number)
 	CurrentlyEnteredPin += FString::FromInt(Number);
 	CurrentlyEnteredPin_Text += "*";
 
-	if (FString::FromInt(DoorActor->GetPinCode()) == CurrentlyEnteredPin)
+	if (FString::FromInt(CurrentPinCode) == CurrentlyEnteredPin)
 	{
 		PinIsCorrect(true);
 	}
@@ -134,8 +143,8 @@ void UDoorPanelWidget::PinIsCorrect(bool bClickedByOwner)
 	if (bClickedByOwner == false)
 		return;
 
-	if (IsValid(DoorActor->GetOtherDoorPanelWidget(this)))
-	{
-		DoorActor->GetOtherDoorPanelWidget(this)->PinIsCorrect();
-	}
+	//if (IsValid(ActorWithWidget->GetOtherDoorPanelWidget(this)))
+	//{
+	//	ActorWithWidget->GetOtherDoorPanelWidget(this)->PinIsCorrect();
+	//}
 }

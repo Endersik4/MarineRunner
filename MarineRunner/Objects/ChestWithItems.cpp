@@ -8,7 +8,8 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
-#include "MarineRunner/Widgets/FrontChestPanelWidget.h"
+#include "MarineRunner/Objects/Door/DoorWidgets/DoorPanelWidget.h"
+
 
 // Sets default values
 AChestWithItems::AChestWithItems()
@@ -32,11 +33,17 @@ void AChestWithItems::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	FrontChestPanelWidget = Cast<UFrontChestPanelWidget>(FrontPanelWidget->GetUserWidgetObject());
+	FrontChestPanelWidget = Cast<UDoorPanelWidget>(FrontPanelWidget->GetUserWidgetObject());
 	if (FrontChestPanelWidget == nullptr) return;
 
-	FrontChestPanelWidget->SetCurrentChest(this);
-	FrontChestPanelWidget->SetUsePin(bUsePin);
+	if (IsValid(FrontChestPanelWidget) == true)
+	{
+		FrontChestPanelWidget->SetDoorActor(this);
+		FrontChestPanelWidget->SetCanCloseObject(false);
+
+		if (bUsePinCode == true)
+			FrontChestPanelWidget->ChangeDoorPanelToUsePin(PinCode);
+	}
 }
 
 void AChestWithItems::ClickedOpenButton()

@@ -55,16 +55,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
 		TSubclassOf<class UPinNumberEntryObject> PinNumberEntryObjectClass;
 
-	FORCEINLINE void SetDoorActor(class ADoor* NewDoorActor) { DoorActor = NewDoorActor; }
+	FORCEINLINE void SetDoorActor(class IUsePinToEnterInterface* NewActorWithWidget) { ActorWithWidget = NewActorWithWidget; }
+	FORCEINLINE void SetCanCloseObject(bool bCan) { bCanCloseObject = bCan; }
 
 	void AddNumberToEnteredPin(int32 Number);
-	void ChangeDoorPanelToUsePin();
+	void ChangeDoorPanelToUsePin(int32 PinCode);
 	void PlayOpenCloseEffects();
 
 private:
 
 	bool bDoorOpen = false;
-	class ADoor* DoorActor;
+	class IUsePinToEnterInterface* ActorWithWidget;
+	int32 CurrentPinCode;
+	bool bCanCloseObject = true;
 
 	FTimerHandle ChangeDoorStatusHandle;
 	void ChangeDoorStatus();

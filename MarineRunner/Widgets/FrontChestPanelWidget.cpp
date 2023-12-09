@@ -35,7 +35,7 @@ void UFrontChestPanelWidget::OpenButtonPressed()
 {
 	if (ChestActor == nullptr) return;
 
-	ChestActor->OpenChest(PinCodeString);
+	//ChestActor->OpenChest(PinCodeString);
 }
 
 void UFrontChestPanelWidget::DeleteButtonPressed()
@@ -48,7 +48,7 @@ void UFrontChestPanelWidget::DeleteButtonPressed()
 
 	OpenButton->SetIsEnabled(false);
 }
-
+/*
 void UFrontChestPanelWidget::DisableOpenButton(bool bDisable)
 {
 	OpenButton->SetIsEnabled(bDisable);
@@ -58,7 +58,7 @@ void UFrontChestPanelWidget::DisableOpenButton(bool bDisable)
 		DeleteButton->SetIsEnabled(false);
 		PINText->SetText(FText::FromString("****"));
 	}
-}
+}*/
 
 void UFrontChestPanelWidget::ResetPinCodeStrings()
 {

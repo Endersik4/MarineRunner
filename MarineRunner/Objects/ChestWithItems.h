@@ -65,7 +65,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Chest Settings")
 		UMaterialInstance* UpperOpenLockMaterial;
 	UPROPERTY(EditAnywhere, Category = "Chest Settings")
-		bool bUsePin;
+		bool bUsePinCode;
 	UPROPERTY(EditAnywhere, Category = "Chest Settings", meta = (EditCondition = "bUsePin", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
 		int32 PinCode = 1111;
 
@@ -81,6 +81,6 @@ private:
 		USoundBase* WrongCodeSound;
 
 	bool bIsChestOpen;
-	class UFrontChestPanelWidget* FrontChestPanelWidget;
+	class UDoorPanelWidget* FrontChestPanelWidget;
 
 };

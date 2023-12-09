@@ -105,7 +105,7 @@ UDoorPanelWidget* ADoor::GetOtherDoorPanelWidget(UDoorPanelWidget* PanelActivate
 void ADoor::SetUpDoorPanel()
 {
 	DoorPanelWidget = Cast<UDoorPanelWidget>(DoorPanelWidgetComponent->GetUserWidgetObject());
-
+	/*
 	if (IsValid(DoorPanelWidget) == true)
 	{
 		DoorPanelWidget->SetDoorActor(this);
@@ -122,6 +122,6 @@ void ADoor::SetUpDoorPanel()
 
 		if (bUsePinCode == true)
 			DoorPanelSecondWidget->ChangeDoorPanelToUsePin();
-	}
+	}*/
 }
 
