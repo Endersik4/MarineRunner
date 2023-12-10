@@ -24,5 +24,9 @@ class MARINERUNNER_API IUsePinToEnterInterface
 public:
 
 	UFUNCTION()
-		virtual void ClickedOpenButton() = 0;
+		virtual void ClickedOpenButton(class UDoorPanelWidget* ClickedWidget = nullptr) = 0;
+
+	UFUNCTION()
+		virtual class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) = 0;
+
 };

@@ -20,6 +20,7 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 - Pause Menu <br/>
 - Death widget when player died (player can load last save or exit the game) <br/>
 - Messages that player can pick up and read  <br/>
+- tutorial with customizable text that shows on player screen and disapear after time
 <h4> - HUD </h4> 
 - Shows current health on progress bar <br/>
 - Shows currently holding weapon with ammunition information <br/>
@@ -59,6 +60,10 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 - Entry can be disabled and grayed out <br/>
 <h4> - Quit Game </h4> 
 - The message "Confirm quiting" will appear <br/>
+
+<h2> Main Menu </h2>
+- The same as the pause menu, but without saving the game and with a new game/continue button
+
 <h2> Weapons </h2>
 	- The player can fire the weapon in hipfire or ADS mode. <br/>
 	- Shooting mechanic:<br/>
@@ -80,4 +85,17 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 	- Animation: Shoot, Reload and empty magazine<br/>
 <h2> Albertos (crafting item robot)</h2>
 <h2> Enemies </h2>
+
 <h2> Objects </h2>
+<h4> Elevator: </h4>
+- Player can call elevator from outside and while elevator goes to the player, "Wait For Elevator" animation will play on widget
+- When Player is in the elevator, he can choose floor to go to and after elevator starting animation it wll go to the floor that player chose
+- Select Floor on widget is entry in Tile View and can be many of these, Select Floor entry can be also set up as blocked then player cant go to this floor
+- Eleveator can require pin code to enter
+- When player selects floor that he currently is then it will open elevator doors
+- Everything is animated in Widget Blueprint
+<h4> Doors </h4>
+- Can be open from two sides by clicking on panel (3D Widget) 
+- Door can require pin code to open
+- After opening the door, close door timer will playe
+

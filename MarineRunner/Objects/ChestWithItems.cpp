@@ -46,7 +46,7 @@ void AChestWithItems::BeginPlay()
 	}
 }
 
-void AChestWithItems::ClickedOpenButton()
+void AChestWithItems::ClickedOpenButton(class UDoorPanelWidget* ClickedWidget)
 {
 	if (bIsChestOpen == true) return;
 

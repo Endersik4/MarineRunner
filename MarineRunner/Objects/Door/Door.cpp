@@ -41,7 +41,24 @@ void ADoor::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SetUpDoorPanel();
+	SetUpDoorPanels();
+}
+
+void ADoor::ClickedOpenButton(class UDoorPanelWidget* ClickedWidget)
+{
+	if (bDoorOpen == false)
+	{
+		OpenDoor();
+	}
+	else
+	{
+		CloseDoor();
+	}
+
+	if (IsValid(GetOtherPanelWidget(ClickedWidget)))
+	{
+		GetOtherPanelWidget(ClickedWidget)->PlayOpenCloseEffects();
+	}
 }
 
 // Called every frame
@@ -88,7 +105,7 @@ void ADoor::CloseDoorsAfterInactivity()
 		DoorPanelSecondWidget->PlayOpenCloseEffects();
 }
 
-UDoorPanelWidget* ADoor::GetOtherDoorPanelWidget(UDoorPanelWidget* PanelActivatedByPlayer)
+UDoorPanelWidget* ADoor::GetOtherPanelWidget(UDoorPanelWidget* PanelActivatedByPlayer)
 {
 	if (DoorPanelWidget == PanelActivatedByPlayer)
 	{
@@ -102,16 +119,16 @@ UDoorPanelWidget* ADoor::GetOtherDoorPanelWidget(UDoorPanelWidget* PanelActivate
 	return nullptr;
 }
 
-void ADoor::SetUpDoorPanel()
+void ADoor::SetUpDoorPanels()
 {
 	DoorPanelWidget = Cast<UDoorPanelWidget>(DoorPanelWidgetComponent->GetUserWidgetObject());
-	/*
+	
 	if (IsValid(DoorPanelWidget) == true)
 	{
 		DoorPanelWidget->SetDoorActor(this);
 
 		if (bUsePinCode == true)
-			DoorPanelWidget->ChangeDoorPanelToUsePin();
+			DoorPanelWidget->ChangeDoorPanelToUsePin(PinCode);
 	}
 
 	DoorPanelSecondWidget = Cast<UDoorPanelWidget>(DoorPanelSecondWidgetComponent->GetUserWidgetObject());
@@ -121,7 +138,7 @@ void ADoor::SetUpDoorPanel()
 		DoorPanelSecondWidget->SetDoorActor(this);
 
 		if (bUsePinCode == true)
-			DoorPanelSecondWidget->ChangeDoorPanelToUsePin();
-	}*/
+			DoorPanelSecondWidget->ChangeDoorPanelToUsePin(PinCode);
+	}
 }
 

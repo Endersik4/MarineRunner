@@ -56,6 +56,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Decals")
 		FVector BulletHoleDecalSize = FVector(1.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Decals")
+		float BulletHoleSize_X = 20.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Decals")
 		float BulletHoleFadeOutStartDelay = 4.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Decals")
 		float BulletHoleFadeOutDuration = 5.f;

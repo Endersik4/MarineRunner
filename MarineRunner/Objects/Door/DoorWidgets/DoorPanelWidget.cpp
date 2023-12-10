@@ -28,22 +28,8 @@ void UDoorPanelWidget::OnClickedInteractDoorButton()
 	if (ActorWithWidget == nullptr)
 		return;
 
-	ActorWithWidget->ClickedOpenButton();
+	ActorWithWidget->ClickedOpenButton(this);
 
-	/*
-	if (bDoorOpen == false) 
-	{
-		ActorWithWidget->OpenDoor();
-	}
-	else 
-	{
-		ActorWithWidget->CloseDoor();
-	}
-
-	if (IsValid(ActorWithWidget->GetOtherDoorPanelWidget(this)))
-	{
-		ActorWithWidget->GetOtherDoorPanelWidget(this)->PlayOpenCloseEffects();
-	}*/
 	PlayOpenCloseEffects();
 }
 
@@ -143,8 +129,8 @@ void UDoorPanelWidget::PinIsCorrect(bool bClickedByOwner)
 	if (bClickedByOwner == false)
 		return;
 
-	//if (IsValid(ActorWithWidget->GetOtherDoorPanelWidget(this)))
-	//{
-	//	ActorWithWidget->GetOtherDoorPanelWidget(this)->PinIsCorrect();
-	//}
+	if (IsValid(ActorWithWidget->GetOtherPanelWidget(this)))
+	{
+		ActorWithWidget->GetOtherPanelWidget(this)->PinIsCorrect(false);
+	}
 }

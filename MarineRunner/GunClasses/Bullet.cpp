@@ -220,6 +220,7 @@ void ABullet::SpawnBulletHoleDecal(const FHitResult& Hit)
 	if (SpawnedDecal)
 	{
 		SpawnedDecal->SetFadeScreenSize(0.f);
+		SpawnedDecal->DecalSize.X += BulletHoleSize_X;
 		SpawnedDecal->SetFadeOut(BulletHoleFadeOutStartDelay, BulletHoleFadeOutDuration);
 	}
 }

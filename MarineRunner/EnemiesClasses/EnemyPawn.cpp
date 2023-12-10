@@ -178,8 +178,11 @@ void AEnemyPawn::SpawnShotBloodDecal(const FHitResult& Hit)
 	FVector Size = FVector(FMath::FRandRange(8.f,18.f));
 	FRotator Rotation = Hit.ImpactNormal.Rotation();
 	UDecalComponent* SpawnedDecal = UGameplayStatics::SpawnDecalAttached(ShotBloodDecalMaterial, Size, EnemySkeletalMesh, Hit.BoneName, Hit.Location, Rotation, EAttachLocation::KeepWorldPosition, 10.f);
-	if (IsValid(SpawnedDecal)) 
+	if (IsValid(SpawnedDecal))
+	{
 		SpawnedDecal->SetFadeScreenSize(0.f);
+		SpawnedDecal->DecalSize.X += 20.f;
+	}
 }
 
 void AEnemyPawn::PlayFootstepsSound()
@@ -240,6 +243,7 @@ void AEnemyPawn::SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const
 	if (IsValid(SpawnedDecal))
 	{
 		SpawnedDecal->SetFadeScreenSize(0.f);
+		SpawnedDecal->DecalSize.X += 20.f;
 		SpawnedDecal->SetFadeOut(BloodFadeOutStartDelay, BloodFadeOutDuration);
 	}
 }

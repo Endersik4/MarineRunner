@@ -48,7 +48,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void ClickedOpenButton() override;
+	virtual void ClickedOpenButton(class UDoorPanelWidget* ClickedWidget = nullptr) override;
+	virtual class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) override { return nullptr; }
 
 public:	
 	// Called every frame

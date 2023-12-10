@@ -30,6 +30,6 @@ void UMessageToReadWidget::HideMessage()
 	PlayAnimationReverse(OpenMessageAnim, 1.f, true);
 	
 	FTimerHandle RemoveFromViewportHandle;
-	GetWorld()->GetTimerManager().SetTimer(RemoveFromViewportHandle, this, &UMessageToReadWidget::RemoveFromViewport, OpenMessageAnim->GetEndTime(), false);
+	GetWorld()->GetTimerManager().SetTimer(RemoveFromViewportHandle, this, &UMessageToReadWidget::RemoveFromParent, OpenMessageAnim->GetEndTime(), false);
 
 }

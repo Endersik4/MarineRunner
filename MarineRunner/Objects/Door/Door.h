@@ -4,11 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MarineRunner/Objects/Door/UsePinToEnterInterface.h"
+
 #include "Door.generated.h"
 
 class UDoorPanelWidget;
 UCLASS()
-class MARINERUNNER_API ADoor : public AActor
+class MARINERUNNER_API ADoor : public AActor, public IUsePinToEnterInterface
 {
 	GENERATED_BODY()
 	
@@ -20,15 +22,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void ClickedOpenButton(class UDoorPanelWidget* ClickedWidget = nullptr) override;
+	virtual class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void OpenDoor();
-	void CloseDoor();
-	UDoorPanelWidget* GetOtherDoorPanelWidget(UDoorPanelWidget* PanelActivatedByPlayer);
-
-	FORCEINLINE int32 GetPinCode() const { return PinCode; }
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USkeletalMeshComponent* DoorSkeletalMesh;
@@ -62,10 +62,14 @@ private:
 		USoundBase* CloseDoorSound;
 
 	bool bDoorOpen = false;
+
 	FTimerHandle CloseAfterInactivityHandle;
 	void CloseDoorsAfterInactivity();
 
+	void OpenDoor();
+	void CloseDoor();
+
 	UDoorPanelWidget* DoorPanelWidget;
 	UDoorPanelWidget* DoorPanelSecondWidget;
-	void SetUpDoorPanel();
+	void SetUpDoorPanels();
 };
