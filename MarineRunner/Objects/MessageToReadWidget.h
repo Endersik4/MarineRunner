@@ -23,7 +23,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* MessageTitle;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* MessageText;
+		class URichTextBlock* MessageText;
 	UPROPERTY(EditAnywhere, Category = "Settings")
 		USoundBase* OpenMessageSound;
 
