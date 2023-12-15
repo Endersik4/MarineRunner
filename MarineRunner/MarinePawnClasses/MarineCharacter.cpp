@@ -1,6 +1,5 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-
 #include "MarineCharacter.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetInteractionComponent.h"

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -92,6 +92,11 @@ private:
 		float MaxSpeedWhenMovingTowardsPlayer = 3000.f;
 	UPROPERTY(EditAnywhere, Category = "Setting up Albertos")
 		bool bLookForPlayer = true;
+	// Teleports albertos to the player when the player is far away.
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
+		float MaxDistanceToPlayer = 10000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
+		float TeleportToPlayerRadius = 2000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Crafting Widget Animation")
 		float CraftingWidgetAnimationTime = 0.4f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Crafting Widget Animation")
@@ -170,6 +175,13 @@ private:
 	FTimerHandle RandomSoundHandle;
 	float TimeForRandomSound;
 	void PlayRandomAlbertoSound();
+
+	/// <summary>
+	/// Check if the distance to the player is greater than MaxDistanceToPlayer, if so, teleport Alberto near the player.
+	/// </summary>
+	/// <returns>True - if albertos is further from the player then MaxDistanceToPlayer <br/>
+	/// False - otherwise</returns>
+	bool TeleportAlbertosToPlayer(FVector & PlayerLoc);
 
 	FVector FinalLocation;
 

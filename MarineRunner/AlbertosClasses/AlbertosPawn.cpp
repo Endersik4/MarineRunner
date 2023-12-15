@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
 #include "Components/BoxComponent.h"
@@ -11,6 +10,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "NavigationSystem.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
@@ -350,13 +350,36 @@ void AAlbertosPawn::ToggleVisibilityForDissolveBoxes()
 
 void AAlbertosPawn::CallAlbertoToThePlayer(FVector PlayerLoc)
 {
-	if (AlbertosAI == nullptr) return;
+	if (IsValid(AlbertosAI) == false) 
+		return;
+
+	if (TeleportAlbertosToPlayer(PlayerLoc) == true)
+		return;
 
 	PlayerLoc.Z = GetActorLocation().Z;
 	AlbertosAI->CallAlbertosToThePlayer(PlayerLoc);
-	if (CallAlbertosSound) UGameplayStatics::PlaySound2D(GetWorld(), CallAlbertosSound);
+
+	if (CallAlbertosSound) 
+		UGameplayStatics::PlaySound2D(GetWorld(), CallAlbertosSound);
 
 	ChangeMaxSpeedOfFloatingMovement();
+}
+
+bool AAlbertosPawn::TeleportAlbertosToPlayer(FVector& PlayerLoc)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Distance %f"), FVector::Distance(PlayerLoc, GetActorLocation()));
+	if (FVector::Distance(PlayerLoc, GetActorLocation()) < MaxDistanceToPlayer)
+		return false;
+
+	FNavLocation RandomTeleportLocation;
+	bool bFoundLoc = UNavigationSystemV1::GetCurrent(GetWorld())->GetRandomPointInNavigableRadius(PlayerLoc, TeleportToPlayerRadius, RandomTeleportLocation);
+	UE_LOG(LogTemp, Warning, TEXT("found %s"), bFoundLoc ? TEXT("TRUE") : TEXT("FALSE"));
+	if (bFoundLoc == false)
+		return false;
+	UE_LOG(LogTemp, Warning, TEXT("Distance %s"), *RandomTeleportLocation.Location.ToString());
+
+	SetActorLocation(RandomTeleportLocation.Location);
+	return true;
 }
 
 void AAlbertosPawn::ChangeMaxSpeedOfFloatingMovement(bool bTowardsPlayer)
