@@ -35,6 +35,15 @@ public:
 		class UImage* MainImageWithoutResources;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton* StorageItemButton;
+	UFUNCTION()
+		void StorageItemButtonHovered();
+	UFUNCTION()
+		void StorageItemButtonUnhovered();
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* StorageItemButtonHoveredAnim;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* ItemImageListEntry;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

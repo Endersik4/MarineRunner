@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MarineRunner/Objects/Elevator/ElevatorPanelData.h"
+
 #include "Elevator.generated.h"
 
 UCLASS()
@@ -36,6 +38,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetComponent* ElevatorPanel;
 
+	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
+		TArray<FElevatorFloor> ElevatorFloors;
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
 		int32 CurrentFloor = 1;
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
@@ -80,6 +84,8 @@ private:
 	void ActivateElevatorDoors();
 
 	void SetUpElevatorPanel();
+
+	FTimerHandle CloseDoorAfterInactivityHandle;
 
 	class AOutsideElevatorDoor* CurrentOutsideElevatorDoor;
 	class AOutsideElevatorDoor* BeforeCurrentOutsideElevatorDoor;

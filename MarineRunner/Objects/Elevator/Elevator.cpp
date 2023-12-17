@@ -43,6 +43,8 @@ void AElevator::SetUpElevatorPanel()
 		return;
 
 	ElevatorPanelWidget->SetElevator(this);
+	ElevatorPanelWidget->SetElevatorFloors(ElevatorFloors);
+
 	ElevatorPanelWidget->FillSelectFloorsListView();
 }
 
@@ -58,6 +60,8 @@ void AElevator::PrepareElevatorToMove(FVector Location, int32 Floor)
 {
 	StartLocation = GetActorLocation();
 	FloorLocationToGo = Location;
+
+	GetWorldTimerManager().ClearTimer(CloseDoorAfterInactivityHandle);
 
 	// if the elevator is on the same floor as the floor the player wants to go to then open/close the door
 	if (CurrentFloor == Floor)
@@ -95,6 +99,7 @@ void AElevator::PrepareElevatorToMove(FVector Location, int32 Floor)
 
 void AElevator::StartMovingElevator()
 {
+	ElevatorPanelWidget->ShowWaitForElevatorText(false);
 	ElevatorPanelWidget->ShowElevatorGoesUpDownImage(true, FloorLocationToGo);
 
 	SpawnedAmbientElevatorSound = UGameplayStatics::SpawnSoundAttached(AmbientElevatorSound, ElevatorMesh);
@@ -167,8 +172,7 @@ void AElevator::CanUseElevatorAgain()
 	ElevatorPanelWidget->ShowWaitForElevatorText(false);
 	ElevatorPanelWidget->ShowSelectFloorPanel(true);
 
-	FTimerHandle CloseElevatorDoorHandle;
-	GetWorldTimerManager().SetTimer(CloseElevatorDoorHandle, this, &AElevator::CloseElevatorDoors, TimeToCloseDoorsAfterInactivity, false);
+	GetWorldTimerManager().SetTimer(CloseDoorAfterInactivityHandle, this, &AElevator::CloseElevatorDoors, TimeToCloseDoorsAfterInactivity, false);
 
 	if (IsValid(BeforeCurrentOutsideElevatorDoor))
 	{

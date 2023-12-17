@@ -14,6 +14,7 @@
  * The resources that the player can take will appear in StorageInventoryTileView.
  */
 
+DECLARE_DELEGATE_OneParam(FMultiplierButtonClickedDelegate, int32);
 UCLASS()
 class MARINERUNNER_API UCraftingAlbertosWidget : public UUserWidget
 {
@@ -95,22 +96,75 @@ public:
 
 	UFUNCTION()
 		void CraftPressed();
+	UFUNCTION()
+		void CraftHovered();
+	UFUNCTION()
+		void CraftUnhovered();
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* CraftHoveredAnim;
 
 	UFUNCTION()
 		void LeftArrowClicked();
 	UFUNCTION()
+		void LeftArrowHovered();
+	UFUNCTION()
+		void LeftArrowUnhovered();
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* LeftArrowHoveredAnim;
+
+	UFUNCTION()
 		void RightArrowClicked();
+	UFUNCTION()
+		void RightArrowHovered();
+	UFUNCTION()
+		void RightArrowUnhovered();
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* RightArrowHoveredAnim;
 
 	UFUNCTION()
 		void Multiplier_1xClicked();
 	UFUNCTION()
+		void Multiplier_1xHovered();
+	UFUNCTION()
+		void Multiplier_1xUnhovered();
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* Multiplier_1xHoveredAnim;
+
+	UFUNCTION()
 		void Multiplier_2xClicked();
+	UFUNCTION()
+		void Multiplier_2xHovered();
+	UFUNCTION()
+		void Multiplier_2xUnhovered();
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* Multiplier_2xHoveredAnim;
+
 	UFUNCTION()
 		void Multiplier_4xClicked();
 	UFUNCTION()
+		void Multiplier_4xHovered();
+	UFUNCTION()
+		void Multiplier_4xUnhovered();
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* Multiplier_4xHoveredAnim;
+
+	UFUNCTION()
 		void Multiplier_8xClicked();
 	UFUNCTION()
+		void Multiplier_8xHovered();
+	UFUNCTION()
+		void Multiplier_8xUnhovered();
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* Multiplier_8xHoveredAnim;
+
+	UFUNCTION()
 		void Multiplier_16xClicked();
+	UFUNCTION()
+		void Multiplier_16xHovered();
+	UFUNCTION()
+		void Multiplier_16xUnhovered();
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* Multiplier_16xHoveredAnim;
 
 private:
 
@@ -143,6 +197,8 @@ private:
 	class UButton* MultiplierChoice;
 	void MultiplierClicked(int32 Mutliplier);
 	void SetisEnableAllMultipliers(bool bEnable);
+
+	void PlayButtonAnimation(UWidgetAnimation* AnimToPlay, bool bForward = true);
 
 	class AMarineCharacter* MarinePawn;
 

@@ -4,6 +4,7 @@
 #include "MarineRunner/AlbertosClasses/StorageListEntryWidget.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Components/Button.h"
 
 #include "MarineRunner/AlbertosClasses/ItemDataObject.h"
 
@@ -14,7 +15,8 @@ void UStorageListEntryWidget::NativeConstruct()
 
 void UStorageListEntryWidget::NativeOnInitialized()
 {
-
+	StorageItemButton->OnHovered.AddDynamic(this, &UStorageListEntryWidget::StorageItemButtonHovered);
+	StorageItemButton->OnUnhovered.AddDynamic(this, &UStorageListEntryWidget::StorageItemButtonUnhovered);
 }
 
 void UStorageListEntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
@@ -36,4 +38,20 @@ void UStorageListEntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 	MainImageWithoutResources->SetVisibility(ItemDataObject->bIsItEnoughToCraft ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
 	
 	OutlineMat->SetVectorParameterValue(FName(TEXT("Color")), ItemDataObject->bIsItEnoughToCraft ? EnoughResourcesColor : NotEnoughResourcesColor);
+}
+
+void UStorageListEntryWidget::StorageItemButtonHovered()
+{
+	if (StorageItemButtonHoveredAnim == nullptr)
+		return;
+
+	PlayAnimationForward(StorageItemButtonHoveredAnim);
+}
+
+void UStorageListEntryWidget::StorageItemButtonUnhovered()
+{
+	if (StorageItemButtonHoveredAnim == nullptr)
+		return;
+
+	PlayAnimationReverse(StorageItemButtonHoveredAnim);
 }

@@ -367,16 +367,13 @@ void AAlbertosPawn::CallAlbertoToThePlayer(FVector PlayerLoc)
 
 bool AAlbertosPawn::TeleportAlbertosToPlayer(FVector& PlayerLoc)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Distance %f"), FVector::Distance(PlayerLoc, GetActorLocation()));
 	if (FVector::Distance(PlayerLoc, GetActorLocation()) < MaxDistanceToPlayer)
 		return false;
 
 	FNavLocation RandomTeleportLocation;
 	bool bFoundLoc = UNavigationSystemV1::GetCurrent(GetWorld())->GetRandomPointInNavigableRadius(PlayerLoc, TeleportToPlayerRadius, RandomTeleportLocation);
-	UE_LOG(LogTemp, Warning, TEXT("found %s"), bFoundLoc ? TEXT("TRUE") : TEXT("FALSE"));
 	if (bFoundLoc == false)
 		return false;
-	UE_LOG(LogTemp, Warning, TEXT("Distance %s"), *RandomTeleportLocation.Location.ToString());
 
 	SetActorLocation(RandomTeleportLocation.Location);
 	return true;

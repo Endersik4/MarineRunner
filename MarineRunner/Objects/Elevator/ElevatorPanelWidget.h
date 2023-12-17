@@ -54,8 +54,6 @@ public:
 		UWidgetAnimation* ElevatorGoesUpDownDisappearAnim;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
-		TArray<FElevatorFloor> ElevatorFloors;
-	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
 		TSubclassOf<class USelectFloorEntryObject> SelectedFloorEntryObject;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
 		float ElevatorGoesUpImageAngle = 0.f;
@@ -63,6 +61,7 @@ public:
 		float ElevatorGoesDownImageAngle = 180.f;
 
 	FORCEINLINE void SetElevator(class AElevator* NewElevatorActor) { ElevatorActor = NewElevatorActor; }
+	FORCEINLINE void SetElevatorFloors(TArray<FElevatorFloor> & NewFloors) { ElevatorFloors = NewFloors;}
 	bool GetDoorOpen() const;
 	int32 GetCurrentFloor() const;
 
@@ -76,5 +75,6 @@ public:
 
 	void FillSelectFloorsListView();
 private:
+	TArray<FElevatorFloor> ElevatorFloors;
 	class AElevator* ElevatorActor;
 };

@@ -23,22 +23,49 @@ void UCraftingAlbertosWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	CraftButton->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::CraftPressed);
-
-	LeftArrowButton->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::LeftArrowClicked);
-	RightArrowButton->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::RightArrowClicked);
-
-	AmountMultiplier_1x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_1xClicked);
-	AmountMultiplier_2x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_2xClicked);
-	AmountMultiplier_4x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_4xClicked);
-	AmountMultiplier_8x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_8xClicked);
-	AmountMultiplier_16x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xClicked);
-
 }
 
 void UCraftingAlbertosWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+
+	CraftButton->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::CraftPressed);
+	CraftButton->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::CraftHovered);
+	CraftButton->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::CraftUnhovered);
+
+	LeftArrowButton->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::LeftArrowClicked);
+	LeftArrowButton->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::LeftArrowHovered);
+	LeftArrowButton->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::LeftArrowUnhovered);
+
+
+	RightArrowButton->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::RightArrowClicked);
+	RightArrowButton->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::RightArrowHovered);
+	RightArrowButton->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::RightArrowUnhovered);
+
+
+	AmountMultiplier_1x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_1xClicked);
+	AmountMultiplier_1x->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_1xHovered);
+	AmountMultiplier_1x->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_1xUnhovered);
+
+
+	AmountMultiplier_2x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_2xClicked);
+	AmountMultiplier_2x->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_2xHovered);
+	AmountMultiplier_2x->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_2xUnhovered);
+
+
+	AmountMultiplier_4x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_4xClicked);
+	AmountMultiplier_4x->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_4xHovered);
+	AmountMultiplier_4x->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_4xUnhovered);
+
+
+	AmountMultiplier_8x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_8xClicked);
+	AmountMultiplier_8x->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_8xHovered);
+	AmountMultiplier_8x->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_8xUnhovered);
+
+
+	AmountMultiplier_16x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xClicked);
+	AmountMultiplier_16x->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xHovered);
+	AmountMultiplier_16x->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xUnhovered);
 
 	MultiplierChoice = AmountMultiplier_1x;
 	UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
@@ -230,6 +257,18 @@ void UCraftingAlbertosWidget::CraftPressed()
 	GetWorld()->GetTimerManager().SetTimer(TimeCraftHandle, this, &UCraftingAlbertosWidget::SetCanCraftAgain, WaitTime, false);
 }
 
+void UCraftingAlbertosWidget::CraftHovered()
+{
+	PlayButtonAnimation(CraftHoveredAnim);
+
+}
+
+void UCraftingAlbertosWidget::CraftUnhovered()
+{
+	PlayButtonAnimation(CraftHoveredAnim, false);
+}
+
+
 void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar(float Delta)
 {
 	if (bCanCraft == true) return;
@@ -283,6 +322,16 @@ void UCraftingAlbertosWidget::LeftArrowClicked()
 	Multiplier_1xClicked();
 }
 
+void UCraftingAlbertosWidget::LeftArrowHovered()
+{
+	PlayButtonAnimation(LeftArrowHoveredAnim);
+}
+
+void UCraftingAlbertosWidget::LeftArrowUnhovered()
+{
+	PlayButtonAnimation(LeftArrowHoveredAnim, false);
+}
+
 void UCraftingAlbertosWidget::RightArrowClicked()
 {
 	if (ChoiceOfCraftableItem < RecipesOfCraftableItems.Num() - 1)
@@ -297,6 +346,17 @@ void UCraftingAlbertosWidget::RightArrowClicked()
 
 	Multiplier_1xClicked();
 }
+
+void UCraftingAlbertosWidget::RightArrowHovered()
+{
+	PlayButtonAnimation(RightArrowHoveredAnim);
+}
+
+void UCraftingAlbertosWidget::RightArrowUnhovered()
+{
+	PlayButtonAnimation(RightArrowHoveredAnim, false);
+}
+
 #pragma endregion
 
 #pragma region //////////////////////////////// Mutlipliers Buttons/////////////////////////////////
@@ -330,6 +390,16 @@ void UCraftingAlbertosWidget::Multiplier_1xClicked()
 	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
 }
 
+void UCraftingAlbertosWidget::Multiplier_1xHovered()
+{
+	PlayButtonAnimation(Multiplier_1xHoveredAnim);
+}
+
+void UCraftingAlbertosWidget::Multiplier_1xUnhovered()
+{
+	PlayButtonAnimation(Multiplier_1xHoveredAnim, false);
+}
+
 void UCraftingAlbertosWidget::Multiplier_2xClicked()
 {
 	if (bCanCraft == false) return;
@@ -338,6 +408,16 @@ void UCraftingAlbertosWidget::Multiplier_2xClicked()
 	MultiplierChoice = AmountMultiplier_2x;
 	ChoiceOfMultiplierChoice = 1;
 	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
+}
+
+void UCraftingAlbertosWidget::Multiplier_2xHovered()
+{
+	PlayButtonAnimation(Multiplier_2xHoveredAnim);
+}
+
+void UCraftingAlbertosWidget::Multiplier_2xUnhovered()
+{
+	PlayButtonAnimation(Multiplier_2xHoveredAnim, false);
 }
 
 void UCraftingAlbertosWidget::Multiplier_4xClicked()
@@ -350,6 +430,16 @@ void UCraftingAlbertosWidget::Multiplier_4xClicked()
 	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
 }
 
+void UCraftingAlbertosWidget::Multiplier_4xHovered()
+{
+	PlayButtonAnimation(Multiplier_4xHoveredAnim);
+}
+
+void UCraftingAlbertosWidget::Multiplier_4xUnhovered()
+{
+	PlayButtonAnimation(Multiplier_4xHoveredAnim, false);
+}
+
 void UCraftingAlbertosWidget::Multiplier_8xClicked()
 {
 	if (bCanCraft == false) return;
@@ -360,6 +450,17 @@ void UCraftingAlbertosWidget::Multiplier_8xClicked()
 	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
 }
 
+void UCraftingAlbertosWidget::Multiplier_8xHovered()
+{
+	PlayButtonAnimation(Multiplier_8xHoveredAnim);
+}
+
+void UCraftingAlbertosWidget::Multiplier_8xUnhovered()
+{
+	PlayButtonAnimation(Multiplier_8xHoveredAnim, false);
+
+}
+
 void UCraftingAlbertosWidget::Multiplier_16xClicked()
 {
 	if (bCanCraft == false) return;
@@ -368,6 +469,31 @@ void UCraftingAlbertosWidget::Multiplier_16xClicked()
 	MultiplierChoice = AmountMultiplier_16x;
 	ChoiceOfMultiplierChoice = 4;
 	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
+}
+
+void UCraftingAlbertosWidget::Multiplier_16xHovered()
+{
+	PlayButtonAnimation(Multiplier_16xHoveredAnim);
+}
+
+void UCraftingAlbertosWidget::Multiplier_16xUnhovered()
+{
+	PlayButtonAnimation(Multiplier_16xHoveredAnim, false);
+}
+
+void UCraftingAlbertosWidget::PlayButtonAnimation(UWidgetAnimation* AnimToPlay, bool bForward)
+{
+	if (AnimToPlay == nullptr)
+		return;
+
+	if (bForward)
+	{
+		PlayAnimationForward(AnimToPlay);
+	}
+	else
+	{
+		PlayAnimationReverse(AnimToPlay);
+	}
 }
 
 #pragma endregion
