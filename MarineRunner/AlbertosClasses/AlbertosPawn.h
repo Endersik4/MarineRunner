@@ -74,7 +74,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetComponent* CraftingTableWidget;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class USphereComponent* InventoryButtonComponent;
+		class UBoxComponent* OpenInventoryBoxComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* Hologram_1;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")

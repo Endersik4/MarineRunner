@@ -67,8 +67,8 @@ void UCraftingAlbertosWidget::NativeOnInitialized()
 	AmountMultiplier_16x->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xHovered);
 	AmountMultiplier_16x->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xUnhovered);
 
-	MultiplierChoice = AmountMultiplier_1x;
-	UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
+	Multiplier_1xHovered();
+	Multiplier_1xClicked();
 }
 
 void UCraftingAlbertosWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
@@ -122,9 +122,13 @@ void UCraftingAlbertosWidget::AddItemToTileView(TArray<FItemStruct> InventoryIte
 #pragma region ///////////////// CRAFTING /////////////////////
 void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshInventory)
 {
-	if (bCanCraft == false || MarinePawn == nullptr) return;
+	if (bCanCraft == false || MarinePawn == nullptr) 
+		return;
+
 	RequirementsInventoryTileView->ClearListItems();
-	if (RecipesOfCraftableItems.Num() < ChoiceOfCraftableItem) return;
+
+	if (RecipesOfCraftableItems.Num() < ChoiceOfCraftableItem) 
+		return;
 
 	SetItemDataToUI(bRefreshInventory);
 
@@ -154,6 +158,7 @@ void UCraftingAlbertosWidget::SetItemDataToUI(bool bRefreshInventory)
 
 void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshInventory)
 {
+	//RequirementsInventoryTileView->ClearListItems();
 	TArray<FString> ResourcesName;
 	RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.GenerateKeyArray(ResourcesName);
 	for (FString NameOfResource : ResourcesName)
@@ -268,7 +273,6 @@ void UCraftingAlbertosWidget::CraftUnhovered()
 	PlayButtonAnimation(CraftHoveredAnim, false);
 }
 
-
 void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar(float Delta)
 {
 	if (bCanCraft == true) return;
@@ -319,6 +323,11 @@ void UCraftingAlbertosWidget::LeftArrowClicked()
 	}
 	else return;
 
+
+	if (MultiplierChoice != AmountMultiplier_1x)
+	{
+		Multiplier_1xHovered();
+	}
 	Multiplier_1xClicked();
 }
 
@@ -344,6 +353,10 @@ void UCraftingAlbertosWidget::RightArrowClicked()
 	}
 	else return;
 
+	if (MultiplierChoice != AmountMultiplier_1x)
+	{
+		Multiplier_1xHovered();
+	}
 	Multiplier_1xClicked();
 }
 
@@ -362,14 +375,14 @@ void UCraftingAlbertosWidget::RightArrowUnhovered()
 #pragma region //////////////////////////////// Mutlipliers Buttons/////////////////////////////////
 
 void UCraftingAlbertosWidget::MultiplierClicked(int32 Mutliplier)
-{
-	if (MultiplierChoice && ChoiceOfMultiplierChoice < OriginalMultiplierChoiceTextures.Num())
-	{
-		UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, OriginalMultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
-	}
-	
+{	
 	CraftingMultiplier = Mutliplier;
 	SwitchCurrentCraftingItem();
+
+	if (CurrentMultiplierUnhoveredFunc)
+	{
+		(this->*(CurrentMultiplierUnhoveredFunc))();
+	}
 }
 
 void UCraftingAlbertosWidget::SetisEnableAllMultipliers(bool bEnable)
@@ -384,10 +397,9 @@ void UCraftingAlbertosWidget::Multiplier_1xClicked()
 {
 	if (bCanCraft == false) return;
 
-	MultiplierClicked(1);
-	ChoiceOfMultiplierChoice = 0;
 	MultiplierChoice = AmountMultiplier_1x;
-	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
+	MultiplierClicked(1);
+	CurrentMultiplierUnhoveredFunc = &UCraftingAlbertosWidget::Multiplier_1xUnhovered;
 }
 
 void UCraftingAlbertosWidget::Multiplier_1xHovered()
@@ -397,6 +409,9 @@ void UCraftingAlbertosWidget::Multiplier_1xHovered()
 
 void UCraftingAlbertosWidget::Multiplier_1xUnhovered()
 {
+	if (MultiplierChoice == AmountMultiplier_1x)
+		return;
+
 	PlayButtonAnimation(Multiplier_1xHoveredAnim, false);
 }
 
@@ -404,10 +419,9 @@ void UCraftingAlbertosWidget::Multiplier_2xClicked()
 {
 	if (bCanCraft == false) return;
 
-	MultiplierClicked(2);
 	MultiplierChoice = AmountMultiplier_2x;
-	ChoiceOfMultiplierChoice = 1;
-	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
+	MultiplierClicked(2);
+	CurrentMultiplierUnhoveredFunc = &UCraftingAlbertosWidget::Multiplier_2xUnhovered;
 }
 
 void UCraftingAlbertosWidget::Multiplier_2xHovered()
@@ -417,6 +431,9 @@ void UCraftingAlbertosWidget::Multiplier_2xHovered()
 
 void UCraftingAlbertosWidget::Multiplier_2xUnhovered()
 {
+	if (MultiplierChoice == AmountMultiplier_2x)
+		return;
+
 	PlayButtonAnimation(Multiplier_2xHoveredAnim, false);
 }
 
@@ -424,10 +441,9 @@ void UCraftingAlbertosWidget::Multiplier_4xClicked()
 {
 	if (bCanCraft == false) return;
 
-	MultiplierClicked(4);
 	MultiplierChoice = AmountMultiplier_4x;
-	ChoiceOfMultiplierChoice = 2;
-	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
+	MultiplierClicked(4);
+	CurrentMultiplierUnhoveredFunc = &UCraftingAlbertosWidget::Multiplier_4xUnhovered;
 }
 
 void UCraftingAlbertosWidget::Multiplier_4xHovered()
@@ -437,6 +453,9 @@ void UCraftingAlbertosWidget::Multiplier_4xHovered()
 
 void UCraftingAlbertosWidget::Multiplier_4xUnhovered()
 {
+	if (MultiplierChoice == AmountMultiplier_4x)
+		return;
+
 	PlayButtonAnimation(Multiplier_4xHoveredAnim, false);
 }
 
@@ -444,10 +463,9 @@ void UCraftingAlbertosWidget::Multiplier_8xClicked()
 {
 	if (bCanCraft == false) return;
 
-	MultiplierClicked(8);
 	MultiplierChoice = AmountMultiplier_8x;
-	ChoiceOfMultiplierChoice = 3;
-	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
+	MultiplierClicked(8);
+	CurrentMultiplierUnhoveredFunc = &UCraftingAlbertosWidget::Multiplier_8xUnhovered;
 }
 
 void UCraftingAlbertosWidget::Multiplier_8xHovered()
@@ -457,18 +475,19 @@ void UCraftingAlbertosWidget::Multiplier_8xHovered()
 
 void UCraftingAlbertosWidget::Multiplier_8xUnhovered()
 {
-	PlayButtonAnimation(Multiplier_8xHoveredAnim, false);
+	if (MultiplierChoice == AmountMultiplier_8x)
+		return;
 
+	PlayButtonAnimation(Multiplier_8xHoveredAnim, false);
 }
 
 void UCraftingAlbertosWidget::Multiplier_16xClicked()
 {
 	if (bCanCraft == false) return;
 
-	MultiplierClicked(16);
 	MultiplierChoice = AmountMultiplier_16x;
-	ChoiceOfMultiplierChoice = 4;
-	if (ChoiceOfMultiplierChoice < MultiplierChoiceTextures.Num()) UWidgetBlueprintLibrary::SetBrushResourceToTexture(MultiplierChoice->WidgetStyle.Normal, MultiplierChoiceTextures[ChoiceOfMultiplierChoice]);
+	MultiplierClicked(16);
+	CurrentMultiplierUnhoveredFunc = &UCraftingAlbertosWidget::Multiplier_16xUnhovered;
 }
 
 void UCraftingAlbertosWidget::Multiplier_16xHovered()
@@ -478,6 +497,9 @@ void UCraftingAlbertosWidget::Multiplier_16xHovered()
 
 void UCraftingAlbertosWidget::Multiplier_16xUnhovered()
 {
+	if (MultiplierChoice == AmountMultiplier_16x)
+		return;
+
 	PlayButtonAnimation(Multiplier_16xHoveredAnim, false);
 }
 

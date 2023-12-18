@@ -30,11 +30,6 @@ public:
 		FLinearColor NotEnoughResourcesColor;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* MainImage;
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* MainImageWithoutResources;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UButton* StorageItemButton;
 	UFUNCTION()
 		void StorageItemButtonHovered();
@@ -49,7 +44,12 @@ public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* ItemAmountListEntry;
 
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* DisableStorageAnim;
+
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Storage List Entry")
 		FString TextWhenItemAmountIsMoreThen999 = "+999";
+
 };

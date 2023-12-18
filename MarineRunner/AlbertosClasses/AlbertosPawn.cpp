@@ -4,7 +4,6 @@
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/SphereComponent.h"
 #include "Components/AudioComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Blueprint/UserWidget.h"
@@ -39,10 +38,10 @@ AAlbertosPawn::AAlbertosPawn()
 	AlbertosSkeletalMesh->SetCollisionProfileName(TEXT("PhysicsActor"));
 	AlbertosSkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 
-	InventoryButtonComponent = CreateDefaultSubobject<USphereComponent>(TEXT("Inventory Button Component"));
-	InventoryButtonComponent->SetupAttachment(AlbertosSkeletalMesh);
-	InventoryButtonComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	InventoryButtonComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+	OpenInventoryBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Inventory Box Component"));
+	OpenInventoryBoxComponent->SetupAttachment(AlbertosSkeletalMesh);
+	OpenInventoryBoxComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	OpenInventoryBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
 
 	CraftingTableWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("CraftingTableWidget"));
 	CraftingTableWidget->SetupAttachment(AlbertosSkeletalMesh);

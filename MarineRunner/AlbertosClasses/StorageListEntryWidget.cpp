@@ -31,13 +31,15 @@ void UStorageListEntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 		ItemAmountValueString = TextWhenItemAmountIsMoreThen999;
 	}
 	ItemAmountListEntry->SetText(FText::FromString(ItemAmountValueString));
-
-	UMaterialInstanceDynamic* OutlineMat = ItemAmountListEntry->GetDynamicOutlineMaterial();
-
-	MainImage->SetVisibility(ItemDataObject->bIsItEnoughToCraft ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
-	MainImageWithoutResources->SetVisibility(ItemDataObject->bIsItEnoughToCraft ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
 	
-	OutlineMat->SetVectorParameterValue(FName(TEXT("Color")), ItemDataObject->bIsItEnoughToCraft ? EnoughResourcesColor : NotEnoughResourcesColor);
+	if (ItemDataObject->bIsItEnoughToCraft == false)
+	{
+		PlayAnimationForward(DisableStorageAnim);
+	}
+	else
+	{
+		PlayAnimationReverse(DisableStorageAnim);
+	}
 }
 
 void UStorageListEntryWidget::StorageItemButtonHovered()

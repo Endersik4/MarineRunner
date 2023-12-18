@@ -20,4 +20,6 @@ public:
 		FItemStruct ItemData;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bIsItEnoughToCraft = true;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool bWasDisabled = false;
 };

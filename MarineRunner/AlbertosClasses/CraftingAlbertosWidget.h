@@ -30,10 +30,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		TSubclassOf<class UItemDataObject> ItemDataObject;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<UTexture2D*> MultiplierChoiceTextures;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray<UTexture2D*> OriginalMultiplierChoiceTextures;
 
 	void AddItemToTileView(TArray<struct FItemStruct> InventoryItems);
 	void SetRecipesData(class AMarineCharacter* Player);
@@ -193,10 +189,11 @@ private:
 	class AAlbertosPawn* AlbertosPawn;
 
 	// Multiplier Buttons
-	int32 ChoiceOfMultiplierChoice = 0;
 	class UButton* MultiplierChoice;
 	void MultiplierClicked(int32 Mutliplier);
 	void SetisEnableAllMultipliers(bool bEnable);
+
+	void (UCraftingAlbertosWidget::*CurrentMultiplierUnhoveredFunc)(void);
 
 	void PlayButtonAnimation(UWidgetAnimation* AnimToPlay, bool bForward = true);
 
