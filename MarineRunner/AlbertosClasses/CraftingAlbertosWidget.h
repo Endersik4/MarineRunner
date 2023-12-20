@@ -14,7 +14,12 @@
  * The resources that the player can take will appear in StorageInventoryTileView.
  */
 
-DECLARE_DELEGATE_OneParam(FMultiplierButtonClickedDelegate, int32);
+enum EChoiceOfArrow
+{
+	ECA_Left,
+	ECA_Right,
+	ECA_None
+};
 UCLASS()
 class MARINERUNNER_API UCraftingAlbertosWidget : public UUserWidget
 {
@@ -37,6 +42,7 @@ public:
 
 	void SetAlbertosPawn(class AAlbertosPawn* NewAlbertos) { AlbertosPawn = NewAlbertos; }
 
+protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* BackgroundImage;
 
@@ -63,6 +69,14 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* CraftingItemImage;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UImage* SecondCraftingItemImageForAnim;
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* Right_SlideCraftingImagesAnim;
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* Left_SlideCraftingImagesAnim;
+	UFUNCTION()
+		void OnSlideCraftingAnimFinished();
 
 	// A place where all items will be stored except resources (first aid kits, ammunition...).
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -187,6 +201,10 @@ private:
 	void FillRecipesItem();
 
 	class AAlbertosPawn* AlbertosPawn;
+
+	// Swipe Items Icon Images Anim
+	EChoiceOfArrow CurrentChoiceOfArrow = ECA_None;
+	void PlayProperSwipeItemIconAnim();
 
 	// Multiplier Buttons
 	class UButton* MultiplierChoice;

@@ -10,6 +10,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetTextLibrary.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Animation/WidgetAnimation.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
@@ -66,6 +67,11 @@ void UCraftingAlbertosWidget::NativeOnInitialized()
 	AmountMultiplier_16x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xClicked);
 	AmountMultiplier_16x->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xHovered);
 	AmountMultiplier_16x->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xUnhovered);
+
+	FWidgetAnimationDynamicEvent SlideCraftingAnimFinished;
+	SlideCraftingAnimFinished.BindDynamic(this, &UCraftingAlbertosWidget::OnSlideCraftingAnimFinished);
+	BindToAnimationFinished(Left_SlideCraftingImagesAnim, SlideCraftingAnimFinished);
+	BindToAnimationFinished(Right_SlideCraftingImagesAnim, SlideCraftingAnimFinished);
 
 	Multiplier_1xHovered();
 	Multiplier_1xClicked();
@@ -132,6 +138,8 @@ void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshInventory)
 
 	SetItemDataToUI(bRefreshInventory);
 
+	PlayProperSwipeItemIconAnim();
+
 	bCanBeCrafted = true;
 	CraftButton->SetIsEnabled(true);
 
@@ -140,9 +148,18 @@ void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshInventory)
 
 void UCraftingAlbertosWidget::SetItemDataToUI(bool bRefreshInventory)
 {
-	if (bRefreshInventory == true) return;
+	if (bRefreshInventory == true) 
+		return;
 
-	CraftingItemImage->SetBrushFromTexture(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_StorageIcon);
+	if (CurrentChoiceOfArrow == ECA_None)
+	{
+		CraftingItemImage->SetBrushFromTexture(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_StorageIcon);
+	}
+	else if (RecipesOfCraftableItems.Num() > ChoiceOfCraftableItem)
+	{
+		SecondCraftingItemImageForAnim->SetBrushFromTexture(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_StorageIcon);
+	}
+
 	ItemNameToBeCraftedText->SetText(FText::FromString("-" + RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Name + "-"));
 	ItemDescriptionText->SetText(FText::FromString(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Description));
 
@@ -158,7 +175,6 @@ void UCraftingAlbertosWidget::SetItemDataToUI(bool bRefreshInventory)
 
 void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshInventory)
 {
-	//RequirementsInventoryTileView->ClearListItems();
 	TArray<FString> ResourcesName;
 	RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.GenerateKeyArray(ResourcesName);
 	for (FString NameOfResource : ResourcesName)
@@ -275,7 +291,8 @@ void UCraftingAlbertosWidget::CraftUnhovered()
 
 void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar(float Delta)
 {
-	if (bCanCraft == true) return;
+	if (bCanCraft == true) 
+		return;
 
 	if (TimeElapsed <= WaitTime)
 	{
@@ -310,9 +327,30 @@ void UCraftingAlbertosWidget::SetCanCraftAgain()
 
 #pragma endregion
 
+#pragma region /////////////////// Swipe Items Icons Images Animation //////////////////////
+void UCraftingAlbertosWidget::PlayProperSwipeItemIconAnim()
+{
+	if (CurrentChoiceOfArrow == ECA_Left)
+	{
+		PlayAnimationForward(Left_SlideCraftingImagesAnim, 1.f, true);
+	}
+	else if (CurrentChoiceOfArrow == ECA_Right)
+	{
+		PlayAnimationForward(Right_SlideCraftingImagesAnim, 1.f, true);
+	}
+	CurrentChoiceOfArrow = ECA_None;
+}
+
+void UCraftingAlbertosWidget::OnSlideCraftingAnimFinished()
+{
+	CraftingItemImage->SetBrushFromTexture(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_StorageIcon);
+}
+
 #pragma region ///////////////////////////// CHOICE - ARROWS //////////////////////////////
 void UCraftingAlbertosWidget::LeftArrowClicked()
 {
+	CurrentChoiceOfArrow = ECA_Left;
+
 	if (ChoiceOfCraftableItem > 0)
 	{
 		ChoiceOfCraftableItem--;
@@ -322,7 +360,6 @@ void UCraftingAlbertosWidget::LeftArrowClicked()
 		ChoiceOfCraftableItem = RecipesOfCraftableItems.Num() - 1;
 	}
 	else return;
-
 
 	if (MultiplierChoice != AmountMultiplier_1x)
 	{
@@ -343,6 +380,8 @@ void UCraftingAlbertosWidget::LeftArrowUnhovered()
 
 void UCraftingAlbertosWidget::RightArrowClicked()
 {
+	CurrentChoiceOfArrow = ECA_Right;
+
 	if (ChoiceOfCraftableItem < RecipesOfCraftableItems.Num() - 1)
 	{
 		ChoiceOfCraftableItem++;
