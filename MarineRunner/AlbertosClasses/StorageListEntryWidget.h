@@ -37,6 +37,8 @@ public:
 		void StorageItemButtonUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
 		UWidgetAnimation* StorageItemButtonHoveredAnim;
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* DisabledStorageItemButtonHoveredAnim;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UImage* ItemImageListEntry;
@@ -51,5 +53,6 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Storage List Entry")
 		FString TextWhenItemAmountIsMoreThen999 = "+999";
+	bool bNotEnoughResources = false;
 
 };

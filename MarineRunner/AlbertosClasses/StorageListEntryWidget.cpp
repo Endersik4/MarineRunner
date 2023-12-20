@@ -32,28 +32,37 @@ void UStorageListEntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 	}
 	ItemAmountListEntry->SetText(FText::FromString(ItemAmountValueString));
 	
-	if (ItemDataObject->bIsItEnoughToCraft == false)
+	bNotEnoughResources = ItemDataObject->bIsItEnoughToCraft;
+	if (bNotEnoughResources == false)
 	{
 		PlayAnimationForward(DisableStorageAnim);
 	}
 	else
 	{
-		PlayAnimationReverse(DisableStorageAnim);
+		PlayAnimation(StorageItemButtonHoveredAnim, 1.f, 1, EUMGSequencePlayMode::Reverse);
 	}
 }
 
 void UStorageListEntryWidget::StorageItemButtonHovered()
 {
-	if (StorageItemButtonHoveredAnim == nullptr)
-		return;
-
-	PlayAnimationForward(StorageItemButtonHoveredAnim);
+	if (bNotEnoughResources == false)
+	{
+		PlayAnimationForward(DisabledStorageItemButtonHoveredAnim);
+	}
+	else
+	{
+		PlayAnimationForward(StorageItemButtonHoveredAnim);
+	}
 }
 
 void UStorageListEntryWidget::StorageItemButtonUnhovered()
 {
-	if (StorageItemButtonHoveredAnim == nullptr)
-		return;
-
-	PlayAnimationReverse(StorageItemButtonHoveredAnim);
+	if (bNotEnoughResources == false)
+	{
+		PlayAnimationReverse(DisabledStorageItemButtonHoveredAnim);
+	}
+	else
+	{
+		PlayAnimationReverse(StorageItemButtonHoveredAnim);
+	}
 }

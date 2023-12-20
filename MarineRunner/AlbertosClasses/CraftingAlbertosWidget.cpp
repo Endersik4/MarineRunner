@@ -404,6 +404,9 @@ void UCraftingAlbertosWidget::Multiplier_1xClicked()
 
 void UCraftingAlbertosWidget::Multiplier_1xHovered()
 {
+	if (MultiplierChoice == AmountMultiplier_1x)
+		return;
+
 	PlayButtonAnimation(Multiplier_1xHoveredAnim);
 }
 
@@ -426,6 +429,9 @@ void UCraftingAlbertosWidget::Multiplier_2xClicked()
 
 void UCraftingAlbertosWidget::Multiplier_2xHovered()
 {
+	if (MultiplierChoice == AmountMultiplier_2x)
+		return;
+
 	PlayButtonAnimation(Multiplier_2xHoveredAnim);
 }
 
@@ -448,6 +454,9 @@ void UCraftingAlbertosWidget::Multiplier_4xClicked()
 
 void UCraftingAlbertosWidget::Multiplier_4xHovered()
 {
+	if (MultiplierChoice == AmountMultiplier_4x)
+		return;
+
 	PlayButtonAnimation(Multiplier_4xHoveredAnim);
 }
 
@@ -470,6 +479,9 @@ void UCraftingAlbertosWidget::Multiplier_8xClicked()
 
 void UCraftingAlbertosWidget::Multiplier_8xHovered()
 {
+	if (MultiplierChoice == AmountMultiplier_8x)
+		return;
+
 	PlayButtonAnimation(Multiplier_8xHoveredAnim);
 }
 
@@ -492,6 +504,9 @@ void UCraftingAlbertosWidget::Multiplier_16xClicked()
 
 void UCraftingAlbertosWidget::Multiplier_16xHovered()
 {
+	if (MultiplierChoice == AmountMultiplier_16x)
+		return;
+
 	PlayButtonAnimation(Multiplier_16xHoveredAnim);
 }
 
