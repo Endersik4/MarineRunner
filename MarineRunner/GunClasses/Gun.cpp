@@ -16,6 +16,7 @@
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Inventory/PickupItem.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/MessageHandlerComponent.h"
 
 // Sets default values
 AGun::AGun()
@@ -658,6 +659,7 @@ void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 	CopyOfFOV = MarinePawn->GetCamera()->FieldOfView;
 
 	AddAmmoToInventory();
+	AddGunRecipeToInventory();
 
 	EquipWeapon();
 
@@ -665,6 +667,15 @@ void AGun::TakeItem(AMarineCharacter* MarineCharacter, bool& bIsItWeapon)
 	MarinePawn->GetWeaponHandlerComponent()->HideGunAndAddTheNewOne(this);
 	MarinePawn->GetWeaponHandlerComponent()->SetGun(this);
 	MarinePawn->UpdateAlbertosInventory(true, true);
+}
+
+void AGun::AddGunRecipeToInventory()
+{
+	if (MarinePawn->GetInventoryComponent()->Items_Recipes.FindByKey(GetItemSettings()) != nullptr)
+		return;
+
+	MarinePawn->GetMessageHandlerComponent()->SpawnNewRecipeUnlockedWidget();
+	MarinePawn->GetInventoryComponent()->Items_Recipes.Add(GetItemSettings());
 }
 
 void AGun::ItemHover(UHUDWidget* MarineHUDWidget)

@@ -367,6 +367,7 @@ private:
 	void AddAmmoToInventory();
 	void SpawnAmmunitionObjectForVariables();
 	bool GetPointerToAmmoFromInventory();
+	void AddGunRecipeToInventory();
 
 	////////////// TakeAndDrop //////////////////
 	bool bDidTakeThisWeapon;

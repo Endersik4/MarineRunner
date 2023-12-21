@@ -31,6 +31,11 @@ public:
 	FORCEINLINE bool GetIsMessageDisplayed() const { return bIsMessageDisplayed; }
 
 	void DeleteCurrentDisplayedMessage(class AMarineCharacter*);
+
+	void SpawnNewRecipeUnlockedWidget();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Messages")
+		TSubclassOf<class UGameSavedNotificationWidget> NewRecipeUnlockedWidget;
 private:
 	bool bIsMessageDisplayed;
 	class UMessageToReadWidget* CurrentDisplayedMessage;

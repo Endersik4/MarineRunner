@@ -7,6 +7,7 @@
 
 #include "MarineRunner/Objects/MessageToReadWidget.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/Widgets/Menu/GameSavedNotificationWidget.h"
 
 // Sets default values for this component's properties
 UMessageHandlerComponent::UMessageHandlerComponent()
@@ -49,5 +50,11 @@ void UMessageHandlerComponent::DeleteCurrentDisplayedMessage(class AMarineCharac
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetShowMouseCursor(false);
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 	UWidgetBlueprintLibrary::SetInputMode_GameOnly(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+}
+
+void UMessageHandlerComponent::SpawnNewRecipeUnlockedWidget()
+{
+	UGameSavedNotificationWidget* NewRecipeUnlockedWidget = Cast<UGameSavedNotificationWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), NewRecipeUnlockedWidget));
+	NewRecipeUnlockedWidget->AddToViewport();
 }
 

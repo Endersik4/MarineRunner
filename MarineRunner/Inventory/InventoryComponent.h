@@ -26,6 +26,8 @@ struct FItemStruct
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		bool bIsItCraftable = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
+		TSubclassOf<class APickupItem> ItemObject;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
 		float Item_TimeCraft;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
 		FVector Item_CraftLocation;
@@ -63,6 +65,11 @@ struct FItemStruct
 		Item_TimeCraft = CraftingTime;
 		ResourceRequirements = Requirements;
 	}
+
+	bool operator==(const FItemStruct& SecondItem)
+	{
+		return Item_Name == SecondItem.Item_Name;
+	}
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -86,12 +93,13 @@ public:
 		TMap<TSubclassOf<class APickupItem>, int32> Inventory_ItemsData;
 
 	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadOnly)
-		TArray<TSubclassOf<class APickupItem>> Recipes_Items;
+		TArray<FItemStruct> Items_Recipes;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory", BlueprintReadOnly)
 		TMap<FString, FItemStruct> Inventory_Items;
 
 
 private:
+
 	void TransformItemsDataToInventory();
 };

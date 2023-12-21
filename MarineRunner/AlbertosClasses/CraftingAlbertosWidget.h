@@ -198,8 +198,6 @@ private:
 	void SetPercentOfCraftingProgressBar(float Delta);
 	void SetCanCraftAgain();
 
-	void FillRecipesItem();
-
 	class AAlbertosPawn* AlbertosPawn;
 
 	// Swipe Items Icon Images Anim

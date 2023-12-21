@@ -87,26 +87,11 @@ void UCraftingAlbertosWidget::NativeTick(const FGeometry& MyGeometry, float Delt
 #pragma region /////////////////////// ADD DATA TO INVENTORY ///////////////////
 void UCraftingAlbertosWidget::SetRecipesData(AMarineCharacter* Player)
 {
-	MarinePawn = Player;
-
-	if (IsValid(MarinePawn) == false) 
+	if (IsValid(Player) == false)
 		return;
 
-	RecipesOfCraftableItems.Empty();
-	
-	FillRecipesItem();	
-}
-
-void UCraftingAlbertosWidget::FillRecipesItem()
-{
-	for (TSubclassOf<APickupItem> PickableItem : MarinePawn->GetInventoryComponent()->Recipes_Items)
-	{
-		APickupItem* SpawnedItem = MarinePawn->GetWorld()->SpawnActor<APickupItem>(PickableItem, FVector(0.f), FRotator(0.f));
-		if (SpawnedItem == nullptr) continue;
-
-		RecipesOfCraftableItems.Add(SpawnedItem->GetItemSettings());
-		SpawnedItem->Destroy();
-	}
+	MarinePawn = Player;
+	RecipesOfCraftableItems = Player->GetInventoryComponent()->Items_Recipes;
 }
 
 void UCraftingAlbertosWidget::AddItemToTileView(TArray<FItemStruct> InventoryItems)
@@ -247,9 +232,9 @@ void UCraftingAlbertosWidget::CraftPressed()
 	FRotator SpawnRotation = AlbertosPawn->GetActorRotation() + RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftRotation;
 	if (RecipesOfCraftableItems[ChoiceOfCraftableItem].bIsItWeapon == true)
 	{
-		SpawnedItem = GetWorld()->SpawnActor<AGun>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], SpawnLocation, SpawnRotation);
+		SpawnedItem = GetWorld()->SpawnActor<AGun>(RecipesOfCraftableItems[ChoiceOfCraftableItem].ItemObject, SpawnLocation, SpawnRotation);
 	}
-	else SpawnedItem = GetWorld()->SpawnActor<APickupItem>(MarinePawn->GetInventoryComponent()->Recipes_Items[ChoiceOfCraftableItem], SpawnLocation, SpawnRotation);
+	else SpawnedItem = GetWorld()->SpawnActor<APickupItem>(RecipesOfCraftableItems[ChoiceOfCraftableItem].ItemObject, SpawnLocation, SpawnRotation);
 	if (SpawnedItem == nullptr) return;
 
 	SpawnedItem->SetCollisionNewResponse(ECC_GameTraceChannel1, ECR_Ignore);
