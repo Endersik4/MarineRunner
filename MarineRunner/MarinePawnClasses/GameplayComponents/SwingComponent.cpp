@@ -59,6 +59,17 @@ void USwingComponent::SwingLineCheck()
 		if (HitResults.GetActor()->ActorHasTag("Hook") == false)
 			return;
 
+		FVector test = UKismetMathLibrary::GetDirectionUnitVector(MarinePlayer->GetCameraLocation(), HitResults.GetActor()->GetActorLocation());
+		if (test.Equals(PlayerController->GetRootComponent()->GetForwardVector(), PlayerLooksTowardsHookTolerance) == false)
+		{
+			if (IsValid(CurrentFocusedHook))
+			{
+				CurrentFocusedHook->HookActivate(false);
+				bCanPlayerSwing = false;
+			}
+			return;
+		}
+		
 		AHook* HoveredHook = Cast<AHook>(HitResults.GetActor());
 
 		// Disable previous hook if there was any
@@ -72,17 +83,38 @@ void USwingComponent::SwingLineCheck()
 		CurrentFocusedHook = HoveredHook;
 		bCanPlayerSwing = true;
 	}	
-	else if (IsValid(CurrentFocusedHook))
-	{
-		CurrentFocusedHook->HookActivate(false);
-		bCanPlayerSwing = false;
-	}
+	else ClearLastActivatedHook();
+}
+
+bool USwingComponent::IsPlayerLookingTowardsHook(const FVector& LocationToLook)
+{
+	FVector DirectionToHookFromPlayer = UKismetMathLibrary::GetDirectionUnitVector(MarinePlayer->GetCameraLocation(), LocationToLook);
+	if (DirectionToHookFromPlayer.Equals(PlayerController->GetRootComponent()->GetForwardVector(), PlayerLooksTowardsHookTolerance) == true)
+		return false;
+
+	ClearLastActivatedHook();
+	return true;
+}
+
+void USwingComponent::ClearLastActivatedHook()
+{
+	if (IsValid(CurrentFocusedHook) == false)
+		return;
+
+	CurrentFocusedHook->HookActivate(false);
+	bCanPlayerSwing = false;
 }
 
 //If the player press the Swing button then spawn the Line that is going to the Hook and then wait for SwingDelay to elapsed
 void USwingComponent::SwingPressed()
 {
-	if (bCanPlayerSwing == false || IsValid(CurrentFocusedHook) == false || bIsPlayerLerpingToHookPosition == true || bWasSwingPressed == true)
+	if (IsValid(CurrentFocusedHook) == false)
+		return;
+
+	if (bCanPlayerSwing == false)
+		return;
+
+	if (bIsPlayerLerpingToHookPosition == true || bWasSwingPressed == true)
 		return;
 
 	CurrentFocusedHook->StartHookCooldown();

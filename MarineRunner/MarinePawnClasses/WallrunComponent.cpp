@@ -74,7 +74,6 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 		//MarinePawn->CapsulePawn->SetPhysicsLinearVelocity(FVector(0.f));
 
 		MarinePawn->MovementStuffThatCannotHappen(true); //Things that cannot happen while Wallrunning
-
 		//Setting up MarinePawn variables
 		MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
 		MarinePawn->RotateCameraWhileWallrunning(CurrentSide == Right ? true : false);//Rotating the camera in Roll, Definition of this function is in Blueprint of MarineCharacter

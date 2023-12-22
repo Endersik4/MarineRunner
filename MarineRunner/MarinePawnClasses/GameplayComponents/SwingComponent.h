@@ -26,21 +26,23 @@ public:
 
 	//Impuls before Interp
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
-		float SwingForce = 1100000.f;
+		float SwingForce = 1200000.f;
 	//Multiplier that is multiplying X and Y Velocity after Pawn got to Hook
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		float SwingLinearPhysicsMultiplier = 1.5f;
 	//Pawn Interp Speed From Pawn location to Hook Locaiton
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
-		float SwingSpeed = 6.f;
+		float SwingSpeed = 8.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		float SwingDelay = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		FVector HookLocationOffset = FVector(0.f, 0.f, 50.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
-		float MaxHookDistanceToFinishInterp = 300.f;
+		float MaxHookDistanceToFinishInterp = 400.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		TSubclassOf<class ASwingLine> SwingLineClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
+		float PlayerLooksTowardsHookTolerance = 0.4f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Raycast")
 		float LengthOfSwingLineRaycast = 2500.f;
@@ -73,6 +75,9 @@ private:
 	void StopSwingInterp();
 
 	void SpawnSwingEffects();
+
+	bool IsPlayerLookingTowardsHook(const FVector & LocationToLook);
+	void ClearLastActivatedHook();
 
 	class AHook* CurrentFocusedHook;
 	

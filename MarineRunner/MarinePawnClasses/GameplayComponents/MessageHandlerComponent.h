@@ -35,7 +35,7 @@ public:
 	void SpawnNewRecipeUnlockedWidget();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Messages")
-		TSubclassOf<class UGameSavedNotificationWidget> NewRecipeUnlockedWidget;
+		TSubclassOf<UUserWidget> NewRecipeUnlockedClassWidget;
 private:
 	bool bIsMessageDisplayed;
 	class UMessageToReadWidget* CurrentDisplayedMessage;
