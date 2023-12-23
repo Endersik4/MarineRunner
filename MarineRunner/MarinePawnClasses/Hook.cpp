@@ -5,8 +5,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
-
-#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "PaperFlipbookComponent.h"
 
 // Sets default values
 AHook::AHook()
@@ -20,6 +20,10 @@ AHook::AHook()
 	HookMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HookMesh"));
 	HookMesh->SetupAttachment(CheckSphere);
 
+	HookStateFlipBook = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("HookStateFlipBook"));
+	HookStateFlipBook->SetupAttachment(HookMesh);
+	HookStateFlipBook->SetCollisionProfileName(FName("NoCollision"));
+
 	Tags.Add(TEXT("Hook"));
 }
 
@@ -28,8 +32,7 @@ void AHook::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CopyOfSphereRadius = CheckSphere->GetUnscaledSphereRadius();
-	SetPlayerPawn();
+	OriginalSphereRadius = CheckSphere->GetUnscaledSphereRadius();
 }
 
 // Called every frame
@@ -48,22 +51,20 @@ void AHook::StartHookCooldown()
 
 void AHook::HookActivate(bool bActive)
 {
-	if (bActive) 
+	if (bActive)
+	{
 		HookMesh->SetMaterial(PlayerInRangeIndexMaterial, M_PlayerInRange);
-	else 
+		HookStateFlipBook->SetFlipbook(HookActivateFlipBook);
+	}
+	else
+	{
 		HookMesh->SetMaterial(PlayerInRangeIndexMaterial, M_PlayerOutRange);
+		HookStateFlipBook->SetFlipbook(HookIdleFlipBook);
+	}
 
 }
 void AHook::DelayForGrabbingTheHook()
 {
 	bCanGrabTheHook = true;
-	CheckSphere->SetSphereRadius(CopyOfSphereRadius);
+	CheckSphere->SetSphereRadius(OriginalSphereRadius);
 }
-
-void AHook::SetPlayerPawn()
-{
-	MarinePawn = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	
-	if (MarinePawn == nullptr) UE_LOG(LogTemp, Error, TEXT("Hook doesnt have PlayerPawn set"));
-}
-

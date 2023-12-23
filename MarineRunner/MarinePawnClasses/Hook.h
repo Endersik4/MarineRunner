@@ -33,18 +33,22 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* HookMesh;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UPaperFlipbookComponent* HookStateFlipBook;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
 		int32 PlayerInRangeIndexMaterial = 0;
+	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
+		class UPaperFlipbook* HookIdleFlipBook;
+	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
+		class UPaperFlipbook* HookActivateFlipBook;
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
 		UMaterialInstance* M_PlayerInRange;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Materials")
 		UMaterialInstance* M_PlayerOutRange;
 
-	float CopyOfSphereRadius;
+	float OriginalSphereRadius;
 	void DelayForGrabbingTheHook();
 
-	void SetPlayerPawn();
-	class AMarineCharacter* MarinePawn;
 };
