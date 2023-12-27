@@ -26,7 +26,10 @@ public:
 	bool bCanGrabTheHook = true;
 	
 	void StartHookCooldown();
-	void HookActivate(bool bActive = true);
+
+	void ActivateHook(bool bActive = true);
+	void ChangeToIdleAnim();
+	void ChangeToPlayerInRangeAnim();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		class USphereComponent* CheckSphere;
@@ -37,18 +40,11 @@ private:
 		class UPaperFlipbookComponent* HookStateFlipBook;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
-		int32 PlayerInRangeIndexMaterial = 0;
+		float HookCooldownTime = 1.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
 		class UPaperFlipbook* HookIdleFlipBook;
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
 		class UPaperFlipbook* HookActivateFlipBook;
-	UPROPERTY(EditDefaultsOnly, Category = "Materials")
-		UMaterialInstance* M_PlayerInRange;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Materials")
-		UMaterialInstance* M_PlayerOutRange;
-
-	float OriginalSphereRadius;
 	void DelayForGrabbingTheHook();
-
 };

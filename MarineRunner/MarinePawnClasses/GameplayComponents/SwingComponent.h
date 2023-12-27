@@ -30,18 +30,20 @@ public:
 	//Multiplier that is multiplying X and Y Velocity after Pawn got to Hook
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		float SwingLinearPhysicsMultiplier = 1.5f;
-	//Pawn Interp Speed From Pawn location to Hook Locaiton
+	//Pawn Interp Speed From Current location to Hook Location
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		float SwingSpeed = 8.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		float SwingDelay = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
-		FVector HookLocationOffset = FVector(0.f, 0.f, 50.f);
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
-		float MaxHookDistanceToFinishInterp = 400.f;
+		float GrabHookDistance = 2000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		TSubclassOf<class ASwingLine> SwingLineClass;
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Hook")
+		FVector HookLocationOffset = FVector(0.f, 0.f, 50.f);
+	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Hook")
+		float MaxHookDistanceToFinishInterp = 400.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Hook")
 		float PlayerLooksTowardsHookTolerance = 0.4f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Raycast")
@@ -69,7 +71,8 @@ private:
 	FTimerHandle SwingHandle;
 
 	void StartSwingToHook();
-	void SwingLineCheck();
+	void HookLineCheck();
+	void ActivateCurrentHoveredHook(AActor* HookActorFromHit);
 
 	void SwingInterp(float Delta);
 	void StopSwingInterp();
