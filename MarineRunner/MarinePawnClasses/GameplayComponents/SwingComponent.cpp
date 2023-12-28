@@ -50,18 +50,9 @@ void USwingComponent::HookLineCheck()
 	FVector LineEnd = LineStart + (PlayerController->GetRootComponent()->GetForwardVector() * LengthOfSwingLineRaycast);
 
 	FHitResult HitResults;
-	TArray<AActor*> ActorsToIgnore;
-	UE_LOG(LogTemp, Warning, TEXT("xD"));
-
-	//DrawDebugLine(GetWorld(), LineEnd, LineEnd, FColor::Red, false, 0.f, (uint8)0U, 1.f);
-	if (GetWorld()->LineTraceSingleByChannel(HitResults, LineStart, LineEnd, ECC_GameTraceChannel2))
+	bool bHookHovered = GetWorld()->LineTraceSingleByChannel(HitResults, LineStart, LineEnd, ECC_GameTraceChannel2) && IsValid(HitResults.GetActor());
+	if (bHookHovered && HitResults.GetActor()->ActorHasTag("Hook") == true)
 	{
-		if (IsValid(HitResults.GetActor()) == false)
-			return;
-
-		if (IsPlayerLookingTowardsHook(HitResults.GetActor()->GetActorLocation()) == false)
-			return;
-
 		ActivateCurrentHoveredHook(HitResults.GetActor());
 	}	
 	else ClearLastActivatedHook();
@@ -75,61 +66,26 @@ void USwingComponent::ActivateCurrentHoveredHook(AActor* HookActorFromHit)
 		return;
 
 	if (HoveredHook == CurrentFocusedHook)
-	{
-		if (FVector::Distance(MarinePlayer->GetActorLocation(), CurrentFocusedHook->GetActorLocation()) < GrabHookDistance)
-		{
-			if (bCanPlayerSwing == true)
-				return;
-
-			CurrentFocusedHook->ChangeToPlayerInRangeAnim();
-			bCanPlayerSwing = true;
-			UE_LOG(LogTemp, Error, TEXT("DISTANCE GOOD"));
-
-		}
-		else
-		{
-			if (bCanPlayerSwing == false)
-				return;
-
-			CurrentFocusedHook->ChangeToIdleAnim();
-			bCanPlayerSwing = false;
-			UE_LOG(LogTemp, Error, TEXT("DISTANCE NO GOOD"));
-
-		}
-
 		return;
-	}
 
 	// Disable previous hook if there was any
 	if (IsValid(CurrentFocusedHook))
-		CurrentFocusedHook->ActivateHook(false);
+		CurrentFocusedHook->ChangeToIdleAnim();
 
 	if (HoveredHook->bCanGrabTheHook == false)
 		return;
-	UE_LOG(LogTemp, Warning, TEXT("HOOK ACTIVATEd"));
-	HoveredHook->ActivateHook();
+
+	bCanPlayerSwing = true;
+	HoveredHook->ChangeToPlayerInRangeAnim();
 	CurrentFocusedHook = HoveredHook;
-}
-
-bool USwingComponent::IsPlayerLookingTowardsHook(const FVector& LocationToLook)
-{
-	FVector DirectionToHookFromPlayer = UKismetMathLibrary::GetDirectionUnitVector(MarinePlayer->GetCameraLocation(), LocationToLook);
-	if (DirectionToHookFromPlayer.Equals(PlayerController->GetRootComponent()->GetForwardVector(), PlayerLooksTowardsHookTolerance) == false)
-	{
-		ClearLastActivatedHook();
-		return false;
-	}
-
-	//ClearLastActivatedHook();
-	return true;
 }
 
 void USwingComponent::ClearLastActivatedHook()
 {
-	if (IsValid(CurrentFocusedHook) == false)
+	if (IsValid(CurrentFocusedHook) == false || bWasSwingPressed == true)
 		return;
 
-	CurrentFocusedHook->ActivateHook(false);
+	CurrentFocusedHook->ChangeToIdleAnim();
 	CurrentFocusedHook = nullptr;
 
 	bCanPlayerSwing = false;
@@ -174,7 +130,8 @@ void USwingComponent::SpawnSwingEffects()
 
 void USwingComponent::StartSwingToHook()
 {
-	if (IsValid(CurrentFocusedHook) == false) return;
+	if (IsValid(CurrentFocusedHook) == false) 
+		return;
 
 	MarinePlayer->CapsulePawn->SetPhysicsLinearVelocity(FVector(0));
 	bIsPlayerLerpingToHookPosition = true;
@@ -196,7 +153,7 @@ void USwingComponent::StartSwingToHook()
 //Interp player to location of the Hook
 void USwingComponent::SwingInterp(float Delta)
 {
-	if (!bIsPlayerLerpingToHookPosition || IsValid(CurrentFocusedHook) == false) 
+	if (!bIsPlayerLerpingToHookPosition) 
 		return;
 
 	FVector LocationInterp = FMath::VInterpTo(MarinePlayer->GetActorLocation(), HookLocation, Delta, SwingSpeed);
@@ -213,6 +170,7 @@ void USwingComponent::StopSwingInterp()
 	bWasSwingPressed = false;
 	bIsPlayerLerpingToHookPosition = false;
 	bCanMakeSwingLineCheck = true;
+	CurrentFocusedHook = nullptr;
 
 	float Multiplier = (SwingLinearPhysicsMultiplier / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
 	FVector Velocity = MarinePlayer->CapsulePawn->GetPhysicsLinearVelocity() * Multiplier;

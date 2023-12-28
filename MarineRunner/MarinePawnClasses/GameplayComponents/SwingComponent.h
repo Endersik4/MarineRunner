@@ -36,15 +36,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		float SwingDelay = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
-		float GrabHookDistance = 2000.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		TSubclassOf<class ASwingLine> SwingLineClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Hook")
 		FVector HookLocationOffset = FVector(0.f, 0.f, 50.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Hook")
 		float MaxHookDistanceToFinishInterp = 400.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Hook")
-		float PlayerLooksTowardsHookTolerance = 0.4f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Raycast")
 		float LengthOfSwingLineRaycast = 2500.f;
@@ -79,7 +75,6 @@ private:
 
 	void SpawnSwingEffects();
 
-	bool IsPlayerLookingTowardsHook(const FVector & LocationToLook);
 	void ClearLastActivatedHook();
 
 	class AHook* CurrentFocusedHook;

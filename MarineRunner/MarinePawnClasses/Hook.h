@@ -46,5 +46,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
 		class UPaperFlipbook* HookActivateFlipBook;
 
+	UFUNCTION()
+		void OnCheckSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+		void OnCheckSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
 	void DelayForGrabbingTheHook();
+	FTimerHandle HookPressedHandle;
+
 };

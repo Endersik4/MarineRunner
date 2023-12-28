@@ -19,20 +19,26 @@ AHook::AHook()
 
 	CheckSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	CheckSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	CheckSphere->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+	CheckSphere->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
 	HookMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HookMesh"));
 	HookMesh->SetupAttachment(CheckSphere);
+	HookMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
 
 	HookStateFlipBook = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("HookStateFlipBook"));
 	HookStateFlipBook->SetupAttachment(HookMesh);
 	HookStateFlipBook->SetCollisionProfileName(FName("NoCollision"));
+
+	Tags.Add(TEXT("Hook"));
 }
 
 // Called when the game starts or when spawned
 void AHook::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CheckSphere->OnComponentBeginOverlap.AddDynamic(this, &AHook::OnCheckSphereBeginOverlap);
+	CheckSphere->OnComponentEndOverlap.AddDynamic(this, &AHook::OnCheckSphereEndOverlap);
 }
 
 // Called every frame
@@ -41,12 +47,20 @@ void AHook::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void AHook::OnCheckSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ActivateHook(true);
+}
+
+void AHook::OnCheckSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ActivateHook(false);
+}
+
 void AHook::StartHookCooldown()
 {
 	bCanGrabTheHook = false;
-	CheckSphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-	FTimerHandle HookPressedHandle;
 	GetWorld()->GetTimerManager().SetTimer(HookPressedHandle, this, &AHook::DelayForGrabbingTheHook, HookCooldownTime, false);
 }
 
@@ -58,6 +72,9 @@ void AHook::ActivateHook(bool bActive)
 
 void AHook::ChangeToIdleAnim()
 {
+	if (GetWorld()->GetTimerManager().IsTimerActive(HookPressedHandle) == true)
+		return;
+	
 	HookStateFlipBook->PlayFromStart();
 
 	HookStateFlipBook->SetLooping(true);
@@ -75,5 +92,6 @@ void AHook::ChangeToPlayerInRangeAnim()
 void AHook::DelayForGrabbingTheHook()
 {
 	bCanGrabTheHook = true;
-	CheckSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	ChangeToIdleAnim();
 }
