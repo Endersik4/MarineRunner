@@ -32,19 +32,21 @@ public:
 		float SwingLinearPhysicsMultiplier = 1.5f;
 	//Pawn Interp Speed From Current location to Hook Location
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
-		float SwingSpeed = 8.f;
+		float SwingSpeed = 10.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		float SwingDelay = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		TSubclassOf<class ASwingLine> SwingLineClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Hook")
-		FVector HookLocationOffset = FVector(0.f, 0.f, 50.f);
+		FVector HookLocationOffset = FVector(0.f, 0.f, 350.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Hook")
-		float MaxHookDistanceToFinishInterp = 400.f;
+		float MaxHookDistanceToFinishInterp = 500.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Raycast")
-		float LengthOfSwingLineRaycast = 2500.f;
+		float LengthOfSwingLineRaycast = 4500.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Effects")
+		FVector SwingLineOffset = FVector(0.f, 0.f, 150.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Effects")
 		float ForwardSwingLineOffset = 100.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Effects")

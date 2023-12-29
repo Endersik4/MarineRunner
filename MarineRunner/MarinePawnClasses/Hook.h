@@ -41,10 +41,17 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
 		float HookCooldownTime = 1.5f;
-	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings|Flipbook")
+		float StartChangingScaleDistance = 2000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings|Flipbook")
+		float EndChangingScaleDistance = 200.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings|Flipbook")
+		FVector MinHookFlipbookScale = FVector(0.1f);
+	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings|Flipbook")
 		class UPaperFlipbook* HookIdleFlipBook;
-	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings|Flipbook")
 		class UPaperFlipbook* HookActivateFlipBook;
+
 
 	UFUNCTION()
 		void OnCheckSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -53,5 +60,15 @@ private:
 
 	void DelayForGrabbingTheHook();
 	FTimerHandle HookPressedHandle;
+
+	bool bHookActive = false;
+	bool bPlayerInRange;
+
+	// change hook state flipbook scale according to player distance, closer == smaller
+	AActor* PlayerInRange;
+	FVector OriginalHookStateScale;
+	void ChangeHookFlipbookScale(float Delta);
+	void ResetHookStateFlipbookScale();
+
 
 };

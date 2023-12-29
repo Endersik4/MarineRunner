@@ -37,6 +37,7 @@ void AHook::BeginPlay()
 {
 	Super::BeginPlay();
 
+	OriginalHookStateScale = HookStateFlipBook->GetComponentScale();
 	CheckSphere->OnComponentBeginOverlap.AddDynamic(this, &AHook::OnCheckSphereBeginOverlap);
 	CheckSphere->OnComponentEndOverlap.AddDynamic(this, &AHook::OnCheckSphereEndOverlap);
 }
@@ -45,16 +46,20 @@ void AHook::BeginPlay()
 void AHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	ChangeHookFlipbookScale(DeltaTime);
 }
 
 void AHook::OnCheckSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ActivateHook(true);
+	PlayerInRange = OtherActor;
 }
 
 void AHook::OnCheckSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	ActivateHook(false);
+	PlayerInRange = nullptr;
+	ResetHookStateFlipbookScale();
 }
 
 void AHook::StartHookCooldown()
@@ -66,8 +71,11 @@ void AHook::StartHookCooldown()
 
 void AHook::ActivateHook(bool bActive)
 {
+	bHookActive = bActive;
 	HookStateFlipBook->SetVisibility(bActive);
-	ChangeToIdleAnim();
+
+	if (bPlayerInRange == false) 
+		ChangeToIdleAnim();
 }
 
 void AHook::ChangeToIdleAnim()
@@ -79,10 +87,13 @@ void AHook::ChangeToIdleAnim()
 
 	HookStateFlipBook->SetLooping(true);
 	HookStateFlipBook->SetFlipbook(HookIdleFlipBook);
+	bPlayerInRange = false;
 }
 
 void AHook::ChangeToPlayerInRangeAnim()
 {
+	bPlayerInRange = true;
+
 	HookStateFlipBook->SetLooping(false);
 	HookStateFlipBook->PlayFromStart();
 
@@ -94,4 +105,23 @@ void AHook::DelayForGrabbingTheHook()
 	bCanGrabTheHook = true;
 
 	ChangeToIdleAnim();
+}
+
+void AHook::ChangeHookFlipbookScale(float Delta)
+{
+	if (bHookActive == false || IsValid(PlayerInRange) == false)
+		return;
+
+	if (FVector::Distance(PlayerInRange->GetActorLocation(), HookStateFlipBook->GetComponentLocation()) > StartChangingScaleDistance
+		|| FVector::Distance(PlayerInRange->GetActorLocation(), HookStateFlipBook->GetComponentLocation()) < EndChangingScaleDistance)
+		return;
+
+	float Alpha = FVector::Distance(PlayerInRange->GetActorLocation(), HookStateFlipBook->GetComponentLocation()) / FMath::Abs(StartChangingScaleDistance - EndChangingScaleDistance);
+	FVector NewScale = FMath::Lerp(MinHookFlipbookScale, OriginalHookStateScale, Alpha);
+	HookStateFlipBook->SetWorldScale3D(NewScale);
+}
+
+void AHook::ResetHookStateFlipbookScale()
+{
+	HookStateFlipBook->SetWorldScale3D(OriginalHookStateScale);
 }

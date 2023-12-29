@@ -123,7 +123,7 @@ void USwingComponent::SpawnSwingEffects()
 	if (IsValid(SwingLine) == false)
 		return;
 
-	SwingLine->SetHookLocation(CurrentFocusedHook->GetActorLocation());
+	SwingLine->SetHookLocation(CurrentFocusedHook->GetActorLocation()- SwingLineOffset);
 	SwingLine->SetSpeedLine(SwingDelay);
 	SwingLine->SetCanTick(true);
 }
@@ -138,13 +138,9 @@ void USwingComponent::StartSwingToHook()
 
 	HookLocation = CurrentFocusedHook->GetActorLocation() - HookLocationOffset;
 
-	FVector DirectionOfVector = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(MarinePlayer->GetActorLocation(), HookLocation));
-	SwingImpulse = DirectionOfVector * SwingForce;
+	FVector DirectionTowardsHook = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(MarinePlayer->GetActorLocation(), HookLocation));
+	SwingImpulse = DirectionTowardsHook * SwingForce;
 	MarinePlayer->CapsulePawn->AddImpulse(SwingImpulse);
-
-	//Get Direction To Hook but only in X and Z Axis. Its for Pawn Physics
-	SwingImpulse = FRotator(0, SwingImpulse.Rotation().Yaw, 0).Vector();
-	//MarinePlayer->SetMovementImpulse(SwingImpulse);
 
 	//Things that cannot happen while Swing
 	MarinePlayer->MovementStuffThatCannotHappen();
