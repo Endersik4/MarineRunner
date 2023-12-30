@@ -9,7 +9,7 @@
 // Sets default values
 AEnemyTurretPawn::AEnemyTurretPawn()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	TurretSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("TurretSkeletalMesh"));
@@ -22,7 +22,7 @@ AEnemyTurretPawn::AEnemyTurretPawn()
 void AEnemyTurretPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 }
 
 // Called every frame
@@ -71,7 +71,15 @@ void AEnemyTurretPawn::RotateBonesTowardDetectedActor(float Delta)
 	for (const FRotateTurretBone& RotateBone : RotateTurretBones)
 	{
 		FRotator FoundRot = UKismetMathLibrary::FindLookAtRotation(TurretSkeletalMesh->GetBoneLocation(RotateBone.BoneName), FocusedActor->GetActorLocation());
-		FoundRot.Yaw -= GetActorRotation().Yaw;
+
+		if (FoundRot.Yaw < 0.f)
+		{
+			FoundRot.Yaw += GetActorRotation().Yaw;
+		}
+		else
+		{
+			FoundRot.Yaw -= GetActorRotation().Yaw;
+		}
 
 		FoundRot.Pitch *= RotateBone.RotateInAxis.Pitch;
 		FoundRot.Yaw *= RotateBone.RotateInAxis.Yaw;
@@ -119,11 +127,11 @@ void AEnemyTurretPawn::LimitAngleAccordingToRange(double& Angle, const FFloatRan
 {
 	if (Angle < Range.GetLowerBoundValue())
 	{
-		Angle -= Angle - Range.GetLowerBoundValue();
+		Angle = Range.GetLowerBoundValue();
 	}
 	else if (Angle > Range.GetUpperBoundValue())
 	{
-		Angle -= Angle - Range.GetUpperBoundValue();
+		Angle = Range.GetUpperBoundValue();
 	}
 }
 
