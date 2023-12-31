@@ -10,14 +10,14 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 - Wallrun <br/>
 - Dash <br/>
 - Slow Motion <br/>
-- Hook (force is applied to the player in the direction of the hook) <br/>
+- Hook/Swing (force is applied to the player in the direction of the hook) <br/>
 - Can use the First Aid Kit <br/>
 - Quick Inventory for weapons (1 - first weapon, 2 - second weapon etc) <br/>
 - Take Item (resources, weapons etc) <br/>
 - Drop Item  <br/>
 - Save game (player location, play time, date, inventory etc) <br/>
 - Dynamic music depending on events with fade out (menu, combat, exploration music) <br/>
-- Pause Menu <br/>
+- Pause Menu (with video, keybindings, audio, game settings) <br/>
 - Death widget when player died (player can load last save or exit the game) <br/>
 - Messages that player can pick up and read  <br/>
 - tutorial with customizable text that shows on player screen and disapear after time
@@ -62,14 +62,14 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 - The message "Confirm quiting" will appear <br/>
 
 <h2> Main Menu </h2>
-- The same as the pause menu, but without saving the game and with a new game/continue button
+- Almost the same as the pause menu, but without saving the game and with a new game/continue button
 
 <h2> Weapons </h2>
 	- The player can fire the weapon in hipfire or ADS mode. <br/>
 	- Shooting mechanic:<br/>
 	<ul>
 		<li> When the player shoots, the bullet spawns </li>
-		<li> The bullet moves based on physics or custom (you can set how far it can move, at what speed, etc.). </li>
+		<li> The bullet moves based on physics or custom move (you can set how far it can move, at what speed, etc.). </li>
 		<li> Camera, Fov and Gun (curves) recoil will play in timeline. Based on what is set </li>
 	</ul>
 	- ADS is more precise then Hipfire<br/>
@@ -83,7 +83,14 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 	- When a bullet spawns then a random value from the range is selected for the bullet rotation<br/>
 	- The gun can sway while moving the camera or in motion  (diffrent sway for other case)<br/>
 	- Animation: Shoot, Reload and empty magazine<br/>
-<h2> Albertos (crafting item robot)</h2>
+	
+<h2> <a href="https://www.youtube.com/embed/dtFB4vfd2Eg"> Albertos </a> (crafting item robot)</h2>
+- He Takes player location and then selects random location within given radius around player location and goes there <br/>
+- When player is near then Albertos looks towards player and player can interact with it:
+
+- Can play random sounds while moving <br/>
+- Diffrent "footsteps" sounds depending on speed of robot <br/>
+
 <h2> Enemies </h2>
 
 <h2> Objects </h2>

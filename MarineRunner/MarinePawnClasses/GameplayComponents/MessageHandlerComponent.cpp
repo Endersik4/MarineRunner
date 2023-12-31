@@ -53,7 +53,13 @@ void UMessageHandlerComponent::DeleteCurrentDisplayedMessage(class AMarineCharac
 
 void UMessageHandlerComponent::SpawnNewRecipeUnlockedWidget()
 {
+	if (NewRecipeUnlockedClassWidget == nullptr)
+		return;
+
 	UUserWidget* NewRecipeUnlockedWidget = CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), NewRecipeUnlockedClassWidget);
+	if (IsValid(NewRecipeUnlockedWidget) == false)
+		return;
+
 	NewRecipeUnlockedWidget->AddToViewport();
 }
 

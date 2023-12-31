@@ -45,10 +45,10 @@ private:
 		UTexture2D* DoorVentIcon;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
 		bool bVentDoorsBasedOnPhysics;
-	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings|Open")
+	UPROPERTY(EditAnywhere, Category = "Door Vent Settings|Open")
 		UCurveVector* DoorVentOpenLocationCurve;
 	// X = Roll, Y = Pitch, Z = Yaw;
-	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings|Open")
+	UPROPERTY(EditAnywhere, Category = "Door Vent Settings|Open")
 		UCurveVector* DoorVentOpenRotationCurve;
 
 	UFUNCTION()
