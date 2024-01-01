@@ -47,6 +47,7 @@ void AHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	ChangeHookFlipbookScale(DeltaTime);
+	HideFlipbookIfItIsNotVisible();
 }
 
 void AHook::OnCheckSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -119,6 +120,23 @@ void AHook::ChangeHookFlipbookScale(float Delta)
 	float Alpha = FVector::Distance(PlayerInRange->GetActorLocation(), HookStateFlipBook->GetComponentLocation()) / FMath::Abs(StartChangingScaleDistance - EndChangingScaleDistance);
 	FVector NewScale = FMath::Lerp(MinHookFlipbookScale, OriginalHookStateScale, Alpha);
 	HookStateFlipBook->SetWorldScale3D(NewScale);
+}
+
+void AHook::HideFlipbookIfItIsNotVisible()
+{
+	if (bHookActive == false || IsValid(PlayerInRange) == false)
+		return;
+
+	FHitResult HitResult;
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, HookStateFlipBook->GetComponentLocation(), PlayerInRange->GetActorLocation(), ECC_Visibility);
+	if (bHit == false && HookStateFlipBook->IsVisible() == false)
+	{
+		HookStateFlipBook->SetVisibility(true);
+	}
+	else if (bHit == true && HookStateFlipBook->IsVisible() == true)
+	{
+		HookStateFlipBook->SetVisibility(false);
+	}
 }
 
 void AHook::ResetHookStateFlipbookScale()

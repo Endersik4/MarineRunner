@@ -68,6 +68,7 @@ private:
 	AActor* PlayerInRange;
 	FVector OriginalHookStateScale;
 	void ChangeHookFlipbookScale(float Delta);
+	void HideFlipbookIfItIsNotVisible();
 	void ResetHookStateFlipbookScale();
 
 

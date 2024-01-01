@@ -85,12 +85,25 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 	- Animation: Shoot, Reload and empty magazine<br/>
 	
 <h2> <a href="https://www.youtube.com/embed/dtFB4vfd2Eg"> Albertos </a> (crafting item robot)</h2>
-- He Takes player location and then selects random location within given radius around player location and goes there <br/>
-- When player is near then Albertos looks towards player and player can interact with it:
-
-- Can play random sounds while moving <br/>
-- Diffrent "footsteps" sounds depending on speed of robot <br/>
-
+	- It Takes player location and then selects random location within given radius around player location and goes there <br/>
+	- When player is near then Albertos looks towards player and player can interact with it:<br/>
+	<ul>
+		<li> The Crafting Widget is visible and player can interact with it</li>
+		<li> On Left Side Crafting widget shows all items that player has (weapons, ammo, first aid kits...) </li>
+		<li> On Upper Right Side there is TileView with resources that currently player has (wood, metal, steel...)</li>
+		<li> On Middle Right Side there is information about item that is currently selected to craft. Name of item, description, time to craft, amount</li>
+		<li> On Lower Right Side there is requirements of resources that player has to have to create the item</li>
+		<li> In The Center there is image with item icon that is currently selected, below that player can choose item amount multiplier (2x, 4x...), 
+		after that there is craft button</li>
+		<li> Item can be changed by clicking on arrows (left or right side)</li>
+	</ul>
+	- When player clicks craft button:
+		<ul>
+			<li> </li>
+		</ul>
+	- Can play random sounds while moving <br/>
+	- Diffrent "footsteps" sounds depending on speed of robot <br/>
+	- Everything is animated 
 <h2> Enemies </h2>
 
 <h2> Objects </h2>
