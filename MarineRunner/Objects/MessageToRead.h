@@ -37,7 +37,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
 		FText MessageTitle;
-	UPROPERTY(EditAnywhere, Category = "Message Settings")
+	UPROPERTY(EditAnywhere, Category = "Message Settings", meta = (MultiLine = "true"))
 		FText MessageText;
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
 		float OpenMessageDelay = 0.f;

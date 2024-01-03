@@ -58,6 +58,7 @@ public:
 
 	void SaveGame(float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
 	void CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld);
+	void SaveOtherObjectsData();
 
 	void MakeJsonFileWithSaveInfo(APlayerController* PlayerController, const FString & CurrentLevelName);
 

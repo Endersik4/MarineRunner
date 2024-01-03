@@ -133,6 +133,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UMessageHandlerComponent* MessageHandlerComponent;
 
+	UPROPERTY(EditAnywhere, Category = "Saves")
+		class ASavedDataObject* SavedDataObject;
+
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;
 	//Name of Item that will be used for healing. 

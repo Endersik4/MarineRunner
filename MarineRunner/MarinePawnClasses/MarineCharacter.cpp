@@ -32,6 +32,7 @@
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
 #include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
 #include "MarineRunner/Objects/Checkpoint.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 
 // Sets default values
