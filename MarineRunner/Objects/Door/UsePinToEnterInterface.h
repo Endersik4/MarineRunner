@@ -27,6 +27,9 @@ public:
 		virtual void ClickedOpenButton(class UDoorPanelWidget* ClickedWidget = nullptr) = 0;
 
 	UFUNCTION()
+		virtual void PinCorrect() = 0;
+
+	UFUNCTION()
 		virtual class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) = 0;
 
 };

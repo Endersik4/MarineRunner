@@ -49,6 +49,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void ClickedOpenButton(class UDoorPanelWidget* ClickedWidget = nullptr) override;
+	virtual void PinCorrect() override;
 	virtual class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) override { return nullptr; }
 
 public:	

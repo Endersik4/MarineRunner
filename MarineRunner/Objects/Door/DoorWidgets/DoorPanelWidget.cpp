@@ -129,6 +129,8 @@ void UDoorPanelWidget::PinIsCorrect(bool bClickedByOwner)
 	if (bClickedByOwner == false)
 		return;
 
+	ActorWithWidget->PinCorrect();
+
 	if (IsValid(ActorWithWidget->GetOtherPanelWidget(this)))
 	{
 		ActorWithWidget->GetOtherPanelWidget(this)->PinIsCorrect(false);

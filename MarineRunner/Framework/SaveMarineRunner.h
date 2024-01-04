@@ -52,17 +52,24 @@ public:
 	UPROPERTY(EditAnywhere)
 		AActor* CurrentCheckpoint;
 
+	UPROPERTY(EditAnywhere)
+		TArray<class ADoor*> SavedDoor;
+	UPROPERTY(EditAnywhere)
+		TArray<class AChestWithItems*> SavedChests;
+
 	void PrepareSaveGame(const FString& NewSaveName = "ManualSave_", bool bAddSaveNumber = true);
 	FString OriginalSaveName;
 	bool bAddSaveNumber;
 
 	void SaveGame(float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
 	void CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld);
-	void SaveOtherObjectsData();
+	void SaveOtherObjectsData(class ASavedDataObject* OtherObjectsData);
 
 	void MakeJsonFileWithSaveInfo(APlayerController* PlayerController, const FString & CurrentLevelName);
 
 	void LoadGame(class AMarineCharacter* MarinePawn, class UMarineRunnerGameInstance* GameInstance);
+	void LoadOtherObjectsData(class ASavedDataObject* OtherObjectsData);
+
 
 	FString GetSaveGameName();
 

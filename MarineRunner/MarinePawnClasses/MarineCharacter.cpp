@@ -32,8 +32,6 @@
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
 #include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
 #include "MarineRunner/Objects/Checkpoint.h"
-#include "MarineRunner/Objects/SavedDataObject.h"
-
 
 // Sets default values
 AMarineCharacter::AMarineCharacter()
@@ -463,6 +461,7 @@ void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
 
 	CurrentSaveGameInstance->SaveGame(Health, WeaponHandlerComponent->GetGun(), WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
 	CurrentSaveGameInstance->CurrentCheckpoint = JustSavedCheckpoint;
+	CurrentSaveGameInstance->SaveOtherObjectsData(SavedDataObject);
 
 	CurrentSaveGameInstance->SavedPlayerLocation = GetActorLocation();
 	CurrentSaveGameInstance->SavedPlayerRotation = GetActorRotation();
@@ -504,6 +503,7 @@ void AMarineCharacter::LoadGame()
 	}
 
 	LoadGameInstance->LoadGame(this, GameInstance);
+	LoadGameInstance->LoadOtherObjectsData(SavedDataObject);
 }
 
 void AMarineCharacter::LoadSavedSettingsFromGameInstance()

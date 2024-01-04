@@ -8,6 +8,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "DoorWidgets/DoorPanelWidget.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 // Sets default values
 ADoor::ADoor()
@@ -25,7 +26,6 @@ ADoor::ADoor()
 	DoorPanelWidgetComponent->SetupAttachment(DoorPanelMesh);
 	DoorPanelWidgetComponent->SetDrawAtDesiredSize(true);
 	DoorPanelWidgetComponent->SetTickWhenOffscreen(true);
-
 
 	DoorPanelSecondMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Door Panel Second Mesh"));
 	DoorPanelSecondMesh->SetupAttachment(RootComponent);
@@ -140,5 +140,15 @@ void ADoor::SetUpDoorPanels()
 		if (bUsePinCode == true)
 			DoorPanelSecondWidget->ChangeDoorPanelToUsePin(PinCode);
 	}
+}
+
+void ADoor::PinCorrect()
+{
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), SavedDataObjectClass));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+	UE_LOG(LogTemp, Warning, TEXT("NOT FOUND SAVED DATA OBJ"));
+	SavedDataObject->AddSavedDoor(this);
 }
 

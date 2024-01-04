@@ -23,6 +23,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void ClickedOpenButton(class UDoorPanelWidget* ClickedWidget = nullptr) override;
+	virtual void PinCorrect() override;
 	virtual class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) override;
 
 public:	
@@ -45,6 +46,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* DoorPanelSecondMesh;
 
+	UPROPERTY(EditAnywhere, Category = "Door Settings")
+		TSubclassOf<class ASavedDataObject> SavedDataObjectClass;
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 		float CloseDoorAfterInactivityTime = 4.f;
 	UPROPERTY(EditAnywhere, Category = "Door Settings")

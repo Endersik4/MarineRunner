@@ -28,11 +28,15 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+
 	FORCEINLINE void AddSavedDoor(ADoor* SaveDoor) { SavedDoor.AddUnique(SaveDoor); }
 	FORCEINLINE void AddSavedChests(AChestWithItems* SaveChest) { SavedChests.AddUnique(SaveChest); }
 
 	FORCEINLINE TArray<ADoor*> GetSavedDoor() const { return SavedDoor; }
 	FORCEINLINE TArray<AChestWithItems*> GetSavedChests() const { return SavedChests; }
+
+	FORCEINLINE void SetSavedDoor(TArray<ADoor*>& NewSavedDoor) { SavedDoor = NewSavedDoor; }
+	FORCEINLINE void SetSavedChests(TArray<AChestWithItems*> & NewSavedChests) { SavedChests = NewSavedChests; }
 
 	void LoadObjectsData();
 

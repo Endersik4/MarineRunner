@@ -29,10 +29,12 @@ void ASavedDataObject::Tick(float DeltaTime)
 
 void ASavedDataObject::LoadObjectsData()
 {
+	UE_LOG(LogTemp, Warning, TEXT("LOADING DATA"));
 	for (ADoor* CurrentSavedDoor : SavedDoor)
 	{
 		if (IsValid(CurrentSavedDoor) == false)
 			continue;
+		UE_LOG(LogTemp, Warning, TEXT("found one %s"), *CurrentSavedDoor->GetName());
 
 		CurrentSavedDoor->ChangeToUsePin(false);
 	}

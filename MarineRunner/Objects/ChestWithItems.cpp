@@ -53,6 +53,11 @@ void AChestWithItems::ClickedOpenButton(class UDoorPanelWidget* ClickedWidget)
 	OpenChest();
 }
 
+void AChestWithItems::PinCorrect()
+{
+	;
+}
+
 // Called every frame
 void AChestWithItems::Tick(float DeltaTime)
 {

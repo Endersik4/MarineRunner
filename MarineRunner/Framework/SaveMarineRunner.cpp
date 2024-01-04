@@ -10,6 +10,7 @@
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/SaveGame/SaveGameJsonFile.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 USaveMarineRunner::USaveMarineRunner()
 {
@@ -96,6 +97,15 @@ void USaveMarineRunner::MakeJsonFileWithSaveInfo(APlayerController* PlayerContro
 	USaveGameJsonFile::WriteJson(JsonObject, FilePath);
 }
 
+void USaveMarineRunner::SaveOtherObjectsData(ASavedDataObject* OtherObjectsData)
+{
+	if (IsValid(OtherObjectsData) == false)
+		return;
+
+	SavedDoor = OtherObjectsData->GetSavedDoor();
+	SavedChests = OtherObjectsData->GetSavedChests();
+}
+
 #pragma endregion
 
 #pragma region ////////// LOADING //////////////
@@ -146,4 +156,15 @@ void USaveMarineRunner::LoadEquipedGuns(AMarineCharacter* MarinePawn)
 		CurrentWeapon->SetActorRelativeLocation(MarineGun->GetRelativeLocationInPawn());
 	}
 }
+
+void USaveMarineRunner::LoadOtherObjectsData(ASavedDataObject* OtherObjectsData)
+{
+	if (IsValid(OtherObjectsData) == false)
+		return;
+
+	OtherObjectsData->SetSavedDoor(SavedDoor);
+	OtherObjectsData->SetSavedChests(SavedChests);
+	OtherObjectsData->LoadObjectsData();
+}
+
 #pragma endregion
