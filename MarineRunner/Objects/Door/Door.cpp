@@ -144,11 +144,25 @@ void ADoor::SetUpDoorPanels()
 
 void ADoor::PinCorrect()
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), SavedDataObjectClass));
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
 	if (IsValid(SavedDataObject) == false)
 		return;
-	UE_LOG(LogTemp, Warning, TEXT("NOT FOUND SAVED DATA OBJ"));
-	SavedDataObject->AddSavedDoor(this);
+
+	SavedDataObject->AddCustomSaveData(this, 1);
+}
+
+void ADoor::LoadData(int32 StateOfData)
+{
+	if (StateOfData == 1)
+	{
+		StopUsingPin();
+	}
+}
+
+void ADoor::StopUsingPin()
+{
+	DoorPanelWidget->PinIsCorrect(false);
+	DoorPanelSecondWidget->PinIsCorrect(false);
 }
 

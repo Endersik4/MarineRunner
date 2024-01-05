@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
 
 #include "SaveMarineRunner.generated.h"
+
+class ISaveCustomDataInterface;
 
 /**
  * 
@@ -52,10 +55,7 @@ public:
 	UPROPERTY(EditAnywhere)
 		AActor* CurrentCheckpoint;
 
-	UPROPERTY(EditAnywhere)
-		TArray<class ADoor*> SavedDoor;
-	UPROPERTY(EditAnywhere)
-		TArray<class AChestWithItems*> SavedChests;
+	TArray<FCustomDataSaved> CustomSavedData;
 
 	void PrepareSaveGame(const FString& NewSaveName = "ManualSave_", bool bAddSaveNumber = true);
 	FString OriginalSaveName;
@@ -69,7 +69,6 @@ public:
 
 	void LoadGame(class AMarineCharacter* MarinePawn, class UMarineRunnerGameInstance* GameInstance);
 	void LoadOtherObjectsData(class ASavedDataObject* OtherObjectsData);
-
 
 	FString GetSaveGameName();
 

@@ -5,12 +5,13 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MarineRunner/Objects/Door/UsePinToEnterInterface.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
 
 #include "Door.generated.h"
 
 class UDoorPanelWidget;
 UCLASS()
-class MARINERUNNER_API ADoor : public AActor, public IUsePinToEnterInterface
+class MARINERUNNER_API ADoor : public AActor, public IUsePinToEnterInterface, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 	
@@ -26,11 +27,11 @@ protected:
 	virtual void PinCorrect() override;
 	virtual class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) override;
 
+	virtual void LoadData(int32 StateOfData = 0) override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	FORCEINLINE void ChangeToUsePin(bool bUse) { bUsePinCode = bUse; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -77,4 +78,6 @@ private:
 	UDoorPanelWidget* DoorPanelWidget;
 	UDoorPanelWidget* DoorPanelSecondWidget;
 	void SetUpDoorPanels();
+
+	void StopUsingPin();
 };

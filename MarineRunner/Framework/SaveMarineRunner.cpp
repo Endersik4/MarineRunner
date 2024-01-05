@@ -102,8 +102,7 @@ void USaveMarineRunner::SaveOtherObjectsData(ASavedDataObject* OtherObjectsData)
 	if (IsValid(OtherObjectsData) == false)
 		return;
 
-	SavedDoor = OtherObjectsData->GetSavedDoor();
-	SavedChests = OtherObjectsData->GetSavedChests();
+	CustomSavedData = OtherObjectsData->GetCustomSavedData();
 }
 
 #pragma endregion
@@ -162,8 +161,7 @@ void USaveMarineRunner::LoadOtherObjectsData(ASavedDataObject* OtherObjectsData)
 	if (IsValid(OtherObjectsData) == false)
 		return;
 
-	OtherObjectsData->SetSavedDoor(SavedDoor);
-	OtherObjectsData->SetSavedChests(SavedChests);
+	OtherObjectsData->SetCustomSavedData(CustomSavedData);
 	OtherObjectsData->LoadObjectsData();
 }
 

@@ -4,13 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
 #include "SavedDataObject.generated.h"
 
 /// <summary>
 /// Object that saves other object data (for example chest or door was open - save it). Should be only one in the level.
 /// </summary>
-class ADoor;
-class AChestWithItems;
 UCLASS()
 class MARINERUNNER_API ASavedDataObject : public AActor
 {
@@ -29,20 +28,15 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 
-	FORCEINLINE void AddSavedDoor(ADoor* SaveDoor) { SavedDoor.AddUnique(SaveDoor); }
-	FORCEINLINE void AddSavedChests(AChestWithItems* SaveChest) { SavedChests.AddUnique(SaveChest); }
+	void AddCustomSaveData(FCustomDataSaved & NewCustomSavedData);
+	void AddCustomSaveData(ISaveCustomDataInterface * ObjectToSave, int32 StateOfObjectToSave);
 
-	FORCEINLINE TArray<ADoor*> GetSavedDoor() const { return SavedDoor; }
-	FORCEINLINE TArray<AChestWithItems*> GetSavedChests() const { return SavedChests; }
+	FORCEINLINE TArray<FCustomDataSaved> GetCustomSavedData() const { return CustomSavedData; }
 
-	FORCEINLINE void SetSavedDoor(TArray<ADoor*>& NewSavedDoor) { SavedDoor = NewSavedDoor; }
-	FORCEINLINE void SetSavedChests(TArray<AChestWithItems*> & NewSavedChests) { SavedChests = NewSavedChests; }
+	FORCEINLINE void SetCustomSavedData(TArray<FCustomDataSaved>& NewSavedData) { CustomSavedData = NewSavedData; }
 
 	void LoadObjectsData();
 
 private:
-	TArray<ADoor*> SavedDoor;
-	TArray<AChestWithItems*> SavedChests;
-
-
+	TArray<FCustomDataSaved> CustomSavedData;
 };

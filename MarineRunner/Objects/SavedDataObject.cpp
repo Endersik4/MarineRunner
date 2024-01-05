@@ -2,8 +2,7 @@
 
 
 #include "MarineRunner/Objects/SavedDataObject.h"
-#include "MarineRunner/Objects/Door/Door.h"
-#include "MarineRunner/Objects/ChestWithItems.h"
+
 
 // Sets default values
 ASavedDataObject::ASavedDataObject()
@@ -27,16 +26,27 @@ void ASavedDataObject::Tick(float DeltaTime)
 
 }
 
+void ASavedDataObject::AddCustomSaveData(FCustomDataSaved& NewCustomSavedData)
+{
+	//CustomSavedData.Remove(NewCustomSavedData);
+	//CustomSavedData.AddUnique(NewCustomSavedData);
+}
+
+void ASavedDataObject::AddCustomSaveData(ISaveCustomDataInterface* ObjectToSave, int32 StateOfObjectToSave)
+{
+	FCustomDataSaved NewCustomSavedData(ObjectToSave, StateOfObjectToSave);
+	CustomSavedData.Add(NewCustomSavedData);
+	CustomSavedData.AddUnique(NewCustomSavedData);
+}
+
 void ASavedDataObject::LoadObjectsData()
 {
-	UE_LOG(LogTemp, Warning, TEXT("LOADING DATA"));
-	for (ADoor* CurrentSavedDoor : SavedDoor)
+	for (FCustomDataSaved & CurrentCustomSavedData : CustomSavedData)
 	{
-		if (IsValid(CurrentSavedDoor) == false)
+		if (CurrentCustomSavedData.ObjectToSaveData == nullptr)
 			continue;
-		UE_LOG(LogTemp, Warning, TEXT("found one %s"), *CurrentSavedDoor->GetName());
 
-		CurrentSavedDoor->ChangeToUsePin(false);
+		CurrentCustomSavedData.ObjectToSaveData->LoadData(CurrentCustomSavedData.StateOfSave);
 	}
 }
 
