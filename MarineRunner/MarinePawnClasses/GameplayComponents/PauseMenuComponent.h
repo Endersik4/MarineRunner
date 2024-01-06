@@ -32,6 +32,8 @@ public:
 
 	void PauseGame();
 	void UnPauseGame();
+
+	void ChangeUIToGameOnly();
 private:
 
 	bool bIsInPauseMenu;

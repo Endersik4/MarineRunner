@@ -46,6 +46,11 @@ struct FSaveDataMenuStruct
 		LevelNameToLoad = NewLevelName;
 		TotalPlayTimeInSeconds = NewTotalTimeInMinutes;
 	}
+
+	bool operator<(const FSaveDataMenuStruct& OtherSaveDataMenu)
+	{
+		return SaveNumber < OtherSaveDataMenu.SaveNumber;
+	}
 };
 
 class MARINERUNNER_API LoadGameData

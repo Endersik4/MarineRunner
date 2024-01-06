@@ -60,8 +60,7 @@ void UPauseMenuComponent::UnPauseGame()
 	if (MarinePawn->GetIsMessageDisplayed() == false)
 	{
 		UGameplayStatics::SetGamePaused(GetWorld(), false);
-		PlayerController->SetShowMouseCursor(false);
-		UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
+		ChangeUIToGameOnly();
 	}
 	bIsInPauseMenu = false;
 
@@ -100,4 +99,10 @@ bool UPauseMenuComponent::CanPauseGame()
 		return false;
 
 	return true;
+}
+
+void UPauseMenuComponent::ChangeUIToGameOnly()
+{
+	PlayerController->SetShowMouseCursor(false);
+	UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
 }

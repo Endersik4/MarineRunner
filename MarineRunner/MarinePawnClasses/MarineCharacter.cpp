@@ -82,6 +82,7 @@ void AMarineCharacter::BeginPlay()
 
 	MarinePlayerController = Cast<AMarinePlayerController>(GetController());
 	GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	PauseMenuComponent->ChangeUIToGameOnly();
 	
 	LoadSavedSettingsFromGameInstance();
 

@@ -26,17 +26,11 @@ void ASavedDataObject::Tick(float DeltaTime)
 
 }
 
-void ASavedDataObject::AddCustomSaveData(FCustomDataSaved& NewCustomSavedData)
-{
-	//CustomSavedData.Remove(NewCustomSavedData);
-	//CustomSavedData.AddUnique(NewCustomSavedData);
-}
-
-void ASavedDataObject::AddCustomSaveData(ISaveCustomDataInterface* ObjectToSave, int32 StateOfObjectToSave)
+void ASavedDataObject::AddCustomSaveData(TScriptInterface<ISaveCustomDataInterface> ObjectToSave, int32 StateOfObjectToSave)
 {
 	FCustomDataSaved NewCustomSavedData(ObjectToSave, StateOfObjectToSave);
+	CustomSavedData.Remove(NewCustomSavedData);
 	CustomSavedData.Add(NewCustomSavedData);
-	CustomSavedData.AddUnique(NewCustomSavedData);
 }
 
 void ASavedDataObject::LoadObjectsData()
@@ -44,7 +38,9 @@ void ASavedDataObject::LoadObjectsData()
 	for (FCustomDataSaved & CurrentCustomSavedData : CustomSavedData)
 	{
 		if (CurrentCustomSavedData.ObjectToSaveData == nullptr)
+		{
 			continue;
+		}
 
 		CurrentCustomSavedData.ObjectToSaveData->LoadData(CurrentCustomSavedData.StateOfSave);
 	}

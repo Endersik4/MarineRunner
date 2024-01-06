@@ -55,7 +55,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		AActor* CurrentCheckpoint;
 
-	TArray<FCustomDataSaved> CustomSavedData;
+	UPROPERTY()
+		TArray<FCustomDataSaved> CustomSavedData;
 
 	void PrepareSaveGame(const FString& NewSaveName = "ManualSave_", bool bAddSaveNumber = true);
 	FString OriginalSaveName;

@@ -27,9 +27,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-
-	void AddCustomSaveData(FCustomDataSaved & NewCustomSavedData);
-	void AddCustomSaveData(ISaveCustomDataInterface * ObjectToSave, int32 StateOfObjectToSave);
+	void AddCustomSaveData(TScriptInterface<ISaveCustomDataInterface> ObjectToSave, int32 StateOfObjectToSave);
 
 	FORCEINLINE TArray<FCustomDataSaved> GetCustomSavedData() const { return CustomSavedData; }
 

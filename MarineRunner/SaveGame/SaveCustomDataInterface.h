@@ -22,17 +22,20 @@ class MARINERUNNER_API ISaveCustomDataInterface
 
 public:
 
-	//UFUNCTION()
-	//	virtual void SaveData(int32 StateOfData) = 0;
-
 	UFUNCTION()
 		virtual void LoadData(int32 StateOfData = 0) = 0;
 };
 
+USTRUCT(BlueprintType)
 struct FCustomDataSaved
 {
-	ISaveCustomDataInterface* ObjectToSaveData;
-	int32 StateOfSave;
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(EditAnywhere)
+		TScriptInterface<ISaveCustomDataInterface> ObjectToSaveData;
+
+	UPROPERTY(EditAnywhere)
+		int32 StateOfSave;
 
 	FCustomDataSaved()
 	{
@@ -40,7 +43,7 @@ struct FCustomDataSaved
 		StateOfSave = 0;
 	}
 
-	FCustomDataSaved(ISaveCustomDataInterface* _ObjectToSaveData, int32 _StateOfSave)
+	FCustomDataSaved(TScriptInterface<ISaveCustomDataInterface> _ObjectToSaveData, int32 _StateOfSave)
 	{
 		ObjectToSaveData = _ObjectToSaveData;
 		StateOfSave = _StateOfSave;
@@ -53,7 +56,7 @@ struct FCustomDataSaved
 		return *this;
 	}
 
-	bool operator==(const ISaveCustomDataInterface* OtherObject)
+	bool operator==(const TScriptInterface<ISaveCustomDataInterface> OtherObject)
 	{
 		return ObjectToSaveData == OtherObject;
 	}

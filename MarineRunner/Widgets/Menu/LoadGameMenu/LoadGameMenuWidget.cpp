@@ -27,10 +27,12 @@ void ULoadGameMenuWidget::FillSavesListView()
 
 	TArray<FString> Txt_Files;
 	GetTextFilesFromSaves(Txt_Files);
-	Txt_Files.Sort();
+	//Txt_Files.Sort();
 
 	if (Txt_Files.Num() > 0)
 		NoSavedDataText->SetVisibility(ESlateVisibility::Hidden);
+
+	TArray<FSaveDataMenuStruct> DeserlializedSaves;
 
 	for (const FString& CurrTxtFilePath : Txt_Files)
 	{
@@ -38,24 +40,34 @@ void ULoadGameMenuWidget::FillSavesListView()
 
 		TSharedPtr<FJsonObject> JsonObject;
 		bool bWasJsonDeserialize = USaveGameJsonFile::ReadJson(CurrTxtFilePath, JsonObject);
-		if (bWasJsonDeserialize)
-		{
-			NewSaveDataMenu.SaveName = JsonObject->GetStringField("SavedDataName");
-			NewSaveDataMenu.SaveNumber = JsonObject->GetNumberField("SavedDataNumber");
-			NewSaveDataMenu.ScreenshotPathSave = JsonObject->GetStringField("PathToThumbnail");
-			NewSaveDataMenu.SaveDateTime = JsonObject->GetStringField("SavedGameDate");
-			NewSaveDataMenu.LevelNameToLoad = JsonObject->GetStringField("SavedLevelName");
-			NewSaveDataMenu.TotalPlayTimeInSeconds = JsonObject->GetNumberField("TotalPlayTime");
-		}
-		else return;
-		
-		ULoadGameMenuEntryObject* ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(MenuSettingsDataObject);
-		if (IsValid(ConstructedItemObject) == false) continue;
+		if (bWasJsonDeserialize == false)
+			return;
 
-		ConstructedItemObject->SavesMenuData = NewSaveDataMenu;
+		NewSaveDataMenu.SaveName = JsonObject->GetStringField("SavedDataName");
+		NewSaveDataMenu.SaveNumber = JsonObject->GetNumberField("SavedDataNumber");
+		NewSaveDataMenu.ScreenshotPathSave = JsonObject->GetStringField("PathToThumbnail");
+		NewSaveDataMenu.SaveDateTime = JsonObject->GetStringField("SavedGameDate");
+		NewSaveDataMenu.LevelNameToLoad = JsonObject->GetStringField("SavedLevelName");
+		NewSaveDataMenu.TotalPlayTimeInSeconds = JsonObject->GetNumberField("TotalPlayTime");
 
-		TArray<UObject*> ListItems = SavesListView->GetListItems();
-		ListItems.Insert(ConstructedItemObject, 0);
-		SavesListView->SetListItems(ListItems);
+		DeserlializedSaves.Add(NewSaveDataMenu);
 	}
+
+	DeserlializedSaves.HeapSort();
+
+	for (const FSaveDataMenuStruct& CurrentSaveDataMenu : DeserlializedSaves)
+	{
+		ULoadGameMenuEntryObject* ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(MenuSettingsDataObject);
+
+		if (IsValid(ConstructedItemObject) == false) 
+			continue;
+
+		ConstructedItemObject->SavesMenuData = CurrentSaveDataMenu;
+
+		//TArray<UObject*> ListItems = SavesListView->GetListItems();
+		//ListItems.Insert(ConstructedItemObject, 0);
+		//SavesListView->SetListItems(ListItems);
+		SavesListView->AddItem(ConstructedItemObject);
+	}
+
 }
