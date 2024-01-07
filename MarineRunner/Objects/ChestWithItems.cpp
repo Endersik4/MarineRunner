@@ -9,6 +9,7 @@
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Objects/Door/DoorWidgets/DoorPanelWidget.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 
 // Sets default values
@@ -48,14 +49,15 @@ void AChestWithItems::BeginPlay()
 
 void AChestWithItems::ClickedOpenButton(class UDoorPanelWidget* ClickedWidget)
 {
-	if (bIsChestOpen == true) return;
+	if (bIsChestOpen == true) 
+		return;
 
 	OpenChest();
 }
 
 void AChestWithItems::PinCorrect()
 {
-	;
+	SaveChestState(1);
 }
 
 // Called every frame
@@ -90,5 +92,31 @@ void AChestWithItems::OpenChest()
 		}
 	}
 
+	SaveChestState(2);
 	bIsChestOpen = true;
+}
+
+void AChestWithItems::SaveChestState(int32 SaveState)
+{
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	SavedDataObject->AddCustomSaveData(this, SaveState);
+}
+
+void AChestWithItems::LoadData(int32 StateOfData)
+{
+	if (StateOfData == 1)
+	{
+		FrontChestPanelWidget->PinIsCorrect(false);
+	}
+	else if (StateOfData == 2)
+	{
+		bIsChestOpen = true;
+		FrontChestPanelWidget->SetVisibility(ESlateVisibility::Hidden);
+		ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
+		ChestSkeletalMesh->SetPosition(1.3f);
+	}
 }

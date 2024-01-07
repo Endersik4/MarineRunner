@@ -47,7 +47,7 @@ struct FSaveDataMenuStruct
 		TotalPlayTimeInSeconds = NewTotalTimeInMinutes;
 	}
 
-	bool operator<(const FSaveDataMenuStruct& OtherSaveDataMenu)
+	FORCEINLINE bool operator<(const FSaveDataMenuStruct& OtherSaveDataMenu) const
 	{
 		return SaveNumber < OtherSaveDataMenu.SaveNumber;
 	}

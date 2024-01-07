@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MarineRunner/Objects/Door/UsePinToEnterInterface.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
 
 #include "ChestWithItems.generated.h"
 
@@ -36,7 +37,7 @@ struct FItemRandomSpawnStruct
 };
 
 UCLASS()
-class MARINERUNNER_API AChestWithItems : public AActor, public IUsePinToEnterInterface
+class MARINERUNNER_API AChestWithItems : public AActor, public IUsePinToEnterInterface, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 	
@@ -51,6 +52,8 @@ protected:
 	virtual void ClickedOpenButton(class UDoorPanelWidget* ClickedWidget = nullptr) override;
 	virtual void PinCorrect() override;
 	virtual class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) override { return nullptr; }
+
+	virtual void LoadData(int32 StateOfData = 0) override;
 
 public:	
 	// Called every frame
@@ -84,5 +87,7 @@ private:
 
 	bool bIsChestOpen;
 	class UDoorPanelWidget* FrontChestPanelWidget;
+
+	void SaveChestState(int32 SaveState);
 
 };

@@ -27,14 +27,24 @@ void ULoadGameMenuWidget::FillSavesListView()
 
 	TArray<FString> Txt_Files;
 	GetTextFilesFromSaves(Txt_Files);
-	//Txt_Files.Sort();
 
-	if (Txt_Files.Num() > 0)
-		NoSavedDataText->SetVisibility(ESlateVisibility::Hidden);
+	if (Txt_Files.Num() <= 0)
+		return;
+
+	NoSavedDataText->SetVisibility(ESlateVisibility::Hidden);
 
 	TArray<FSaveDataMenuStruct> DeserlializedSaves;
 
-	for (const FString& CurrTxtFilePath : Txt_Files)
+	FillDeserializedSaveFilesToArray(Txt_Files, DeserlializedSaves);
+
+	DeserlializedSaves.Sort([](const FSaveDataMenuStruct& a, const FSaveDataMenuStruct& b) { return a.SaveNumber > b.SaveNumber; });
+
+	ConvertArrayToLoadGameMenuEntryList(DeserlializedSaves);
+}
+
+void ULoadGameMenuWidget::FillDeserializedSaveFilesToArray(TArray<FString>& PathsToSaveFiles, TArray<FSaveDataMenuStruct>& ArrayToFill)
+{
+	for (const FString& CurrTxtFilePath : PathsToSaveFiles)
 	{
 		FSaveDataMenuStruct NewSaveDataMenu;
 
@@ -50,24 +60,21 @@ void ULoadGameMenuWidget::FillSavesListView()
 		NewSaveDataMenu.LevelNameToLoad = JsonObject->GetStringField("SavedLevelName");
 		NewSaveDataMenu.TotalPlayTimeInSeconds = JsonObject->GetNumberField("TotalPlayTime");
 
-		DeserlializedSaves.Add(NewSaveDataMenu);
+		ArrayToFill.Add(NewSaveDataMenu);
 	}
+}
 
-	DeserlializedSaves.HeapSort();
-
-	for (const FSaveDataMenuStruct& CurrentSaveDataMenu : DeserlializedSaves)
+void ULoadGameMenuWidget::ConvertArrayToLoadGameMenuEntryList(TArray<FSaveDataMenuStruct>& ArrayToConvert)
+{
+	for (const FSaveDataMenuStruct& CurrentSaveDataMenu : ArrayToConvert)
 	{
 		ULoadGameMenuEntryObject* ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(MenuSettingsDataObject);
 
-		if (IsValid(ConstructedItemObject) == false) 
+		if (IsValid(ConstructedItemObject) == false)
 			continue;
 
 		ConstructedItemObject->SavesMenuData = CurrentSaveDataMenu;
 
-		//TArray<UObject*> ListItems = SavesListView->GetListItems();
-		//ListItems.Insert(ConstructedItemObject, 0);
-		//SavesListView->SetListItems(ListItems);
 		SavesListView->AddItem(ConstructedItemObject);
 	}
-
 }
