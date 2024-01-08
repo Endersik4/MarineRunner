@@ -114,6 +114,20 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 <h2> Enemies </h2>
 	- Enemy can move to random location and after some amount of movements, enemy goes back to its original location <br/>
 	- When enemy sees the player than starts shooting  <br/>
+<h2> Saving/Loading Game </h2>
+	- The game can save: 
+		<ul>
+			<li> Player Location and Rotation</li>
+			<li> Player's Health </li>
+			<li> Player's inventory and recipes for items</li>
+			<li> Quick select inventory (weapon) </li>
+			<li> Screenshot took in moment when player saved the game</li>
+			<li> Information that are needed for load game description (SaveName, SaveNumber, Path To Thumbnail, SaveDate, Level, TotalPlayTime). Its saved in json file </li>
+			<li> State of chest (was it open, was pin entered)</li>
+			<li> State of Door (was pin entered)</li>
+			<li> Custom Game Settings that are not saved by engine (e.g audio volume, fov, mouse sensitivity)</li>
+		</ul>
+	- saving chests or door is possible thanks to custom save interface 
 <h2> Objects </h2>
 <h4> Item: </h4>
 	- The Item can be picked up or crafted <br/>
@@ -144,4 +158,5 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 	- Can be open from two sides by clicking on panel (3D Widget)  <br/>
 	- Door can require pin code to open <br/>
 	- After opening the door, close door timer will play <br/>
+
 
