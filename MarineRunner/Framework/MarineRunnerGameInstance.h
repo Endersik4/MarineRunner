@@ -95,7 +95,7 @@ public:
 
 	void SaveCustomSavedSettingsToConfig();
 
-	void SetValueBySavedSettingName(const FString& SavedSettingName, float& Value);
+	void FindSavedValueAccordingToName(const FString& SavedSettingName, float& Value);
 	void ReplaceValueInSavedSettingByName(float NewValue, const FString& SavedSettingName);
 
 	void AddNewDetectedEnemy(AActor* NewEnemy, bool bIsEnemyDead = false);

@@ -80,6 +80,8 @@ public:
 	FORCEINLINE class UDashComponent* GetDashComponent() const { return DashComponent; }
 	FORCEINLINE class UWeaponHandlerComponent* GetWeaponHandlerComponent() const { return WeaponHandlerComponent; }
 	FORCEINLINE class UMessageHandlerComponent* GetMessageHandlerComponent() const { return MessageHandlerComponent; }
+	FORCEINLINE class USaveLoadPlayerComponent* GetSaveLoadPlayerComponent() const { return SaveLoadPlayerComponent; }
+	FORCEINLINE const FSettingSavedInJsonFile& GetMouseSensitivityJSON() const { return MouseSensitivityJSON; }
 	bool GetIsMessageDisplayed() const;
 	bool GetIsInPauseMenu() const;
 
@@ -94,12 +96,6 @@ public:
 	void UpdateHudWidget();
 
 	void UpdateAlbertosInventory(bool bShouldUpdateInventory = true, bool bShouldUpdateCrafting = false);
-
-	void CallSaveGame(AActor* JustSavedCheckpoint = nullptr) { SaveGame(JustSavedCheckpoint); }
-	bool CanPlayerSaveGame();
-	void SpawnCannotSavedWidget() { SpawnPassingWidget(CannotSavedNotificationWidgetClass); }
-
-	void LoadSavedSettingsFromGameInstance();
 
 	void MakeCrosshire(bool bShouldRemoveFromParent = false);
 
@@ -132,9 +128,8 @@ private:
 		class USpawnDeathWidgetComponent* SpawnDeathWidgetComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UMessageHandlerComponent* MessageHandlerComponent;
-
-	UPROPERTY(EditAnywhere, Category = "Saves")
-		class ASavedDataObject* SavedDataObject;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class USaveLoadPlayerComponent* SaveLoadPlayerComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;
@@ -181,11 +176,6 @@ private:
 		TSubclassOf<class UUserWidget> CrosshairClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> HUDClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass;
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget> CannotSavedNotificationWidgetClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ImpactOnFloorSound;
@@ -263,22 +253,12 @@ private:
 	void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }
 	void UseFirstAidKit();
 
-	//Saving/Loading Game
-	class USaveMarineRunner* CurrentSaveGameInstance;
-	void SaveGame(AActor* JustSavedCheckpoint = nullptr);
-	void LoadGame();
-	void SpawnPassingWidget(const TSubclassOf<class UUserWidget> & WidgetClassToSpawn);
-
 	//Widgets
 	void MakeHudWidget();
 	UUserWidget* CrosshairWidget;
 	class UHUDWidget* HudWidget;
 
-	//Checking Stuff
 	bool MakeCheckBox(FVector Size, FVector NewStart, FVector NewEnd, FHitResult &OutHitResult, bool bDebug = false);
-	bool MakeCheckLine(FHitResult &OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug = false, FColor Color = FColor::Red);
 
-	FVector EaseInQuint(FVector Start, FVector End, float Alpha);
 	class AMarinePlayerController* MarinePlayerController;
-	UMarineRunnerGameInstance* GameInstance;
 };

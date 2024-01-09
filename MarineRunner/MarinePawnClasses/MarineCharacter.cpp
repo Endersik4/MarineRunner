@@ -24,14 +24,11 @@
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SpawnDeathWidgetComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/MessageHandlerComponent.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
-#include "MarineRunner/Widgets/Menu/GameSavedNotificationWidget.h"
-#include "MarineRunner/Framework/SaveMarineRunner.h"
-#include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
 #include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
-#include "MarineRunner/Objects/Checkpoint.h"
 
 // Sets default values
 AMarineCharacter::AMarineCharacter()
@@ -66,6 +63,7 @@ AMarineCharacter::AMarineCharacter()
 	WeaponHandlerComponent = CreateDefaultSubobject<UWeaponHandlerComponent>(TEXT("WeaponHandlerComponent"));
 	SpawnDeathWidgetComponent = CreateDefaultSubobject<USpawnDeathWidgetComponent>(TEXT("SpawnDeathWidgetComponent"));
 	MessageHandlerComponent = CreateDefaultSubobject<UMessageHandlerComponent>(TEXT("MessageHandlerComponent"));
+	SaveLoadPlayerComponent = CreateDefaultSubobject<USaveLoadPlayerComponent>(TEXT("Save and Load Player Component"));
 	
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
 	WidgetInteractionComponent->SetupAttachment(Camera);
@@ -81,17 +79,11 @@ void AMarineCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePlayerController = Cast<AMarinePlayerController>(GetController());
-	GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	PauseMenuComponent->ChangeUIToGameOnly();
 	
-	LoadSavedSettingsFromGameInstance();
-
 	MakeCrosshire();
 	MakeHudWidget();
 	InitialMovementForce = MovementForce;
-
-	LoadGame();
-	GameInstance->bNewGame = false;
 
 	if (IsValid(HudWidget))
 	{
@@ -452,89 +444,6 @@ void AMarineCharacter::KeyEReleased()
 }
 #pragma endregion 
 
-#pragma region /////////////////////////////// SAVE/LOAD ///////////////////////////////
-void AMarineCharacter::SaveGame(AActor* JustSavedCheckpoint)
-{
-	CurrentSaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
-
-	CurrentSaveGameInstance->PrepareSaveGame();
-	CurrentSaveGameInstance->CopySaveInfoToCurrentGameInstance(GetWorld());
-
-	CurrentSaveGameInstance->SaveGame(Health, WeaponHandlerComponent->GetGun(), WeaponInventoryComponent->ReturnAllWeapons(), InventoryComponent->Inventory_Items);
-	CurrentSaveGameInstance->CurrentCheckpoint = JustSavedCheckpoint;
-	CurrentSaveGameInstance->SaveOtherObjectsData(SavedDataObject);
-
-	CurrentSaveGameInstance->SavedPlayerLocation = GetActorLocation();
-	CurrentSaveGameInstance->SavedPlayerRotation = GetActorRotation();
-
-	CurrentSaveGameInstance->MakeJsonFileWithSaveInfo(MarinePlayerController, UGameplayStatics::GetCurrentLevelName(GetWorld()));
-
-	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName() +"/"+ CurrentSaveGameInstance->GetSaveGameName(), 0);
-
-	SpawnPassingWidget(GameSavedNotificationWidgetClass);
-}
-
-void AMarineCharacter::LoadGame()
-{
-	if (IsValid(GameInstance) == false)
-		return;
-
-	if (GameInstance->bNewGame == true)
-		return;
-	
-	FString SlotName = GameInstance->SlotSaveGameNameToLoad;
-	SlotName += "/" + SlotName;
-
-	USaveMarineRunner* LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
-	if (!UGameplayStatics::LoadGameFromSlot(SlotName, 0))
-	{
-		return;
-	}
-
-	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
-
-	SetActorLocation(LoadGameInstance->SavedPlayerLocation);
-	if (IsValid(MarinePlayerController) == true)
-		MarinePlayerController->SetControlRotation(LoadGameInstance->SavedPlayerRotation);	
-
-	ACheckpoint* LoadedCheckpoint = Cast<ACheckpoint>(LoadGameInstance->CurrentCheckpoint);
-	if (IsValid(LoadedCheckpoint))
-	{
-		LoadedCheckpoint->DisableCheckpoint();
-	}
-
-	LoadGameInstance->LoadGame(this, GameInstance);
-	LoadGameInstance->LoadOtherObjectsData(SavedDataObject);
-}
-
-void AMarineCharacter::LoadSavedSettingsFromGameInstance()
-{
-	if (IsValid(GameInstance) == false || IsValid(MarinePlayerController) == false)
-		return;
-
-	const FSettingSavedInJsonFile& CurrentMouseSensName = MarinePlayerController->GetMouseSensitivity();
-	GameInstance->SetValueBySavedSettingName(MouseSensitivityJSON.FieldName, MouseSensitivityJSON.FieldValue);
-	if (CurrentMouseSensName == MouseSensitivityJSON) ChangeMouseSensitivity(MouseSensitivityJSON);
-}
-
-void AMarineCharacter::SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn)
-{
-	if (IsValid(MarinePlayerController) == false) return;
-
-	UGameSavedNotificationWidget* SpawnedWidget = Cast<UGameSavedNotificationWidget>(CreateWidget(MarinePlayerController, WidgetClassToSpawn));
-	if (IsValid(SpawnedWidget) == false)
-		return;
-
-	SpawnedWidget->AddToViewport();
-}
-
-bool AMarineCharacter::CanPlayerSaveGame()
-{
-	return (bIsInAir || WeaponHandlerComponent->GetIsPlayerInAds() || GameInstance->IsPlayerInCombat()) ? false : true;
-}
-
-#pragma endregion 
-
 #pragma region //////////////////////////////// DAMAGE /////////////////////////////////
 void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
@@ -662,19 +571,6 @@ bool AMarineCharacter::MakeCheckBox(FVector Size, FVector NewStart, FVector NewE
 {
 	if (bDebug) DrawDebugBox(GetWorld(), NewStart, FVector(Size), FColor::Red, true);
 	return GetWorld()->SweepSingleByChannel(OutHitResult, NewStart, NewEnd, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(Size));
-}
-
-bool AMarineCharacter::MakeCheckLine(FHitResult& OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug, FColor Color)
-{
-	if (bDebug) DrawDebugLine(GetWorld(), NewStart, NewEnd, Color, false, 0.5f);
-	return GetWorld()->LineTraceSingleByChannel(OutHitResult, NewStart, NewEnd, ECC_Visibility);
-}
-
-FVector AMarineCharacter::EaseInQuint(FVector Start, FVector End, float Alpha)
-{
-	Alpha--;
-	End -= Start;
-	return End * (Alpha * Alpha * Alpha * Alpha * Alpha + 1) + Start;
 }
 #pragma endregion 
 

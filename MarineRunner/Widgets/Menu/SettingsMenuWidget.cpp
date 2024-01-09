@@ -15,6 +15,7 @@
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
 
 void USettingsMenuWidget::NativeConstruct()
 {
@@ -294,7 +295,7 @@ void USettingsMenuWidget::LoadSavedSettingsToPlayer()
 	if (IsValid(Player) == false)
 		return;
 
-	Player->LoadSavedSettingsFromGameInstance();
+	Player->GetSaveLoadPlayerComponent()->LoadSavedSettingsFromGameInstance();
 }
 
 void USettingsMenuWidget::OnHoveredAcceptSettingsButton()

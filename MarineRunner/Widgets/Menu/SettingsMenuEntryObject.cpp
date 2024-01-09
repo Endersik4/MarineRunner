@@ -108,7 +108,7 @@ bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(float& Value)
 	if (MenuSettingsData.bSaveValueToGameInstance == false || IsValid(GameInstance) == false)
 		return false;
 	UE_LOG(LogTemp, Warning, TEXT("DZIALA"));
-	GameInstance->SetValueBySavedSettingName(MenuSettingsData.SavedValueName, Value);
+	GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, Value);
 
 	return true;
 }
@@ -118,7 +118,7 @@ bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(int32& Value)
 	if (MenuSettingsData.bSaveValueToGameInstance == false || IsValid(GameInstance) == false)
 		return false;
 
-	//GameInstance->SetValueBySavedSettingName(MenuSettingsData.SavedValueName, Value);
+	//GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, Value);
 
 	return true;
 }
@@ -128,7 +128,7 @@ bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(bool& Value)
 	if (MenuSettingsData.bSaveValueToGameInstance == false || IsValid(GameInstance) == false)
 		return false;
 
-	//GameInstance->SetValueBySavedSettingName(MenuSettingsData.SavedValueName, Value);
+	//GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, Value);
 
 	return true;
 }

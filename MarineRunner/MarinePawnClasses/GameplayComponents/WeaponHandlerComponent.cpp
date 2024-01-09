@@ -150,7 +150,7 @@ void UWeaponHandlerComponent::LoadSavedSettingsFromGameInstance()
 
 	for (FSettingSavedInJsonFile& CurrSetting : MouseSensitivityWhenScope)
 	{
-		GameInstance->SetValueBySavedSettingName(CurrSetting.FieldName, CurrSetting.FieldValue);
+		GameInstance->FindSavedValueAccordingToName(CurrSetting.FieldName, CurrSetting.FieldValue);
 		if (CurrentMouseSensName == CurrSetting) MarinePawn->ChangeMouseSensitivity(CurrSetting);
 	}
 }

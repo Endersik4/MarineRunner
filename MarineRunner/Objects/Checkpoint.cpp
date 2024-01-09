@@ -6,6 +6,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
 
 // Sets default values
 ACheckpoint::ACheckpoint()
@@ -50,7 +51,7 @@ void ACheckpoint::OnCheckpointBoxBeginOverlap(UPrimitiveComponent* OverlappedCom
 	AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(OtherActor);
 	if (MarinePawn == nullptr) return;
 
-	MarinePawn->CallSaveGame(this);
+	MarinePawn->GetSaveLoadPlayerComponent()->CallSaveGame(this);
 	bSaved = true;
 }
 

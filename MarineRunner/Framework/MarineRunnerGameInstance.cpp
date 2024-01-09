@@ -56,7 +56,7 @@ void UMarineRunnerGameInstance::SaveCustomSavedSettingsToConfig()
 	USaveGameJsonFile::WriteJson(JsonObject, ConfigPath);
 }
 
-void UMarineRunnerGameInstance::SetValueBySavedSettingName(const FString& SavedSettingName, float& Value)
+void UMarineRunnerGameInstance::FindSavedValueAccordingToName(const FString& SavedSettingName, float& Value)
 {
 	FSettingSavedInJsonFile NewStruct = FSettingSavedInJsonFile(SavedSettingName, 0.f);
 	int32 FoundItemIndex = NewStruct.GetItemIndexInGivenArray(CustomSavedSettings);

@@ -14,6 +14,7 @@
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/PauseMenuComponent.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
 
 void UPauseMenuWidget::NativeConstruct()
 {
@@ -169,13 +170,13 @@ void UPauseMenuWidget::OnClickedSaveGameButton()
 	if (IsValid(MarinePlayer) == false)
 		return;
 
-	if (MarinePlayer->CanPlayerSaveGame() == false)
+	if (MarinePlayer->GetSaveLoadPlayerComponent()->CanPlayerSaveGame() == false)
 	{
-		MarinePlayer->SpawnCannotSavedWidget();
+		MarinePlayer->GetSaveLoadPlayerComponent()->SpawnCannotSavedWidget();
 		return;
 	}
 
-	MarinePlayer->CallSaveGame();
+	MarinePlayer->GetSaveLoadPlayerComponent()->CallSaveGame();
 
 	if (IsValid(MarinePlayer->GetPauseMenuComponent()) == false)
 		return;
