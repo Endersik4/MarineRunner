@@ -50,14 +50,14 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void RotateCameraWhileWallrunning(bool bIsRightSide = false);
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void LandingEffect();
+
 	void ChangeMouseSensitivity(const FSettingSavedInJsonFile &NewMouseSensitivity, bool bResetMouseSensitivity = false);
 
 	UPROPERTY(EditAnywhere, Category = "Alberto")
 		class AAlbertosPawn* AlbertoPawn;
 
-	//Is there Marine on The ground after begin in Air, It is used in Timeline in Blueprints
-	UPROPERTY(VisibleAnywhere, Category = "Movement|Jump", BlueprintReadWrite)
-		bool IsOnGround;
 
 	FORCEINLINE FString GetFirstAidKitName() const { return FirstAidKits_Name; }
 	FORCEINLINE float GetMovementForce() const { return MovementForce; }
@@ -151,6 +151,8 @@ private:
 		float CounterMovementForce = 30.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 		float DividerOfMovementWhenADS = 1.4f;
+	UPROPERTY(EditDefaultsOnly, Category = "Movement|In Air")
+		FVector BoxSizeToCheckIfSomethingIsBelow = FVector(25.f, 25.f, 2.f);
 	// Divide Movement speed and CounterMovementForce by this value when in Air
 	UPROPERTY(EditDefaultsOnly, Category = "Movement|In Air")
 		float DividerForCounterForceWhenInAir = 13.f;
@@ -237,6 +239,8 @@ private:
 	//In Air
 	bool bIsInAir;
 	void CheckIfIsInAir();
+	void FirstTimeOnGround();
+	void PlayerOnRamp(const FHitResult & GroundHitResult);
 
 	//Crouching
 	bool bIsOnRamp;

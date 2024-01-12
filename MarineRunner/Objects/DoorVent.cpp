@@ -66,14 +66,27 @@ void ADoorVent::PlayOpenDoorVentLocTimeline()
 
 void ADoorVent::OnOpenDoorVentLocProgress(FVector VectorValue)
 {
-	AddActorLocalOffset(VectorValue);
 
-	if (DoorVentOpenRotationCurve == nullptr)
-		return;
+	if (bAddCurveValuesToVectors == true)
+	{
+		AddActorLocalOffset(VectorValue);
 
-	const FVector & OpenRotationCurveValues = DoorVentOpenRotationCurve->GetVectorValue(OpenDoorVentLocTimeline.GetPlaybackPosition());
-	FRotator AddRotation = FRotator(OpenRotationCurveValues.Y, OpenRotationCurveValues.Z, OpenRotationCurveValues.X);
-	AddActorLocalRotation(AddRotation);
+		if (DoorVentOpenRotationCurve) 
+			AddActorLocalRotation(GetRotationFromDoorVentOpenCurve());
+	}
+	else
+	{
+		SetActorLocation(VectorValue);
+
+		if (DoorVentOpenRotationCurve) 
+			SetActorRotation(GetRotationFromDoorVentOpenCurve());
+	}
+}
+
+FRotator ADoorVent::GetRotationFromDoorVentOpenCurve()
+{
+	const FVector& OpenRotationCurveValues = DoorVentOpenRotationCurve->GetVectorValue(OpenDoorVentLocTimeline.GetPlaybackPosition());
+	return FRotator(OpenRotationCurveValues.Y, OpenRotationCurveValues.Z, OpenRotationCurveValues.X);
 }
 
 void ADoorVent::ItemHover(UHUDWidget* MarineHUDWidget)

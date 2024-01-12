@@ -45,6 +45,9 @@ private:
 		UTexture2D* DoorVentIcon;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
 		bool bVentDoorsBasedOnPhysics;
+	// Add Curve values as local offset to actor or set curve values e.g SetActorRotation() 
+	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
+		bool bAddCurveValuesToVectors = true;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings|Open")
 		UCurveVector* DoorVentOpenLocationCurve;
 	// X = Roll, Y = Pitch, Z = Yaw;
@@ -56,6 +59,7 @@ private:
 
 	UFUNCTION()
 		void OnOpenDoorVentLocProgress(FVector VectorValue);
+	FRotator GetRotationFromDoorVentOpenCurve();
 	
 	FTimeline OpenDoorVentLocTimeline;
 	void PlayOpenDoorVentLocTimeline();

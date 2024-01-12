@@ -309,9 +309,10 @@ void AMarineCharacter::DelayJump()
 #pragma region ////////////////////////////////// AIR //////////////////////////////////
 void AMarineCharacter::CheckIfIsInAir()
 {
-	FHitResult Hit;
+	FHitResult GroundHitResult;
 	//Check if there is ground under the player, if not, the player is in the air
-	if (!MakeCheckBox(FVector(25.f,25.f, 2.f), GetActorLocation(), GetActorLocation(), Hit))
+	bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GetActorLocation(), GetActorLocation(), FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
+	if (bSomethingIsBelowThePlayer == false)
 	{
 		//The first moment a player is in the air
 		if (bIsInAir == false)
@@ -324,42 +325,50 @@ void AMarineCharacter::CheckIfIsInAir()
 	}
 	else
 	{
-		//The first moment a player touches the ground
-		if (bIsInAir)
-		{
-			WallrunComponent->CallResetWallrunningAfterLanding();
+		FirstTimeOnGround();
 
-			IsOnGround = true;
-
-			bIsInAir = false;
-			bDelayIsInAir = false;
-			PullUpComponent->SetPulledHimselfUp(false);
-
-			if (ImpactOnFloorSound) UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, CapsulePawn);
-
-			if (CroachAndSlideComponent->GetIsCrouching() == false) MovementForce = InitialMovementForce;
-		}
-
-		if (Hit.GetActor()->ActorHasTag("Ramp"))
-		{
-			bIsOnRamp = true;
-			//Check if Pawn is going UP on ramp, if he is then he cant slide
-			if (!Hit.GetActor()->GetActorForwardVector().Equals(GetActorForwardVector(), 1.1f))
-			{
-				bIsGoingUp = true;
-			}
-			else
-			{
-				bIsGoingUp = false;
-			}
-		}
-		else if (bIsOnRamp == true)
-		{
-			bIsOnRamp = false;
-		}
+		PlayerOnRamp(GroundHitResult);
 
 		DelayJump();
-		
+	}
+}
+
+void AMarineCharacter::FirstTimeOnGround()
+{
+	if (bIsInAir == false)
+		return;
+
+	WallrunComponent->CallResetWallrunningAfterLanding();
+
+	bIsInAir = false;
+	bDelayIsInAir = false;
+	PullUpComponent->SetPulledHimselfUp(false);
+
+	if (ImpactOnFloorSound) UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, CapsulePawn);
+
+	if (CroachAndSlideComponent->GetIsCrouching() == false) MovementForce = InitialMovementForce;
+
+	LandingEffect();
+}
+
+void AMarineCharacter::PlayerOnRamp(const FHitResult& GroundHitResult)
+{
+	if (GroundHitResult.GetActor()->ActorHasTag("Ramp"))
+	{
+		bIsOnRamp = true;
+		//Check if Pawn is going UP on ramp, if he is then he cant slide
+		if (!GroundHitResult.GetActor()->GetActorForwardVector().Equals(GetActorForwardVector(), 1.1f))
+		{
+			bIsGoingUp = true;
+		}
+		else
+		{
+			bIsGoingUp = false;
+		}
+	}
+	else if (bIsOnRamp == true)
+	{
+		bIsOnRamp = false;
 	}
 }
 
