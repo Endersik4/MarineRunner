@@ -8,6 +8,7 @@
 #include "Components/AudioComponent.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/JumpComponent.h"
 
 // Sets default values for this component's properties
 UCroachAndSlide::UCroachAndSlide()
@@ -56,9 +57,9 @@ void UCroachAndSlide::Sliding(float Delta)
 		bShouldPlaySound = false;
 	}
 
-	if (MarinePawn->GetIsOnRamp())
+	if (MarinePawn->GetJumpComponent()->GetIsOnRamp())
 	{
-		if (MarinePawn->GetIsGoingUp() == false)
+		if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == false)
 		{
 			MovementForce += (MovementForce < MaxSlideForce) ? (RampForce) * Delta : 0;
 			if (bStartRampCameraShake == false)
@@ -110,11 +111,11 @@ void UCroachAndSlide::CrouchPressed(bool bSlide)
 
 void UCroachAndSlide::BeginSlide()
 {
-	if (MarinePawn->GetIsGoingUp() == true)
+	if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == true)
 		return;
 	if (MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0)
 		return;
-	if (MarinePawn->GetIsJumping())
+	if (MarinePawn->GetJumpComponent()->GetIsJumping())
 		return;
 
 	MovementForce = CopyMovementForce + InitialVelocityOfSliding;
@@ -139,7 +140,7 @@ void UCroachAndSlide::CroachLerp(float Delta)
 
 void UCroachAndSlide::CrouchReleased()
 {
-	if (MarinePawn->GetIsOnRamp()) 
+	if (MarinePawn->GetJumpComponent()->GetIsOnRamp())
 		return;
 
 	//Check if Pawn can stand
@@ -177,10 +178,8 @@ bool UCroachAndSlide::SweepBox(FVector Where, float Distance)
 	FVector End = Start + (Where * Distance);
 
 	FHitResult HitResult;
-	//DrawDebugBox(GetWorld(), Start, FVector(20, 20,60), FColor::Red, true);
 	return GetWorld()->SweepSingleByChannel(HitResult, Start, Start, FQuat::Identity, ECC_GameTraceChannel6, FCollisionShape::MakeBox(FVector(30, 30, 60)));
 }
-
 
 void UCroachAndSlide::TurnOffSlideSound()
 {

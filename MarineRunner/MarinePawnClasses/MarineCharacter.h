@@ -58,7 +58,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Alberto")
 		class AAlbertosPawn* AlbertoPawn;
 
-
 	FORCEINLINE FString GetFirstAidKitName() const { return FirstAidKits_Name; }
 	FORCEINLINE float GetMovementForce() const { return MovementForce; }
 	FORCEINLINE float GetHealth() const { return Health; }
@@ -66,11 +65,8 @@ public:
 	bool GetIsPlayerLerpingToHookLocation() const;
 	bool GetIsCrouching() const;
 	bool GetIsInSlowMotion() const;
-	FORCEINLINE bool GetIsJumping() const { return bIsJumping; }
 	FORCEINLINE bool GetIsDead() const { return bIsDead; }
-	FORCEINLINE bool GetIsOnRamp() const { return bIsOnRamp; }
-	FORCEINLINE bool GetIsGoingUp() const { return bIsGoingUp; }
-	FORCEINLINE bool GetIsInAir() const { return bIsInAir; }
+	bool GetIsInAir() const;
 	FVector GetCameraLocation() const;
 	FORCEINLINE class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	FORCEINLINE class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
@@ -79,6 +75,8 @@ public:
 	FORCEINLINE class UPauseMenuComponent* GetPauseMenuComponent()const { return PauseMenuComponent; }
 	FORCEINLINE class UDashComponent* GetDashComponent() const { return DashComponent; }
 	FORCEINLINE class UWeaponHandlerComponent* GetWeaponHandlerComponent() const { return WeaponHandlerComponent; }
+	FORCEINLINE class UJumpComponent* GetJumpComponent() const { return JumpComponent; }
+	FORCEINLINE class UPullUpComponent* GetPullUpComponent() const { return PullUpComponent; }
 	FORCEINLINE class UMessageHandlerComponent* GetMessageHandlerComponent() const { return MessageHandlerComponent; }
 	FORCEINLINE class USaveLoadPlayerComponent* GetSaveLoadPlayerComponent() const { return SaveLoadPlayerComponent; }
 	FORCEINLINE const FSettingSavedInJsonFile& GetMouseSensitivityJSON() const { return MouseSensitivityJSON; }
@@ -100,6 +98,8 @@ public:
 	void MakeCrosshire(bool bShouldRemoveFromParent = false);
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UJumpComponent* JumpComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCroachAndSlide* CroachAndSlideComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -151,38 +151,12 @@ private:
 		float CounterMovementForce = 30.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Movement")
 		float DividerOfMovementWhenADS = 1.4f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement|In Air")
-		FVector BoxSizeToCheckIfSomethingIsBelow = FVector(25.f, 25.f, 2.f);
-	// Divide Movement speed and CounterMovementForce by this value when in Air
-	UPROPERTY(EditDefaultsOnly, Category = "Movement|In Air")
-		float DividerForCounterForceWhenInAir = 13.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Movement|In Air")
-		float DividerForMovementWhenInAir = 8.f;
-
-	//InitialJumpForce is lerping to -50.f and then applied to Velocity Z
-	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
-		float InitialJumpForce = 1800.f;
-	//Impuls force that is applied to Player in down vector, Thanks to this player is falling faster
-	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
-		float JumpDownForce = 15000.f;
-	//How Fast (in seconds) lerp will be done 
-	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
-		float JumpUpTime = 0.35f;
-	//Time for Delay Jump
-	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
-		float DelayJumpTime = 0.15f;
-	UPROPERTY(EditAnywhere, Category = "Movement|Jump")
-		float DelayIsInAirTime = 0.3f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> CrosshairClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> HUDClass;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* ImpactOnFloorSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* JumpSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* MarineHitSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
@@ -199,10 +173,8 @@ private:
 	void Right(float Axis);
 	void Move(FVector Direction, float Axis, const FName InputAxisName);
 	FVector CalculateCounterMovement();
-	float InitialMovementForce;
 	float MovementSpeedMutliplier = 1.f;
 	const float DegreeForForwardVector = -90.f;
-
 
 	//Footstepts sounds
 	void PlayFootstepsSound();
@@ -210,41 +182,13 @@ private:
 	FTimerHandle FootstepsHandle;
 	void SetCanPlayFootstepsSound() {bCanPlayFootstepsSound = true;}
 
-	//Jumps Variables
-	bool bDownForce;
-	bool bIsJumping;
-	float JumpTimeElapsed;
-	void Jump();
-	void JumpTick(float DeltaTime);
-
 	void ReplaceRootComponentRotation();
 
 	//Albertos
 	void CallAlbertosPressed();
 	class UCraftingAlbertosWidget* CraftingWidget;
 
-	//Delay is in Air (can jump though player is not in the air)
-	bool bDelayIsInAir;
-	FTimerHandle DelayIsInAirHandle;
-	void SetDelayIsInAir() { bDelayIsInAir = false; }
-
 	bool bIsDead;
-
-	//Delayed jump
-	bool bCanDelayJump;
-	FTimerHandle DelayJumpHandle;
-	void DelayJump();
-	void SetCanDelayJump() { bCanDelayJump = false; };
-
-	//In Air
-	bool bIsInAir;
-	void CheckIfIsInAir();
-	void FirstTimeOnGround();
-	void PlayerOnRamp(const FHitResult & GroundHitResult);
-
-	//Crouching
-	bool bIsOnRamp;
-	bool bIsGoingUp;
 
 	//Taking Items
 	void KeyEPressed();

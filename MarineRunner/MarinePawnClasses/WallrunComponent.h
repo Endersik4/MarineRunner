@@ -44,16 +44,19 @@ public:
 	bool GetCanJump() const { return bCanJumpWhileWallrunning; }
 	FVector GetWallrunDirection() const { return WallrunDirection; }
 
-	bool ShouldAddImpulseAfterWallrun(bool bShould); //Check If Should Add This Impulse. Return true if Pawn is wallrunning, false otherwise
-	void AddImpulseAfterWallrun(float JumpTimeElapsed); //When Player jumps while in wallrunning then Add Impulse to push player away from Obstacle.
+	//Check If Should Add This Impulse. Return true if Pawn is wallrunning, false otherwise
+	bool ShouldAddImpulseAfterWallrun(bool bShould);
+
+	//When Player jumps while in wallrunning then Add Impulse to push player away from Obstacle.
 	//JumpTimeElapsed is the elapsed time when the player pressed the Jump button
+	void AddImpulseAfterWallrun(float JumpTimeElapsed); 
 	
 	void CallResetWallrunningAfterLanding();//When Player is trying to do a wallrun but very close to the floor then Wallrun is disabled
 
 private:
 	//Speed of Pawn while performing wallrun
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float WallrunSpeed = 1.4f;
+		float WallrunSpeed = 1.5f;
 	//Impulse added to Stick with Obstacle
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float StickWithObstacleImpulse = 2000.f;

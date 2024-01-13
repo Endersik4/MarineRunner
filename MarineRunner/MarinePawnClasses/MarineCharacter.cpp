@@ -11,6 +11,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "TimerManager.h"
 
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/JumpComponent.h"
 #include "MarineRunner/MarinePawnClasses/CroachAndSlide.h"
 #include "MarineRunner/MarinePawnClasses/DashComponent.h"
 #include "MarineRunner/MarinePawnClasses/TakeAndDrop.h"
@@ -48,6 +49,7 @@ AMarineCharacter::AMarineCharacter()
 	Camera->SetupAttachment(CapsulePawn);
 	Camera->bUsePawnControlRotation = true;
 
+	JumpComponent = CreateDefaultSubobject<UJumpComponent>(TEXT("JumpComponent"));
 	CroachAndSlideComponent = CreateDefaultSubobject<UCroachAndSlide>(TEXT("CroachAndSlideComponent"));
 
 	TakeAndDropComponent = CreateDefaultSubobject<UTakeAndDrop>(TEXT("TakeAndDropComponent"));
@@ -83,7 +85,6 @@ void AMarineCharacter::BeginPlay()
 	
 	MakeCrosshire();
 	MakeHudWidget();
-	InitialMovementForce = MovementForce;
 
 	if (IsValid(HudWidget))
 	{
@@ -98,9 +99,6 @@ void AMarineCharacter::BeginPlay()
 void AMarineCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	JumpTick(DeltaTime);
-	CheckIfIsInAir();
 }
 
 // Called to bind functionality to input
@@ -134,7 +132,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, TakeAndDropComponent, &UTakeAndDrop::DropItem);
 
 	//Movement
-	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AMarineCharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, JumpComponent, &UJumpComponent::Jump);
 	PlayerInputComponent->BindAction<FCrouchSlideDelegate>(TEXT("Crouch"), IE_Pressed, CroachAndSlideComponent, &UCroachAndSlide::CrouchPressed, false);
 	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, CroachAndSlideComponent, &UCroachAndSlide::CrouchReleased);
 
@@ -207,9 +205,9 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 		Speed = MovementForce * MovementSpeedMutliplier;
 	}
 	//if (bIsOnRamp && CroachAndSlideComponent->GetIsSliding()) MovementDirection += 1.f * -GetActorUpVector();
-	if (bIsInAir == true && GetIsWallrunning() == false)
+	if (GetIsInAir() == true && GetIsWallrunning() == false)
 	{
-		Speed /= DividerForMovementWhenInAir;
+		Speed /= JumpComponent->GetDividerForMovementWhenInAir();
 	}
 
 	Direction.Z = 0.f;
@@ -227,159 +225,24 @@ FVector AMarineCharacter::CalculateCounterMovement()
 	Velocity.X *= -1.f;
 	Velocity.Y *= -1.f;
 	float CounterForce = CounterMovementForce;
-	if (bIsInAir == true && GetIsWallrunning() == false)
+	if (GetIsInAir() == true && GetIsWallrunning() == false)
 	{
-		CounterForce = CounterMovementForce / DividerForMovementWhenInAir;
+		CounterForce = CounterMovementForce / JumpComponent->GetDividerForCounterForceWhenInAir();
 	}
 
 	return FVector(CounterForce * Velocity.X, CounterForce * Velocity.Y, 0);
 }
 #pragma endregion
 
-#pragma region ////////////////////////////////// JUMP /////////////////////////////////
-void AMarineCharacter::Jump()
-{
-	if (WallrunComponent->GetCanJump() == false) return;
-
-	if (bIsInAir == false || (bDelayIsInAir && bIsJumping == false) || WallrunComponent->ShouldAddImpulseAfterWallrun(true))
-	{
-		bIsJumping = true;
-		JumpTimeElapsed = 0;
-		if (JumpSound) UGameplayStatics::SpawnSound2D(GetWorld(), JumpSound);
-	}
-	else
-	{
-		bCanDelayJump = true;
-		GetWorldTimerManager().SetTimer(DelayJumpHandle, this, &AMarineCharacter::SetCanDelayJump, DelayJumpTime, false);
-	}
-}
-
-void AMarineCharacter::JumpTick(float DeltaTime)
-{
-	if (bIsJumping == false) return;
-
-	if (JumpTimeElapsed < JumpUpTime)
-	{
-		FVector Start = GetActorLocation();
-		Start.Z += 100.f * GetActorScale3D().Z;
-		FHitResult HitR;
-		//Checking if Pawn hit something overhead, if he is then Jumping is over and DownForce is applied
-		if (!MakeCheckBox(FVector(4.4, 4.4, 8.5), Start, Start, HitR, false)) 
-		{
-			//Jumps Up
-			float NewVelZ = FMath::Lerp(InitialJumpForce, -50.f, JumpTimeElapsed / JumpUpTime);
-
-			FVector LinearVelocity = CapsulePawn->GetPhysicsLinearVelocity();
-			LinearVelocity.Z = NewVelZ;
-
-			CapsulePawn->SetPhysicsLinearVelocity(LinearVelocity);
-		}
-		else JumpTimeElapsed += JumpUpTime;
-
-		WallrunComponent->AddImpulseAfterWallrun(JumpTimeElapsed);
-
-		JumpTimeElapsed += DeltaTime;
-	}
-	else if (bDownForce == false)
-	{
-		//Down Physics applied when TimeJump is over
-		FVector DownJumpImpulse = (-GetActorUpVector() * JumpDownForce * 10);
-		//if (GetIsInSlowMotion() == true) DownJumpImpulse *= 3.f;
-		CapsulePawn->AddImpulse(DownJumpImpulse);
-
-		bDownForce = true;
-	}
-	else
-	{
-		bDownForce = false;
-		bIsJumping = false;
-	}
-}
-
-void AMarineCharacter::DelayJump()
-{
-	if (bCanDelayJump == false) return;
-
-	Jump();
-	bCanDelayJump = false;
-	GetWorldTimerManager().ClearTimer(DelayJumpHandle);
-}
-#pragma endregion 
-
-#pragma region ////////////////////////////////// AIR //////////////////////////////////
-void AMarineCharacter::CheckIfIsInAir()
-{
-	FHitResult GroundHitResult;
-	//Check if there is ground under the player, if not, the player is in the air
-	bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GetActorLocation(), GetActorLocation(), FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
-	if (bSomethingIsBelowThePlayer == false)
-	{
-		//The first moment a player is in the air
-		if (bIsInAir == false)
-		{
-			bDelayIsInAir = true;
-			GetWorldTimerManager().SetTimer(DelayIsInAirHandle, this, &AMarineCharacter::SetDelayIsInAir, DelayIsInAirTime, false);
-		}
-		bIsInAir = true;
-		bIsOnRamp = false;
-	}
-	else
-	{
-		FirstTimeOnGround();
-
-		PlayerOnRamp(GroundHitResult);
-
-		DelayJump();
-	}
-}
-
-void AMarineCharacter::FirstTimeOnGround()
-{
-	if (bIsInAir == false)
-		return;
-
-	WallrunComponent->CallResetWallrunningAfterLanding();
-
-	bIsInAir = false;
-	bDelayIsInAir = false;
-	PullUpComponent->SetPulledHimselfUp(false);
-
-	if (ImpactOnFloorSound) UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, CapsulePawn);
-
-	if (CroachAndSlideComponent->GetIsCrouching() == false) MovementForce = InitialMovementForce;
-
-	LandingEffect();
-}
-
-void AMarineCharacter::PlayerOnRamp(const FHitResult& GroundHitResult)
-{
-	if (GroundHitResult.GetActor()->ActorHasTag("Ramp"))
-	{
-		bIsOnRamp = true;
-		//Check if Pawn is going UP on ramp, if he is then he cant slide
-		if (!GroundHitResult.GetActor()->GetActorForwardVector().Equals(GetActorForwardVector(), 1.1f))
-		{
-			bIsGoingUp = true;
-		}
-		else
-		{
-			bIsGoingUp = false;
-		}
-	}
-	else if (bIsOnRamp == true)
-	{
-		bIsOnRamp = false;
-	}
-}
-
-#pragma endregion
-
 #pragma region //////////////////////////// FOOTSTEPS SOUND ////////////////////////////
 void AMarineCharacter::PlayFootstepsSound()
 {
-	if (bCanPlayFootstepsSound == false || (GetVelocity().Length() >= 0.f && GetVelocity().Length() <= 150.f)) return;
-	if (WallrunComponent->GetIsWallrunning() == false && bIsInAir == true) return;
-	if (CroachAndSlideComponent->GetIsSliding() == true) return;
+	if (bCanPlayFootstepsSound == false || (GetVelocity().Length() >= 0.f && GetVelocity().Length() <= 150.f)) 
+		return;
+	if (WallrunComponent->GetIsWallrunning() == false && GetIsInAir() == true) 
+		return;
+	if (CroachAndSlideComponent->GetIsSliding() == true) 
+		return;
 
 	if ((GetInputAxisValue(TEXT("Forward")) != 0.f || GetInputAxisValue(TEXT("Right")) != 0.f) || WallrunComponent->GetIsWallrunning() == true)
 	{
@@ -553,12 +416,11 @@ void AMarineCharacter::CallAlbertosPressed()
 #pragma region ////////////////////////// ADDITIONAL FUNCTIONS /////////////////////////
 void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings)
 {
-	bIsJumping = false;
 	CroachAndSlideComponent->CrouchReleased();
+	JumpComponent->TurnOffJump(bShouldCancelGameplayThings);
 
 	if (!bShouldCancelGameplayThings) return;
 
-	if (bCanDelayJump) DelayJump();
 	if (WeaponHandlerComponent->GetIsPlayerInAds()) WeaponHandlerComponent->ADSReleased();
 }
 
@@ -617,5 +479,10 @@ bool AMarineCharacter::GetIsMessageDisplayed() const
 bool AMarineCharacter::GetIsInPauseMenu() const
 {
 	return PauseMenuComponent->GetIsInPauseMenu();
+}
+
+bool AMarineCharacter::GetIsInAir() const
+{
+	return JumpComponent->GetIsInAir();
 }
 #pragma endregion 

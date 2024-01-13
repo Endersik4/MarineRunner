@@ -8,6 +8,7 @@
 #include "TimerManager.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/JumpComponent.h"
 
 // Sets default values for this component's properties
 UWallrunComponent::UWallrunComponent()
@@ -71,7 +72,6 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 		//The player must move forward to perform the wallrun
 		if (!(MarinePawn->GetInputAxisValue("Forward") > 0.5f)) return;
 		WallrunTimeElapsed = 0.6f;
-		//MarinePawn->CapsulePawn->SetPhysicsLinearVelocity(FVector(0.f));
 
 		MarinePawn->MovementStuffThatCannotHappen(true); //Things that cannot happen while Wallrunning
 		//Setting up MarinePawn variables
@@ -155,7 +155,7 @@ bool UWallrunComponent::CanDoWallrun(float Delta)
 {
 	if (WallrunTimeElapsed < 0.3f) //Wait a little bit before the next wallrun
 	{
-		if (bIsWallrunning && MarinePawn->GetIsJumping() == false) ResetWallrunning();
+		if (bIsWallrunning && MarinePawn->GetJumpComponent()->GetIsJumping() == false) ResetWallrunning();
 		else WallrunTimeElapsed += Delta;
 		return false;
 	}
@@ -182,6 +182,7 @@ void UWallrunComponent::AddImpulseAfterWallrun(float JumpTimeElapsed)
 	if (JumpTimeElapsed > 0.02f && bShouldAddImpulseAfterWallrun == true)
 	{
 		ResetWallrunning();
+		UE_LOG(LogTemp, Error, TEXT("ADD IMPULSE AFTER WALLRUnm"));
 		MarinePawn->CapsulePawn->AddImpulse(WallrunningWhereToJump * JumpFromWallrunImpulse);
 	}
 }
