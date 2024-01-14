@@ -34,7 +34,7 @@
 // Sets default values
 AMarineCharacter::AMarineCharacter()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	CapsulePawn = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CapsulePawn"));
@@ -66,7 +66,7 @@ AMarineCharacter::AMarineCharacter()
 	SpawnDeathWidgetComponent = CreateDefaultSubobject<USpawnDeathWidgetComponent>(TEXT("SpawnDeathWidgetComponent"));
 	MessageHandlerComponent = CreateDefaultSubobject<UMessageHandlerComponent>(TEXT("MessageHandlerComponent"));
 	SaveLoadPlayerComponent = CreateDefaultSubobject<USaveLoadPlayerComponent>(TEXT("Save and Load Player Component"));
-	
+
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
 	WidgetInteractionComponent->SetupAttachment(Camera);
 	WidgetInteractionComponent->InteractionSource = EWidgetInteractionSource::CenterScreen;
@@ -82,7 +82,7 @@ void AMarineCharacter::BeginPlay()
 
 	MarinePlayerController = Cast<AMarinePlayerController>(GetController());
 	PauseMenuComponent->ChangeUIToGameOnly();
-	
+
 	MakeCrosshire();
 	MakeHudWidget();
 
@@ -179,7 +179,7 @@ void AMarineCharacter::Forward(float Axis)
 {
 	// There is a bug where ForwardVector is not correct and had to use Controller->RootComponent but this way have other bug, when player looks up or down then he cant 
 	// go forward/backward and to fix this i had to rotate RightVector by -90.f
-	FVector Dir = MarinePlayerController->GetRootComponent()->GetRightVector().RotateAngleAxis(DegreeForForwardVector, FVector(0.f,0.f,1.f));
+	FVector Dir = MarinePlayerController->GetRootComponent()->GetRightVector().RotateAngleAxis(DegreeForForwardVector, FVector(0.f, 0.f, 1.f));
 
 	if (WallrunComponent->GetShouldPlayerGoForward() == true)
 	{
@@ -237,11 +237,11 @@ FVector AMarineCharacter::CalculateCounterMovement()
 #pragma region //////////////////////////// FOOTSTEPS SOUND ////////////////////////////
 void AMarineCharacter::PlayFootstepsSound()
 {
-	if (bCanPlayFootstepsSound == false || (GetVelocity().Length() >= 0.f && GetVelocity().Length() <= 150.f)) 
+	if (bCanPlayFootstepsSound == false || (GetVelocity().Length() >= 0.f && GetVelocity().Length() <= 150.f))
 		return;
-	if (WallrunComponent->GetIsWallrunning() == false && GetIsInAir() == true) 
+	if (WallrunComponent->GetIsWallrunning() == false && GetIsInAir() == true)
 		return;
-	if (CroachAndSlideComponent->GetIsSliding() == true) 
+	if (CroachAndSlideComponent->GetIsSliding() == true)
 		return;
 
 	if ((GetInputAxisValue(TEXT("Forward")) != 0.f || GetInputAxisValue(TEXT("Right")) != 0.f) || WallrunComponent->GetIsWallrunning() == true)
@@ -253,7 +253,7 @@ void AMarineCharacter::PlayFootstepsSound()
 			UGameplayStatics::SpawnSound2D(GetWorld(), FootstepsWallrunSound);
 		}
 		else if (GetIsCrouching() == true && FootstepsCroachSound)
-		{	
+		{
 			TimeOfHandle = 0.43f;
 			UGameplayStatics::SpawnSoundAttached(FootstepsCroachSound, CapsulePawn);
 		}
@@ -274,9 +274,9 @@ void AMarineCharacter::UseFirstAidKit()
 		return;
 
 	FirstAidKitItem = InventoryComponent->Inventory_Items.Find(FirstAidKits_Name);
-	if (FirstAidKitItem == nullptr) 
+	if (FirstAidKitItem == nullptr)
 		return;
-	if (FirstAidKitItem->Item_Amount <= 0) 
+	if (FirstAidKitItem->Item_Amount <= 0)
 		return;
 
 	FirstAidKitItem->Item_Amount--;
@@ -388,14 +388,14 @@ void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool
 {
 	if (AlbertoPawn) CraftingWidget = Cast<UCraftingAlbertosWidget>(AlbertoPawn->GetCraftingTableWidget());
 	if (CraftingWidget == nullptr) return;
-	
+
 	if (bShouldUpdateCrafting == true)
 	{
 		CraftingWidget->SetRecipesData(this);
 		CraftingWidget->SwitchCurrentCraftingItem();
 	}
 
-	if (bShouldUpdateInventory  == true)
+	if (bShouldUpdateInventory == true)
 	{
 		TArray<FItemStruct> ItemDataArray;
 		InventoryComponent->Inventory_Items.GenerateValueArray(ItemDataArray);
@@ -405,7 +405,7 @@ void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool
 
 void AMarineCharacter::CallAlbertosPressed()
 {
-	if (IsValid(AlbertoPawn) == false) 
+	if (IsValid(AlbertoPawn) == false)
 		return;
 
 	AlbertoPawn->CallAlbertoToThePlayer(GetActorLocation());

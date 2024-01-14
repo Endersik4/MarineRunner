@@ -34,7 +34,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) override; //C++ ONLY
-	
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		class UStaticMeshComponent* CapsulePawn;
 
@@ -47,13 +47,7 @@ public:
 	UFUNCTION(BlueprintPure)
 		class UWallrunComponent* GetWallrunComponent() const { return WallrunComponent; }
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void RotateCameraWhileWallrunning(bool bIsRightSide = false);
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void LandingEffect();
-
-	void ChangeMouseSensitivity(const FSettingSavedInJsonFile &NewMouseSensitivity, bool bResetMouseSensitivity = false);
+	void ChangeMouseSensitivity(const FSettingSavedInJsonFile& NewMouseSensitivity, bool bResetMouseSensitivity = false);
 
 	UPROPERTY(EditAnywhere, Category = "Alberto")
 		class AAlbertosPawn* AlbertoPawn;
@@ -180,7 +174,7 @@ private:
 	void PlayFootstepsSound();
 	bool bCanPlayFootstepsSound = true;
 	FTimerHandle FootstepsHandle;
-	void SetCanPlayFootstepsSound() {bCanPlayFootstepsSound = true;}
+	void SetCanPlayFootstepsSound() { bCanPlayFootstepsSound = true; }
 
 	void ReplaceRootComponentRotation();
 
@@ -206,7 +200,7 @@ private:
 	UUserWidget* CrosshairWidget;
 	class UHUDWidget* HudWidget;
 
-	bool MakeCheckBox(FVector Size, FVector NewStart, FVector NewEnd, FHitResult &OutHitResult, bool bDebug = false);
+	bool MakeCheckBox(FVector Size, FVector NewStart, FVector NewEnd, FHitResult& OutHitResult, bool bDebug = false);
 
 	class AMarinePlayerController* MarinePlayerController;
 };

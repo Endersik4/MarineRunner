@@ -11,7 +11,7 @@ UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class MARINERUNNER_API UJumpComponent : public UActorComponent
 {
 	GENERATED_BODY()
-
+		
 public:	
 	// Sets default values for this component's properties
 	UJumpComponent();
@@ -26,6 +26,7 @@ public:
 
 	void Jump();
 	void TurnOffJump(bool bDelayJumpToo = false);
+
 	FORCEINLINE bool GetIsInAir() const { return bIsInAir; }
 	FORCEINLINE bool GetIsGoingUp() const { return bIsGoingUp; }
 	FORCEINLINE bool GetIsOnRamp() const { return bIsOnRamp; }
@@ -48,6 +49,8 @@ private:
 		float DelayJumpTime = 0.15f;
 	UPROPERTY(EditAnywhere, Category = "Jump Settings")
 		float DelayIsInAirTime = 0.3f;
+	UPROPERTY(EditAnywhere, Category = "Jump Settings|Sounds")
+		USoundBase* JumpSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 		FVector BoxSizeToCheckIfSomethingIsBelow = FVector(25.f, 25.f, 2.f);
@@ -57,10 +60,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 		float DividerForMovementWhenInAir = 8.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* JumpSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	// The curve that will be applied (set) to the camera relative location when the player hits the ground for the first time.
+	UPROPERTY(EditDefaultsOnly, Category = "On Ground Settings")
+		UCurveFloat* ImpactOnFloorCameraEffectCurve;
+	UPROPERTY(EditDefaultsOnly, Category = "On Ground Settings|Sounds")
 		USoundBase* ImpactOnFloorSound;
+	UFUNCTION()
+		void ImpactOnFloorCameraEffectTimelineProgress(float CurveValue);
+
 
 	//Jumps Variables
 	bool bDownForce;
@@ -79,6 +86,10 @@ private:
 	void CheckIfIsInAir();
 	void FirstTimeOnGround();
 	void PlayerOnRamp(const FHitResult& GroundHitResult);
+
+	void LandingEffect();
+	FTimeline ImpactOnFloorTimeline;
+
 
 	//Delay is in Air (can jump though player is not in the air)
 	bool bDelayIsInAir;

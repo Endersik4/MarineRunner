@@ -51,8 +51,15 @@ void ADoorVent::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	if (IsValid(Character) == false || bIsOpen == true || DoorVentMesh->IsSimulatingPhysics() == true)
 		return;
 
-	PlayOpenDoorVentLocTimeline();
-	bIsOpen = true;
+	if (TurnOnPhysicsInsteadOfTimeline)
+	{
+		DoorVentMesh->SetSimulatePhysics(true);
+	}
+	else
+	{
+		PlayOpenDoorVentLocTimeline();
+		bIsOpen = true;
+	}
 }
 
 void ADoorVent::PlayOpenDoorVentLocTimeline()
@@ -91,7 +98,7 @@ FRotator ADoorVent::GetRotationFromDoorVentOpenCurve()
 
 void ADoorVent::ItemHover(UHUDWidget* MarineHUDWidget)
 {
-	if (bIsOpen == true)
+	if (bIsOpen == true || DoorVentMesh->IsSimulatingPhysics() == true)
 		return;
 
 	DoorVentMesh->SetRenderCustomDepth(true);
@@ -105,7 +112,7 @@ void ADoorVent::ItemHover(UHUDWidget* MarineHUDWidget)
 
 void ADoorVent::ItemUnHover(UHUDWidget* MarineHUDWidget)
 {
-	if (bIsOpen == true && bIsHovered == false)
+	if (bIsOpen == true && bIsHovered == false || DoorVentMesh->IsSimulatingPhysics() == true)
 		return;
 
 	bIsHovered = false;

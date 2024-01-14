@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "WallrunComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -10,40 +9,33 @@
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/JumpComponent.h"
 
-// Sets default values for this component's properties
 UWallrunComponent::UWallrunComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
 }
 
-
-// Called when the game starts
 void UWallrunComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	if (MarinePawn == nullptr) UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN WALLRUN COMPONENT!"));
+	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+	if (IsValid(MarinePawn) == false) UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN WALLRUN COMPONENT!"));
 }
 
-
-// Called every frame
 void UWallrunComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
-	
 	//Calling Wallrunning functione when Player is In Air
 	if (MarinePawn->GetIsInAir())
 	{
 		Wallrunning(DeltaTime);
 	}
 	CameraRotationInterp(DeltaTime);
+	RotateCameraRollTimeline.TickTimeline(DeltaTime);
 }
 
 void UWallrunComponent::Wallrunning(float Delta)
@@ -76,7 +68,8 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 		MarinePawn->MovementStuffThatCannotHappen(true); //Things that cannot happen while Wallrunning
 		//Setting up MarinePawn variables
 		MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
-		MarinePawn->RotateCameraWhileWallrunning(CurrentSide == Right ? true : false);//Rotating the camera in Roll, Definition of this function is in Blueprint of MarineCharacter
+		CurrentRotatedCameraRoll = CurrentSide;
+		RotateCameraWhileWallrunning(CurrentSide == Right ? CameraRollRightSideCurve : CameraRollLeftSideCurve);//Rotating the camera in Roll, Definition of this function is in Blueprint of MarineCharacter
 
 		RotateCameraYaw(CurrentSide, HitNormal);
 		float YawMovementImpulse = HitNormal.Rotation().Yaw + (85 * (CurrentSide == Left ? -1 : 1));
@@ -86,7 +79,7 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 		bIsWallrunning = true;
 
 		bCanJumpWhileWallrunning = false;
-		GetWorld()->GetTimerManager().SetTimer(CanJumpHandle, this, &UWallrunComponent::SetCanJumpWhileWallrunning, 0.1f);	
+		GetWorld()->GetTimerManager().SetTimer(CanJumpHandle, this, &UWallrunComponent::SetCanJumpWhileWallrunning, 0.1f);
 	}
 	WallrunningWhereToJump = HitNormal;
 
@@ -97,14 +90,14 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 
 bool UWallrunComponent::IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& OutCurrentSide, ESideOfLine WhichSideToLook)
 {
-	TArray<FVector> StartLocationOfLinesTrace; 
+	TArray<FVector> StartLocationOfLinesTrace;
 	TArray<AActor*> ignor;
 	TArray<FVector> EndLocationOfLinesTrace;
 	auto DeleteArrays = [&StartLocationOfLinesTrace, &EndLocationOfLinesTrace]() {
 		StartLocationOfLinesTrace.Empty();
 		EndLocationOfLinesTrace.Empty();
 	};
-	
+
 	//Starting Locations for LineTrace
 	StartLocationOfLinesTrace.Add(MarinePawn->GetCamera()->GetComponentLocation()); //Start of Upper Line in the player
 	StartLocationOfLinesTrace.Add(MarinePawn->GetActorLocation()); //Start of Lower Line in the player
@@ -119,7 +112,7 @@ bool UWallrunComponent::IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& Ou
 		//Set end location of lines, Start Location have End Location at the same index
 		if (WhichSideToLook == Left) EndLocationOfLinesTrace.Add(StartLocationOfLinesTrace[i] + (-MarinePawn->GetActorRightVector() * 150.f));
 		else EndLocationOfLinesTrace.Add(StartLocationOfLinesTrace[i] + (MarinePawn->GetActorRightVector() * 150.f));
-		
+
 		//If Line hit wall then Add 1 to HowManyBools
 		HowManyBools += UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartLocationOfLinesTrace[i], EndLocationOfLinesTrace[i], UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel4), false, ignor, EDrawDebugTrace::None, HitResult, true);
 		if (HitResult.GetActor()) if (HitResult.GetActor()->ActorHasTag("NoWall")) HowManyBools--;
@@ -148,7 +141,7 @@ void UWallrunComponent::ResetWallrunning()
 	bShouldLerpRotation = false;
 	MarinePawn->SetMovementSpeedMutliplier(1.f);
 
-	MarinePawn->RotateCameraWhileWallrunning();
+	RotateCameraWhileWallrunning(CurrentRotatedCameraRoll == Right ? CameraRollRightSideCurve : CameraRollLeftSideCurve);
 }
 
 bool UWallrunComponent::CanDoWallrun(float Delta)
@@ -172,7 +165,8 @@ bool UWallrunComponent::CanDoWallrun(float Delta)
 
 bool UWallrunComponent::ShouldAddImpulseAfterWallrun(bool bShould)
 {
-	if (!bIsWallrunning) return false;
+	if (!bIsWallrunning) 
+		return false;
 	bShouldAddImpulseAfterWallrun = bShould;
 	return true;
 }
@@ -182,14 +176,14 @@ void UWallrunComponent::AddImpulseAfterWallrun(float JumpTimeElapsed)
 	if (JumpTimeElapsed > 0.02f && bShouldAddImpulseAfterWallrun == true)
 	{
 		ResetWallrunning();
-		UE_LOG(LogTemp, Error, TEXT("ADD IMPULSE AFTER WALLRUnm"));
 		MarinePawn->CapsulePawn->AddImpulse(WallrunningWhereToJump * JumpFromWallrunImpulse);
 	}
 }
 
 void UWallrunComponent::CallResetWallrunningAfterLanding()
 {
-	if (!bIsWallrunning) return;
+	if (!bIsWallrunning) 
+		return;
 
 	ResetWallrunning();
 }
@@ -203,20 +197,48 @@ void UWallrunComponent::RotateCameraYaw(ESideOfLine CurrentSide, FVector HitNorm
 
 void UWallrunComponent::CameraRotationInterp(float Delta)
 {
-	if (!bShouldLerpRotation) return;
+	if (!bShouldLerpRotation || IsValid(PlayerController) == false)
+		return;
 
-	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
-	FRotator CurrentRotation = PC->GetControlRotation();
+	FRotator CurrentRotation = PlayerController->GetControlRotation();
 	FRotator TargetRotation = CurrentRotation;
 	TargetRotation.Yaw = WhereToInterp;
 
 	FRotator NewRotation = UKismetMathLibrary::RInterpTo(CurrentRotation, TargetRotation, Delta, CameraYawSpeed);
-	PC->SetControlRotation(NewRotation);
+	PlayerController->SetControlRotation(NewRotation);
 	//In Blueprint BP_MarinePlayerController when player moves mouse (with some tolerance) then bShouldLerpRotation = false
 }
 
 void UWallrunComponent::SetCanJumpWhileWallrunning()
 {
 	bCanJumpWhileWallrunning = true;
+}
+
+void UWallrunComponent::RotateCameraWhileWallrunning(UCurveFloat* CurveToUse)
+{
+	if (CurveToUse == nullptr || IsValid(PlayerController) == false)
+		return;
+
+	FOnTimelineFloat RotateCameraRollTimelineProgress;
+	RotateCameraRollTimelineProgress.BindUFunction(this, FName("CameraRollTimelineProgress"));
+	RotateCameraRollTimeline.AddInterpFloat(CurveToUse, RotateCameraRollTimelineProgress);
+
+	if (bCameraRollWasRotated == true)
+	{
+		RotateCameraRollTimeline.ReverseFromEnd();
+		bCameraRollWasRotated = false;
+	}
+	else
+	{
+		RotateCameraRollTimeline.PlayFromStart();
+		bCameraRollWasRotated = true;
+	}
+}
+
+void UWallrunComponent::CameraRollTimelineProgress(float CurveValue)
+{
+	FRotator NewRotation = PlayerController->GetControlRotation();
+	NewRotation.Roll = CurveValue;
+	PlayerController->SetControlRotation(NewRotation);
 }

@@ -39,7 +39,7 @@ void UPauseMenuComponent::UnPauseGame()
 {
 	bool bRemovePauseMenuWidget = PauseMenuWidget->RemoveCurrentMenuWidgetsFromViewport();
 
-	if (bRemovePauseMenuWidget == false || IsValid(PlayerController) == false) 
+	if (bRemovePauseMenuWidget == false || IsValid(PlayerController) == false)
 		return;
 
 	if (MarinePawn->GetIsMessageDisplayed() == false)
@@ -55,7 +55,7 @@ void UPauseMenuComponent::UnPauseGame()
 
 void UPauseMenuComponent::SpawnPauseMenuWidget()
 {
-	if (IsValid(PlayerController) == false) 
+	if (IsValid(PlayerController) == false)
 		return;
 
 	PauseMenuWidget = Cast<UPauseMenuWidget>(CreateWidget(PlayerController, PauseMenuWidgetClass));

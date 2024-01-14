@@ -50,7 +50,7 @@ void UCroachAndSlide::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 void UCroachAndSlide::Sliding(float Delta)
 {
 	if (bShouldSlide == false) return;
- 
+
 	if (bShouldPlaySound == true && SlideSound)
 	{
 		SpawnedSlideSound = UGameplayStatics::SpawnSound2D(GetWorld(), SlideSound);
@@ -61,7 +61,7 @@ void UCroachAndSlide::Sliding(float Delta)
 	{
 		if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == false)
 		{
-			MovementForce += (MovementForce < MaxSlideForce) ? (RampForce) * Delta : 0;
+			MovementForce += (MovementForce < MaxSlideForce) ? (RampForce)*Delta : 0;
 			if (bStartRampCameraShake == false)
 			{
 				CameraShakeBase = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(RampCameraShake, 1.f);
@@ -91,7 +91,7 @@ void UCroachAndSlide::Sliding(float Delta)
 void UCroachAndSlide::CrouchPressed(bool bSlide)
 {
 	if (MarinePawn->GetIsPlayerLerpingToHookLocation() || MarinePawn->GetIsWallrunning() || bIsCrouching == true) return;
-	
+
 	bIsCrouching = true;
 
 	if (bShouldStillCroach) return;
@@ -128,7 +128,7 @@ void UCroachAndSlide::CroachLerp(float Delta)
 
 	float NewVignetteIntensity = FMath::Lerp(MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity, VignetteIntensityValue, Delta * SpeedOfCroachLerp);
 	MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
-	
+
 	float NewScaleZ = FMath::Lerp(GetOwner()->GetActorScale3D().Z, ScaleZ, Delta * SpeedOfCroachLerp);
 	GetOwner()->SetActorScale3D(FVector(2, 2, NewScaleZ));
 	if (GetOwner()->GetActorScale3D().Equals(FVector(2, 2, ScaleZ), 0.01))

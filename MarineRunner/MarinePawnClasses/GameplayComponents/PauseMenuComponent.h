@@ -7,12 +7,12 @@
 #include "PauseMenuComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API UPauseMenuComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UPauseMenuComponent();
 
@@ -20,13 +20,13 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
 
 	class UPauseMenuWidget* GetPauseMenuWidget() const { return PauseMenuWidget; }
-	FORCEINLINE const bool &GetIsInPauseMenu() const { return bIsInPauseMenu; }
+	FORCEINLINE const bool& GetIsInPauseMenu() const { return bIsInPauseMenu; }
 
 	void PauseGame();
 	void UnPauseGame();

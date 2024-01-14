@@ -3,14 +3,18 @@
 
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/JumpComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/TimelineComponent.h"
+#include "Camera/CameraComponent.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/WallrunComponent.h"
 #include "MarineRunner/MarinePawnClasses/PullUpComponent.h"
 
+
 UJumpComponent::UJumpComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.TickGroup = ETickingGroup::TG_PrePhysics;
 }
 
 void UJumpComponent::BeginPlay()
@@ -19,6 +23,10 @@ void UJumpComponent::BeginPlay()
 
 	Player = Cast<AMarineCharacter>(GetOwner());
 	InitialMovementForce = Player->GetMovementForce();
+
+	FOnTimelineFloat ImpactOnFloorTimelineProgress;
+	ImpactOnFloorTimelineProgress.BindUFunction(this, FName("ImpactOnFloorCameraEffectTimelineProgress"));
+	ImpactOnFloorTimeline.AddInterpFloat(ImpactOnFloorCameraEffectCurve, ImpactOnFloorTimelineProgress);
 }
 
 void UJumpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -27,6 +35,7 @@ void UJumpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 	JumpTick(DeltaTime);
 	CheckIfIsInAir();
+	ImpactOnFloorTimeline.TickTimeline(DeltaTime);
 }
 
 #pragma region ////////////////////////////////// JUMP /////////////////////////////////
@@ -157,7 +166,22 @@ void UJumpComponent::FirstTimeOnGround()
 	if (Player->GetIsCrouching() == false) 
 		Player->SetMovementForce(InitialMovementForce);
 
-	Player->LandingEffect();
+	LandingEffect();
+}
+
+void UJumpComponent::LandingEffect()
+{
+	if (ImpactOnFloorCameraEffectCurve == nullptr)
+		return;
+
+	ImpactOnFloorTimeline.PlayFromStart();
+}
+
+void UJumpComponent::ImpactOnFloorCameraEffectTimelineProgress(float CurveValue)
+{
+	FVector NewLocation = Player->GetCamera()->GetRelativeLocation();
+	NewLocation.Z = CurveValue;
+	Player->GetCamera()->SetRelativeLocation(NewLocation);
 }
 
 void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
