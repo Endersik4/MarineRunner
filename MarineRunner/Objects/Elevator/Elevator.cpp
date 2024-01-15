@@ -10,6 +10,7 @@
 
 #include "ElevatorPanelWidget.h"
 #include "MarineRunner/Objects/Elevator/OutsideElevatorDoor.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 // Sets default values
 AElevator::AElevator()
@@ -82,6 +83,7 @@ void AElevator::PrepareElevatorToMove(FVector Location, int32 Floor)
 	}
 
 	CurrentFloor = Floor;
+	SaveElevatorState(Floor);
 
 	// If the door is open, wait until it closes and start moving the elevator, if it is not open, start moving the elevator.
 	if (bDoorOpen == true)
@@ -223,4 +225,24 @@ void AElevator::PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* Sou
 
 	if (SoundToPlay)
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SoundToPlay, ElevatorDoorsSkeletalMesh->GetSocketLocation(DoorSoundSocketName));
+}
+
+void AElevator::LoadData(int32 StateOfData)
+{
+	FElevatorFloor* FoundFloor = ElevatorFloors.FindByKey(StateOfData);
+	if (FoundFloor == nullptr)
+		return;
+
+	CurrentFloor = StateOfData;
+	SetActorLocation(FoundFloor->FloorLocation);
+}
+
+void AElevator::SaveElevatorState(int32 SaveState)
+{
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	SavedDataObject->AddCustomSaveData(this, SaveState);
 }

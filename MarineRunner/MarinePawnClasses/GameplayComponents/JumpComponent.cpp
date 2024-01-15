@@ -22,11 +22,8 @@ void UJumpComponent::BeginPlay()
 	Super::BeginPlay();
 
 	Player = Cast<AMarineCharacter>(GetOwner());
-	InitialMovementForce = Player->GetMovementForce();
 
-	FOnTimelineFloat ImpactOnFloorTimelineProgress;
-	ImpactOnFloorTimelineProgress.BindUFunction(this, FName("ImpactOnFloorCameraEffectTimelineProgress"));
-	ImpactOnFloorTimeline.AddInterpFloat(ImpactOnFloorCameraEffectCurve, ImpactOnFloorTimelineProgress);
+	CreateImpactOnFloorTimeline();
 }
 
 void UJumpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -163,10 +160,14 @@ void UJumpComponent::FirstTimeOnGround()
 	if (ImpactOnFloorSound) 
 		UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, Player->CapsulePawn);
 
-	if (Player->GetIsCrouching() == false) 
-		Player->SetMovementForce(InitialMovementForce);
-
 	LandingEffect();
+}
+
+void UJumpComponent::CreateImpactOnFloorTimeline()
+{
+	FOnTimelineFloat ImpactOnFloorTimelineProgress;
+	ImpactOnFloorTimelineProgress.BindUFunction(this, FName("ImpactOnFloorCameraEffectTimelineProgress"));
+	ImpactOnFloorTimeline.AddInterpFloat(ImpactOnFloorCameraEffectCurve, ImpactOnFloorTimelineProgress);
 }
 
 void UJumpComponent::LandingEffect()

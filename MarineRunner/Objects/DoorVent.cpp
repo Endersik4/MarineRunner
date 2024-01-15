@@ -68,6 +68,10 @@ void ADoorVent::PlayOpenDoorVentLocTimeline()
 	TimelineProgress.BindUFunction(this, FName("OnOpenDoorVentLocProgress"));
 	OpenDoorVentLocTimeline.AddInterpVector(DoorVentOpenLocationCurve, TimelineProgress);
 
+	FOnTimelineEventStatic TimelineFinished;
+	TimelineFinished.BindUFunction(this, FName("OnOpenDoorVentLocFinished"));
+	OpenDoorVentLocTimeline.SetTimelineFinishedFunc(TimelineFinished);
+
 	OpenDoorVentLocTimeline.PlayFromStart();
 }
 
@@ -94,6 +98,14 @@ FRotator ADoorVent::GetRotationFromDoorVentOpenCurve()
 {
 	const FVector& OpenRotationCurveValues = DoorVentOpenRotationCurve->GetVectorValue(OpenDoorVentLocTimeline.GetPlaybackPosition());
 	return FRotator(OpenRotationCurveValues.Y, OpenRotationCurveValues.Z, OpenRotationCurveValues.X);
+}
+
+void ADoorVent::OnOpenDoorVentLocFinished()
+{
+	if (TurnOnPhysicsAfterTheTimelineEnds == true)
+	{
+		DoorVentMesh->SetSimulatePhysics(true);
+	}
 }
 
 void ADoorVent::ItemHover(UHUDWidget* MarineHUDWidget)

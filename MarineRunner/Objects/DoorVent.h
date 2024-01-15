@@ -44,6 +44,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings")
 		UTexture2D* DoorVentIcon;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
+		bool TurnOnPhysicsAfterTheTimelineEnds = false;
+	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
 		bool bVentDoorsBasedOnPhysics;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
 		bool TurnOnPhysicsInsteadOfTimeline = false;
@@ -61,6 +63,9 @@ private:
 
 	UFUNCTION()
 		void OnOpenDoorVentLocProgress(FVector VectorValue);
+	UFUNCTION()
+		void OnOpenDoorVentLocFinished();
+
 	FRotator GetRotationFromDoorVentOpenCurve();
 	
 	FTimeline OpenDoorVentLocTimeline;

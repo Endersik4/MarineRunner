@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MarineRunner/Objects/Elevator/ElevatorPanelData.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
 
 #include "Elevator.generated.h"
 
 UCLASS()
-class MARINERUNNER_API AElevator : public AActor
+class MARINERUNNER_API AElevator : public AActor, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 	
@@ -21,6 +22,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void LoadData(int32 StateOfData = 0) override;
+
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -30,6 +34,8 @@ public:
 	FORCEINLINE class UElevatorPanelWidget* GetElevatorPanelWidget() const { return ElevatorPanelWidget; }
 	FORCEINLINE int32 GetCurrentFloor() const { return CurrentFloor; }
 	FORCEINLINE bool GetDoorOpen() const {return bDoorOpen;}
+
+
 private: 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* ElevatorMesh;
@@ -90,6 +96,10 @@ private:
 	class AOutsideElevatorDoor* CurrentOutsideElevatorDoor;
 	class AOutsideElevatorDoor* BeforeCurrentOutsideElevatorDoor;
 	void OpenOutsideElevatorDoors();
+
+	// Save/Load elevator
+	void SaveElevatorState(int32 SaveState);
+
 
 	class UAudioComponent* SpawnedAmbientElevatorSound;
 };

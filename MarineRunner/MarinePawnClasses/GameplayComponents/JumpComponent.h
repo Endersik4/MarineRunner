@@ -68,7 +68,6 @@ private:
 	UFUNCTION()
 		void ImpactOnFloorCameraEffectTimelineProgress(float CurveValue);
 
-
 	//Jumps Variables
 	bool bDownForce;
 	bool bIsJumping;
@@ -88,8 +87,8 @@ private:
 	void PlayerOnRamp(const FHitResult& GroundHitResult);
 
 	void LandingEffect();
+	void CreateImpactOnFloorTimeline();
 	FTimeline ImpactOnFloorTimeline;
-
 
 	//Delay is in Air (can jump though player is not in the air)
 	bool bDelayIsInAir;
@@ -99,6 +98,5 @@ private:
 	bool bIsOnRamp;
 	bool bIsGoingUp;
 		
-	float InitialMovementForce;
 	AMarineCharacter* Player;
 };

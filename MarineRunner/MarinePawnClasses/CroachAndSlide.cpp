@@ -165,8 +165,6 @@ void UCroachAndSlide::CrouchReleased()
 	VignetteIntensityValue = 0.f;
 	bCanCroachLerp = true;
 
-	if (MarinePawn->GetIsInAir()) return;
-
 	MovementForce = CopyMovementForce;
 	MarinePawn->SetMovementForce(MovementForce);
 }
