@@ -123,7 +123,7 @@ void USwingComponent::SpawnSwingEffects()
 	if (IsValid(SwingLine) == false)
 		return;
 
-	SwingLine->SetHookLocation(CurrentFocusedHook->GetActorLocation()- SwingLineOffset);
+	SwingLine->SetHookLocation(CurrentFocusedHook->GetActorLocation()- CurrentFocusedHook->GetSwingLineLocationOffset());
 	SwingLine->SetSpeedLine(SwingDelay);
 	SwingLine->SetCanTick(true);
 }
@@ -136,7 +136,7 @@ void USwingComponent::StartSwingToHook()
 	MarinePlayer->CapsulePawn->SetPhysicsLinearVelocity(FVector(0));
 	bIsPlayerLerpingToHookPosition = true;
 
-	HookLocation = CurrentFocusedHook->GetActorLocation() - HookLocationOffset;
+	HookLocation = CurrentFocusedHook->GetActorLocation() - CurrentFocusedHook->GetHookLocationOffset();
 
 	FVector DirectionTowardsHook = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(MarinePlayer->GetActorLocation(), HookLocation));
 	SwingImpulse = DirectionTowardsHook * SwingForce;

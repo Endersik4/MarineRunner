@@ -284,8 +284,8 @@ void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar(float Delta)
 		float Progress = FMath::Lerp(0.f, 1.f, TimeElapsed / WaitTime);
 		CraftingTimeProgressBar->SetPercent(Progress);
 
-		FText NewText = FText::FromString(UKismetTextLibrary::Conv_FloatToText(CopiedItemCraftTime, ERoundingMode::HalfToEven, false, true, 1, 3, 1, 2).ToString() + "s");
-		ItemValue_TimeText->SetText(NewText);
+		FString TimeInSeconds = FString::SanitizeFloat(FMath::RoundValuesToGivenDecimalNumbers(CopiedItemCraftTime, 2)) + "s";
+		ItemValue_TimeText->SetText(FText::FromString(TimeInSeconds));
 		
 		CopiedItemCraftTime -= Delta;
 		TimeElapsed += Delta;

@@ -42,9 +42,8 @@ public:
 		bool GetIsWallrunning() const { return bIsWallrunning; }
 
 	//Getters
-	bool GetShouldPlayerGoForward() const { return bShouldPlayerGoForward; }
-	bool GetCanJump() const { return bCanJumpWhileWallrunning; }
-	FVector GetWallrunDirection() const { return WallrunDirection; }
+	FORCEINLINE bool GetCanJump() const { return bCanJumpWhileWallrunning; }
+	FORCEINLINE FVector GetWallrunDirection() const { return WallrunDirection; }
 
 	bool ShouldAddImpulseAfterWallrun(bool bShould); //Check If Should Add This Impulse. Return true if Pawn is wallrunning, false otherwise
 	void AddImpulseAfterWallrun(float JumpTimeElapsed); //When Player jumps while in wallrunning then Add Impulse to push player away from Obstacle.
@@ -79,7 +78,6 @@ private:
 	bool bIsWallrunning;
 	bool bShouldAddImpulseAfterWallrun;
 	bool bCanJumpWhileWallrunning = true;
-	bool bShouldPlayerGoForward; //If true then in the Movement function in MarineCharacter the player will always walk forward
 	FVector WallrunDirection;
 
 	float WallrunTimeElapsed = 0.6f; //After the jump, this time must pass to do the wallrun again

@@ -60,6 +60,7 @@ public:
 	bool GetIsCrouching() const;
 	bool GetIsInSlowMotion() const;
 	FORCEINLINE bool GetIsDead() const { return bIsDead; }
+	FORCEINLINE bool GetShouldPlayerGoForward() const { return bShouldPlayerGoForward; }
 	bool GetIsInAir() const;
 	FVector GetCameraLocation() const;
 	FORCEINLINE class UHUDWidget* GetHudWidget() const { return HudWidget; }
@@ -73,12 +74,14 @@ public:
 	FORCEINLINE class UPullUpComponent* GetPullUpComponent() const { return PullUpComponent; }
 	FORCEINLINE class UMessageHandlerComponent* GetMessageHandlerComponent() const { return MessageHandlerComponent; }
 	FORCEINLINE class USaveLoadPlayerComponent* GetSaveLoadPlayerComponent() const { return SaveLoadPlayerComponent; }
+	FORCEINLINE class UCroachAndSlide* GetCroachAndSlideComponent() const { return CroachAndSlideComponent; }
 	FORCEINLINE const FSettingSavedInJsonFile& GetMouseSensitivityJSON() const { return MouseSensitivityJSON; }
 	bool GetIsMessageDisplayed() const;
 	bool GetIsInPauseMenu() const;
 
-	void SetMovementForce(float NewForce) { MovementForce = NewForce; }
-	void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMutliplier = NewSpeed; }
+	FORCEINLINE void SetMovementForce(float NewForce) { MovementForce = NewForce; }
+	FORCEINLINE void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMutliplier = NewSpeed; }
+	FORCEINLINE void SetShouldPlayerGoForward(bool bShould) { bShouldPlayerGoForward = bShould; }
 
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 	void SetQuickSelect(TMap < int32, class AGun* > NewWeaponsStorage);
@@ -169,6 +172,9 @@ private:
 	FVector CalculateCounterMovement();
 	float MovementSpeedMutliplier = 1.f;
 	const float DegreeForForwardVector = -90.f;
+
+	//If true then in the the player will always walk forward
+	bool bShouldPlayerGoForward; 
 
 	//Footstepts sounds
 	void PlayFootstepsSound();

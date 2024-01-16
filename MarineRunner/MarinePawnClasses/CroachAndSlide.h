@@ -29,6 +29,8 @@ public:
 	void CrouchPressed(bool bSlide = false);
 	void CrouchReleased();
 
+	void CrouchReleasedByObject();
+
 	float GetCroachWalkingSpeed() const { return CroachForceSpeed; }
 	bool GetIsSliding() const { return bShouldSlide; }
 	bool GetIsCrouching() const { return bIsCrouching; }
@@ -77,7 +79,8 @@ private:
 	float CopyMovementForce;
 	float MovementForce;
 	bool bIsCrouching;
-	
+	bool bCrouchPressed;
+
 	bool SweepBox(FVector Where, float Distance);
 	bool bShouldStillCroach = false;
 
@@ -85,12 +88,11 @@ private:
 	bool bStartRampCameraShake = false;
 	UCameraShakeBase* CameraShakeBase;
 
-
 	// Delay for start sliding
 	FTimerHandle SlideDelayHandle;
-	void CheckIfShouldSlide();
 	void BeginSlide();
 	void Sliding(float Delta);
+	bool ShouldStopSliding();
 	bool bShouldSlide;
 
 	bool bShouldPlaySound = true;

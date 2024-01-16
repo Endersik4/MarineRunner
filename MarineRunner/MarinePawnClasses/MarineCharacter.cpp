@@ -181,7 +181,7 @@ void AMarineCharacter::Forward(float Axis)
 	// go forward/backward and to fix this i had to rotate RightVector by -90.f
 	FVector Dir = MarinePlayerController->GetRootComponent()->GetRightVector().RotateAngleAxis(DegreeForForwardVector, FVector(0.f, 0.f, 1.f));
 
-	if (WallrunComponent->GetShouldPlayerGoForward() == true)
+	if (bShouldPlayerGoForward == true)
 	{
 		Axis = 1.f;
 	}

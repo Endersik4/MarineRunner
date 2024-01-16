@@ -9,7 +9,7 @@
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/WallrunComponent.h"
 #include "MarineRunner/MarinePawnClasses/PullUpComponent.h"
-
+#include "MarineRunner/MarinePawnClasses/CroachAndSlide.h"
 
 UJumpComponent::UJumpComponent()
 {
@@ -86,7 +86,6 @@ void UJumpComponent::JumpTick(float DeltaTime)
 	{
 		//Down Physics applied when TimeJump is over
 		FVector DownJumpImpulse = (-Player->GetActorUpVector() * JumpDownForce * 10);
-		//if (GetIsInSlowMotion() == true) DownJumpImpulse *= 3.f;
 		Player->CapsulePawn->AddImpulse(DownJumpImpulse);
 
 		bDownForce = true;
@@ -127,14 +126,10 @@ void UJumpComponent::CheckIfIsInAir()
 	bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, Player->GetActorLocation(), Player->GetActorLocation(), FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
 	if (bSomethingIsBelowThePlayer == false)
 	{
-		//The first moment a player is in the air
-		if (bIsInAir == false)
-		{
-			bDelayIsInAir = true;
-			GetWorld()->GetTimerManager().SetTimer(DelayIsInAirHandle, this, &UJumpComponent::SetDelayIsInAir, DelayIsInAirTime, false);
-		}
-		bIsInAir = true;
-		bIsOnRamp = false;
+		if (bIsInAir == true)
+			return;
+
+		FirstMomentInAir();
 	}
 	else
 	{
@@ -144,6 +139,17 @@ void UJumpComponent::CheckIfIsInAir()
 
 		DelayJump();
 	}
+}
+
+void UJumpComponent::FirstMomentInAir()
+{
+	bDelayIsInAir = true;
+	GetWorld()->GetTimerManager().SetTimer(DelayIsInAirHandle, this, &UJumpComponent::SetDelayIsInAir, DelayIsInAirTime, false);
+
+	DisablePlayerOnRampActions();
+
+	bIsInAir = true;
+
 }
 
 void UJumpComponent::FirstTimeOnGround()
@@ -163,6 +169,36 @@ void UJumpComponent::FirstTimeOnGround()
 	LandingEffect();
 }
 
+void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
+{
+	if (GroundHitResult.GetActor()->ActorHasTag("Ramp"))
+	{
+		bIsOnRamp = true;
+		//Check if Pawn is going UP on ramp, if he is then he cant slide
+		if (!GroundHitResult.GetActor()->GetActorForwardVector().Equals(Player->GetActorForwardVector(), 1.1f))
+		{
+			bIsGoingUp = true;
+		}
+		else
+		{
+			bIsGoingUp = false;
+		}
+	}
+	else DisablePlayerOnRampActions();
+}
+
+void UJumpComponent::DisablePlayerOnRampActions()
+{
+	if (bIsOnRamp == true)
+		return;
+
+	bIsOnRamp = false;
+	Player->SetShouldPlayerGoForward(false);
+	Player->GetCroachAndSlideComponent()->CrouchReleasedByObject();
+}
+#pragma endregion
+
+#pragma region //////////// Impact On Floor Effect ////////////
 void UJumpComponent::CreateImpactOnFloorTimeline()
 {
 	FOnTimelineFloat ImpactOnFloorTimelineProgress;
@@ -184,27 +220,5 @@ void UJumpComponent::ImpactOnFloorCameraEffectTimelineProgress(float CurveValue)
 	NewLocation.Z = CurveValue;
 	Player->GetCamera()->SetRelativeLocation(NewLocation);
 }
-
-void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
-{
-	if (GroundHitResult.GetActor()->ActorHasTag("Ramp"))
-	{
-		bIsOnRamp = true;
-		//Check if Pawn is going UP on ramp, if he is then he cant slide
-		if (!GroundHitResult.GetActor()->GetActorForwardVector().Equals(Player->GetActorForwardVector(), 1.1f))
-		{
-			bIsGoingUp = true;
-		}
-		else
-		{
-			bIsGoingUp = false;
-		}
-	}
-	else if (bIsOnRamp == true)
-	{
-		bIsOnRamp = false;
-	}
-}
-
 #pragma endregion
 

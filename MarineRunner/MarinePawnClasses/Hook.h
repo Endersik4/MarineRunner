@@ -31,6 +31,9 @@ public:
 	void ChangeToIdleAnim();
 	void ChangeToPlayerInRangeAnim();
 
+	FORCEINLINE const FVector& GetHookLocationOffset() const { return HookLocationOffset; }
+	FORCEINLINE const FVector& GetSwingLineLocationOffset() const { return SwingLineLocationOffset; }
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		class USphereComponent* CheckSphere;
 private:
@@ -41,6 +44,10 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
 		float HookCooldownTime = 1.5f;
+	UPROPERTY(EditAnywhere, Category = "Hook Settings")
+		FVector HookLocationOffset = FVector(0.f, 0.f, 350.f);
+	UPROPERTY(EditAnywhere, Category = "Hook Settings|Swing")
+		FVector SwingLineLocationOffset = FVector(0.f, 0.f, 150.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings|Flipbook")
 		float StartChangingScaleDistance = 2000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings|Flipbook")
@@ -68,6 +75,7 @@ private:
 	AActor* PlayerInRange;
 	FVector OriginalHookStateScale;
 	void ChangeHookFlipbookScale(float Delta);
+	void HookFlipbookLookAtThePlayer(float Delta);
 	void HideFlipbookIfItIsNotVisible();
 	void ResetHookStateFlipbookScale();
 

@@ -62,6 +62,8 @@ void UCroachAndSlide::Sliding(float Delta)
 		if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == false)
 		{
 			MovementForce += (MovementForce < MaxSlideForce) ? (RampForce)*Delta : 0;
+			MarinePawn->SetShouldPlayerGoForward(true);
+
 			if (bStartRampCameraShake == false)
 			{
 				CameraShakeBase = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(RampCameraShake, 1.f);
@@ -78,23 +80,34 @@ void UCroachAndSlide::Sliding(float Delta)
 		MovementForce -= SlideSpeed * Delta;
 	}
 
-	if (MovementForce <= CroachForceSpeed || (MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0))
+	if (ShouldStopSliding())
 	{
 		MovementForce = CroachForceSpeed;
 		TurnOffSlideSound();
+		if (IsValid(CameraShakeBase))
+			CameraShakeBase->StopShake(false);
 		bShouldSlide = false;
 	}
 
 	MarinePawn->SetMovementForce(MovementForce);
 }
 
+bool UCroachAndSlide::ShouldStopSliding()
+{
+	bool bPlayerIsntMoving = MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetShouldPlayerGoForward() == false && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0;
+	return MovementForce <= CroachForceSpeed || bPlayerIsntMoving;
+}
+
 void UCroachAndSlide::CrouchPressed(bool bSlide)
 {
-	if (MarinePawn->GetIsPlayerLerpingToHookLocation() || MarinePawn->GetIsWallrunning() || bIsCrouching == true) return;
+	if (MarinePawn->GetIsPlayerLerpingToHookLocation() || MarinePawn->GetIsWallrunning() || bIsCrouching == true) 
+		return;
 
 	bIsCrouching = true;
+	bCrouchPressed = true;
 
-	if (bShouldStillCroach) return;
+	if (bShouldStillCroach) 
+		return;
 
 	MovementForce = CroachForceSpeed;
 	ScaleZ = 1.5f;
@@ -140,7 +153,9 @@ void UCroachAndSlide::CroachLerp(float Delta)
 
 void UCroachAndSlide::CrouchReleased()
 {
-	if (MarinePawn->GetJumpComponent()->GetIsOnRamp())
+	bCrouchPressed = false;
+
+	if (MarinePawn->GetJumpComponent()->GetIsOnRamp() || bIsCrouching == false)
 		return;
 
 	//Check if Pawn can stand
@@ -149,6 +164,7 @@ void UCroachAndSlide::CrouchReleased()
 		bShouldStillCroach = true;
 		return;
 	}
+
 	bIsCrouching = false;
 	bShouldPlaySound = true;
 
@@ -167,6 +183,14 @@ void UCroachAndSlide::CrouchReleased()
 
 	MovementForce = CopyMovementForce;
 	MarinePawn->SetMovementForce(MovementForce);
+}
+
+void UCroachAndSlide::CrouchReleasedByObject()
+{
+	if (bCrouchPressed == false)
+	{
+		CrouchReleased();
+	}
 }
 
 bool UCroachAndSlide::SweepBox(FVector Where, float Distance)

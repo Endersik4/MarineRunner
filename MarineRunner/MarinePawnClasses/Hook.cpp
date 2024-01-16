@@ -47,6 +47,7 @@ void AHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	ChangeHookFlipbookScale(DeltaTime);
+	HookFlipbookLookAtThePlayer(DeltaTime);
 	HideFlipbookIfItIsNotVisible();
 }
 
@@ -120,6 +121,17 @@ void AHook::ChangeHookFlipbookScale(float Delta)
 	float Alpha = FVector::Distance(PlayerInRange->GetActorLocation(), HookStateFlipBook->GetComponentLocation()) / FMath::Abs(StartChangingScaleDistance - EndChangingScaleDistance);
 	FVector NewScale = FMath::Lerp(MinHookFlipbookScale, OriginalHookStateScale, Alpha);
 	HookStateFlipBook->SetWorldScale3D(NewScale);
+}
+
+void AHook::HookFlipbookLookAtThePlayer(float Delta)
+{
+	if (bHookActive == false || IsValid(PlayerInRange) == false)
+		return;
+
+	FRotator LookAtThePlayerRotation = UKismetMathLibrary::FindLookAtRotation(HookStateFlipBook->GetComponentLocation(), PlayerInRange->GetActorLocation());
+	Swap(LookAtThePlayerRotation.Pitch, LookAtThePlayerRotation.Roll);
+	LookAtThePlayerRotation.Yaw += 90.f;
+	HookStateFlipBook->SetRelativeRotation(LookAtThePlayerRotation);
 }
 
 void AHook::HideFlipbookIfItIsNotVisible()

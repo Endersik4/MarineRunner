@@ -82,9 +82,16 @@ private:
 
 	//In Air
 	bool bIsInAir;
+	void FirstMomentInAir();
 	void CheckIfIsInAir();
 	void FirstTimeOnGround();
+
+	// Ramp
 	void PlayerOnRamp(const FHitResult& GroundHitResult);
+	void DisablePlayerOnRampActions();
+	bool bIsOnRamp;
+	bool bIsGoingUp;
+
 
 	void LandingEffect();
 	void CreateImpactOnFloorTimeline();
@@ -95,8 +102,6 @@ private:
 	FTimerHandle DelayIsInAirHandle;
 	void SetDelayIsInAir() { bDelayIsInAir = false; }
 
-	bool bIsOnRamp;
-	bool bIsGoingUp;
 		
 	AMarineCharacter* Player;
 };

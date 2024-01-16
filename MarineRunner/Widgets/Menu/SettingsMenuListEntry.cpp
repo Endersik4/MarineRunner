@@ -295,8 +295,17 @@ void USettingsMenuListEntry::OnValueChangedSlider(float Value)
 
 void USettingsMenuListEntry::SetSubSettingSliderValueText(float Value)
 {
-	FString ConvertedValue = SubSettingData->DecimalNumbers == 0 ? FString::FromInt((int)Value) : UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, SubSettingData->DecimalNumbers).ToString();
-	FString NewValue = "-" + ConvertedValue + "-";
+	FString NewValue;
+	if (SubSettingData->DecimalNumbers = 0)
+	{
+		NewValue = "-" + FString::FromInt((int)Value) + "-";
+	}
+	else
+	{
+		Value = FMath::RoundValuesToGivenDecimalNumbers(Value, SubSettingData->DecimalNumbers);
+		NewValue = "-" + FString::SanitizeFloat(Value) + "-";
+	}
+
 	SubSettingSliderValueText->SetText(FText::FromString(NewValue));
 }
 
@@ -404,7 +413,7 @@ void USettingsMenuListEntry::AddValueToFunctionName(float Value)
 	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
 		return;
 
-	FString ValueToStr = UKismetTextLibrary::Conv_FloatToText(Value, ERoundingMode::HalfToEven, false, true, 1, 3, 1, 1).ToString();
+	FString ValueToStr = FString::SanitizeFloat(FMath::RoundValuesToGivenDecimalNumbers(Value, 3));
 	ListEntryObject->FunctionNameToApply = FunctionNameForCMD + " " + ValueToStr;
 }
 

@@ -118,5 +118,7 @@ void USaveLoadPlayerComponent::SpawnPassingWidget(const TSubclassOf<class UUserW
 
 bool USaveLoadPlayerComponent::CanPlayerSaveGame()
 {
-	return (Player->GetIsInAir() || Player->GetWeaponHandlerComponent()->GetIsPlayerInAds() || GameInstance->IsPlayerInCombat()) ? false : true;
+	return (Player->GetIsInAir() || Player->GetIsInSlowMotion() || 
+		Player->GetWeaponHandlerComponent()->GetIsPlayerInAds() || 
+		GameInstance->IsPlayerInCombat()) ? false : true;
 }

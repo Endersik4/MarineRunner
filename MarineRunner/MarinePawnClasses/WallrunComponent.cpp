@@ -66,6 +66,7 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 		WallrunTimeElapsed = 0.6f;
 
 		MarinePawn->MovementStuffThatCannotHappen(true); //Things that cannot happen while Wallrunning
+		MarinePawn->SetShouldPlayerGoForward(true);
 		//Setting up MarinePawn variables
 		MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
 		CurrentRotatedCameraRoll = CurrentSide;
@@ -75,7 +76,6 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 		float YawMovementImpulse = HitNormal.Rotation().Yaw + (85 * (CurrentSide == Left ? -1 : 1));
 		WallrunDirection = FRotator(0, YawMovementImpulse, 0).Vector();
 
-		bShouldPlayerGoForward = true;
 		bIsWallrunning = true;
 
 		bCanJumpWhileWallrunning = false;
@@ -137,7 +137,7 @@ void UWallrunComponent::ResetWallrunning()
 	WallrunTimeElapsed = 0.f;
 	bShouldAddImpulseAfterWallrun = false;
 	bIsWallrunning = false;
-	bShouldPlayerGoForward = false;
+	MarinePawn->SetShouldPlayerGoForward(false);
 	bShouldLerpRotation = false;
 	MarinePawn->SetMovementSpeedMutliplier(1.f);
 
