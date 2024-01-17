@@ -27,10 +27,11 @@ void UCroachAndSlide::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
+	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
-	MovementForce = MarinePawn->GetMovementForce();
+	CurrentMovementForce = MarinePawn->GetMovementForce();
 
-	CopyMovementForce = MovementForce;
+	InitialMovementForce = CurrentMovementForce;
 	MarinePawn->GetCamera()->PostProcessSettings.bOverride_VignetteIntensity = true;
 }
 
@@ -47,9 +48,11 @@ void UCroachAndSlide::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 	Sliding(DeltaTime);
 }
 
+#pragma region ///////////// SLIDING ///////////////////
 void UCroachAndSlide::Sliding(float Delta)
 {
-	if (bShouldSlide == false) return;
+	if (bShouldSlide == false) 
+		return;
 
 	if (bShouldPlaySound == true && SlideSound)
 	{
@@ -59,44 +62,71 @@ void UCroachAndSlide::Sliding(float Delta)
 
 	if (MarinePawn->GetJumpComponent()->GetIsOnRamp())
 	{
-		if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == false)
-		{
-			MovementForce += (MovementForce < MaxSlideForce) ? (RampForce)*Delta : 0;
-			MarinePawn->SetShouldPlayerGoForward(true);
-
-			if (bStartRampCameraShake == false)
-			{
-				CameraShakeBase = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(RampCameraShake, 1.f);
-				bStartRampCameraShake = true;
-			}
-		}
-		else
-		{
-			MovementForce -= SlideSpeedRamp * Delta;
-		}
+		SlideOnRamp(Delta);
 	}
 	else
 	{
-		MovementForce -= SlideSpeed * Delta;
+		CurrentMovementForce -= SlideSpeed * Delta;
 	}
 
 	if (ShouldStopSliding())
 	{
-		MovementForce = CroachForceSpeed;
+		CurrentMovementForce = CrouchForceSpeed;
 		TurnOffSlideSound();
 		if (IsValid(CameraShakeBase))
 			CameraShakeBase->StopShake(false);
 		bShouldSlide = false;
 	}
 
-	MarinePawn->SetMovementForce(MovementForce);
+	MarinePawn->SetMovementForce(CurrentMovementForce);
+}
+
+void UCroachAndSlide::SlideOnRamp(const float& Delta)
+{
+	if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == false)
+	{
+		CurrentMovementForce += (CurrentMovementForce < MaxSlideForce) ? (RampForce)*Delta : 0;
+		MarinePawn->SetShouldPlayerGoForward(true);
+
+		if (bStartRampCameraShake == false)
+		{
+			CameraShakeBase = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(RampCameraShake, 1.f);
+			bStartRampCameraShake = true;
+		}
+	}
+	else
+	{
+		CurrentMovementForce -= SlideSpeedRamp * Delta;
+	}
 }
 
 bool UCroachAndSlide::ShouldStopSliding()
 {
 	bool bPlayerIsntMoving = MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetShouldPlayerGoForward() == false && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0;
-	return MovementForce <= CroachForceSpeed || bPlayerIsntMoving;
+	return CurrentMovementForce <= CrouchForceSpeed || bPlayerIsntMoving;
 }
+
+void UCroachAndSlide::BeginSlide()
+{
+	if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == true)
+		return;
+	if (MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0)
+		return;
+	if (MarinePawn->GetJumpComponent()->GetIsJumping())
+		return;
+
+	CurrentMovementForce = InitialMovementForce + InitialVelocityOfSliding;
+	bShouldSlide = true;
+}
+
+void UCroachAndSlide::TurnOffSlideSound()
+{
+	if (!SpawnedSlideSound) return;
+
+	SpawnedSlideSound->ToggleActive();
+	SpawnedSlideSound = nullptr;
+}
+#pragma endregion
 
 void UCroachAndSlide::CrouchPressed(bool bSlide)
 {
@@ -109,8 +139,8 @@ void UCroachAndSlide::CrouchPressed(bool bSlide)
 	if (bShouldStillCroach) 
 		return;
 
-	MovementForce = CroachForceSpeed;
-	ScaleZ = 1.5f;
+	CurrentMovementForce = CrouchForceSpeed;
+	ScaleZ = ScalePlayerWhenCrouching.GetLowerBoundValue();
 	VignetteIntensityValue = CrouchPressedVignetteIntensity;
 
 	bCanCroachLerp = true;
@@ -119,30 +149,17 @@ void UCroachAndSlide::CrouchPressed(bool bSlide)
 		GetWorld()->GetTimerManager().SetTimer(SlideDelayHandle, this, &UCroachAndSlide::BeginSlide, SlideDelayInSeconds, false);
 	}
 
-	MarinePawn->SetMovementForce(MovementForce);
-}
-
-void UCroachAndSlide::BeginSlide()
-{
-	if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == true)
-		return;
-	if (MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0)
-		return;
-	if (MarinePawn->GetJumpComponent()->GetIsJumping())
-		return;
-
-	MovementForce = CopyMovementForce + InitialVelocityOfSliding;
-	bShouldSlide = true;
+	MarinePawn->SetMovementForce(CurrentMovementForce);
 }
 
 void UCroachAndSlide::CroachLerp(float Delta)
 {
 	if (bCanCroachLerp == false) return;
 
-	float NewVignetteIntensity = FMath::Lerp(MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity, VignetteIntensityValue, Delta * SpeedOfCroachLerp);
+	float NewVignetteIntensity = FMath::Lerp(MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity, VignetteIntensityValue, Delta * SpeedOfCrouchLerp);
 	MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
 
-	float NewScaleZ = FMath::Lerp(GetOwner()->GetActorScale3D().Z, ScaleZ, Delta * SpeedOfCroachLerp);
+	float NewScaleZ = FMath::Lerp(GetOwner()->GetActorScale3D().Z, ScaleZ, Delta * SpeedOfCrouchLerp);
 	GetOwner()->SetActorScale3D(FVector(2, 2, NewScaleZ));
 	if (GetOwner()->GetActorScale3D().Equals(FVector(2, 2, ScaleZ), 0.01))
 	{
@@ -164,7 +181,7 @@ void UCroachAndSlide::CrouchReleased()
 		bShouldStillCroach = true;
 		return;
 	}
-
+	
 	bIsCrouching = false;
 	bShouldPlaySound = true;
 
@@ -177,12 +194,12 @@ void UCroachAndSlide::CrouchReleased()
 	if (IsValid(CameraShakeBase))
 		CameraShakeBase->StopShake(false);
 
-	ScaleZ = 2.5f;
+	ScaleZ = ScalePlayerWhenCrouching.GetUpperBoundValue();
 	VignetteIntensityValue = 0.f;
 	bCanCroachLerp = true;
 
-	MovementForce = CopyMovementForce;
-	MarinePawn->SetMovementForce(MovementForce);
+	CurrentMovementForce = InitialMovementForce;
+	MarinePawn->SetMovementForce(CurrentMovementForce);
 }
 
 void UCroachAndSlide::CrouchReleasedByObject()
@@ -201,12 +218,4 @@ bool UCroachAndSlide::SweepBox(FVector Where, float Distance)
 
 	FHitResult HitResult;
 	return GetWorld()->SweepSingleByChannel(HitResult, Start, Start, FQuat::Identity, ECC_GameTraceChannel6, FCollisionShape::MakeBox(FVector(30, 30, 60)));
-}
-
-void UCroachAndSlide::TurnOffSlideSound()
-{
-	if (!SpawnedSlideSound) return;
-
-	SpawnedSlideSound->ToggleActive();
-	SpawnedSlideSound = nullptr;
 }

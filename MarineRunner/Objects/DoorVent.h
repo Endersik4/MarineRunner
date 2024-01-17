@@ -44,7 +44,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings")
 		UTexture2D* DoorVentIcon;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
-		bool TurnOnPhysicsAfterTheTimelineEnds = false;
+		bool TurnOnPhysicsAfterTheTimelineEnds = true;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
 		bool bVentDoorsBasedOnPhysics;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")

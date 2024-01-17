@@ -10,6 +10,7 @@
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Objects/ObjectsComponents/SoundOnHitComponent.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/MessageHandlerComponent.h"
 
 
 // Sets default values
@@ -71,7 +72,16 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
 	if (ItemSettings.bIsItWeapon == true) return;
 
-	if (ItemSettings.bIsItCraftable == true) Character->UpdateAlbertosInventory(true, true);
+	if (ItemSettings.bIsItCraftable == true)
+	{
+		if (Character->GetInventoryComponent()->Items_Recipes.FindByKey(GetItemSettings()) == nullptr)
+		{
+			Character->GetMessageHandlerComponent()->SpawnNewRecipeUnlockedWidget();
+			Character->GetInventoryComponent()->Items_Recipes.Add(GetItemSettings());
+		}
+
+		Character->UpdateAlbertosInventory(true, true);
+	}
 	else Character->UpdateAlbertosInventory();
 	
 	Destroy();

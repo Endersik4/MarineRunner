@@ -137,6 +137,12 @@ void UJumpComponent::CheckIfIsInAir()
 
 		PlayerOnRamp(GroundHitResult);
 
+		if (GroundHitResult.GetActor()->ActorHasTag(TEXT("Elevator")))
+		{
+			Player->bIsPlayerInElevator = true;
+		}
+		else Player->bIsPlayerInElevator = false;
+
 		DelayJump();
 	}
 }
@@ -149,7 +155,6 @@ void UJumpComponent::FirstMomentInAir()
 	DisablePlayerOnRampActions();
 
 	bIsInAir = true;
-
 }
 
 void UJumpComponent::FirstTimeOnGround()
@@ -173,7 +178,18 @@ void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
 {
 	if (GroundHitResult.GetActor()->ActorHasTag("Ramp"))
 	{
-		bIsOnRamp = true;
+		if (bIsOnRamp == false)
+		{
+			bIsOnRamp = true;
+
+			if (Player->GetCroachAndSlideComponent()->GetIsSliding() == false)
+			{
+				Player->SetShouldPlayerGoForward(true);
+				Player->GetCroachAndSlideComponent()->BeginSlide();
+				Player->GetCroachAndSlideComponent()->CrouchPressed();
+			}
+		}
+
 		//Check if Pawn is going UP on ramp, if he is then he cant slide
 		if (!GroundHitResult.GetActor()->GetActorForwardVector().Equals(Player->GetActorForwardVector(), 1.1f))
 		{
@@ -189,7 +205,7 @@ void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
 
 void UJumpComponent::DisablePlayerOnRampActions()
 {
-	if (bIsOnRamp == true)
+	if (bIsOnRamp == false)
 		return;
 
 	bIsOnRamp = false;

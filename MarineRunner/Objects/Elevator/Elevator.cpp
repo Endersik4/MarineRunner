@@ -27,6 +27,8 @@ AElevator::AElevator()
 	ElevatorPanel = CreateDefaultSubobject<UWidgetComponent>(TEXT("Elevator Panel"));
 	ElevatorPanel->SetupAttachment(RootComponent);
 	ElevatorPanel->SetDrawAtDesiredSize(true);
+
+	Tags.Add(FName(TEXT("Elevator")));
 }
 
 // Called when the game starts or when spawned

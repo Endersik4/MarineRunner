@@ -296,7 +296,7 @@ void USettingsMenuListEntry::OnValueChangedSlider(float Value)
 void USettingsMenuListEntry::SetSubSettingSliderValueText(float Value)
 {
 	FString NewValue;
-	if (SubSettingData->DecimalNumbers = 0)
+	if (SubSettingData->DecimalNumbers == 0)
 	{
 		NewValue = "-" + FString::FromInt((int)Value) + "-";
 	}

@@ -31,22 +31,20 @@ public:
 
 	void CrouchReleasedByObject();
 
-	float GetCroachWalkingSpeed() const { return CroachForceSpeed; }
 	bool GetIsSliding() const { return bShouldSlide; }
 	bool GetIsCrouching() const { return bIsCrouching; }
 
 	void SetShouldSlide(bool bShould) { bShouldSlide = bShould; }
-	void SetIsPressedForward(bool bShould) { bIsPressedForward = bShould; }
-	
+	void BeginSlide();
 private:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Movement")
-		float DividerOfCroachForceWhenADS = 1.4f;
 	//Speed of croaching
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		float CroachForceSpeed = 40000.f;
+		float CrouchForceSpeed = 40000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		float SpeedOfCroachLerp = 10.f;
+		float SpeedOfCrouchLerp = 10.f;
+	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
+		FFloatRange ScalePlayerWhenCrouching = FFloatRange(1.5f, 2.5f);
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
 		float CrouchPressedVignetteIntensity = 0.7f;
 
@@ -58,12 +56,12 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 		float InitialVelocityOfSliding = 115000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float MaxSlideForce = 500000.f;
+		float MaxSlideForce = 120000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 		float SlideDelayInSeconds = 0.08f;
 	//How fast Pawn will gain speed on ramp when sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
-		float RampForce = 80000.f;
+		float RampForce = 10000.f;
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding on ramp (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 		float SlideSpeedRamp = 450000.f;
@@ -73,16 +71,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* SlideSound;
 
-	class AMarineCharacter* MarinePawn;
-	bool bIsPressedForward;
+	float CurrentMovementForce;
 
-	float CopyMovementForce;
-	float MovementForce;
+	float InitialMovementForce;
 	bool bIsCrouching;
 	bool bCrouchPressed;
 
 	bool SweepBox(FVector Where, float Distance);
 	bool bShouldStillCroach = false;
+
+	// Slide on ramp
+	void SlideOnRamp(const float & Delta);
 
 	// Camera Shake while sliding on ramp
 	bool bStartRampCameraShake = false;
@@ -90,7 +89,6 @@ private:
 
 	// Delay for start sliding
 	FTimerHandle SlideDelayHandle;
-	void BeginSlide();
 	void Sliding(float Delta);
 	bool ShouldStopSliding();
 	bool bShouldSlide;
@@ -105,4 +103,8 @@ private:
 	bool bCanCroachLerp;
 	float ScaleZ = 1.5f;
 		
+	APlayerController* PlayerController;
+	class AMarineCharacter* MarinePawn;
+
 };
+

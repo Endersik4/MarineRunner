@@ -120,5 +120,5 @@ bool USaveLoadPlayerComponent::CanPlayerSaveGame()
 {
 	return (Player->GetIsInAir() || Player->GetIsInSlowMotion() || 
 		Player->GetWeaponHandlerComponent()->GetIsPlayerInAds() || 
-		GameInstance->IsPlayerInCombat()) ? false : true;
+		GameInstance->IsPlayerInCombat() || Player->bIsPlayerInElevator) ? false : true;
 }

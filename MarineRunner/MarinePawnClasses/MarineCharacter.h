@@ -94,6 +94,7 @@ public:
 
 	void MakeCrosshire(bool bShouldRemoveFromParent = false);
 
+	bool bIsPlayerInElevator = false;
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UJumpComponent* JumpComponent;
