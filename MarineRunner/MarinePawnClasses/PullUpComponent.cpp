@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "PullUpComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -9,11 +8,7 @@
 // Sets default values for this component's properties
 UPullUpComponent::UPullUpComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -26,7 +21,7 @@ void UPullUpComponent::BeginPlay()
 	if (IsValid(MarinePawn) == false) 
 		UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN SLOW MOTIOn COMPONENT!"));
 
-	GetWorld()->GetTimerManager().SetTimer(CheckIfShouldPullUpHandle, this, &UPullUpComponent::EdgePullUp, CheckLinesForPullUpTime, true);
+	GetWorld()->GetTimerManager().SetTimer(CheckIfShouldPullUpHandle, this, &UPullUpComponent::StartPullUpOnEdge, CheckLinesForPullUpTime, true);
 }
 
 
@@ -35,76 +30,99 @@ void UPullUpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (IsValid(MarinePawn))
-	{
-		PullupLerp(DeltaTime);
-	}
+	MovePlayerToPullUpLocation(DeltaTime);
 }
 
-void UPullUpComponent::EdgePullUp()
+bool UPullUpComponent::DetectEdge(const FVector& PlayerForwardVector)
+{
+	FVector StartTrueLine = MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupTrueLineZ);
+	FVector StartFalseLine = MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupFalseLineZ);
+	FHitResult Line1Hit, Line2Hit;
+
+	bool bObjectWasDetected = GetWorld()->LineTraceSingleByChannel(Line1Hit, StartTrueLine, StartTrueLine + PlayerForwardVector * PullupLinesDistance, ECC_GameTraceChannel8);
+	bool bStillObjectIsDetected = GetWorld()->LineTraceSingleByChannel(Line1Hit, StartFalseLine, StartFalseLine + PlayerForwardVector * PullupLinesDistance, ECC_GameTraceChannel8);
+
+	#ifdef WITH_EDITOR
+		if (bDrawHelpersForPullup == true)
+		{
+			DrawDebugLine(GetWorld(), StartTrueLine, StartTrueLine + PlayerForwardVector * PullupLinesDistance, FColor::Green, true);
+			DrawDebugLine(GetWorld(), StartFalseLine, StartFalseLine + PlayerForwardVector * PullupLinesDistance, FColor::Red, true);
+		}
+	#endif // !WITH_EDITOR
+
+	return bObjectWasDetected && bStillObjectIsDetected == false;
+}
+
+void UPullUpComponent::StartPullUpOnEdge()
 {
 	if (IsValid(MarinePawn) == false)
 		return;
 
-	if (PulledHimselfUp || !MarinePawn->GetIsInAir()) return;
+	if (bShouldPullUpLerp || MarinePawn->GetIsInAir() == false)
+		return;
 
 	FVector PlayerForwardVector = CalculateForwardVectorForPlayer();
 
-	//Locations of Lines 
-	FVector StartTrueLine = MarinePawn->GetActorLocation();
-	StartTrueLine.Z += PullupTrueLineZ;
-	FVector StartFalseLine = MarinePawn->GetActorLocation();
-	StartFalseLine.Z += PullupFalseLineZ;
-	FHitResult Line1Hit, Line2Hit;
+	if (DetectEdge(PlayerForwardVector) == false)
+		return;
 
-	if (MakeCheckLine(Line1Hit, StartTrueLine, StartTrueLine + PlayerForwardVector * 100.f) == true &&
-		MakeCheckLine(Line2Hit, StartFalseLine, StartFalseLine + PlayerForwardVector * 100.f) == false)
-	{
-		//Setting a line that is in the direction of the object the player wants to pull up.
-		FHitResult HitResult;
-		TArray<AActor*> ActorsToIgnore;
-		FVector LineStart = MarinePawn->GetActorLocation();
-		LineStart.Z += 150.f;
-		LineStart += PlayerForwardVector * 100.f;
-		FVector LineEnd = LineStart + (MarinePawn->GetActorUpVector() * 200.f);
+	FVector ImpactPoint;
+	if (GetEdgeLocationOfTheObject(PlayerForwardVector, ImpactPoint) == false)
+		return;
 
-		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel8), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true))
-		{
-			PullupLocationZ = MarinePawn->GetActorLocation();
-			PullupLocationZ.Z = HitResult.ImpactPoint.Z + 100.f;
-			ShouldPullUpLerp = true;
-			MarineLocation = MarinePawn->GetActorLocation();
-			PullupTimeElapsed = 0.f;
-		}
-		PulledHimselfUp = true;
-	}
+	PullupLocationZ = MarinePawn->GetActorLocation();
+	PullupLocationZ.Z = ImpactPoint.Z + 75.f;
+	PlayerLocation = MarinePawn->GetActorLocation();
+	bShouldPullUpLerp = true;
+	PullupTimeElapsed = 0.f;
 
+	#ifdef WITH_EDITOR
+		if(bDrawHelpersForPullup) 
+			DrawDebugBox(GetWorld(), PullupLocationZ, FVector(10.f), FColor::Blue, true);
+	#endif // !WITH_EDITOR
 }
 
-void UPullUpComponent::PullupLerp(float Delta)
+bool UPullUpComponent::GetEdgeLocationOfTheObject(const FVector& PlayerForwardVector, FVector& EdgeLocation)
 {
-	if (!ShouldPullUpLerp) return;
+	FHitResult HitResult;
+	TArray<AActor*> ActorsToIgnore;
+	FVector LineStart = (MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupTrueLineZ)) + PlayerForwardVector * 100.f;
+	FVector LineEnd = LineStart + (MarinePawn->GetActorUpVector() * 200.f);
 
-	if (PullupTimeElapsed < PullUpTime)
+	bool bObjectHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel8), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
+	
+	if (bObjectHit == true)
 	{
-		FVector LerpLocation = FMath::Lerp(MarineLocation, PullupLocationZ, PullupTimeElapsed / PullUpTime);
+		EdgeLocation = HitResult.ImpactPoint;
+		return true;
+	}
+	
+	return false;
+}
+
+void UPullUpComponent::MovePlayerToPullUpLocation(float Delta)
+{
+	if (!bShouldPullUpLerp) 
+		return;
+
+	if (IsValid(MarinePawn) == false)
+		return;
+
+	if (PullupTimeElapsed <= PullUpTime)
+	{
+		FVector LerpLocation = FMath::Lerp(PlayerLocation, PullupLocationZ, PullupTimeElapsed / PullUpTime);
 		MarinePawn->SetActorLocation(LerpLocation);
+
 		PullupTimeElapsed += Delta;
 	}
 	else
 	{
-		ShouldPullUpLerp = false;
-		PulledHimselfUp = false;
-		FVector Impulse = CalculateForwardVectorForPlayer() * PullUpForceForward;
-		Impulse.Z += PullUpForceUp;
+		MarinePawn->CapsulePawn->SetPhysicsLinearVelocity(FVector(0.f));
+		FVector Impulse = (CalculateForwardVectorForPlayer() * PullUpForceForward) + FVector(0.f, 0.f, PullUpForceUp);
 		MarinePawn->CapsulePawn->AddImpulse(Impulse);
-	}
-}
 
-bool UPullUpComponent::MakeCheckLine(FHitResult& OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug, FColor Color)
-{
-	if (bDebug) DrawDebugLine(GetWorld(), NewStart, NewEnd, Color, false, 0.5f);
-	return GetWorld()->LineTraceSingleByChannel(OutHitResult, NewStart, NewEnd, ECC_GameTraceChannel8);
+		bShouldPullUpLerp = false;
+	}
 }
 
 const FVector UPullUpComponent::CalculateForwardVectorForPlayer()

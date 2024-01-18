@@ -8,7 +8,6 @@
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/WallrunComponent.h"
-#include "MarineRunner/MarinePawnClasses/PullUpComponent.h"
 #include "MarineRunner/MarinePawnClasses/CroachAndSlide.h"
 
 UJumpComponent::UJumpComponent()
@@ -166,7 +165,6 @@ void UJumpComponent::FirstTimeOnGround()
 
 	bIsInAir = false;
 	bDelayIsInAir = false;
-	Player->GetPullUpComponent()->SetPulledHimselfUp(false);
 
 	if (ImpactOnFloorSound) 
 		UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, Player->CapsulePawn);

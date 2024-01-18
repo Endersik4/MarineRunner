@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -27,45 +27,52 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void SetPulledHimselfUp(bool bSet) { PulledHimselfUp = bSet; }
-
 private:
 	//How Fast (in seconds) lerp to PullUp location will be done 
 	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullUpTime = 0.2f;
+		float PullUpTime = 0.3f;
 	//Forward Force that will be applied to player when he pull up on the edge
 	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullUpForceForward = 350000.f;
+		float PullUpForceForward = 250000.f;
 	//Up Force that will be applied to player when he pull up on the edge
 	UPROPERTY(EditAnywhere, Category = "PullUp")
-		float PullUpForceUp = 350000.f;
+		float PullUpForceUp = 0.f;
+
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
-		float CheckLinesForPullUpTime = 0.05f;
+		bool bDrawHelpersForPullup = false;
+
+	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
+		float CheckLinesForPullUpTime = 0.03f;
 	//Z Location of Line that need to hit something for example: edge. This line must be true to Pullup
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
-		float PullupTrueLineZ = 150.f;
+		float PullupTrueLineZ = 270.f;
 	//Z Location of Line that shouldnt hit something, This line must be false to Pullup
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
-		float PullupFalseLineZ = 210.f;
+		float PullupFalseLineZ = 310.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
 		float PullupLinesDistance = 100.f;
 
 	FTimerHandle CheckIfShouldPullUpHandle;
 
-	//EdgePullUp
-	bool PulledHimselfUp;
-	bool ShouldPullUpLerp;
-	float PullupTimeElapsed;
 	FVector PullupLocationZ;
-	void PullupLerp(float Delta);
-	void EdgePullUp();
-	FVector MarineLocation;
 
-	class AMarineCharacter* MarinePawn;
+	bool DetectEdge(const FVector& PlayerForwardVector);
+	void StartPullUpOnEdge();
+	/// <summary>
+	/// Makes raycast to the edge to look for edge location
+	/// </summary>
+	/// <param name="EdgeLocation"> Vector is set by impact point of the raycast to the object </param>
+	/// <returns> Returns true if object was hit by raycast, false otherwise </returns>
+	bool GetEdgeLocationOfTheObject(const FVector& PlayerForwardVector, FVector & EdgeLocation);
+
+	// Moving player to pull up location
+	bool bShouldPullUpLerp;
+	float PullupTimeElapsed;
+	FVector PlayerLocation;
+	void MovePlayerToPullUpLocation(float Delta);
+
 	// There is a bug where MarinePawn->GetActorForwardVector() is not correct
 	const FVector CalculateForwardVectorForPlayer();
 
-	bool MakeCheckLine(FHitResult& OutHitResult, FVector NewStart, FVector NewEnd, bool bDebug = false, FColor Color = FColor::Red);
-
-		
+	class AMarineCharacter* MarinePawn;
 };
