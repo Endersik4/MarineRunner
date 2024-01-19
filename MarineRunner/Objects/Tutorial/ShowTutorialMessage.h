@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
+
 #include "ShowTutorialMessage.generated.h"
 
 UCLASS()
-class MARINERUNNER_API AShowTutorialMessage : public AActor
+class MARINERUNNER_API AShowTutorialMessage : public AActor, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 	
@@ -19,9 +21,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void LoadData(int32 StateOfData = 0) override;
+
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	FORCEINLINE void SetCanShowTutorialMessage(bool bCan) { bCanShowTutorialMessage = bCan; }
 
@@ -33,7 +35,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
 		FText MessageTitle;
-	UPROPERTY(EditAnywhere, Category = "Message Settings")
+	UPROPERTY(EditAnywhere, Category = "Message Settings", meta = (MultiLine = "true"))
 		FText MessageText;
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
 		float HideMessageAfterTime = 15.f;
@@ -42,4 +44,6 @@ private:
 
 	bool bCanShowTutorialMessage = true;
 	FTimerHandle SpawnMessageWidgetHandle;
+
+	void SaveData();
 };

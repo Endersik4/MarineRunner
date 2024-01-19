@@ -29,10 +29,6 @@ protected:
 
 	virtual void LoadData(int32 StateOfData = 0) override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USkeletalMeshComponent* DoorSkeletalMesh;

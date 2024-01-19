@@ -18,7 +18,6 @@
 USaveLoadPlayerComponent::USaveLoadPlayerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
 }
 
 void USaveLoadPlayerComponent::BeginPlay()

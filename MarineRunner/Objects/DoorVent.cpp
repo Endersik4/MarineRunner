@@ -77,7 +77,6 @@ void ADoorVent::PlayOpenDoorVentLocTimeline()
 
 void ADoorVent::OnOpenDoorVentLocProgress(FVector VectorValue)
 {
-
 	if (bAddCurveValuesToVectors == true)
 	{
 		AddActorLocalOffset(VectorValue);

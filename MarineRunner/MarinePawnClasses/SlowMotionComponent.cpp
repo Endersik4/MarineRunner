@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "SlowMotionComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -13,11 +12,7 @@
 // Sets default values for this component's properties
 USlowMotionComponent::USlowMotionComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 // Called when the game starts
@@ -28,13 +23,6 @@ void USlowMotionComponent::BeginPlay()
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
 	if (IsValid(MarinePawn) == false) 
 		UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN SLOW MOTIOn COMPONENT!"));
-}
-
-// Called every frame
-void USlowMotionComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 }
 
 void USlowMotionComponent::SlowMotionPressed()
