@@ -3,7 +3,6 @@
 
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/JumpComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Components/TimelineComponent.h"
 #include "Camera/CameraComponent.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"

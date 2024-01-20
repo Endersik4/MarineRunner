@@ -130,6 +130,8 @@ private:
 		class UCapsuleComponent* CapsuleColl;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UEnemyGunComponent* EnemyGunComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UWidgetComponent* EnemyIndicatorWidgetComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		int32 HowManyLocations = 5;
@@ -221,6 +223,9 @@ private:
 	//If enemy see the player then he will execute given functions
 	void CheckIfEnemySeePlayer();
 	bool ConditionsForEnemyToSeePlayer();
+
+	// Enemy Indicator Widget
+	class UEnemyIndicatorWidget* EnemyIndicatorWidget;
 
 	//Footsteps sound
 	void PlayFootstepsSound();

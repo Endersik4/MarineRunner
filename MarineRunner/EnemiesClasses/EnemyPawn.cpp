@@ -10,17 +10,16 @@
 #include "TimerManager.h"
 #include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
+#include "Components/WidgetComponent.h"
 
 #include "MarineRunner/GunClasses/Bullet.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/EnemiesClasses/EnemyAiController.h"
 #include "MarineRunner/EnemiesClasses/EnemyGunComponent.h"
+#include "MarineRunner/EnemiesClasses/EnemyIndicatorWidget.h"
 
-
-// Sets default values
 AEnemyPawn::AEnemyPawn()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	CapsuleColl = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollision"));
@@ -36,6 +35,10 @@ AEnemyPawn::AEnemyPawn()
 	EnemySkeletalMesh->SetCollisionProfileName(FName(TEXT("EnemySkeletalProf")));
 
 	EnemyGunComponent = CreateDefaultSubobject<UEnemyGunComponent>(TEXT("Enemy Gun Component"));
+
+	EnemyIndicatorWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Enemy Indicator Widget Component"));
+	EnemyIndicatorWidgetComponent->SetupAttachment(EnemySkeletalMesh);
+
 }
 
 // Called when the game starts or when spawned
@@ -45,6 +48,12 @@ void AEnemyPawn::BeginPlay()
 
 	SetUpMarinePawn();
 	SetUpEnemyAIController();
+
+	EnemyIndicatorWidget = Cast<UEnemyIndicatorWidget>(EnemyIndicatorWidgetComponent->GetUserWidgetObject());
+	if (IsValid(EnemyIndicatorWidget))
+	{
+		EnemyIndicatorWidget->SetMaxHealth(Health);
+	}
 }
 
 // Called every frame
@@ -104,6 +113,11 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitR
 	SpawnShotBloodDecal(NewHit);
 	SpawnBloodOnObjectDecal(BulletActor, NewHit.Location);
 
+	if (IsValid(EnemyIndicatorWidget))
+	{
+		EnemyIndicatorWidget->SetCurrentHealthInHealthBar(Health);
+	}
+
 	bool bEnemyKilled = KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadius);
 	if (bEnemyKilled == true) return;
 
@@ -124,6 +138,8 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AAct
 		SetIsDead(true);
 		EnemyAIController->AddEnemyToDetected(false);
 		SetLifeSpan(LifeSpanAfterDeath);
+
+		EnemyIndicatorWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
 	if (IsValid(BulletActor) == false)

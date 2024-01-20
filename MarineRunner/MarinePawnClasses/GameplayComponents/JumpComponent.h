@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/TimelineComponent.h"
+
 #include "JumpComponent.generated.h"
 
 
@@ -92,7 +94,6 @@ private:
 	bool bIsOnRamp;
 	bool bIsGoingUp;
 
-
 	void LandingEffect();
 	void CreateImpactOnFloorTimeline();
 	FTimeline ImpactOnFloorTimeline;
@@ -100,8 +101,7 @@ private:
 	//Delay is in Air (can jump though player is not in the air)
 	bool bDelayIsInAir;
 	FTimerHandle DelayIsInAirHandle;
-	void SetDelayIsInAir() { bDelayIsInAir = false; }
-
+	void SetDelayIsInAir() { bDelayIsInAir = false; };
 		
-	AMarineCharacter* Player;
+	class AMarineCharacter* Player;
 };
