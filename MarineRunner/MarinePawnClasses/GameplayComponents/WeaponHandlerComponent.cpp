@@ -32,7 +32,7 @@ void UWeaponHandlerComponent::BeginPlay()
 void UWeaponHandlerComponent::ADSPressed()
 {
 	if (IsValid(Gun) == false) return;
-	if (Gun->GetIsGrabbingEnded() == false || Gun->GetIsReloading()) return;
+//	if (Gun->GetIsGrabbingEnded() == false || Gun->GetIsReloading()) return;
 
 	MarinePawn->MakeCrosshire(true);
 
@@ -116,7 +116,7 @@ void UWeaponHandlerComponent::HideGunAndAddTheNewOne(AGun* NewGun)
 	if (IsValid(Gun))
 	{
 		Gun->SetActorHiddenInGame(true);
-		Gun->SetGunSwayWhileMovingTimer(true);
+		//Gun->SetGunSwayWhileMovingTimer(true);
 		Gun->ShootReleased();
 	}
 	MarinePawn->GetWeaponInventoryComponent()->AddNewWeaponToStorage(NewGun);

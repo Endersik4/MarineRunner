@@ -56,6 +56,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 		FVector BoxSizeToCheckIfSomethingIsBelow = FVector(25.f, 25.f, 2.f);
+	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
+		FVector CheckIfInAirOffsetLocation;
 	// Divide Movement speed and CounterMovementForce by this value when in Air
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 		float DividerForCounterForceWhenInAir = 8.f;

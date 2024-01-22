@@ -4,6 +4,7 @@
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/JumpComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/WallrunComponent.h"
@@ -69,10 +70,10 @@ void UJumpComponent::JumpTick(float DeltaTime)
 			//Jumps Up
 			float NewVelZ = FMath::Lerp(InitialJumpForce, -50.f, JumpTimeElapsed / JumpUpTime);
 
-			FVector LinearVelocity = Player->CapsulePawn->GetPhysicsLinearVelocity();
+			FVector LinearVelocity = Player->GetPlayerCapsule()->GetPhysicsLinearVelocity();
 			LinearVelocity.Z = NewVelZ;
 
-			Player->CapsulePawn->SetPhysicsLinearVelocity(LinearVelocity);
+			Player->GetPlayerCapsule()->SetPhysicsLinearVelocity(LinearVelocity);
 		}
 		else JumpTimeElapsed += JumpUpTime;
 
@@ -84,7 +85,7 @@ void UJumpComponent::JumpTick(float DeltaTime)
 	{
 		//Down Physics applied when TimeJump is over
 		FVector DownJumpImpulse = (-Player->GetActorUpVector() * JumpDownForce * 10);
-		Player->CapsulePawn->AddImpulse(DownJumpImpulse);
+		Player->GetPlayerCapsule()->AddImpulse(DownJumpImpulse);
 
 		bDownForce = true;
 	}
@@ -121,7 +122,7 @@ void UJumpComponent::CheckIfIsInAir()
 {
 	FHitResult GroundHitResult;
 	//Check if there is ground under the player, if not, the player is in the air
-	bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, Player->GetActorLocation(), Player->GetActorLocation(), FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
+	bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, Player->GetActorLocation()+ CheckIfInAirOffsetLocation, Player->GetActorLocation() + CheckIfInAirOffsetLocation, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
 	if (bSomethingIsBelowThePlayer == false)
 	{
 		if (bIsInAir == true)
@@ -166,7 +167,7 @@ void UJumpComponent::FirstTimeOnGround()
 	bDelayIsInAir = false;
 
 	if (ImpactOnFloorSound) 
-		UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, Player->CapsulePawn);
+		UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, Player->GetPlayerCapsule());
 
 	LandingEffect();
 }

@@ -2,6 +2,7 @@
 
 #include "PullUpComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Components/CapsuleComponent.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 
@@ -71,7 +72,7 @@ void UPullUpComponent::StartPullUpOnEdge()
 		return;
 
 	PullupLocationZ = MarinePawn->GetActorLocation();
-	PullupLocationZ.Z = ImpactPoint.Z + 75.f;
+	PullupLocationZ.Z = ImpactPoint.Z + 210.f;
 	PlayerLocation = MarinePawn->GetActorLocation();
 	bShouldPullUpLerp = true;
 	PullupTimeElapsed = 0.f;
@@ -117,9 +118,9 @@ void UPullUpComponent::MovePlayerToPullUpLocation(float Delta)
 	}
 	else
 	{
-		MarinePawn->CapsulePawn->SetPhysicsLinearVelocity(FVector(0.f));
+		MarinePawn->GetPlayerCapsule()->SetPhysicsLinearVelocity(FVector(0.f));
 		FVector Impulse = (CalculateForwardVectorForPlayer() * PullUpForceForward) + FVector(0.f, 0.f, PullUpForceUp);
-		MarinePawn->CapsulePawn->AddImpulse(Impulse);
+		MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
 
 		bShouldPullUpLerp = false;
 	}

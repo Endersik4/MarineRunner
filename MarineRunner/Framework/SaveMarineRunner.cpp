@@ -142,17 +142,17 @@ void USaveMarineRunner::LoadEquipedGuns(AMarineCharacter* MarinePawn)
 
 		if (MarinePawn->GetWeaponHandlerComponent()->GetGun() == CurrentWeapon)
 		{
-			CurrentWeapon->EquipWeapon();
-			CurrentWeapon->SetGunSwayWhileMovingTimer();
+			//CurrentWeapon->EquipWeapon();
+			//CurrentWeapon->SetGunSwayWhileMovingTimer();
 		}
 		else
 		{
-			CurrentWeapon->EquipWeapon(false);
-			CurrentWeapon->SetGunSwayWhileMovingTimer(true);
+			//CurrentWeapon->EquipWeapon(false);
+			//CurrentWeapon->SetGunSwayWhileMovingTimer(true);
 			CurrentWeapon->SetActorHiddenInGame(true);
 		}
-		CurrentWeapon->SetCanGunSwayTick(true);
-		CurrentWeapon->SetActorRelativeLocation(MarineGun->GetRelativeLocationInPawn());
+		//CurrentWeapon->SetCanGunSwayTick(true);
+		//CurrentWeapon->SetActorRelativeLocation(MarineGun->GetRelativeLocationInPawn());
 	}
 }
 

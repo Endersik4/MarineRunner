@@ -19,11 +19,9 @@ public:
 	// Sets default values for this actor's properties
 	ADoorVent();
 
-	virtual void TakeItem(class AMarineCharacter* Character, bool& bIsItWeapon) override;
+	virtual void TakeItem(class AMarineCharacter* Character) override;
 	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
 	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
-	virtual AActor* DropItem() override { return nullptr; }
-	virtual bool MoveItemToEquipPosition(float SpeedOfItem) override { return false; }
 
 protected:
 	// Called when the game starts or when spawned

@@ -35,7 +35,6 @@ void UTakeAndDrop::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	CheckIfWeaponIsInEquipPosition(DeltaTime);
 	RaycastForHoverItems();
 }
 
@@ -49,12 +48,7 @@ bool UTakeAndDrop::RaycastForHoverItems()
 
 	HoverHitItem(bWasHit, CurrentItemHit);
 
-	if (bWasHit == false || bWeaponIsInEquipPosition == false)
-	{
-		return false;
-	}
-
-	return true;
+	return bWasHit;
 }
 
 void UTakeAndDrop::Take()
@@ -72,9 +66,7 @@ void UTakeAndDrop::Take()
 	if (TakeInterface == nullptr)
 		return;
 
-	TakeInterface->TakeItem(MarinePawn, bIsItWeapon);
-	
-	if (bIsItWeapon == false) TakeInterface = nullptr;
+	TakeInterface->TakeItem(MarinePawn);
 }
 
 bool UTakeAndDrop::WhetherRaycastOnTheSameItem(const FHitResult& CurrentItemHit)
@@ -118,24 +110,4 @@ void UTakeAndDrop::DisableLastHoveredItem()
 		return;
 	
 	HoverInterface->ItemUnHover(MarinePawn->GetHudWidget());
-}
-
-void UTakeAndDrop::CheckIfWeaponIsInEquipPosition(float Delta)
-{
-	if (IsValid(MarinePawn) == false || !TakeInterface || bIsItWeapon == false) 
-		return;
-
-	bWeaponIsInEquipPosition = TakeInterface->MoveItemToEquipPosition(SpeedOfComingGun * Delta);
-}
-
-void UTakeAndDrop::DropItem()
-{
-	if (IsValid(MarinePawn) == false || bWeaponIsInEquipPosition == false) 
-		return;
-
-	TakeInterface = Cast<ITakeInterface>(MarinePawn->GetWeaponHandlerComponent()->GetGun());
-	if (TakeInterface == nullptr)
-		return;
-
-	TakeInterface = Cast<ITakeInterface>(TakeInterface->DropItem());
 }

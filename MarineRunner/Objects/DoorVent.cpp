@@ -46,7 +46,7 @@ void ADoorVent::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpul
 	DoorVentMesh->SetSimulatePhysics(true);
 }
 
-void ADoorVent::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
+void ADoorVent::TakeItem(AMarineCharacter* Character)
 {
 	if (IsValid(Character) == false || bIsOpen == true || DoorVentMesh->IsSimulatingPhysics() == true)
 		return;

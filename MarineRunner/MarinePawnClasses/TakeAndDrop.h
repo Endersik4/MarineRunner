@@ -25,7 +25,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void Take();
-	void DropItem();
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Take Items")
@@ -37,12 +36,8 @@ private:
 
 	class AMarineCharacter* MarinePawn;
 	class ITakeInterface* TakeInterface;
-	bool bIsItWeapon;
-
-	bool bWeaponIsInEquipPosition = true;
 
 	bool RaycastForHoverItems();
-	void CheckIfWeaponIsInEquipPosition(float Delta);
 		
 	FHitResult LastHitResult;
 	bool WhetherRaycastOnTheSameItem(const FHitResult& CurrentItemHit);

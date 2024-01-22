@@ -1,8 +1,9 @@
 // Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineCharacter.h"
-#include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/WidgetInteractionComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Blueprint/UserWidget.h"
@@ -30,6 +31,7 @@
 #include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
 #include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/ArmsSwayComponent.h"
 
 // Sets default values
 AMarineCharacter::AMarineCharacter()
@@ -37,17 +39,20 @@ AMarineCharacter::AMarineCharacter()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CapsulePawn = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("CapsulePawn"));
+	CapsulePawn = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Pawn Component"));
 	RootComponent = CapsulePawn;
 
 	CapsulePawn->SetSimulatePhysics(true);
 	//CapsulePawn->SetMassScale(NAME_None, 2.f);
 	CapsulePawn->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
-	CapsulePawn->SetCastShadow(false);
+	CapsulePawn->SetCollisionProfileName(FName(TEXT("PlayerCapsule")));
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CapsulePawn);
 	Camera->bUsePawnControlRotation = true;
+
+	ArmsSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Arms Skeletal Mesh"));
+	ArmsSkeletalMesh->SetupAttachment(Camera);
 
 	JumpComponent = CreateDefaultSubobject<UJumpComponent>(TEXT("JumpComponent"));
 	CroachAndSlideComponent = CreateDefaultSubobject<UCroachAndSlide>(TEXT("CroachAndSlideComponent"));
@@ -66,6 +71,7 @@ AMarineCharacter::AMarineCharacter()
 	SpawnDeathWidgetComponent = CreateDefaultSubobject<USpawnDeathWidgetComponent>(TEXT("SpawnDeathWidgetComponent"));
 	MessageHandlerComponent = CreateDefaultSubobject<UMessageHandlerComponent>(TEXT("MessageHandlerComponent"));
 	SaveLoadPlayerComponent = CreateDefaultSubobject<USaveLoadPlayerComponent>(TEXT("Save and Load Player Component"));
+	ArmsSwayComponent = CreateDefaultSubobject<UArmsSwayComponent>(TEXT("Arms Sway Component"));
 
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
 	WidgetInteractionComponent->SetupAttachment(Camera);
@@ -129,7 +135,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	//TakeAndDrop
 	PlayerInputComponent->BindAction(TEXT("Take"), IE_Pressed, this, &AMarineCharacter::KeyEPressed);
 	PlayerInputComponent->BindAction(TEXT("Take"), IE_Released, this, &AMarineCharacter::KeyEReleased);
-	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, TakeAndDropComponent, &UTakeAndDrop::DropItem);
+	//PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, TakeAndDropComponent, &UTakeAndDrop::DropItem);
 
 	//Movement
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, JumpComponent, &UJumpComponent::Jump);

@@ -54,10 +54,10 @@ public:
 private:
 	//Speed of Pawn while performing wallrun
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float WallrunSpeed = 1.4f;
+		float WallrunSpeed = 1.5f;
 	//Impulse added to Stick with Obstacle
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float StickWithObstacleImpulse = 2000.f;
+		float StickWithObstacleImpulse = 2300.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float JumpFromWallrunImpulse = 780000.f;
 	//How much should change the angle of the impact vector

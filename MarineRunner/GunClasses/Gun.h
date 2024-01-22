@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/TimelineComponent.h"
-#include "MarineRunner/Inventory/PickupItem.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
 #include "BulletData.h"
 
@@ -19,7 +18,7 @@ enum EStatusOfAimedGun
 };
 
 UCLASS()
-class MARINERUNNER_API AGun : public APickupItem
+class MARINERUNNER_API AGun : public AActor
 {
 	GENERATED_BODY()
 	
@@ -38,12 +37,7 @@ public:
 	UFUNCTION(BlueprintPure)
 		class AMarineCharacter* GetMarinePawn() const { return MarinePawn; }
 
-	//Take
-	virtual void TakeItem(class AMarineCharacter* MarineCharacter, bool& bIsItWeapon) override;
-	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
-	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
-	virtual AActor* DropItem() override;
-	virtual bool MoveItemToEquipPosition(float SpeedOfItem) override;
+	void TakeGun(class AMarineCharacter* Player);
 
 	//If Gun should be with scope then 
 	// * add Scope actor blueprint class
@@ -62,9 +56,6 @@ public:
 	void Shoot();
 	void ShootReleased();
 
-	void GunSwayWhileMoving();
-	void SetGunSwayWhileMovingTimer(bool bShouldClear = false);
-
 	float GetAmmoDistance() const { return BulletData.Distance; }
 	bool GetShouldChangeMouseSensitivityADS() const { return bShouldChangeMouseSensitivityADS; }
 	bool GetIsReloading()  const { return bIsReloading; }
@@ -72,9 +63,6 @@ public:
 	int32 GetMagazineCapacity() const { return MagazineCapacity; }
 
 	void SetBulletRotation(FRotator NewBulletRotation) { BulletRotation = NewBulletRotation; }
-
-	void SetCanGunSwayTick(bool bCan) { bActivateGunSway = bCan; }
-	void SetCanSway(bool bCan) { bCanSway = bCan; }
 
 	void SetMarinePawn(class AMarineCharacter* NewActor) { MarinePawn = NewActor; }
 	void SetStatusOfGun(EStatusOfAimedGun NewStatus) { StatusOfGun = NewStatus; }
@@ -85,33 +73,22 @@ public:
 
 	//Take And Drop
 	FString GetAmmoName() const { return SpawnedAmmoItemData.Item_Name; }
-	FVector GetRelativeLocationInPawn() const { return RelativeLocationInPawn; }
-	bool GetIsGrabbingEnded() const { return bEquipPositionMoveCompleted; }
 	void SetItemFromInventory(struct FItemStruct* NewItemFromInventory) { AmmunitionFromInventory = NewItemFromInventory; }
-	void EquipWeapon(bool bIsThisCurrentGun = true);
-
-	// Albertos
-	virtual void ChangeSimulatingPhysics(bool bChange = true) override;
-	virtual void SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh = nullptr) override;
-	virtual void SetCollisionNewResponse(ECollisionChannel ChannelName, ECollisionResponse NewResponse) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		USkeletalMeshComponent* BaseSkeletalMesh;
 
 	UFUNCTION()
-		void RecoilAnimTimelineCallback(float x);
+		void ShootRecoilTimelineProgress(float x);
 
 	UFUNCTION()
-		void RecoilAnimTimelineFinishedCallback();
+		void ShootRecoilTimelineFinished();
 	UFUNCTION()
 		void RecoilCameraTimelineCallback(float x);
 
 	UFUNCTION()
 		void RecoilCameraTimelineFinishedCallback() {};
-
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
-		FVector RelativeLocationInPawn;
 
 	//General Damage
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
@@ -130,10 +107,6 @@ private:
 		bool bManyBulletAtOnce;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
 		int32 HowManyBulletsToSpawn = 10;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
-		float DropImpulseDistance = 400.f;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
-		UCurveFloat* ShootFOVCurve;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Ammunition")
 		int32 MagazineCapacity = 10;
@@ -153,25 +126,13 @@ private:
 		UTexture2D* GunHUDTexture;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
-		FVector RelativeLocationInPawnWhileADS;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		bool bShouldChangeMouseSensitivityADS = false;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
-		float SpeedOfInterpADS = 14.f;
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
-		float SpeedOfBackToHipFire = 7.f;
 	//This number will be subdivided with value from Recoil (camera, gun recoil)
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		float DividerOfRecoilWhileADS = 3.5f;
 	//This number will be subdivided with value from Recoil (bullet)
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		float DividerOfBulletRecoilWhileADS = 3.f;
-	//This number will be subdivided with value from responsible for Gun Sway
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
-		float DividerOfGunSwayADS = 1.5f;
-	//This number will be subdivided with value from responsible for Gun Sway while moving
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
-		float DividerOfGunSwayMovingADS = 2.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|DelayShoot")
 		float DelayShootTime = 0.1f;
@@ -235,66 +196,16 @@ private:
 		TArray<float>YawBulletRecoilArray = { -5, 5 };;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+		UAnimationAsset* WeaponTakeAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+		UAnimationAsset* ArmsTakeWeaponAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		UAnimationAsset* ShootAnimation;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		UAnimationAsset* ReloadAnimation;
 	//This animation will play when there is no bullets left and the player is shooting the last one
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		UAnimationAsset* ShootWithNoBulletsAnimation;
-
-	//Rotation Sway Pitch
-	//Maximal Pitch rotation of Gun when player looking down
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
-		float RotationSwayPitchRangeBack = -7.f;
-	//Maximal Pitch rotation of Gun when player looking up
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
-		float RotationSwayPitchRangeUp = 7.f;
-	//Speed of Gun that will reach the Range Sway Pitch
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
-		float SpeedOfSwayPitch = 7.f;
-	
-	//Rotation Sway Yaw
-	//Maximal Yaw rotation of Gun when player looking left
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
-		float RotationSwayYawRangeBack = -5.5f;
-	//Maximal Yaw rotation of Gun when player looking right
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
-		float RotationSwayYawRangeUp = 5.5f;
-	//Speed of Gun that will reach the Range Sway Yaw
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
-		float SpeedOfSwayYaw = 3.f;
-
-	//Location Sway X
-	//Maximal X location of Gun when player moving forward (This value is added to RelativeLocationInPawn)
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float LocationSwayXRangeBack = -4.f;
-	//Maximal X location of Gun when player moving backward (This value is added to RelativeLocationInPawn)
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float LocationSwayXRangeUp = 5.f;
-	//Speed of Gun that will reach the Range Sway X
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float SpeedOfSwayX = 7.f;
-
-	//Location Sway Y
-	//Maximal Y location of Gun when player moving right (This value is added to RelativeLocationInPawn)
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float LocationSwayYRangeBack = -4.f;
-	//Maximal Y location of Gun when player moving left (This value is added to RelativeLocationInPawn)
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float LocationSwayYRangeUp = 4.f;
-	//Speed of Gun that will reach the Range Sway Y
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float SpeedOfSwayY = 4.f;
-
-	//Speed of Moving Gun while Player is moving
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float SpeedOfSwayWhileMoving = 550.f;
-	//Multiplier of Calculeted Y by Lemniscate Of Bernoulli, this represents how big Gun is gonna move in Y
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float MultiplierOfLocationYSwayWhileMoving = 0.8f;
-	//Multiplier of Calculeted Z by Lemniscate Of Bernoulli, this represents how big Gun is gonna move in Z
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
-		float MultiplierOfLocationZSwayWhileMoving = 0.4f;
 
 	//Recoil when player shot
 	
@@ -305,17 +216,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Animation Recoil")
 		float MultiplierOfRecoilCurvePitch = 8;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Animation Recoil")
-		UCurveFloat* RecoilAnimCurveScale;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Animation Recoil")
-		UCurveFloat* RecoilAnimCurvePitch;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Animation Recoil")
-		UCurveFloat* RecoilAnimCurveLocationX;
-	UPROPERTY(EditDefaultsOnly, Category = "Timelines")
-		class UTimelineComponent* RecoilAnimTimeline;
-	UPROPERTY(EditDefaultsOnly, Category = "Timelines")
-		class UTimelineComponent* RecoilCameraTimeline;
-	UPROPERTY()
-		TEnumAsByte<ETimelineDirection::Type> RecoilAnimTimelineDirection;
+		UCurveFloat* ShootFOVCurve;
 
 	//SOUNDS
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
@@ -326,11 +227,6 @@ private:
 		USoundBase* EmptyMagazineSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ReloadSound;
-
-	//RecoilTimeline
-	void Playtimeline(class UTimelineComponent* TimeLineComp);
-	class UTimelineComponent* SetupTimeline(class UTimelineComponent* TimeLineComp, UCurveFloat* MostImportantCurve, FName TimeLineName, FName TimeLineDirection, float TimeLineLenght, FName TimelineCallbackFunction,
-		FName TimelineFinishedFunction);
 
 	float CopyOfFOV = 90.f;
 	
@@ -351,9 +247,10 @@ private:
 	void AddEffectsToShooting();
 	void DropCasing();
 
-	/////////// GUN and CAMERA RECOIL /////////////////
+	/////////// GUN RECOIL /////////////////
 	void PlayRecoil();
 	FTimerHandle PlayRecoilHandle;
+	FTimeline RecoilGunTimeline;
 	////////////////////////////////////////////
 
 	/////////////// Constantly Shooting ///////////
@@ -363,21 +260,9 @@ private:
 	/////////////// INVENTORY ////////////////
 	FItemStruct SpawnedAmmoItemData;
 	FItemStruct* AmmunitionFromInventory;
-	void RemoveGunFromAlbertosInventory();
 	void AddAmmoToInventory();
 	void SpawnAmmunitionObjectForVariables();
 	bool GetPointerToAmmoFromInventory();
-	void AddGunRecipeToInventory();
-
-	////////////// TakeAndDrop //////////////////
-	bool bDidTakeThisWeapon;
-	bool bEquipPositionMoveCompleted;
-	bool IsGunAtTheEquipLocation();
-	bool bCanDropTheGun = true;
-	AActor* EquipAnotherWeapon(int32 AmountOfWeapons);
-	void DropTheGun();
-	void DisableTheGun();
-	/////////////////
 
 	///////////////////// HUD WIDGET /////////////////////H
 	// If NewHudWidget is a pointer to the HudWiget from the player then Hide weapon, otherwise			//
@@ -412,24 +297,13 @@ private:
 	float RandomValueForCameraYRecoil;
 	FRotator InitialCameraRotation;
 	FTimerHandle ShootTimerHandle;
+	FTimeline RecoilCameraTimeline;
 	void SetCameraRecoil();
 	void ResetVariablesForCameraRecoil();
 	void BackCameraToItsInitialRotation();
 	void UpRecoilCamera(float Delta);
 	void CameraInterpBackToInitialPosition(float Delta);
 	////////////////////
-
-	///////////////// Gun Sway ////////////////
-	bool bCanSway = true;
-	bool bActivateGunSway = false;
-	bool GunADSSway(float LookUpValue, float LookRightValue);
-	bool CalculateGunSway(FVector & CalculatedLocation, FRotator &CalculatedRotation, float Delta);
-		//Using Lemniscate Of Bernoulli to sway gun while moving 
-	FVector CalculateLOBGunSwayWhileMoving();
-	void GunSway(float Delta);
-	FRotator GunRotationSway;
-	FTimerHandle GunSwayWhileMovingHandle;
-	/////////////////////////////////
 	
 	///////////// Delay Shoot /////////
 	bool bShouldDelayShoot;
@@ -442,9 +316,9 @@ private:
 	EStatusOfAimedGun StatusOfGun = HipFire;
 	///////////////////////////
 
+	void SetupFloatTimeline(FTimeline* TimelineToCreate, FName TimelineProgressFuncName, FName TimelineFinishedFuncName);
+
 	class AMarineCharacter* MarinePawn;
 	class AMarinePlayerController* PC;
 	class UHUDWidget* HudWidget;
-
-
 };

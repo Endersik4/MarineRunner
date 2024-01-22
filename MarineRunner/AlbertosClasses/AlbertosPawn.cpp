@@ -154,9 +154,8 @@ void AAlbertosPawn::CraftingFinished()
 #pragma endregion
 
 #pragma region //////////////////// Inventory /////////////////
-void AAlbertosPawn::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
+void AAlbertosPawn::TakeItem(AMarineCharacter* Character)
 {
-	bIsItWeapon = false;
 
 	if (bPlayCraftingWidgetAnimation == true) 
 		return;

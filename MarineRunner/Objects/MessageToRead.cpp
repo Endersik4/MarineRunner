@@ -42,9 +42,8 @@ void AMessageToRead::Tick(float DeltaTime)
 
 }
 
-void AMessageToRead::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
+void AMessageToRead::TakeItem(AMarineCharacter* Character)
 {
-	bIsItWeapon = false;
 	if (Character->GetIsInSlowMotion() == true)
 		return;
 

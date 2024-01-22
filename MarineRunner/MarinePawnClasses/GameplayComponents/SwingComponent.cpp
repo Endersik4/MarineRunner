@@ -3,6 +3,7 @@
 
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SwingComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -14,11 +15,8 @@
 // Sets default values for this component's properties
 USwingComponent::USwingComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
 }
 
 // Called when the game starts
@@ -133,14 +131,14 @@ void USwingComponent::StartSwingToHook()
 	if (IsValid(CurrentFocusedHook) == false) 
 		return;
 
-	MarinePlayer->CapsulePawn->SetPhysicsLinearVelocity(FVector(0));
+	MarinePlayer->GetPlayerCapsule()->SetPhysicsLinearVelocity(FVector(0));
 	bIsPlayerLerpingToHookPosition = true;
 
 	HookLocation = CurrentFocusedHook->GetActorLocation() - CurrentFocusedHook->GetHookLocationOffset();
 
 	FVector DirectionTowardsHook = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(MarinePlayer->GetActorLocation(), HookLocation));
 	SwingImpulse = DirectionTowardsHook * SwingForce;
-	MarinePlayer->CapsulePawn->AddImpulse(SwingImpulse);
+	MarinePlayer->GetPlayerCapsule()->AddImpulse(SwingImpulse);
 
 	//Things that cannot happen while Swing
 	MarinePlayer->MovementStuffThatCannotHappen();
@@ -160,7 +158,7 @@ void USwingComponent::SwingInterp(float Delta)
 }
 void USwingComponent::StopSwingInterp()
 {
-	if (MarinePlayer->Camera->GetComponentLocation().Equals(HookLocation, MaxHookDistanceToFinishInterp) == false)
+	if (MarinePlayer->GetCamera()->GetComponentLocation().Equals(HookLocation, MaxHookDistanceToFinishInterp) == false)
 		return;
 
 	bWasSwingPressed = false;
@@ -169,9 +167,9 @@ void USwingComponent::StopSwingInterp()
 	CurrentFocusedHook = nullptr;
 
 	float Multiplier = (SwingLinearPhysicsMultiplier / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
-	FVector Velocity = MarinePlayer->CapsulePawn->GetPhysicsLinearVelocity() * Multiplier;
-	Velocity.Z = MarinePlayer->CapsulePawn->GetPhysicsLinearVelocity().Z;
-	MarinePlayer->CapsulePawn->SetPhysicsLinearVelocity(Velocity);
+	FVector Velocity = MarinePlayer->GetPlayerCapsule()->GetPhysicsLinearVelocity() * Multiplier;
+	Velocity.Z = MarinePlayer->GetPlayerCapsule()->GetPhysicsLinearVelocity().Z;
+	MarinePlayer->GetPlayerCapsule()->SetPhysicsLinearVelocity(Velocity);
 }
 #pragma endregion 
 

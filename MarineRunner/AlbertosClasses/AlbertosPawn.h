@@ -39,11 +39,9 @@ public:
 	UUserWidget* GetCraftingTableWidget() const;
 
 	// Take Item Interface
-	virtual void TakeItem(class AMarineCharacter* Character, bool& bIsItWeapon) override;
+	virtual void TakeItem(class AMarineCharacter* Character) override;
 	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
 	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
-	virtual AActor* DropItem() override { return nullptr; }
-	virtual bool MoveItemToEquipPosition(float SpeedOfItem) override { return false; }
 
 	void CraftPressed(class APickupItem*, FTimerHandle* CraftTimeHandle);
 	void CraftingFinished();

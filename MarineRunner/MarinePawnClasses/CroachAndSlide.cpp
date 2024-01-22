@@ -159,10 +159,10 @@ void UCroachAndSlide::CroachLerp(float Delta)
 	MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
 
 	float NewScaleZ = FMath::Lerp(GetOwner()->GetActorScale3D().Z, ScaleZ, Delta * SpeedOfCrouchLerp);
-	GetOwner()->SetActorScale3D(FVector(2, 2, NewScaleZ));
-	if (GetOwner()->GetActorScale3D().Equals(FVector(2, 2, ScaleZ), 0.01))
+	GetOwner()->SetActorScale3D(FVector(1, 1, NewScaleZ));
+	if (GetOwner()->GetActorScale3D().Equals(FVector(1, 1, ScaleZ), 0.01))
 	{
-		GetOwner()->SetActorScale3D(FVector(2, 2, ScaleZ));
+		GetOwner()->SetActorScale3D(FVector(1, 1, ScaleZ));
 		bCanCroachLerp = false;
 	}
 }

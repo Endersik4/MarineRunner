@@ -4,6 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "TimerManager.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
@@ -53,7 +54,7 @@ void UWallrunComponent::Wallrunning(float Delta)
 	else  if (bIsWallrunning)
 	{
 		ResetWallrunning(); //If There is no obstacle around then Wallrun should be disabled
-		MarinePawn->CapsulePawn->AddImpulse(WallrunningWhereToJump * JumpFromWallrunImpulse);
+		MarinePawn->GetPlayerCapsule()->AddImpulse(WallrunningWhereToJump * JumpFromWallrunImpulse);
 	}
 }
 
@@ -85,7 +86,7 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 
 	//added Impulse to Stick with Obstacle
 	FVector Impulse = (-HitNormal) * StickWithObstacleImpulse * 100.f;
-	MarinePawn->CapsulePawn->AddImpulse(Impulse);
+	MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
 }
 
 bool UWallrunComponent::IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& OutCurrentSide, ESideOfLine WhichSideToLook)
@@ -176,7 +177,7 @@ void UWallrunComponent::AddImpulseAfterWallrun(float JumpTimeElapsed)
 	if (JumpTimeElapsed > 0.02f && bShouldAddImpulseAfterWallrun == true)
 	{
 		ResetWallrunning();
-		MarinePawn->CapsulePawn->AddImpulse(WallrunningWhereToJump * JumpFromWallrunImpulse);
+		MarinePawn->GetPlayerCapsule()->AddImpulse(WallrunningWhereToJump * JumpFromWallrunImpulse);
 	}
 }
 

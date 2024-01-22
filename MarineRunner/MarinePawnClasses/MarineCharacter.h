@@ -35,15 +35,6 @@ public:
 
 	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) override; //C++ ONLY
 
-	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
-		class UStaticMeshComponent* CapsulePawn;
-
-	UPROPERTY(EditAnywhere, Category = "Components", BlueprintReadWrite)
-		class UCameraComponent* Camera;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
-		class UInventoryComponent* InventoryComponent;
-
 	UFUNCTION(BlueprintPure)
 		class UWallrunComponent* GetWallrunComponent() const { return WallrunComponent; }
 
@@ -63,6 +54,8 @@ public:
 	FORCEINLINE bool GetShouldPlayerGoForward() const { return bShouldPlayerGoForward; }
 	bool GetIsInAir() const;
 	FVector GetCameraLocation() const;
+	FORCEINLINE class UCapsuleComponent* GetPlayerCapsule() const { return CapsulePawn; }
+	FORCEINLINE class USkeletalMeshComponent* GetArmsSkeletalMesh() const { return ArmsSkeletalMesh; }
 	FORCEINLINE class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	FORCEINLINE class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
 	FORCEINLINE class UInventoryComponent* GetInventoryComponent() const { return InventoryComponent; }
@@ -99,6 +92,17 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UCapsuleComponent* CapsulePawn;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UCameraComponent* Camera;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class USkeletalMeshComponent* ArmsSkeletalMesh;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UWidgetInteractionComponent* WidgetInteractionComponent;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UInventoryComponent* InventoryComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UJumpComponent* JumpComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCroachAndSlide* CroachAndSlideComponent;
@@ -117,8 +121,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWeaponInventoryComponent* WeaponInventoryComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UWidgetInteractionComponent* WidgetInteractionComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UPauseMenuComponent* PauseMenuComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USwingComponent* SwingComponent;
@@ -130,6 +132,8 @@ private:
 		class UMessageHandlerComponent* MessageHandlerComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USaveLoadPlayerComponent* SaveLoadPlayerComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UArmsSwayComponent* ArmsSwayComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;

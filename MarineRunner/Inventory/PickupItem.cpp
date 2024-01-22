@@ -47,9 +47,8 @@ void APickupItem::Tick(float DeltaTime)
 	Dissolve(DeltaTime);
 }
 
-void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
+void APickupItem::TakeItem(AMarineCharacter* Character)
 {
-	bIsItWeapon = false;
 	UInventoryComponent* Inventory = Character->GetInventoryComponent();
 	if (!Inventory) return;
 
@@ -58,6 +57,10 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	//If there is an item with the same name, add the amount
 	if (ItemFromInventory)
 	{ 
+		if (ItemSettings.MaxItem_Amount != 0 && ItemFromInventory->Item_Amount >= ItemSettings.MaxItem_Amount)
+		{
+			return;
+		}
 		ItemFromInventory->Item_Amount += ItemSettings.Item_Amount; 
 	}
 	else //if there are no items with the same name, add that item to the inventory
@@ -70,7 +73,17 @@ void APickupItem::TakeItem(AMarineCharacter* Character, bool& bIsItWeapon)
 	Character->GetHudWidget()->PlayAppearAnimForItemHover(false);
 	
 	UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
-	if (ItemSettings.bIsItWeapon == true) return;
+
+	if (ItemSettings.bIsItWeapon == true && ItemSettings.WeaponClass != nullptr)
+	{
+		AGun* SpawnedGun = GetWorld()->SpawnActorDeferred<AGun>(ItemSettings.WeaponClass, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
+		if (IsValid(SpawnedGun))
+		{
+			SpawnedGun->AttachToComponent(Character->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(TEXT("Weapon")));
+			SpawnedGun->TakeGun(Character);
+			SpawnedGun->FinishSpawning(FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
+		}
+	}
 
 	if (ItemSettings.bIsItCraftable == true)
 	{

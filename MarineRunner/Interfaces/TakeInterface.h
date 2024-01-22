@@ -24,13 +24,7 @@ class MARINERUNNER_API ITakeInterface
 public:
 
 	UFUNCTION()
-		virtual void TakeItem(class AMarineCharacter* Character, bool & bIsItWeapon) = 0;
-
-	UFUNCTION()
-		virtual AActor* DropItem() = 0;
-
-	UFUNCTION()
-		virtual bool MoveItemToEquipPosition(float SpeedOfItem) = 0;
+		virtual void TakeItem(class AMarineCharacter* Character) = 0;
 
 	UFUNCTION()
 		virtual void ItemHover(class UHUDWidget* MarineHUDWidget) = 0;

@@ -15,6 +15,9 @@ struct FItemStruct
 		FString Item_Name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		int32 Item_Amount;
+	// if 0 then unlimited
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
+		int32 MaxItem_Amount;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		UTexture2D* Item_StorageIcon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
@@ -23,6 +26,8 @@ struct FItemStruct
 		FString Item_Description;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		bool bIsItWeapon = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition="bIsItWeapon", EditConditionHides))
+		TSubclassOf<class AGun> WeaponClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		bool bIsItCraftable = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
