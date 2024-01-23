@@ -17,6 +17,23 @@ enum EStatusOfAimedGun
 	BackToInitialPosition UMETA(DisplayName = "Original Position"),
 };
 
+USTRUCT(BlueprintType)
+struct FWeaponAnimation
+{
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(EditAnywhere)
+		UAnimationAsset* WeaponActionAnim;
+	UPROPERTY(EditAnywhere)
+		UAnimationAsset* ArmsActionAnim;
+
+	FWeaponAnimation()
+	{
+		WeaponActionAnim = nullptr;
+		ArmsActionAnim = nullptr;
+	}
+};
+
 UCLASS()
 class MARINERUNNER_API AGun : public AActor
 {
@@ -196,16 +213,19 @@ private:
 		TArray<float>YawBulletRecoilArray = { -5, 5 };;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
-		UAnimationAsset* WeaponTakeAnim;
+		FWeaponAnimation WeaponFirstTimeTakeAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
-		UAnimationAsset* ArmsTakeWeaponAnim;
+		FWeaponAnimation WeaponShootAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
-		UAnimationAsset* ShootAnimation;
+		FWeaponAnimation WeaponReloadAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
-		UAnimationAsset* ReloadAnimation;
-	//This animation will play when there is no bullets left and the player is shooting the last one
+		FWeaponAnimation WeaponDrawAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
-		UAnimationAsset* ShootWithNoBulletsAnimation;
+		FWeaponAnimation WeaponHideAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+		FWeaponAnimation WeaponADSInAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+		FWeaponAnimation WeaponADSOutAnim;
 
 	//Recoil when player shot
 	
@@ -312,7 +332,7 @@ private:
 	///////////////////////////
 
 	/////////////// ADS GUN //////////////////
-	void AimTheGun(float Delta);
+	void AimTheGun();
 	EStatusOfAimedGun StatusOfGun = HipFire;
 	///////////////////////////
 
