@@ -59,11 +59,11 @@ void UHUDWidget::SetWeaponImage(UTexture2D* Texture, bool bAmmoCounterBelowGunHU
 	WeaponImage->SetBrushFromTexture(Texture, true);
 }
 
-void UHUDWidget::HideWeaponUI(bool bShouldHide)
+void UHUDWidget::ShowWeaponOnHud(bool bShow)
 {
 	if (WeaponAppearAnim == nullptr) return;
 
-	if (!bShouldHide) PlayAnimationForward(WeaponAppearAnim);
+	if (bShow == true) PlayAnimationForward(WeaponAppearAnim);
 	else PlayAnimationReverse(WeaponAppearAnim);
 }
 #pragma endregion

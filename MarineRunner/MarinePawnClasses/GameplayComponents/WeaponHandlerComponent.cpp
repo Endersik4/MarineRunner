@@ -31,27 +31,30 @@ void UWeaponHandlerComponent::BeginPlay()
 #pragma region ////////////////////////////////// GUN //////////////////////////////////
 void UWeaponHandlerComponent::ADSPressed()
 {
-	if (IsValid(Gun) == false) return;
-//	if (Gun->GetIsGrabbingEnded() == false || Gun->GetIsReloading()) return;
+	if (IsValid(Gun) == false) 
+		return;
+	if (Gun->GetIsReloading()) return;
 
 	MarinePawn->MakeCrosshire(true);
 
 	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
 
 	bIsPlayerADS = true;
-	Gun->SetStatusOfGun(EStatusOfAimedGun::ADS);
+	Gun->AimTheGun(EStatusOfAimedGun::ADS);
 	if (Gun->GetShouldChangeMouseSensitivityADS() == true) MarinePawn->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
 }
 
 void UWeaponHandlerComponent::ADSReleased()
 {
-	if (IsValid(Gun) == false || bIsPlayerADS == false) return;
+	if (IsValid(Gun) == false || bIsPlayerADS == false) 
+		return;
 
 	MarinePawn->MakeCrosshire();
 
 	if (ADSOutSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
 	bIsPlayerADS = false;
-	Gun->SetStatusOfGun(EStatusOfAimedGun::BackToInitialPosition);
+	Gun->AimTheGun(EStatusOfAimedGun::HipFire);
+
 	if (Gun->GetShouldChangeMouseSensitivityADS() == true)
 	{
 		MarinePawn->ChangeMouseSensitivity(FSettingSavedInJsonFile(), true);
@@ -70,21 +73,24 @@ void UWeaponHandlerComponent::UpdateWeaponInformationOnHud()
 
 void UWeaponHandlerComponent::Shoot()
 {
-	if (IsValid(Gun) == false) return;
+	if (IsValid(Gun) == false) 
+		return;
 
 	Gun->Shoot();
 }
 
 void UWeaponHandlerComponent::ReleasedShoot()
 {
-	if (IsValid(Gun) == false) return;
+	if (IsValid(Gun) == false) 
+		return;
 
 	Gun->ShootReleased();
 }
 
 void UWeaponHandlerComponent::Reload()
 {
-	if (IsValid(Gun) == false) return;
+	if (IsValid(Gun) == false) 
+		return;
 
 	Gun->WaitToReload();
 }
@@ -102,24 +108,32 @@ void UWeaponHandlerComponent::Zoom(float WheelAxis)
 #pragma region ////////////////////// EQUIP WEAPON FROM INVENTORY //////////////////////
 void UWeaponHandlerComponent::SelectWeaponFromQuickInventory(int32 HandNumber)
 {
-	if (!bCanChangeWeapon)
-		return;
-	if (MarinePawn->GetWeaponInventoryComponent()->GetWeaponFromStorage(HandNumber, Gun) == Gun)
+	if (bCanChangeWeapon == false)
 		return;
 
-	Gun = MarinePawn->GetWeaponInventoryComponent()->GetWeaponFromStorage(HandNumber, Gun);
-	if (QuickSelectSound) UGameplayStatics::SpawnSound2D(GetWorld(), QuickSelectSound);
+	bool bDrawGunAccordingToHandNumber = MarinePawn->GetWeaponInventoryComponent()->GetWeaponFromStorage(HandNumber, Gun);
+
+	if (bDrawGunAccordingToHandNumber == false)
+		return;
+	
+	bCanChangeWeapon = false;
 }
 
-void UWeaponHandlerComponent::HideGunAndAddTheNewOne(AGun* NewGun)
+void UWeaponHandlerComponent::DrawNewGun()
 {
-	if (IsValid(Gun))
-	{
-		Gun->SetActorHiddenInGame(true);
-		//Gun->SetGunSwayWhileMovingTimer(true);
-		Gun->ShootReleased();
-	}
-	MarinePawn->GetWeaponInventoryComponent()->AddNewWeaponToStorage(NewGun);
+	if (IsValid(MarinePawn->GetWeaponInventoryComponent()->GetCurrentGunToDraw()) == false)
+		return;
+
+	Gun = MarinePawn->GetWeaponInventoryComponent()->GetCurrentGunToDraw();
+	Gun->DrawGun();
+}
+
+void UWeaponHandlerComponent::HideCurrentHoldingGun()
+{
+	if (IsValid(Gun) == false)
+		return;
+
+	Gun->HideGun();
 }
 #pragma endregion 
 

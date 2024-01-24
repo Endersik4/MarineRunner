@@ -43,7 +43,8 @@ public:
 	void UpdateWeaponInformationOnHud();
 
 	void SelectWeaponFromQuickInventory(int32 HandNumber);
-	void HideGunAndAddTheNewOne(class AGun* NewGun);
+	void HideCurrentHoldingGun();
+	void DrawNewGun();
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Set up Gun")
@@ -52,8 +53,6 @@ private:
 		USoundBase* ADSInSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ADSOutSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* QuickSelectSound;
 
 	//Gun
 	int32 CurrentScopeIndex;

@@ -58,7 +58,7 @@ public:
 
 	void AddElementToProgress(EUseableElement Element, ElementBar ElementProgressBar);
 
-	void HideWeaponUI(bool bShouldHide);
+	void ShowWeaponOnHud(bool bShow = true);
 
 #pragma region ///////////// USE FIRST AID KIT UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

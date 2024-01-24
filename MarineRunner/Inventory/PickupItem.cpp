@@ -12,7 +12,6 @@
 #include "MarineRunner/Objects/ObjectsComponents/SoundOnHitComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/MessageHandlerComponent.h"
 
-
 // Sets default values
 APickupItem::APickupItem()
 {
@@ -26,7 +25,6 @@ APickupItem::APickupItem()
 	ItemMesh->SetCollisionProfileName(TEXT("ItemCollision"));
 	ItemMesh->SetNotifyRigidBodyCollision(true);
 	ItemMesh->SetGenerateOverlapEvents(false);
-	ItemMesh->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
 	ItemMesh->bRenderCustomDepth = false; //Its for outline material 
 
 	SoundOnHitComponent = CreateDefaultSubobject<USoundOnHitComponent>(TEXT("Sound On Hit Comp"));
@@ -47,57 +45,74 @@ void APickupItem::Tick(float DeltaTime)
 	Dissolve(DeltaTime);
 }
 
-void APickupItem::TakeItem(AMarineCharacter* Character)
+void APickupItem::TakeItem(AMarineCharacter* Player)
 {
-	UInventoryComponent* Inventory = Character->GetInventoryComponent();
+	UInventoryComponent* Inventory = Player->GetInventoryComponent();
 	if (!Inventory) return;
 
 	FItemStruct* ItemFromInventory = Inventory->Inventory_Items.Find(ItemSettings.Item_Name);
 
-	//If there is an item with the same name, add the amount
-	if (ItemFromInventory)
-	{ 
-		if (ItemSettings.MaxItem_Amount != 0 && ItemFromInventory->Item_Amount >= ItemSettings.MaxItem_Amount)
-		{
+	bool bAmountWasAdded = AddAmountToItemIfFound(ItemFromInventory);
+
+	if (bAmountWasAdded == false)
+	{
+		if (Inventory->Inventory_Items.Num() > 31) 
 			return;
-		}
-		ItemFromInventory->Item_Amount += ItemSettings.Item_Amount; 
-	}
-	else //if there are no items with the same name, add that item to the inventory
-	{ 
-		if (Inventory->Inventory_Items.Num() > 31) return;
 		Inventory->Inventory_Items.Add(ItemSettings.Item_Name, ItemSettings);
 	}
 
-	Character->UpdateHudWidget();
-	Character->GetHudWidget()->PlayAppearAnimForItemHover(false);
+	Player->UpdateHudWidget();
+	Player->GetHudWidget()->PlayAppearAnimForItemHover(false);
 	
 	UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
 
-	if (ItemSettings.bIsItWeapon == true && ItemSettings.WeaponClass != nullptr)
-	{
-		AGun* SpawnedGun = GetWorld()->SpawnActorDeferred<AGun>(ItemSettings.WeaponClass, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
-		if (IsValid(SpawnedGun))
-		{
-			SpawnedGun->AttachToComponent(Character->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(TEXT("Weapon")));
-			SpawnedGun->TakeGun(Character);
-			SpawnedGun->FinishSpawning(FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
-		}
-	}
+	AddCraftRecipeIfCraftable(Player);
 
-	if (ItemSettings.bIsItCraftable == true)
-	{
-		if (Character->GetInventoryComponent()->Items_Recipes.FindByKey(GetItemSettings()) == nullptr)
-		{
-			Character->GetMessageHandlerComponent()->SpawnNewRecipeUnlockedWidget();
-			Character->GetInventoryComponent()->Items_Recipes.Add(GetItemSettings());
-		}
+	SpawnWeaponForPlayer(Player);
 
-		Character->UpdateAlbertosInventory(true, true);
-	}
-	else Character->UpdateAlbertosInventory();
+	Player->UpdateAlbertosInventory(true, ItemSettings.bIsItCraftable);
 	
 	Destroy();
+}
+
+bool APickupItem::AddAmountToItemIfFound(FItemStruct* ItemFromInventory)
+{
+	if (ItemFromInventory == nullptr)
+		return false;
+
+	if (ItemSettings.MaxItem_Amount != 0 && ItemFromInventory->Item_Amount >= ItemSettings.MaxItem_Amount)
+		return false;
+
+	ItemFromInventory->Item_Amount += ItemSettings.Item_Amount;
+
+	return true;
+}
+
+void APickupItem::AddCraftRecipeIfCraftable(class AMarineCharacter* Player)
+{
+	if (ItemSettings.bIsItCraftable == false)
+		return;
+
+	// if there is craft recipe of this item then dont add another one
+	if (Player->GetInventoryComponent()->Items_Recipes.FindByKey(GetItemSettings()) != nullptr)
+		return;
+
+	Player->GetMessageHandlerComponent()->SpawnNewRecipeUnlockedWidget();
+	Player->GetInventoryComponent()->Items_Recipes.Add(GetItemSettings());
+}
+
+void APickupItem::SpawnWeaponForPlayer(class AMarineCharacter* Player)
+{
+	if (ItemSettings.bIsItWeapon == false || ItemSettings.WeaponClass == nullptr)
+		return;
+
+	AGun* SpawnedGun = GetWorld()->SpawnActorDeferred<AGun>(ItemSettings.WeaponClass, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
+	if (IsValid(SpawnedGun) == false)
+		return;
+
+	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(TEXT("Weapon")));
+	SpawnedGun->TakeGun(Player);
+	SpawnedGun->FinishSpawning(FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
 }
 
 void APickupItem::ItemHover(UHUDWidget* MarineHUDWidget)

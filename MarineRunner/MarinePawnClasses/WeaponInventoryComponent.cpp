@@ -24,10 +24,11 @@ void UWeaponInventoryComponent::BeginPlay()
 
 void UWeaponInventoryComponent::AddNewWeaponToStorage(AGun* NewGun)
 {
-	if (!NewGun) return;
+	if (IsValid(NewGun) == false) 
+		return;
 
-	int32 NumberForWeapon = WeaponsStorage.Num() + 1;
-	WeaponsStorage.Add(NumberForWeapon, NewGun);
+	int32 WeaponNumber = WeaponsStorage.Num() + 1;
+	WeaponsStorage.Add(WeaponNumber, NewGun);
 }
 
 void UWeaponInventoryComponent::RemoveWeaponFromStorage(AGun* EquipedGun)
@@ -38,25 +39,25 @@ void UWeaponInventoryComponent::RemoveWeaponFromStorage(AGun* EquipedGun)
 	SortWeapons();
 }
 
-AGun* UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, class AGun* CurrentWeapon)
+bool UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, class AGun* CurrentWeapon)
 {
-	if (WeaponsStorage.Find(KeyForWeapon) == nullptr) return CurrentWeapon;
-	AGun* Gun = *WeaponsStorage.Find(KeyForWeapon);
-	if (Gun == CurrentWeapon) return CurrentWeapon;
+	if (IsValid(CurrentWeapon) == false)
+		return false;
 
-	if (CurrentWeapon)
-	{
-		CurrentWeapon->ShootReleased();
-		//CurrentWeapon->SetGunSwayWhileMovingTimer(true);
-		if (CurrentWeapon->GetIsReloading()) CurrentWeapon->CancelReload();
-		CurrentWeapon->SetActorHiddenInGame(true);
-	}
+	if (WeaponsStorage.Find(KeyForWeapon) == nullptr) 
+		return false;
+	GunFromInventory = *WeaponsStorage.Find(KeyForWeapon);
+	if (GunFromInventory == CurrentWeapon)
+		return false;
 
-	//Gun->SetGunSwayWhileMovingTimer();
-	Gun->UpdateWeaponDataInHud(true, true);
-	Gun->SetActorHiddenInGame(false);
+	CurrentWeapon->PutAwayGun();
 
-	return Gun;
+	return true;
+}
+
+AGun* UWeaponInventoryComponent::GetCurrentGunToDraw()
+{
+	return GunFromInventory;
 }
 
 void UWeaponInventoryComponent::SortWeapons()

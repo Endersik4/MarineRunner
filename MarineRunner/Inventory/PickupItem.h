@@ -26,7 +26,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void TakeItem(class AMarineCharacter* Character) override;
+	virtual void TakeItem(class AMarineCharacter* Player) override;
 	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
 	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
 
@@ -57,6 +57,10 @@ private:
 		float DissolveStartValue = 0.6f;
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
 		float DissolveEndValue = -0.4f;
+
+	bool AddAmountToItemIfFound(FItemStruct* ItemFromInventory);
+	void AddCraftRecipeIfCraftable(class AMarineCharacter* Player);
+	void SpawnWeaponForPlayer(class AMarineCharacter* Player);
 
 	//Dissolve Material
 	bool bShouldDissolve;

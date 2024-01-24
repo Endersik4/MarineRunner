@@ -32,6 +32,10 @@ struct FWeaponAnimation
 		WeaponActionAnim = nullptr;
 		ArmsActionAnim = nullptr;
 	}
+
+	FORCEINLINE bool IsWeaponAnimationValid() const {
+		return WeaponActionAnim && ArmsActionAnim;
+	}
 };
 
 UCLASS()
@@ -55,6 +59,9 @@ public:
 		class AMarineCharacter* GetMarinePawn() const { return MarinePawn; }
 
 	void TakeGun(class AMarineCharacter* Player);
+	void DrawGun();
+	void PutAwayGun();
+	void HideGun();
 
 	//If Gun should be with scope then 
 	// * add Scope actor blueprint class
@@ -82,7 +89,8 @@ public:
 	void SetBulletRotation(FRotator NewBulletRotation) { BulletRotation = NewBulletRotation; }
 
 	void SetMarinePawn(class AMarineCharacter* NewActor) { MarinePawn = NewActor; }
-	void SetStatusOfGun(EStatusOfAimedGun NewStatus) { StatusOfGun = NewStatus; }
+
+	void AimTheGun(EStatusOfAimedGun NewGundStatus);
 
 	void SetMagazineCapacity(int32 NewMagazineCapacity) { MagazineCapacity = NewMagazineCapacity; }
 
@@ -94,7 +102,7 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		USkeletalMeshComponent* BaseSkeletalMesh;
+		USkeletalMeshComponent* GunSkeletalMesh;
 
 	UFUNCTION()
 		void ShootRecoilTimelineProgress(float x);
@@ -114,9 +122,6 @@ private:
 		float ReloadTime = 1.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		bool bIsAutomatic;
-	//should play the shot animation after the shot. If it is equal to false, the shot animation will be played along with the shot
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		bool bPlayShootAnimationAfterFire = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		bool bReloadOneBullet;
 	//Should spread bullets from barrel like from shotgun
@@ -226,6 +231,8 @@ private:
 		FWeaponAnimation WeaponADSInAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		FWeaponAnimation WeaponADSOutAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+		FWeaponAnimation WeaponShootWithNoBulletsAnim;
 
 	//Recoil when player shot
 	
@@ -247,8 +254,12 @@ private:
 		USoundBase* EmptyMagazineSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ReloadSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* DrawGunSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* PutAwayGunSound;
 
-	float CopyOfFOV = 90.f;
+	float OriginalPlayerFOV = 90.f;
 	
 	////////////// SHOOT ////////////
 	bool bCanShoot = true;
@@ -267,6 +278,8 @@ private:
 	void AddEffectsToShooting();
 	void DropCasing();
 
+	// Put away gun
+
 	/////////// GUN RECOIL /////////////////
 	void PlayRecoil();
 	FTimerHandle PlayRecoilHandle;
@@ -283,13 +296,6 @@ private:
 	void AddAmmoToInventory();
 	void SpawnAmmunitionObjectForVariables();
 	bool GetPointerToAmmoFromInventory();
-
-	///////////////////// HUD WIDGET /////////////////////H
-	// If NewHudWidget is a pointer to the HudWiget from the player then Hide weapon, otherwise			//
-	// check if the weapon has a HudWidget if so then Hide weapon(because this means that the player	//
-	// has just dropped the weapon																		//
-	void SetHudWidget(class UHUDWidget* NewHudWidget);
-	//////////////////////////////////////////////////
 
 	/////////////// Reloading ////////////////
 	float OriginalMagazineCapacity;
@@ -332,7 +338,6 @@ private:
 	///////////////////////////
 
 	/////////////// ADS GUN //////////////////
-	void AimTheGun();
 	EStatusOfAimedGun StatusOfGun = HipFire;
 	///////////////////////////
 

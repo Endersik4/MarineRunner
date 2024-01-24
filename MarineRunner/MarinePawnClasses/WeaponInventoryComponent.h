@@ -36,8 +36,10 @@ public:
 	void RemoveWeaponFromStorage(class AGun* EquipedGun);
 
 	//Get Weapon from Storage. If There is no KeyForWeapon as key in WeaponStorage then return CurrentWeapon equiped by Player
-	//@return Gun from Storage at given Key
-	class AGun* GetWeaponFromStorage(int32 KeyForWeapon, class AGun* CurrentWeapon);
+	//@return true if new gun was found, false when player tried draw the same weapon
+	bool GetWeaponFromStorage(int32 KeyForWeapon, class AGun* CurrentWeapon);
+
+	AGun* GetCurrentGunToDraw();
 
 	TMap<int32, class AGun*> ReturnAllWeapons() { return WeaponsStorage; }
 
@@ -46,6 +48,7 @@ private:
 		int32 MaxAmountOfItems = 2;
 
 	TMap < int32, class AGun* > WeaponsStorage;
+	class AGun* GunFromInventory;
 		
 	void SortWeapons();
 
