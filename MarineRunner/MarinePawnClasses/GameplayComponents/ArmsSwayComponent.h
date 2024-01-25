@@ -24,6 +24,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	FORCEINLINE void SetWeaponSwayDivider(float NewSwayDivder) { WeaponSwayDivider = NewSwayDivder; }
+	FORCEINLINE void SetWeaponSwayWhileMovingDivider(float NewSwayWhileMovingDivder) { WeaponSwayWhileMovingDivider = NewSwayWhileMovingDivder; }
+	FORCEINLINE void SetInADS(bool bNewIsnADS) { bInADS = bNewIsnADS; }
+
 private:
 	//Rotation Sway Pitch
 //Maximal Pitch rotation of Gun when player looking down
@@ -79,6 +83,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
 		float MultiplierOfLocationZSwayWhileMoving = 0.4f;
 
+	float WeaponSwayDivider = 1.f;
+	float WeaponSwayWhileMovingDivider = 1.f;
+	bool bInADS = false;
+
 	bool CalculateGunSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, float Delta);
 	void GunSway(float Delta);
 	FRotator GunRotationSway;
@@ -88,4 +96,5 @@ private:
 	void GunSwayWhileMoving();
 
 	class AMarineCharacter* Player;
+	APlayerController* PlayerController;
 };

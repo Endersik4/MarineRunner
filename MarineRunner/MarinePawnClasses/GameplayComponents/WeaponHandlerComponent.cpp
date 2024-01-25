@@ -33,7 +33,7 @@ void UWeaponHandlerComponent::ADSPressed()
 {
 	if (IsValid(Gun) == false) 
 		return;
-	if (Gun->GetIsReloading()) return;
+	if (Gun->GetIsReloading() || Gun->GetCanShoot() == false) return;
 
 	MarinePawn->MakeCrosshire(true);
 

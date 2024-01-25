@@ -67,6 +67,7 @@ public:
 	FORCEINLINE class UPullUpComponent* GetPullUpComponent() const { return PullUpComponent; }
 	FORCEINLINE class UMessageHandlerComponent* GetMessageHandlerComponent() const { return MessageHandlerComponent; }
 	FORCEINLINE class USaveLoadPlayerComponent* GetSaveLoadPlayerComponent() const { return SaveLoadPlayerComponent; }
+	FORCEINLINE class UArmsSwayComponent* GetArmsSwayComponent() const { return ArmsSwayComponent; }
 	FORCEINLINE class UCroachAndSlide* GetCroachAndSlideComponent() const { return CroachAndSlideComponent; }
 	FORCEINLINE const FSettingSavedInJsonFile& GetMouseSensitivityJSON() const { return MouseSensitivityJSON; }
 	bool GetIsMessageDisplayed() const;

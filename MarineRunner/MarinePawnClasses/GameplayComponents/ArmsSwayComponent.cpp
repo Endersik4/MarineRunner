@@ -20,6 +20,7 @@ void UArmsSwayComponent::BeginPlay()
 	Super::BeginPlay();
 
 	Player = Cast<AMarineCharacter>(GetOwner());
+	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	RelativeLocationInPawn = Player->GetArmsSkeletalMesh()->GetRelativeLocation();
 }
 
@@ -31,12 +32,11 @@ void UArmsSwayComponent::TickComponent(float DeltaTime, ELevelTick TickType, FAc
 
 	GunSwayWhileMoving();
 	GunSway(DeltaTime);
-
 }
 
 void UArmsSwayComponent::GunSway(float Delta)
 {
-	if (IsValid(Player) == false)
+	if (IsValid(Player) == false || IsValid(PlayerController) == false)
 		return;
 
 	FVector GunLocationInterp = Player->GetArmsSkeletalMesh()->GetRelativeLocation();
@@ -57,23 +57,36 @@ void UArmsSwayComponent::GunSway(float Delta)
 bool UArmsSwayComponent::CalculateGunSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, float Delta)
 {
 	//Preparing variables
-	float LookUp = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetInputAxisValue("LookUp");
-	float LookRight = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetInputAxisValue("LookRight");
+	float LookUp = PlayerController->GetInputAxisValue("LookUp");
+	float LookRight = PlayerController->GetInputAxisValue("LookRight");
 	float Forward = Player->GetInputAxisValue("Forward");
 	float Right = Player->GetInputAxisValue("Right");
 
 	//Rotation Sway when The Player moves the mouse
-	float InterpLookUp = FMath::FInterpTo(GunRotationSway.Pitch, UKismetMathLibrary::MapRangeClamped(LookUp, -1, 1, RotationSwayPitchRangeBack, RotationSwayPitchRangeUp), Delta, SpeedOfSwayPitch);
-	float InterpLookRight = FMath::FInterpTo(GunRotationSway.Yaw, UKismetMathLibrary::MapRangeClamped(LookRight, -1, 1, RotationSwayYawRangeBack, RotationSwayYawRangeUp), Delta, SpeedOfSwayYaw);
+	float RotationSwayUP = FMath::FInterpTo(GunRotationSway.Pitch, UKismetMathLibrary::MapRangeClamped(LookUp, -1, 1, RotationSwayPitchRangeBack, RotationSwayPitchRangeUp), Delta, SpeedOfSwayPitch);
+	float RotationSwayRight = FMath::FInterpTo(GunRotationSway.Yaw, UKismetMathLibrary::MapRangeClamped(LookRight, -1, 1, RotationSwayYawRangeBack, RotationSwayYawRangeUp), Delta, SpeedOfSwayYaw);
 
-	//Location Sway when The Player moves around
-	float InterpForward = FMath::InterpEaseInOut(CalculatedLocation.X, UKismetMathLibrary::MapRangeClamped(Forward, 1, -1, RelativeLocationInPawn.X + LocationSwayXRangeBack,
-		RelativeLocationInPawn.X + LocationSwayXRangeUp), (Delta * SpeedOfSwayX), 1.f);
-	float InterpRight = FMath::InterpEaseInOut(CalculatedLocation.Y, UKismetMathLibrary::MapRangeClamped(Right, -1, 1, RelativeLocationInPawn.Y + LocationSwayYRangeBack,
-		RelativeLocationInPawn.Y + LocationSwayYRangeUp), (Delta * SpeedOfSwayY), 1.f);
+	float LocationSwayForward, LocationSwayRight;
+	if (bInADS == false)
+	{
+		//Location Sway when The Player moves around
+		LocationSwayForward = FMath::InterpEaseInOut(CalculatedLocation.X, UKismetMathLibrary::MapRangeClamped(Forward, 1, -1, RelativeLocationInPawn.X + LocationSwayXRangeBack,
+			RelativeLocationInPawn.X + LocationSwayXRangeUp), (Delta * SpeedOfSwayX), 1.f);
+		LocationSwayRight = FMath::InterpEaseInOut(CalculatedLocation.Y, UKismetMathLibrary::MapRangeClamped(Right, -1, 1, RelativeLocationInPawn.Y + LocationSwayYRangeBack,
+			RelativeLocationInPawn.Y + LocationSwayYRangeUp), (Delta * SpeedOfSwayY), 1.f);
+	}
+	else
+	{
+		RotationSwayUP /= WeaponSwayDivider;
+		RotationSwayRight /= WeaponSwayDivider;
+		LocationSwayForward = FMath::InterpEaseInOut(CalculatedLocation.X, UKismetMathLibrary::MapRangeClamped(Forward, 1, -1, RelativeLocationInPawn.X + (LocationSwayXRangeBack / WeaponSwayDivider),
+			RelativeLocationInPawn.X + (LocationSwayXRangeUp / WeaponSwayDivider)), (Delta * SpeedOfSwayX), 1.f);
+		LocationSwayRight = FMath::InterpEaseInOut(CalculatedLocation.Y, UKismetMathLibrary::MapRangeClamped(Right, -1, 1, RelativeLocationInPawn.Y + (LocationSwayYRangeBack / WeaponSwayDivider),
+			RelativeLocationInPawn.Y + (LocationSwayYRangeUp / WeaponSwayDivider)), (Delta * SpeedOfSwayY), 1.f);
+	}
 
-	CalculatedRotation = FRotator(InterpLookUp, InterpLookRight, 0.f);
-	CalculatedLocation = FVector(InterpForward, InterpRight, CalculatedLocation.Z);
+	CalculatedRotation = FRotator(RotationSwayUP, RotationSwayRight, 0.f);
+	CalculatedLocation = FVector(LocationSwayForward, LocationSwayRight, CalculatedLocation.Z);
 
 	return false;
 }
@@ -96,6 +109,13 @@ FVector UArmsSwayComponent::CalculateLOBGunSwayWhileMoving()
 	float Ang = 2 / (9.f - FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate * 2)));
 	float LocY = Ang * FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate)); //SineWave
 	float LocZ = (FMath::Sin(FMath::DegreesToRadians(SpeedOfLemniscate * 2)) * Ang) / 2; //Angle Offset
+
+	if (bInADS == true)
+	{
+		Ang /= WeaponSwayWhileMovingDivider;
+		LocY /= WeaponSwayWhileMovingDivider;
+		LocZ /= WeaponSwayWhileMovingDivider;
+	}
 
 	FVector CalculatedGunSway = Player->GetArmsSkeletalMesh()->GetRelativeLocation();
 	CalculatedGunSway.Y += (LocY * MultiplierOfLocationYSwayWhileMoving);

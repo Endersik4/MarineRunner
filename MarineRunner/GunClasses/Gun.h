@@ -80,9 +80,10 @@ public:
 	void Shoot();
 	void ShootReleased();
 
-	float GetAmmoDistance() const { return BulletData.Distance; }
-	bool GetShouldChangeMouseSensitivityADS() const { return bShouldChangeMouseSensitivityADS; }
-	bool GetIsReloading()  const { return bIsReloading; }
+	FORCEINLINE float GetAmmoDistance() const { return BulletData.Distance; }
+	FORCEINLINE bool GetCanShoot() const { return bCanShoot; }
+	FORCEINLINE bool GetShouldChangeMouseSensitivityADS() const { return bShouldChangeMouseSensitivityADS; }
+	FORCEINLINE bool GetIsReloading()  const { return bIsReloading; }
 
 	int32 GetMagazineCapacity() const { return MagazineCapacity; }
 
@@ -155,6 +156,10 @@ private:
 	//This number will be subdivided with value from Recoil (bullet)
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		float DividerOfBulletRecoilWhileADS = 3.f;
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
+		float WeaponSwayInADSDivider = 3.5f;
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
+		float WeaponSwayWhileMovingInADSDivider = 3.5f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|DelayShoot")
 		float DelayShootTime = 0.1f;
@@ -228,11 +233,15 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		FWeaponAnimation WeaponHideAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+		FWeaponAnimation WeaponADSShootAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		FWeaponAnimation WeaponADSInAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		FWeaponAnimation WeaponADSOutAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		FWeaponAnimation WeaponShootWithNoBulletsAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+		FWeaponAnimation WeaponReloadWithNoBulletsAnim;
 
 	//Recoil when player shot
 	
@@ -248,12 +257,8 @@ private:
 	//SOUNDS
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ShootingSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds", meta = (EditCondition = "bPlayShootAnimationAfterFire", EditConditionHides))
-		USoundBase* AfterShootSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* EmptyMagazineSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* ReloadSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* DrawGunSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
@@ -275,11 +280,11 @@ private:
 
 	///////////// GUN EFFECTS ///////
 	void PlayGunShootAnimation();
+	bool NoBulletsShootAnim();
 	void AddEffectsToShooting();
 	void DropCasing();
 
 	// Put away gun
-
 	/////////// GUN RECOIL /////////////////
 	void PlayRecoil();
 	FTimerHandle PlayRecoilHandle;
