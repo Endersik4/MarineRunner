@@ -54,7 +54,7 @@ public:
 	FORCEINLINE bool GetShouldPlayerGoForward() const { return bShouldPlayerGoForward; }
 	bool GetIsInAir() const;
 	FVector GetCameraLocation() const;
-	FORCEINLINE class UCapsuleComponent* GetPlayerCapsule() const { return CapsulePawn; }
+	FORCEINLINE class UStaticMeshComponent* GetPlayerCapsule() const { return CapsulePawn; }
 	FORCEINLINE class USkeletalMeshComponent* GetArmsSkeletalMesh() const { return ArmsSkeletalMesh; }
 	FORCEINLINE class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	FORCEINLINE class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
@@ -78,7 +78,6 @@ public:
 	FORCEINLINE void SetShouldPlayerGoForward(bool bShould) { bShouldPlayerGoForward = bShould; }
 
 	void SetHealth(float NewHealth) { Health = NewHealth; }
-	void SetQuickSelect(TMap < int32, class AGun* > NewWeaponsStorage);
 
 	void MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings = false);
 
@@ -93,7 +92,7 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UCapsuleComponent* CapsulePawn;
+		class UStaticMeshComponent* CapsulePawn;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCameraComponent* Camera;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")

@@ -51,6 +51,9 @@ private:
 		float PullupFalseLineZ = 130.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
 		float PullupLinesDistance = 100.f;
+	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
+		float PullupOffset_Z = 180.f;
+
 
 	FTimerHandle CheckIfShouldPullUpHandle;
 

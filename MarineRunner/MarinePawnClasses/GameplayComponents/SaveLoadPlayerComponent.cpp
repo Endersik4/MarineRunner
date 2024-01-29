@@ -44,7 +44,7 @@ void USaveLoadPlayerComponent::SaveGame(AActor* JustSavedCheckpoint)
 	CurrentSaveGameInstance->PrepareSaveGame();
 	CurrentSaveGameInstance->CopySaveInfoToCurrentGameInstance(GetWorld());
 	
-	CurrentSaveGameInstance->SaveGame(Player->GetHealth(), Player->GetWeaponHandlerComponent()->GetGun(), Player->GetWeaponInventoryComponent()->ReturnAllWeapons(), Player->GetInventoryComponent()->Inventory_Items);
+	CurrentSaveGameInstance->SaveGame(Player->GetHealth(), Player->GetInventoryComponent()->Inventory_Items);
 	CurrentSaveGameInstance->CurrentCheckpoint = JustSavedCheckpoint;
 	CurrentSaveGameInstance->SaveOtherObjectsData(SavedDataObject);
 

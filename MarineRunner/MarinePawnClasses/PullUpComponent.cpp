@@ -72,7 +72,7 @@ void UPullUpComponent::StartPullUpOnEdge()
 		return;
 
 	PullupLocationZ = MarinePawn->GetActorLocation();
-	PullupLocationZ.Z = ImpactPoint.Z + 210.f;
+	PullupLocationZ.Z = ImpactPoint.Z + PullupOffset_Z;
 	PlayerLocation = MarinePawn->GetActorLocation();
 	bShouldPullUpLerp = true;
 	PullupTimeElapsed = 0.f;

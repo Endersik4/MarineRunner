@@ -43,19 +43,11 @@ void USaveMarineRunner::CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld)
 	TotalPlayTimeInSeconds = GameInstance->TotalPlayTimeInSeconds;
 }
 
-void USaveMarineRunner::SaveGame(float CurrentHealth, AGun* CurrentMarineGun, TMap < int32, AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved)
+void USaveMarineRunner::SaveGame(float CurrentHealth, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved)
 {
 	CurrentHealthSaved = CurrentHealth;
 
 	Inventory_ItemsSaved = CurrentInventory_ItemsSaved;
-
-	CurrentWeaponsStorage.GenerateValueArray(WeaponsSaved);
-	WeaponsStorageSaved = CurrentWeaponsStorage;
-	MarineGun = CurrentMarineGun;
-	for (auto& Storage : WeaponsSaved)
-	{
-		MagazineCapacityStorage.Add(Storage, Storage->GetMagazineCapacity());
-	}
 }
 
 FString USaveMarineRunner::TakeSaveScreenshot(APlayerController* PlayerController)
@@ -113,10 +105,8 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 	if (IsValid(MarinePawn) == false) return;
 
 	MarinePawn->SetHealth(CurrentHealthSaved);
-	MarinePawn->SetQuickSelect(WeaponsStorageSaved);
 	MarinePawn->GetInventoryComponent()->Inventory_Items = Inventory_ItemsSaved;
 
-	LoadEquipedGuns(MarinePawn);
 
 	if (IsValid(GameInstance) == false) return;
 
@@ -124,37 +114,6 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 	GameInstance->TotalPlayTimeInSeconds = TotalPlayTimeInSeconds;
 }
 
-void USaveMarineRunner::LoadEquipedGuns(AMarineCharacter* MarinePawn)
-{
-	if (!MarineGun) return;
-
-	MarinePawn->GetWeaponHandlerComponent()->SetGun(MarineGun);
-
-	for (auto& CurrentWeapon : WeaponsSaved)
-	{
-		if (MagazineCapacityStorage.Find(CurrentWeapon))
-		{
-			CurrentWeapon->SetMagazineCapacity(*MagazineCapacityStorage.Find(CurrentWeapon));
-		}
-
-		CurrentWeapon->SetItemFromInventory(Inventory_ItemsSaved.Find(CurrentWeapon->GetAmmoName()));
-		CurrentWeapon->SetMarinePawn(MarinePawn);
-
-		if (MarinePawn->GetWeaponHandlerComponent()->GetGun() == CurrentWeapon)
-		{
-			//CurrentWeapon->EquipWeapon();
-			//CurrentWeapon->SetGunSwayWhileMovingTimer();
-		}
-		else
-		{
-			//CurrentWeapon->EquipWeapon(false);
-			//CurrentWeapon->SetGunSwayWhileMovingTimer(true);
-			CurrentWeapon->SetActorHiddenInGame(true);
-		}
-		//CurrentWeapon->SetCanGunSwayTick(true);
-		//CurrentWeapon->SetActorRelativeLocation(MarineGun->GetRelativeLocationInPawn());
-	}
-}
 
 void USaveMarineRunner::LoadOtherObjectsData(ASavedDataObject* OtherObjectsData)
 {

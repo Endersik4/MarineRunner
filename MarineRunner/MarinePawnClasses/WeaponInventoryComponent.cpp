@@ -18,8 +18,32 @@ UWeaponInventoryComponent::UWeaponInventoryComponent()
 void UWeaponInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	SetUpMarinePawn();
+	FTimerHandle test;
+	GetWorld()->GetTimerManager().SetTimer(test, this, &UWeaponInventoryComponent::SpawnWeaponsFromInventory, 0.1f, false);
+}
 
-	WeaponsStorage.Empty();
+void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
+{
+	if (IsValid(MarinePawn) == false)
+		return;
+
+	TArray<TSubclassOf<AGun>> WeaponsToSpawn; 
+	InitialWeaponInventory.GenerateValueArray(WeaponsToSpawn);
+
+	for (TSubclassOf<AGun> CurrentWeaponToSpawn : WeaponsToSpawn)
+	{
+		AGun* SpawnedGun = GetWorld()->SpawnActorDeferred<AGun>(CurrentWeaponToSpawn, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
+		if (IsValid(SpawnedGun) == false)
+			continue;
+
+		SpawnedGun->AttachToComponent(MarinePawn->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(TEXT("Weapon")));
+		SpawnedGun->TakeGun(MarinePawn);
+		SpawnedGun->FinishSpawning(FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
+
+		AddNewWeaponToStorage(SpawnedGun);
+	}
 }
 
 void UWeaponInventoryComponent::AddNewWeaponToStorage(AGun* NewGun)

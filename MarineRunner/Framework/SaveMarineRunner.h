@@ -27,18 +27,6 @@ public:
 		float CurrentHealthSaved;
 
 	UPROPERTY(EditAnywhere)
-		TMap <class AGun*, int32 > MagazineCapacityStorage;
-
-	UPROPERTY(EditAnywhere)
-		TArray<class AGun*> WeaponsSaved;
-
-	UPROPERTY(EditAnywhere)
-		TMap < int32, class AGun* > WeaponsStorageSaved;
-
-	UPROPERTY(EditAnywhere)
-		class AGun* MarineGun;
-
-	UPROPERTY(EditAnywhere)
 		FVector SavedPlayerLocation;
 	UPROPERTY(EditAnywhere)
 		FRotator SavedPlayerRotation;
@@ -62,7 +50,7 @@ public:
 	FString OriginalSaveName;
 	bool bAddSaveNumber;
 
-	void SaveGame(float CurrentHealth, class AGun* CurrentMarineGun, TMap < int32, class AGun* > CurrentWeaponsStorage, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
+	void SaveGame(float CurrentHealth, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
 	void CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld);
 	void SaveOtherObjectsData(class ASavedDataObject* OtherObjectsData);
 
@@ -74,7 +62,6 @@ public:
 	FString GetSaveGameName();
 
 private:
-	void LoadEquipedGuns(class AMarineCharacter* MarinePawn);
 
 	// return Screnshot path
 	FString TakeSaveScreenshot(APlayerController* PlayerController);

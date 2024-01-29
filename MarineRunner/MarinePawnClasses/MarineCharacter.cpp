@@ -1,7 +1,7 @@
 // Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineCharacter.h"
-#include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Components/WidgetInteractionComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
@@ -39,14 +39,14 @@ AMarineCharacter::AMarineCharacter()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CapsulePawn = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Pawn Component"));
+	CapsulePawn = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Capsule Pawn Component"));
 	RootComponent = CapsulePawn;
 
 	CapsulePawn->SetSimulatePhysics(true);
 	//CapsulePawn->SetMassScale(NAME_None, 2.f);
 	CapsulePawn->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 	CapsulePawn->SetCollisionProfileName(FName(TEXT("PlayerCapsule")));
-
+	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CapsulePawn);
 	Camera->bUsePawnControlRotation = true;
@@ -437,11 +437,6 @@ void AMarineCharacter::ReplaceRootComponentRotation()
 	FRotator RootCompRot = MarinePlayerController->GetRootComponent()->GetComponentRotation();
 	RootCompRot.Yaw = GetActorRotation().Yaw;
 	MarinePlayerController->GetRootComponent()->SetWorldRotation(RootCompRot);
-}
-
-void AMarineCharacter::SetQuickSelect(TMap < int32, AGun* > NewWeaponsStorage)
-{
-	WeaponInventoryComponent->SetWeaponsStorage(NewWeaponsStorage);
 }
 
 bool AMarineCharacter::MakeCheckBox(FVector Size, FVector NewStart, FVector NewEnd, FHitResult& OutHitResult, bool bDebug)

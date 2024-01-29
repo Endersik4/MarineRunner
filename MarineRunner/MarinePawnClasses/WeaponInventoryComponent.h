@@ -28,8 +28,6 @@ public:
 	int32 GetWeaponsStorageAmount() const { return WeaponsStorage.Num(); }
 	int32 GetMaxAmount() const { return MaxAmountOfItems; }
 
-	void SetWeaponsStorage(TMap < int32, class AGun* > NewWeaponsStorage) { WeaponsStorage = NewWeaponsStorage; }
-
 	void AddNewWeaponToStorage(class AGun* NewGun);
 
 	//Removing weapon from Storage and sorting the rest of weapons
@@ -41,14 +39,16 @@ public:
 
 	AGun* GetCurrentGunToDraw();
 
-	TMap<int32, class AGun*> ReturnAllWeapons() { return WeaponsStorage; }
-
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
+		TMap<int32, TSubclassOf<class AGun>> InitialWeaponInventory;
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
 		int32 MaxAmountOfItems = 2;
 
 	TMap < int32, class AGun* > WeaponsStorage;
 	class AGun* GunFromInventory;
+
+	void SpawnWeaponsFromInventory();
 		
 	void SortWeapons();
 
