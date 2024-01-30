@@ -198,7 +198,7 @@ private:
 	//Takes Value from RecoilCameraCurveY and randomize it with value from TArray<>. First Number in TArray is The Min and Second is The Max.
 	//If TArray<> has more then 2 values then Value will not be randomize
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
-		TArray<float> RandomRangeFromRecoilCurveY = {-0.2f, 0.2f};
+		FFloatRange RandomRangeFromRecoilCurveY = FFloatRange(-0.2f, 0.2f);
 	//Should wait to execute Recoil timelines. When you want to play a little bit of animation and then add recoil for the camera and the gun
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil")
 		bool bShouldWaitToPlayRecoil = true;
@@ -213,14 +213,15 @@ private:
 	//Range for random Pitch number. 0 index has to be MinNumber and 1 index has to be MaxNumber
 	//0 and 1 is only for positive side (UP)
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Random Pitch and Yaw recoil", meta = (EditCondition = "!bShouldUseCurveRecoil", EditConditionHides))
-		TArray<float>PitchRecoilRangeArray = { 20, 10};
+		FFloatRange PitchRecoilRangeArray = FFloatRange(20, 10);
 	//Range for random Yaw number. 0 index has to be MinNumber and 1 index has to be MaxNumber.
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Random Pitch and Yaw recoil", meta = (EditCondition = "!bShouldUseCurveRecoil", EditConditionHides))
-		TArray<float>YawRecoilRangeArray = {18, 10};
+		FFloatRange YawRecoilRangeArray = FFloatRange(18, 10);
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Bullet")
-		TArray<float>PitchBulletRecoilArray = {-5, 5};
+		FFloatRange PitchBulletRecoilArray = FFloatRange(-5, 5);
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Bullet")
-		TArray<float>YawBulletRecoilArray = { -5, 5 };;
+		FFloatRange YawBulletRecoilArray = FFloatRange(-5, 5);
+	 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
 		FWeaponAnimation WeaponFirstTimeTakeAnim;
@@ -346,7 +347,7 @@ private:
 	EStatusOfAimedGun StatusOfGun = HipFire;
 	///////////////////////////
 
-	void SetupFloatTimeline(FTimeline* TimelineToCreate, FName TimelineProgressFuncName, FName TimelineFinishedFuncName);
+	void SetupFloatTimeline(FTimeline* TimelineToCreate, FName TimelineProgressFuncName, FName TimelineFinishedFuncName, UCurveFloat* CurveForTimeline);
 
 	class AMarineCharacter* MarinePawn;
 	class AMarinePlayerController* PC;

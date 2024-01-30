@@ -1,7 +1,7 @@
 // Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineCharacter.h"
-#include "Components/StaticMeshComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/WidgetInteractionComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Camera/CameraComponent.h"
@@ -39,7 +39,7 @@ AMarineCharacter::AMarineCharacter()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	CapsulePawn = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Capsule Pawn Component"));
+		CapsulePawn = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Pawn Component"));
 	RootComponent = CapsulePawn;
 
 	CapsulePawn->SetSimulatePhysics(true);

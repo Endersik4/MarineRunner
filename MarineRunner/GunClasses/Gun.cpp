@@ -38,10 +38,10 @@ void AGun::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetupFloatTimeline(&RecoilGunTimeline, FName(TEXT("ShootRecoilTimelineProgress")), FName(TEXT("ShootRecoilTimelineFinished")));
+	SetupFloatTimeline(&RecoilGunTimeline, FName(TEXT("ShootRecoilTimelineProgress")), FName(TEXT("ShootRecoilTimelineFinished")), ShootFOVCurve);
 	
 	if (bShouldUseCurveRecoil)
-		SetupFloatTimeline(&RecoilCameraTimeline, FName(TEXT("RecoilCameraTimelineCallback")), FName(TEXT("RecoilCameraTimelineFinishedCallback")));
+		SetupFloatTimeline(&RecoilCameraTimeline, FName(TEXT("RecoilCameraTimelineCallback")), FName(TEXT("RecoilCameraTimelineFinishedCallback")), RecoilCameraCurveY);
 
 	OriginalMagazineCapacity = MagazineCapacity;
 	PC = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
@@ -86,14 +86,17 @@ void AGun::Shoot()
 {
 	if (CanShoot() == false) return;
 
-	if (bIsAutomatic) bConstantlyShoot = true;
-	if (bCanShoot == false || GunSkeletalMesh->IsPlaying())
+	if (bIsAutomatic) 
+		bConstantlyShoot = true;
+
+	if (bCanShoot == false)
 	{
 		bShouldDelayShoot = true;
 		GetWorldTimerManager().SetTimer(DelayShootHandle, this, &AGun::DelayShoot, DelayShootTime, false);
 
 		return;
 	}
+
 
 	if (MagazineCapacity <= 0)
 	{
@@ -142,7 +145,7 @@ void AGun::ShootRecoilTimelineProgress(float RecoilDirection)
 	{
 		float ControlRotationPitch = RandomRecoilPitch * RecoilCameraCurveRandomRotation->GetFloatValue(RecoilGunTimeline.GetPlaybackPosition());
 		float ControlRotationYaw = RandomRecoilYaw * RecoilCameraCurveRandomRotation->GetFloatValue(RecoilGunTimeline.GetPlaybackPosition());
-
+		
 		PC->AddYawInput(ControlRotationYaw);
 		PC->AddPitchInput(-ControlRotationPitch);
 	}
@@ -156,11 +159,10 @@ void AGun::ShootRecoilTimelineFinished()
 
 	SetCanShoot();
 
-	if (bShouldDelayShoot || bConstantlyShoot)
-	{
-		GetWorldTimerManager().SetTimer(ShootTimerHandle, this, &AGun::Shoot, 0.015f);
-		if (bShouldDelayShoot) bShouldDelayShoot = false;
-	}
+	if (bConstantlyShoot)
+		Shoot();
+
+	if (bShouldDelayShoot) bShouldDelayShoot = false;
 }
 #pragma endregion
 
@@ -169,6 +171,10 @@ void AGun::RecoilCameraTimelineCallback(float ControlRotationY)
 {
 	//Randomize recoil a bit
 	ControlRotationY += RandomValueForCameraYRecoil;
+
+	if (StatusOfGun == ADS)
+		ControlRotationY /= DividerOfRecoilWhileADS;
+
 	PC->AddYawInput(ControlRotationY);
 }
 
@@ -181,19 +187,19 @@ void AGun::SetCameraRecoil()
 	if (bShouldUseCurveRecoil)
 	{
 		RecoilCameraTimeline.PlayFromStart();
+		RandomValueForCameraYRecoil = FMath::FRandRange(RandomRangeFromRecoilCurveY.GetLowerBoundValue(), RandomRangeFromRecoilCurveY.GetUpperBoundValue());
 
-		if (RandomRangeFromRecoilCurveY.Num() == 2) RandomValueForCameraYRecoil = FMath::FRandRange(RandomRangeFromRecoilCurveY[0], RandomRangeFromRecoilCurveY[1]);
 		bCanRecoilCamera = true;
+
+		return;
 	}
-	else if ((PitchRecoilRangeArray.Num() == 2 && YawRecoilRangeArray.Num() == 2))
+
+	RandomRecoilYaw = FMath::FRandRange(YawRecoilRangeArray.GetLowerBoundValue(), YawRecoilRangeArray.GetUpperBoundValue());
+	RandomRecoilPitch = FMath::FRandRange(PitchRecoilRangeArray.GetLowerBoundValue(), PitchRecoilRangeArray.GetUpperBoundValue());
+	if (StatusOfGun == ADS)
 	{
-		RandomRecoilYaw = FMath::FRandRange(YawRecoilRangeArray[0], YawRecoilRangeArray[1]);
-		RandomRecoilPitch = FMath::FRandRange(PitchRecoilRangeArray[0], PitchRecoilRangeArray[1]);
-		if (StatusOfGun == ADS)
-		{
-			RandomRecoilYaw /= DividerOfRecoilWhileADS;
-			RandomRecoilPitch /= DividerOfRecoilWhileADS;
-		}
+		RandomRecoilYaw /= DividerOfRecoilWhileADS;
+		RandomRecoilPitch /= DividerOfRecoilWhileADS;
 	}
 }
 
@@ -204,6 +210,10 @@ void AGun::UpRecoilCamera(float Delta)
 	if (bShouldUseCurveRecoil)
 	{
 		float ControlRotationPitch = (DistanceFromStart * 0.375) * TimeRecoilCameraElapsed / ((OriginalMagazineCapacity * RecoilAnimTimelineLength) + 0.2f);
+		if (StatusOfGun == ADS)
+		{
+			ControlRotationPitch /= DividerOfRecoilWhileADS;
+		}
 		PC->AddPitchInput(-ControlRotationPitch);
 	}
 	TimeRecoilCameraElapsed = Delta;
@@ -297,18 +307,19 @@ void AGun::SpawnBullet()
 
 void AGun::RandomBulletDirection(FRotator& NewBulletRotation)
 {
-	if (PitchBulletRecoilArray.Num() == 2 && YawBulletRecoilArray.Num() == 2 && (bIsAutomatic == false || bFirstBulletWithoutRecoil == false))
+	if (bFirstBulletWithoutRecoil == true)
+		return;
+
+	float NewPitchBulletRotaton = FMath::FRandRange(PitchBulletRecoilArray.GetLowerBoundValue(), PitchBulletRecoilArray.GetUpperBoundValue());
+	float NewYawBulletRotation = FMath::FRandRange(YawBulletRecoilArray.GetLowerBoundValue(), YawBulletRecoilArray.GetUpperBoundValue());
+	if (StatusOfGun == ADS)
 	{
-		float NewPitchRotaton = FMath::FRandRange(PitchBulletRecoilArray[0], PitchBulletRecoilArray[1]);
-		float NewYawRotation = FMath::FRandRange(YawBulletRecoilArray[0], YawBulletRecoilArray[1]);
-		if (StatusOfGun == ADS)
-		{
-			NewPitchRotaton /= DividerOfBulletRecoilWhileADS;
-			NewYawRotation /= DividerOfBulletRecoilWhileADS;
-		}
-		BulletRotation.Pitch += NewPitchRotaton;
-		BulletRotation.Yaw += NewYawRotation;
+		NewPitchBulletRotaton /= DividerOfBulletRecoilWhileADS;
+		NewYawBulletRotation /= DividerOfBulletRecoilWhileADS;
 	}
+
+	BulletRotation.Pitch += NewPitchBulletRotaton;
+	BulletRotation.Yaw += NewYawBulletRotation;
 }
 #pragma endregion
 
@@ -467,7 +478,8 @@ bool AGun::NoBulletsShootAnim()
 
 void AGun::DropCasing()
 {
-	if (!DropBulletClass) return;
+	if (DropBulletClass == nullptr) 
+		return;
 
 	FRotator DropBulletRotation = GetActorRotation();
 	if (bShouldRandomizeRotationOfCasing)
@@ -476,7 +488,11 @@ void AGun::DropCasing()
 		DropBulletRotation.Roll += FMath::FRandRange(-10.f, 10.f);
 		DropBulletRotation.Pitch += FMath::FRandRange(-15.f, 15.f);
 	}
+
 	AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, GunSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), DropBulletRotation);
+	if (IsValid(DropBullet) == false)
+		return;
+
 	DropBullet->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 }
 #pragma endregion
@@ -486,30 +502,29 @@ void AGun::AimTheGun(EStatusOfAimedGun NewGunStatus)
 {
 	StatusOfGun = NewGunStatus;
 
+	MarinePawn->GetArmsSwayComponent()->SetInADS(StatusOfGun == EStatusOfAimedGun::ADS);
+
+	// When in ADS, change weapon sway to other values, or back to original values if player is not in ADS
+	MarinePawn->GetArmsSwayComponent()->SetWeaponSwayDivider(StatusOfGun == EStatusOfAimedGun::ADS ? WeaponSwayInADSDivider : 1.f);
+	MarinePawn->GetArmsSwayComponent()->SetWeaponSwayWhileMovingDivider(StatusOfGun == EStatusOfAimedGun::ADS ? WeaponSwayWhileMovingInADSDivider : 1);
+	
+	// Player cant change weapon when in ADS
+	MarinePawn->GetWeaponHandlerComponent()->SetCanChangeWeapon(!StatusOfGun == EStatusOfAimedGun::ADS);
+
 	if (StatusOfGun == EStatusOfAimedGun::ADS)
 	{
-		MarinePawn->GetArmsSwayComponent()->SetInADS(true);
-		MarinePawn->GetArmsSwayComponent()->SetWeaponSwayDivider(WeaponSwayInADSDivider);
-		MarinePawn->GetArmsSwayComponent()->SetWeaponSwayWhileMovingDivider(WeaponSwayWhileMovingInADSDivider);
-		MarinePawn->GetWeaponHandlerComponent()->SetCanChangeWeapon(false);
-
 		if (WeaponADSInAnim.WeaponActionAnim) 
 			GunSkeletalMesh->PlayAnimation(WeaponADSInAnim.WeaponActionAnim, false);
 		if (WeaponADSInAnim.ArmsActionAnim)
 			MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponADSInAnim.ArmsActionAnim, false);
-	}
-	else
-	{
-		MarinePawn->GetArmsSwayComponent()->SetInADS(false);
-		MarinePawn->GetArmsSwayComponent()->SetWeaponSwayDivider(1.f);
-		MarinePawn->GetArmsSwayComponent()->SetWeaponSwayWhileMovingDivider(1.f);
-		MarinePawn->GetWeaponHandlerComponent()->SetCanChangeWeapon(true);
 
-		if (WeaponADSOutAnim.WeaponActionAnim)
-			GunSkeletalMesh->PlayAnimation(WeaponADSOutAnim.WeaponActionAnim, false);
-		if (WeaponADSOutAnim.ArmsActionAnim)
-			MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponADSOutAnim.ArmsActionAnim, false);
+		return;
 	}
+
+	if (WeaponADSOutAnim.WeaponActionAnim)
+		GunSkeletalMesh->PlayAnimation(WeaponADSOutAnim.WeaponActionAnim, false);
+	if (WeaponADSOutAnim.ArmsActionAnim)
+		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponADSOutAnim.ArmsActionAnim, false);
 }
 
 #pragma endregion
@@ -668,11 +683,11 @@ bool AGun::GetPointerToAmmoFromInventory()
 }
 #pragma endregion
 
-void AGun::SetupFloatTimeline(FTimeline* TimelineToCreate, FName TimelineProgressFuncName, FName TimelineFinishedFuncName)
+void AGun::SetupFloatTimeline(FTimeline* TimelineToCreate, FName TimelineProgressFuncName, FName TimelineFinishedFuncName, UCurveFloat* CurveForTimeline)
 {
 	FOnTimelineFloat TimelineFloatProgress;
 	TimelineFloatProgress.BindUFunction(this, TimelineProgressFuncName);
-	TimelineToCreate->AddInterpFloat(ShootFOVCurve, TimelineFloatProgress);
+	TimelineToCreate->AddInterpFloat(CurveForTimeline, TimelineFloatProgress);
 
 	FOnTimelineEventStatic TimelineCallbackFinished;
 	TimelineCallbackFinished.BindUFunction(this, TimelineFinishedFuncName);
