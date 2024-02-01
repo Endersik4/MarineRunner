@@ -13,7 +13,6 @@ UWeaponInventoryComponent::UWeaponInventoryComponent()
 
 }
 
-
 // Called when the game starts
 void UWeaponInventoryComponent::BeginPlay()
 {
@@ -26,7 +25,7 @@ void UWeaponInventoryComponent::BeginPlay()
 
 void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
 {
-	if (IsValid(MarinePawn) == false)
+	if (IsValid(MarinePawn) == false || InitialWeaponInventory.Num() == 0)
 		return;
 
 	TArray<TSubclassOf<AGun>> WeaponsToSpawn; 

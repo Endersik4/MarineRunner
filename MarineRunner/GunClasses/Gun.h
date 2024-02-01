@@ -221,28 +221,35 @@ private:
 		FFloatRange PitchBulletRecoilArray = FFloatRange(-5, 5);
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Bullet")
 		FFloatRange YawBulletRecoilArray = FFloatRange(-5, 5);
-	 
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
-		FWeaponAnimation WeaponFirstTimeTakeAnim;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Shoot")
 		FWeaponAnimation WeaponShootAnim;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
-		FWeaponAnimation WeaponReloadAnim;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
-		FWeaponAnimation WeaponDrawAnim;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
-		FWeaponAnimation WeaponHideAnim;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Shoot")
 		FWeaponAnimation WeaponADSShootAnim;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
-		FWeaponAnimation WeaponADSInAnim;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
-		FWeaponAnimation WeaponADSOutAnim;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Shoot")
 		FWeaponAnimation WeaponShootWithNoBulletsAnim;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Animations for Gun from FBX")
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Reload")
+		FWeaponAnimation WeaponReloadAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Reload")
 		FWeaponAnimation WeaponReloadWithNoBulletsAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Reload", meta = (EditCondition = "bReloadOneBullet"))
+		FWeaponAnimation WeaponReload_Begin;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Reload", meta = (EditCondition = "bReloadOneBullet"))
+		FWeaponAnimation WeaponReload_BeginEnd;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Reload", meta = (EditCondition = "bReloadOneBullet"))
+		FWeaponAnimation WeaponReload_End;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Handle")
+		FWeaponAnimation WeaponFirstTimeTakeAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Handle")
+		FWeaponAnimation WeaponDrawAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Handle")
+		FWeaponAnimation WeaponHideAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Handle")
+		FWeaponAnimation WeaponADSInAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Handle")
+		FWeaponAnimation WeaponADSOutAnim;
 
 	//Recoil when player shot
 	
@@ -250,8 +257,6 @@ private:
 	//This is also responsible for Rate of fire. (Player can shoot only when Timeline ends)
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Animation Recoil")
 		float RecoilAnimTimelineLength = 0.2f;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Animation Recoil")
-		float MultiplierOfRecoilCurvePitch = 8;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Animation Recoil")
 		UCurveFloat* ShootFOVCurve;
 
@@ -307,9 +312,8 @@ private:
 	float OriginalMagazineCapacity;
 	bool bIsReloading;
 	FTimerHandle ReloadHandle;
-	class UAudioComponent* SpawnedReloadSound;
+	const FWeaponAnimation& ReloadAnimAccordingToSituation();
 	bool CanReload();
-	void ReloadEffects();
 	void RemoveAmmunitionFromInventory();
 	void Reload();
 	////////////////////

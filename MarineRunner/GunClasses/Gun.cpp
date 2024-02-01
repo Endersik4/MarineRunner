@@ -326,8 +326,16 @@ void AGun::RandomBulletDirection(FRotator& NewBulletRotation)
 #pragma region ////////////////////////////////// RELOAD //////////////////////////////////////
 bool AGun::CanReload()
 {
-	if (GetPointerToAmmoFromInventory() == false || MagazineCapacity == OriginalMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle)) return false;
-	if (AmmunitionFromInventory->Item_Amount <= 0) return false;
+	if (GetPointerToAmmoFromInventory() == false || MagazineCapacity == OriginalMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle))
+	{
+		bIsReloading = false;
+		return false;
+	}
+	if (AmmunitionFromInventory->Item_Amount <= 0)
+	{
+		bIsReloading = false;
+		return false;
+	}
 
 	return true;
 }
@@ -340,31 +348,38 @@ void AGun::WaitToReload()
 	bCanShoot = false;
 	ShootReleased();
 
-	bIsReloading = true;
 	MarinePawn->GetWeaponHandlerComponent()->ADSReleased();
 
-	ReloadEffects();
-
-	GetWorldTimerManager().SetTimer(ReloadHandle, this, &AGun::Reload, ReloadTime, false);
-}
-
-void AGun::ReloadEffects()
-{
 	if (bCasingEjectionWhileReloading == true) DropCasing();
 
-	if (MagazineCapacity == 0 && WeaponReloadWithNoBulletsAnim.IsWeaponAnimationValid() == true)
-	{
-		GunSkeletalMesh->PlayAnimation(WeaponReloadWithNoBulletsAnim.WeaponActionAnim, false);
-		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponReloadWithNoBulletsAnim.ArmsActionAnim, false);
+	const FWeaponAnimation& ReloadAnimToPlay = ReloadAnimAccordingToSituation();
 
-		return;
+	if (ReloadAnimToPlay.IsWeaponAnimationValid() == true)
+	{
+		GunSkeletalMesh->PlayAnimation(ReloadAnimToPlay.WeaponActionAnim, false);
+		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(ReloadAnimToPlay.ArmsActionAnim, false);
 	}
 
-	if (WeaponReloadAnim.IsWeaponAnimationValid() == true)
-	{
-		GunSkeletalMesh->PlayAnimation(WeaponReloadAnim.WeaponActionAnim, false);
-		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponReloadAnim.ArmsActionAnim, false);
-	}
+	bIsReloading = true;
+
+	GetWorldTimerManager().SetTimer(ReloadHandle, this, &AGun::Reload, ReloadAnimToPlay.ArmsActionAnim->GetPlayLength(), false);
+}
+
+const FWeaponAnimation& AGun::ReloadAnimAccordingToSituation()
+{
+	if (MagazineCapacity == 0)
+		return WeaponReloadWithNoBulletsAnim;
+
+	if (bReloadOneBullet == true && bIsReloading == false && MagazineCapacity == OriginalMagazineCapacity - 1 || AmmunitionFromInventory->Item_Amount <= 1)
+		return WeaponReload_BeginEnd;
+
+	if (bReloadOneBullet == true && bIsReloading == false)
+		return WeaponReload_Begin;
+
+	if (bReloadOneBullet == true && bIsReloading == true && MagazineCapacity == OriginalMagazineCapacity - 1 || AmmunitionFromInventory->Item_Amount <= 1)
+		return WeaponReload_End;
+
+	return WeaponReloadAnim;
 }
 
 void AGun::Reload()
@@ -373,7 +388,6 @@ void AGun::Reload()
 
 	RemoveAmmunitionFromInventory();
 
-	bIsReloading = false;
 	bCanShoot = true;
 	UpdateWeaponDataInHud(true);
 
@@ -381,21 +395,17 @@ void AGun::Reload()
 	MarinePawn->UpdateAlbertosInventory();
 
 	GetWorldTimerManager().ClearTimer(ReloadHandle);
-	if (bReloadOneBullet) WaitToReload();
+	if (bReloadOneBullet) 
+		WaitToReload();
+	else 
+		bIsReloading = false;
+
 }
 
 void AGun::CancelReload()
 {
 	GetWorldTimerManager().ClearTimer(ReloadHandle);
 
-	if (SpawnedReloadSound) SpawnedReloadSound->ToggleActive();
-	if (GunSkeletalMesh->IsPlaying())
-	{
-		GunSkeletalMesh->Stop();
-		GunSkeletalMesh->SetForceRefPose(true);
-	}
-
-	SpawnedReloadSound = nullptr;
 	bCanShoot = true;
 	bIsReloading = false;
 }

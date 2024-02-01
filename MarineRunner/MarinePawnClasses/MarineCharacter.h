@@ -116,9 +116,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USlowMotionComponent* SlowMotionComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UPullUpComponent* PullUpComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UWeaponInventoryComponent* WeaponInventoryComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UPauseMenuComponent* PauseMenuComponent;
