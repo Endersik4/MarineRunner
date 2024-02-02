@@ -3,12 +3,12 @@
 
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "MarineRunner/GunClasses/Gun.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
-
+#include "MarineRunner/GunClasses/Gun.h"
+#include "MarineRunner/GunClasses/Scope.h"
 
 // Sets default values for this component's properties
 UWeaponHandlerComponent::UWeaponHandlerComponent()
@@ -41,7 +41,13 @@ void UWeaponHandlerComponent::ADSPressed()
 
 	bIsPlayerADS = true;
 	Gun->AimTheGun(EStatusOfAimedGun::ADS);
-	if (Gun->GetShouldChangeMouseSensitivityADS() == true) MarinePawn->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
+
+
+	if (CurrentScopeIndex >= MouseSensitivityWhenScope.Num())
+		return;
+
+	if (Gun->GetShouldChangeMouseSensitivityADS() == true) 
+		MarinePawn->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
 }
 
 void UWeaponHandlerComponent::ADSReleased()
@@ -53,14 +59,14 @@ void UWeaponHandlerComponent::ADSReleased()
 
 	if (ADSOutSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
 	bIsPlayerADS = false;
+
 	Gun->AimTheGun(EStatusOfAimedGun::HipFire);
 
 	if (Gun->GetShouldChangeMouseSensitivityADS() == true)
-	{
 		MarinePawn->ChangeMouseSensitivity(FSettingSavedInJsonFile(), true);
 
-		CurrentScopeIndex = Gun->ZoomScope(0.f, true);
-	}
+	if (Gun->GetUseScope() == true)
+		CurrentScopeIndex = Gun->GetScopeActor()->Zoom(0.f, true);
 }
 
 void UWeaponHandlerComponent::UpdateWeaponInformationOnHud()
@@ -100,7 +106,17 @@ void UWeaponHandlerComponent::Zoom(float WheelAxis)
 	if (IsValid(Gun) == false || bIsPlayerADS == false || WheelAxis == 0.f) 
 		return;
 
-	CurrentScopeIndex = Gun->ZoomScope(WheelAxis);
+	if (Gun->GetUseScope() == false)
+		return;
+
+	if (IsValid(Gun->GetScopeActor()) == false)
+		return;
+
+	CurrentScopeIndex = Gun->GetScopeActor()->Zoom(WheelAxis);
+
+	if (CurrentScopeIndex >= MouseSensitivityWhenScope.Num())
+		return;
+
 	MarinePawn->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
 }
 #pragma endregion 

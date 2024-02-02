@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -63,17 +63,6 @@ public:
 	void PutAwayGun();
 	void HideGun();
 
-	//If Gun should be with scope then 
-	// * add Scope actor blueprint class
-	// * add this Event in EventGraph (Functions->Override->ZoomScope)
-	// * Call Zoom event from BP_Scope in ZoomScope event
-	UFUNCTION(BlueprintImplementableEvent)
-		int32 ZoomScope(float WheelAxis, bool bShouldRestartScope = false);
-	UFUNCTION(BlueprintImplementableEvent)
-		int32 ActivateZoom(bool bShouldActivate = false);
-	UFUNCTION(BlueprintImplementableEvent)
-		void ChangeScopeResolution(EStatusOfAimedGun CurrentStatusOfGun);
-
 	void WaitToReload();
 	void CancelReload();
 
@@ -84,6 +73,10 @@ public:
 	FORCEINLINE bool GetCanShoot() const { return bCanShoot; }
 	FORCEINLINE bool GetShouldChangeMouseSensitivityADS() const { return bShouldChangeMouseSensitivityADS; }
 	FORCEINLINE bool GetIsReloading()  const { return bIsReloading; }
+
+	FORCEINLINE bool GetUseScope() const { return bUseScope; }
+	FORCEINLINE class AScope* GetScopeActor() const { return ScopeActor; }
+	FORCEINLINE USkeletalMeshComponent* GetGunSkeletalMesh() const { return GunSkeletalMesh; }
 
 	int32 GetMagazineCapacity() const { return MagazineCapacity; }
 
@@ -130,6 +123,11 @@ private:
 		bool bManyBulletAtOnce;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
 		int32 HowManyBulletsToSpawn = 10;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Scope")
+		bool bUseScope;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Scope", meta = (EditCondition = "bUseScope", EditConditionHides))
+		int32 ZoomMaterialIndexOnWeapon;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Ammunition")
 		int32 MagazineCapacity = 10;
@@ -225,9 +223,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Shoot")
 		FWeaponAnimation WeaponShootAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Shoot")
+		FWeaponAnimation WeaponShootWithNoBulletsAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Animation|Shoot")
 		FWeaponAnimation WeaponADSShootAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Shoot")
-		FWeaponAnimation WeaponShootWithNoBulletsAnim;
+		FWeaponAnimation WeaponADSShootWithNoBulletsAnim;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Reload")
 		FWeaponAnimation WeaponReloadAnim;
@@ -347,9 +347,15 @@ private:
 	FTimerHandle DelayShootHandle;
 	///////////////////////////
 
+	///////////// zoom ///////////////
+	void SetUpZoom();
+	class AScope* ScopeActor;
+
 	/////////////// ADS GUN //////////////////
 	EStatusOfAimedGun StatusOfGun = HipFire;
 	///////////////////////////
+
+	void PlayGivenWeaponWithArmsAnimation(const FWeaponAnimation& AnimToPlay) const;
 
 	void SetupFloatTimeline(FTimeline* TimelineToCreate, FName TimelineProgressFuncName, FName TimelineFinishedFuncName, UCurveFloat* CurveForTimeline);
 

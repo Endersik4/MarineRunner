@@ -110,7 +110,7 @@ void APickupItem::SpawnWeaponForPlayer(class AMarineCharacter* Player)
 	if (IsValid(SpawnedGun) == false)
 		return;
 
-	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(TEXT("Weapon")));
+	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, ItemSettings.WeaponSocketName);
 	SpawnedGun->TakeGun(Player);
 	SpawnedGun->FinishSpawning(FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
 }

@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 #pragma once
 
 #include "CoreMinimal.h"
@@ -13,45 +12,40 @@ class MARINERUNNER_API AScope : public AActor
 {
 	GENERATED_BODY()
 	
-public:	
-	// Sets default values for this actor's properties
-	AScope();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+public:	
+	// Sets default values for this actor's properties
+	AScope();
+
+	FORCEINLINE void SetZoomMaterialIndexOnWeapon(int32 NewIndex) { ZoomMaterialIndexOnWeapon = NewIndex; }
+	void SetUpZoomMaterial(class AGun* Gun);
+
+	int32 Zoom(float WheelAxis, bool bShouldRestartScope = false);
+	void ActiveZoom(bool bShouldActive);
+
 private:
-	UFUNCTION(BlueprintCallable, meta = (AllowPrivateAccess = "true"))
-		int32 Zoom(float WheelAxis, bool bShouldRestartScope = false);
+	void ChangeScopeResolution(class UTextureRenderTarget2D* NewRenderTarget);
 
-	UFUNCTION(BlueprintCallable, meta = (AllowPrivateAccess = "true"))
-		void ActiveZoom(bool bShouldActive);
-	UFUNCTION(BlueprintCallable, meta = (AllowPrivateAccess = "true"))
-		void ChangeScopeResolution(class UTextureRenderTarget2D* NewRenderTarget);
-
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		USceneComponent* SceneRootComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USceneCaptureComponent2D* ZoomCamera;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UStaticMeshComponent* Scope_Mesh;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class URectLightComponent* RectLightForScope;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Materials")
-		UMaterialInterface* ZoomMaterial;
-	UPROPERTY(EditDefaultsOnly, Category = "Materials")
-		UMaterialInterface* RenderTargetMaterial;
+	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
+		UTextureRenderTarget2D* ZoomRenderTargetLowRes;
+	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
+		UTextureRenderTarget2D* ZoomRenderTargetHighRes;
+	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
+		TArray<float> Scope_FOVValues = { 16.f, 10.f, 5.f, 1.f };
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ZoomSound;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		TArray<float> Scope_FOVValues = { 16.f, 10.f, 5.f, 1.f };
 	
 	int32 CurrentScope = 0;
 	void ChangeScope(int32 CurrentScopeIndex);
+
+	int32 ZoomMaterialIndexOnWeapon;
 
 	UMaterialInstanceDynamic* DynamicScopeMaterial;
 };

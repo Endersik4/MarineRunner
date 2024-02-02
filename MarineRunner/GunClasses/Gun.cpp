@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "Gun.h"
 #include "Kismet/GameplayStatics.h"
@@ -7,9 +6,9 @@
 #include "TimerManager.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Components/AudioComponent.h"
 
 #include "MarineRunner/GunClasses/Bullet.h"
+#include "MarineRunner/GunClasses/Scope.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
@@ -45,6 +44,31 @@ void AGun::BeginPlay()
 
 	OriginalMagazineCapacity = MagazineCapacity;
 	PC = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	SetUpZoom();
+}
+
+void AGun::SetUpZoom()
+{
+	if (bUseScope == false)
+		return;
+
+	TArray<AActor*> AllChildActors;
+	GetAllChildActors(AllChildActors);
+	for (AActor* CurrentChildActor : AllChildActors)
+	{
+		if (CurrentChildActor->ActorHasTag("Scope") == false)
+			continue;
+
+		ScopeActor = Cast<AScope>(CurrentChildActor);
+		break;
+	}
+
+	if (IsValid(ScopeActor) == false)
+		return;
+
+	ScopeActor->SetZoomMaterialIndexOnWeapon(ZoomMaterialIndexOnWeapon);
+	ScopeActor->SetUpZoomMaterial(this);
 }
 
 // Called every frame
@@ -353,12 +377,7 @@ void AGun::WaitToReload()
 	if (bCasingEjectionWhileReloading == true) DropCasing();
 
 	const FWeaponAnimation& ReloadAnimToPlay = ReloadAnimAccordingToSituation();
-
-	if (ReloadAnimToPlay.IsWeaponAnimationValid() == true)
-	{
-		GunSkeletalMesh->PlayAnimation(ReloadAnimToPlay.WeaponActionAnim, false);
-		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(ReloadAnimToPlay.ArmsActionAnim, false);
-	}
+	PlayGivenWeaponWithArmsAnimation(ReloadAnimToPlay);
 
 	bIsReloading = true;
 
@@ -454,34 +473,23 @@ void AGun::PlayGunShootAnimation()
 
 	if (StatusOfGun == EStatusOfAimedGun::ADS)
 	{
-		if (WeaponADSShootAnim.IsWeaponAnimationValid() == true)
-		{
-			GunSkeletalMesh->PlayAnimation(WeaponADSShootAnim.WeaponActionAnim, false);
-			MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponADSShootAnim.ArmsActionAnim, false);
-			return;
-		}
+		PlayGivenWeaponWithArmsAnimation(WeaponADSShootAnim);
 	}
-
-	if (WeaponShootAnim.IsWeaponAnimationValid() == true)
-	{
-		GunSkeletalMesh->PlayAnimation(WeaponShootAnim.WeaponActionAnim, false);
-		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponShootAnim.ArmsActionAnim, false);
-	}
+	else
+		PlayGivenWeaponWithArmsAnimation(WeaponShootAnim);
 }
 
 bool AGun::NoBulletsShootAnim()
 {
-	if (MagazineCapacity != 1 || WeaponShootWithNoBulletsAnim.WeaponActionAnim == nullptr)
+	if (MagazineCapacity != 1)
 		return false;
 
-	GunSkeletalMesh->PlayAnimation(WeaponShootWithNoBulletsAnim.WeaponActionAnim, false);
-
-	if (StatusOfGun == EStatusOfAimedGun::ADS && WeaponADSShootAnim.ArmsActionAnim)
+	if (StatusOfGun == EStatusOfAimedGun::ADS)
 	{
-		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponADSShootAnim.ArmsActionAnim, false);
+		PlayGivenWeaponWithArmsAnimation(WeaponADSShootWithNoBulletsAnim);
 	}
-	else if (WeaponShootWithNoBulletsAnim.ArmsActionAnim)
-		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponShootWithNoBulletsAnim.ArmsActionAnim, false);
+	else
+		PlayGivenWeaponWithArmsAnimation(WeaponShootWithNoBulletsAnim);
 
 	return true;
 }
@@ -521,20 +529,17 @@ void AGun::AimTheGun(EStatusOfAimedGun NewGunStatus)
 	// Player cant change weapon when in ADS
 	MarinePawn->GetWeaponHandlerComponent()->SetCanChangeWeapon(!StatusOfGun == EStatusOfAimedGun::ADS);
 
-	if (StatusOfGun == EStatusOfAimedGun::ADS)
+	if (bUseScope == true)
 	{
-		if (WeaponADSInAnim.WeaponActionAnim) 
-			GunSkeletalMesh->PlayAnimation(WeaponADSInAnim.WeaponActionAnim, false);
-		if (WeaponADSInAnim.ArmsActionAnim)
-			MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponADSInAnim.ArmsActionAnim, false);
-
-		return;
+		ScopeActor->ActiveZoom(StatusOfGun == EStatusOfAimedGun::ADS);
 	}
 
-	if (WeaponADSOutAnim.WeaponActionAnim)
-		GunSkeletalMesh->PlayAnimation(WeaponADSOutAnim.WeaponActionAnim, false);
-	if (WeaponADSOutAnim.ArmsActionAnim)
-		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponADSOutAnim.ArmsActionAnim, false);
+	if (StatusOfGun == EStatusOfAimedGun::ADS)
+	{
+		PlayGivenWeaponWithArmsAnimation(WeaponADSInAnim);
+	}
+	else 
+		PlayGivenWeaponWithArmsAnimation(WeaponADSOutAnim);
 }
 
 #pragma endregion
@@ -565,11 +570,7 @@ void AGun::TakeGun(AMarineCharacter* Player)
 	MarinePawn->GetWeaponHandlerComponent()->HideCurrentHoldingGun();
 	MarinePawn->GetWeaponHandlerComponent()->SetCanChangeWeapon(false);
 
-	if (WeaponFirstTimeTakeAnim.IsWeaponAnimationValid())
-	{
-		GunSkeletalMesh->PlayAnimation(WeaponFirstTimeTakeAnim.WeaponActionAnim, false);
-		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponFirstTimeTakeAnim.ArmsActionAnim, false);
-	}
+	PlayGivenWeaponWithArmsAnimation(WeaponFirstTimeTakeAnim);
 
 	OriginalPlayerFOV = MarinePawn->GetCamera()->FieldOfView;
 
@@ -577,8 +578,6 @@ void AGun::TakeGun(AMarineCharacter* Player)
 	AddAmmoToInventory();
 	MarinePawn->GetWeaponHandlerComponent()->SetGun(this);
 	MarinePawn->GetWeaponInventoryComponent()->AddNewWeaponToStorage(this);
-
-	ActivateZoom(true);
 
 	HudWidget = MarinePawn->GetHudWidget();
 	HudWidget->ShowWeaponOnHud();
@@ -599,11 +598,7 @@ void AGun::DrawGun()
 
 	MarinePawn->GetWeaponHandlerComponent()->SetGun(this);
 
-	if (WeaponDrawAnim.IsWeaponAnimationValid())
-	{
-		GunSkeletalMesh->PlayAnimation(WeaponDrawAnim.WeaponActionAnim, false);
-		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponDrawAnim.ArmsActionAnim, false);
-	}
+	PlayGivenWeaponWithArmsAnimation(WeaponDrawAnim);
 
 	if (DrawGunSound) UGameplayStatics::SpawnSound2D(GetWorld(), DrawGunSound);
 
@@ -623,11 +618,7 @@ void AGun::PutAwayGun()
 
 	MarinePawn->GetWeaponHandlerComponent()->SetGun(nullptr);
 
-	if (WeaponHideAnim.IsWeaponAnimationValid() == true)
-	{
-		GunSkeletalMesh->PlayAnimation(WeaponHideAnim.WeaponActionAnim, false);
-		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(WeaponHideAnim.ArmsActionAnim, false);
-	}
+	PlayGivenWeaponWithArmsAnimation(WeaponHideAnim);
 
 	if (bIsReloading == true) 
 		CancelReload();
@@ -655,6 +646,19 @@ void AGun::HideGun()
 
 #pragma region ////////////////////////////////// DROP ////////////////////////////////////////
 #pragma endregion
+
+void AGun::PlayGivenWeaponWithArmsAnimation(const FWeaponAnimation& AnimToPlay) const
+{
+	if (AnimToPlay.WeaponActionAnim)
+	{
+		GunSkeletalMesh->PlayAnimation(AnimToPlay.WeaponActionAnim, false);
+	}
+
+	if (AnimToPlay.ArmsActionAnim)
+	{
+		MarinePawn->GetArmsSkeletalMesh()->PlayAnimation(AnimToPlay.ArmsActionAnim, false);
+	}
+}
 
 #pragma region /////////////////////////////// INVENTORY //////////////////////////////////////
 void AGun::SpawnAmmunitionObjectForVariables()

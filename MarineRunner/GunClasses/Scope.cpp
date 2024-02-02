@@ -1,12 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineRunner/GunClasses/Scope.h"
 #include "Components/SceneCaptureComponent2D.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/RectLightComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/TextureRenderTarget2D.h"
+
+#include "Gun.h"
 
 // Sets default values
 AScope::AScope()
@@ -14,37 +13,14 @@ AScope::AScope()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick =false;
 
-	SceneRootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("SceneRootComponent"));
-	RootComponent = SceneRootComponent;
-
 	//Configuring the SceneCaptureComponent responsible for capturing another screen for Scope
 	ZoomCamera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("ZoomCamera"));
-	ZoomCamera->SetupAttachment(RootComponent);
-	ZoomCamera->FOVAngle = 15.f;
+	RootComponent = ZoomCamera;
+	ZoomCamera->FOVAngle = 16.f;
 	ZoomCamera->CaptureSource = ESceneCaptureSource::SCS_FinalToneCurveHDR;
 	//
 
-	//Scope_Mesh that have render material from SceneCaptureComponent 
-	Scope_Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Scope_Mesh"));
-	Scope_Mesh->SetupAttachment(RootComponent);
-	Scope_Mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	Scope_Mesh->SetGenerateOverlapEvents(false);
-	Scope_Mesh->CanCharacterStepUpOn = ECanBeCharacterBase::ECB_No;
-	Scope_Mesh->LightingChannels.bChannel0 = false;
-	Scope_Mesh->LightingChannels.bChannel1 = true;
-	//
-
-	//Scope light to prevent you from not being able to see through the scope when it's dark
-	RectLightForScope = CreateDefaultSubobject<URectLightComponent>(TEXT("RectLightForScope"));
-	RectLightForScope->SetupAttachment(RootComponent);
-	RectLightForScope->LightingChannels.bChannel0 = false;
-	RectLightForScope->LightingChannels.bChannel1 = true;
-	RectLightForScope->Intensity = 100.f;
-	RectLightForScope->IntensityUnits = ELightUnits::Unitless;
-	RectLightForScope->AttenuationRadius = 20.f;
-	RectLightForScope->BarnDoorAngle = 0.f;
-	RectLightForScope->BarnDoorLength = 16.f;
-	//
+	Tags.Add(FName("Scope"));
 }
 
 // Called when the game starts or when spawned
@@ -52,8 +28,18 @@ void AScope::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ZoomCamera->ToggleActive();
-	DynamicScopeMaterial = UMaterialInstanceDynamic::Create(RenderTargetMaterial, this);
+}
+
+void AScope::SetUpZoomMaterial(AGun* Gun)
+{
+	if (IsValid(Gun) == false)
+		return;
+
+	if (Gun->GetGunSkeletalMesh()->GetMaterial(ZoomMaterialIndexOnWeapon) == nullptr)
+		return;
+
+	DynamicScopeMaterial = UMaterialInstanceDynamic::Create(Gun->GetGunSkeletalMesh()->GetMaterial(ZoomMaterialIndexOnWeapon), Gun->GetGunSkeletalMesh());
+	Gun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, DynamicScopeMaterial);
 }
 
 int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
@@ -76,14 +62,16 @@ int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
 	}
 	else return CurrentScope;
 
-	if (ZoomSound) UGameplayStatics::SpawnSound2D(GetWorld(), ZoomSound);
+	if (ZoomSound) 
+		UGameplayStatics::PlaySound2D(GetWorld(), ZoomSound);
 
 	return CurrentScope;
 }
 
 void AScope::ChangeScope(int32 NextScopeIndex)
 {
-	if (Scope_FOVValues.Num() < 1) return;
+	if (Scope_FOVValues.Num() < 1) 
+		return;
 
 	CurrentScope = NextScopeIndex;
 	ZoomCamera->FOVAngle = Scope_FOVValues[NextScopeIndex];
@@ -91,23 +79,18 @@ void AScope::ChangeScope(int32 NextScopeIndex)
 
 void AScope::ActiveZoom(bool bShouldActive)
 {
-	if (bShouldActive && DynamicScopeMaterial)
+	if (bShouldActive)
 	{
-		Scope_Mesh->SetMaterial(0, DynamicScopeMaterial);
-		ZoomCamera->ToggleActive();
-
-		RectLightForScope->SetVisibility(true);
+		ChangeScopeResolution(ZoomRenderTargetHighRes);
 	}
 	else
-	{
-		Scope_Mesh->SetMaterial(0, ZoomMaterial);
-		ZoomCamera->ToggleActive();
-		RectLightForScope->SetVisibility(false);
-	}
+		ChangeScopeResolution(ZoomRenderTargetLowRes);
 }
 
 void AScope::ChangeScopeResolution(UTextureRenderTarget2D* NewRenderTarget)
 {
-	DynamicScopeMaterial->SetTextureParameterValue(FName(TEXT("RT_Texture")), NewRenderTarget);
+	if (DynamicScopeMaterial)
+		DynamicScopeMaterial->SetTextureParameterValue(FName(TEXT("RT_Texture")), NewRenderTarget);
+	
 	ZoomCamera->TextureTarget = NewRenderTarget;
 }

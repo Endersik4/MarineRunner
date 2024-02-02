@@ -48,7 +48,14 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Set up Gun")
-		TArray<FSettingSavedInJsonFile> MouseSensitivityWhenScope;
+		TArray<FSettingSavedInJsonFile> MouseSensitivityWhenScope = 
+	{
+		FSettingSavedInJsonFile("MouseSensitivity2x", 0.4f),
+		FSettingSavedInJsonFile("MouseSensitivity4x", 0.2f),
+		FSettingSavedInJsonFile("MouseSensitivity8x", 0.1f),
+		FSettingSavedInJsonFile("MouseSensitivity16x", 0.05f),
+	};
+
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ADSInSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
