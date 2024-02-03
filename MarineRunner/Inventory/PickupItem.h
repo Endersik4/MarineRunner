@@ -6,11 +6,12 @@
 #include "GameFramework/Actor.h"
 #include "MarineRunner/Interfaces/TakeInterface.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
 
 #include "PickupItem.generated.h"
 
 UCLASS()
-class MARINERUNNER_API APickupItem : public AActor, public  ITakeInterface
+class MARINERUNNER_API APickupItem : public AActor, public ITakeInterface, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 	
@@ -22,13 +23,15 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	virtual void TakeItem(class AMarineCharacter* Player) override;
 	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
 	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
+
+	virtual void LoadData(int32 StateOfData = 0) override;
+
+public:	
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 	void SetItemAmount(int32 NewAmount) { ItemSettings.Item_Amount = NewAmount; }
 
@@ -69,7 +72,7 @@ private:
 	USkeletalMeshComponent* WeaponSkeletalMesh;
 	void Dissolve(float Delta);
 
-	
+	void SaveItemWasTaken();
 
 
 };

@@ -540,6 +540,7 @@ void AGun::AimTheGun(EStatusOfAimedGun NewGunStatus)
 	}
 	else 
 		PlayGivenWeaponWithArmsAnimation(WeaponADSOutAnim);
+
 }
 
 #pragma endregion
@@ -551,7 +552,10 @@ void AGun::UpdateWeaponDataInHud(bool bChangeStoredAmmoText, bool bChangeWeaponI
 
 	HudWidget->SetAmmoText(MagazineCapacity);
 
-	if (bChangeStoredAmmoText && GetPointerToAmmoFromInventory()) HudWidget->SetAmmoText(AmmunitionFromInventory->Item_Amount, true);
+	if (bChangeStoredAmmoText)
+	{
+		HudWidget->SetAmmoText(GetPointerToAmmoFromInventory() ? AmmunitionFromInventory->Item_Amount : 0, true);
+	}
 	if (bChangeWeaponImage)
 	{
 		HudWidget->SetWeaponImage(GunHUDTexture, bAmmoCounterBelowGunHUD);

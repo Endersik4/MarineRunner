@@ -11,6 +11,7 @@
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Objects/ObjectsComponents/SoundOnHitComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/MessageHandlerComponent.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 // Sets default values
 APickupItem::APickupItem()
@@ -72,6 +73,8 @@ void APickupItem::TakeItem(AMarineCharacter* Player)
 
 	Player->UpdateAlbertosInventory(true, ItemSettings.bIsItCraftable);
 	
+	SaveItemWasTaken();
+
 	Destroy();
 }
 
@@ -173,5 +176,23 @@ void APickupItem::Dissolve(float Delta)
 void APickupItem::SetCollisionNewResponse(ECollisionChannel ChannelName, ECollisionResponse NewResponse)
 {
 	ItemMesh->SetCollisionResponseToChannel(ChannelName, NewResponse);
+}
+
+void APickupItem::SaveItemWasTaken()
+{
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	SavedDataObject->AddCustomSaveData(this, 1);
+}
+
+void APickupItem::LoadData(int32 StateOfData)
+{
+	if (StateOfData == 1)
+	{
+		Destroy();
+	}
 }
 
