@@ -17,6 +17,13 @@ enum EStatusOfAimedGun
 	BackToInitialPosition UMETA(DisplayName = "Original Position"),
 };
 
+UENUM(BlueprintType)
+enum EWhenSpawnCasing
+{
+	EWSC_WhileShooting UMETA(DisplayName = "WhileShooting"),
+	EWSC_WhileReloading UMETA(DisplayName = "WhileReloading"),
+};
+
 USTRUCT(BlueprintType)
 struct FWeaponAnimation
 {
@@ -90,10 +97,6 @@ public:
 
 	void UpdateWeaponDataInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
 
-	//Take And Drop
-	FString GetAmmoName() const { return SpawnedAmmoItemData.Item_Name; }
-	void SetItemFromInventory(struct FItemStruct* NewItemFromInventory) { AmmunitionFromInventory = NewItemFromInventory; }
-
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		USkeletalMeshComponent* GunSkeletalMesh;
@@ -129,14 +132,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Scope", meta = (EditCondition = "bUseScope", EditConditionHides))
 		int32 ZoomMaterialIndexOnWeapon;
 
+	//The item that will be the ammunition for this weapon.
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Ammunition")
+		FName RowNameForAmmunitionItem;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Ammunition")
 		int32 MagazineCapacity = 10;
 	//When a player picks up a weapon for the first time, the value will be added to the inventory.
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Ammunition")
 		int32 StoredAmmo = 50;
-	//The item that will be the ammunition for this weapon.
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Ammunition")
-		TSubclassOf<class APickupItem> AmmunitionItemClass;
 
 	// If True then ammunition on UI will be below the Gun icon picture and its 460x260
 	// Useful for longer weapons
@@ -163,11 +166,22 @@ private:
 		float DelayShootTime = 0.1f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection")
-		bool bCasingEjectionWhileReloading;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection")
+		bool bCasingEjection = true;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection", meta = (EditCondition = "bCasingEjection", EditConditionHides))
+		TEnumAsByte<EWhenSpawnCasing> WhenSpawnCasing = EWhenSpawnCasing::EWSC_WhileShooting;
+	// after shooting use timer to spawn casing 
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection", meta = (EditCondition = "bCasingEjection", EditConditionHides))
+		float SpawnCasingAfterTime = 0.05f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection", meta = (EditCondition = "bCasingEjection", EditConditionHides))
 		bool bShouldRandomizeRotationOfCasing = true;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection", meta = (EditCondition = "bCasingEjection && bShouldRandomizeRotationOfCasing", EditConditionHides))
+		FFloatRange RandomCasingRotation_Roll = FFloatRange(-10.f, 10.f);
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection", meta = (EditCondition = "bCasingEjection && bShouldRandomizeRotationOfCasing", EditConditionHides))
+		FFloatRange RandomCasingRotation_Pitch = FFloatRange(-15.f, 15.f);
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection", meta = (EditCondition = "bCasingEjection && bShouldRandomizeRotationOfCasing", EditConditionHides))
+		FFloatRange RandomCasingRotation_Yaw = FFloatRange(-40.f, 10.f);
 	//Actor that will spawn on the location from Socket "BulletDrop". Its for casing that is dumped from gun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection", meta = (EditCondition = "bCasingEjection", EditConditionHides))
 		TSubclassOf<AActor> DropBulletClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
@@ -288,6 +302,7 @@ private:
 	void PlayGunShootAnimation();
 	bool NoBulletsShootAnim();
 	void AddEffectsToShooting();
+	void StartTimerToDropCasing(const EWhenSpawnCasing & CurrentSpawnCasingPeriod);
 	void DropCasing();
 
 	// Put away gun
@@ -302,11 +317,8 @@ private:
 	FTimerHandle ConstantlyShootHandle;
 
 	/////////////// INVENTORY ////////////////
-	FItemStruct SpawnedAmmoItemData;
-	FItemStruct* AmmunitionFromInventory;
+	class UInventoryComponent* PlayerInventory;
 	void AddAmmoToInventory();
-	void SpawnAmmunitionObjectForVariables();
-	bool GetPointerToAmmoFromInventory();
 
 	/////////////// Reloading ////////////////
 	float OriginalMagazineCapacity;
@@ -314,7 +326,7 @@ private:
 	FTimerHandle ReloadHandle;
 	const FWeaponAnimation& ReloadAnimAccordingToSituation();
 	bool CanReload();
-	void RemoveAmmunitionFromInventory();
+	void RemoveAmmunitionFromInventory(FItemStruct* AmmoFromInventory);
 	void Reload();
 	////////////////////
 

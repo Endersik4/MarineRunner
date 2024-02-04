@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -7,9 +7,11 @@
 #include "InventoryComponent.generated.h"
 
 USTRUCT(BlueprintType)
-struct FItemStruct 
+struct FItemStruct : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY(); 
+
+public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		FString Item_Name;
@@ -77,6 +79,11 @@ struct FItemStruct
 	{
 		return Item_Name == SecondItem.Item_Name;
 	}
+
+	bool operator==(const FString& SecondItemName)
+	{
+		return Item_Name == SecondItemName;
+	}
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -93,19 +100,22 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadWrite)
-		TMap<TSubclassOf<class APickupItem>, int32> Inventory_ItemsData;
+		TMap<FName, int32> RowNameForItem;
+	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadWrite)
+		UDataTable* ItemsDataTable;
 
-	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+		TArray<FItemStruct> Inventory_Items;
+
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 		TArray<FItemStruct> Items_Recipes;
 
-	UPROPERTY(VisibleAnywhere, Category = "Inventory", BlueprintReadOnly)
-		TMap<FString, FItemStruct> Inventory_Items;
-
-
+	FItemStruct* GetItemFromInventory(FName ItemRowNameFromDataTable);
+	FItemStruct* GetItemInformationFromDataTable(FName ItemRowNameFromDataTable);
+	void AddNewItemToInventory(FName ItemRowNameFromDataTable, float AddAmountToItem = 0.f);
+	void DeleteItemFromInventory(FItemStruct ItemToDelete);
 private:
 
 	void TransformItemsDataToInventory();

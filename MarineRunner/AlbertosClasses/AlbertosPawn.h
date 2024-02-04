@@ -40,14 +40,8 @@ public:
 
 	// Take Item Interface
 	virtual void TakeItem(class AMarineCharacter* Character) override;
-	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
-	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
-
-	void CraftPressed(class APickupItem*, FTimerHandle* CraftTimeHandle);
-	void CraftingFinished();
-
-	UFUNCTION(BlueprintCallable)
-		void SetIsFrontDoorOpen(bool bIsIt) { bIsFrontDoorOpen = bIsIt; }
+	virtual void ItemHover(class AMarineCharacter* Character) override;
+	virtual void ItemUnHover(class AMarineCharacter* Character) override;
 
 	// Open or close the front door
 	UFUNCTION(BlueprintImplementableEvent)
@@ -63,6 +57,8 @@ public:
 	void CallAlbertoToThePlayer(FVector PlayerLoc);
 
 	void ChangeMaxSpeedOfFloatingMovement(bool bTowardsPlayer = true);
+
+	void ToggleDoor();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -95,6 +91,10 @@ private:
 		float MaxDistanceToPlayer = 10000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
 		float TeleportToPlayerRadius = 2000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
+		float TimeToCheckIfPlayerIsNear = 0.5f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
+		FFloatRange TimeRangeToPlayRandomSounds = FFloatRange(4.f, 10.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Crafting Widget Animation")
 		float CraftingWidgetAnimationTime = 0.4f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Crafting Widget Animation")
@@ -103,20 +103,7 @@ private:
 		UMaterialInstance* OnAlbertosHoverMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos| Hover")
 		UMaterialInstance* OnAlbertosUnHoverMaterial;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
-		float ItemMoveSpeedAfterCrafting = 5.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
-		UMaterialInstance* OverlayCraftingMaterial;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds Variables")
-		float TimeAfterStartingCraftSound = 1.515f;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds Variables")
-		float TimeOfCraftingRuntimeSound = 0.844f;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds Variables")
-		float TimeLeftEndCraftingLoop = 1.341f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* CraftingItemSound;
+		
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* RandomAlbertoSounds;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
@@ -126,15 +113,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* HoverSound;
 
-	bool bIsFrontDoorOpen;
-	bool bShouldScaleCraftedItem;
-	FVector TargetScaleOfCraftedItem;
-	class APickupItem* CraftedItem;
-
 	void ToggleInventoryVisibility();
 	void ToggleVisibilityCraftingWidget();
 
-	float CopyOfMaxSpeed;
+	float OriginalMoveSpeed;
 
 	// On Hovered Albertos
 	bool bIsHovered = false;
@@ -157,16 +139,6 @@ private:
 	void ToggleVisibilityForDissolveBoxes();
 	void PrepareCraftingWidgetAnimation(bool bForwardAnim);
 	void CraftingWidgetAnimation(float Delta);
-
-	// Moving an item after it has been created
-	bool bMoveCraftedItemToFinalPosition;
-	void MoveCraftedItemToFinalPosition(float Delta);
-
-	// Crafting Sounds
-	FTimerHandle* CraftingTimeHandle;
-	FTimerHandle ShouldLoopCraftingSoundHandle;
-	class UAudioComponent* SpawnedCraftingSound;
-	void ShouldLoopCraftingSound();
 
 	// Random Sounds
 	class UAudioComponent* SpawnedRandomSound;

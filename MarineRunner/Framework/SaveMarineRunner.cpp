@@ -105,7 +105,7 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 	if (IsValid(MarinePawn) == false) return;
 
 	MarinePawn->SetHealth(CurrentHealthSaved);
-	MarinePawn->GetInventoryComponent()->Inventory_Items = Inventory_ItemsSaved;
+	//MarinePawn->GetInventoryComponent()->Inventory_Items = Inventory_ItemsSaved;
 
 
 	if (IsValid(GameInstance) == false) return;

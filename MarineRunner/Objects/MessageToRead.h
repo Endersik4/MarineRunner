@@ -27,8 +27,8 @@ public:
 
 private:
 	virtual void TakeItem(class AMarineCharacter* Character) override;
-	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
-	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
+	virtual void ItemHover(class AMarineCharacter* Character) override;
+	virtual void ItemUnHover(class AMarineCharacter* Character) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* MessageStaticMesh;

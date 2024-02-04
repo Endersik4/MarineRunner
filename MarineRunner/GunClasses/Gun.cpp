@@ -350,12 +350,13 @@ void AGun::RandomBulletDirection(FRotator& NewBulletRotation)
 #pragma region ////////////////////////////////// RELOAD //////////////////////////////////////
 bool AGun::CanReload()
 {
-	if (GetPointerToAmmoFromInventory() == false || MagazineCapacity == OriginalMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle))
+	FItemStruct* AmmoFromInventory = PlayerInventory->GetItemFromInventory(RowNameForAmmunitionItem);
+	if (AmmoFromInventory == nullptr || MagazineCapacity == OriginalMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle))
 	{
 		bIsReloading = false;
 		return false;
 	}
-	if (AmmunitionFromInventory->Item_Amount <= 0)
+	if (AmmoFromInventory->Item_Amount <= 0)
 	{
 		bIsReloading = false;
 		return false;
@@ -374,10 +375,9 @@ void AGun::WaitToReload()
 
 	MarinePawn->GetWeaponHandlerComponent()->ADSReleased();
 
-	if (bCasingEjectionWhileReloading == true) DropCasing();
-
 	const FWeaponAnimation& ReloadAnimToPlay = ReloadAnimAccordingToSituation();
 	PlayGivenWeaponWithArmsAnimation(ReloadAnimToPlay);
+	StartTimerToDropCasing(EWSC_WhileReloading);
 
 	bIsReloading = true;
 
@@ -389,13 +389,13 @@ const FWeaponAnimation& AGun::ReloadAnimAccordingToSituation()
 	if (MagazineCapacity == 0)
 		return WeaponReloadWithNoBulletsAnim;
 
-	if (bReloadOneBullet == true && bIsReloading == false && MagazineCapacity == OriginalMagazineCapacity - 1 || AmmunitionFromInventory->Item_Amount <= 1)
+	if (bReloadOneBullet == true && bIsReloading == false && MagazineCapacity == OriginalMagazineCapacity - 1 || PlayerInventory->GetItemFromInventory(RowNameForAmmunitionItem)->Item_Amount <= 1)
 		return WeaponReload_BeginEnd;
 
 	if (bReloadOneBullet == true && bIsReloading == false)
 		return WeaponReload_Begin;
 
-	if (bReloadOneBullet == true && bIsReloading == true && MagazineCapacity == OriginalMagazineCapacity - 1 || AmmunitionFromInventory->Item_Amount <= 1)
+	if (bReloadOneBullet == true && bIsReloading == true && MagazineCapacity == OriginalMagazineCapacity - 1 || PlayerInventory->GetItemFromInventory(RowNameForAmmunitionItem)->Item_Amount <= 1)
 		return WeaponReload_End;
 
 	return WeaponReloadAnim;
@@ -403,14 +403,17 @@ const FWeaponAnimation& AGun::ReloadAnimAccordingToSituation()
 
 void AGun::Reload()
 {
-	if (GetPointerToAmmoFromInventory() == false) return;
+	FItemStruct* AmmoFromInventory = PlayerInventory->GetItemFromInventory(RowNameForAmmunitionItem);
+	if (AmmoFromInventory == nullptr)
+		return;
 
-	RemoveAmmunitionFromInventory();
+	RemoveAmmunitionFromInventory(AmmoFromInventory);
+	if (AmmoFromInventory->Item_Amount <= 0)
+		PlayerInventory->DeleteItemFromInventory(*AmmoFromInventory);
 
 	bCanShoot = true;
 	UpdateWeaponDataInHud(true);
 
-	if (AmmunitionFromInventory->Item_Amount <= 0) MarinePawn->GetInventoryComponent()->Inventory_Items.Remove(SpawnedAmmoItemData.Item_Name);
 	MarinePawn->UpdateAlbertosInventory();
 
 	GetWorldTimerManager().ClearTimer(ReloadHandle);
@@ -429,26 +432,25 @@ void AGun::CancelReload()
 	bIsReloading = false;
 }
 
-void AGun::RemoveAmmunitionFromInventory()
+void AGun::RemoveAmmunitionFromInventory(FItemStruct* AmmoFromInventory)
 {
 	if (bReloadOneBullet == true)
 	{
 		MagazineCapacity++;
-		AmmunitionFromInventory->Item_Amount--;
+		AmmoFromInventory->Item_Amount--;
+		return;
+	}
+
+	int32 RestAmmo = OriginalMagazineCapacity - MagazineCapacity;
+	if (AmmoFromInventory->Item_Amount < RestAmmo)
+	{
+		MagazineCapacity += AmmoFromInventory->Item_Amount;
+		AmmoFromInventory->Item_Amount = 0;
 	}
 	else
 	{
-		int32 RestAmmo = OriginalMagazineCapacity - MagazineCapacity;
-		if (AmmunitionFromInventory->Item_Amount < RestAmmo)
-		{
-			MagazineCapacity += AmmunitionFromInventory->Item_Amount;
-			AmmunitionFromInventory->Item_Amount = 0;
-		}
-		else
-		{
-			AmmunitionFromInventory->Item_Amount -= RestAmmo;
-			MagazineCapacity = OriginalMagazineCapacity;
-		}
+		AmmoFromInventory->Item_Amount -= RestAmmo;
+		MagazineCapacity = OriginalMagazineCapacity;
 	}
 }
 #pragma endregion
@@ -463,7 +465,7 @@ void AGun::AddEffectsToShooting()
 
 	PlayGunShootAnimation();
 
-	if (bCasingEjectionWhileReloading == false) DropCasing();
+	StartTimerToDropCasing(EWSC_WhileShooting);
 }
 
 void AGun::PlayGunShootAnimation()
@@ -494,6 +496,15 @@ bool AGun::NoBulletsShootAnim()
 	return true;
 }
 
+void AGun::StartTimerToDropCasing(const EWhenSpawnCasing& CurrentSpawnCasingPeriod)
+{
+	if (bCasingEjection == false || WhenSpawnCasing != CurrentSpawnCasingPeriod)
+		return;
+
+	FTimerHandle DropCasingHandle;
+	GetWorldTimerManager().SetTimer(DropCasingHandle, this, &AGun::DropCasing, SpawnCasingAfterTime, false);
+}
+
 void AGun::DropCasing()
 {
 	if (DropBulletClass == nullptr) 
@@ -502,9 +513,9 @@ void AGun::DropCasing()
 	FRotator DropBulletRotation = GetActorRotation();
 	if (bShouldRandomizeRotationOfCasing)
 	{
-		DropBulletRotation.Yaw -= FMath::FRandRange(-10.f, 40.f);
-		DropBulletRotation.Roll += FMath::FRandRange(-10.f, 10.f);
-		DropBulletRotation.Pitch += FMath::FRandRange(-15.f, 15.f);
+		DropBulletRotation.Roll += FMath::FRandRange(RandomCasingRotation_Roll.GetLowerBoundValue(), RandomCasingRotation_Roll.GetUpperBoundValue());
+		DropBulletRotation.Pitch += FMath::FRandRange(RandomCasingRotation_Pitch.GetLowerBoundValue(), RandomCasingRotation_Pitch.GetUpperBoundValue());
+		DropBulletRotation.Yaw += FMath::FRandRange(RandomCasingRotation_Yaw.GetLowerBoundValue(), RandomCasingRotation_Yaw.GetUpperBoundValue());
 	}
 
 	AActor* DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, GunSkeletalMesh->GetSocketLocation(TEXT("BulletDrop")), DropBulletRotation);
@@ -554,7 +565,8 @@ void AGun::UpdateWeaponDataInHud(bool bChangeStoredAmmoText, bool bChangeWeaponI
 
 	if (bChangeStoredAmmoText)
 	{
-		HudWidget->SetAmmoText(GetPointerToAmmoFromInventory() ? AmmunitionFromInventory->Item_Amount : 0, true);
+		FItemStruct* AmmoFromInventory = PlayerInventory->GetItemFromInventory(RowNameForAmmunitionItem);
+		HudWidget->SetAmmoText(AmmoFromInventory ? AmmoFromInventory->Item_Amount : 0, true);
 	}
 	if (bChangeWeaponImage)
 	{
@@ -571,6 +583,7 @@ void AGun::TakeGun(AMarineCharacter* Player)
 
 	MarinePawn = Player;
 	bCanShoot = false;
+	PlayerInventory = MarinePawn->GetInventoryComponent();
 	MarinePawn->GetWeaponHandlerComponent()->HideCurrentHoldingGun();
 	MarinePawn->GetWeaponHandlerComponent()->SetCanChangeWeapon(false);
 
@@ -578,7 +591,6 @@ void AGun::TakeGun(AMarineCharacter* Player)
 
 	OriginalPlayerFOV = MarinePawn->GetCamera()->FieldOfView;
 
-	SpawnAmmunitionObjectForVariables();
 	AddAmmoToInventory();
 	MarinePawn->GetWeaponHandlerComponent()->SetGun(this);
 	MarinePawn->GetWeaponInventoryComponent()->AddNewWeaponToStorage(this);
@@ -665,40 +677,22 @@ void AGun::PlayGivenWeaponWithArmsAnimation(const FWeaponAnimation& AnimToPlay) 
 }
 
 #pragma region /////////////////////////////// INVENTORY //////////////////////////////////////
-void AGun::SpawnAmmunitionObjectForVariables()
-{
-	// TODO: Change Whole Spawning Object system to Data Tables
-	APickupItem* SpawnedAmmunition = GetWorld()->SpawnActor<APickupItem>(AmmunitionItemClass, FVector(0.f), FRotator(0.f));
-	if (SpawnedAmmunition == nullptr) return;
-
-	SpawnedAmmoItemData = SpawnedAmmunition->GetItemSettings();
-	SpawnedAmmoItemData.Item_Amount = 0;
-
-	if (StoredAmmo != 0) SpawnedAmmoItemData.Item_Amount += StoredAmmo;
-	SpawnedAmmunition->Destroy();
-}
 
 void AGun::AddAmmoToInventory()
 {
-	if (MarinePawn->GetInventoryComponent() == nullptr) 
+	if (PlayerInventory == nullptr)
 		return;
 
-	if (GetPointerToAmmoFromInventory())
+	FItemStruct* AmmunitionFromInventory = PlayerInventory->GetItemFromInventory(RowNameForAmmunitionItem);
+
+	if (AmmunitionFromInventory)
 	{
 		AmmunitionFromInventory->Item_Amount += StoredAmmo;
 	}
 	else
-	{
-		MarinePawn->GetInventoryComponent()->Inventory_Items.Add(SpawnedAmmoItemData.Item_Name, SpawnedAmmoItemData);
-		AmmunitionFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(SpawnedAmmoItemData.Item_Name);
-	}
+		PlayerInventory->AddNewItemToInventory(RowNameForAmmunitionItem, StoredAmmo);
 }
 
-bool AGun::GetPointerToAmmoFromInventory()
-{
-	AmmunitionFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(SpawnedAmmoItemData.Item_Name);
-	return AmmunitionFromInventory ? true : false;
-}
 #pragma endregion
 
 void AGun::SetupFloatTimeline(FTimeline* TimelineToCreate, FName TimelineProgressFuncName, FName TimelineFinishedFuncName, UCurveFloat* CurveForTimeline)

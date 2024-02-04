@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -24,8 +24,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	virtual void TakeItem(class AMarineCharacter* Player) override;
-	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
-	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
+	virtual void ItemHover(class AMarineCharacter* Character) override;
+	virtual void ItemUnHover(class AMarineCharacter* Character) override;
 
 	virtual void LoadData(int32 StateOfData = 0) override;
 
@@ -33,16 +33,13 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SetItemAmount(int32 NewAmount) { ItemSettings.Item_Amount = NewAmount; }
+	virtual void ChangeSimulatingPhysics(bool bChange = true);
 
-	virtual void ChangeSimulatingPhysics(bool bChange = true) { ; };
-
-	FString GetItemName() const { return ItemSettings.Item_Name; }
-	FItemStruct GetItemSettings() const { return ItemSettings; }
-
-	virtual void SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh = nullptr);
+	virtual void SetDissolveMaterial(class AMarineCharacter* Player, UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh = nullptr);
 
 	virtual void SetCollisionNewResponse(ECollisionChannel ChannelName, ECollisionResponse NewResponse);
+
+	FORCEINLINE const FName GetItemRowName() const { return ItemRowName; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -54,20 +51,21 @@ private:
 		USoundBase* PickUpSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
-		FItemStruct ItemSettings;
+		FName ItemRowName;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
 		float DissolveStartValue = 0.6f;
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
 		float DissolveEndValue = -0.4f;
 
-	bool AddAmountToItemIfFound(FItemStruct* ItemFromInventory);
-	void AddCraftRecipeIfCraftable(class AMarineCharacter* Player);
-	void SpawnWeaponForPlayer(class AMarineCharacter* Player);
+	bool AddAmountToItemIfFound(FItemStruct* ItemFromInventory, float AmountToAdd);
+	void AddCraftRecipeIfCraftable(class AMarineCharacter* Player, FItemStruct* ItemDataFromDataTable);
+	void SpawnWeaponForPlayer(class AMarineCharacter* Player, FItemStruct* ItemDataFromDataTable);
 
 	//Dissolve Material
 	bool bShouldDissolve;
 	float DissolveTimeElapsed;
+	float TimeToCraftAnItem = 4.f;
 	UMaterialInstanceDynamic* DissolveDynamicMaterial;
 	USkeletalMeshComponent* WeaponSkeletalMesh;
 	void Dissolve(float Delta);

@@ -164,12 +164,12 @@ void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshIn
 	RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.GenerateKeyArray(ResourcesName);
 	for (FString NameOfResource : ResourcesName)
 	{
-		if (MarinePawn->GetInventoryComponent()->Inventory_Items.Find(NameOfResource) == nullptr) continue;
+		if (MarinePawn->GetInventoryComponent()->Inventory_Items.FindByKey(NameOfResource) == nullptr) continue;
 
 		bool HaveEnough = DoesHaveEnoughResources(NameOfResource, bRefreshInventory);
 
 		UItemDataObject* ConstructedItemObject = NewObject<UItemDataObject>(ItemDataObject);
-		ConstructedItemObject->ItemData = *MarinePawn->GetInventoryComponent()->Inventory_Items.Find(NameOfResource);
+		ConstructedItemObject->ItemData = *MarinePawn->GetInventoryComponent()->Inventory_Items.FindByKey(NameOfResource);
 		ConstructedItemObject->ItemData.Item_Amount = (*RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.Find(NameOfResource) * CraftingMultiplier);
 		ConstructedItemObject->bIsItEnoughToCraft = HaveEnough;
 		RequirementsInventoryTileView->AddItem(ConstructedItemObject);
@@ -186,7 +186,7 @@ void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshIn
 
 bool UCraftingAlbertosWidget::DoesHaveEnoughResources(FString Resource, bool bDeleteResources)
 {
-	FItemStruct* ResourceFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.Find(Resource);
+	FItemStruct* ResourceFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.FindByKey(Resource);
 	if (ResourceFromInventory == nullptr) return false;
 
 	int32* NumberOfResourcesNeeded = RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.Find(Resource);
@@ -220,28 +220,16 @@ void UCraftingAlbertosWidget::OnItemHovered(UObject* Item, bool bIsHovered)
 
 void UCraftingAlbertosWidget::CraftPressed()
 {
-	if (MarinePawn == nullptr || bCanCraft == false) return;
+	if (IsValid(MarinePawn) == false || bCanCraft == false)
+		return;
 
-	if (bCanBeCrafted == false || AlbertosPawn == nullptr) return;
+	if (bCanBeCrafted == false || IsValid(AlbertosPawn) == false) 
+		return;
 
-	APickupItem* SpawnedItem;
-	FVector SpawnLocation = AlbertosPawn->GetAlbertosSkeletal()->GetSocketLocation(FName(TEXT("ItemSpawnLocation")));
-	SpawnLocation += AlbertosPawn->GetActorForwardVector() * RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftLocation.X;
-	SpawnLocation += AlbertosPawn->GetActorRightVector() * RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftLocation.Y;
-
-	FRotator SpawnRotation = AlbertosPawn->GetActorRotation() + RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_CraftRotation;
-	SpawnedItem = GetWorld()->SpawnActor<APickupItem>(RecipesOfCraftableItems[ChoiceOfCraftableItem].ItemObject, SpawnLocation, SpawnRotation);
-	if (SpawnedItem == nullptr) return;
-
-	SpawnedItem->SetCollisionNewResponse(ECC_GameTraceChannel1, ECR_Ignore);
-	SpawnedItem->SetCollisionNewResponse(ECC_GameTraceChannel3, ECR_Ignore);
-
-	AlbertosPawn->CraftPressed(SpawnedItem, &TimeCraftHandle);
+	AlbertosPawn->CraftPressed(MarinePawn, SpawnedItem, &TimeCraftHandle);
 
 	// Refresh Inventory
-	SpawnedItem->SetItemAmount(SpawnedItem->GetItemSettings().Item_Amount * CraftingMultiplier);
 	SwitchCurrentCraftingItem(true);
-	MarinePawn->UpdateAlbertosInventory();
 
 	// Effects
 	CraftButton->SetIsEnabled(false);
@@ -251,11 +239,11 @@ void UCraftingAlbertosWidget::CraftPressed()
 
 	// Fill in Progress bar
 	TimeElapsed = 0.f;
-	CopiedItemCraftTime = SpawnedItem->GetItemSettings().Item_TimeCraft;
+	//CopiedItemCraftTime = SpawnedItem->GetItemSettings().Item_TimeCraft;
 
 	// Set Can craft again after TimeCraft
 	bCanCraft = false;
-	WaitTime = SpawnedItem->GetItemSettings().Item_TimeCraft;
+	WaitTime = RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft;
 	GetWorld()->GetTimerManager().SetTimer(TimeCraftHandle, this, &UCraftingAlbertosWidget::SetCanCraftAgain, WaitTime, false);
 }
 

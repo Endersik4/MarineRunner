@@ -107,7 +107,7 @@ void ADoorVent::OnOpenDoorVentLocFinished()
 	}
 }
 
-void ADoorVent::ItemHover(UHUDWidget* MarineHUDWidget)
+void ADoorVent::ItemHover(AMarineCharacter* Character)
 {
 	if (bIsOpen == true || DoorVentMesh->IsSimulatingPhysics() == true)
 		return;
@@ -115,13 +115,13 @@ void ADoorVent::ItemHover(UHUDWidget* MarineHUDWidget)
 	DoorVentMesh->SetRenderCustomDepth(true);
 	bIsHovered = true;
 
-	if (IsValid(MarineHUDWidget) == false)
+	if (IsValid(Character->GetHudWidget()) == false)
 		return;
 
-	MarineHUDWidget->SetItemHoverInformations(DoorVentName, DoorVentDesc, DoorVentIcon);
+	Character->GetHudWidget()->SetItemHoverInformations(DoorVentName, DoorVentDesc, DoorVentIcon);
 }
 
-void ADoorVent::ItemUnHover(UHUDWidget* MarineHUDWidget)
+void ADoorVent::ItemUnHover(AMarineCharacter* Character)
 {
 	if (bIsOpen == true && bIsHovered == false || DoorVentMesh->IsSimulatingPhysics() == true)
 		return;
@@ -130,8 +130,8 @@ void ADoorVent::ItemUnHover(UHUDWidget* MarineHUDWidget)
 
 	DoorVentMesh->SetRenderCustomDepth(false);
 
-	if (IsValid(MarineHUDWidget) == false) 
+	if (IsValid(Character->GetHudWidget()) == false)
 		return;
 
-	MarineHUDWidget->PlayAppearAnimForItemHover(false);
+	Character->GetHudWidget()->PlayAppearAnimForItemHover(false);
 }

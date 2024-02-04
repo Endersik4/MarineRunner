@@ -35,17 +35,12 @@ public:
 
 	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) override; //C++ ONLY
 
-	UFUNCTION(BlueprintPure)
-		class UWallrunComponent* GetWallrunComponent() const { return WallrunComponent; }
-
 	void ChangeMouseSensitivity(const FSettingSavedInJsonFile& NewMouseSensitivity, bool bResetMouseSensitivity = false);
 
 	UPROPERTY(EditAnywhere, Category = "Alberto")
 		class AAlbertosPawn* AlbertoPawn;
 
-	FORCEINLINE FString GetFirstAidKitName() const { return FirstAidKits_Name; }
 	FORCEINLINE float GetMovementForce() const { return MovementForce; }
-	FORCEINLINE float GetHealth() const { return Health; }
 	bool GetIsWallrunning() const;
 	bool GetIsPlayerLerpingToHookLocation() const;
 	bool GetIsCrouching() const;
@@ -68,6 +63,7 @@ public:
 	FORCEINLINE class UMessageHandlerComponent* GetMessageHandlerComponent() const { return MessageHandlerComponent; }
 	FORCEINLINE class USaveLoadPlayerComponent* GetSaveLoadPlayerComponent() const { return SaveLoadPlayerComponent; }
 	FORCEINLINE class UArmsSwayComponent* GetArmsSwayComponent() const { return ArmsSwayComponent; }
+	FORCEINLINE class UWallrunComponent* GetWallrunComponent() const { return WallrunComponent; }
 	FORCEINLINE class UCroachAndSlide* GetCroachAndSlideComponent() const { return CroachAndSlideComponent; }
 	FORCEINLINE const FSettingSavedInJsonFile& GetMouseSensitivityJSON() const { return MouseSensitivityJSON; }
 	bool GetIsMessageDisplayed() const;
@@ -88,7 +84,6 @@ public:
 	void MakeCrosshire(bool bShouldRemoveFromParent = false);
 
 	bool bIsPlayerInElevator = false;
-
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -139,7 +134,7 @@ private:
 		float Health = 100.f;
 	//Name of Item that will be used for healing. 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
-		FString FirstAidKits_Name = "FirstAidKit";
+		FName FirstAidKitRowName = "FirstAidKit";
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float FirstAidKitHealth = 35.f;
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
@@ -203,8 +198,7 @@ private:
 
 	//FirstAidKit
 	bool bCanUseFirstAidKit = true;
-	struct FItemStruct* FirstAidKitItem;
-	FTimerHandle FirstAidKitHandle;
+	FTimerHandle UseFirstAidKitHandle;
 	void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }
 	void UseFirstAidKit();
 

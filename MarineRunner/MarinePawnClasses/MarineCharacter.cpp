@@ -95,7 +95,8 @@ void AMarineCharacter::BeginPlay()
 	if (IsValid(HudWidget))
 	{
 		HudWidget->SetHealthBarPercent(Health);
-		HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
+		FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
+		HudWidget->SetCurrentNumberOfFirstAidKits(FirstAidKitItem ? FirstAidKitItem->Item_Amount : 0);
 	}
 
 	ReplaceRootComponentRotation();
@@ -279,20 +280,20 @@ void AMarineCharacter::UseFirstAidKit()
 	if (bCanUseFirstAidKit == false || Health == 100.f)
 		return;
 
-	FirstAidKitItem = InventoryComponent->Inventory_Items.Find(FirstAidKits_Name);
+	FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
 	if (FirstAidKitItem == nullptr)
-		return;
-	if (FirstAidKitItem->Item_Amount <= 0)
 		return;
 
 	FirstAidKitItem->Item_Amount--;
 	Health += FirstAidKitHealth;
-	if (Health > 100.f) Health = 100.f;
+	if (Health > 100.f)
+		Health = 100.f;
 
-	if (UseFirstAidKitSound) UGameplayStatics::SpawnSound2D(GetWorld(), UseFirstAidKitSound);
+	if (UseFirstAidKitSound) 
+		UGameplayStatics::PlaySound2D(GetWorld(), UseFirstAidKitSound);
 
 	HudWidget->SetHealthBarPercent(Health);
-	HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
+	HudWidget->SetCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount);
 	HudWidget->PlayUseFirstAidKitAnim();
 
 	ElementBar ProgressHealBar{ DelayAfterUseFirstAidKit };
@@ -301,8 +302,11 @@ void AMarineCharacter::UseFirstAidKit()
 
 	UpdateAlbertosInventory();
 
+	if (FirstAidKitItem->Item_Amount <= 0)
+		InventoryComponent->DeleteItemFromInventory(*FirstAidKitItem);
+
 	bCanUseFirstAidKit = false;
-	GetWorldTimerManager().SetTimer(FirstAidKitHandle, this, &AMarineCharacter::CanUseFirstAidKit, DelayAfterUseFirstAidKit, false);
+	GetWorldTimerManager().SetTimer(UseFirstAidKitHandle, this, &AMarineCharacter::CanUseFirstAidKit, DelayAfterUseFirstAidKit, false);
 }
 #pragma endregion 
 
@@ -385,7 +389,8 @@ void AMarineCharacter::UpdateHudWidget()
 {
 	WeaponHandlerComponent->UpdateWeaponInformationOnHud();
 
-	HudWidget->SetCurrentNumberOfFirstAidKits(GetInventoryComponent()->Inventory_Items.Find(GetFirstAidKitName())->Item_Amount);
+	FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
+	HudWidget->SetCurrentNumberOfFirstAidKits(FirstAidKitItem ? FirstAidKitItem->Item_Amount : 0);
 }
 #pragma endregion 
 
@@ -403,9 +408,7 @@ void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool
 
 	if (bShouldUpdateInventory == true)
 	{
-		TArray<FItemStruct> ItemDataArray;
-		InventoryComponent->Inventory_Items.GenerateValueArray(ItemDataArray);
-		CraftingWidget->AddItemToTileView(ItemDataArray);
+		CraftingWidget->AddItemToTileView(InventoryComponent->Inventory_Items);
 	}
 }
 

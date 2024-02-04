@@ -52,20 +52,23 @@ void AMessageToRead::TakeItem(AMarineCharacter* Character)
 	GetWorld()->GetTimerManager().SetTimer(SpawnMessageWidgetHandle, this, &AMessageToRead::SpawnMessageWidget, OpenMessageDelay);
 }
 
-void AMessageToRead::ItemHover(UHUDWidget* MarineHUDWidget)
+void AMessageToRead::ItemHover(AMarineCharacter* Character)
 {
-	MessageStaticMesh->SetRenderCustomDepth(true);
+	if (IsValid(Character->GetHudWidget()) == false) 
+		return;
 
-	if (MarineHUDWidget == nullptr) return;
-	MarineHUDWidget->SetItemHoverInformations(MessageName, MessageDescription, MessageIcon);
+	MessageStaticMesh->SetRenderCustomDepth(true);
+	Character->GetHudWidget()->SetItemHoverInformations(MessageName, MessageDescription, MessageIcon);
 }
 
-void AMessageToRead::ItemUnHover(UHUDWidget* MarineHUDWidget)
+void AMessageToRead::ItemUnHover(AMarineCharacter* Character)
 {
-	MessageStaticMesh->SetRenderCustomDepth(false);
 
-	if (MarineHUDWidget == nullptr) return;
-	MarineHUDWidget->PlayAppearAnimForItemHover(false);
+	if (IsValid(Character->GetHudWidget()) == false)
+		return;
+
+	MessageStaticMesh->SetRenderCustomDepth(false);
+	Character->GetHudWidget()->PlayAppearAnimForItemHover(false);
 }
 
 void AMessageToRead::SpawnMessageWidget()

@@ -1,20 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineRunner/Inventory/InventoryComponent.h"
-
-#include "MarineRunner/Inventory/PickupItem.h"
 
 // Sets default values for this component's properties
 UInventoryComponent::UInventoryComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
-
 
 // Called when the game starts
 void UInventoryComponent::BeginPlay()
@@ -24,29 +16,47 @@ void UInventoryComponent::BeginPlay()
 	TransformItemsDataToInventory();
 }
 
-
-// Called every frame
-void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
-
 void UInventoryComponent::TransformItemsDataToInventory()
 {
-	Inventory_Items.Empty();
-
-	TArray<TSubclassOf<APickupItem>> ItemsDataKeys;
-	Inventory_ItemsData.GenerateKeyArray(ItemsDataKeys);
-	for (int i = 0; i != Inventory_ItemsData.Num(); i++)
+	TArray<FName> ItemName;
+	RowNameForItem.GenerateKeyArray(ItemName);
+	for (const FName& CurrentItemName : ItemName)
 	{
-		APickupItem* SpawnedItem = GetWorld()->SpawnActor<APickupItem>(ItemsDataKeys[i], FVector(0.f), FRotator(0.f));
-		if (SpawnedItem == nullptr) continue;
-
-		FItemStruct NewItemSettings = SpawnedItem->GetItemSettings();
-		NewItemSettings.Item_Amount = *Inventory_ItemsData.Find(ItemsDataKeys[i]);
-		Inventory_Items.Add(SpawnedItem->GetItemName(), NewItemSettings);
-		SpawnedItem->Destroy();
+		AddNewItemToInventory(CurrentItemName , *RowNameForItem.Find(CurrentItemName));
 	}
+	ItemName.Empty();
+}
+
+FItemStruct* UInventoryComponent::GetItemFromInventory(FName ItemRowNameFromDataTable)
+{
+	const FItemStruct* ItemFromDataTable = ItemsDataTable->FindRow<FItemStruct>(ItemRowNameFromDataTable, "");
+	if (ItemFromDataTable == nullptr)
+		return nullptr;
+
+	return Inventory_Items.FindByKey(ItemFromDataTable->Item_Name);
+}
+
+FItemStruct* UInventoryComponent::GetItemInformationFromDataTable(FName ItemRowNameFromDataTable)
+{
+	return ItemsDataTable->FindRow<FItemStruct>(ItemRowNameFromDataTable, "");
+}
+
+void UInventoryComponent::AddNewItemToInventory(FName ItemRowNameFromDataTable, float AddAmountToItem)
+{
+	const FItemStruct* ItemFromDataTable = ItemsDataTable->FindRow<FItemStruct>(ItemRowNameFromDataTable, "");
+	if (ItemFromDataTable == nullptr)
+		return;
+
+	FItemStruct ItemWithAmount = *ItemFromDataTable;
+	ItemWithAmount.Item_Amount = AddAmountToItem;
+
+	if (ItemWithAmount.bIsItCraftable)
+		Items_Recipes.Add(ItemWithAmount);
+
+	Inventory_Items.Add(ItemWithAmount);
+}
+
+void UInventoryComponent::DeleteItemFromInventory(FItemStruct ItemToDelete)
+{
+	Inventory_Items.Remove(ItemToDelete);
 }

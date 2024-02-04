@@ -20,8 +20,8 @@ public:
 	ADoorVent();
 
 	virtual void TakeItem(class AMarineCharacter* Character) override;
-	virtual void ItemHover(class UHUDWidget* MarineHUDWidget) override;
-	virtual void ItemUnHover(class UHUDWidget* MarineHUDWidget) override;
+	virtual void ItemHover(class AMarineCharacter* Character) override;
+	virtual void ItemUnHover(class AMarineCharacter* Character) override;
 
 protected:
 	// Called when the game starts or when spawned

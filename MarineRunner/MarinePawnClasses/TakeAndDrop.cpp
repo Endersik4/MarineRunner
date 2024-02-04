@@ -89,10 +89,10 @@ void UTakeAndDrop::HoverHitItem(const bool& bWasHit, const FHitResult& CurrentIt
 		LastHitResult = CurrentItemHit;
 
 		ITakeInterface* HoverInterface = Cast<ITakeInterface>(CurrentItemHit.GetActor());
-		if (HoverInterface)
-		{
-			HoverInterface->ItemHover(MarinePawn->GetHudWidget());
-		}
+		if (HoverInterface == nullptr)
+			return;
+		
+		HoverInterface->ItemHover(MarinePawn);
 	}
 	else if (IsValid(LastHitResult.GetActor()) == true)
 	{
@@ -109,5 +109,5 @@ void UTakeAndDrop::DisableLastHoveredItem()
 	if (HoverInterface == nullptr)
 		return;
 	
-	HoverInterface->ItemUnHover(MarinePawn->GetHudWidget());
+	HoverInterface->ItemUnHover(MarinePawn);
 }

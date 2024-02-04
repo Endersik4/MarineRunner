@@ -49,17 +49,21 @@ void APickupItem::Tick(float DeltaTime)
 void APickupItem::TakeItem(AMarineCharacter* Player)
 {
 	UInventoryComponent* Inventory = Player->GetInventoryComponent();
-	if (!Inventory) return;
+	if (!Inventory) 
+		return;
 
-	FItemStruct* ItemFromInventory = Inventory->Inventory_Items.Find(ItemSettings.Item_Name);
+	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
+	if (ItemInformationFromDataTable == nullptr)
+		return;
 
-	bool bAmountWasAdded = AddAmountToItemIfFound(ItemFromInventory);
+	bool bAmountWasAdded = AddAmountToItemIfFound(Inventory->GetItemFromInventory(ItemRowName), ItemInformationFromDataTable->Item_Amount);
 
 	if (bAmountWasAdded == false)
 	{
 		if (Inventory->Inventory_Items.Num() > 31) 
 			return;
-		Inventory->Inventory_Items.Add(ItemSettings.Item_Name, ItemSettings);
+
+		Inventory->Inventory_Items.Add(*ItemInformationFromDataTable);
 	}
 
 	Player->UpdateHudWidget();
@@ -67,80 +71,87 @@ void APickupItem::TakeItem(AMarineCharacter* Player)
 	
 	UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
 
-	AddCraftRecipeIfCraftable(Player);
+	AddCraftRecipeIfCraftable(Player, ItemInformationFromDataTable);
 
-	SpawnWeaponForPlayer(Player);
+	SpawnWeaponForPlayer(Player, ItemInformationFromDataTable);
 
-	Player->UpdateAlbertosInventory(true, ItemSettings.bIsItCraftable);
+	Player->UpdateAlbertosInventory(true, ItemInformationFromDataTable->bIsItCraftable);
 	
 	SaveItemWasTaken();
 
 	Destroy();
 }
 
-bool APickupItem::AddAmountToItemIfFound(FItemStruct* ItemFromInventory)
+bool APickupItem::AddAmountToItemIfFound(FItemStruct* ItemFromInventory, float AmountToAdd)
 {
 	if (ItemFromInventory == nullptr)
 		return false;
 
-	if (ItemSettings.MaxItem_Amount != 0 && ItemFromInventory->Item_Amount >= ItemSettings.MaxItem_Amount)
+	if (ItemFromInventory->MaxItem_Amount != 0 && ItemFromInventory->Item_Amount >= ItemFromInventory->MaxItem_Amount)
 		return false;
 
-	ItemFromInventory->Item_Amount += ItemSettings.Item_Amount;
+	ItemFromInventory->Item_Amount += AmountToAdd;
 
 	return true;
 }
 
-void APickupItem::AddCraftRecipeIfCraftable(class AMarineCharacter* Player)
+void APickupItem::AddCraftRecipeIfCraftable(class AMarineCharacter* Player, FItemStruct* ItemDataFromDataTable)
 {
-	if (ItemSettings.bIsItCraftable == false)
+	if (ItemDataFromDataTable->bIsItCraftable == false)
 		return;
 
 	// if there is craft recipe of this item then dont add another one
-	if (Player->GetInventoryComponent()->Items_Recipes.FindByKey(GetItemSettings()) != nullptr)
+	if (Player->GetInventoryComponent()->Items_Recipes.FindByKey(*ItemDataFromDataTable) != nullptr)
 		return;
 
 	Player->GetMessageHandlerComponent()->SpawnNewRecipeUnlockedWidget();
-	Player->GetInventoryComponent()->Items_Recipes.Add(GetItemSettings());
+	Player->GetInventoryComponent()->Items_Recipes.Add(*ItemDataFromDataTable);
 }
 
-void APickupItem::SpawnWeaponForPlayer(class AMarineCharacter* Player)
+void APickupItem::SpawnWeaponForPlayer(class AMarineCharacter* Player, FItemStruct* ItemDataFromDataTable)
 {
-	if (ItemSettings.bIsItWeapon == false || ItemSettings.WeaponClass == nullptr)
+	if (ItemDataFromDataTable->bIsItWeapon == false || ItemDataFromDataTable->WeaponClass == nullptr)
 		return;
 
-	AGun* SpawnedGun = GetWorld()->SpawnActorDeferred<AGun>(ItemSettings.WeaponClass, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
+	AGun* SpawnedGun = GetWorld()->SpawnActorDeferred<AGun>(ItemDataFromDataTable->WeaponClass, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
 	if (IsValid(SpawnedGun) == false)
 		return;
 
-	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, ItemSettings.WeaponSocketName);
+	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, ItemDataFromDataTable->WeaponSocketName);
 	SpawnedGun->TakeGun(Player);
 	SpawnedGun->FinishSpawning(FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
 }
 
-void APickupItem::ItemHover(UHUDWidget* MarineHUDWidget)
+void APickupItem::ItemHover(AMarineCharacter* Player)
 {
+	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
+	if (ItemInformationFromDataTable == nullptr)
+		return;
+
+	if (IsValid(Player->GetHudWidget()) == false)
+		return;
+
 	ItemMesh->SetRenderCustomDepth(true);
-
-	if (IsValid(MarineHUDWidget) == false) 
-		return;
-
-	MarineHUDWidget->SetItemHoverInformations(ItemSettings.Item_Name, ItemSettings.Item_Description, ItemSettings.Item_StorageIcon);
+	Player->GetHudWidget()->SetItemHoverInformations(ItemInformationFromDataTable->Item_Name, ItemInformationFromDataTable->Item_Description, ItemInformationFromDataTable->Item_StorageIcon);
 }
 
-void APickupItem::ItemUnHover(UHUDWidget* MarineHUDWidget)
+void APickupItem::ItemUnHover(AMarineCharacter* Player)
 {
+	if (IsValid(Player->GetHudWidget()) == false)
+		return;
+
 	ItemMesh->SetRenderCustomDepth(false);
-
-	if (IsValid(MarineHUDWidget) == false) 
-		return;
-
-	MarineHUDWidget->PlayAppearAnimForItemHover(false);
+	Player->GetHudWidget()->PlayAppearAnimForItemHover(false);
 }
 
-void APickupItem::SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh)
+void APickupItem::SetDissolveMaterial(class AMarineCharacter* Player, UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh)
 {
-	if (NewMaterial == nullptr) return;
+	if (NewMaterial == nullptr) 
+		return;
+
+	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
+	if (ItemInformationFromDataTable == nullptr)
+		return;
 
 	DissolveDynamicMaterial = UMaterialInstanceDynamic::Create(NewMaterial, this);
 	if (SkeletalMesh == nullptr) ItemMesh->SetOverlayMaterial(DissolveDynamicMaterial);
@@ -149,7 +160,8 @@ void APickupItem::SetDissolveMaterial(UMaterialInstance* NewMaterial, USkeletalM
 		SkeletalMesh->SetOverlayMaterial(DissolveDynamicMaterial);
 		WeaponSkeletalMesh = SkeletalMesh;
 	}
-	
+
+	TimeToCraftAnItem = ItemInformationFromDataTable->Item_TimeCraft;
 	bShouldDissolve = true;
 }
 
@@ -157,9 +169,9 @@ void APickupItem::Dissolve(float Delta)
 {
 	if (bShouldDissolve == false || DissolveDynamicMaterial == nullptr) return;
 
-	if (DissolveTimeElapsed <= ItemSettings.Item_TimeCraft)
+	if (DissolveTimeElapsed <= TimeToCraftAnItem)
 	{
-		float NewDissolveValue = FMath::Lerp(DissolveStartValue, DissolveEndValue, DissolveTimeElapsed / ItemSettings.Item_TimeCraft);
+		float NewDissolveValue = FMath::Lerp(DissolveStartValue, DissolveEndValue, DissolveTimeElapsed / TimeToCraftAnItem);
 
 		DissolveDynamicMaterial->SetScalarParameterValue(TEXT("Dissolve"), NewDissolveValue);
 		DissolveTimeElapsed += Delta;
@@ -196,3 +208,12 @@ void APickupItem::LoadData(int32 StateOfData)
 	}
 }
 
+void APickupItem::ChangeSimulatingPhysics(bool bChange)
+{
+	ItemMesh->SetSimulatePhysics(bChange);
+}
+
+FItemStruct* APickupItem::GetItemDataFromDataTable()
+{
+	return Player->GetInventoryComponent()->Get;
+}
