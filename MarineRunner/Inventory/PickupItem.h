@@ -33,13 +33,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	virtual void ChangeSimulatingPhysics(bool bChange = true);
-
-	virtual void SetDissolveMaterial(class AMarineCharacter* Player, UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh = nullptr);
-
-	virtual void SetCollisionNewResponse(ECollisionChannel ChannelName, ECollisionResponse NewResponse);
+	virtual void SetDissolveMaterial(class AMarineCharacter* Player, float TimeToEndDisolve, UMaterialInstance* OverlayInstanceMaterial);
 
 	FORCEINLINE const FName GetItemRowName() const { return ItemRowName; }
+	FORCEINLINE UStaticMeshComponent* GetItemMesh() { return ItemMesh; }
+
+	FORCEINLINE void SetItemAmountMultiplier(int32 NewAmountMultiplier) { AmountMultiplier = NewAmountMultiplier; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -47,30 +46,32 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USoundOnHitComponent* SoundOnHitComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* PickUpSound;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
 		FName ItemRowName;
+	UPROPERTY(EditDefaultsOnly, Category = "Item Settings|Sounds")
+		USoundBase* PickUpSound;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Item Settings|Craft")
+		FName DisolveScalarParameterName = FName(TEXT("Dissolve"));
+	UPROPERTY(EditDefaultsOnly, Category = "Item Settings|Craft")
 		float DissolveStartValue = 0.6f;
-	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Item Settings|Craft")
 		float DissolveEndValue = -0.4f;
 
+	// Take
 	bool AddAmountToItemIfFound(FItemStruct* ItemFromInventory, float AmountToAdd);
 	void AddCraftRecipeIfCraftable(class AMarineCharacter* Player, FItemStruct* ItemDataFromDataTable);
 	void SpawnWeaponForPlayer(class AMarineCharacter* Player, FItemStruct* ItemDataFromDataTable);
+
+	int32 AmountMultiplier = 1;
 
 	//Dissolve Material
 	bool bShouldDissolve;
 	float DissolveTimeElapsed;
 	float TimeToCraftAnItem = 4.f;
 	UMaterialInstanceDynamic* DissolveDynamicMaterial;
-	USkeletalMeshComponent* WeaponSkeletalMesh;
 	void Dissolve(float Delta);
 
 	void SaveItemWasTaken();
-
 
 };

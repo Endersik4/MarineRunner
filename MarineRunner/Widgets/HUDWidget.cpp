@@ -40,9 +40,14 @@ void UHUDWidget::SetCurrentNumberOfFirstAidKits(int32 CurrentAidKitsNumber)
 void UHUDWidget::SetAmmoText(int32 Ammo, bool bSetStoredAmmo)
 {
 	FString AmmoText = "";
-	if (Ammo < 10) AmmoText = "00";
-	else if (Ammo < 100) AmmoText = "0";
-	AmmoText += FString::FromInt(Ammo);
+	if (Ammo > 999)
+		AmmoText = "+999";
+	else
+	{
+		if (Ammo < 10) AmmoText = "00";
+		else if (Ammo < 100) AmmoText = "0";
+		AmmoText += FString::FromInt(Ammo);
+	}
 
 	if (bSetStoredAmmo)
 	{

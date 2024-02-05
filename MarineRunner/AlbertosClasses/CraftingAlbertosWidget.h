@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -29,7 +29,6 @@ protected:
 	virtual void NativeConstruct() override;
 
 	virtual void NativeOnInitialized() override;
-	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override;
 
 public:
 
@@ -100,7 +99,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* ItemTimeAndAmountText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* ItemValue_TimeText;
+		class UTextBlock* ItemCraftTimeText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTextBlock* ItemValue_AmountText;
 
@@ -185,7 +184,7 @@ private:
 	
 	// Crafting
 	bool bCanCraft = true;
-	bool bCanBeCrafted;
+	bool bCanCraftItem = true;
 	void SetItemDataToUI(bool bDeleteResources);
 	void AddItemResourcesToRequirementsList(bool bDeleteResources);
 	bool DoesHaveEnoughResources(FString Resource, bool bDeleteResources = false);
@@ -195,10 +194,8 @@ private:
 	float WaitTime;
 	float CopiedItemCraftTime;
 	FTimerHandle TimeCraftHandle;
-	void SetPercentOfCraftingProgressBar(float Delta);
+	void SetPercentOfCraftingProgressBar();
 	void SetCanCraftAgain();
-
-	class AAlbertosPawn* AlbertosPawn;
 
 	// Swipe Items Icon Images Anim
 	EChoiceOfArrow CurrentChoiceOfArrow = ECA_None;
@@ -214,5 +211,5 @@ private:
 	void PlayButtonAnimation(UWidgetAnimation* AnimToPlay, bool bForward = true);
 
 	class AMarineCharacter* MarinePawn;
-
+	class AAlbertosPawn* AlbertosPawn;
 };

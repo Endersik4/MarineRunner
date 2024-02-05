@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
 #include "Components/Image.h"
@@ -7,18 +6,14 @@
 #include "Components/TextBlock.h"
 #include "Components/TileView.h"
 #include "Components/Button.h"
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetTextLibrary.h"
-#include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Animation/WidgetAnimation.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
-#include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/Inventory/PickupItem.h"
 #include "MarineRunner/AlbertosClasses/ItemDataObject.h"
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
-#include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/AlbertosClasses/Components/CraftItemAlbertosComponent.h"
 
 void UCraftingAlbertosWidget::NativeConstruct()
 {
@@ -77,13 +72,6 @@ void UCraftingAlbertosWidget::NativeOnInitialized()
 	Multiplier_1xClicked();
 }
 
-void UCraftingAlbertosWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
-{
-	Super::NativeTick(MyGeometry, DeltaTime);
-
-	SetPercentOfCraftingProgressBar(DeltaTime);
-}
-
 #pragma region /////////////////////// ADD DATA TO INVENTORY ///////////////////
 void UCraftingAlbertosWidget::SetRecipesData(AMarineCharacter* Player)
 {
@@ -110,10 +98,10 @@ void UCraftingAlbertosWidget::AddItemToTileView(TArray<FItemStruct> InventoryIte
 }
 #pragma endregion
 
-#pragma region ///////////////// CRAFTING /////////////////////
+#pragma region ///////////////// item options /////////////////////
 void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshInventory)
 {
-	if (bCanCraft == false || MarinePawn == nullptr) 
+	if (bCanCraft == false || IsValid(MarinePawn) == false)
 		return;
 
 	RequirementsInventoryTileView->ClearListItems();
@@ -125,7 +113,7 @@ void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshInventory)
 
 	PlayProperSwipeItemIconAnim();
 
-	bCanBeCrafted = true;
+	bCanCraftItem = true;
 	CraftButton->SetIsEnabled(true);
 
 	AddItemResourcesToRequirementsList(bRefreshInventory);
@@ -148,12 +136,13 @@ void UCraftingAlbertosWidget::SetItemDataToUI(bool bRefreshInventory)
 	ItemNameToBeCraftedText->SetText(FText::FromString("-" + RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Name + "-"));
 	ItemDescriptionText->SetText(FText::FromString(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Description));
 
-	FString Time = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
-	ItemValue_TimeText->SetText(FText::FromString(Time));
+	FString TimeToCraftItem = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
+	ItemCraftTimeText->SetText(FText::FromString(TimeToCraftItem));
 
 	FString AmountTextStr = FString::FromInt(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Amount * CraftingMultiplier);
 	ItemValue_AmountText->SetText(FText::FromString(AmountTextStr));
 
+	// Player cant craft multiple weapons at the same time
 	if (RecipesOfCraftableItems[ChoiceOfCraftableItem].bIsItWeapon == true) SetisEnableAllMultipliers(false);
 	else SetisEnableAllMultipliers(true);
 }
@@ -164,7 +153,8 @@ void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshIn
 	RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.GenerateKeyArray(ResourcesName);
 	for (FString NameOfResource : ResourcesName)
 	{
-		if (MarinePawn->GetInventoryComponent()->Inventory_Items.FindByKey(NameOfResource) == nullptr) continue;
+		if (MarinePawn->GetInventoryComponent()->Inventory_Items.FindByKey(NameOfResource) == nullptr) 
+			continue;
 
 		bool HaveEnough = DoesHaveEnoughResources(NameOfResource, bRefreshInventory);
 
@@ -174,9 +164,9 @@ void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshIn
 		ConstructedItemObject->bIsItEnoughToCraft = HaveEnough;
 		RequirementsInventoryTileView->AddItem(ConstructedItemObject);
 
-		if (bCanBeCrafted == true && HaveEnough == false)
+		if (bCanCraftItem == true && HaveEnough == false)
 		{
-			bCanBeCrafted = false;
+			bCanCraftItem = false;
 			CraftButton->SetIsEnabled(false);
 		}
 
@@ -187,49 +177,61 @@ void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshIn
 bool UCraftingAlbertosWidget::DoesHaveEnoughResources(FString Resource, bool bDeleteResources)
 {
 	FItemStruct* ResourceFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.FindByKey(Resource);
-	if (ResourceFromInventory == nullptr) return false;
+	if (ResourceFromInventory == nullptr) 
+		return false;
 
 	int32* NumberOfResourcesNeeded = RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.Find(Resource);
-	if (NumberOfResourcesNeeded == nullptr) return false;
+	if (NumberOfResourcesNeeded == nullptr) 
+		return false;
 
-	if (ResourceFromInventory->Item_Amount >= *NumberOfResourcesNeeded * CraftingMultiplier)
+	if (ResourceFromInventory->Item_Amount < *NumberOfResourcesNeeded * CraftingMultiplier)
+		return false;
+
+	if (bDeleteResources == true)
 	{
-		if (bDeleteResources == true)
-		{
-			ResourceFromInventory->Item_Amount -= *NumberOfResourcesNeeded * CraftingMultiplier;
-			if (!(ResourceFromInventory->Item_Amount >= *NumberOfResourcesNeeded * CraftingMultiplier)) return false;
-		}
+		ResourceFromInventory->Item_Amount -= *NumberOfResourcesNeeded * CraftingMultiplier;
+
+		//if after deleting the amount from resource, the player doesnt have enough resource amount needed to create item then return false
+		if (ResourceFromInventory->Item_Amount < *NumberOfResourcesNeeded * CraftingMultiplier) 
+				return false;
 	}
-	else return false;
 
 	return true;
 }
+#pragma endregion
 
 void UCraftingAlbertosWidget::OnItemHovered(UObject* Item, bool bIsHovered)
 {
-	if (MarinePawn == nullptr) return;
-	if (MarinePawn->GetHudWidget() == nullptr) return;
+	if (IsValid(MarinePawn) == false) 
+		return;
+	if (IsValid(MarinePawn->GetHudWidget()) == false) 
+		return;
 
 	if (bIsHovered == true)
 	{
 		UItemDataObject* NewItem = Cast<UItemDataObject>(Item);
+		if (IsValid(NewItem) == false)
+			return;
+
 		MarinePawn->GetHudWidget()->SetItemHoverInformations(NewItem->ItemData.Item_Name, NewItem->ItemData.Item_Description, NewItem->ItemData.Item_StorageIcon);
 	}
-	else MarinePawn->GetHudWidget()->PlayAppearAnimForItemHover(false);
+	else 
+		MarinePawn->GetHudWidget()->PlayAppearAnimForItemHover(false);
 }
 
+#pragma region ///////////////// CRAFTING /////////////////////
 void UCraftingAlbertosWidget::CraftPressed()
 {
-	if (IsValid(MarinePawn) == false || bCanCraft == false)
+	if (IsValid(MarinePawn) == false || IsValid(AlbertosPawn) == false)
 		return;
 
-	if (bCanBeCrafted == false || IsValid(AlbertosPawn) == false) 
+	if (bCanCraftItem == false || bCanCraft == false)
 		return;
 
-	AlbertosPawn->CraftPressed(MarinePawn, SpawnedItem, &TimeCraftHandle);
-
-	// Refresh Inventory
 	SwitchCurrentCraftingItem(true);
+	MarinePawn->UpdateAlbertosInventory();
+
+	AlbertosPawn->GetCraftItemAlbertosComponent()->CraftPressed(MarinePawn, &RecipesOfCraftableItems[ChoiceOfCraftableItem], CraftingMultiplier);
 
 	// Effects
 	CraftButton->SetIsEnabled(false);
@@ -239,18 +241,17 @@ void UCraftingAlbertosWidget::CraftPressed()
 
 	// Fill in Progress bar
 	TimeElapsed = 0.f;
-	//CopiedItemCraftTime = SpawnedItem->GetItemSettings().Item_TimeCraft;
+	CopiedItemCraftTime = RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft;
 
 	// Set Can craft again after TimeCraft
 	bCanCraft = false;
 	WaitTime = RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft;
-	GetWorld()->GetTimerManager().SetTimer(TimeCraftHandle, this, &UCraftingAlbertosWidget::SetCanCraftAgain, WaitTime, false);
+	GetWorld()->GetTimerManager().SetTimer(TimeCraftHandle, this, &UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar, 0.001f, true);
 }
 
 void UCraftingAlbertosWidget::CraftHovered()
 {
 	PlayButtonAnimation(CraftHoveredAnim);
-
 }
 
 void UCraftingAlbertosWidget::CraftUnhovered()
@@ -258,22 +259,27 @@ void UCraftingAlbertosWidget::CraftUnhovered()
 	PlayButtonAnimation(CraftHoveredAnim, false);
 }
 
-void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar(float Delta)
+void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar()
 {
-	if (bCanCraft == true) 
+	if (bCanCraft == true)
 		return;
 
 	if (TimeElapsed <= WaitTime)
 	{
 		float Progress = FMath::Lerp(0.f, 1.f, TimeElapsed / WaitTime);
 		CraftingTimeProgressBar->SetPercent(Progress);
-
 		FString TimeInSeconds = FString::SanitizeFloat(FMath::RoundValuesToGivenDecimalNumbers(CopiedItemCraftTime, 2)) + "s";
-		ItemValue_TimeText->SetText(FText::FromString(TimeInSeconds));
-		
-		CopiedItemCraftTime -= Delta;
-		TimeElapsed += Delta;
+		ItemCraftTimeText->SetText(FText::FromString(TimeInSeconds));
+
+		CopiedItemCraftTime -= 0.001f;
+		TimeElapsed += 0.001f;
 	}
+	else
+	{
+		GetWorld()->GetTimerManager().ClearTimer(TimeCraftHandle);
+		SetCanCraftAgain();
+	}
+
 }
 
 void UCraftingAlbertosWidget::SetCanCraftAgain()
@@ -284,16 +290,14 @@ void UCraftingAlbertosWidget::SetCanCraftAgain()
 	LeftArrowButton->SetIsEnabled(true);
 	RightArrowButton->SetIsEnabled(true);
 
-	AlbertosPawn->CraftingFinished();
+	AlbertosPawn->GetCraftItemAlbertosComponent()->CraftingFinished();
 
 	FString Time = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
-	ItemValue_TimeText->SetText(FText::FromString(Time));
+	ItemCraftTimeText->SetText(FText::FromString(Time));
 
 	bCanCraft = true;
 	CraftButton->SetIsEnabled(true);
 }
-
-
 #pragma endregion
 
 #pragma region /////////////////// Swipe Items Icons Images Animation //////////////////////

@@ -38,12 +38,18 @@ public:
 		TSubclassOf<class APickupItem> ItemObject;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
 		float Item_TimeCraft;
+	// When item was spawned in Location of ItemCraftSocket then add this offset to location
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
-		FVector Item_CraftLocation;
+		FVector InitialCraftLocationOffset;
+	// When player crafted an item then set this scale to the item to fit in albertos. If equals 1 then the scale will not be changed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
-		FVector Item_CraftScale;
+		FVector InitialCraftScale = FVector(1.f);
+	// when the crafting of this item ended then scale item to TargetScale
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
-		FRotator Item_CraftRotation;
+		FVector TargetScaleAfterCrafting;
+	// When item was spawned in Location of ItemCraftSocket then add this offset to rotation
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
+		FRotator InitialCraftRotation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
 		TMap<FString, int32> ResourceRequirements;
 
@@ -56,9 +62,9 @@ public:
 		bIsItResource = false;
 		bIsItWeapon = false;
 		bIsItCraftable = false;
-		Item_CraftLocation = FVector(0.f);
-		Item_CraftScale = FVector(0.f);
-		Item_CraftRotation = FRotator(0.f);
+		InitialCraftLocationOffset = FVector(0.f);
+		InitialCraftScale = FVector(1.f);
+		InitialCraftRotation = FRotator(0.f);
 		Item_TimeCraft = 0.f;
 		ResourceRequirements = { {" ", 0} };
 	}
@@ -114,6 +120,8 @@ public:
 
 	FItemStruct* GetItemFromInventory(FName ItemRowNameFromDataTable);
 	FItemStruct* GetItemInformationFromDataTable(FName ItemRowNameFromDataTable);
+	//FItemStruct* GetItemInformationFromDataTableUsingItemName(FString ItemNameToFind);
+
 	void AddNewItemToInventory(FName ItemRowNameFromDataTable, float AddAmountToItem = 0.f);
 	void DeleteItemFromInventory(FItemStruct ItemToDelete);
 private:

@@ -1,34 +1,23 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineRunner/AlbertosClasses/AlbertosAIController.h"
-#include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
 
 AAlbertosAIController::AAlbertosAIController()
 {
-	
 }
 
 void AAlbertosAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (!AIBehaviour) return;
+	AlbertosOwner = Cast<AAlbertosPawn>(GetPawn());;
+
+	if (!AIBehaviour)
+		return;
 	RunBehaviorTree(AIBehaviour);
-}
-
-void AAlbertosAIController::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-void AAlbertosAIController::SetCanMove(bool bCan)
-{
-	GetBlackboardComponent()->SetValueAsBool(FName(TEXT("bCanMove")), bCan);
 }
 
 void AAlbertosAIController::CallAlbertosToThePlayer(FVector PlayerLoc)
@@ -40,9 +29,14 @@ void AAlbertosAIController::CallAlbertosToThePlayer(FVector PlayerLoc)
 
 void AAlbertosAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-	if (bIsMovingTowardsPlayer == false) return;
+	if (bIsMovingTowardsPlayer == false || IsValid(AlbertosOwner) == false) 
+		return;
 
-	AAlbertosPawn* Albertos = Cast<AAlbertosPawn>(GetPawn());
-	Albertos->ChangeMaxSpeedOfFloatingMovement(false);
+	AlbertosOwner->ChangeMaxSpeedOfFloatingMovement(false);
 	bIsMovingTowardsPlayer = false;
+}
+
+void AAlbertosAIController::SetCanMove(bool bCan)
+{
+	GetBlackboardComponent()->SetValueAsBool(FName(TEXT("bCanMove")), bCan);
 }

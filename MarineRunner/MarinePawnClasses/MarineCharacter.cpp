@@ -397,18 +397,22 @@ void AMarineCharacter::UpdateHudWidget()
 #pragma region //////////////////////////////// ALBERTO ////////////////////////////////
 void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool bShouldUpdateCrafting)
 {
-	if (AlbertoPawn) CraftingWidget = Cast<UCraftingAlbertosWidget>(AlbertoPawn->GetCraftingTableWidget());
-	if (CraftingWidget == nullptr) return;
+	if (IsValid(AlbertoPawn) == false)
+		return;
+	
+	CraftingWidget = Cast<UCraftingAlbertosWidget>(AlbertoPawn->GetCraftingTableWidget());
+	if (IsValid(CraftingWidget) == false) 
+		return;
+
+	if (bShouldUpdateInventory == true)
+	{
+		CraftingWidget->AddItemToTileView(InventoryComponent->Inventory_Items);
+	}
 
 	if (bShouldUpdateCrafting == true)
 	{
 		CraftingWidget->SetRecipesData(this);
 		CraftingWidget->SwitchCurrentCraftingItem();
-	}
-
-	if (bShouldUpdateInventory == true)
-	{
-		CraftingWidget->AddItemToTileView(InventoryComponent->Inventory_Items);
 	}
 }
 

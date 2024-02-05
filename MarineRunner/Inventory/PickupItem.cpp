@@ -6,7 +6,6 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
-#include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Objects/ObjectsComponents/SoundOnHitComponent.h"
@@ -31,14 +30,12 @@ APickupItem::APickupItem()
 	SoundOnHitComponent = CreateDefaultSubobject<USoundOnHitComponent>(TEXT("Sound On Hit Comp"));
 }
 
-// Called when the game starts or when spawned
 void APickupItem::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
 
-// Called every frame
 void APickupItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -46,6 +43,7 @@ void APickupItem::Tick(float DeltaTime)
 	Dissolve(DeltaTime);
 }
 
+#pragma region ///////////// TAKE ITEM ////////////////
 void APickupItem::TakeItem(AMarineCharacter* Player)
 {
 	UInventoryComponent* Inventory = Player->GetInventoryComponent();
@@ -56,20 +54,23 @@ void APickupItem::TakeItem(AMarineCharacter* Player)
 	if (ItemInformationFromDataTable == nullptr)
 		return;
 
-	bool bAmountWasAdded = AddAmountToItemIfFound(Inventory->GetItemFromInventory(ItemRowName), ItemInformationFromDataTable->Item_Amount);
+	bool bAmountWasAdded = AddAmountToItemIfFound(Inventory->GetItemFromInventory(ItemRowName), ItemInformationFromDataTable->Item_Amount * AmountMultiplier);
 
 	if (bAmountWasAdded == false)
 	{
 		if (Inventory->Inventory_Items.Num() > 31) 
 			return;
 
-		Inventory->Inventory_Items.Add(*ItemInformationFromDataTable);
+		FItemStruct ItemToAdd = *ItemInformationFromDataTable;
+		ItemToAdd.Item_Amount *= AmountMultiplier;
+		Inventory->Inventory_Items.Add(ItemToAdd);
 	}
 
 	Player->UpdateHudWidget();
 	Player->GetHudWidget()->PlayAppearAnimForItemHover(false);
 	
-	UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
+	if (PickUpSound)	
+		UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
 
 	AddCraftRecipeIfCraftable(Player, ItemInformationFromDataTable);
 
@@ -113,15 +114,18 @@ void APickupItem::SpawnWeaponForPlayer(class AMarineCharacter* Player, FItemStru
 	if (ItemDataFromDataTable->bIsItWeapon == false || ItemDataFromDataTable->WeaponClass == nullptr)
 		return;
 
-	AGun* SpawnedGun = GetWorld()->SpawnActorDeferred<AGun>(ItemDataFromDataTable->WeaponClass, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
+	FTransform WeaponTransform = FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f));
+	AGun* SpawnedGun = GetWorld()->SpawnActorDeferred<AGun>(ItemDataFromDataTable->WeaponClass, WeaponTransform);
 	if (IsValid(SpawnedGun) == false)
 		return;
 
 	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, ItemDataFromDataTable->WeaponSocketName);
 	SpawnedGun->TakeGun(Player);
-	SpawnedGun->FinishSpawning(FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
+	SpawnedGun->FinishSpawning(WeaponTransform);
 }
+#pragma endregion
 
+#pragma region ///////// ITEM HOVERED/UNHOVERED //////////
 void APickupItem::ItemHover(AMarineCharacter* Player)
 {
 	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
@@ -143,53 +147,45 @@ void APickupItem::ItemUnHover(AMarineCharacter* Player)
 	ItemMesh->SetRenderCustomDepth(false);
 	Player->GetHudWidget()->PlayAppearAnimForItemHover(false);
 }
+#pragma endregion
 
-void APickupItem::SetDissolveMaterial(class AMarineCharacter* Player, UMaterialInstance* NewMaterial, USkeletalMeshComponent* SkeletalMesh)
+#pragma region /////////// DISSOLVE MATERIAL ON MESH //////////////
+void APickupItem::SetDissolveMaterial(class AMarineCharacter* Player, float TimeToEndDisolve, UMaterialInstance* OverlayInstanceMaterial)
 {
-	if (NewMaterial == nullptr) 
+	if (IsValid(OverlayInstanceMaterial) == false) 
 		return;
 
-	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
-	if (ItemInformationFromDataTable == nullptr)
+	DissolveDynamicMaterial = UMaterialInstanceDynamic::Create(OverlayInstanceMaterial, this);
+	if (IsValid(DissolveDynamicMaterial) == false)
 		return;
 
-	DissolveDynamicMaterial = UMaterialInstanceDynamic::Create(NewMaterial, this);
-	if (SkeletalMesh == nullptr) ItemMesh->SetOverlayMaterial(DissolveDynamicMaterial);
-	else
-	{
-		SkeletalMesh->SetOverlayMaterial(DissolveDynamicMaterial);
-		WeaponSkeletalMesh = SkeletalMesh;
-	}
+	ItemMesh->SetOverlayMaterial(DissolveDynamicMaterial);
 
-	TimeToCraftAnItem = ItemInformationFromDataTable->Item_TimeCraft;
+	TimeToCraftAnItem = TimeToEndDisolve;
 	bShouldDissolve = true;
 }
 
 void APickupItem::Dissolve(float Delta)
 {
-	if (bShouldDissolve == false || DissolveDynamicMaterial == nullptr) return;
+	if (bShouldDissolve == false || IsValid(DissolveDynamicMaterial) == false) 
+		return;
 
 	if (DissolveTimeElapsed <= TimeToCraftAnItem)
 	{
 		float NewDissolveValue = FMath::Lerp(DissolveStartValue, DissolveEndValue, DissolveTimeElapsed / TimeToCraftAnItem);
 
-		DissolveDynamicMaterial->SetScalarParameterValue(TEXT("Dissolve"), NewDissolveValue);
+		DissolveDynamicMaterial->SetScalarParameterValue(DisolveScalarParameterName, NewDissolveValue);
 		DissolveTimeElapsed += Delta;
+
+		return;
 	}
-	else
-	{
-		bShouldDissolve = false;
 
-		if (WeaponSkeletalMesh == nullptr) ItemMesh->SetOverlayMaterial(nullptr);
-		else WeaponSkeletalMesh->SetOverlayMaterial(nullptr);
-	}
+	bShouldDissolve = false;
+	ItemMesh->SetOverlayMaterial(nullptr);
 }
+#pragma endregion 
 
-void APickupItem::SetCollisionNewResponse(ECollisionChannel ChannelName, ECollisionResponse NewResponse)
-{
-	ItemMesh->SetCollisionResponseToChannel(ChannelName, NewResponse);
-}
-
+#pragma region /////////// SAVE/LOAD /////////////
 void APickupItem::SaveItemWasTaken()
 {
 	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
@@ -207,13 +203,4 @@ void APickupItem::LoadData(int32 StateOfData)
 		Destroy();
 	}
 }
-
-void APickupItem::ChangeSimulatingPhysics(bool bChange)
-{
-	ItemMesh->SetSimulatePhysics(bChange);
-}
-
-FItemStruct* APickupItem::GetItemDataFromDataTable()
-{
-	return Player->GetInventoryComponent()->Get;
-}
+#pragma endregion

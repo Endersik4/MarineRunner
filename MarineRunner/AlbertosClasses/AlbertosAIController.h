@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -20,9 +20,7 @@ protected:
 public:
 	AAlbertosAIController();
 
-	virtual void Tick(float DeltaTime) override;
-
-	void SetCanMove(bool bCan);
+	FORCEINLINE void SetCanMove(bool bCan);
 
 	void CallAlbertosToThePlayer(FVector PlayerLoc);
 private:
@@ -32,4 +30,5 @@ private:
 		class UBehaviorTree* AIBehaviour;
 	
 	bool bIsMovingTowardsPlayer;
+	class AAlbertosPawn* AlbertosOwner;
 };

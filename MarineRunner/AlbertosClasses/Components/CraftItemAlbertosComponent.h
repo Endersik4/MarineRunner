@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "MarineRunner/Inventory/InventoryComponent.h"
+
 #include "CraftItemAlbertosComponent.generated.h"
 
 
@@ -24,43 +26,46 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable)
-		void SetIsFrontDoorOpen(bool bIsIt) { bIsFrontDoorOpen = bIsIt; }
-
-	void CraftPressed(class AMarineCharacter* Player, class APickupItem*, FTimerHandle* CraftTimeHandle);
+	void CraftPressed(class AMarineCharacter* Player, const FItemStruct* ItemToCraft, int32 ItemAmountMultiplier);
 	void CraftingFinished();
 
+	FORCEINLINE const bool isCraftedItemValid() const;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
 		float ItemMoveSpeedAfterCrafting = 5.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
-		FName ItemSpawnLocationSocketName = "ItemSpawnLocation";
+		float ItemScaleSpeedAfterCrafting = 11.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
+		FName ItemSpawnLocationSocketName = TEXT("ItemSpawnLocation");
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
+		FName FinalItemLocationSocketName = TEXT("FinalItemPosition");
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
 		UMaterialInstance* OverlayCraftingMaterial;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds Variables")
-		float TimeAfterStartingCraftSound = 1.515f;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds Variables")
-		float TimeOfCraftingRuntimeSound = 0.844f;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds Variables")
-		float TimeLeftEndCraftingLoop = 1.341f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* CraftingItemSound;
+		USoundBase* Craft_Start_Sound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* Craft_Middle_Sound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* Craft_End_Sound;
 
-	bool bIsFrontDoorOpen;
-	bool bShouldScaleCraftedItem;
-	FVector TargetScaleOfCraftedItem;
 	class APickupItem* CraftedItem;
+	class APickupItem* SpawnCraftedItem(const FItemStruct* ItemToCraft);
+	FTransform ItemToCraftOffsetTransform(const FVector & OffsetVector, const FRotator & OffsetRotator, const FVector& ItemInitialScale);
 
-	// Crafting Sounds
-	FTimerHandle* CraftingTimeHandle;
-	FTimerHandle ShouldLoopCraftingSoundHandle;
-	class UAudioComponent* SpawnedCraftingSound;
-	void ShouldLoopCraftingSound();
+	// Crafting Sound
+	int32 MiddleCraftSoundCounter;
+	int32 CalculateHowManyMiddleCraftSoundHaveToPlay(const float & TimeToCraftAnItem);
+	void StartPlayingCraftSound(const float & TimeToCraftAnItem);
+	void PlayMiddleCraftSound();
 
 	// Moving an item after it has been created
 	bool bMoveCraftedItemToFinalPosition;
+	bool bShouldScaleCraftedItem;
+	FVector FinalLocationItem;
+	FVector TargetScaleOfCraftedItem;
+	void ItemWasMoved();
 	void MoveCraftedItemToFinalPosition(float Delta);
 
 	class AAlbertosPawn* AlbertosPawn;
