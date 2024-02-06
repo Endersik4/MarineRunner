@@ -25,8 +25,9 @@ protected:
 
 public:	
 
-	int32 GetWeaponsStorageAmount() const { return WeaponsStorage.Num(); }
-	int32 GetMaxAmount() const { return MaxAmountOfItems; }
+	FORCEINLINE bool CanPlayerTakeWeaponToInventory() const;
+	FORCEINLINE int32 GetCurrentAmountOfWeapons() const { return WeaponsStorage.Num(); }
+	FORCEINLINE void SetGunFromInventory(class AGun* NewGun) { GunFromInventory = NewGun; }
 
 	void AddNewWeaponToStorage(class AGun* NewGun);
 
@@ -38,6 +39,7 @@ public:
 	bool GetWeaponFromStorage(int32 KeyForWeapon, class AGun* CurrentWeapon);
 
 	AGun* GetCurrentGunToDraw();
+	int32 GetLastWeaponSlotFromStorage(AGun* ValueToIgnore);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")

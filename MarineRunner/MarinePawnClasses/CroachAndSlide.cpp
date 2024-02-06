@@ -1,7 +1,6 @@
 // Copyright Adam Bartela.All Rights Reserved
 
 #include "CroachAndSlide.h"
-#include "DrawDebugHelpers.h"
 #include "Camera/CameraComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/AudioComponent.h"
@@ -9,18 +8,13 @@
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/JumpComponent.h"
 
-// Sets default values for this component's properties
 UCroachAndSlide::UCroachAndSlide()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	// ...
+	PrimaryComponentTick.TickGroup = ETickingGroup::TG_PrePhysics;
 }
 
-
-// Called when the game starts
 void UCroachAndSlide::BeginPlay()
 {
 	Super::BeginPlay();
@@ -30,7 +24,7 @@ void UCroachAndSlide::BeginPlay()
 
 	CurrentMovementForce = MarinePawn->GetMovementForce();
 
-	InitialMovementForce = CurrentMovementForce;
+	OriginalMovementForce = CurrentMovementForce;
 	MarinePawn->GetCamera()->PostProcessSettings.bOverride_VignetteIntensity = true;
 }
 
@@ -39,42 +33,43 @@ void UCroachAndSlide::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (bShouldStillCroach == true)
-	{
-		CrouchReleased();
-	}
-	CroachLerp(DeltaTime);
+	StartChangingCrouchState(DeltaTime);
 	Sliding(DeltaTime);
 }
 
 #pragma region ///////////// SLIDING ///////////////////
-void UCroachAndSlide::Sliding(float Delta)
+void UCroachAndSlide::BeginSlide()
 {
-	if (bShouldSlide == false) 
+	// Cant slide if going uphill
+	if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == true)
+		return;
+	// Cant Slide backward
+	if (MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0)
+		return;
+	if (MarinePawn->GetJumpComponent()->GetIsJumping())
 		return;
 
-	if (bShouldPlaySound == true && SlideSound)
-	{
-		SpawnedSlideSound = UGameplayStatics::SpawnSound2D(GetWorld(), SlideSound);
-		bShouldPlaySound = false;
-	}
+	CurrentMovementForce = OriginalMovementForce + InitialVelocityOfSliding;
+	bSlide = true;
+}
+
+void UCroachAndSlide::Sliding(float Delta)
+{
+	if (bSlide == false) 
+		return;
+
+	TurnOnSlideSound();
 
 	if (MarinePawn->GetJumpComponent()->GetIsOnRamp())
 	{
 		SlideOnRamp(Delta);
 	}
 	else
-	{
 		CurrentMovementForce -= SlideSpeed * Delta;
-	}
 
 	if (ShouldStopSliding())
 	{
-		CurrentMovementForce = CrouchForceSpeed;
-		TurnOffSlideSound();
-		if (IsValid(CameraShakeBase))
-			CameraShakeBase->StopShake(false);
-		bShouldSlide = false;
+		StopSliding();
 	}
 
 	MarinePawn->SetMovementForce(CurrentMovementForce);
@@ -82,88 +77,100 @@ void UCroachAndSlide::Sliding(float Delta)
 
 void UCroachAndSlide::SlideOnRamp(const float& Delta)
 {
-	if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == false)
-	{
-		CurrentMovementForce += (CurrentMovementForce < MaxSlideForce) ? (RampForce)*Delta : 0;
-		MarinePawn->SetShouldPlayerGoForward(true);
-
-		if (bStartRampCameraShake == false)
-		{
-			CameraShakeBase = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(RampCameraShake, 1.f);
-			bStartRampCameraShake = true;
-		}
-	}
-	else
+	if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == true)
 	{
 		CurrentMovementForce -= SlideSpeedRamp * Delta;
+		return;
+	}
+
+	// if current movement force is bigger then max force then do not add more force 
+	CurrentMovementForce += (CurrentMovementForce < MaxSlideForce) ? RampForce*Delta : 0;
+	MarinePawn->SetShouldPlayerGoForward(true);
+
+	if (bRampCameraShakeStarted == false)
+	{
+		CameraShakeBase = UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(RampCameraShake, 1.f);
+		bRampCameraShakeStarted = true;
 	}
 }
 
+// if player stopped moving or current movement force is smaller ten crouch force speed then stop sliding
 bool UCroachAndSlide::ShouldStopSliding()
 {
 	bool bPlayerIsntMoving = MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetShouldPlayerGoForward() == false && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0;
 	return CurrentMovementForce <= CrouchForceSpeed || bPlayerIsntMoving;
 }
 
-void UCroachAndSlide::BeginSlide()
+void UCroachAndSlide::StopSliding()
 {
-	if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == true)
-		return;
-	if (MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0)
-		return;
-	if (MarinePawn->GetJumpComponent()->GetIsJumping())
+	CurrentMovementForce = CrouchForceSpeed;
+	TurnOffSlideSound();
+	if (IsValid(CameraShakeBase))
+		CameraShakeBase->StopShake(false);
+	bSlide = false;
+}
+
+void UCroachAndSlide::TurnOnSlideSound()
+{
+	if (bShouldPlaySound == false || SlideSound == nullptr)
 		return;
 
-	CurrentMovementForce = InitialMovementForce + InitialVelocityOfSliding;
-	bShouldSlide = true;
+	SpawnedSlideSound = UGameplayStatics::SpawnSound2D(GetWorld(), SlideSound);
+	bShouldPlaySound = false;
 }
 
 void UCroachAndSlide::TurnOffSlideSound()
 {
-	if (!SpawnedSlideSound) return;
+	if (IsValid(SpawnedSlideSound) == false) 
+		return;
 
 	SpawnedSlideSound->ToggleActive();
 	SpawnedSlideSound = nullptr;
 }
 #pragma endregion
 
-void UCroachAndSlide::CrouchPressed(bool bSlide)
+#pragma region ////////// CROUCH /////////////
+void UCroachAndSlide::CrouchPressed(bool bSlidePressed)
 {
 	if (MarinePawn->GetIsPlayerLerpingToHookLocation() || MarinePawn->GetIsWallrunning() || bIsCrouching == true) 
 		return;
 
-	bIsCrouching = true;
 	bCrouchPressed = true;
 
-	if (bShouldStillCroach) 
+	if (GetWorld()->GetTimerManager().IsTimerActive(CheckCrouchReleasedHandle) == true)
 		return;
 
-	CurrentMovementForce = CrouchForceSpeed;
-	ScaleZ = ScalePlayerWhenCrouching.GetLowerBoundValue();
-	VignetteIntensityValue = CrouchPressedVignetteIntensity;
+	PrepareVariablesForChangingCrouchState(ScalePlayerWhenCrouching.GetLowerBoundValue(), CrouchPressedVignetteIntensity);
+	bIsNowChangingCrouchState = true;
 
-	bCanCroachLerp = true;
-	if (bSlide)
-	{
+	if (bSlidePressed)
 		GetWorld()->GetTimerManager().SetTimer(SlideDelayHandle, this, &UCroachAndSlide::BeginSlide, SlideDelayInSeconds, false);
-	}
 
+	bIsCrouching = true;
+	CurrentMovementForce = CrouchForceSpeed;
 	MarinePawn->SetMovementForce(CurrentMovementForce);
 }
 
-void UCroachAndSlide::CroachLerp(float Delta)
+// change actor scale accroding to the state of crouch (e.g is now standing or is now crouching) and vignette intensity for the effect
+void UCroachAndSlide::StartChangingCrouchState(float Delta)
 {
-	if (bCanCroachLerp == false) return;
+	if (bIsNowChangingCrouchState == false) 
+		return;
 
-	float NewVignetteIntensity = FMath::Lerp(MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity, VignetteIntensityValue, Delta * SpeedOfCrouchLerp);
-	MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
-
-	float NewScaleZ = FMath::Lerp(GetOwner()->GetActorScale3D().Z, ScaleZ, Delta * SpeedOfCrouchLerp);
-	GetOwner()->SetActorScale3D(FVector(1, 1, NewScaleZ));
-	if (GetOwner()->GetActorScale3D().Equals(FVector(1, 1, ScaleZ), 0.01))
+	if (CrouchPressedTimeElapsed <= TimeToChangeCrouchState)
 	{
-		GetOwner()->SetActorScale3D(FVector(1, 1, ScaleZ));
-		bCanCroachLerp = false;
+		float NewVignetteIntensity = FMath::Lerp(CurrentVignetteIntensity, Target_VignetteIntensity, CrouchPressedTimeElapsed / TimeToChangeCrouchState);
+		MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
+
+		float NewScaleZ = FMath::Lerp(CurrentActorScale_Z, Target_ScaleZ, CrouchPressedTimeElapsed / TimeToChangeCrouchState);
+		MarinePawn->SetActorScale3D(FVector(1, 1, NewScaleZ));
+
+		CrouchPressedTimeElapsed += Delta;
+	}
+	else
+	{
+		MarinePawn->SetActorScale3D(FVector(1, 1, Target_ScaleZ));
+		bIsNowChangingCrouchState = false;
 	}
 }
 
@@ -174,47 +181,61 @@ void UCroachAndSlide::CrouchReleased()
 	if (MarinePawn->GetJumpComponent()->GetIsOnRamp() || bIsCrouching == false)
 		return;
 
-	//Check if Pawn can stand
-	if (SweepBox(GetOwner()->GetActorUpVector(), 100.f))
-	{
-		bShouldStillCroach = true;
+	if (bCanPlayerStand() == false)
 		return;
+
+	StopCrouching();
+}
+
+bool UCroachAndSlide::bCanPlayerStand()
+{
+	FHitResult ObstacleAboveResult;
+	FVector CheckObstacleLocation = MarinePawn->GetRoofLocationSceneComponent()->GetComponentLocation();
+	if (GetWorld()->SweepSingleByChannel(ObstacleAboveResult, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECC_GameTraceChannel6, FCollisionShape::MakeBox(CheckBoxSizeToStandUpAfterCrouch)))
+	{
+		GetWorld()->GetTimerManager().SetTimer(CheckCrouchReleasedHandle, this, &UCroachAndSlide::CrouchReleased, CrouchReleasedTimeCheck, false);
+		return false;
 	}
-	
+
+	return true;
+}
+
+void UCroachAndSlide::StopCrouching()
+{
 	bIsCrouching = false;
 	bShouldPlaySound = true;
 
-	bShouldStillCroach = false;
-	bShouldSlide = false;
+	bSlide = false;
 	TurnOffSlideSound();
 	GetWorld()->GetTimerManager().ClearTimer(SlideDelayHandle);
 
-	bStartRampCameraShake = false;
+	bRampCameraShakeStarted = false;
 	if (IsValid(CameraShakeBase))
 		CameraShakeBase->StopShake(false);
 
-	ScaleZ = ScalePlayerWhenCrouching.GetUpperBoundValue();
-	VignetteIntensityValue = 0.f;
-	bCanCroachLerp = true;
+	PrepareVariablesForChangingCrouchState(ScalePlayerWhenCrouching.GetUpperBoundValue(), 0.f);
+	bIsNowChangingCrouchState = true;
 
-	CurrentMovementForce = InitialMovementForce;
+	CurrentMovementForce = OriginalMovementForce;
 	MarinePawn->SetMovementForce(CurrentMovementForce);
+}
+
+void UCroachAndSlide::PrepareVariablesForChangingCrouchState(const float& TargetScale_Z, const float& TargetVignetteIntensity)
+{
+	CrouchPressedTimeElapsed = 0.f;
+	CurrentVignetteIntensity = MarinePawn->GetCamera()->PostProcessSettings.VignetteIntensity;
+	CurrentActorScale_Z = MarinePawn->GetActorScale3D().Z;
+
+	Target_ScaleZ = TargetScale_Z;
+	Target_VignetteIntensity = TargetVignetteIntensity;
 }
 
 void UCroachAndSlide::CrouchReleasedByObject()
 {
-	if (bCrouchPressed == false)
-	{
-		CrouchReleased();
-	}
+	if (bCrouchPressed == true)
+		return;
+	
+	CrouchReleased();
 }
 
-bool UCroachAndSlide::SweepBox(FVector Where, float Distance)
-{
-	FVector Start = GetOwner()->GetActorLocation();
-	Start.Z += 200.f;
-	FVector End = Start + (Where * Distance);
-
-	FHitResult HitResult;
-	return GetWorld()->SweepSingleByChannel(HitResult, Start, Start, FQuat::Identity, ECC_GameTraceChannel6, FCollisionShape::MakeBox(FVector(30, 30, 60)));
-}
+#pragma endregion

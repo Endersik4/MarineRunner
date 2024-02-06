@@ -19,8 +19,8 @@ void UWeaponInventoryComponent::BeginPlay()
 	Super::BeginPlay();
 	
 	SetUpMarinePawn();
-	FTimerHandle test;
-	GetWorld()->GetTimerManager().SetTimer(test, this, &UWeaponInventoryComponent::SpawnWeaponsFromInventory, 0.1f, false);
+	FTimerHandle SpawnWeaponsFromInventoryHandle;
+	GetWorld()->GetTimerManager().SetTimer(SpawnWeaponsFromInventoryHandle, this, &UWeaponInventoryComponent::SpawnWeaponsFromInventory, 0.1f, false);
 }
 
 void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
@@ -33,15 +33,12 @@ void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
 
 	for (TSubclassOf<AGun> CurrentWeaponToSpawn : WeaponsToSpawn)
 	{
-		AGun* SpawnedGun = GetWorld()->SpawnActorDeferred<AGun>(CurrentWeaponToSpawn, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
+		AGun* SpawnedGun = GetWorld()->SpawnActor<AGun>(CurrentWeaponToSpawn, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
 		if (IsValid(SpawnedGun) == false)
 			continue;
 
-		SpawnedGun->AttachToComponent(MarinePawn->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(TEXT("Weapon")));
-		SpawnedGun->TakeGun(MarinePawn);
-		SpawnedGun->FinishSpawning(FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
-
-		AddNewWeaponToStorage(SpawnedGun);
+		SpawnedGun->AttachToComponent(MarinePawn->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(TEXT("Weapon_R")));
+		SpawnedGun->TakeGun(MarinePawn, true, *InitialWeaponInventory.FindKey(CurrentWeaponToSpawn));
 	}
 }
 
@@ -58,7 +55,7 @@ void UWeaponInventoryComponent::RemoveWeaponFromStorage(AGun* EquipedGun)
 {
 	int32 KeyForEquipedGun = *WeaponsStorage.FindKey(EquipedGun);
 	WeaponsStorage.Remove(KeyForEquipedGun);
-
+	
 	SortWeapons();
 }
 
@@ -83,6 +80,21 @@ AGun* UWeaponInventoryComponent::GetCurrentGunToDraw()
 	return GunFromInventory;
 }
 
+int32 UWeaponInventoryComponent::GetLastWeaponSlotFromStorage(AGun* ValueToIgnore)
+{
+	TArray<int32> SlotsForGunGun;
+	WeaponsStorage.GenerateKeyArray(SlotsForGunGun);
+	for (int32 i = SlotsForGunGun.Num() - 1; i >= 0; i--)
+	{
+		if (WeaponsStorage.Find(SlotsForGunGun[i]) == nullptr)
+			continue;
+
+		if (*WeaponsStorage.Find(SlotsForGunGun[i]) != ValueToIgnore)
+			return SlotsForGunGun[i];
+	}
+	return 0;
+}
+
 void UWeaponInventoryComponent::SortWeapons()
 {
 	TArray<AGun*> Guns;
@@ -92,6 +104,11 @@ void UWeaponInventoryComponent::SortWeapons()
 	{
 		WeaponsStorage.Add(i, Guns[i - 1]);
 	}
+}
+
+bool UWeaponInventoryComponent::CanPlayerTakeWeaponToInventory() const
+{
+	return WeaponsStorage.Num() < MaxAmountOfItems;
 }
 
 void UWeaponInventoryComponent::SetUpMarinePawn()

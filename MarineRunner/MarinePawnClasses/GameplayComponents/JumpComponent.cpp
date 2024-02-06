@@ -60,11 +60,10 @@ void UJumpComponent::JumpTick(float DeltaTime)
 
 	if (JumpTimeElapsed < JumpUpTime)
 	{
-		FVector Start = Player->GetActorLocation();
-		Start.Z += 100.f * Player->GetActorScale3D().Z;
+		FVector CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
 		FHitResult HitR;
 
-		bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(HitR, Start, Start, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeBox(FVector(4.4, 4.4, 8.5)));
+		bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(HitR, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeBox(FVector(4.4, 4.4, 8.5)));
 		if (bObstacleAbovePlayer == false)
 		{
 			//Jumps Up
@@ -121,8 +120,9 @@ void UJumpComponent::DelayJump()
 void UJumpComponent::CheckIfIsInAir()
 {
 	FHitResult GroundHitResult;
+	FVector GroundCheckLocation = Player->GetGroundLocationSceneComponent()->GetComponentLocation();
 	//Check if there is ground under the player, if not, the player is in the air
-	bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, Player->GetActorLocation()+ CheckIfInAirOffsetLocation, Player->GetActorLocation() + CheckIfInAirOffsetLocation, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
+	bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GroundCheckLocation, GroundCheckLocation, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
 	if (bSomethingIsBelowThePlayer == false)
 	{
 		if (bIsInAir == true)

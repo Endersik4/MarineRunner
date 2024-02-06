@@ -47,7 +47,6 @@ private:
 		class UParticleSystem* BulletHitParticle;
 	UPROPERTY(EditAnywhere, Category = "Particles")
 		class UParticleSystem* BulletHit2Particle;
-
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ObjectHitSound;
 

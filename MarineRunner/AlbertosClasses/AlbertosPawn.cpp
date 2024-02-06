@@ -102,7 +102,7 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character)
 	if (CraftingWidgetAnimationComponent->GetIsCraftingWidgetAnimatinPlaying() == true)
 		return;
 
-	SetInventoryVisibility();
+	SetInventoryVisibility(!CraftingTableWidget->IsVisible());
 	if (CraftingTableWidget->IsVisible())
 	{
 		Character->UpdateAlbertosInventory(true, true);
@@ -140,11 +140,16 @@ void AAlbertosPawn::SetInventoryVisibility(bool bVisible)
 		if (CraftingTableWidget->IsVisible() == true)
 			return;
 
+		if (AppearCraftingSound)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AppearCraftingSound, CraftingTableWidget->GetComponentLocation());
+
 		ToggleVisibilityCraftingWidget();
 		CraftingWidgetAnimationComponent->PrepareCraftingWidgetAnimation(true);
 	}
 	else if (CraftingTableWidget->IsVisible() == true)
 	{
+		if (AppearCraftingSound)
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AppearCraftingSound, CraftingTableWidget->GetComponentLocation());
 		CraftingWidgetAnimationComponent->PrepareCraftingWidgetAnimation(false);
 	}
 }

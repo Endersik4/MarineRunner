@@ -22,16 +22,25 @@ void UStorageListEntryWidget::NativeOnInitialized()
 void UStorageListEntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	UItemDataObject* ItemDataObject = Cast<UItemDataObject>(ListItemObject);
+	if (IsValid(ItemDataObject) == false)
+		return;
 
+	ItemDataToEntry(ItemDataObject);
+}
+
+void UStorageListEntryWidget::ItemDataToEntry(UItemDataObject* ItemDataObject)
+{
 	ItemImageListEntry->SetBrushFromTexture(ItemDataObject->ItemData.Item_StorageIcon);
 
-	FString ItemAmountValueString = FString::FromInt(ItemDataObject->ItemData.Item_Amount);
+	FString ItemAmountValueString = "";
 	if (ItemDataObject->ItemData.Item_Amount > 999)
 	{
 		ItemAmountValueString = TextWhenItemAmountIsMoreThen999;
 	}
+	else
+		ItemAmountValueString = FString::FromInt(ItemDataObject->ItemData.Item_Amount);
 	ItemAmountListEntry->SetText(FText::FromString(ItemAmountValueString));
-	
+
 	bNotEnoughResources = ItemDataObject->bIsItEnoughToCraft;
 	if (bNotEnoughResources == false)
 	{

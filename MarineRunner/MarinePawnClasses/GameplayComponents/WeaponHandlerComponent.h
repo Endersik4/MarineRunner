@@ -29,8 +29,8 @@ public:
 	class AGun* GetGun() const { return Gun; }
 	bool GetIsPlayerInAds() const { return bIsPlayerADS; }
 
-	void SetGun(class AGun* NewGun) { Gun = NewGun; }
-	void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
+	FORCEINLINE void SetGun(class AGun* NewGun) { Gun = NewGun; }
+	FORCEINLINE void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
 
 	void Shoot();
 	void ReleasedShoot();
@@ -45,6 +45,7 @@ public:
 	void SelectWeaponFromQuickInventory(int32 HandNumber);
 	void HideCurrentHoldingGun();
 	void DrawNewGun();
+	void DropGun();
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Set up Gun")
@@ -55,6 +56,10 @@ private:
 		FSettingSavedInJsonFile("MouseSensitivity8x", 0.1f),
 		FSettingSavedInJsonFile("MouseSensitivity16x", 0.05f),
 	};
+
+	UPROPERTY(EditDefaultsOnly, Category = "ADS SEttings")
+		float MovementForceDividerWhenInADS = 1.5f;
+
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ADSInSound;

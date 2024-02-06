@@ -50,6 +50,8 @@ public:
 	bool GetIsInAir() const;
 	FVector GetCameraLocation() const;
 	FORCEINLINE class UCapsuleComponent* GetPlayerCapsule() const { return CapsulePawn; }
+	FORCEINLINE class USceneComponent* GetGroundLocationSceneComponent() const { return GroundLocationSceneComponent; }
+	FORCEINLINE class USceneComponent* GetRoofLocationSceneComponent() const { return RoofLocationSceneComponent; }
 	FORCEINLINE class USkeletalMeshComponent* GetArmsSkeletalMesh() const { return ArmsSkeletalMesh; }
 	FORCEINLINE class UHUDWidget* GetHudWidget() const { return HudWidget; }
 	FORCEINLINE class UWeaponInventoryComponent* GetWeaponInventoryComponent() const { return WeaponInventoryComponent; }
@@ -70,6 +72,7 @@ public:
 	bool GetIsInPauseMenu() const;
 
 	FORCEINLINE void SetMovementForce(float NewForce) { MovementForce = NewForce; }
+	FORCEINLINE void SetMovementForceDividerWhenInADS(float NewForceDivider) { MovementForceDividerWhenInADS = NewForceDivider; }
 	FORCEINLINE void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMutliplier = NewSpeed; }
 	FORCEINLINE void SetShouldPlayerGoForward(bool bShould) { bShouldPlayerGoForward = bShould; }
 
@@ -92,6 +95,12 @@ private:
 		class UCameraComponent* Camera;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USkeletalMeshComponent* ArmsSkeletalMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		USceneComponent* GroundLocationSceneComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		USceneComponent* RoofLocationSceneComponent;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetInteractionComponent* WidgetInteractionComponent;
 
@@ -123,7 +132,7 @@ private:
 		class UWeaponHandlerComponent* WeaponHandlerComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USpawnDeathWidgetComponent* SpawnDeathWidgetComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UMessageHandlerComponent* MessageHandlerComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USaveLoadPlayerComponent* SaveLoadPlayerComponent;
@@ -177,6 +186,8 @@ private:
 
 	//If true then in the the player will always walk forward
 	bool bShouldPlayerGoForward; 
+
+	float MovementForceDividerWhenInADS = 1.f;
 
 	//Footstepts sounds
 	void PlayFootstepsSound();

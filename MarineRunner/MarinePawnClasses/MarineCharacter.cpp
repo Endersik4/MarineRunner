@@ -39,17 +39,21 @@ AMarineCharacter::AMarineCharacter()
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-		CapsulePawn = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Pawn Component"));
+	CapsulePawn = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Pawn Component"));
 	RootComponent = CapsulePawn;
 
 	CapsulePawn->SetSimulatePhysics(true);
-	//CapsulePawn->SetMassScale(NAME_None, 2.f);
 	CapsulePawn->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Ignore);
 	CapsulePawn->SetCollisionProfileName(FName(TEXT("PlayerCapsule")));
 	
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CapsulePawn);
 	Camera->bUsePawnControlRotation = true;
+
+	GroundLocationSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Ground Location Scene Component"));
+	GroundLocationSceneComponent->SetupAttachment(RootComponent);
+	RoofLocationSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Roof Location Scene Component"));
+	RoofLocationSceneComponent->SetupAttachment(RootComponent);
 
 	ArmsSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Arms Skeletal Mesh"));
 	ArmsSkeletalMesh->SetupAttachment(Camera);
@@ -125,18 +129,17 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis(TEXT("Forward"), this, &AMarineCharacter::Forward);
 	PlayerInputComponent->BindAxis(TEXT("Right"), this, &AMarineCharacter::Right);
 
-	//Aiming
 	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::ADSPressed);
 	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Released, WeaponHandlerComponent, &UWeaponHandlerComponent::ADSReleased);
+	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::DropGun);
 
 	//Weapon Inventory
 	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("First_Weapon"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 1);
 	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Second_Weapon"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 2);
 
-	//TakeAndDrop
+	//Take
 	PlayerInputComponent->BindAction(TEXT("Take"), IE_Pressed, this, &AMarineCharacter::KeyEPressed);
 	PlayerInputComponent->BindAction(TEXT("Take"), IE_Released, this, &AMarineCharacter::KeyEReleased);
-	//PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, TakeAndDropComponent, &UTakeAndDrop::DropItem);
 
 	//Movement
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, JumpComponent, &UJumpComponent::Jump);
@@ -205,11 +208,11 @@ void AMarineCharacter::Right(float Axis)
 }
 void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxisName)
 {
-	float Speed = MovementForce / (GetInputAxisValue(InputAxisName) != 0.f ? 1.3f : 1);
+	float Speed = (MovementForce / MovementForceDividerWhenInADS) / (GetInputAxisValue(InputAxisName) != 0.f ? 1.3f : 1);
 
 	if (GetIsWallrunning() == true)
 	{
-		Speed = MovementForce * MovementSpeedMutliplier;
+		Speed = (MovementForce / MovementForceDividerWhenInADS) * MovementSpeedMutliplier;
 	}
 	//if (bIsOnRamp && CroachAndSlideComponent->GetIsSliding()) MovementDirection += 1.f * -GetActorUpVector();
 	if (GetIsInAir() == true && GetIsWallrunning() == false)

@@ -33,9 +33,15 @@ void UWeaponHandlerComponent::ADSPressed()
 {
 	if (IsValid(Gun) == false) 
 		return;
-	if (Gun->GetIsReloading() || Gun->GetCanShoot() == false) return;
+
+	if (Gun->GetIsReloading() && Gun->GetReloadOneBullet())
+		Gun->CancelReload();
+
+	if (Gun->GetCanShoot() == false) 
+		return;
 
 	MarinePawn->MakeCrosshire(true);
+	MarinePawn->SetMovementForceDividerWhenInADS(MovementForceDividerWhenInADS);
 
 	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
 
@@ -55,7 +61,9 @@ void UWeaponHandlerComponent::ADSReleased()
 	if (IsValid(Gun) == false || bIsPlayerADS == false) 
 		return;
 
+	Gun->GetGunSkeletalMesh()->Stop();
 	MarinePawn->MakeCrosshire();
+	MarinePawn->SetMovementForceDividerWhenInADS(1.f);
 
 	if (ADSOutSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
 	bIsPlayerADS = false;
@@ -142,6 +150,21 @@ void UWeaponHandlerComponent::DrawNewGun()
 
 	Gun = MarinePawn->GetWeaponInventoryComponent()->GetCurrentGunToDraw();
 	Gun->DrawGun();
+}
+
+void UWeaponHandlerComponent::DropGun()
+{
+	if (bCanChangeWeapon == false)
+		return;
+
+	if (IsValid(Gun) == false)
+		return;
+
+	Gun->SetDropGun(true);
+	if (MarinePawn->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1)
+		Gun->PutAwayGun();
+	else 
+		SelectWeaponFromQuickInventory(MarinePawn->GetWeaponInventoryComponent()->GetLastWeaponSlotFromStorage(Gun));
 }
 
 void UWeaponHandlerComponent::HideCurrentHoldingGun()

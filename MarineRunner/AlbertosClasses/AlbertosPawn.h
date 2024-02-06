@@ -105,7 +105,8 @@ private:
 		
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* RandomAlbertoSounds;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* AppearCraftingSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* CallAlbertosSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")

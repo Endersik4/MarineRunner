@@ -24,11 +24,6 @@ public:
 
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FLinearColor EnoughResourcesColor;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FLinearColor NotEnoughResourcesColor;
-
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UButton* StorageItemButton;
 	UFUNCTION()
@@ -49,10 +44,10 @@ public:
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
 		UWidgetAnimation* DisableStorageAnim;
 
-
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Storage List Entry")
 		FString TextWhenItemAmountIsMoreThen999 = "+999";
-	bool bNotEnoughResources = false;
 
+	bool bNotEnoughResources = false;
+	void ItemDataToEntry(class UItemDataObject* ItemDataObject);
 };

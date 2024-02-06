@@ -11,14 +11,12 @@
 #include "MarineRunner/GunClasses/Scope.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
-#include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/ArmsSwayComponent.h"
-
+#include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/Inventory/PickupItem.h"
 
-// Sets default values
 AGun::AGun()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -37,7 +35,7 @@ void AGun::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetupFloatTimeline(&RecoilGunTimeline, FName(TEXT("ShootRecoilTimelineProgress")), FName(TEXT("ShootRecoilTimelineFinished")), ShootFOVCurve);
+	SetupFloatTimeline(&RecoilGunTimeline, FName(TEXT("ShootRecoilTimelineProgress")), FName(TEXT("")), RecoilCameraCurveRandomRotation);
 	
 	if (bShouldUseCurveRecoil)
 		SetupFloatTimeline(&RecoilCameraTimeline, FName(TEXT("RecoilCameraTimelineCallback")), FName(TEXT("RecoilCameraTimelineFinishedCallback")), RecoilCameraCurveY);
@@ -76,7 +74,7 @@ void AGun::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UpRecoilCamera(DeltaTime);
+	UpRecoilCameraUsingCurve(DeltaTime);
 	CameraInterpBackToInitialPosition(DeltaTime);
 
 	RecoilGunTimeline.TickTimeline(DeltaTime);
@@ -108,7 +106,8 @@ void AGun::SetCanShoot()
 
 void AGun::Shoot()
 {
-	if (CanShoot() == false) return;
+	if (CanShoot() == false) 
+		return;
 
 	if (bIsAutomatic) 
 		bConstantlyShoot = true;
@@ -120,7 +119,6 @@ void AGun::Shoot()
 
 		return;
 	}
-
 
 	if (MagazineCapacity <= 0)
 	{
@@ -140,8 +138,10 @@ void AGun::Shoot()
 
 	bCanShoot = false;
 
-	if (bShouldWaitToPlayRecoil == true) GetWorldTimerManager().SetTimer(PlayRecoilHandle, this, &AGun::PlayRecoil, PlayRecoilTime, false);
-	else PlayRecoil();
+	if (ShootCameraShake != NULL)
+		PC->ClientStartCameraShake(ShootCameraShake);
+	PlayRecoil();
+	GetWorldTimerManager().SetTimer(PlayRecoilHandle, this, &AGun::ShootFinished, ShootTime, false);
 }
 
 void AGun::ShootReleased()
@@ -151,6 +151,16 @@ void AGun::ShootReleased()
 	GetWorldTimerManager().SetTimer(FirstBulletHandle, this, &AGun::ShouldFirstBulletGoStraight, FirstBulletWithoutRecoilTime, false);
 	ResetVariablesForCameraRecoil();
 	if (bShouldUseCurveRecoil) BackCameraToItsInitialRotation();
+}
+
+void AGun::ShootFinished()
+{
+	SetCanShoot();
+
+	if (bConstantlyShoot)
+		Shoot();
+
+	if (bShouldDelayShoot) bShouldDelayShoot = false;
 }
 #pragma endregion
 
@@ -165,28 +175,11 @@ void AGun::PlayRecoil()
 #pragma region //////////////////////////////// GUN RECOIL ////////////////////////////////////
 void AGun::ShootRecoilTimelineProgress(float RecoilDirection)
 {
-	if (RecoilCameraCurveRandomRotation)
-	{
-		float ControlRotationPitch = RandomRecoilPitch * RecoilCameraCurveRandomRotation->GetFloatValue(RecoilGunTimeline.GetPlaybackPosition());
-		float ControlRotationYaw = RandomRecoilYaw * RecoilCameraCurveRandomRotation->GetFloatValue(RecoilGunTimeline.GetPlaybackPosition());
+	float ControlRotationPitch = RandomRecoilPitch * RecoilCameraCurveRandomRotation->GetFloatValue(RecoilGunTimeline.GetPlaybackPosition());
+	float ControlRotationYaw = RandomRecoilYaw * RecoilCameraCurveRandomRotation->GetFloatValue(RecoilGunTimeline.GetPlaybackPosition());
 		
-		PC->AddYawInput(ControlRotationYaw);
-		PC->AddPitchInput(-ControlRotationPitch);
-	}
-
-	MarinePawn->GetCamera()->FieldOfView += RecoilDirection;
-}
-
-void AGun::ShootRecoilTimelineFinished()
-{
-	MarinePawn->GetCamera()->FieldOfView = OriginalPlayerFOV;
-
-	SetCanShoot();
-
-	if (bConstantlyShoot)
-		Shoot();
-
-	if (bShouldDelayShoot) bShouldDelayShoot = false;
+	PC->AddYawInput(ControlRotationYaw);
+	PC->AddPitchInput(-ControlRotationPitch);
 }
 #pragma endregion
 
@@ -227,20 +220,17 @@ void AGun::SetCameraRecoil()
 	}
 }
 
-void AGun::UpRecoilCamera(float Delta)
+void AGun::UpRecoilCameraUsingCurve(float Delta)
 {
-	if (bCanRecoilCamera == false) return;
+	if (bCanRecoilCamera == false || bShouldUseCurveRecoil == false) 
+		return;
 
-	if (bShouldUseCurveRecoil)
+	float ControlRotationPitch = (DistanceFromStart * 0.375) * Delta / ((OriginalMagazineCapacity * ShootTime) + 0.2f);
+	if (StatusOfGun == ADS)
 	{
-		float ControlRotationPitch = (DistanceFromStart * 0.375) * TimeRecoilCameraElapsed / ((OriginalMagazineCapacity * RecoilAnimTimelineLength) + 0.2f);
-		if (StatusOfGun == ADS)
-		{
-			ControlRotationPitch /= DividerOfRecoilWhileADS;
-		}
-		PC->AddPitchInput(-ControlRotationPitch);
+		ControlRotationPitch /= DividerOfRecoilWhileADS;
 	}
-	TimeRecoilCameraElapsed = Delta;
+	PC->AddPitchInput(-ControlRotationPitch);
 }
 
 void AGun::BackCameraToItsInitialRotation()
@@ -301,9 +291,10 @@ void AGun::ResetVariablesForCameraRecoil()
 {
 	GetWorldTimerManager().ClearTimer(ShootTimerHandle);
 	bCanRecoilCamera = false;
-	TimeRecoilCameraElapsed = 0.f;
 	bConstantlyShoot = false;
-	if (bShouldUseCurveRecoil) RecoilCameraTimeline.Stop();
+
+	if (bShouldUseCurveRecoil) 
+		RecoilCameraTimeline.Stop();
 }
 #pragma endregion
 
@@ -576,7 +567,7 @@ void AGun::UpdateWeaponDataInHud(bool bChangeStoredAmmoText, bool bChangeWeaponI
 #pragma endregion
 
 #pragma region ////////////////////////////////// TAKE ////////////////////////////////////////
-void AGun::TakeGun(AMarineCharacter* Player)
+void AGun::TakeGun(AMarineCharacter* Player, bool bWasTaken, int32 SavedMagazineCapacity)
 {
 	if (IsValid(Player) == false)
 		return;
@@ -584,23 +575,32 @@ void AGun::TakeGun(AMarineCharacter* Player)
 	MarinePawn = Player;
 	bCanShoot = false;
 	PlayerInventory = MarinePawn->GetInventoryComponent();
+	MarinePawn->GetArmsSkeletalMesh()->SetForceRefPose(false);
+
+	MarinePawn->GetWeaponInventoryComponent()->SetGunFromInventory(nullptr);
+
 	MarinePawn->GetWeaponHandlerComponent()->HideCurrentHoldingGun();
 	MarinePawn->GetWeaponHandlerComponent()->SetCanChangeWeapon(false);
 
-	PlayGivenWeaponWithArmsAnimation(WeaponFirstTimeTakeAnim);
+	PlayGivenWeaponWithArmsAnimation(bWasTaken ? WeaponDrawAnim : WeaponFirstTimeTakeAnim);
 
 	OriginalPlayerFOV = MarinePawn->GetCamera()->FieldOfView;
 
-	AddAmmoToInventory();
+	if (bWasTaken == false)
+		AddAmmoToInventory();
+	else
+		MagazineCapacity = SavedMagazineCapacity;
+
 	MarinePawn->GetWeaponHandlerComponent()->SetGun(this);
 	MarinePawn->GetWeaponInventoryComponent()->AddNewWeaponToStorage(this);
+
 
 	HudWidget = MarinePawn->GetHudWidget();
 	HudWidget->ShowWeaponOnHud();
 	UpdateWeaponDataInHud(true, true);
 
 	FTimerHandle TakeGunHandle;
-	GetWorld()->GetTimerManager().SetTimer(TakeGunHandle, this, &AGun::SetCanShoot, WeaponFirstTimeTakeAnim.ArmsActionAnim->GetPlayLength(), false);
+	GetWorld()->GetTimerManager().SetTimer(TakeGunHandle, this, &AGun::SetCanShoot, (bWasTaken ? WeaponDrawAnim : WeaponFirstTimeTakeAnim).ArmsActionAnim->GetPlayLength(), false);
 }
 
 void AGun::DrawGun()
@@ -609,6 +609,7 @@ void AGun::DrawGun()
 		return;
 
 	SetActorHiddenInGame(false);
+
 	SetActorTickEnabled(true);
 	bCanShoot = false;
 
@@ -616,7 +617,8 @@ void AGun::DrawGun()
 
 	PlayGivenWeaponWithArmsAnimation(WeaponDrawAnim);
 
-	if (DrawGunSound) UGameplayStatics::SpawnSound2D(GetWorld(), DrawGunSound);
+	if (DrawGunSound) 
+		UGameplayStatics::PlaySound2D(GetWorld(), DrawGunSound);
 
 	HudWidget->ShowWeaponOnHud();
 	UpdateWeaponDataInHud(true, true);
@@ -641,7 +643,7 @@ void AGun::PutAwayGun()
 	ShootReleased();
 
 	if (PutAwayGunSound) 
-		UGameplayStatics::SpawnSound2D(GetWorld(), PutAwayGunSound);
+		UGameplayStatics::PlaySound2D(GetWorld(), PutAwayGunSound);
 
 	HudWidget->ShowWeaponOnHud(false);
 
@@ -654,13 +656,44 @@ void AGun::HideGun()
 	bCanShoot = false;
 	SetActorHiddenInGame(true);
 	SetActorTickEnabled(false);
+	GunSkeletalMesh->Stop();
 
-	MarinePawn->GetWeaponHandlerComponent()->DrawNewGun();
+	if (MarinePawn->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1 && bDropGun == true)
+	{
+		MarinePawn->GetArmsSkeletalMesh()->SetForceRefPose(true);
+		MarinePawn->GetArmsSkeletalMesh()->Stop();
+	}
+	else 
+		MarinePawn->GetWeaponHandlerComponent()->DrawNewGun();
+
+	DropGun();
 }
 
 #pragma endregion
 
 #pragma region ////////////////////////////////// DROP ////////////////////////////////////////
+void AGun::DropGun()
+{
+	if (bDropGun == false)
+		return;
+
+	MarinePawn->GetWeaponInventoryComponent()->RemoveWeaponFromStorage(this);
+
+	if (ItemToSpawnAfterDropGun == NULL)
+		return;
+
+	if (DropGunSound)
+		UGameplayStatics::PlaySound2D(GetWorld(), DropGunSound);
+
+	FVector LocationToSpawnItemGun = MarinePawn->GetCameraLocation() + MarinePawn->GetCamera()->GetForwardVector() * DistanceToDropGun;
+	FTransform ItemGunTransform = FTransform(FRotator(0.f), LocationToSpawnItemGun);
+	APickupItem* SpawnedGunItem = GetWorld()->SpawnActorDeferred<APickupItem>(ItemToSpawnAfterDropGun, ItemGunTransform);
+	SpawnedGunItem->SetCurrentMagazineCapacity(MagazineCapacity);
+	SpawnedGunItem->SetItemWasOnceTaken(true);
+	SpawnedGunItem->FinishSpawning(ItemGunTransform);
+
+	Destroy();
+}
 #pragma endregion
 
 void AGun::PlayGivenWeaponWithArmsAnimation(const FWeaponAnimation& AnimToPlay) const
@@ -700,6 +733,9 @@ void AGun::SetupFloatTimeline(FTimeline* TimelineToCreate, FName TimelineProgres
 	FOnTimelineFloat TimelineFloatProgress;
 	TimelineFloatProgress.BindUFunction(this, TimelineProgressFuncName);
 	TimelineToCreate->AddInterpFloat(CurveForTimeline, TimelineFloatProgress);
+
+	if (TimelineFinishedFuncName == FName(TEXT("")))
+		return;
 
 	FOnTimelineEventStatic TimelineCallbackFinished;
 	TimelineCallbackFinished.BindUFunction(this, TimelineFinishedFuncName);

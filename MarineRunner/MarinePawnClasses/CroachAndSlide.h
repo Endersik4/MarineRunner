@@ -31,34 +31,40 @@ public:
 
 	void CrouchReleasedByObject();
 
-	bool GetIsSliding() const { return bShouldSlide; }
-	bool GetIsCrouching() const { return bIsCrouching; }
+	FORCEINLINE bool GetIsSliding() const { return bSlide; }
+	FORCEINLINE	bool GetIsCrouching() const { return bIsCrouching; }
 
-	void SetShouldSlide(bool bShould) { bShouldSlide = bShould; }
+	void SetShouldSlide(bool bShould) { bSlide = bShould; }
 	void BeginSlide();
 private:
 
 	//Speed of croaching
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
 		float CrouchForceSpeed = 40000.f;
+	// How fast change state of the crouch
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		float SpeedOfCrouchLerp = 10.f;
+		float TimeToChangeCrouchState = 0.2f;
+	// Lower Value is a target for Actor Z Scale when crouching, Upper value is for when standing up
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		FFloatRange ScalePlayerWhenCrouching = FFloatRange(1.5f, 2.5f);
+		FFloatRange ScalePlayerWhenCrouching = FFloatRange(0.4f, 1.f);
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
 		float CrouchPressedVignetteIntensity = 0.7f;
+	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
+		float CrouchReleasedTimeCheck = 0.2f;
+	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
+		FVector CheckBoxSizeToStandUpAfterCrouch = FVector(60.f, 60.f, 60.f);
 
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float SlideSpeed = 200000.f;
+		float SlideSpeed = 220000.f;
 	//Initial Velocity of Sliding is added to Walking Distance from MarineCharacter
 	//and then we have Initial Velocity of Sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float InitialVelocityOfSliding = 115000.f;
+		float InitialVelocityOfSliding = 200000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 		float MaxSlideForce = 120000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float SlideDelayInSeconds = 0.08f;
+		float SlideDelayInSeconds = 0.01f;
 	//How fast Pawn will gain speed on ramp when sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 		float RampForce = 10000.f;
@@ -72,39 +78,45 @@ private:
 		USoundBase* SlideSound;
 
 	float CurrentMovementForce;
+	float OriginalMovementForce;
 
-	float InitialMovementForce;
 	bool bIsCrouching;
 	bool bCrouchPressed;
+	bool bCanPlayerStand();
+	void StopCrouching();
+	FTimerHandle CheckCrouchReleasedHandle;
 
-	bool SweepBox(FVector Where, float Distance);
-	bool bShouldStillCroach = false;
+	// State of crouch (e.g standing/crouching)
+	bool bIsNowChangingCrouchState;
+	float CurrentVignetteIntensity;
+	float CurrentActorScale_Z;
+	float CrouchPressedTimeElapsed;
+	float Target_VignetteIntensity = 1.1f;
+	float Target_ScaleZ = 0.5f;
+	void PrepareVariablesForChangingCrouchState(const float& TargetScale_Z, const float& TargetVignetteIntensity);
+	void StartChangingCrouchState(float Delta);
 
 	// Slide on ramp
 	void SlideOnRamp(const float & Delta);
 
 	// Camera Shake while sliding on ramp
-	bool bStartRampCameraShake = false;
+	bool bRampCameraShakeStarted = false;
 	UCameraShakeBase* CameraShakeBase;
 
 	// Delay for start sliding
+	bool bSlide;
 	FTimerHandle SlideDelayHandle;
 	void Sliding(float Delta);
 	bool ShouldStopSliding();
-	bool bShouldSlide;
+	void StopSliding();
 
+	// Sliding sound
+	void TurnOnSlideSound();
 	bool bShouldPlaySound = true;
 	class UAudioComponent* SpawnedSlideSound;
 	void TurnOffSlideSound();
 
-	float VignetteIntensityValue = 1.1f;
-
-	void CroachLerp(float Delta);
-	bool bCanCroachLerp;
-	float ScaleZ = 1.5f;
-		
 	APlayerController* PlayerController;
 	class AMarineCharacter* MarinePawn;
-
 };
 

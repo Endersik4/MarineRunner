@@ -11,6 +11,7 @@
 #include "MarineRunner/Objects/ObjectsComponents/SoundOnHitComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/MessageHandlerComponent.h"
 #include "MarineRunner/Objects/SavedDataObject.h"
+#include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 
 // Sets default values
 APickupItem::APickupItem()
@@ -53,6 +54,12 @@ void APickupItem::TakeItem(AMarineCharacter* Player)
 	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
 	if (ItemInformationFromDataTable == nullptr)
 		return;
+
+	if (ItemInformationFromDataTable->bIsItWeapon == true && Player->GetWeaponInventoryComponent()->CanPlayerTakeWeaponToInventory() == false)
+	{
+		Player->GetMessageHandlerComponent()->SpawnNotEnoughSlotsForWeaponWidget();
+		return;
+	}
 
 	bool bAmountWasAdded = AddAmountToItemIfFound(Inventory->GetItemFromInventory(ItemRowName), ItemInformationFromDataTable->Item_Amount * AmountMultiplier);
 
@@ -115,13 +122,12 @@ void APickupItem::SpawnWeaponForPlayer(class AMarineCharacter* Player, FItemStru
 		return;
 
 	FTransform WeaponTransform = FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f));
-	AGun* SpawnedGun = GetWorld()->SpawnActorDeferred<AGun>(ItemDataFromDataTable->WeaponClass, WeaponTransform);
+	AGun* SpawnedGun = GetWorld()->SpawnActor<AGun>(ItemDataFromDataTable->WeaponClass, WeaponTransform);
 	if (IsValid(SpawnedGun) == false)
 		return;
 
 	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, ItemDataFromDataTable->WeaponSocketName);
-	SpawnedGun->TakeGun(Player);
-	SpawnedGun->FinishSpawning(WeaponTransform);
+	SpawnedGun->TakeGun(Player, bWasOnceTaken, CurrentMagazineCapacity);
 }
 #pragma endregion
 

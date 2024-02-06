@@ -55,24 +55,6 @@ void UInventoryComponent::AddNewItemToInventory(FName ItemRowNameFromDataTable, 
 
 	Inventory_Items.Add(ItemWithAmount);
 }
-/*
-FItemStruct* UInventoryComponent::GetItemInformationFromDataTableUsingItemName(FString ItemNameToFind)
-{
-	TArray<FName*> AllRowsFromDataTable;
-	ItemsDataTable->GetAllRows("", AllRowsFromDataTable);
-
-	for (const FName* CurrentRow : AllRowsFromDataTable)
-	{
-		FItemStruct* ItemRow = ItemsDataTable->FindRow<FItemStruct>(*CurrentRow, "");
-		if (ItemRow == nullptr)
-			continue;
-
-		if (ItemRow == ItemNameToFind)
-			return ItemRow;
-	}
-
-	return nullptr;
-}*/
 
 void UInventoryComponent::DeleteItemFromInventory(FItemStruct ItemToDelete)
 {

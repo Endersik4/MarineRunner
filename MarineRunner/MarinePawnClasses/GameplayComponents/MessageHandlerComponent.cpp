@@ -20,7 +20,6 @@ void UMessageHandlerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
 }
 
 void UMessageHandlerComponent::DeleteCurrentDisplayedMessage(class AMarineCharacter* Player)
@@ -40,13 +39,26 @@ void UMessageHandlerComponent::DeleteCurrentDisplayedMessage(class AMarineCharac
 
 void UMessageHandlerComponent::SpawnNewRecipeUnlockedWidget()
 {
-	if (NewRecipeUnlockedClassWidget == nullptr)
+	SpawnWidget(NewRecipeUnlockedClassWidget);
+}
+
+void UMessageHandlerComponent::SpawnNotEnoughSlotsForWeaponWidget()
+{
+	SpawnWidget(NotEnoughSlotsForWeaponClassWidget);
+}
+
+void UMessageHandlerComponent::SpawnWidget(const TSubclassOf<UUserWidget>& WidgetClassToSpawn)
+{
+	if (WidgetClassToSpawn == nullptr)
 		return;
 
-	UUserWidget* NewRecipeUnlockedWidget = CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), NewRecipeUnlockedClassWidget);
-	if (IsValid(NewRecipeUnlockedWidget) == false)
+	UUserWidget* NewWidget = CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), WidgetClassToSpawn);
+	if (IsValid(NewWidget) == false)
 		return;
 
-	NewRecipeUnlockedWidget->AddToViewport();
+	if (MessagePopUpSound)
+		UGameplayStatics::PlaySound2D(GetWorld(), MessagePopUpSound);
+
+	NewWidget->AddToViewport();
 }
 

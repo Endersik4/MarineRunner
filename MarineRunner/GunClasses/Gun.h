@@ -62,10 +62,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintPure)
-		class AMarineCharacter* GetMarinePawn() const { return MarinePawn; }
-
-	void TakeGun(class AMarineCharacter* Player);
+	void TakeGun(class AMarineCharacter* Player, bool bWasTaken = false, int32 SavedMagazineCapacity = 0);
 	void DrawGun();
 	void PutAwayGun();
 	void HideGun();
@@ -76,24 +73,18 @@ public:
 	void Shoot();
 	void ShootReleased();
 
-	FORCEINLINE float GetAmmoDistance() const { return BulletData.Distance; }
 	FORCEINLINE bool GetCanShoot() const { return bCanShoot; }
 	FORCEINLINE bool GetShouldChangeMouseSensitivityADS() const { return bShouldChangeMouseSensitivityADS; }
-	FORCEINLINE bool GetIsReloading()  const { return bIsReloading; }
+	FORCEINLINE bool GetIsReloading() const { return bIsReloading; }
+	FORCEINLINE bool GetReloadOneBullet() const { return bReloadOneBullet; }
 
 	FORCEINLINE bool GetUseScope() const { return bUseScope; }
 	FORCEINLINE class AScope* GetScopeActor() const { return ScopeActor; }
 	FORCEINLINE USkeletalMeshComponent* GetGunSkeletalMesh() const { return GunSkeletalMesh; }
 
-	int32 GetMagazineCapacity() const { return MagazineCapacity; }
-
-	void SetBulletRotation(FRotator NewBulletRotation) { BulletRotation = NewBulletRotation; }
-
-	void SetMarinePawn(class AMarineCharacter* NewActor) { MarinePawn = NewActor; }
+	FORCEINLINE void SetDropGun(bool bDrop) { bDropGun = bDrop; }
 
 	void AimTheGun(EStatusOfAimedGun NewGundStatus);
-
-	void SetMagazineCapacity(int32 NewMagazineCapacity) { MagazineCapacity = NewMagazineCapacity; }
 
 	void UpdateWeaponDataInHud(bool bChangeStoredAmmoText = false, bool bChangeWeaponImage = false);
 
@@ -105,18 +96,21 @@ private:
 		void ShootRecoilTimelineProgress(float x);
 
 	UFUNCTION()
-		void ShootRecoilTimelineFinished();
-	UFUNCTION()
 		void RecoilCameraTimelineCallback(float x);
 
 	UFUNCTION()
 		void RecoilCameraTimelineFinishedCallback() {};
 
+	UPROPERTY(EditDefaultsOnly, Category = "Drop gun")
+		TSubclassOf<class APickupItem> ItemToSpawnAfterDropGun;
+	UPROPERTY(EditDefaultsOnly, Category = "Drop gun")
+		float DistanceToDropGun = 500.f;
+
 	//General Damage
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		FBulletStruct BulletData;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
-		float ReloadTime = 1.f;
+		float ShootTime = 1.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		bool bIsAutomatic;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
@@ -151,6 +145,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		bool bShouldChangeMouseSensitivityADS = false;
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
+		float MovementForceWhenInADS = 50000.f;
 	//This number will be subdivided with value from Recoil (camera, gun recoil)
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		float DividerOfRecoilWhileADS = 3.5f;
@@ -165,6 +161,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|DelayShoot")
 		float DelayShootTime = 0.1f;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Recoil|Bullet")
+		FFloatRange PitchBulletRecoilArray = FFloatRange(-5, 5);
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Recoil|Bullet")
+		FFloatRange YawBulletRecoilArray = FFloatRange(-5, 5);
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection")
 		bool bCasingEjection = true;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection", meta = (EditCondition = "bCasingEjection", EditConditionHides))
@@ -190,49 +190,41 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Particles")
 		float ShootParticleScale;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil")
+		TSubclassOf<class UCameraShakeBase> ShootCameraShake;
 	//Use curve for Camera Recoil or use random Pitch and Yaw numbers for camera Recoil
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil")
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil")
 		bool bShouldUseCurveRecoil;
 	//Speed of Interp, after shooting there camera will be back to position before shoting and this is the speed of it
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
 		float InitalCameraPositionSpeed = 5.f;
 	//Distance that Camera is going to rotate in pitch when shooting full magazine. 
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
 		float DistanceFromStart = 40.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
 		float FirstBulletWithoutRecoilTime = 1.f;
 	//How long timeline need to least. It has to be the same like is in RecoilCameraCurveY
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
 		float RecoilCameraTimelineLength = 3.2f;
 	//Curve that is responisble for Yaw Camera Recoil (left, right)
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
 		UCurveFloat* RecoilCameraCurveY;
 	//Takes Value from RecoilCameraCurveY and randomize it with value from TArray<>. First Number in TArray is The Min and Second is The Max.
 	//If TArray<> has more then 2 values then Value will not be randomize
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
 		FFloatRange RandomRangeFromRecoilCurveY = FFloatRange(-0.2f, 0.2f);
-	//Should wait to execute Recoil timelines. When you want to play a little bit of animation and then add recoil for the camera and the gun
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil")
-		bool bShouldWaitToPlayRecoil = true;
-	//How long should wait to play recoil timelines (camera and gun recoil)
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil", meta = (EditCondition = "bShouldWaitToPlayRecoil", EditConditionHides))
-		float PlayRecoilTime = 0.06f;
 
 	//The curve responsible for how quickly the screen reaches PitchRecoilRandomNumber and YawRecoilRandomNumber and returns to its rotation. 
 	//It was added for smoothness. It should have a length like the one in Animation|Setting Up Animation Recoil in RecoilAnimTimelineLength 
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Random Pitch and Yaw recoil", meta = (EditCondition = "!bShouldUseCurveRecoil", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil|Random Pitch and Yaw recoil", meta = (EditCondition = "!bShouldUseCurveRecoil", EditConditionHides))
 		UCurveFloat* RecoilCameraCurveRandomRotation;
 	//Range for random Pitch number. 0 index has to be MinNumber and 1 index has to be MaxNumber
 	//0 and 1 is only for positive side (UP)
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Random Pitch and Yaw recoil", meta = (EditCondition = "!bShouldUseCurveRecoil", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil|Random Pitch and Yaw recoil", meta = (EditCondition = "!bShouldUseCurveRecoil", EditConditionHides))
 		FFloatRange PitchRecoilRangeArray = FFloatRange(20, 10);
 	//Range for random Yaw number. 0 index has to be MinNumber and 1 index has to be MaxNumber.
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Random Pitch and Yaw recoil", meta = (EditCondition = "!bShouldUseCurveRecoil", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil|Random Pitch and Yaw recoil", meta = (EditCondition = "!bShouldUseCurveRecoil", EditConditionHides))
 		FFloatRange YawRecoilRangeArray = FFloatRange(18, 10);
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Bullet")
-		FFloatRange PitchBulletRecoilArray = FFloatRange(-5, 5);
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Recoil|Bullet")
-		FFloatRange YawBulletRecoilArray = FFloatRange(-5, 5);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Shoot")
 		FWeaponAnimation WeaponShootAnim;
@@ -265,14 +257,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Handle")
 		FWeaponAnimation WeaponADSOutAnim;
 
-	//Recoil when player shot
-	
-	//Max length of RecoilTimeline, The curves need to have the same length as Timeline.
-	//This is also responsible for Rate of fire. (Player can shoot only when Timeline ends)
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Animation Recoil")
-		float RecoilAnimTimelineLength = 0.2f;
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Animation Recoil")
-		UCurveFloat* ShootFOVCurve;
 
 	//SOUNDS
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
@@ -283,12 +267,15 @@ private:
 		USoundBase* DrawGunSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* PutAwayGunSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* DropGunSound;
 
 	float OriginalPlayerFOV = 90.f;
 	
 	////////////// SHOOT ////////////
 	bool bCanShoot = true;
 	bool CanShoot();
+	void ShootFinished();
 	void SetCanShoot();
 	////////////////////////////////
 
@@ -304,6 +291,10 @@ private:
 	void AddEffectsToShooting();
 	void StartTimerToDropCasing(const EWhenSpawnCasing & CurrentSpawnCasingPeriod);
 	void DropCasing();
+
+	// drop gun
+	bool bDropGun;
+	void DropGun();
 
 	// Put away gun
 	/////////// GUN RECOIL /////////////////
@@ -341,7 +332,6 @@ private:
 	bool bShouldCameraInterpBack;
 	float RandomRecoilYaw;
 	float RandomRecoilPitch;
-	float TimeRecoilCameraElapsed;
 	float RandomValueForCameraYRecoil;
 	FRotator InitialCameraRotation;
 	FTimerHandle ShootTimerHandle;
@@ -349,7 +339,7 @@ private:
 	void SetCameraRecoil();
 	void ResetVariablesForCameraRecoil();
 	void BackCameraToItsInitialRotation();
-	void UpRecoilCamera(float Delta);
+	void UpRecoilCameraUsingCurve(float Delta);
 	void CameraInterpBackToInitialPosition(float Delta);
 	////////////////////
 	
@@ -365,7 +355,6 @@ private:
 
 	/////////////// ADS GUN //////////////////
 	EStatusOfAimedGun StatusOfGun = HipFire;
-	///////////////////////////
 
 	void PlayGivenWeaponWithArmsAnimation(const FWeaponAnimation& AnimToPlay) const;
 

@@ -39,6 +39,8 @@ public:
 	FORCEINLINE UStaticMeshComponent* GetItemMesh() { return ItemMesh; }
 
 	FORCEINLINE void SetItemAmountMultiplier(int32 NewAmountMultiplier) { AmountMultiplier = NewAmountMultiplier; }
+	FORCEINLINE void SetItemWasOnceTaken(bool bNewWasOnceTaken) { bWasOnceTaken = bNewWasOnceTaken; }
+	FORCEINLINE void SetCurrentMagazineCapacity(int32 NewCurrentMagazineCapacity) { CurrentMagazineCapacity = NewCurrentMagazineCapacity; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -64,6 +66,9 @@ private:
 	void SpawnWeaponForPlayer(class AMarineCharacter* Player, FItemStruct* ItemDataFromDataTable);
 
 	int32 AmountMultiplier = 1;
+
+	bool bWasOnceTaken;
+	int32 CurrentMagazineCapacity;
 
 	//Dissolve Material
 	bool bShouldDissolve;

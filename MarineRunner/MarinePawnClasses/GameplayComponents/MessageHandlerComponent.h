@@ -31,10 +31,17 @@ public:
 	void DeleteCurrentDisplayedMessage(class AMarineCharacter*);
 
 	void SpawnNewRecipeUnlockedWidget();
+	void SpawnNotEnoughSlotsForWeaponWidget();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Messages")
 		TSubclassOf<UUserWidget> NewRecipeUnlockedClassWidget;
+	UPROPERTY(EditDefaultsOnly, Category = "Messages")
+		TSubclassOf<UUserWidget> NotEnoughSlotsForWeaponClassWidget;
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+		USoundBase* MessagePopUpSound;
 private:
 	bool bIsMessageDisplayed;
 	class UMessageToReadWidget* CurrentDisplayedMessage;
+
+	void SpawnWidget(const TSubclassOf<UUserWidget> & WidgetClassToSpawn);
 };
