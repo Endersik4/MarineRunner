@@ -18,7 +18,8 @@ void UWeaponInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SetUpMarinePawn();
+	MarinePawn = Cast<AMarineCharacter>(GetOwner());
+
 	FTimerHandle SpawnWeaponsFromInventoryHandle;
 	GetWorld()->GetTimerManager().SetTimer(SpawnWeaponsFromInventoryHandle, this, &UWeaponInventoryComponent::SpawnWeaponsFromInventory, 0.1f, false);
 }
@@ -28,17 +29,14 @@ void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
 	if (IsValid(MarinePawn) == false || InitialWeaponInventory.Num() == 0)
 		return;
 
-	TArray<TSubclassOf<AGun>> WeaponsToSpawn; 
-	InitialWeaponInventory.GenerateValueArray(WeaponsToSpawn);
-
-	for (TSubclassOf<AGun> CurrentWeaponToSpawn : WeaponsToSpawn)
+	for (const TPair<int32, TSubclassOf<AGun>> CurrentPair : InitialWeaponInventory)
 	{
-		AGun* SpawnedGun = GetWorld()->SpawnActor<AGun>(CurrentWeaponToSpawn, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
+		AGun* SpawnedGun = GetWorld()->SpawnActor<AGun>(CurrentPair.Value, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
 		if (IsValid(SpawnedGun) == false)
 			continue;
 
-		SpawnedGun->AttachToComponent(MarinePawn->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, FName(TEXT("Weapon_R")));
-		SpawnedGun->TakeGun(MarinePawn, true, *InitialWeaponInventory.FindKey(CurrentWeaponToSpawn));
+		SpawnedGun->AttachToComponent(MarinePawn->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnedGun->GetAttachToSocketName());
+		SpawnedGun->TakeGun(MarinePawn, true, CurrentPair.Key);
 	}
 }
 
@@ -46,7 +44,6 @@ void UWeaponInventoryComponent::AddNewWeaponToStorage(AGun* NewGun)
 {
 	if (IsValid(NewGun) == false) 
 		return;
-
 	int32 WeaponNumber = WeaponsStorage.Num() + 1;
 	WeaponsStorage.Add(WeaponNumber, NewGun);
 }
@@ -106,13 +103,18 @@ void UWeaponInventoryComponent::SortWeapons()
 	}
 }
 
+void UWeaponInventoryComponent::SaveInitialWeaponInventory()
+{
+	InitialWeaponInventory.Empty();
+	TArray<AGun*> GunsFromInventory;
+	WeaponsStorage.GenerateValueArray(GunsFromInventory);
+	for (AGun* CurrentGun : GunsFromInventory)
+	{
+		InitialWeaponInventory.Add(CurrentGun->GetMagazineCapacity(), CurrentGun->GetClass());
+	}
+}
+
 bool UWeaponInventoryComponent::CanPlayerTakeWeaponToInventory() const
 {
 	return WeaponsStorage.Num() < MaxAmountOfItems;
 }
-
-void UWeaponInventoryComponent::SetUpMarinePawn()
-{
-	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-}
-

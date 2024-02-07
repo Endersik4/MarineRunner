@@ -15,6 +15,7 @@
 #include "MarineRunner/AlbertosClasses/Components/CraftingWidgetAnimationComponent.h"
 #include "MarineRunner/AlbertosClasses/Components/PlayerIsNearAlbertosComponent.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 // Sets default values
 AAlbertosPawn::AAlbertosPawn()
@@ -82,6 +83,7 @@ void AAlbertosPawn::BeginPlay()
 
 	TimeForRandomSound = FMath::FRandRange(TimeRangeToPlayRandomSounds.GetLowerBoundValue(), TimeRangeToPlayRandomSounds.GetUpperBoundValue());
 	GetWorld()->GetTimerManager().SetTimer(RandomSoundHandle, this, &AAlbertosPawn::PlayRandomAlbertoSound, TimeForRandomSound, false);
+
 }
 // Called every frame
 void AAlbertosPawn::Tick(float DeltaTime)
@@ -195,8 +197,29 @@ bool AAlbertosPawn::TeleportAlbertosToPlayer(FVector& PlayerLoc)
 	return true;
 }
 
-
 #pragma endregion
+
+#pragma region /////////// SAVE/LOAD /////////////
+void AAlbertosPawn::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	CurrentUniqueID = IDkey;
+	FCustomDataSaved LocationData = FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1);
+	LocationData.ObjectTransform = FTransform(GetActorRotation(), GetActorLocation());
+	SavedDataObject->RemoveCustomSaveData(CurrentUniqueID);
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, LocationData);
+}
+
+void AAlbertosPawn::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	CurrentUniqueID = IDkey;
+	SetActorLocation(SavedCustomData.ObjectTransform.GetLocation());
+	SetActorRotation(SavedCustomData.ObjectTransform.GetRotation());
+}
+
+#pragma endregion 
 
 void AAlbertosPawn::ChangeMaxSpeedOfFloatingMovement(bool bTowardsPlayer)
 {

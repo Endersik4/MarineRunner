@@ -5,9 +5,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-#include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
+#include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/SaveGame/SaveGameJsonFile.h"
 #include "MarineRunner/Objects/SavedDataObject.h"
@@ -41,13 +41,6 @@ void USaveMarineRunner::CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld)
 	GameInstance->TotalPlayTimeInSeconds += UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld);
 
 	TotalPlayTimeInSeconds = GameInstance->TotalPlayTimeInSeconds;
-}
-
-void USaveMarineRunner::SaveGame(float CurrentHealth, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved)
-{
-	CurrentHealthSaved = CurrentHealth;
-
-	Inventory_ItemsSaved = CurrentInventory_ItemsSaved;
 }
 
 FString USaveMarineRunner::TakeSaveScreenshot(APlayerController* PlayerController)
@@ -88,39 +81,34 @@ void USaveMarineRunner::MakeJsonFileWithSaveInfo(APlayerController* PlayerContro
 
 	USaveGameJsonFile::WriteJson(JsonObject, FilePath);
 }
-
-void USaveMarineRunner::SaveOtherObjectsData(ASavedDataObject* OtherObjectsData)
-{
-	if (IsValid(OtherObjectsData) == false)
-		return;
-
-	CustomSavedData = OtherObjectsData->GetCustomSavedData();
-}
-
 #pragma endregion
 
 #pragma region ////////// LOADING //////////////
 void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGameInstance* GameInstance)
 {
-	if (IsValid(MarinePawn) == false) return;
+	if (IsValid(MarinePawn) == false) 
+		return;
 
 	MarinePawn->SetHealth(CurrentHealthSaved);
-	//MarinePawn->GetInventoryComponent()->Inventory_Items = Inventory_ItemsSaved;
+	MarinePawn->GetInventoryComponent()->Inventory_Items = Inventory_ItemsSaved;
+	MarinePawn->GetInventoryComponent()->Items_Recipes = Inventory_RecipesSaved;
 
+	MarinePawn->GetWeaponInventoryComponent()->InitialWeaponInventory = WeaponInventory_Saved;
 
-	if (IsValid(GameInstance) == false) return;
+	if (IsValid(GameInstance) == false) 
+		return;
 
 	GameInstance->SetSaveNumberAccordingToNumOfFiles();
 	GameInstance->TotalPlayTimeInSeconds = TotalPlayTimeInSeconds;
 }
-
 
 void USaveMarineRunner::LoadOtherObjectsData(ASavedDataObject* OtherObjectsData)
 {
 	if (IsValid(OtherObjectsData) == false)
 		return;
 
-	OtherObjectsData->SetCustomSavedData(CustomSavedData);
+	OtherObjectsData->SetCustomSavedData(SavedCustomData);
+
 	OtherObjectsData->LoadObjectsData();
 }
 

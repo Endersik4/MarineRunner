@@ -87,7 +87,7 @@ void APickupItem::TakeItem(AMarineCharacter* Player)
 	
 	SaveItemWasTaken();
 
-	Destroy();
+	DisableItem();
 }
 
 bool APickupItem::AddAmountToItemIfFound(FItemStruct* ItemFromInventory, float AmountToAdd)
@@ -125,8 +125,8 @@ void APickupItem::SpawnWeaponForPlayer(class AMarineCharacter* Player, FItemStru
 	AGun* SpawnedGun = GetWorld()->SpawnActor<AGun>(ItemDataFromDataTable->WeaponClass, WeaponTransform);
 	if (IsValid(SpawnedGun) == false)
 		return;
-
-	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, ItemDataFromDataTable->WeaponSocketName);
+	
+	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnedGun->GetAttachToSocketName());
 	SpawnedGun->TakeGun(Player, bWasOnceTaken, CurrentMagazineCapacity);
 }
 #pragma endregion
@@ -199,14 +199,62 @@ void APickupItem::SaveItemWasTaken()
 	if (IsValid(SavedDataObject) == false)
 		return;
 
-	SavedDataObject->AddCustomSaveData(this, 1);
+	if (CurrentUniqueID != 0)
+	{
+		SavedDataObject->RemoveCustomSaveData(CurrentUniqueID);
+		return;
+	}
+
+	SaveItem(SavedDataObject, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1, CurrentMagazineCapacity));
 }
 
-void APickupItem::LoadData(int32 StateOfData)
+void APickupItem::SaveItemIfSpawnedRunTime()
 {
-	if (StateOfData == 1)
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	FCustomDataSaved ItemSpawnedData = FCustomDataSaved(ESavedDataState::ESDS_SpawnObject, GetClass(), FTransform(GetActorRotation(), GetActorLocation()), CurrentMagazineCapacity);
+	ItemSpawnedData.ObjectState = 3;
+	SaveItem(SavedDataObject, ItemSpawnedData);
+}
+
+void APickupItem::SaveItem(ASavedDataObject* SavedDataObject, const FCustomDataSaved& DataToSave)
+{
+	CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+	FCustomDataSaved SavedDataItemWasSpawned = DataToSave;
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, SavedDataItemWasSpawned);
+}
+
+void APickupItem::SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
+}
+
+void APickupItem::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	// Load Data
+	if (SavedCustomData.ObjectState == 3)
 	{
-		Destroy();
+		CurrentMagazineCapacity = SavedCustomData.ValueToSave;
+		bWasOnceTaken = true;
+		CurrentUniqueID = IDkey;
+		return;
 	}
+
+	// "Destroy" Object
+	if (SavedCustomData.ObjectState == 1)
+	{
+		DisableItem();
+	}
+}
+
+void APickupItem::DisableItem()
+{
+	SetActorTickEnabled(false);
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+	ItemMesh->SetSimulatePhysics(false);
 }
 #pragma endregion

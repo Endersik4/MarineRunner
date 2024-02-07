@@ -12,7 +12,8 @@
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/Widgets/Menu/GameSavedNotificationWidget.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
-#include "MarineRunner/Objects/Checkpoint.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
+#include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
 
 // Sets default values for this component's properties
 USaveLoadPlayerComponent::USaveLoadPlayerComponent()
@@ -39,21 +40,27 @@ void USaveLoadPlayerComponent::SaveGame(AActor* JustSavedCheckpoint)
 	if (IsValid(Player) == false)
 		return;
 
-	CurrentSaveGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+	CreatedSaveGame = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
 
-	CurrentSaveGameInstance->PrepareSaveGame();
-	CurrentSaveGameInstance->CopySaveInfoToCurrentGameInstance(GetWorld());
+	CreatedSaveGame->PrepareSaveGame();
+	CreatedSaveGame->CopySaveInfoToCurrentGameInstance(GetWorld());
 	
-	//CurrentSaveGameInstance->SaveGame(Player->GetHealth(), Player->GetInventoryComponent()->Inventory_Items);
-	CurrentSaveGameInstance->CurrentCheckpoint = JustSavedCheckpoint;
-	CurrentSaveGameInstance->SaveOtherObjectsData(SavedDataObject);
+	CreatedSaveGame->CurrentHealthSaved = Player->GetHealth();
+	CreatedSaveGame->SavedPlayerLocation = Player->GetActorLocation();
+	CreatedSaveGame->SavedPlayerRotation = Player->GetActorRotation();
 
-	CurrentSaveGameInstance->SavedPlayerLocation = Player->GetActorLocation();
-	CurrentSaveGameInstance->SavedPlayerRotation = Player->GetActorRotation();
+	CreatedSaveGame->Inventory_ItemsSaved = Player->GetInventoryComponent()->Inventory_Items;
+	CreatedSaveGame->Inventory_RecipesSaved = Player->GetInventoryComponent()->Items_Recipes;
 
-	CurrentSaveGameInstance->MakeJsonFileWithSaveInfo(PlayerController, UGameplayStatics::GetCurrentLevelName(GetWorld()));
+	Player->GetWeaponInventoryComponent()->SaveInitialWeaponInventory();
+	CreatedSaveGame->WeaponInventory_Saved = Player->GetWeaponInventoryComponent()->InitialWeaponInventory;
 
-	UGameplayStatics::SaveGameToSlot(CurrentSaveGameInstance, CurrentSaveGameInstance->GetSaveGameName() + "/" + CurrentSaveGameInstance->GetSaveGameName(), 0);
+	SavedDataObject->UpdateObjectsData();
+	CreatedSaveGame->SavedCustomData = SavedDataObject->GetCustomSavedData();
+
+	CreatedSaveGame->MakeJsonFileWithSaveInfo(PlayerController, UGameplayStatics::GetCurrentLevelName(GetWorld()));
+
+	UGameplayStatics::SaveGameToSlot(CreatedSaveGame, CreatedSaveGame->GetSaveGameName() + "/" + CreatedSaveGame->GetSaveGameName(), 0);
 
 	SpawnPassingWidget(GameSavedNotificationWidgetClass);
 }
@@ -80,12 +87,6 @@ void USaveLoadPlayerComponent::LoadGame()
 	Player->SetActorLocation(LoadGameInstance->SavedPlayerLocation);
 	if (IsValid(PlayerController) == true)
 		PlayerController->SetControlRotation(LoadGameInstance->SavedPlayerRotation);
-
-	ACheckpoint* LoadedCheckpoint = Cast<ACheckpoint>(LoadGameInstance->CurrentCheckpoint);
-	if (IsValid(LoadedCheckpoint))
-	{
-		LoadedCheckpoint->DisableCheckpoint();
-	}
 
 	LoadGameInstance->LoadGame(Player, GameInstance);
 	LoadGameInstance->LoadOtherObjectsData(SavedDataObject);

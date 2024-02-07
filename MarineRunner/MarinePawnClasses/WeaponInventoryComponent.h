@@ -41,9 +41,11 @@ public:
 	AGun* GetCurrentGunToDraw();
 	int32 GetLastWeaponSlotFromStorage(AGun* ValueToIgnore);
 
-private:
+	void SaveInitialWeaponInventory();
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
 		TMap<int32, TSubclassOf<class AGun>> InitialWeaponInventory;
+private:
+
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
 		int32 MaxAmountOfItems = 2;
 
@@ -55,5 +57,4 @@ private:
 	void SortWeapons();
 
 	class AMarineCharacter* MarinePawn;
-	void SetUpMarinePawn();
 };

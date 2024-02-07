@@ -37,7 +37,7 @@ private:
 		class ASavedDataObject* SavedDataObject;
 
 	//Saving/Loading Game
-	class USaveMarineRunner* CurrentSaveGameInstance;
+	class USaveMarineRunner* CreatedSaveGame;
 	void SaveGame(AActor* JustSavedCheckpoint = nullptr);
 	void LoadGame();
 	void SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn);

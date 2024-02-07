@@ -229,14 +229,18 @@ void AElevator::PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* Sou
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SoundToPlay, ElevatorDoorsSkeletalMesh->GetSocketLocation(DoorSoundSocketName));
 }
 
-void AElevator::LoadData(int32 StateOfData)
+void AElevator::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	FElevatorFloor* FoundFloor = ElevatorFloors.FindByKey(StateOfData);
-	if (FoundFloor == nullptr)
-		return;
+	//FElevatorFloor* FoundFloor = ElevatorFloors.FindByKey(SavedCustomData.StateOfSave);
+	//if (FoundFloor == nullptr)
+	//	return;
 
-	CurrentFloor = StateOfData;
-	SetActorLocation(FoundFloor->FloorLocation);
+	//CurrentFloor = SavedCustomData.StateOfSave;
+	//SetActorLocation(FoundFloor->FloorLocation);
+}
+
+void AElevator::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
 }
 
 void AElevator::SaveElevatorState(int32 SaveState)
@@ -246,5 +250,5 @@ void AElevator::SaveElevatorState(int32 SaveState)
 	if (IsValid(SavedDataObject) == false)
 		return;
 
-	SavedDataObject->AddCustomSaveData(this, SaveState);
+	//SavedDataObject->AddCustomSaveData(FCustomDataSaved(this, SaveState));
 }

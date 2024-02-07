@@ -77,10 +77,12 @@ public:
 	FORCEINLINE bool GetShouldChangeMouseSensitivityADS() const { return bShouldChangeMouseSensitivityADS; }
 	FORCEINLINE bool GetIsReloading() const { return bIsReloading; }
 	FORCEINLINE bool GetReloadOneBullet() const { return bReloadOneBullet; }
+	FORCEINLINE int32 GetMagazineCapacity() const { return MagazineCapacity; }
 
 	FORCEINLINE bool GetUseScope() const { return bUseScope; }
 	FORCEINLINE class AScope* GetScopeActor() const { return ScopeActor; }
 	FORCEINLINE USkeletalMeshComponent* GetGunSkeletalMesh() const { return GunSkeletalMesh; }
+	FORCEINLINE FName GetAttachToSocketName() const { return AttachToSocketName; }
 
 	FORCEINLINE void SetDropGun(bool bDrop) { bDropGun = bDrop; }
 
@@ -100,6 +102,9 @@ private:
 
 	UFUNCTION()
 		void RecoilCameraTimelineFinishedCallback() {};
+
+	UPROPERTY(EditDefaultsOnly, Category = "Take gun")
+		FName AttachToSocketName = FName(TEXT("Weapon_R"));
 
 	UPROPERTY(EditDefaultsOnly, Category = "Drop gun")
 		TSubclassOf<class APickupItem> ItemToSpawnAfterDropGun;

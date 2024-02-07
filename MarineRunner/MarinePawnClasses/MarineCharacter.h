@@ -41,6 +41,7 @@ public:
 		class AAlbertosPawn* AlbertoPawn;
 
 	FORCEINLINE float GetMovementForce() const { return MovementForce; }
+	FORCEINLINE float GetHealth() const { return Health; }
 	bool GetIsWallrunning() const;
 	bool GetIsPlayerLerpingToHookLocation() const;
 	bool GetIsCrouching() const;

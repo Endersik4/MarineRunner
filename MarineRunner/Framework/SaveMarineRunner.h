@@ -32,27 +32,25 @@ public:
 		FRotator SavedPlayerRotation;
 
 	UPROPERTY(EditAnywhere)
-		TMap<FString, FItemStruct> Inventory_ItemsSaved;
+		TArray<FItemStruct> Inventory_ItemsSaved;
+	UPROPERTY(EditAnywhere)
+		TArray<FItemStruct> Inventory_RecipesSaved;
+	UPROPERTY(EditAnywhere)
+		TMap<int32, TSubclassOf<class AGun>> WeaponInventory_Saved;
 
 	UPROPERTY(EditAnywhere)
 		int32 SaveNumber = 0;
-
 	UPROPERTY(EditAnywhere)
 		float TotalPlayTimeInSeconds = 0.f;
 
 	UPROPERTY(EditAnywhere)
-		AActor* CurrentCheckpoint;
-
-	UPROPERTY()
-		TArray<FCustomDataSaved> CustomSavedData;
+		TMap<int32, FCustomDataSaved> SavedCustomData;
 
 	void PrepareSaveGame(const FString& NewSaveName = "ManualSave_", bool bAddSaveNumber = true);
 	FString OriginalSaveName;
 	bool bAddSaveNumber;
 
-	void SaveGame(float CurrentHealth, TMap<FString, FItemStruct> CurrentInventory_ItemsSaved);
 	void CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld);
-	void SaveOtherObjectsData(class ASavedDataObject* OtherObjectsData);
 
 	void MakeJsonFileWithSaveInfo(APlayerController* PlayerController, const FString & CurrentLevelName);
 

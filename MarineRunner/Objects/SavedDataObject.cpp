@@ -16,33 +16,62 @@ ASavedDataObject::ASavedDataObject()
 void ASavedDataObject::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
-// Called every frame
-void ASavedDataObject::Tick(float DeltaTime)
+void ASavedDataObject::AddCustomSaveData(const int32& SavedCustomDataKey, const FCustomDataSaved& SavedCustomData)
 {
-	Super::Tick(DeltaTime);
-
+	CustomSavedData.Add(SavedCustomDataKey, SavedCustomData);
 }
 
-void ASavedDataObject::AddCustomSaveData(TScriptInterface<ISaveCustomDataInterface> ObjectToSave, int32 StateOfObjectToSave)
+void ASavedDataObject::RemoveCustomSaveData(const int32& SavedCustomDataID)
 {
-	FCustomDataSaved NewCustomSavedData(ObjectToSave, StateOfObjectToSave);
-	CustomSavedData.Remove(NewCustomSavedData);
-	CustomSavedData.Add(NewCustomSavedData);
+	CustomSavedData.Remove(SavedCustomDataID);
 }
 
 void ASavedDataObject::LoadObjectsData()
 {
-	for (FCustomDataSaved & CurrentCustomSavedData : CustomSavedData)
+	for (const TPair<int32, FCustomDataSaved>& Pair : CustomSavedData)
 	{
-		if (CurrentCustomSavedData.ObjectToSaveData == nullptr)
+		if (Pair.Value.SavedDataState == ESavedDataState::ESDS_SpawnObject)
 		{
+			if (Pair.Value.ObjectToSpawnFromClass == NULL)
+				continue;
+
+			ISaveCustomDataInterface* SpawnedItem = GetWorld()->SpawnActor<ISaveCustomDataInterface>(Pair.Value.ObjectToSpawnFromClass, Pair.Value.ObjectTransform);
+			if (SpawnedItem == nullptr)
+				continue;
+
+			SpawnedItem->LoadData(Pair.Key, Pair.Value);
 			continue;
 		}
 
-		CurrentCustomSavedData.ObjectToSaveData->LoadData(CurrentCustomSavedData.StateOfSave);
+		if (IsValid(Pair.Value.ObjectToSaveData) == false)
+			continue;
+
+		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
+		if (ActorWithSaveInterface == nullptr)
+			continue;
+
+		ActorWithSaveInterface->LoadData(Pair.Key, Pair.Value);
 	}
 }
 
+void ASavedDataObject::UpdateObjectsData()
+{
+	for (const TPair<int32, FCustomDataSaved>& Pair : CustomSavedData)
+	{
+		if (IsValid(Pair.Value.ObjectToSaveData) == false)
+			continue;
+	
+		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
+		if (ActorWithSaveInterface == nullptr)
+			continue;
+		
+		ActorWithSaveInterface->SaveData(this, Pair.Key, Pair.Value);
+	}
+}
+
+int32 ASavedDataObject::CreateUniqueIDForObject() const
+{
+	return CustomSavedData.Num() + (int)FMath::RandRange(RandomDataIDRange.GetLowerBoundValue(), RandomDataIDRange.GetUpperBoundValue());
+}

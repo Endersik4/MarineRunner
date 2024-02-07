@@ -16,15 +16,16 @@ void UInventoryComponent::BeginPlay()
 	TransformItemsDataToInventory();
 }
 
+// Only add starting items when its new game
 void UInventoryComponent::TransformItemsDataToInventory()
 {
-	TArray<FName> ItemName;
-	RowNameForItem.GenerateKeyArray(ItemName);
-	for (const FName& CurrentItemName : ItemName)
+	if (Inventory_Items.Num() != 0)
+		return;
+
+	for (const TPair<FName, int32> CurrentPair : RowNameForStartingItems)
 	{
-		AddNewItemToInventory(CurrentItemName , *RowNameForItem.Find(CurrentItemName));
+		AddNewItemToInventory(CurrentPair.Key, CurrentPair.Value);
 	}
-	ItemName.Empty();
 }
 
 FItemStruct* UInventoryComponent::GetItemFromInventory(FName ItemRowNameFromDataTable)

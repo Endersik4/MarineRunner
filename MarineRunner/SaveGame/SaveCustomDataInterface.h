@@ -6,24 +6,11 @@
 #include "UObject/Interface.h"
 #include "SaveCustomDataInterface.generated.h"
 
-// This class does not need to be modified.
-UINTERFACE(MinimalAPI)
-class USaveCustomDataInterface : public UInterface
+UENUM(BlueprintType)
+enum ESavedDataState
 {
-	GENERATED_BODY()
-};
-
-/**
- * 
- */
-class MARINERUNNER_API ISaveCustomDataInterface
-{
-	GENERATED_BODY()
-
-public:
-
-	UFUNCTION()
-		virtual void LoadData(int32 StateOfData = 0) = 0;
+	ESDS_SpawnObject,
+	ESDS_LoadData
 };
 
 USTRUCT(BlueprintType)
@@ -32,37 +19,90 @@ struct FCustomDataSaved
 	GENERATED_USTRUCT_BODY();
 
 	UPROPERTY(EditAnywhere)
-		TScriptInterface<ISaveCustomDataInterface> ObjectToSaveData;
+		TEnumAsByte<ESavedDataState> SavedDataState;
 
 	UPROPERTY(EditAnywhere)
-		int32 StateOfSave;
+		AActor* ObjectToSaveData;
+	UPROPERTY(EditAnywhere)
+		int32 ObjectState;
+		
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<AActor> ObjectToSpawnFromClass;
+	UPROPERTY(EditAnywhere)
+		FTransform ObjectTransform;
+	UPROPERTY(EditAnywhere)
+		float ValueToSave;
 
 	FCustomDataSaved()
 	{
+		SavedDataState = ESavedDataState::ESDS_LoadData;
 		ObjectToSaveData = nullptr;
-		StateOfSave = 0;
+		ObjectState = 0;
+		ObjectToSpawnFromClass = nullptr;
+		ObjectTransform = FTransform();
+		ValueToSave = 0.f;
 	}
 
-	FCustomDataSaved(TScriptInterface<ISaveCustomDataInterface> _ObjectToSaveData, int32 _StateOfSave)
+	
+	FCustomDataSaved(const TEnumAsByte<ESavedDataState> & _SavedDataState, AActor* _ObjectToSaveData,
+		const int32& _ObjectState, const float & _ValueToSave = 0)
 	{
+		SavedDataState = _SavedDataState;
 		ObjectToSaveData = _ObjectToSaveData;
-		StateOfSave = _StateOfSave;
+		ObjectState = _ObjectState;
+		ValueToSave = _ValueToSave;
+	}
+	
+	FCustomDataSaved(const TEnumAsByte<ESavedDataState>& _SavedDataState, TSubclassOf<AActor> _ObjectToSpawnFromClass,
+		const FTransform& _ObjectTransform, const float& _ValueToSave = 0)
+	{
+		SavedDataState = _SavedDataState;
+		ObjectToSpawnFromClass = _ObjectToSpawnFromClass;
+		ObjectTransform = _ObjectTransform;
+		ValueToSave = _ValueToSave;
+	}
+
+	FCustomDataSaved(const TEnumAsByte<ESavedDataState>& _SavedDataState,
+		AActor* _ObjectToSaveData,
+		const int32& _ObjectState, TSubclassOf<AActor> _ObjectToSpawnFromClass,
+		const FTransform& _ObjectTransform, const float& _ValueToSave = 0)
+	{
+		SavedDataState = _SavedDataState;
+		ObjectToSaveData = _ObjectToSaveData;
+		ObjectState = _ObjectState;
+		ObjectToSpawnFromClass = _ObjectToSpawnFromClass;
+		ObjectTransform = _ObjectTransform;
+		ValueToSave = _ValueToSave;
 	}
 
 	FCustomDataSaved& operator=(const FCustomDataSaved& OtherObject)
 	{
+		SavedDataState = OtherObject.SavedDataState;
 		ObjectToSaveData = OtherObject.ObjectToSaveData;
-		StateOfSave = OtherObject.StateOfSave;
+		ObjectState = OtherObject.ObjectState;
+		ObjectToSpawnFromClass = OtherObject.ObjectToSpawnFromClass;
+		ObjectTransform = OtherObject.ObjectTransform;
+		ValueToSave = OtherObject.ValueToSave;
 		return *this;
 	}
+};
 
-	bool operator==(const TScriptInterface<ISaveCustomDataInterface> OtherObject)
-	{
-		return ObjectToSaveData == OtherObject;
-	}
+// This class does not need to be modified.
+UINTERFACE(MinimalAPI)
+class USaveCustomDataInterface : public UInterface
+{
+	GENERATED_BODY()
+};
 
-	bool operator==(const FCustomDataSaved& OtherObject)
-	{
-		return ObjectToSaveData == OtherObject.ObjectToSaveData;
-	}
+class MARINERUNNER_API ISaveCustomDataInterface
+{
+	GENERATED_BODY()
+
+public:
+
+	UFUNCTION()
+		virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) = 0;
+
+	UFUNCTION()
+		virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) = 0;
 };

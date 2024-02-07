@@ -24,17 +24,21 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
-	void AddCustomSaveData(TScriptInterface<ISaveCustomDataInterface> ObjectToSave, int32 StateOfObjectToSave);
+	void AddCustomSaveData(const int32& SavedCustomDataKey, const FCustomDataSaved& SavedCustomData);
+	void RemoveCustomSaveData(const int32& SavedCustomDataID);
 
-	FORCEINLINE TArray<FCustomDataSaved> GetCustomSavedData() const { return CustomSavedData; }
+	FORCEINLINE const TMap<int32, FCustomDataSaved> & GetCustomSavedData() const { return CustomSavedData; }
+	FORCEINLINE int32 CreateUniqueIDForObject() const;
 
-	FORCEINLINE void SetCustomSavedData(TArray<FCustomDataSaved>& NewSavedData) { CustomSavedData = NewSavedData; }
+
+	FORCEINLINE void SetCustomSavedData(TMap<int32, FCustomDataSaved>& NewSavedData) { CustomSavedData = NewSavedData; }
 
 	void LoadObjectsData();
-
+	void UpdateObjectsData();
 private:
-	TArray<FCustomDataSaved> CustomSavedData;
+	UPROPERTY(EditAnywhere)
+		TMap<int32, FCustomDataSaved> CustomSavedData;
+	UPROPERTY(EditAnywhere)
+		FFloatRange RandomDataIDRange = FFloatRange(1.f, 1000.f);
 };

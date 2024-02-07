@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "MarineRunner/Interfaces/TakeInterface.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
 
 #include "AlbertosPawn.generated.h"
 
@@ -17,7 +18,7 @@
 /// Albertos can play random sounds after TimeForRandomSound
 /// </summary>
 UCLASS()
-class MARINERUNNER_API AAlbertosPawn : public APawn, public ITakeInterface
+class MARINERUNNER_API AAlbertosPawn : public APawn, public ITakeInterface, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 
@@ -33,6 +34,9 @@ protected:
 	virtual void TakeItem(class AMarineCharacter* Character) override;
 	virtual void ItemHover(class AMarineCharacter* Character) override;
 	virtual void ItemUnHover(class AMarineCharacter* Character) override;
+
+	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
+	virtual void SaveData(class ASavedDataObject* SavedDataObject,const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
 	// Called every frame
@@ -127,6 +131,8 @@ private:
 	/// <returns>True - if albertos is further from the player then MaxDistanceToPlayer <br/>
 	/// False - otherwise</returns>
 	bool TeleportAlbertosToPlayer(FVector& PlayerLoc);
+
+	int32 CurrentUniqueID = 0;
 
 	class AAlbertosAIController* AlbertosAI;
 };

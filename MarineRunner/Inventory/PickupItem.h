@@ -27,7 +27,8 @@ protected:
 	virtual void ItemHover(class AMarineCharacter* Character) override;
 	virtual void ItemUnHover(class AMarineCharacter* Character) override;
 
-	virtual void LoadData(int32 StateOfData = 0) override;
+	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
+	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
 	// Called every frame
@@ -41,6 +42,8 @@ public:
 	FORCEINLINE void SetItemAmountMultiplier(int32 NewAmountMultiplier) { AmountMultiplier = NewAmountMultiplier; }
 	FORCEINLINE void SetItemWasOnceTaken(bool bNewWasOnceTaken) { bWasOnceTaken = bNewWasOnceTaken; }
 	FORCEINLINE void SetCurrentMagazineCapacity(int32 NewCurrentMagazineCapacity) { CurrentMagazineCapacity = NewCurrentMagazineCapacity; }
+
+	void SaveItemIfSpawnedRunTime();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -78,5 +81,8 @@ private:
 	void Dissolve(float Delta);
 
 	void SaveItemWasTaken();
+	void SaveItem(class ASavedDataObject* SavedDataObject,const FCustomDataSaved& DataToSave);
+	void DisableItem();
 
+	int32 CurrentUniqueID = 0;
 };

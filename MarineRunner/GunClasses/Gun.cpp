@@ -690,6 +690,7 @@ void AGun::DropGun()
 	APickupItem* SpawnedGunItem = GetWorld()->SpawnActorDeferred<APickupItem>(ItemToSpawnAfterDropGun, ItemGunTransform);
 	SpawnedGunItem->SetCurrentMagazineCapacity(MagazineCapacity);
 	SpawnedGunItem->SetItemWasOnceTaken(true);
+	SpawnedGunItem->SaveItemIfSpawnedRunTime();
 	SpawnedGunItem->FinishSpawning(ItemGunTransform);
 
 	Destroy();

@@ -103,20 +103,24 @@ void AChestWithItems::SaveChestState(int32 SaveState)
 	if (IsValid(SavedDataObject) == false)
 		return;
 
-	SavedDataObject->AddCustomSaveData(this, SaveState);
+	//SavedDataObject->AddCustomSaveData(FCustomDataSaved(this, SaveState));
 }
 
-void AChestWithItems::LoadData(int32 StateOfData)
+void AChestWithItems::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	if (StateOfData == 1)
+	/*if (SavedCustomData.StateOfSave == 1)
 	{
 		FrontChestPanelWidget->PinIsCorrect(false);
 	}
-	else if (StateOfData == 2)
+	else if (SavedCustomData.StateOfSave == 2)
 	{
 		bIsChestOpen = true;
 		FrontChestPanelWidget->SetVisibility(ESlateVisibility::Hidden);
 		ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 		ChestSkeletalMesh->SetPosition(1.3f);
-	}
+	}*/
+}
+
+void AChestWithItems::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
 }

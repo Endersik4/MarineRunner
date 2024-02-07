@@ -30,8 +30,6 @@ public:
 		bool bIsItWeapon = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition="bIsItWeapon", EditConditionHides))
 		TSubclassOf<class AGun> WeaponClass;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItWeapon", EditConditionHides))
-		FName WeaponSocketName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		bool bIsItCraftable = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
@@ -108,7 +106,7 @@ protected:
 public:	
 
 	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadWrite)
-		TMap<FName, int32> RowNameForItem;
+		TMap<FName, int32> RowNameForStartingItems;
 	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadWrite)
 		UDataTable* ItemsDataTable;
 
@@ -120,10 +118,10 @@ public:
 
 	FItemStruct* GetItemFromInventory(FName ItemRowNameFromDataTable);
 	FItemStruct* GetItemInformationFromDataTable(FName ItemRowNameFromDataTable);
-	//FItemStruct* GetItemInformationFromDataTableUsingItemName(FString ItemNameToFind);
 
 	void AddNewItemToInventory(FName ItemRowNameFromDataTable, float AddAmountToItem = 0.f);
 	void DeleteItemFromInventory(FItemStruct ItemToDelete);
+
 private:
 
 	void TransformItemsDataToInventory();

@@ -142,15 +142,19 @@ void ADoor::PinCorrect()
 	if (IsValid(SavedDataObject) == false)
 		return;
 
-	SavedDataObject->AddCustomSaveData(this, 1);
+	//SavedDataObject->AddCustomSaveData(FCustomDataSaved(this, 1));
 }
 
-void ADoor::LoadData(int32 StateOfData)
+void ADoor::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	if (StateOfData == 1)
-	{
-		StopUsingPin();
-	}
+	//if (SavedCustomData.StateOfSave == 1)
+	//{
+	//	StopUsingPin();
+	//}
+}
+
+void ADoor::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
 }
 
 void ADoor::StopUsingPin()

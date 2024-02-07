@@ -57,13 +57,17 @@ void AShowTutorialMessage::SaveData()
 	if (IsValid(SavedDataObject) == false)
 		return;
 
-	SavedDataObject->AddCustomSaveData(this, 1);
+	//SavedDataObject->AddCustomSaveData(FCustomDataSaved(this, 1));
 }
 
-void AShowTutorialMessage::LoadData(int32 StateOfData)
+void AShowTutorialMessage::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	if (StateOfData != 1)
-		return;
+	//if (SavedCustomData.StateOfSave != 1)
+	//	return;
 
 	bCanShowTutorialMessage = false;
+}
+
+void AShowTutorialMessage::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
 }
