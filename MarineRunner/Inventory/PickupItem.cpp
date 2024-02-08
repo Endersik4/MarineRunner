@@ -217,6 +217,7 @@ void APickupItem::SaveItemIfSpawnedRunTime()
 
 	FCustomDataSaved ItemSpawnedData = FCustomDataSaved(ESavedDataState::ESDS_SpawnObject, GetClass(), FTransform(GetActorRotation(), GetActorLocation()), CurrentMagazineCapacity);
 	ItemSpawnedData.ObjectState = 3;
+	ItemSpawnedData.ObjectToSaveData = this;
 	SaveItem(SavedDataObject, ItemSpawnedData);
 }
 
@@ -229,7 +230,11 @@ void APickupItem::SaveItem(ASavedDataObject* SavedDataObject, const FCustomDataS
 
 void APickupItem::SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	;
+	SavedDataObject->RemoveCustomSaveData(IDkey);
+	FCustomDataSaved UpdatedData = SavedCustomData;
+	UpdatedData.ObjectTransform = FTransform(GetActorRotation(), GetActorLocation());
+	UpdatedData.ObjectToSaveData = this;
+	SavedDataObject->AddCustomSaveData(IDkey, UpdatedData);
 }
 
 void APickupItem::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)

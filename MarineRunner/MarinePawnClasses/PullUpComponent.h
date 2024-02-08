@@ -52,7 +52,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
 		float PullupLinesDistance = 100.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
-		float PullupOffset_Z = 180.f;
+		float PullupOffset_Z = 220.f;
 
 
 	FTimerHandle CheckIfShouldPullUpHandle;

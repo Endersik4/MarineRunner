@@ -80,8 +80,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Music")
 		USoundBase* MainMenuMusic;
 	UPROPERTY(EditAnywhere, Category = "Music")
-		USoundBase* ExplorationMusic;
-	UPROPERTY(EditAnywhere, Category = "Music")
 		USoundBase* CombatMusic;
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -105,6 +103,7 @@ public:
 	void ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut = false);
 
 	FORCEINLINE EMusicType GetCurrentMusicType() const {return CurrentMusicType;}
+	FORCEINLINE void SetCurrentExplorationMusic(USoundBase* MusicToSet) {CurrentExplorationMusic = MusicToSet;}
 
 	bool bNewGame = false;
 private:
@@ -120,11 +119,12 @@ private:
 	// Background music
 	FTimerHandle BackgroundMusicHandle;
 	EMusicType CurrentMusicType;
-	//void SpawnBackgroundMusicFirstTime();
 	UFUNCTION()
 		void SpawnBackgroundMusic(USoundBase* SoundToSpawn);
 	UPROPERTY()
 		UAudioComponent* CurrentPlayingMusic;
 	void ChangeMusicAfterFadeOut();
+	USoundBase* CurrentExplorationMusic;
+
 
 };

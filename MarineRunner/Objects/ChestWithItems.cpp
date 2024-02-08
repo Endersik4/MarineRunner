@@ -73,22 +73,21 @@ void AChestWithItems::OpenChest()
 	ChestSkeletalMesh->SetMaterial(3, UpperOpenLockMaterial);
 	ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 
-	TArray<TSubclassOf<APickupItem>> ItemsArray;
-	ItemsToSpawn.GenerateKeyArray(ItemsArray);
-	for (TSubclassOf<APickupItem> SpawnedItem : ItemsArray)
+	for (const TPair<TSubclassOf<class APickupItem>, FItemRandomSpawnStruct> CurrentPair : ItemsToSpawn)
 	{
-		FItemRandomSpawnStruct* ItemRandomStruct = ItemsToSpawn.Find(SpawnedItem);
-		if (ItemRandomStruct == nullptr) continue;
-
-		for (int i = 0; i != ItemRandomStruct->AmountItems; i++)
+		for (int i = 0; i != CurrentPair.Value.AmountItems; i++)
 		{
 			float ShouldSpawn = FMath::FRandRange(0.f, 100.f);
-			if (ShouldSpawn > ItemRandomStruct->PercentOfSpawningItem) continue;
+			if (ShouldSpawn > CurrentPair.Value.PercentOfSpawningItem) continue;
 
-			FVector Location = ChestSkeletalMesh->GetSocketLocation(FName(TEXT("ItemSpawnLocation"))) + ItemRandomStruct->OffsetFromSpawnLocation;
+			FVector Location = ChestSkeletalMesh->GetSocketLocation(FName(TEXT("ItemSpawnLocation"))) + CurrentPair.Value.OffsetFromSpawnLocation;
 			FRotator Rotation = GetActorRotation();
 
-			GetWorld()->SpawnActor<APickupItem>(SpawnedItem, Location, Rotation);
+			APickupItem* SpawnedItem = GetWorld()->SpawnActorDeferred<APickupItem>(CurrentPair.Key, FTransform(Rotation,Location));
+			if (IsValid(SpawnedItem) == false)
+				continue;
+			SpawnedItem->SaveItemIfSpawnedRunTime();
+			SpawnedItem->FinishSpawning(FTransform(Rotation, Location));
 		}
 	}
 
@@ -103,22 +102,26 @@ void AChestWithItems::SaveChestState(int32 SaveState)
 	if (IsValid(SavedDataObject) == false)
 		return;
 
-	//SavedDataObject->AddCustomSaveData(FCustomDataSaved(this, SaveState));
+	if (CurrentUniqueID == 0)
+		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, SaveState));
 }
 
 void AChestWithItems::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	/*if (SavedCustomData.StateOfSave == 1)
+	CurrentUniqueID = IDkey;
+	if (SavedCustomData.ObjectState == 1)
 	{
 		FrontChestPanelWidget->PinIsCorrect(false);
 	}
-	else if (SavedCustomData.StateOfSave == 2)
+	else if (SavedCustomData.ObjectState == 2)
 	{
 		bIsChestOpen = true;
 		FrontChestPanelWidget->SetVisibility(ESlateVisibility::Hidden);
 		ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 		ChestSkeletalMesh->SetPosition(1.3f);
-	}*/
+	}
 }
 
 void AChestWithItems::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)

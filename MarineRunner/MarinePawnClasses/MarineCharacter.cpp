@@ -256,7 +256,7 @@ void AMarineCharacter::PlayFootstepsSound()
 
 	if ((GetInputAxisValue(TEXT("Forward")) != 0.f || GetInputAxisValue(TEXT("Right")) != 0.f) || WallrunComponent->GetIsWallrunning() == true)
 	{
-		float TimeOfHandle = 0.21f;
+		float TimeOfHandle = 0.31f;
 		if (WallrunComponent->GetIsWallrunning() == true && FootstepsWallrunSound)
 		{
 			TimeOfHandle = 0.17f;
@@ -264,7 +264,7 @@ void AMarineCharacter::PlayFootstepsSound()
 		}
 		else if (GetIsCrouching() == true && FootstepsCroachSound)
 		{
-			TimeOfHandle = 0.43f;
+			TimeOfHandle = 0.5f;
 			UGameplayStatics::SpawnSoundAttached(FootstepsCroachSound, CapsulePawn);
 		}
 		else if (FootstepsSound) UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);

@@ -3,8 +3,10 @@
 
 #include "MarineRunner/Objects/EnemySpawner.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 // Sets default values
 AEnemySpawner::AEnemySpawner()
@@ -53,8 +55,49 @@ void AEnemySpawner::SpawnAllEnemiesFromSpawner()
 			if (CurrentEnemy.EnemyClassToSpawn == nullptr)
 				continue;
 
-			GetWorld()->SpawnActor<AEnemyPawn>(CurrentEnemy.EnemyClassToSpawn, CurrentEnemyTransform);
+			AEnemyPawn* SpawnedEnemy = GetWorld()->SpawnActor<AEnemyPawn>(CurrentEnemy.EnemyClassToSpawn, CurrentEnemyTransform);
+			if (IsValid(SpawnedEnemy) == false)
+				continue;
+
+			SpawnedEnemy->SaveEnemySpawnedDataAtRuntime();
+			//SpawnedEnemy->FinishSpawning(CurrentEnemyTransform);
 		}
 	}
+
+	EnemiesSpawnedSaveData();
 }
+
+void AEnemySpawner::EnemiesSpawnedSaveData()
+{
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	if (CurrentUniqueID == 0) 
+		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
+}
+
+void AEnemySpawner::DisableEnemySpawner()
+{
+	SetActorTickEnabled(false);
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+	bEnemiesSpawned = true;
+}
+
+void AEnemySpawner::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	CurrentUniqueID = IDkey;
+	if (SavedCustomData.ObjectState == 1)
+		DisableEnemySpawner();
+}
+
+void AEnemySpawner::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
+}
+
 

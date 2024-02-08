@@ -100,7 +100,7 @@ private:
 
 	// Save/Load elevator
 	void SaveElevatorState(int32 SaveState);
-
+	int32 CurrentUniqueID = 0;
 
 	class UAudioComponent* SpawnedAmbientElevatorSound;
 };

@@ -231,16 +231,18 @@ void AElevator::PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* Sou
 
 void AElevator::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	//FElevatorFloor* FoundFloor = ElevatorFloors.FindByKey(SavedCustomData.StateOfSave);
-	//if (FoundFloor == nullptr)
-	//	return;
+	FElevatorFloor* FoundFloor = ElevatorFloors.FindByKey((int)SavedCustomData.ValueToSave);
+	if (FoundFloor == nullptr)
+		return;
 
-	//CurrentFloor = SavedCustomData.StateOfSave;
-	//SetActorLocation(FoundFloor->FloorLocation);
+	CurrentUniqueID = IDkey;
+	CurrentFloor = (int)SavedCustomData.ValueToSave;
+	SetActorLocation(FoundFloor->FloorLocation);
 }
 
 void AElevator::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
+	;
 }
 
 void AElevator::SaveElevatorState(int32 SaveState)
@@ -250,5 +252,8 @@ void AElevator::SaveElevatorState(int32 SaveState)
 	if (IsValid(SavedDataObject) == false)
 		return;
 
-	//SavedDataObject->AddCustomSaveData(FCustomDataSaved(this, SaveState));
+	if (CurrentUniqueID == 0)
+		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1, SaveState));
 }

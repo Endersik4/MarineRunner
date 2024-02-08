@@ -364,7 +364,9 @@ void USettingsMenuListEntry::ReplaceKeyMap(const FInputChord & KeyToReplaceFor)
 
 		FInputAxisKeyMapping NewAxisKeyMapping = FInputAxisKeyMapping(SubSettingData->KeyMappingName, KeyToReplaceFor.Key, CurrentMappedAxisKey.Scale);
 		UInputSettings::GetInputSettings()->AddAxisMapping(NewAxisKeyMapping, true);
+
 		CurrentMappedAxisKey = NewAxisKeyMapping;
+		
 	}
 	UInputSettings::GetInputSettings()->SaveKeyMappings();
 }
@@ -399,7 +401,7 @@ FString USettingsMenuListEntry::GetKeyAxisName()
 	TArray<FInputAxisKeyMapping> KeyAxisMappings;
 	UInputSettings::GetInputSettings()->GetAxisMappingByName(SubSettingData->KeyMappingName, KeyAxisMappings);
 	if (KeyAxisMappings.Num() <= SubSettingData->IndexOfKey)
-		return "";
+		return "-empty-";
 
 	CurrentMappedAxisKey = KeyAxisMappings[SubSettingData->IndexOfKey];
 	FString CurrentMappedKeyName = "-" + UKismetInputLibrary::Key_GetDisplayName(KeyAxisMappings[SubSettingData->IndexOfKey].Key, false).ToString() + "-";

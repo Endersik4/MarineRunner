@@ -7,6 +7,7 @@
 #include "MarineRunner/Interfaces/InteractInterface.h"
 #include "MarineRunner/GunClasses/BulletData.h"
 #include "MarineRunner/EnemiesClasses/EnemyInterface.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
 
 #include "EnemyPawn.generated.h"
 
@@ -51,7 +52,7 @@ struct FHitBoneType {
 };
 
 UCLASS()
-class MARINERUNNER_API AEnemyPawn : public APawn, public IInteractInterface, public IEnemyInterface
+class MARINERUNNER_API AEnemyPawn : public APawn, public IInteractInterface, public IEnemyInterface, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 
@@ -62,6 +63,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
+	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
 	// Called every frame
@@ -124,6 +128,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 		class UFloatingPawnMovement* EnemyFloatingMovement;
+
+	// saving/loading
+	void SaveEnemySpawnedDataAtRuntime();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -240,4 +247,7 @@ private:
 	//EnemyAIController
 	class AEnemyAiController* EnemyAIController;
 	void SetUpEnemyAIController();
+
+	int32 CurrentUniqueID = 0;
+	void RemoveEnemySavedDataFromSave();
 };

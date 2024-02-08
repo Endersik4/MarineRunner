@@ -90,5 +90,6 @@ private:
 	class UDoorPanelWidget* FrontChestPanelWidget;
 
 	void SaveChestState(int32 SaveState);
+	int32 CurrentUniqueID = 0;
 
 };

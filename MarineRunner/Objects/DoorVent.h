@@ -7,11 +7,12 @@
 
 #include "Components/TimelineComponent.h"
 #include "MarineRunner/Interfaces/TakeInterface.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
 
 #include "DoorVent.generated.h"
 
 UCLASS()
-class MARINERUNNER_API ADoorVent : public AActor, public ITakeInterface
+class MARINERUNNER_API ADoorVent : public AActor, public ITakeInterface, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 	
@@ -26,6 +27,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
+	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
 	// Called every frame
@@ -42,7 +46,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings")
 		UTexture2D* DoorVentIcon;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
-		bool TurnOnPhysicsAfterTheTimelineEnds = true;
+		FVector FinalLocation;
+	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
+		FRotator FinalRotation;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
 		bool bVentDoorsBasedOnPhysics;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
@@ -71,4 +77,7 @@ private:
 
 	bool bIsOpen = false;
 	bool bIsHovered = false;
+
+	void SaveCurrentStateOfVent(int32 CurrentState, FTransform ActoTransform);
+	int32 CurrentUniqueID = 0;
 };

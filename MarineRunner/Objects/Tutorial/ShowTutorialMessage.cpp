@@ -47,27 +47,32 @@ void AShowTutorialMessage::ShowMessageBoxBeginOverlap(UPrimitiveComponent* Overl
 	MessageWidget->HideMessageAfterTime(HideMessageAfterTime);
 
 	bCanShowTutorialMessage = false;
-	SaveData();
+	MessageReadedSaveData();
 }
 
-void AShowTutorialMessage::SaveData()
+void AShowTutorialMessage::MessageReadedSaveData()
 {
 	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
 	if (IsValid(SavedDataObject) == false)
 		return;
 
-	//SavedDataObject->AddCustomSaveData(FCustomDataSaved(this, 1));
+	if (CurrentUniqueID == 0)
+		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
 }
 
 void AShowTutorialMessage::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	//if (SavedCustomData.StateOfSave != 1)
-	//	return;
+	CurrentUniqueID = IDkey;
+	if (SavedCustomData.ObjectState != 1)
+		return;
 
 	bCanShowTutorialMessage = false;
 }
 
 void AShowTutorialMessage::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
+	;
 }

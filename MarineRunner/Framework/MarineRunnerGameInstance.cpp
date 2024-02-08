@@ -7,7 +7,6 @@
 
 #include "MarineRunner/SaveGame/SaveGameJsonFile.h"
 
-
 void UMarineRunnerGameInstance::Init()
 {
 	Super::Init();
@@ -15,8 +14,6 @@ void UMarineRunnerGameInstance::Init()
 
 	LoadCustomSavedSettingsFromConfig();
 	LoadSoundsVolumeFromConfig(CustomSavedSettings);
-
-	//SpawnBackgroundMusicFirstTime();
 }
 
 #pragma region ///////// SAVING/LOADIGN///////////////
@@ -104,27 +101,23 @@ void UMarineRunnerGameInstance::RemoveDetectedEnemy(AActor* NewEnemy)
 }
 
 #pragma region /////////////////// BACKGROUND MUSIC /////////////////////////
-/*
-void UMarineRunnerGameInstance::SpawnBackgroundMusicFirstTime()
-{
-	FTimerDelegate MusicDel;
-	MusicDel.BindUFunction(this, FName("SpawnBackgroundMusic"), ExplorationMusic);
-	GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, MusicDel, 0.2f, false);
-}*/
 
 void UMarineRunnerGameInstance::SpawnBackgroundMusic(USoundBase* SoundToSpawn)
 {
 	if (SoundToSpawn == nullptr)
 		return;
 	CurrentPlayingMusic = UGameplayStatics::SpawnSound2D(GetWorld(), SoundToSpawn, 1.f, 1.f, 0.f, nullptr, true);
-	CurrentPlayingMusic->FadeIn(2.f, 1.f);
+	CurrentPlayingMusic->FadeIn(1.2f, 1.f);
 }
 
 void UMarineRunnerGameInstance::ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut)
 {
+	if (bIsDetectedByEnemies == true && MusicType != EMusicType::EMT_Combat)
+		return;
+
 	CurrentMusicType = MusicType;
 
-	GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, this, &UMarineRunnerGameInstance::ChangeMusicAfterFadeOut, 1.81f, false);
+	GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, this, &UMarineRunnerGameInstance::ChangeMusicAfterFadeOut, 1.21f, false);
 
 	if (bIgnoreFadeOut == true)
 		return;
@@ -132,17 +125,23 @@ void UMarineRunnerGameInstance::ChangeBackgroundMusic(EMusicType MusicType, bool
 	if (IsValid(CurrentPlayingMusic) == false)
 		return;
 
-	CurrentPlayingMusic->FadeOut(1.8f, 0.f);
+	CurrentPlayingMusic->FadeOut(1.2f, 0.f);
 }
 
 void UMarineRunnerGameInstance::ChangeMusicAfterFadeOut()
 {
 	if (CurrentMusicType == EMT_Combat)
 		SpawnBackgroundMusic(CombatMusic);
-	else if (CurrentMusicType == EMT_PauseMusic && IsValid(CurrentPlayingMusic))
+	else if (CurrentMusicType == EMT_PauseMusic)
 	{
-		CurrentPlayingMusic->Stop();
+		if (IsValid(CurrentPlayingMusic))
+		{
+			CurrentPlayingMusic->Stop();
+		}
 		return;
 	}
-	else SpawnBackgroundMusic(ExplorationMusic);
+	else
+	{
+		SpawnBackgroundMusic(CurrentExplorationMusic);
+	}
 }

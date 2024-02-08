@@ -67,13 +67,13 @@ public:
 private:
 
 	bool bDoorOpen = false;
-	class IUsePinToEnterInterface* ActorWithWidget;
-	int32 CurrentPinCode;
 	bool bCanCloseObject = true;
 
 	FTimerHandle ChangeDoorStatusHandle;
 	void ChangeDoorStatus();
 
+	class IUsePinToEnterInterface* ActorWithWidget;
+	int32 CurrentPinCode;
 	FString CurrentlyEnteredPin;
 	FString CurrentlyEnteredPin_Text;
 

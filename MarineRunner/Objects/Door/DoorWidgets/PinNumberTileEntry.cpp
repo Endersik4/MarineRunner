@@ -7,6 +7,7 @@
 
 #include "DoorPanelWidget.h"
 #include "PinNumberEntryObject.h"
+#include "MarineRunner/Objects/Elevator/CallElevatorPanel.h"
 
 
 void UPinNumberTileEntry::NativeConstruct()
@@ -30,7 +31,10 @@ void UPinNumberTileEntry::OnClickedPinNumberButton()
 	if (IsValid(PinNumberEntryObject) == false)
 		return;
 
-	PinNumberEntryObject->DoorPanelWidget->AddNumberToEnteredPin(PinNumberEntryObject->PinNumber);
+	if (IsValid(PinNumberEntryObject->DoorPanelWidget) == true)
+		PinNumberEntryObject->DoorPanelWidget->AddNumberToEnteredPin(PinNumberEntryObject->PinNumber);
+	else if (IsValid(PinNumberEntryObject->CallElevatorPanelWidget) == true)
+		PinNumberEntryObject->CallElevatorPanelWidget->AddNumberToEnteredPin(PinNumberEntryObject->PinNumber);
 }
 
 void UPinNumberTileEntry::OnHoveredPinNumberButton()

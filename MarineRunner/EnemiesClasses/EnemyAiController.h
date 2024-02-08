@@ -31,6 +31,8 @@ public:
 	void RunAway();
 	void AddEnemyToDetected(bool bWas);
 
+	void SetAIVariables();
+
 private:
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
@@ -55,6 +57,5 @@ private:
 	float DetectPlayerTime;
 	float LoseSightOfPlayerTime;
 
-	void SetAIVariables();
 	class UMarineRunnerGameInstance* MarineRunnerGameInstance;
 };

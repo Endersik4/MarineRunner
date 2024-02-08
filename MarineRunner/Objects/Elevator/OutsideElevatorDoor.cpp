@@ -9,6 +9,7 @@
 
 #include "Elevator.h"
 #include "CallElevatorPanel.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 // Sets default values
 AOutsideElevatorDoor::AOutsideElevatorDoor()
@@ -42,7 +43,7 @@ void AOutsideElevatorDoor::Tick(float DeltaTime)
 }
 
 /// <summary>
-/// Opens the door if it can
+/// Opens the door if can
 /// </summary>
 void AOutsideElevatorDoor::OpenOutsideElevatorDoor()
 {
@@ -54,7 +55,7 @@ void AOutsideElevatorDoor::OpenOutsideElevatorDoor()
 }
 
 /// <summary>
-/// Closes the door if it can
+/// Closes the door if can
 /// </summary>
 void AOutsideElevatorDoor::CloseOutsideElevatorDoor()
 {
@@ -81,6 +82,10 @@ void AOutsideElevatorDoor::SetUpElevatorPanel()
 
 	ElevatorPanelWidget->SetFloor(Floor);
 	ElevatorPanelWidget->SetElevator(ElevatorToCall);
+	ElevatorPanelWidget->SetOutsideElevatorDoor(this);
+
+	if (bUsePinCode == true)
+		ElevatorPanelWidget->ChangeDoorPanelToUsePin(PinCode);
 }
 
 bool AOutsideElevatorDoor::CanCallElevator() const
@@ -91,4 +96,31 @@ bool AOutsideElevatorDoor::CanCallElevator() const
 void AOutsideElevatorDoor::CallElevatorAction(ECallElevatorAction ActionToDo)
 {
 	ElevatorPanelWidget->CallElevatorAction(ActionToDo);
+}
+
+void AOutsideElevatorDoor::PinIsCorrect()
+{
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	if (CurrentUniqueID == 0)
+		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
+}
+
+void AOutsideElevatorDoor::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	CurrentUniqueID = IDkey;
+	if (SavedCustomData.ObjectState == 1 && IsValid(ElevatorPanelWidget))
+	{
+		ElevatorPanelWidget->PinIsCorrect();
+	}
+}
+
+void AOutsideElevatorDoor::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
 }

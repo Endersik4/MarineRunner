@@ -7,6 +7,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/DecalComponent.h"
 
+#include "MarineRunner/Objects/SavedDataObject.h"
+
 // Sets default values
 AExplosionBarrel::AExplosionBarrel()
 {
@@ -69,7 +71,8 @@ void AExplosionBarrel::Explode()
 
 	SpawnEffects();
 
-	Destroy();
+	BarrelExplodedSaveData();
+	DisableBarrel();
 }
 
 void AExplosionBarrel::UseInterfaceOnActor(const FHitResult& HitResult)
@@ -117,3 +120,45 @@ void AExplosionBarrel::SpawnExplosionBarrelGeometry()
 	GetWorld()->SpawnActor<AActor>(ExplosionBarrelGeometryClass, GetActorLocation(), GetActorRotation());
 }
 
+void AExplosionBarrel::BarrelExplodedSaveData()
+{
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	if (CurrentUniqueID == 0)
+		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
+}
+
+void AExplosionBarrel::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	CurrentUniqueID = IDkey;
+	if (SavedCustomData.ObjectState == 1)
+	{
+		DisableBarrel();
+	}
+	else
+	{
+		SetActorLocation(SavedCustomData.ObjectTransform.GetLocation());
+		SetActorRotation(SavedCustomData.ObjectTransform.GetRotation());
+	}
+}
+
+void AExplosionBarrel::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	SavedDataObject->RemoveCustomSaveData(IDkey);
+	FCustomDataSaved UpdatedData = SavedCustomData;
+	UpdatedData.ObjectTransform = FTransform(GetActorRotation(), GetActorLocation());
+	SavedDataObject->AddCustomSaveData(IDkey, UpdatedData);
+}
+
+void AExplosionBarrel::DisableBarrel()
+{
+	SetActorTickEnabled(false);
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+	ExplosionBarrelMesh->SetSimulatePhysics(false);
+}

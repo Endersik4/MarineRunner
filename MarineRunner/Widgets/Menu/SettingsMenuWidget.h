@@ -142,6 +142,8 @@ private:
 		TArray<FMenuSettings> VideoSettingsList;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
 		TArray<FMenuSettings> BindingsSettingsList;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
+		TSubclassOf<UUserWidget> SettingsAppliedWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 		float TimeToStartAnimationOnInitialized = 0.17f;
 
@@ -163,6 +165,8 @@ private:
 	TMap<UButton*, UTextBlock*> MenuButtonsAndText;
 
 	void LoadSavedSettingsToPlayer();
+
+	void SpawnSettingsAcceptedWidget();
 
 	class AMarinePlayerController* MarinePlayerController;
 	class UMarineRunnerGameInstance* MarineGameInstance;

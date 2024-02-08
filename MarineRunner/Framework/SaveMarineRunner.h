@@ -46,6 +46,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		TMap<int32, FCustomDataSaved> SavedCustomData;
 
+	UPROPERTY(EditAnywhere)
+		USoundBase* CurrentExplorationMusic;
+
 	void PrepareSaveGame(const FString& NewSaveName = "ManualSave_", bool bAddSaveNumber = true);
 	FString OriginalSaveName;
 	bool bAddSaveNumber;

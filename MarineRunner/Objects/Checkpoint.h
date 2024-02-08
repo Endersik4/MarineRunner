@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
+
 #include "Checkpoint.generated.h"
 
 UCLASS()
-class MARINERUNNER_API ACheckpoint : public AActor
+class MARINERUNNER_API ACheckpoint : public AActor, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 	
@@ -19,11 +21,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
+	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	void DisableCheckpoint();
 
 private:
 	UFUNCTION()
@@ -32,9 +35,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UBoxComponent* CheckpointBox;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Settings")
-		float MaxGameTimeToSaveGame = 1.f;
-
-	bool bSaved;
-
+	int32 CurrentUniqueID = 0;
+	void SaveCheckpoint();
 };

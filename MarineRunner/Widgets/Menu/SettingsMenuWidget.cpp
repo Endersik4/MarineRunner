@@ -221,6 +221,8 @@ void USettingsMenuWidget::OnUnhoveredBindingsSettingsButton()
 
 void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 {
+	SpawnSettingsAcceptedWidget();
+
 	TArray<UObject*> AllListElements = SettingsListView->GetListItems();
 
 	for (UObject* CurrentElement : AllListElements)
@@ -283,6 +285,15 @@ void USettingsMenuWidget::ReplaceValueInGameInstanceByName(const FMenuSettings& 
 	else if (SubSettingData.SubSettingType == EST_OnOff)
 	{
 		//JsonObject->SetBoolField(SubSettingData.SavedValueName, SubSettingData.bSettingEnabled);
+	}
+}
+
+void USettingsMenuWidget::SpawnSettingsAcceptedWidget()
+{
+	UUserWidget* SpawnedWidget = CreateWidget(MarinePlayerController, SettingsAppliedWidgetClass);
+	if (IsValid(SpawnedWidget) == true)
+	{
+		SpawnedWidget->AddToViewport();
 	}
 }
 

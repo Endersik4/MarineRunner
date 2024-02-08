@@ -4,9 +4,11 @@
 #include "MarineRunner/Objects/Checkpoint.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 // Sets default values
 ACheckpoint::ACheckpoint()
@@ -34,24 +36,44 @@ void ACheckpoint::Tick(float DeltaTime)
 
 }
 
-void ACheckpoint::DisableCheckpoint()
-{
-	bSaved = true;
-	CheckpointBox->SetCollisionProfileName(FName(TEXT("NoCollision")));
-}
-
 void ACheckpoint::OnCheckpointBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!OtherActor->ActorHasTag("Player") || bSaved == true) return;
-
-	// Prevent where DisableCheckpoint function is done After overlapping the player
-	if (UKismetSystemLibrary::GetGameTimeInSeconds(GetWorld()) < MaxGameTimeToSaveGame)
+	if (!OtherActor->ActorHasTag("Player")) 
 		return;
 
 	AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(OtherActor);
 	if (MarinePawn == nullptr) return;
 
 	MarinePawn->GetSaveLoadPlayerComponent()->CallSaveGame(this);
-	bSaved = true;
+
+	SaveCheckpoint();
+}
+
+void ACheckpoint::SaveCheckpoint()
+{
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	if (CurrentUniqueID == 0)
+		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
+}
+
+void ACheckpoint::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	CurrentUniqueID = IDkey;
+	if (SavedCustomData.ObjectState != 1)
+		return;
+
+	SetActorEnableCollision(false);
+	SetActorTickEnabled(false);
+}
+
+void ACheckpoint::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
 }
 

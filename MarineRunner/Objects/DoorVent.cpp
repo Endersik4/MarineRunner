@@ -3,10 +3,12 @@
 
 #include "MarineRunner/Objects/DoorVent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Curves/CurveVector.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
-#include "Curves/CurveVector.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 // Sets default values
 ADoorVent::ADoorVent()
@@ -44,6 +46,7 @@ void ADoorVent::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpul
 		return;
 
 	DoorVentMesh->SetSimulatePhysics(true);
+	SaveCurrentStateOfVent(3, FTransform(GetActorRotation(), GetActorLocation()));
 }
 
 void ADoorVent::TakeItem(AMarineCharacter* Character)
@@ -54,6 +57,7 @@ void ADoorVent::TakeItem(AMarineCharacter* Character)
 	if (TurnOnPhysicsInsteadOfTimeline)
 	{
 		DoorVentMesh->SetSimulatePhysics(true);
+		SaveCurrentStateOfVent(3, FTransform(GetActorRotation(), GetActorLocation()));
 	}
 	else
 	{
@@ -73,6 +77,8 @@ void ADoorVent::PlayOpenDoorVentLocTimeline()
 	OpenDoorVentLocTimeline.SetTimelineFinishedFunc(TimelineFinished);
 
 	OpenDoorVentLocTimeline.PlayFromStart();
+	
+	SaveCurrentStateOfVent(2, FTransform(FinalRotation, FinalLocation));
 }
 
 void ADoorVent::OnOpenDoorVentLocProgress(FVector VectorValue)
@@ -101,10 +107,8 @@ FRotator ADoorVent::GetRotationFromDoorVentOpenCurve()
 
 void ADoorVent::OnOpenDoorVentLocFinished()
 {
-	if (TurnOnPhysicsAfterTheTimelineEnds == true)
-	{
-		DoorVentMesh->SetSimulatePhysics(true);
-	}
+	DoorVentMesh->SetSimulatePhysics(true);
+	SaveCurrentStateOfVent(3, FTransform(GetActorRotation(), GetActorLocation()));
 }
 
 void ADoorVent::ItemHover(AMarineCharacter* Character)
@@ -134,4 +138,39 @@ void ADoorVent::ItemUnHover(AMarineCharacter* Character)
 		return;
 
 	Character->GetHudWidget()->PlayAppearAnimForItemHover(false);
+}
+
+void ADoorVent::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	CurrentUniqueID = IDkey;
+	DoorVentMesh->SetSimulatePhysics(true);
+
+	SetActorLocation(SavedCustomData.ObjectTransform.GetLocation());
+	SetActorRotation(SavedCustomData.ObjectTransform.GetRotation());
+}
+
+void ADoorVent::SaveCurrentStateOfVent(int32 CurrentState, FTransform ActoTransform)
+{
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	if (CurrentUniqueID == 0)
+		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+
+	FCustomDataSaved CurrentStateSaved = FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, CurrentState);
+	CurrentStateSaved.ObjectTransform = ActoTransform;
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, CurrentStateSaved);
+}
+
+void ADoorVent::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	if (SavedCustomData.ObjectState == 2)
+		return;
+
+	SavedDataObject->RemoveCustomSaveData(IDkey);
+	FCustomDataSaved UpdatedData = SavedCustomData;
+	UpdatedData.ObjectTransform = FTransform(GetActorRotation(), GetActorLocation());
+	SavedDataObject->AddCustomSaveData(IDkey, UpdatedData);
 }

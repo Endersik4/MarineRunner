@@ -17,6 +17,7 @@
 #include "MarineRunner/EnemiesClasses/EnemyAiController.h"
 #include "MarineRunner/EnemiesClasses/EnemyGunComponent.h"
 #include "MarineRunner/EnemiesClasses/EnemyIndicatorWidget.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 AEnemyPawn::AEnemyPawn()
 {
@@ -138,6 +139,7 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AAct
 		SetIsDead(true);
 		EnemyAIController->AddEnemyToDetected(false);
 		SetLifeSpan(LifeSpanAfterDeath);
+		RemoveEnemySavedDataFromSave();
 
 		EnemyIndicatorWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
@@ -320,10 +322,63 @@ void AEnemyPawn::SetUpMarinePawn()
 void AEnemyPawn::SetUpEnemyAIController()
 {
 	EnemyAIController = Cast<AEnemyAiController>(GetController());
-	if (!EnemyAIController)
+	if (IsValid(EnemyAIController) == false)
 	{
 		UE_LOG(LogTemp, Error, TEXT("ENEMY AI CONTROLER CAST ERROR IN ENEMY PAWN"));
+		return;
 	}
+	EnemyAIController->SetAIVariables();
+
+}
+#pragma endregion
+
+#pragma region //////////// SAVE/LOAD /////////////
+void AEnemyPawn::RemoveEnemySavedDataFromSave()
+{
+	if (CurrentUniqueID == 0)
+		return;
+
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	SavedDataObject->RemoveCustomSaveData(CurrentUniqueID);
+}
+
+void AEnemyPawn::SaveEnemySpawnedDataAtRuntime()
+{
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	FCustomDataSaved ItemSpawnedData = FCustomDataSaved(ESavedDataState::ESDS_SpawnObject, GetClass(), FTransform(GetActorRotation(), GetActorLocation()), Health);
+	ItemSpawnedData.ObjectState = 1;
+	ItemSpawnedData.ObjectToSaveData = this;
+
+	CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, ItemSpawnedData);
+}
+
+void AEnemyPawn::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	CurrentUniqueID = IDkey;
+	Health = SavedCustomData.ValueToSave;
+	if (IsValid(EnemyIndicatorWidget))
+	{
+		EnemyIndicatorWidget->SetCurrentHealthInHealthBar(Health);
+	}
+}
+
+void AEnemyPawn::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	SavedDataObject->RemoveCustomSaveData(IDkey);
+	FCustomDataSaved UpdatedData = SavedCustomData;
+	UpdatedData.ObjectTransform = FTransform(GetActorRotation(), GetActorLocation());
+	UpdatedData.ValueToSave = Health;
+	UpdatedData.ObjectToSaveData = this;
+	SavedDataObject->AddCustomSaveData(IDkey, UpdatedData);
 }
 #pragma endregion
 

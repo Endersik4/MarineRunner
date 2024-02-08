@@ -31,8 +31,6 @@ private:
 		float TakeDistance = 400.f;
 	UPROPERTY(EditAnywhere, Category = "Gun options")
 		FVector CollisionBoxSize = FVector(20.f);
-	UPROPERTY(EditAnywhere, Category = "Gun options")
-		float SpeedOfComingGun = 2.f;
 
 	class AMarineCharacter* MarinePawn;
 	class ITakeInterface* TakeInterface;

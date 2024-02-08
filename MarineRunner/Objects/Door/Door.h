@@ -76,5 +76,6 @@ private:
 	UDoorPanelWidget* DoorPanelSecondWidget;
 	void SetUpDoorPanels();
 
+	int32 CurrentUniqueID = 0;
 	void StopUsingPin();
 };

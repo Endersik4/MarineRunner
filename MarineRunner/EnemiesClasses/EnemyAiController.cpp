@@ -15,17 +15,15 @@ AEnemyAiController::AEnemyAiController()
 {
 	EnemyPerception = CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("AIEnemyPerception"));
 
-	EnemyPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAiController::HandleTargetPerceptionUpdated);
-	
-	GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &AEnemyAiController::OnMoveCompleted);
 }
 
 void AEnemyAiController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetAIVariables();
-	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	EnemyPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAiController::HandleTargetPerceptionUpdated);
+
+	GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &AEnemyAiController::OnMoveCompleted);
 }
 
 void AEnemyAiController::Tick(float DeltaTime)
@@ -78,6 +76,8 @@ void AEnemyAiController::AddEnemyToDetected(bool bWas)
 
 void AEnemyAiController::SetAIVariables()
 {
+	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
 	if (!AIBehaviour) return;
 	RunBehaviorTree(AIBehaviour);
 

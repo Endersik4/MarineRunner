@@ -46,5 +46,6 @@ private:
 	bool bCanShowTutorialMessage = true;
 	FTimerHandle SpawnMessageWidgetHandle;
 
-	void SaveData();
+	void MessageReadedSaveData();
+	int32 CurrentUniqueID = 0;
 };
