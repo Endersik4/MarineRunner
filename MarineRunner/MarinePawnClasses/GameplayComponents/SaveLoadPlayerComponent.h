@@ -22,7 +22,7 @@ protected:
 
 public:	
 
-	void CallSaveGame(AActor* JustSavedCheckpoint = nullptr) { SaveGame(JustSavedCheckpoint); }
+	void SaveGame(const FString& _SaveName = "ManualSave_", const FString& _WildCard = "*ManualSave*");
 	bool CanPlayerSaveGame();
 	void SpawnCannotSavedWidget() { SpawnPassingWidget(CannotSavedNotificationWidgetClass); }
 
@@ -38,7 +38,6 @@ private:
 
 	//Saving/Loading Game
 	class USaveMarineRunner* CreatedSaveGame;
-	void SaveGame(AActor* JustSavedCheckpoint = nullptr);
 	void LoadGame();
 	void SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn);
 		

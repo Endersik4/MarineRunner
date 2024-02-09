@@ -1,6 +1,5 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-
 #include "MarineRunner/EnemiesClasses/EnemyGunComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -8,35 +7,22 @@
 #include "MarineRunner/GunClasses/Bullet.h"
 #include "MarineRunner/EnemiesClasses/EnemyInterface.h"
 
-
-// Sets default values for this component's properties
 UEnemyGunComponent::UEnemyGunComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
-
-// Called when the game starts
 void UEnemyGunComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	OwningEnemyInterface = Cast<IEnemyInterface>(GetOwner());
 	InitialMagazineCapacity = MagazineCapacity;
-
 }
 
-
-// Called every frame
 void UEnemyGunComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 
 void UEnemyGunComponent::Shoot()
@@ -93,12 +79,30 @@ void UEnemyGunComponent::SpawnBullet()
 	}
 }
 
+FVector UEnemyGunComponent::PredictWhereToShoot(bool bIgnoreOffset)
+{
+	AActor* CurrentFocusedActor = OwningEnemyInterface->GetFocusedActor();
+	if (IsValid(CurrentFocusedActor) == false)
+		return FVector(0.f);
+	FVector FocusedActorLocation = CurrentFocusedActor->GetActorLocation();
+
+	if (bIgnoreOffset == true)
+		return FocusedActorLocation;
+
+	float Distance = UKismetMathLibrary::Vector_Distance(GetOwner()->GetActorLocation(), FocusedActorLocation) / PredictWhereToShootDistanceDivider;
+
+	FocusedActorLocation += CurrentFocusedActor->GetActorUpVector() * PredictWhereToShootOffset_UP;
+	FocusedActorLocation += CurrentFocusedActor->GetActorRightVector() * CurrentFocusedActor->GetInputAxisValue("Right") * PredictWhereToShootOffset_Right ;
+	FocusedActorLocation += CurrentFocusedActor->GetRootComponent()->GetForwardVector() * CurrentFocusedActor->GetInputAxisValue("Forward") * PredictWhereToShootOffset_Forward;
+	return FocusedActorLocation;
+}
+
 FRotator UEnemyGunComponent::CalculateBulletRotation()
 {
 	FRotator BulletRotation;
 	if (bFindBulletRotationTowardsTarget == true)
 	{
-		BulletRotation = UKismetMathLibrary::FindLookAtRotation(OwningEnemyInterface->GetSkeletalMesh()->GetSocketLocation(BulletSocketsNames[CurrentSocketNameIndex]), OwningEnemyInterface->GetPlayerCameraLocation());
+		BulletRotation = UKismetMathLibrary::FindLookAtRotation(OwningEnemyInterface->GetSkeletalMesh()->GetSocketLocation(BulletSocketsNames[CurrentSocketNameIndex]), PredictWhereToShoot());
 	}
 	else
 	{
@@ -106,18 +110,15 @@ FRotator UEnemyGunComponent::CalculateBulletRotation()
 	}
 
 	//Bullet will randomly "go" to other directions 
-	if (bManyBulletAtOnce)
-	{
-		BulletRotation.Pitch += FMath::FRandRange(RandomRangeForPitchBullet.GetLowerBoundValue(), RandomRangeForPitchBullet.GetUpperBoundValue());
-		BulletRotation.Yaw += FMath::FRandRange(RandomRangeForYawBullet.GetLowerBoundValue(), RandomRangeForYawBullet.GetUpperBoundValue());
-	}
+	BulletRotation.Pitch += FMath::FRandRange(RandomRangeForPitchBullet.GetLowerBoundValue(), RandomRangeForPitchBullet.GetUpperBoundValue());
+	BulletRotation.Yaw += FMath::FRandRange(RandomRangeForYawBullet.GetLowerBoundValue(), RandomRangeForYawBullet.GetUpperBoundValue());
 
 	return BulletRotation;
 }
 
 void UEnemyGunComponent::AddImpulseDuringShooting()
 {
-	FVector RecoilImpulse = -GetOwner()->GetActorForwardVector() * RecoilImpulseOnEnemy * 100.f;
+	FVector RecoilImpulse = -GetOwner()->GetActorForwardVector() * RecoilImpulseOnEnemy;
 	OwningEnemyInterface->AddImpulseToPhysicsMesh(RecoilImpulse);
 }
 
@@ -146,7 +147,7 @@ const bool UEnemyGunComponent::CanShootAgain()
 
 bool UEnemyGunComponent::CanShoot()
 {
-	if (BulletData.BulletClass == NULL || OwningEnemyInterface->GetIsDead() == true)
+	if (BulletData.BulletClass == NULL)
 		return false;
 
 	if (MagazineCapacity <= 0)

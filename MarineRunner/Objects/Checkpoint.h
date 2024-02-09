@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -35,6 +35,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UBoxComponent* CheckpointBox;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Setting")
+		FString SaveToNameAfterCheckpoint;
+	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Setting")
+		FString SaveNumberWildCard;
+
 	int32 CurrentUniqueID = 0;
 	void SaveCheckpoint();
+	void DisableCheckpoint();
 };

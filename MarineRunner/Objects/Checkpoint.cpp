@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 
 #include "MarineRunner/Objects/Checkpoint.h"
@@ -18,8 +18,9 @@ ACheckpoint::ACheckpoint()
 
 	CheckpointBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CheckpointBox"));
 	RootComponent = CheckpointBox;
+	CheckpointBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	CheckpointBox->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
 
-	CheckpointBox->OnComponentBeginOverlap.AddDynamic(this, &ACheckpoint::OnCheckpointBoxBeginOverlap);
 }
 
 // Called when the game starts or when spawned
@@ -27,6 +28,7 @@ void ACheckpoint::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CheckpointBox->OnComponentBeginOverlap.AddDynamic(this, &ACheckpoint::OnCheckpointBoxBeginOverlap);
 }
 
 // Called every frame
@@ -38,15 +40,14 @@ void ACheckpoint::Tick(float DeltaTime)
 
 void ACheckpoint::OnCheckpointBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!OtherActor->ActorHasTag("Player")) 
+	AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(OtherActor);
+	if (IsValid(MarinePawn) == false) 
 		return;
 
-	AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(OtherActor);
-	if (MarinePawn == nullptr) return;
-
-	MarinePawn->GetSaveLoadPlayerComponent()->CallSaveGame(this);
+	MarinePawn->GetSaveLoadPlayerComponent()->SaveGame(SaveToNameAfterCheckpoint, SaveNumberWildCard);
 
 	SaveCheckpoint();
+	DisableCheckpoint();
 }
 
 void ACheckpoint::SaveCheckpoint()
@@ -62,14 +63,19 @@ void ACheckpoint::SaveCheckpoint()
 	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
 }
 
+void ACheckpoint::DisableCheckpoint()
+{
+	SetActorEnableCollision(false);
+	SetActorTickEnabled(false);
+}
+
 void ACheckpoint::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
 	CurrentUniqueID = IDkey;
 	if (SavedCustomData.ObjectState != 1)
 		return;
 
-	SetActorEnableCollision(false);
-	SetActorTickEnabled(false);
+	DisableCheckpoint();
 }
 
 void ACheckpoint::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)

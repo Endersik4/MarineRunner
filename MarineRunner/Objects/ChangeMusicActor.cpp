@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 // Sets default values
 AChangeMusicActor::AChangeMusicActor()
@@ -43,6 +44,8 @@ void AChangeMusicActor::ChangeMusicBoxBeginOverlap(UPrimitiveComponent* Overlapp
 		UGameplayStatics::PlaySound2D(GetWorld(), SoundToPlay);
 
 	DisableChangeMusic();
+
+	ChangedMusicSaveData();
 }
 
 void AChangeMusicActor::ChangeBackgroundMusic()
@@ -60,4 +63,31 @@ void AChangeMusicActor::DisableChangeMusic()
 	SetActorTickEnabled(false);
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
+}
+
+void AChangeMusicActor::ChangedMusicSaveData()
+{
+	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (IsValid(SavedDataObject) == false)
+		return;
+
+	if (CurrentUniqueID == 0)
+		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
+}
+
+void AChangeMusicActor::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	CurrentUniqueID = IDkey;
+	if (SavedCustomData.ObjectState == 1)
+	{
+		DisableChangeMusic();
+	}
+}
+
+void AChangeMusicActor::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
 }

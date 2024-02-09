@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineRunner/Framework/SaveMarineRunner.h"
 #include "Kismet/GameplayStatics.h"
@@ -28,12 +27,13 @@ FString USaveMarineRunner::GetSaveGameName()
 }
 
 #pragma region ///////// SAVING ////////////
-void USaveMarineRunner::CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld)
+void USaveMarineRunner::CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld, const FString& _WildCard)
 {
 	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(CurrentWorld));
 	if (IsValid(GameInstance) == false)
 		return;
 
+	GameInstance->SetSaveNumberAccordingToNumOfFiles(_WildCard);
 	GameInstance->CurrentSaveNumber++;
 	SaveNumber = GameInstance->CurrentSaveNumber;
 
@@ -100,6 +100,8 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 
 	GameInstance->SetSaveNumberAccordingToNumOfFiles();
 	GameInstance->TotalPlayTimeInSeconds = TotalPlayTimeInSeconds;
+	GameInstance->SetCurrentExplorationMusic(SavedExplorationMusic);
+	GameInstance->ChangeBackgroundMusic(EMusicType::EMT_Exploration, true);
 }
 
 void USaveMarineRunner::LoadOtherObjectsData(ASavedDataObject* OtherObjectsData)

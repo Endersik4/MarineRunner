@@ -10,16 +10,15 @@
 void UMarineRunnerGameInstance::Init()
 {
 	Super::Init();
-	SetSaveNumberAccordingToNumOfFiles();
+	//SetSaveNumberAccordingToNumOfFiles();
 
 	LoadCustomSavedSettingsFromConfig();
 	LoadSoundsVolumeFromConfig(CustomSavedSettings);
 }
 
 #pragma region ///////// SAVING/LOADIGN///////////////
-void UMarineRunnerGameInstance::SetSaveNumberAccordingToNumOfFiles()
+void UMarineRunnerGameInstance::SetSaveNumberAccordingToNumOfFiles(const FString& WildCard)
 {
-	FString WildCard = "*ManualSave*";
 	const int32 NumberOfFilesInOneSave = 3; //.json, .png, .sav
 	CurrentSaveNumber = GetAllFilesWithName(WildCard) / NumberOfFilesInOneSave;
 }

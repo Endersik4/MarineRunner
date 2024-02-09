@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -78,18 +78,14 @@ public:
 	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
 
 	FORCEINLINE virtual USkeletalMeshComponent* GetSkeletalMesh() override { return EnemySkeletalMesh; }
-	FORCEINLINE virtual const FVector GetPlayerCameraLocation() override { return PlayerCameraLocation; }
+	virtual class AActor* GetFocusedActor() override { return FocusedActor; }
 	FORCEINLINE virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) override;
 	FORCEINLINE virtual void PlayShootAnimation() override { PlayAnimMontageInBlueprint(); }
-	FORCEINLINE virtual const bool GetIsDead() override { return bIsDead; }
 
 	//AI
 	bool GetShouldAvoidBullets() const { return bShouldAvoidBullet; }
 	bool GetPlayPrepareToShootAnimation() const { return bPlayPrepareToShootAnimation; }
-	int32 GetHowManyLocations() const { return HowManyLocations; }
 	float GetWaitTimeShoot() const { return WaitTimeShoot; }
-	float GetDetectPlayerTime() const { return DetectPlayerTime; }
-	float GetLoseSightOfPlayerTime() const { return LoseSightOfPlayerTime; }
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void PlayPrepareToShootAnimation(bool bShouldPlay);
@@ -110,16 +106,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ShootAgain(bool & bShoot);
 
-	void Reload();
-	void Shoot();
+
 
 	// Bone Rotation - Bone will be looking at the player when he is detected.
 	// bLookStraight means whether Bone should look directly at the player's camera or with some margin
 	UFUNCTION(BlueprintCallable)
 		FRotator FocusBoneOnPlayer(FName BoneName, bool bLookStraight);
 
-	UFUNCTION(BlueprintPure)
-		bool GetIsDeadBP() const { return bIsDead; }
 	UFUNCTION(BlueprintPure)
 		float GetSpeedOfEnemyWhenIsRunningAway() const { return SpeedOfEnemyWhenIsRunningAway; }
 
@@ -132,25 +125,18 @@ public:
 	// saving/loading
 	void SaveEnemySpawnedDataAtRuntime();
 
+	void SawTheTarget(bool bSaw, AActor* SeenTarget = nullptr);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UCapsuleComponent* CapsuleColl;
+		class UCapsuleComponent* EnemyCapsule;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 		class UEnemyGunComponent* EnemyGunComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetComponent* EnemyIndicatorWidgetComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		int32 HowManyLocations = 5;
-	UPROPERTY(EditAnywhere, Category = "AI Setup")
-		float WaitTimeShoot = 0.3f;
-	//How long does it take to detect the player by enemy
-	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		float DetectPlayerTime = 0.2f;
-	//How long does it take to lose sight of the player by enemy
-	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		float LoseSightOfPlayerTime = 5.f;
 
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
+		float WaitTimeShoot = 0.3f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		bool bCanEnemyBeKilled = true;	
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
@@ -163,9 +149,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		bool bShouldAvoidBullet = true;
-
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
-		bool bShouldAlsoPredictVertical;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		bool bPlayPrepareToShootAnimation;
@@ -207,15 +190,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Particles")
 		UParticleSystem* EnemyBloodParticle;
 
-	//Shooting
-	void PredictWhereToShoot();
-	FVector PlayerCameraLocation;
-
 	//Got Hit
 	bool bIsDead;
 	void AlertEnemyAboutPlayer();
 	void SetIsDead(bool bNewDead);
 	void ShouldRunAway();
+
+	void Reload();
+	void Shoot();
 
 	// Effects
 	void SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType* PtrHitBoneType);
@@ -228,21 +210,18 @@ private:
 	bool EnemyRunAway();
 
 	//If enemy see the player then he will execute given functions
-	void CheckIfEnemySeePlayer();
-	bool ConditionsForEnemyToSeePlayer();
+	AActor* FocusedActor;
+	bool bEnemyDetectedTarget;
 
 	// Enemy Indicator Widget
 	class UEnemyIndicatorWidget* EnemyIndicatorWidget;
+
 
 	//Footsteps sound
 	void PlayFootstepsSound();
 	bool bCanPlayFootstepsSound = true;
 	FTimerHandle FootstepsHandle;
 	void SetCanPlayFootstepsSound() { bCanPlayFootstepsSound = true; }
-
-	//MarinePawn
-	class AMarineCharacter* MarinePawn;
-	void SetUpMarinePawn();
 
 	//EnemyAIController
 	class AEnemyAiController* EnemyAIController;

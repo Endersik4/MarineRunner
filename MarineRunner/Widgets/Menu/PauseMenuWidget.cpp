@@ -176,7 +176,7 @@ void UPauseMenuWidget::OnClickedSaveGameButton()
 		return;
 	}
 
-	MarinePlayer->GetSaveLoadPlayerComponent()->CallSaveGame();
+	MarinePlayer->GetSaveLoadPlayerComponent()->SaveGame();
 
 	if (IsValid(MarinePlayer->GetPauseMenuComponent()) == false)
 		return;

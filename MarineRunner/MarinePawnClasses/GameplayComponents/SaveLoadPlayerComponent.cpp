@@ -35,15 +35,15 @@ void USaveLoadPlayerComponent::BeginPlay()
 	GameInstance->bNewGame = false;
 }
 
-void USaveLoadPlayerComponent::SaveGame(AActor* JustSavedCheckpoint)
+void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString& _WildCard)
 {
 	if (IsValid(Player) == false)
 		return;
 
 	CreatedSaveGame = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
 
-	CreatedSaveGame->PrepareSaveGame();
-	CreatedSaveGame->CopySaveInfoToCurrentGameInstance(GetWorld());
+	CreatedSaveGame->PrepareSaveGame(_SaveName);
+	CreatedSaveGame->CopySaveInfoToCurrentGameInstance(GetWorld(), _WildCard);
 	
 	CreatedSaveGame->CurrentHealthSaved = Player->GetHealth();
 	CreatedSaveGame->SavedPlayerLocation = Player->GetActorLocation();
@@ -59,6 +59,8 @@ void USaveLoadPlayerComponent::SaveGame(AActor* JustSavedCheckpoint)
 	CreatedSaveGame->SavedCustomData = SavedDataObject->GetCustomSavedData();
 
 	CreatedSaveGame->MakeJsonFileWithSaveInfo(PlayerController, UGameplayStatics::GetCurrentLevelName(GetWorld()));
+
+	CreatedSaveGame->SavedExplorationMusic = GameInstance->GetCurrentExplorationMusic();
 
 	UGameplayStatics::SaveGameToSlot(CreatedSaveGame, CreatedSaveGame->GetSaveGameName() + "/" + CreatedSaveGame->GetSaveGameName(), 0);
 

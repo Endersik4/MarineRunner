@@ -59,10 +59,9 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	FORCEINLINE virtual USkeletalMeshComponent* GetSkeletalMesh() override { return TurretSkeletalMesh; }
-	FORCEINLINE virtual const FVector GetPlayerCameraLocation() override { return FocusedActorLocation; }
+	virtual class AActor* GetFocusedActor() override { return FocusedActor; }
 	FORCEINLINE virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) override {};
 	FORCEINLINE virtual void PlayShootAnimation() override { PlayShootAnimMontage(); }
-	FORCEINLINE virtual const bool GetIsDead() override { return false; }
 
 	void PlayerWasSeen(bool bWas, AActor* ActorSeen);
 
@@ -85,16 +84,9 @@ private:
 		TArray<FRotateTurretBone> RotateTurretBones;
 	UPROPERTY(EditAnywhere, Category = "Turret Settings")
 		float TimeBetweenShoots = 0.1f;
-	UPROPERTY(EditAnywhere, Category = "Turret Settings")
-		float PredictWhereToShootOffset_UP = 100.f;
-	UPROPERTY(EditAnywhere, Category = "Turret Settings")
-		float PredictWhereToShootOffset_Right = 100.f;
-	UPROPERTY(EditAnywhere, Category = "Turret Settings")
-		float PredictWhereToShootDistanceDivider = 100.f;
 
 	FTimerHandle StartShootingHandle;
 	void Shoot();
-	void PredictWhereToShoot(AActor* Actor);
 
 	bool bRotateBones;
 	AActor* FocusedActor;

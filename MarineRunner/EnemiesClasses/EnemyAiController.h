@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -40,7 +40,7 @@ private:
 		void HandleTargetPerceptionUpdated(AActor* Actor, struct FAIStimulus Stimulus);
 
 	UFUNCTION()
-		void DetectPlayerWithDelay(bool bIsDetected);
+		void DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UBehaviorTree* AIBehaviour;
@@ -48,14 +48,28 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UAIPerceptionComponent* EnemyPerception;
 
+	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
+		TSubclassOf<class UAISense> SightSenseClass;
+	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
+		TSubclassOf<class UAISense> HearingSenseClass;
+	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
+		int32 HowManyLocations = 5;
+	//How long does it take to detect the player by enemy
+	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
+		float DetectPlayerTime = 0.2f;
+	//How long does it take to lose sight of the player by enemy
+	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
+		float LoseSightOfPlayerTime = 5.f;
+
 	bool bDoEnemySeePlayer;
 	bool bIsMoveToCompleted;
 	bool bIsDead;
+	bool bCanSeeTheTarget(AActor* TargetActor);
+
+	void SightHandle(AActor* SensedActor, const struct FAIStimulus& SightStimulus);
+	void HearingHandle(AActor* SensedActor, const struct FAIStimulus& HearingStimulus);
 
 	FTimerHandle DetectPlayerDelayHandle;
 	
-	float DetectPlayerTime;
-	float LoseSightOfPlayerTime;
-
 	class UMarineRunnerGameInstance* MarineRunnerGameInstance;
 };

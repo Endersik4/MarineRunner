@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -47,13 +47,13 @@ public:
 		TMap<int32, FCustomDataSaved> SavedCustomData;
 
 	UPROPERTY(EditAnywhere)
-		USoundBase* CurrentExplorationMusic;
+		USoundBase* SavedExplorationMusic;
 
 	void PrepareSaveGame(const FString& NewSaveName = "ManualSave_", bool bAddSaveNumber = true);
 	FString OriginalSaveName;
 	bool bAddSaveNumber;
 
-	void CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld);
+	void CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld, const FString& _WildCard);
 
 	void MakeJsonFileWithSaveInfo(APlayerController* PlayerController, const FString & CurrentLevelName);
 

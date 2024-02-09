@@ -89,7 +89,7 @@ void UBTTask_ShootAndMove::Shoot()
 {
 	if (EnemyPawn == nullptr) return;
 
-	EnemyPawn->Shoot();
+	//EnemyPawn->Shoot();
 }
 
 void UBTTask_ShootAndMove::StopShootAndMove(UBlackboardComponent* BlackBoardComp)
@@ -100,7 +100,7 @@ void UBTTask_ShootAndMove::StopShootAndMove(UBlackboardComponent* BlackBoardComp
 	EnemyAIController->ClearFocus(EAIFocusPriority::Gameplay);
 	BlackBoardComp->ClearValue(TEXT("PlayerLocation"));
 
-	EnemyPawn->Reload();
+	//EnemyPawn->Reload();
 	EnemyPawn->RestoreBonesToInitialRotation();
 }
 

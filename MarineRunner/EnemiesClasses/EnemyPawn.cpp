@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 
 #include "EnemyPawn.h"
@@ -8,12 +8,9 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "TimerManager.h"
-#include "Camera/CameraComponent.h"
 #include "Components/DecalComponent.h"
 #include "Components/WidgetComponent.h"
 
-#include "MarineRunner/GunClasses/Bullet.h"
-#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/EnemiesClasses/EnemyAiController.h"
 #include "MarineRunner/EnemiesClasses/EnemyGunComponent.h"
 #include "MarineRunner/EnemiesClasses/EnemyIndicatorWidget.h"
@@ -23,18 +20,20 @@ AEnemyPawn::AEnemyPawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	CapsuleColl = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleCollision"));
-	RootComponent = CapsuleColl;
+	EnemyCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Enemy Capsule"));
+	RootComponent = EnemyCapsule;
 	bUseControllerRotationYaw = true;
-	CapsuleColl->SetCollisionProfileName(FName(TEXT("EnemyCapsuleProf")));
+	EnemyCapsule->SetCollisionProfileName(FName(TEXT("EnemyCapsuleProf")));
+	EnemyCapsule->SetSimulatePhysics(true);
 
 	EnemyFloatingMovement = CreateDefaultSubobject<UFloatingPawnMovement>(TEXT("EnemyFloatingMovement"));
 	
 	EnemySkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("EnemySkeletalMesh"));
-	EnemySkeletalMesh->SetupAttachment(CapsuleColl);
+	EnemySkeletalMesh->SetupAttachment(EnemyCapsule);
 	EnemySkeletalMesh->SetSimulatePhysics(false);
 	EnemySkeletalMesh->SetCollisionProfileName(FName(TEXT("EnemySkeletalProf")));
 
+	
 	EnemyGunComponent = CreateDefaultSubobject<UEnemyGunComponent>(TEXT("Enemy Gun Component"));
 
 	EnemyIndicatorWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Enemy Indicator Widget Component"));
@@ -47,7 +46,6 @@ void AEnemyPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetUpMarinePawn();
 	SetUpEnemyAIController();
 
 	EnemyIndicatorWidget = Cast<UEnemyIndicatorWidget>(EnemyIndicatorWidgetComponent->GetUserWidgetObject());
@@ -65,37 +63,17 @@ void AEnemyPawn::Tick(float DeltaTime)
 	if (bIsDead == true)
 		return;
 
-	CheckIfEnemySeePlayer();
 	PlayFootstepsSound();
+
+	if (bEnemyDetectedTarget == true)
+		FocusBonesOnPlayerWhenPlayerDetected();
 }
 
 // Called to bind functionality to input
 void AEnemyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
-
-#pragma region ///////////////// SHOOT //////////////////
-//Shoot function is executed in ShootAndMove.cpp
-void AEnemyPawn::PredictWhereToShoot()
-{
-	PlayerCameraLocation = MarinePawn->GetCamera()->GetComponentLocation();
-
-	if (MarinePawn->GetInputAxisValue("Right") == 1.f)
-	{
-		PlayerCameraLocation += MarinePawn->GetCamera()->GetRightVector() * 100.f;
-	}
-	else if (MarinePawn->GetInputAxisValue("Right") == -1.f)
-	{
-		PlayerCameraLocation -= MarinePawn->GetCamera()->GetRightVector() * 100.f;
-	}
-
-	if (bShouldAlsoPredictVertical == false) return;
-
-	PlayerCameraLocation.Z += FVector::Distance(GetActorLocation(), MarinePawn->GetActorLocation()) / 10;
-}
-#pragma endregion
 
 #pragma region ///////////////// DAMAGE ///////////////////////
 void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
@@ -268,28 +246,16 @@ void AEnemyPawn::SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const
 #pragma endregion
 
 #pragma region ////////////// ENEMY SEE PLAYER //////////////
-bool AEnemyPawn::ConditionsForEnemyToSeePlayer()
+void AEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget)
 {
-	if (!EnemyAIController || bIsDead == true || !MarinePawn || bIsRunningAway) return false;
-	if (EnemyAIController->GetDoEnemySeePlayer() == false) return false;
-
-	return true;
+	FocusedActor = SeenTarget;
+	bEnemyDetectedTarget = bSaw;
 }
-
-void AEnemyPawn::CheckIfEnemySeePlayer()
-{
-	if (ConditionsForEnemyToSeePlayer() == false) return;
-
-	PredictWhereToShoot();
-	FocusBonesOnPlayerWhenPlayerDetected();
-}
-#pragma endregion
 
 FRotator AEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
 {
 	FRotator BoneRotation;
-	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName), 
-		(bLookStraight) ? MarinePawn->GetCamera()->GetComponentLocation() : PlayerCameraLocation);
+	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName), EnemyGunComponent->PredictWhereToShoot(bLookStraight));
 	BoneRotation.Roll = FoundRotation.Pitch * -1.f;
 	BoneRotation.Yaw = FoundRotation.Yaw - GetActorRotation().Yaw;
 
@@ -302,21 +268,13 @@ void AEnemyPawn::ShouldRunAway()
 	SetShouldRunningAwayInAnimBP();
 	EnemyAIController->RunAway();
 }
+#pragma endregion
 
 #pragma region /////////// SETTERS ////////////////
 void AEnemyPawn::SetIsDead(bool bNewDead)
 {
 	bIsDead = bNewDead;
 	EnemyAIController->KillEnemy();
-}
-
-void AEnemyPawn::SetUpMarinePawn()
-{
-	MarinePawn = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if (!MarinePawn)
-	{
-		UE_LOG(LogTemp, Error, TEXT("MARINE PAWN CAST ERROR IN ENEMY PAWN"));
-	}
 }
 
 void AEnemyPawn::SetUpEnemyAIController()
@@ -384,7 +342,7 @@ void AEnemyPawn::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, 
 
 void AEnemyPawn::AddImpulseToPhysicsMesh(const FVector& Impulse)
 {
-	CapsuleColl->AddImpulse(Impulse);
+	EnemyCapsule->AddImpulse(Impulse);
 }
 
 void AEnemyPawn::ShootAgain(bool& bShoot)

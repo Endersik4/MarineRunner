@@ -24,13 +24,10 @@ public:
 
 	UFUNCTION()
 		virtual class USkeletalMeshComponent* GetSkeletalMesh() = 0;
-
 	UFUNCTION()
-		virtual const FVector GetPlayerCameraLocation() = 0;
+		virtual class AActor* GetFocusedActor() = 0;
 	UFUNCTION()
 		virtual void PlayShootAnimation() = 0;
 	UFUNCTION()
 		virtual void AddImpulseToPhysicsMesh(const FVector & Impulse) = 0;
-	UFUNCTION()
-		virtual const bool GetIsDead() = 0;
 };

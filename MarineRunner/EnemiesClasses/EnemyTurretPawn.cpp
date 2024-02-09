@@ -71,21 +71,13 @@ void AEnemyTurretPawn::RotateBonesTowardDetectedActor(float Delta)
 	for (const FRotateTurretBone& RotateBone : RotateTurretBones)
 	{
 		FRotator FoundRot = UKismetMathLibrary::FindLookAtRotation(TurretSkeletalMesh->GetBoneLocation(RotateBone.BoneName), FocusedActor->GetActorLocation());
-
-		if (FoundRot.Yaw < 0.f)
-		{
-			FoundRot.Yaw += GetActorRotation().Yaw;
-		}
-		else
-		{
-			FoundRot.Yaw -= GetActorRotation().Yaw;
-		}
+		FoundRot.Yaw += GetActorRotation().Yaw * (FoundRot.Yaw < 0.f) ? 1.f : -1.f;
 
 		FoundRot.Pitch *= RotateBone.RotateInAxis.Pitch;
 		FoundRot.Yaw *= RotateBone.RotateInAxis.Yaw;
 		FoundRot.Roll *= RotateBone.RotateInAxis.Roll;
 
-		PredictWhereToShoot(FocusedActor);
+		TurretGunComponent->PredictWhereToShoot();
 
 		if (RotateBone.bLimitedRotation == true)
 		{
@@ -95,31 +87,6 @@ void AEnemyTurretPawn::RotateBonesTowardDetectedActor(float Delta)
 		}
 
 		BoneDirectionToFocusedActor(FoundRot, RotateBone.BoneName);
-	}
-}
-
-void AEnemyTurretPawn::PredictWhereToShoot(AActor* Actor)
-{
-	FocusedActorLocation = Actor->GetActorLocation();
-	float Distance = UKismetMathLibrary::Vector_Distance(GetActorLocation(), Actor->GetActorLocation()) / PredictWhereToShootDistanceDivider;
-
-	FocusedActorLocation += Actor->GetActorUpVector() * PredictWhereToShootOffset_UP * Distance;
-
-	if (Actor->GetInputAxisValue("Right") == 1.f)
-	{
-		FocusedActorLocation += Actor->GetActorRightVector() * PredictWhereToShootOffset_Right * Distance;
-	}
-	else if (Actor->GetInputAxisValue("Right") == -1.f)
-	{
-		FocusedActorLocation -= Actor->GetActorRightVector() * PredictWhereToShootOffset_Right * Distance;
-	}
-	if (Actor->GetInputAxisValue("Forward") == 1.f)
-	{
-		FocusedActorLocation += Actor->GetRootComponent()->GetForwardVector() * PredictWhereToShootOffset_Right * Distance;
-	}
-	else if (Actor->GetInputAxisValue("Forward") == -1.f)
-	{
-		FocusedActorLocation -= Actor->GetRootComponent()->GetForwardVector() * PredictWhereToShootOffset_Right * Distance;
 	}
 }
 

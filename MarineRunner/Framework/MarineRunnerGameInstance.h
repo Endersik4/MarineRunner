@@ -89,7 +89,7 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		int32 GetAllFilesWithName(const FString& WildCard);
 
-	void SetSaveNumberAccordingToNumOfFiles();
+	void SetSaveNumberAccordingToNumOfFiles(const FString& WildCard = "*ManualSave*");
 
 	void SaveCustomSavedSettingsToConfig();
 
@@ -103,7 +103,9 @@ public:
 	void ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut = false);
 
 	FORCEINLINE EMusicType GetCurrentMusicType() const {return CurrentMusicType;}
+
 	FORCEINLINE void SetCurrentExplorationMusic(USoundBase* MusicToSet) {CurrentExplorationMusic = MusicToSet;}
+	FORCEINLINE USoundBase* GetCurrentExplorationMusic() const {return CurrentExplorationMusic;}
 
 	bool bNewGame = false;
 private:

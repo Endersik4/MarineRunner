@@ -31,7 +31,30 @@ public:
 
 	UFUNCTION(BlueprintPure)
 		const bool CanShootAgain();
+
+	FVector PredictWhereToShoot(bool bIgnoreOffset = false);
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		int32 MagazineCapacity = 10;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		bool bFindBulletRotationTowardsTarget = true;
+	// Rotation for bullet will be taken from bone 
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		TArray<FName> BulletSocketsNames = { TEXT("Koncowka_Drugiego_Palca_R") };
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		TArray<FName> MuzzleFleshSocketNames = { TEXT("Koncowka_Drugiego_Palca_R") };
+	// if == 0 then do not predict up bullet rotation
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Predict")
+		float PredictWhereToShootOffset_UP = 100.f;
+	// if == 0 then do not predict forward bullet rotation
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Predict")
+		float PredictWhereToShootOffset_Forward = 100.f;
+	// if == 0 then do not predict right bullet rotation
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Predict")
+		float PredictWhereToShootOffset_Right = 100.f;
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Predict")
+		float PredictWhereToShootDistanceDivider = 100.f;
+
 	//  Bullet settings
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet")
 		FBulletStruct BulletData;
@@ -45,27 +68,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
 		float RecoilImpulseOnEnemy = 3000.f;
 	// A random number is taken from this range and then added to the bullet Pitch rotation
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
-		TArray<float>PitchBulletRecoilArray = { -5, 5 };
-	// A random number is taken from this range and then added to the bullet Yaw rotation
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
-		TArray<float>YawBulletRecoilArray = { -5, 5 };
-	// A random number is taken from this range and then added to the bullet Pitch rotation
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet")
 		FFloatRange RandomRangeForPitchBullet;
 	// A random number is taken from this range and then added to the bullet Yaw rotation
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet", meta = (EditCondition = "bManyBulletAtOnce", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet")
 		FFloatRange RandomRangeForYawBullet;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		int32 MagazineCapacity = 10;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		bool bFindBulletRotationTowardsTarget = true;
-	// Rotation for bullet will be taken from bone 
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		TArray<FName> BulletSocketsNames = { TEXT("Koncowka_Drugiego_Palca_R") };
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		TArray<FName> MuzzleFleshSocketNames = { TEXT("Koncowka_Drugiego_Palca_R") };
 
 	//Delay time after the enemy runs out of ammunition
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
@@ -89,7 +96,6 @@ private:
 	void SpawnManyBullets();
 	void SpawnBullet();
 	FRotator CalculateBulletRotation();
-
 
 	void AddImpulseDuringShooting();
 

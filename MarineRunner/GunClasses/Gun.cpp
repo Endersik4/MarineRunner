@@ -6,6 +6,7 @@
 #include "TimerManager.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Perception/AISense_Hearing.h"
 
 #include "MarineRunner/GunClasses/Bullet.h"
 #include "MarineRunner/GunClasses/Scope.h"
@@ -16,7 +17,6 @@
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/ArmsSwayComponent.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/Inventory/PickupItem.h"
-
 AGun::AGun()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -449,8 +449,11 @@ void AGun::RemoveAmmunitionFromInventory(FItemStruct* AmmoFromInventory)
 #pragma region ////////////////////////////////// EFFECTS /////////////////////////////////////
 void AGun::AddEffectsToShooting()
 {
-	if (ShootingSound) 
+	if (ShootingSound)
+	{
 		UGameplayStatics::SpawnSoundAttached(ShootingSound, GunSkeletalMesh, NAME_None);
+		UAISense_Hearing::ReportNoiseEvent(GetWorld(), GunSkeletalMesh->GetComponentLocation(), 1.f, this);
+	}
 	if (ShootParticle) 
 		UGameplayStatics::SpawnEmitterAttached(ShootParticle, GunSkeletalMesh, TEXT("MuzzleFlash"), FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
 
