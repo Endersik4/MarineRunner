@@ -8,13 +8,12 @@ UBTTask_SettingCurrentLocation::UBTTask_SettingCurrentLocation()
 {
 	NodeName = TEXT("SettingNumberOfCurrentLocations");
 	bCreateNodeInstance = true;
-
 }
 
 EBTNodeResult::Type UBTTask_SettingCurrentLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
 	UBlackboardComponent* BlackBoardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackBoardComp)
+	if (IsValid(BlackBoardComp) == false)
 	{
 		return EBTNodeResult::Failed;
 	}

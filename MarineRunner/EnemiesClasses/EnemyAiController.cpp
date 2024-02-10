@@ -5,7 +5,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Perception/AIPerceptionComponent.h"
-#include "TimerManager.h"
 #include "BrainComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -23,17 +22,12 @@ void AEnemyAiController::BeginPlay()
 
 	EnemyPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAiController::HandleTargetPerceptionUpdated);
 
-	GetPathFollowingComponent()->OnRequestFinished.AddUObject(this, &AEnemyAiController::OnMoveCompleted);
+	SetAIVariables();
 }
 
 void AEnemyAiController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-}
-
-void AEnemyAiController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
-{
-	bIsMoveToCompleted = true;
 }
 
 #pragma region /////////// PERCEPTION ///////////////
@@ -69,22 +63,32 @@ void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected, AActor* Detecte
 {
 	bDoEnemySeePlayer = bIsDetected;
 
+	if (bDoEnemySeePlayer == true)
+	{
+		SetFocus(DetectedActor);
+		GetBlackboardComponent()->SetValueAsObject(TEXT("FocusedActor"), DetectedActor);
+
+	}
+	else
+	{
+		ClearFocus(EAIFocusPriority::Gameplay);
+		GetBlackboardComponent()->SetValueAsVector(TEXT("LastKnownPlayerLocation"), DetectedActor->GetActorLocation());
+		GetBlackboardComponent()->ClearValue(TEXT("FocusedActor"));
+	}
+
+	AddEnemyToDetected(bDoEnemySeePlayer);
+
 	AEnemyPawn* EnemyPawn = Cast<AEnemyPawn>(GetPawn());
 	if (IsValid(EnemyPawn) == false) 
 		return;
-	EnemyPawn->SawTheTarget(bIsDetected, DetectedActor);
-
-	if (IsValid(MarineRunnerGameInstance) == false)
-		return;
-
-	AddEnemyToDetected(bIsDetected);
+	EnemyPawn->SawTheTarget(bDoEnemySeePlayer, DetectedActor);
 }
 
 bool AEnemyAiController::bCanSeeTheTarget(AActor* TargetActor)
 {
 	if (IsValid(TargetActor) == false || IsValid(GetBlackboardComponent()) == false) 
 		return false;
-	if (TargetActor->ActorHasTag("Player") == false || GetBlackboardComponent()->GetValueAsBool(TEXT("isRunningAway")) || bIsDead) 
+	if (TargetActor->ActorHasTag("Player") == false || GetBlackboardComponent()->GetValueAsBool(TEXT("isRunningAway"))) 
 		return false;
 
 	return true;
@@ -96,8 +100,14 @@ void AEnemyAiController::AddEnemyToDetected(bool bWas)
 	if (IsValid(MarineRunnerGameInstance) == false)
 		return;
 
-	if (bWas == true) MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn(), bIsDead);
-	else MarineRunnerGameInstance->RemoveDetectedEnemy(GetPawn());
+	if (bWas == true)
+	{
+		MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn(), false);
+	}
+	else
+	{
+		MarineRunnerGameInstance->RemoveDetectedEnemy(GetPawn());
+	}
 }
 
 void AEnemyAiController::SetAIVariables()
@@ -108,20 +118,24 @@ void AEnemyAiController::SetAIVariables()
 		return;
 	RunBehaviorTree(AIBehaviour);
 
+	GetBlackboardComponent()->SetValueAsInt(TEXT("HowManyLocations"), HowManyLocations);
+	GetBlackboardComponent()->SetValueAsInt(TEXT("CurrentLocations"), HowManyLocations);
+
 	AEnemyPawn* EnemyPawn = Cast<AEnemyPawn>(GetPawn());
 	if (IsValid(EnemyPawn) == false) 
 		return;
 
 	GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), EnemyPawn->GetActorLocation());
-
-	GetBlackboardComponent()->SetValueAsInt(TEXT("HowManyLocations"), HowManyLocations);
-	GetBlackboardComponent()->SetValueAsInt(TEXT("CurrentLocations"), HowManyLocations);
-
-	GetBlackboardComponent()->SetValueAsFloat(TEXT("WaitTime"), EnemyPawn->GetWaitTimeShoot());
 }
 
-void AEnemyAiController::KillEnemy()
+void AEnemyAiController::EnemyKilled()
 {
+	EnemyPerception->SetSenseEnabled(SightSenseClass, false);
+	EnemyPerception->SetSenseEnabled(HearingSenseClass, false);
+
+	AddEnemyToDetected(false);
+	GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
+
 	GetBrainComponent()->StopLogic(FString("dead"));
 }
 

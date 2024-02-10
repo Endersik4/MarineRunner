@@ -40,7 +40,7 @@ private:
 
 	//Speed of croaching
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		float CrouchForceSpeed = 40000.f;
+		float CrouchForceSpeed = 30000.f;
 	// How fast change state of the crouch
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
 		float TimeToChangeCrouchState = 0.2f;
@@ -67,7 +67,7 @@ private:
 		float SlideDelayInSeconds = 0.01f;
 	//How fast Pawn will gain speed on ramp when sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
-		float RampForce = 10000.f;
+		float RampForce = 40000.f;
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding on ramp (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 		float SlideSpeedRamp = 450000.f;

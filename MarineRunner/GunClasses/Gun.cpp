@@ -35,7 +35,8 @@ void AGun::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetupFloatTimeline(&RecoilGunTimeline, FName(TEXT("ShootRecoilTimelineProgress")), FName(TEXT("")), RecoilCameraCurveRandomRotation);
+	if (RecoilCameraCurveRandomRotation)
+		SetupFloatTimeline(&RecoilGunTimeline, FName(TEXT("ShootRecoilTimelineProgress")), FName(TEXT("")), RecoilCameraCurveRandomRotation);
 	
 	if (bShouldUseCurveRecoil)
 		SetupFloatTimeline(&RecoilCameraTimeline, FName(TEXT("RecoilCameraTimelineCallback")), FName(TEXT("RecoilCameraTimelineFinishedCallback")), RecoilCameraCurveY);

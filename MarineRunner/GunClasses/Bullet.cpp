@@ -138,12 +138,7 @@ void ABullet::UseInterfaceOnActor(const FHitResult& HitResult)
 	IInteractInterface* Interface = Cast<IInteractInterface>(HitResult.GetActor());
 	if (Interface) //Check if Object has Interface C++ Implementation
 	{
-		if (BulletData.RadialSphereRadius != 0.f)
-		{
-			float RadialDamage = BulletData.Damage / (FVector::Distance(GetActorLocation(), HitResult.GetActor()->GetActorLocation()) / 100);
-			Interface->ApplyDamage(RadialDamage, BulletData.HitImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
-		}
-		else Interface->ApplyDamage(BulletData.Damage, BulletData.HitImpulseForce, HitResult, this);
+		Interface->ApplyDamage(BulletData.Damage, BulletData.HitImpulseForce, HitResult, this);
 	}
 	else if (HitResult.GetActor()->Implements<UInteractInterface>())  //Check if Object has Interface Blueprint Implementation
 	{

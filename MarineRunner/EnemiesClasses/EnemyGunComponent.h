@@ -27,7 +27,6 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void Shoot();
-	void Reload();
 
 	UFUNCTION(BlueprintPure)
 		const bool CanShootAgain();
@@ -89,6 +88,7 @@ private:
 	bool bCanShoot = true;
 	bool CanShoot();
 	int32 CurrentSocketNameIndex = 0;
+	void Reload();
 
 	void ShootEffects();
 

@@ -33,12 +33,10 @@ AEnemyPawn::AEnemyPawn()
 	EnemySkeletalMesh->SetSimulatePhysics(false);
 	EnemySkeletalMesh->SetCollisionProfileName(FName(TEXT("EnemySkeletalProf")));
 
-	
 	EnemyGunComponent = CreateDefaultSubobject<UEnemyGunComponent>(TEXT("Enemy Gun Component"));
 
 	EnemyIndicatorWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Enemy Indicator Widget Component"));
 	EnemyIndicatorWidgetComponent->SetupAttachment(EnemySkeletalMesh);
-
 }
 
 // Called when the game starts or when spawned
@@ -46,13 +44,9 @@ void AEnemyPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetUpEnemyAIController();
-
 	EnemyIndicatorWidget = Cast<UEnemyIndicatorWidget>(EnemyIndicatorWidgetComponent->GetUserWidgetObject());
 	if (IsValid(EnemyIndicatorWidget))
-	{
 		EnemyIndicatorWidget->SetMaxHealth(Health);
-	}
 }
 
 // Called every frame
@@ -67,12 +61,6 @@ void AEnemyPawn::Tick(float DeltaTime)
 
 	if (bEnemyDetectedTarget == true)
 		FocusBonesOnPlayerWhenPlayerDetected();
-}
-
-// Called to bind functionality to input
-void AEnemyPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
 }
 
 #pragma region ///////////////// DAMAGE ///////////////////////
@@ -100,24 +88,26 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitR
 	bool bEnemyKilled = KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadius);
 	if (bEnemyKilled == true) return;
 
-	bool bEnemyIsRunningAway = EnemyRunAway();
-	if (bEnemyIsRunningAway == true) return;
-
-	AlertEnemyAboutPlayer();
+	EnemyRunAway();
 }
 
 bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
-	if (Health > 0.f) return false;
+	if (Health > 0.f) 
+		return false;
 
 	if (bIsDead == false)
 	{
+		bIsDead = true;
+		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
+
 		EnemySkeletalMesh->Stop();
 		EnemySkeletalMesh->SetSimulatePhysics(true);
-		SetIsDead(true);
-		EnemyAIController->AddEnemyToDetected(false);
 		SetLifeSpan(LifeSpanAfterDeath);
+
 		RemoveEnemySavedDataFromSave();
+
+		SetEnemyKilledInAIController();
 
 		EnemyIndicatorWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
@@ -127,11 +117,11 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AAct
 
 	if (NewSphereRadius != 0.f)
 	{
-		EnemySkeletalMesh->AddRadialImpulse(BulletActor->GetActorLocation(), NewSphereRadius, NewImpulseForce * 10.f, ERadialImpulseFalloff::RIF_Linear);
+		EnemySkeletalMesh->AddRadialImpulse(BulletActor->GetActorLocation(), NewSphereRadius, NewImpulseForce, ERadialImpulseFalloff::RIF_Linear);
 	}
 	else
 	{
-		EnemySkeletalMesh->AddImpulse(BulletActor->GetActorForwardVector() * NewImpulseForce * 10.f, NewHit.BoneName);
+		EnemySkeletalMesh->AddImpulse(BulletActor->GetActorForwardVector() * NewImpulseForce, NewHit.BoneName);
 	}
 
 	return true;
@@ -151,19 +141,6 @@ bool AEnemyPawn::EnemyRunAway()
 	return false;
 }
 
-void AEnemyPawn::AlertEnemyAboutPlayer()
-{
-	if (!EnemyAIController) return;
-
-	if (EnemyAIController->GetDoEnemySeePlayer() == true) return;
-
-	FVector PlayerLocation = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
-	float FoundRotationYaw = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), PlayerLocation).Yaw;
-
-	FRotator EnemyRotation = GetActorRotation();
-	EnemyRotation.Yaw = FoundRotationYaw;
-	SetActorRotation(EnemyRotation);
-}
 #pragma endregion 
 
 #pragma region ///////////// EFFECTS ////////////////////
@@ -183,13 +160,15 @@ void AEnemyPawn::SpawnShotBloodDecal(const FHitResult& Hit)
 
 void AEnemyPawn::PlayFootstepsSound()
 {
-	if (!FootstepsSound) return;
-	if (GetVelocity().Length() < 1.f || bCanPlayFootstepsSound == false || bIsDead) return;
+	if (FootstepsSound == nullptr) 
+		return;
+	if (GetVelocity().Length() < 1.f || bCanPlayFootstepsSound == false || bIsDead) 
+		return;
 
 	float FootstepsTime = 0.42f;
-	if (bIsRunningAway)
+	if (bIsRunningAway && FootstepsRunningAwaySound)
 	{
-		if (FootstepsRunningAwaySound) UGameplayStatics::SpawnSoundAttached(FootstepsRunningAwaySound, EnemySkeletalMesh);
+		UGameplayStatics::SpawnSoundAttached(FootstepsRunningAwaySound, EnemySkeletalMesh);
 		FootstepsTime = 0.2f;
 	}
 	else UGameplayStatics::SpawnSoundAttached(FootstepsSound, EnemySkeletalMesh);
@@ -218,7 +197,6 @@ void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType
 
 	if (DefaultBoneHitSound) 
 		UGameplayStatics::PlaySound2D(GetWorld(), DefaultBoneHitSound);
-
 }
 
 void AEnemyPawn::SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const FVector& HitLocation)
@@ -250,6 +228,31 @@ void AEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget)
 {
 	FocusedActor = SeenTarget;
 	bEnemyDetectedTarget = bSaw;
+
+	PlayPrepareToShootAnimation(bSaw);
+
+	const float& StartShootingTime = TimeToStartShooting + FMath::FRandRange(StartShootingRandomTimeRange.GetLowerBoundValue(), StartShootingRandomTimeRange.GetUpperBoundValue());
+	if (bSaw == true)
+		GetWorld()->GetTimerManager().SetTimer(StartShootingHandle, this, &AEnemyPawn::StartShooting, StartShootingTime, false);
+	else
+		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
+}
+
+void AEnemyPawn::StartShooting()
+{
+	if (bIsDead == true)
+		return;
+
+	GetWorld()->GetTimerManager().SetTimer(ShootHandle, this, &AEnemyPawn::Shoot, ShootTime, true, 0.f);
+}
+
+void AEnemyPawn::Shoot()
+{
+	if (EnemyGunComponent->CanShootAgain() == false)
+		return;
+
+	EnemyGunComponent->Shoot();
+	PlayShootMontageAnimation();
 }
 
 FRotator AEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
@@ -266,27 +269,27 @@ void AEnemyPawn::ShouldRunAway()
 {
 	bIsRunningAway = true;
 	SetShouldRunningAwayInAnimBP();
-	EnemyAIController->RunAway();
+	SetEnemyRunawayInAIController();
 }
 #pragma endregion
 
-#pragma region /////////// SETTERS ////////////////
-void AEnemyPawn::SetIsDead(bool bNewDead)
+#pragma region //////////// ENEMY AI CONTROLLER //////////////
+void AEnemyPawn::SetEnemyKilledInAIController()
 {
-	bIsDead = bNewDead;
-	EnemyAIController->KillEnemy();
+	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(GetController());
+	if (IsValid(EnemyAIController) == false)
+		return;
+
+	EnemyAIController->EnemyKilled();
 }
 
-void AEnemyPawn::SetUpEnemyAIController()
+void AEnemyPawn::SetEnemyRunawayInAIController()
 {
-	EnemyAIController = Cast<AEnemyAiController>(GetController());
+	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(GetController());
 	if (IsValid(EnemyAIController) == false)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ENEMY AI CONTROLER CAST ERROR IN ENEMY PAWN"));
 		return;
-	}
-	EnemyAIController->SetAIVariables();
 
+	EnemyAIController->RunAway();
 }
 #pragma endregion
 
@@ -345,17 +348,3 @@ void AEnemyPawn::AddImpulseToPhysicsMesh(const FVector& Impulse)
 	EnemyCapsule->AddImpulse(Impulse);
 }
 
-void AEnemyPawn::ShootAgain(bool& bShoot)
-{
-	bShoot = EnemyGunComponent->CanShootAgain();
-}
-
-void AEnemyPawn::Reload()
-{
-	EnemyGunComponent->Reload();
-}
-
-void AEnemyPawn::Shoot()
-{
-	EnemyGunComponent->Shoot();
-}

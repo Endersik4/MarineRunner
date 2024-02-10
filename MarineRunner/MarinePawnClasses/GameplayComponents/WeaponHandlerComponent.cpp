@@ -48,7 +48,6 @@ void UWeaponHandlerComponent::ADSPressed()
 	bIsPlayerADS = true;
 	Gun->AimTheGun(EStatusOfAimedGun::ADS);
 
-
 	if (CurrentScopeIndex >= MouseSensitivityWhenScope.Num())
 		return;
 
@@ -61,7 +60,6 @@ void UWeaponHandlerComponent::ADSReleased()
 	if (IsValid(Gun) == false || bIsPlayerADS == false) 
 		return;
 
-	Gun->GetGunSkeletalMesh()->Stop();
 	MarinePawn->MakeCrosshire();
 	MarinePawn->SetMovementForceDividerWhenInADS(1.f);
 

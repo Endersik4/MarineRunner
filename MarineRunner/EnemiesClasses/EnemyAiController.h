@@ -22,19 +22,12 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	bool GetDoEnemySeePlayer() const { return bDoEnemySeePlayer; }
-	bool GetIsMoveToCompleted() const { return bIsMoveToCompleted; }
-
-	void SetIsMoveToCompleted(bool bNewMove) { bIsMoveToCompleted = bNewMove; }
-
-	void KillEnemy();
+	void EnemyKilled();
 	void RunAway();
 	void AddEnemyToDetected(bool bWas);
 
-	void SetAIVariables();
-
 private:
-	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
+	//virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 	UFUNCTION()
 		void HandleTargetPerceptionUpdated(AActor* Actor, struct FAIStimulus Stimulus);
@@ -43,10 +36,10 @@ private:
 		void DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UBehaviorTree* AIBehaviour;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UAIPerceptionComponent* EnemyPerception;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
+		class UBehaviorTree* AIBehaviour;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		TSubclassOf<class UAISense> SightSenseClass;
@@ -61,15 +54,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		float LoseSightOfPlayerTime = 5.f;
 
+	void SetAIVariables();
+
 	bool bDoEnemySeePlayer;
-	bool bIsMoveToCompleted;
-	bool bIsDead;
 	bool bCanSeeTheTarget(AActor* TargetActor);
 
+	FTimerHandle DetectPlayerDelayHandle;
 	void SightHandle(AActor* SensedActor, const struct FAIStimulus& SightStimulus);
 	void HearingHandle(AActor* SensedActor, const struct FAIStimulus& HearingStimulus);
 
-	FTimerHandle DetectPlayerDelayHandle;
-	
 	class UMarineRunnerGameInstance* MarineRunnerGameInstance;
 };

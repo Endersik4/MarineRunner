@@ -91,7 +91,6 @@ void UMarineRunnerGameInstance::AddNewDetectedEnemy(AActor* NewEnemy, bool bIsEn
 void UMarineRunnerGameInstance::RemoveDetectedEnemy(AActor* NewEnemy)
 {
 	DetectedPlayerEnemies.Remove(NewEnemy);
-
 	if (DetectedPlayerEnemies.Num() == 0 && bIsDetectedByEnemies == true)
 	{
 		bIsDetectedByEnemies = false;

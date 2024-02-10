@@ -32,8 +32,7 @@ void UEnemyGunComponent::Shoot()
 
 	ShootEffects();
 
-	//Had to do this in this way because bullet was spawned before bones were on their locations (in shooting animation)
-	GetWorld()->GetTimerManager().SetTimer(ImpulseOnBulletHandle, this, &UEnemyGunComponent::SpawnManyBullets, 0.001f, false);
+	SpawnManyBullets();
 
 	MagazineCapacity--;
 	OwningEnemyInterface->PlayShootAnimation();
@@ -41,6 +40,9 @@ void UEnemyGunComponent::Shoot()
 	AddImpulseDuringShooting();
 
 	bCanShoot = false;
+
+	if (MagazineCapacity == 0)
+		Reload();
 }
 
 void UEnemyGunComponent::ShootEffects()
@@ -149,12 +151,6 @@ bool UEnemyGunComponent::CanShoot()
 {
 	if (BulletData.BulletClass == NULL)
 		return false;
-
-	if (MagazineCapacity <= 0)
-	{
-		Reload();
-		return false;
-	}
 
 	if (bCanShoot == false)
 		return false;

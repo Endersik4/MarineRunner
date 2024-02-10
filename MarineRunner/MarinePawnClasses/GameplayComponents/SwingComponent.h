@@ -46,7 +46,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Effects")
 		float ForwardSwingLineOffset = 100.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Effects")
-		float RightSwingLineOffset = 70.f;
+		float RightSwingLineOffset = 40.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Sounds")
 		USoundBase* SwingSound;

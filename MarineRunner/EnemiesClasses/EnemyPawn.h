@@ -70,43 +70,29 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
  
 	//Function From Interface
 	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
 
 	FORCEINLINE virtual USkeletalMeshComponent* GetSkeletalMesh() override { return EnemySkeletalMesh; }
-	virtual class AActor* GetFocusedActor() override { return FocusedActor; }
+	FORCEINLINE virtual class AActor* GetFocusedActor() override { return FocusedActor; }
 	FORCEINLINE virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) override;
-	FORCEINLINE virtual void PlayShootAnimation() override { PlayAnimMontageInBlueprint(); }
-
-	//AI
-	bool GetShouldAvoidBullets() const { return bShouldAvoidBullet; }
-	bool GetPlayPrepareToShootAnimation() const { return bPlayPrepareToShootAnimation; }
-	float GetWaitTimeShoot() const { return WaitTimeShoot; }
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void PlayPrepareToShootAnimation(bool bShouldPlay);
+	FORCEINLINE virtual void PlayShootAnimation() override { ; }
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void SetShouldRunningAwayInAnimBP();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void PlayAnimMontageInBlueprint();
+		void RestoreBonesToInitialRotation();
 
 	UFUNCTION(BlueprintImplementableEvent)
-		void RestoreBonesToInitialRotation();
+		void PlayPrepareToShootAnimation(bool bTargetWasDetected);
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlayShootMontageAnimation();
 
 	//Had to get AnimInstance of AnimationBlueprint so in blueprint you are setting what bone you want to looking at the player
 	UFUNCTION(BlueprintImplementableEvent)
 		void FocusBonesOnPlayerWhenPlayerDetected();
-
-	UFUNCTION(BlueprintCallable)
-		void ShootAgain(bool & bShoot);
-
-
 
 	// Bone Rotation - Bone will be looking at the player when he is detected.
 	// bLookStraight means whether Bone should look directly at the player's camera or with some margin
@@ -134,9 +120,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetComponent* EnemyIndicatorWidgetComponent;
 
-
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
-		float WaitTimeShoot = 0.3f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		bool bCanEnemyBeKilled = true;	
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
@@ -151,10 +134,14 @@ private:
 		bool bShouldAvoidBullet = true;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
-		bool bPlayPrepareToShootAnimation;
-
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		float LifeSpanAfterDeath = 10.f;
+
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
+		float TimeToStartShooting = 1.f;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
+		float ShootTime = 1.f;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
+		FFloatRange StartShootingRandomTimeRange = FFloatRange(1.f, 3.f);
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Custom Hit on Bone")
 		TArray<FHitBoneType> HitBoneTypes;
@@ -192,11 +179,12 @@ private:
 
 	//Got Hit
 	bool bIsDead;
-	void AlertEnemyAboutPlayer();
-	void SetIsDead(bool bNewDead);
 	void ShouldRunAway();
 
-	void Reload();
+	// Shooting
+	FTimerHandle StartShootingHandle;
+	FTimerHandle ShootHandle;
+	void StartShooting();
 	void Shoot();
 
 	// Effects
@@ -216,7 +204,6 @@ private:
 	// Enemy Indicator Widget
 	class UEnemyIndicatorWidget* EnemyIndicatorWidget;
 
-
 	//Footsteps sound
 	void PlayFootstepsSound();
 	bool bCanPlayFootstepsSound = true;
@@ -224,8 +211,8 @@ private:
 	void SetCanPlayFootstepsSound() { bCanPlayFootstepsSound = true; }
 
 	//EnemyAIController
-	class AEnemyAiController* EnemyAIController;
-	void SetUpEnemyAIController();
+	void SetEnemyKilledInAIController();
+	void SetEnemyRunawayInAIController();
 
 	int32 CurrentUniqueID = 0;
 	void RemoveEnemySavedDataFromSave();
