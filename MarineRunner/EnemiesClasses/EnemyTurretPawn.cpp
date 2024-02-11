@@ -44,6 +44,7 @@ void AEnemyTurretPawn::Shoot()
 {
 	TurretGunComponent->CanShootAgain();
 	TurretGunComponent->Shoot();
+	PlayShootAnimMontage();
 }
 
 void AEnemyTurretPawn::PlayerWasSeen(bool bWas, AActor* ActorSeen)
@@ -71,13 +72,11 @@ void AEnemyTurretPawn::RotateBonesTowardDetectedActor(float Delta)
 	for (const FRotateTurretBone& RotateBone : RotateTurretBones)
 	{
 		FRotator FoundRot = UKismetMathLibrary::FindLookAtRotation(TurretSkeletalMesh->GetBoneLocation(RotateBone.BoneName), FocusedActor->GetActorLocation());
-		FoundRot.Yaw += GetActorRotation().Yaw * (FoundRot.Yaw < 0.f) ? 1.f : -1.f;
-
+		FoundRot.Yaw += GetActorRotation().Yaw * -1.f;
+			
 		FoundRot.Pitch *= RotateBone.RotateInAxis.Pitch;
 		FoundRot.Yaw *= RotateBone.RotateInAxis.Yaw;
 		FoundRot.Roll *= RotateBone.RotateInAxis.Roll;
-
-		TurretGunComponent->PredictWhereToShoot();
 
 		if (RotateBone.bLimitedRotation == true)
 		{

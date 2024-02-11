@@ -106,11 +106,9 @@ void UWeaponInventoryComponent::SortWeapons()
 void UWeaponInventoryComponent::SaveInitialWeaponInventory()
 {
 	InitialWeaponInventory.Empty();
-	TArray<AGun*> GunsFromInventory;
-	WeaponsStorage.GenerateValueArray(GunsFromInventory);
-	for (AGun* CurrentGun : GunsFromInventory)
+	for (const TPair<int32, class AGun* > CurrentPair : WeaponsStorage)
 	{
-		InitialWeaponInventory.Add(CurrentGun->GetMagazineCapacity(), CurrentGun->GetClass());
+		InitialWeaponInventory.Add(CurrentPair.Value->GetMagazineCapacity(), CurrentPair.Value->GetClass());
 	}
 }
 

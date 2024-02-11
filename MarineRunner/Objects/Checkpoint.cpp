@@ -3,7 +3,6 @@
 
 #include "MarineRunner/Objects/Checkpoint.h"
 #include "Components/BoxComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
@@ -28,26 +27,31 @@ void ACheckpoint::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CheckpointBox->OnComponentBeginOverlap.AddDynamic(this, &ACheckpoint::OnCheckpointBoxBeginOverlap);
+	DisableCheckpoint();
+	EnableCheckpointAfterDelay();
 }
 
-// Called every frame
-void ACheckpoint::Tick(float DeltaTime)
+void ACheckpoint::EnableCheckpointAfterDelay()
 {
-	Super::Tick(DeltaTime);
-
+	FTimerHandle EnableCheckpointAfterDelayHandle;
+	FTimerDelegate EnableCheckpointDelegate = FTimerDelegate::CreateUObject(this, &ACheckpoint::DisableCheckpoint, true);
+	GetWorld()->GetTimerManager().SetTimer(EnableCheckpointAfterDelayHandle, EnableCheckpointDelegate, EnableCheckpointAtStartTime, false);
 }
 
 void ACheckpoint::OnCheckpointBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	if (bDisabledCheckpoint == true)
+		return;
+
 	AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(OtherActor);
 	if (IsValid(MarinePawn) == false) 
 		return;
 
-	MarinePawn->GetSaveLoadPlayerComponent()->SaveGame(SaveToNameAfterCheckpoint, SaveNumberWildCard);
-
+	bDisabledCheckpoint = true;
 	SaveCheckpoint();
 	DisableCheckpoint();
+
+	MarinePawn->GetSaveLoadPlayerComponent()->SaveGame(SaveToNameAfterCheckpoint, SaveNumberWildCard);
 }
 
 void ACheckpoint::SaveCheckpoint()
@@ -63,10 +67,10 @@ void ACheckpoint::SaveCheckpoint()
 	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
 }
 
-void ACheckpoint::DisableCheckpoint()
+void ACheckpoint::DisableCheckpoint(bool bDisable)
 {
-	SetActorEnableCollision(false);
-	SetActorTickEnabled(false);
+	SetActorEnableCollision(bDisable);
+	SetActorTickEnabled(bDisable);
 }
 
 void ACheckpoint::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
@@ -75,6 +79,7 @@ void ACheckpoint::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCusto
 	if (SavedCustomData.ObjectState != 1)
 		return;
 
+	bDisabledCheckpoint = true;
 	DisableCheckpoint();
 }
 

@@ -77,7 +77,6 @@ public:
 	FORCEINLINE virtual USkeletalMeshComponent* GetSkeletalMesh() override { return EnemySkeletalMesh; }
 	FORCEINLINE virtual class AActor* GetFocusedActor() override { return FocusedActor; }
 	FORCEINLINE virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) override;
-	FORCEINLINE virtual void PlayShootAnimation() override { ; }
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void SetShouldRunningAwayInAnimBP();

@@ -27,15 +27,13 @@ public:
 	void ActiveZoom(bool bShouldActive);
 
 private:
-	void ChangeScopeResolution(class UTextureRenderTarget2D* NewRenderTarget);
-
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class USceneCaptureComponent2D* ZoomCamera;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		UTextureRenderTarget2D* ZoomRenderTargetLowRes;
+		UMaterial* ZoomNotActiveMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		UTextureRenderTarget2D* ZoomRenderTargetHighRes;
+		UMaterial* ZoomRenderTargetMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
 		TArray<float> Scope_FOVValues = { 16.f, 10.f, 5.f, 1.f };
 
@@ -44,6 +42,7 @@ private:
 	
 	int32 CurrentScope = 0;
 	void ChangeScope(int32 CurrentScopeIndex);
+	class AGun* OwningGun;
 
 	int32 ZoomMaterialIndexOnWeapon;
 

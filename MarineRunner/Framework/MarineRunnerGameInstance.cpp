@@ -10,7 +10,6 @@
 void UMarineRunnerGameInstance::Init()
 {
 	Super::Init();
-	//SetSaveNumberAccordingToNumOfFiles();
 
 	LoadCustomSavedSettingsFromConfig();
 	LoadSoundsVolumeFromConfig(CustomSavedSettings);
@@ -96,6 +95,15 @@ void UMarineRunnerGameInstance::RemoveDetectedEnemy(AActor* NewEnemy)
 		bIsDetectedByEnemies = false;
 		ChangeBackgroundMusic(EMT_Exploration);
 	}
+}
+
+void UMarineRunnerGameInstance::ResetDetectedEnemy()
+{
+	bIsDetectedByEnemies = false;
+	DetectedPlayerEnemies.Empty();
+
+	if (CurrentMusicType == EMusicType::EMT_Combat)
+		ChangeBackgroundMusic(EMusicType::EMT_Exploration);
 }
 
 #pragma region /////////////////// BACKGROUND MUSIC /////////////////////////

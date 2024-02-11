@@ -68,7 +68,7 @@ public:
 	FORCEINLINE class UArmsSwayComponent* GetArmsSwayComponent() const { return ArmsSwayComponent; }
 	FORCEINLINE class UWallrunComponent* GetWallrunComponent() const { return WallrunComponent; }
 	FORCEINLINE class UCroachAndSlide* GetCroachAndSlideComponent() const { return CroachAndSlideComponent; }
-	FORCEINLINE const FSettingSavedInJsonFile& GetMouseSensitivityJSON() const { return MouseSensitivityJSON; }
+	FORCEINLINE FSettingSavedInJsonFile& GetMouseSensitivityJSON()  { return MouseSensitivityJSON; }
 	bool GetIsMessageDisplayed() const;
 	bool GetIsInPauseMenu() const;
 
@@ -76,6 +76,7 @@ public:
 	FORCEINLINE void SetMovementForceDividerWhenInADS(float NewForceDivider) { MovementForceDividerWhenInADS = NewForceDivider; }
 	FORCEINLINE void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMutliplier = NewSpeed; }
 	FORCEINLINE void SetShouldPlayerGoForward(bool bShould) { bShouldPlayerGoForward = bShould; }
+
 
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 
@@ -203,6 +204,7 @@ private:
 	class UCraftingAlbertosWidget* CraftingWidget;
 
 	bool bIsDead;
+	void PlayerDead();
 
 	//Taking Items
 	void KeyEPressed();

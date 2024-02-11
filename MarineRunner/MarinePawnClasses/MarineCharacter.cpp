@@ -11,6 +11,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "TimerManager.h"
+#include "Perception/AISense_Hearing.h"
 
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/JumpComponent.h"
 #include "MarineRunner/MarinePawnClasses/CroachAndSlide.h"
@@ -214,7 +215,6 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 	{
 		Speed = (MovementForce / MovementForceDividerWhenInADS) * MovementSpeedMutliplier;
 	}
-	//if (bIsOnRamp && CroachAndSlideComponent->GetIsSliding()) MovementDirection += 1.f * -GetActorUpVector();
 	if (GetIsInAir() == true && GetIsWallrunning() == false)
 	{
 		Speed /= JumpComponent->GetDividerForMovementWhenInAir();
@@ -225,7 +225,6 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 	FVector Force = (Axis * Direction * Speed) + CalculateCounterMovement();
 
 	PlayFootstepsSound();
-	//float DeltaForce = (WeaponHandlerComponent->GetIsPlayerInAds() ? (MovementForce / DividerOfMovementWhenADS) : MovementForce) * Delta * (1000 * MovementSpeedMultiplier);
 
 	CapsulePawn->AddImpulse(Force);
 }
@@ -268,6 +267,8 @@ void AMarineCharacter::PlayFootstepsSound()
 			UGameplayStatics::SpawnSoundAttached(FootstepsCroachSound, CapsulePawn);
 		}
 		else if (FootstepsSound) UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);
+
+		UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 0.4f, this);
 
 		bCanPlayFootstepsSound = false;
 		GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AMarineCharacter::SetCanPlayFootstepsSound, TimeOfHandle, false);
@@ -351,10 +352,19 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 	}
 
 	if (Health <= 0.f)
+		PlayerDead();
+}
+
+void AMarineCharacter::PlayerDead()
+{
+	bIsDead = true;
+	Health = 0.f;
+	SpawnDeathWidgetComponent->SpawnDeathWidget(MarinePlayerController);
+
+	UMarineRunnerGameInstance* MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (IsValid(MarineRunnerGameInstance) == true)
 	{
-		bIsDead = true;
-		Health = 0.f;
-		SpawnDeathWidgetComponent->SpawnDeathWidget(MarinePlayerController);
+		MarineRunnerGameInstance->ResetDetectedEnemy();
 	}
 }
 #pragma endregion 

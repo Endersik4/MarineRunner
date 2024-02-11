@@ -68,6 +68,13 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Sounds")
 		USoundBase* AmbientElevatorSound;
 
+	UPROPERTY(EditAnywhere, Category = "Cutscenes")
+		bool bGoToTheFloorAfterTime = false;
+	UPROPERTY(EditAnywhere, Category = "Cutscenes", meta = (EditCondition = "bGoToTheFloorAfterTime", EditConditionHides))
+		float MoveToFloorTimeInCutscene = 1.f;
+	UPROPERTY(EditAnywhere, Category = "Cutscenes", meta = (EditCondition = "bGoToTheFloorAfterTime", EditConditionHides))
+		FElevatorFloor FloorToMoveWhileCutscene;
+
 	class UElevatorPanelWidget* ElevatorPanelWidget;
 
 	void CanUseElevatorAgain();
@@ -93,6 +100,9 @@ private:
 	void SetUpElevatorPanel();
 
 	FTimerHandle CloseDoorAfterInactivityHandle;
+
+	// Cutscene
+	void MoveToFloorAfterTime();
 
 	class AOutsideElevatorDoor* CurrentOutsideElevatorDoor;
 	class AOutsideElevatorDoor* BeforeCurrentOutsideElevatorDoor;

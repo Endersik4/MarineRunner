@@ -45,8 +45,6 @@ private:
 		class UStaticMeshComponent* DoorPanelSecondMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
-		TSubclassOf<class ASavedDataObject> SavedDataObjectClass;
-	UPROPERTY(EditAnywhere, Category = "Door Settings")
 		float CloseDoorAfterInactivityTime = 4.f;
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 		bool bUsePinCode = false;

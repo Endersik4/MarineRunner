@@ -27,7 +27,5 @@ public:
 	UFUNCTION()
 		virtual class AActor* GetFocusedActor() = 0;
 	UFUNCTION()
-		virtual void PlayShootAnimation() = 0;
-	UFUNCTION()
 		virtual void AddImpulseToPhysicsMesh(const FVector & Impulse) = 0;
 };

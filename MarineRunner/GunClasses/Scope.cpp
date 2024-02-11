@@ -28,6 +28,7 @@ void AScope::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ZoomCamera->SetActive(false);
 }
 
 void AScope::SetUpZoomMaterial(AGun* Gun)
@@ -38,8 +39,7 @@ void AScope::SetUpZoomMaterial(AGun* Gun)
 	if (Gun->GetGunSkeletalMesh()->GetMaterial(ZoomMaterialIndexOnWeapon) == nullptr)
 		return;
 
-	DynamicScopeMaterial = UMaterialInstanceDynamic::Create(Gun->GetGunSkeletalMesh()->GetMaterial(ZoomMaterialIndexOnWeapon), Gun->GetGunSkeletalMesh());
-	Gun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, DynamicScopeMaterial);
+	OwningGun = Gun;
 }
 
 int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
@@ -81,16 +81,13 @@ void AScope::ActiveZoom(bool bShouldActive)
 {
 	if (bShouldActive)
 	{
-		ChangeScopeResolution(ZoomRenderTargetHighRes);
+		OwningGun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomRenderTargetMaterial);
 	}
 	else
-		ChangeScopeResolution(ZoomRenderTargetLowRes);
+	{ 
+		OwningGun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomNotActiveMaterial);
+	}
+
+	ZoomCamera->SetActive(bShouldActive);
 }
 
-void AScope::ChangeScopeResolution(UTextureRenderTarget2D* NewRenderTarget)
-{
-	if (DynamicScopeMaterial)
-		DynamicScopeMaterial->SetTextureParameterValue(FName(TEXT("RT_Texture")), NewRenderTarget);
-	
-	ZoomCamera->TextureTarget = NewRenderTarget;
-}

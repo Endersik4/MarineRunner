@@ -44,6 +44,7 @@ void AEnemyPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
+	EnemyIndicatorWidgetComponent->SetVisibility(false);
 	EnemyIndicatorWidget = Cast<UEnemyIndicatorWidget>(EnemyIndicatorWidgetComponent->GetUserWidgetObject());
 	if (IsValid(EnemyIndicatorWidget))
 		EnemyIndicatorWidget->SetMaxHealth(Health);
@@ -228,6 +229,8 @@ void AEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget)
 {
 	FocusedActor = SeenTarget;
 	bEnemyDetectedTarget = bSaw;
+
+	EnemyIndicatorWidgetComponent->SetVisibility(bSaw);
 
 	PlayPrepareToShootAnimation(bSaw);
 

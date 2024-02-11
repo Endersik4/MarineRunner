@@ -27,7 +27,7 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sound On Hit Settings")
 		float VelocityLengthErrorTolerance = 25.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Sound On Hit Settings")
+	UPROPERTY(EditAnywhere, Category = "Sound On Hit Settings")
 		USoundBase* HitGroundSound;
 
 	UFUNCTION()

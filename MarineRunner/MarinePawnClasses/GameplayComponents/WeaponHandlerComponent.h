@@ -47,14 +47,15 @@ public:
 	void DrawNewGun();
 	void DropGun();
 
+	void LoadSavedSettingsFromGameInstance();
 private:
 	UPROPERTY(EditAnywhere, Category = "Set up Gun")
 		TArray<FSettingSavedInJsonFile> MouseSensitivityWhenScope = 
 	{
-		FSettingSavedInJsonFile("MouseSensitivity2x", 0.4f),
-		FSettingSavedInJsonFile("MouseSensitivity4x", 0.2f),
-		FSettingSavedInJsonFile("MouseSensitivity8x", 0.1f),
-		FSettingSavedInJsonFile("MouseSensitivity16x", 0.05f),
+		FSettingSavedInJsonFile("MouseSensitivityADS", 0.4f),
+		FSettingSavedInJsonFile("MouseSensitivity2x", 0.2f),
+		FSettingSavedInJsonFile("MouseSensitivity4x", 0.1f),
+		FSettingSavedInJsonFile("MouseSensitivity8x", 0.05f),
 	};
 
 	UPROPERTY(EditDefaultsOnly, Category = "ADS SEttings")
@@ -76,7 +77,6 @@ private:
 	//Weapon Inventory
 	bool bCanChangeWeapon = true;
 
-	void LoadSavedSettingsFromGameInstance();
 
 	class AMarineCharacter* MarinePawn;	
 };

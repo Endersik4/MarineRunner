@@ -35,7 +35,6 @@ void UEnemyGunComponent::Shoot()
 	SpawnManyBullets();
 
 	MagazineCapacity--;
-	OwningEnemyInterface->PlayShootAnimation();
 
 	AddImpulseDuringShooting();
 

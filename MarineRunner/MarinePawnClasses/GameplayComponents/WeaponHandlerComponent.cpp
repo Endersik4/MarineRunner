@@ -25,7 +25,8 @@ void UWeaponHandlerComponent::BeginPlay()
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
 	
-	LoadSavedSettingsFromGameInstance();
+	FTimerHandle test;
+	GetWorld()->GetTimerManager().SetTimer(test, this, &UWeaponHandlerComponent::LoadSavedSettingsFromGameInstance, 0.05f, false);
 }
 
 #pragma region ////////////////////////////////// GUN //////////////////////////////////
@@ -43,7 +44,8 @@ void UWeaponHandlerComponent::ADSPressed()
 	MarinePawn->MakeCrosshire(true);
 	MarinePawn->SetMovementForceDividerWhenInADS(MovementForceDividerWhenInADS);
 
-	if (ADSInSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
+	if (ADSInSound) 
+		UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
 
 	bIsPlayerADS = true;
 	Gun->AimTheGun(EStatusOfAimedGun::ADS);
@@ -51,8 +53,7 @@ void UWeaponHandlerComponent::ADSPressed()
 	if (CurrentScopeIndex >= MouseSensitivityWhenScope.Num())
 		return;
 
-	if (Gun->GetShouldChangeMouseSensitivityADS() == true) 
-		MarinePawn->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
+	MarinePawn->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
 }
 
 void UWeaponHandlerComponent::ADSReleased()
@@ -68,11 +69,12 @@ void UWeaponHandlerComponent::ADSReleased()
 
 	Gun->AimTheGun(EStatusOfAimedGun::HipFire);
 
-	if (Gun->GetShouldChangeMouseSensitivityADS() == true)
-		MarinePawn->ChangeMouseSensitivity(FSettingSavedInJsonFile(), true);
+	MarinePawn->ChangeMouseSensitivity(FSettingSavedInJsonFile(), true);
 
 	if (Gun->GetUseScope() == true)
 		CurrentScopeIndex = Gun->GetScopeActor()->Zoom(0.f, true);
+	else
+		CurrentScopeIndex = 0;
 }
 
 void UWeaponHandlerComponent::UpdateWeaponInformationOnHud()
@@ -185,7 +187,9 @@ void UWeaponHandlerComponent::LoadSavedSettingsFromGameInstance()
 	if (IsValid(GameInstance) == false || IsValid(MarinePlayerController) == false)
 		return;
 
+	GameInstance->FindSavedValueAccordingToName(MarinePawn->GetMouseSensitivityJSON().FieldName, MarinePawn->GetMouseSensitivityJSON().FieldValue);
 	const FSettingSavedInJsonFile& CurrentMouseSensName = MarinePlayerController->GetMouseSensitivity();
+	if (CurrentMouseSensName == MarinePawn->GetMouseSensitivityJSON()) MarinePawn->ChangeMouseSensitivity(MarinePawn->GetMouseSensitivityJSON(), true);
 
 	for (FSettingSavedInJsonFile& CurrSetting : MouseSensitivityWhenScope)
 	{

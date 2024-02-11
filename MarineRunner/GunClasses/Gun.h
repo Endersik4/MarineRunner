@@ -74,7 +74,6 @@ public:
 	void ShootReleased();
 
 	FORCEINLINE bool GetCanShoot() const { return bCanShoot; }
-	FORCEINLINE bool GetShouldChangeMouseSensitivityADS() const { return bShouldChangeMouseSensitivityADS; }
 	FORCEINLINE bool GetIsReloading() const { return bIsReloading; }
 	FORCEINLINE bool GetReloadOneBullet() const { return bReloadOneBullet; }
 	FORCEINLINE int32 GetMagazineCapacity() const { return MagazineCapacity; }
@@ -148,8 +147,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|UI")
 		UTexture2D* GunHUDTexture;
 
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
-		bool bShouldChangeMouseSensitivityADS = false;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		float MovementForceWhenInADS = 50000.f;
 	//This number will be subdivided with value from Recoil (camera, gun recoil)

@@ -37,6 +37,9 @@ void AElevator::BeginPlay()
 	Super::BeginPlay();
 	
 	SetUpElevatorPanel();
+
+	if (bGoToTheFloorAfterTime)
+		MoveToFloorAfterTime();
 }
 
 void AElevator::SetUpElevatorPanel()
@@ -49,6 +52,15 @@ void AElevator::SetUpElevatorPanel()
 	ElevatorPanelWidget->SetElevatorFloors(ElevatorFloors);
 
 	ElevatorPanelWidget->FillSelectFloorsListView();
+}
+
+void AElevator::MoveToFloorAfterTime()
+{
+	ElevatorPanelWidget->SetVisibility(ESlateVisibility::Hidden);
+
+	FTimerHandle MoveToFloorHandle;
+	FTimerDelegate MoveToFloorDelegate = FTimerDelegate::CreateUObject(this, &AElevator::PrepareElevatorToMove, FloorToMoveWhileCutscene.FloorLocation, FloorToMoveWhileCutscene.Floor);
+	GetWorldTimerManager().SetTimer(MoveToFloorHandle, MoveToFloorDelegate, MoveToFloorTimeInCutscene, false);
 }
 
 // Called every frame

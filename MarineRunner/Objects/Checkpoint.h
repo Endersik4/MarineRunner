@@ -25,8 +25,6 @@ protected:
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 private:
 	UFUNCTION()
@@ -39,8 +37,14 @@ private:
 		FString SaveToNameAfterCheckpoint;
 	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Setting")
 		FString SaveNumberWildCard;
+	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Setting")
+		float EnableCheckpointAtStartTime = 0.1f;
+
+	bool bDisabledCheckpoint;
+	void EnableCheckpointAfterDelay();
 
 	int32 CurrentUniqueID = 0;
 	void SaveCheckpoint();
-	void DisableCheckpoint();
+
+	void DisableCheckpoint(bool bEnable = false);
 };
