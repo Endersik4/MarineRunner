@@ -56,7 +56,9 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* DeathSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings")
+		TSubclassOf<class AMarineCharacter> PlayerClass;
 
 	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
-
+	void RestartGame();
 };

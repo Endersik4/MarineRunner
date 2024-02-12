@@ -25,7 +25,7 @@ protected:
 
 public:	
 
-	FORCEINLINE bool CanPlayerTakeWeaponToInventory() const;
+	bool CanPlayerTakeWeaponToInventory() const;
 	FORCEINLINE int32 GetCurrentAmountOfWeapons() const { return WeaponsStorage.Num(); }
 	FORCEINLINE void SetGunFromInventory(class AGun* NewGun) { GunFromInventory = NewGun; }
 

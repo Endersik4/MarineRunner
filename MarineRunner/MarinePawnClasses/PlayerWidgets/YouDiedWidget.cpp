@@ -8,6 +8,9 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
+#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
+#include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 
 void UYouDiedWidget::NativeConstruct()
 {
@@ -27,15 +30,18 @@ void UYouDiedWidget::NativeOnInitialized()
 	Super::NativeOnInitialized();
 	if (ShowWidgetAnim)
 		PlayAnimationForward(ShowWidgetAnim, 1.f, true);
+
 	UMarineRunnerGameInstance* MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_PauseMusic);
+
+	if (MarineRunnerGameInstance->GetCurrentMusicType() == EMT_Combat) 
+		MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_Exploration);
 
 	if (DeathSound) UGameplayStatics::SpawnSound2D(GetWorld(), DeathSound);
 }
 
 void UYouDiedWidget::RestartGameButton_OnClicked()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
+	RestartGame();
 }
 
 void UYouDiedWidget::RestartGameButton_OnHovered()
@@ -61,6 +67,33 @@ void UYouDiedWidget::QuitButton_OnHovered()
 void UYouDiedWidget::QuitButton_OnUnhovered()
 {
 	PlayAnimatonForButton(QuitHoveredAnim, false);
+}
+
+void UYouDiedWidget::RestartGame()
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+
+	AMarineCharacter* Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (IsValid(Player) == false)
+		return;
+
+	TArray<AActor*> AllEnemiesOnMap;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyPawn::StaticClass(), AllEnemiesOnMap);
+
+	for (AActor* CurrentEnemy : AllEnemiesOnMap)
+	{
+		CurrentEnemy->Destroy();
+	}
+
+
+	AMarineCharacter* SpawnedNewPlayer = GetWorld()->SpawnActor<AMarineCharacter>(PlayerClass, FTransform(FRotator(0.f), FVector(0.f)));
+	if (IsValid(SpawnedNewPlayer) == false)
+		return;
+
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(SpawnedNewPlayer);
+
+	RemoveFromParent();
+	Player->Destroy();
 }
 
 void UYouDiedWidget::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim)

@@ -28,6 +28,7 @@ public:
 
 	void LoadSavedSettingsFromGameInstance();
 
+	void LoadGame();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass;
@@ -38,7 +39,6 @@ private:
 
 	//Saving/Loading Game
 	class USaveMarineRunner* CreatedSaveGame;
-	void LoadGame();
 	void SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn);
 		
 	class AMarineCharacter* Player;

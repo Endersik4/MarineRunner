@@ -122,7 +122,7 @@ void UMarineRunnerGameInstance::ChangeBackgroundMusic(EMusicType MusicType, bool
 		return;
 
 	CurrentMusicType = MusicType;
-
+	UE_LOG(LogTemp, Warning, TEXT("ZAMIANA MUZY"));
 	GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, this, &UMarineRunnerGameInstance::ChangeMusicAfterFadeOut, 1.21f, false);
 
 	if (bIgnoreFadeOut == true)

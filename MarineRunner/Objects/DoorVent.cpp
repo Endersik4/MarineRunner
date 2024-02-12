@@ -127,7 +127,7 @@ void ADoorVent::ItemHover(AMarineCharacter* Character)
 
 void ADoorVent::ItemUnHover(AMarineCharacter* Character)
 {
-	if (bIsOpen == true && bIsHovered == false || DoorVentMesh->IsSimulatingPhysics() == true)
+	if (bIsHovered == false)
 		return;
 
 	bIsHovered = false;
