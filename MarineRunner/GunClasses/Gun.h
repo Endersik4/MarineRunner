@@ -293,6 +293,8 @@ private:
 	void AddEffectsToShooting();
 	void StartTimerToDropCasing(const EWhenSpawnCasing & CurrentSpawnCasingPeriod);
 	void DropCasing();
+	FTimerHandle DropCasingHandle;
+
 
 	// drop gun
 	bool bDropGun;

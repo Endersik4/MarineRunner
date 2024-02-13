@@ -152,7 +152,10 @@ bool UDashComponent::CanPlayerPerformDash() const
 	if (MarinePawn->GetIsPlayerLerpingToHookLocation() == true || MarinePawn->GetIsWallrunning() == true) 
 		return false;
 
-	if (MarinePawn->GetIsCrouching() == true)
+	if (MarinePawn->GetIsCrouching() == true )
+		return false;
+
+	if (MarinePawn->GetInputAxisValue("Right") == 0.f && MarinePawn->GetInputAxisValue("Forward") == 0.f)
 		return false;
 
 	return true;

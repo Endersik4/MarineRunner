@@ -419,6 +419,7 @@ void AGun::Reload()
 void AGun::CancelReload()
 {
 	GetWorldTimerManager().ClearTimer(ReloadHandle);
+	GetWorldTimerManager().ClearTimer(DropCasingHandle);
 
 	bCanShoot = true;
 	bIsReloading = false;
@@ -496,7 +497,6 @@ void AGun::StartTimerToDropCasing(const EWhenSpawnCasing& CurrentSpawnCasingPeri
 	if (bCasingEjection == false || WhenSpawnCasing != CurrentSpawnCasingPeriod)
 		return;
 
-	FTimerHandle DropCasingHandle;
 	GetWorldTimerManager().SetTimer(DropCasingHandle, this, &AGun::DropCasing, SpawnCasingAfterTime, false);
 }
 
@@ -614,9 +614,10 @@ void AGun::DrawGun()
 
 	SetActorHiddenInGame(false);
 
+	CancelReload();
+
 	SetActorTickEnabled(true);
 	bCanShoot = false;
-
 	MarinePawn->GetWeaponHandlerComponent()->SetGun(this);
 
 	PlayGivenWeaponWithArmsAnimation(WeaponDrawAnim);
@@ -636,14 +637,13 @@ void AGun::PutAwayGun()
 	if (IsValid(MarinePawn) == false)
 		return;
 
+	CancelReload();
+
 	bCanShoot = false;
 
 	MarinePawn->GetWeaponHandlerComponent()->SetGun(nullptr);
 
 	PlayGivenWeaponWithArmsAnimation(WeaponHideAnim);
-
-	if (bIsReloading == true) 
-		CancelReload();
 	ShootReleased();
 
 	if (PutAwayGunSound) 
@@ -657,6 +657,7 @@ void AGun::PutAwayGun()
 
 void AGun::HideGun()
 {
+	CancelReload();
 	bCanShoot = false;
 	SetActorHiddenInGame(true);
 	SetActorTickEnabled(false);
@@ -692,10 +693,18 @@ void AGun::DropGun()
 	FVector LocationToSpawnItemGun = MarinePawn->GetCameraLocation() + MarinePawn->GetCamera()->GetForwardVector() * DistanceToDropGun;
 	FTransform ItemGunTransform = FTransform(FRotator(0.f), LocationToSpawnItemGun);
 	APickupItem* SpawnedGunItem = GetWorld()->SpawnActorDeferred<APickupItem>(ItemToSpawnAfterDropGun, ItemGunTransform);
+	if (IsValid(SpawnedGunItem) == false)
+		return;
+
 	SpawnedGunItem->SetCurrentMagazineCapacity(MagazineCapacity);
 	SpawnedGunItem->SetItemWasOnceTaken(true);
 	SpawnedGunItem->SaveItemIfSpawnedRunTime();
 	SpawnedGunItem->FinishSpawning(ItemGunTransform);
+
+	FItemStruct* WeaponInformation = MarinePawn->GetInventoryComponent()->GetItemInformationFromDataTable(SpawnedGunItem->GetItemRowName());
+	if (WeaponInformation)
+		MarinePawn->GetInventoryComponent()->DeleteItemFromInventory(*WeaponInformation);
+	MarinePawn->UpdateAlbertosInventory(true);
 
 	Destroy();
 }

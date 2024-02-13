@@ -9,6 +9,8 @@ void AMarinePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 	MarinePawn = Cast<AMarineCharacter>(GetPawn());
+
+	OnPossessedPawnChanged.AddDynamic(this, &AMarinePlayerController::HandleOnPossessedPawnChanged);
 }
 
 void AMarinePlayerController::SetupInputComponent()
@@ -20,6 +22,11 @@ void AMarinePlayerController::SetupInputComponent()
 
 	InputComponent->BindAxis(TEXT("LookUp"), this, &AMarinePlayerController::LookUp);
 	InputComponent->BindAxis(TEXT("LookRight"), this, &AMarinePlayerController::LookRight);
+}
+
+void AMarinePlayerController::HandleOnPossessedPawnChanged(APawn* _OldPawn, APawn* NewPawn)
+{
+	MarinePawn = Cast<AMarineCharacter>(NewPawn);
 }
 
 void AMarinePlayerController::LookUp(float AxisValue)

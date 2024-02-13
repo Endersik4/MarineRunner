@@ -28,6 +28,9 @@ public:
 
 	float MouseXValue;
 	float MouseYValue;
+
+	UFUNCTION()
+		void HandleOnPossessedPawnChanged(APawn* _OldPawn, APawn* NewPawn);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Player Controller Settings")
 		FFloatRange MarginForPlayerToMove = FFloatRange(-0.75f, 0.75f);

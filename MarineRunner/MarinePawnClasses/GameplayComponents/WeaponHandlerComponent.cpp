@@ -14,9 +14,7 @@
 UWeaponHandlerComponent::UWeaponHandlerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
 }
-
 
 // Called when the game starts
 void UWeaponHandlerComponent::BeginPlay()
@@ -25,8 +23,8 @@ void UWeaponHandlerComponent::BeginPlay()
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
 	
-	FTimerHandle test;
-	GetWorld()->GetTimerManager().SetTimer(test, this, &UWeaponHandlerComponent::LoadSavedSettingsFromGameInstance, 0.05f, false);
+	FTimerHandle UpdateMouseSensitivitesHandle;
+	GetWorld()->GetTimerManager().SetTimer(UpdateMouseSensitivitesHandle, this, &UWeaponHandlerComponent::LoadSavedSettingsFromGameInstance, 0.05f, false);
 }
 
 #pragma region ////////////////////////////////// GUN //////////////////////////////////
@@ -135,12 +133,14 @@ void UWeaponHandlerComponent::SelectWeaponFromQuickInventory(int32 HandNumber)
 	if (bCanChangeWeapon == false)
 		return;
 
+
 	bool bDrawGunAccordingToHandNumber = MarinePawn->GetWeaponInventoryComponent()->GetWeaponFromStorage(HandNumber, Gun);
 
 	if (bDrawGunAccordingToHandNumber == false)
 		return;
-	
+
 	bCanChangeWeapon = false;
+
 }
 
 void UWeaponHandlerComponent::DrawNewGun()

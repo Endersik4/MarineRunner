@@ -57,6 +57,9 @@ void AEnemyAiController::HearingHandle(AActor* SensedActor, const FAIStimulus& H
 	FRotator CurrentPawnRotation = GetPawn()->GetActorRotation();
 	CurrentPawnRotation.Yaw = (UKismetMathLibrary::FindLookAtRotation(GetPawn()->GetActorLocation(), SensedActor->GetActorLocation())).Yaw;
 	GetPawn()->SetActorRotation(CurrentPawnRotation);
+	
+	if (bDoEnemySeePlayer == false)
+		StopMovement();
 }
 
 void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor)
