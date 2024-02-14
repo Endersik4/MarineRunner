@@ -100,8 +100,12 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 
 	GameInstance->SetSaveNumberAccordingToNumOfFiles();
 	GameInstance->TotalPlayTimeInSeconds = TotalPlayTimeInSeconds;
-	GameInstance->SetCurrentExplorationMusic(SavedExplorationMusic);
-	GameInstance->ChangeBackgroundMusic(EMusicType::EMT_Exploration, true);
+
+	if (GameInstance->GetCurrentExplorationMusic() != SavedExplorationMusic)
+	{
+		GameInstance->SetCurrentExplorationMusic(SavedExplorationMusic);
+		GameInstance->ChangeBackgroundMusic(EMusicType::EMT_Exploration, true);
+	}
 }
 
 void USaveMarineRunner::LoadOtherObjectsData(ASavedDataObject* OtherObjectsData)

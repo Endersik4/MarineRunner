@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -59,6 +59,9 @@ public:
 	void AddElementToProgress(EUseableElement Element, ElementBar ElementProgressBar);
 
 	void ShowWeaponOnHud(bool bShow = true);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void NewGameStartedWidgetAnimation();
 
 #pragma region ///////////// USE FIRST AID KIT UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

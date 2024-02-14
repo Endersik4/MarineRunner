@@ -168,6 +168,6 @@ private:
 
 	void SpawnSettingsAcceptedWidget();
 
-	class AMarinePlayerController* MarinePlayerController;
+	class APlayerController* MarinePlayerController;
 	class UMarineRunnerGameInstance* MarineGameInstance;
 };

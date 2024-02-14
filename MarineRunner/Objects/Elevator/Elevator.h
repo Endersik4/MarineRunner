@@ -70,6 +70,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Cutscenes")
 		bool bGoToTheFloorAfterTime = false;
+	UPROPERTY(EditAnywhere, Category = "Cutscenes")
+		float MaxDistanceToPlayerToDoCutscene = 1000.f;
 	UPROPERTY(EditAnywhere, Category = "Cutscenes", meta = (EditCondition = "bGoToTheFloorAfterTime", EditConditionHides))
 		float MoveToFloorTimeInCutscene = 1.f;
 	UPROPERTY(EditAnywhere, Category = "Cutscenes", meta = (EditCondition = "bGoToTheFloorAfterTime", EditConditionHides))
@@ -103,6 +105,7 @@ private:
 
 	// Cutscene
 	void MoveToFloorAfterTime();
+	bool IsPlayerTooFarAwayToDoCutscene();
 
 	class AOutsideElevatorDoor* CurrentOutsideElevatorDoor;
 	class AOutsideElevatorDoor* BeforeCurrentOutsideElevatorDoor;

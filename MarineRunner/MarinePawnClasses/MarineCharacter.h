@@ -36,6 +36,7 @@ public:
 	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) override; //C++ ONLY
 
 	void ChangeMouseSensitivity(const FSettingSavedInJsonFile& NewMouseSensitivity, bool bResetMouseSensitivity = false);
+	void LoadFieldOfViewFromSettings();
 
 	UPROPERTY(EditAnywhere, Category = "Alberto")
 		class AAlbertosPawn* AlbertoPawn;
@@ -152,6 +153,8 @@ private:
 		float DelayAfterUseFirstAidKit = 1.1f;
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		FSettingSavedInJsonFile MouseSensitivityJSON = FSettingSavedInJsonFile("MouseSensitivity", 0.7f);
+	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
+		FSettingSavedInJsonFile FieldOfViewJSON = FSettingSavedInJsonFile("FieldOfView", 90.f);
 
 	//Aka speed movement
 	UPROPERTY(EditAnywhere, Category = "Movement")

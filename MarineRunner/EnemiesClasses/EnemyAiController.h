@@ -22,7 +22,7 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	void EnemyKilled();
+	void EnemyKilled(bool bRunAwayInsteadOfKill = false);
 	void RunAway();
 	void AddEnemyToDetected(bool bWas);
 

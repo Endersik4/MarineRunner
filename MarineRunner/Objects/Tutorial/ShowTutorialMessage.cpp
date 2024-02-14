@@ -8,6 +8,7 @@
 
 #include "MarineRunner/Objects/MessageToReadWidget.h"
 #include "MarineRunner/Objects/SavedDataObject.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
 // Sets default values
 AShowTutorialMessage::AShowTutorialMessage()
@@ -37,6 +38,13 @@ void AShowTutorialMessage::ShowMessageBoxBeginOverlap(UPrimitiveComponent* Overl
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (IsValid(PC) == false)
 		return;
+
+	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (IsValid(GameInstance))
+	{
+		if (GameInstance->IsPlayerInCombat() == true)
+			return;
+	}
 	
 	UMessageToReadWidget* MessageWidget = Cast<UMessageToReadWidget>(CreateWidget(PC, MessageWidgetClass));
 	if (IsValid(MessageWidget) == false)

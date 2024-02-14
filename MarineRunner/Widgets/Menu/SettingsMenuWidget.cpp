@@ -51,7 +51,7 @@ void USettingsMenuWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	MarinePlayerController = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	MarinePlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	MarineGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 
 	FillMenuButtonsAndTextMap();
@@ -308,6 +308,7 @@ void USettingsMenuWidget::LoadSavedSettingsToPlayer()
 		return;
 
 	Player->GetWeaponHandlerComponent()->LoadSavedSettingsFromGameInstance();
+	Player->LoadFieldOfViewFromSettings();
 }
 
 void USettingsMenuWidget::OnHoveredAcceptSettingsButton()

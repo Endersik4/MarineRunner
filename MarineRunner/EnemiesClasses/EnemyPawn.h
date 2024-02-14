@@ -125,11 +125,6 @@ private:
 		float Health = 100.f;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
-		bool bCanEnemyRunAway = true;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
-		float SpeedOfEnemyWhenIsRunningAway = 1600.f;
-
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		bool bShouldAvoidBullet = true;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
@@ -146,6 +141,16 @@ private:
 		TArray<FHitBoneType> HitBoneTypes;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Custom Hit on Bone")
 		USoundBase* DefaultBoneHitSound;
+
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Enemy Run Away")
+		bool bCanEnemyRunAway = true;
+	// if enemy has less hp then MaxEnemyHealthForRunAway then choose random if enemy should run away
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Enemy Run Away", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
+		float MaxEnemyHealthForRunAway = 10.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Enemy Run Away", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
+		float SpeedOfEnemyWhenIsRunningAway = 1600.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Enemy Run Away", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
+		float ChanceOfEnemyToRunAway = 20.f;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
 		float MaxDistanceToObjectForBlood = 600.f;

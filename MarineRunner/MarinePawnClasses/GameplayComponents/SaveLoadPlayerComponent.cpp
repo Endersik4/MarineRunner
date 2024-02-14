@@ -3,6 +3,7 @@
 
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
@@ -10,10 +11,10 @@
 #include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
-#include "MarineRunner/Widgets/Menu/GameSavedNotificationWidget.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/Objects/SavedDataObject.h"
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
+#include "MarineRunner/Widgets/HUDWidget.h"
 
 // Sets default values for this component's properties
 USaveLoadPlayerComponent::USaveLoadPlayerComponent()
@@ -32,7 +33,18 @@ void USaveLoadPlayerComponent::BeginPlay()
 	LoadSavedSettingsFromGameInstance();
 
 	LoadGame();
+}
+
+void USaveLoadPlayerComponent::SpawnNewGameWidget()
+{
+	if (GameInstance->bNewGame == false)
+		return;
+	
+	SpawnPassingWidget(NewGameBeginsWidgetClass);
 	GameInstance->bNewGame = false;
+
+	if (IsValid(Player->GetHudWidget()))
+		Player->GetHudWidget()->NewGameStartedWidgetAnimation();
 }
 
 void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString& _WildCard)
@@ -99,6 +111,8 @@ void USaveLoadPlayerComponent::LoadSavedSettingsFromGameInstance()
 	if (IsValid(GameInstance) == false || IsValid(PlayerController) == false)
 		return;
 
+	Player->LoadFieldOfViewFromSettings();
+
 	const FSettingSavedInJsonFile& CurrentMouseSensName = PlayerController->GetMouseSensitivity();
 	FSettingSavedInJsonFile MouseSensitivityJson = Player->GetMouseSensitivityJSON();
 
@@ -111,7 +125,7 @@ void USaveLoadPlayerComponent::SpawnPassingWidget(const TSubclassOf<class UUserW
 	if (IsValid(PlayerController) == false) 
 		return;
 
-	UGameSavedNotificationWidget* SpawnedWidget = Cast<UGameSavedNotificationWidget>(CreateWidget(PlayerController, WidgetClassToSpawn));
+	UUserWidget* SpawnedWidget = Cast<UUserWidget>(CreateWidget(PlayerController, WidgetClassToSpawn));
 	if (IsValid(SpawnedWidget) == false)
 		return;
 

@@ -130,10 +130,11 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AAct
 
 bool AEnemyPawn::EnemyRunAway()
 {
-	if (Health > 10.f || bCanEnemyRunAway == false) return false;
+	if (Health > MaxEnemyHealthForRunAway || bCanEnemyRunAway == false) 
+		return false;
 
 	float ShouldRunAwayRandom = FMath::FRandRange(0.f, 100.f);
-	if (ShouldRunAwayRandom <= 30.f)
+	if (ShouldRunAwayRandom <= ChanceOfEnemyToRunAway)
 	{
 		ShouldRunAway();
 		return true;
@@ -270,6 +271,14 @@ FRotator AEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
 
 void AEnemyPawn::ShouldRunAway()
 {
+	SawTheTarget(false);
+
+	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(GetController());
+	if (IsValid(EnemyAIController) == true)
+	{
+		EnemyAIController->EnemyKilled(true);
+	}
+
 	bIsRunningAway = true;
 	SetShouldRunningAwayInAnimBP();
 	SetEnemyRunawayInAIController();

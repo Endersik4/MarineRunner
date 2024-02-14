@@ -75,8 +75,10 @@ void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected, AActor* Detecte
 	else
 	{
 		ClearFocus(EAIFocusPriority::Gameplay);
-		GetBlackboardComponent()->SetValueAsVector(TEXT("LastKnownPlayerLocation"), DetectedActor->GetActorLocation());
 		GetBlackboardComponent()->ClearValue(TEXT("FocusedActor"));
+
+		if (IsValid(DetectedActor))
+			GetBlackboardComponent()->SetValueAsVector(TEXT("LastKnownPlayerLocation"), DetectedActor->GetActorLocation());
 	}
 
 	AddEnemyToDetected(bDoEnemySeePlayer);
@@ -131,13 +133,17 @@ void AEnemyAiController::SetAIVariables()
 	GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), EnemyPawn->GetActorLocation());
 }
 
-void AEnemyAiController::EnemyKilled()
+void AEnemyAiController::EnemyKilled(bool bRunAwayInsteadOfKill)
 {
 	EnemyPerception->SetSenseEnabled(SightSenseClass, false);
 	EnemyPerception->SetSenseEnabled(HearingSenseClass, false);
+	ClearFocus(EAIFocusPriority::Gameplay);
 
 	AddEnemyToDetected(false);
 	GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
+
+	if (bRunAwayInsteadOfKill == true)
+		return;
 
 	GetBrainComponent()->StopLogic(FString("dead"));
 }

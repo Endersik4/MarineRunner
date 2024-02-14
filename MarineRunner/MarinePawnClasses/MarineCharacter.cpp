@@ -185,6 +185,16 @@ void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& New
 	MarinePlayerController->SetMouseSensitivity(NewMouseSensitivity);
 }
 
+void AMarineCharacter::LoadFieldOfViewFromSettings()
+{
+	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (IsValid(GameInstance) == false)
+		return;
+
+	GameInstance->FindSavedValueAccordingToName(FieldOfViewJSON.FieldName, FieldOfViewJSON.FieldValue);
+	Camera->SetFieldOfView(FieldOfViewJSON.FieldValue);
+}
+
 #pragma region //////////////////////////////// MOVEMENT ///////////////////////////////
 void AMarineCharacter::Forward(float Axis)
 {
@@ -377,6 +387,8 @@ void AMarineCharacter::MakeHudWidget()
 
 	HudWidget = Cast<UHUDWidget>(CreateWidget(MarinePlayerController, HUDClass));
 	HudWidget->AddToViewport();
+
+	SaveLoadPlayerComponent->SpawnNewGameWidget();
 }
 
 void AMarineCharacter::MakeCrosshire(bool bShouldRemoveFromParent)

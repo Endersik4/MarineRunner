@@ -56,11 +56,26 @@ void AElevator::SetUpElevatorPanel()
 
 void AElevator::MoveToFloorAfterTime()
 {
+	if (IsPlayerTooFarAwayToDoCutscene() == false)
+		return;
+
 	ElevatorPanelWidget->SetVisibility(ESlateVisibility::Hidden);
 
 	FTimerHandle MoveToFloorHandle;
 	FTimerDelegate MoveToFloorDelegate = FTimerDelegate::CreateUObject(this, &AElevator::PrepareElevatorToMove, FloorToMoveWhileCutscene.FloorLocation, FloorToMoveWhileCutscene.Floor);
 	GetWorldTimerManager().SetTimer(MoveToFloorHandle, MoveToFloorDelegate, MoveToFloorTimeInCutscene, false);
+}
+
+bool AElevator::IsPlayerTooFarAwayToDoCutscene()
+{
+	APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (IsValid(Player) == false)
+		return true;
+
+	if (FVector::Dist(GetActorLocation(), Player->GetActorLocation()) > MaxDistanceToPlayerToDoCutscene)
+		return false;
+
+	return true;
 }
 
 // Called every frame

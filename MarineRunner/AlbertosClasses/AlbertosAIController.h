@@ -20,7 +20,8 @@ protected:
 public:
 	AAlbertosAIController();
 
-	FORCEINLINE void SetCanMove(bool bCan);
+	UFUNCTION(BlueprintCallable)
+		FORCEINLINE void SetCanMove(bool bCan);
 
 	void CallAlbertosToThePlayer(FVector PlayerLoc);
 private:

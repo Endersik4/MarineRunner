@@ -29,17 +29,22 @@ public:
 	void LoadSavedSettingsFromGameInstance();
 
 	void LoadGame();
+	void SpawnNewGameWidget();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> CannotSavedNotificationWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+		TSubclassOf<class UUserWidget> NewGameBeginsWidgetClass;
 	UPROPERTY(EditAnywhere, Category = "Saves")
 		class ASavedDataObject* SavedDataObject;
 
 	//Saving/Loading Game
 	class USaveMarineRunner* CreatedSaveGame;
 	void SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn);
+
 		
 	class AMarineCharacter* Player;
 	class AMarinePlayerController* PlayerController;

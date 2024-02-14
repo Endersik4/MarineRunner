@@ -33,7 +33,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Setting up Albertos")
 		FName OpenDoorSoundSocketName = FName(TEXT("Wysuwak"));
 	UPROPERTY(EditAnywhere, Category = "Setting up Albertos")
-		bool bIgnorePlayer = true;
+		bool bIgnorePlayer = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* OpenDoorSound;
 
