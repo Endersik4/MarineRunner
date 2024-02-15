@@ -60,7 +60,6 @@ void AEnemySpawner::SpawnAllEnemiesFromSpawner()
 				continue;
 
 			SpawnedEnemy->SaveEnemySpawnedDataAtRuntime();
-			//SpawnedEnemy->FinishSpawning(CurrentEnemyTransform);
 		}
 	}
 
@@ -80,12 +79,12 @@ void AEnemySpawner::EnemiesSpawnedSaveData()
 	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
 }
 
-void AEnemySpawner::DisableEnemySpawner()
+void AEnemySpawner::DisableEnemySpawner(bool bDisable)
 {
-	SetActorTickEnabled(false);
-	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
-	bEnemiesSpawned = true;
+	SetActorTickEnabled(!bDisable);
+	SetActorHiddenInGame(bDisable);
+	SetActorEnableCollision(!bDisable);
+	bEnemiesSpawned = bDisable;
 }
 
 void AEnemySpawner::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
@@ -98,6 +97,11 @@ void AEnemySpawner::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCus
 void AEnemySpawner::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
 	;
+}
+
+void AEnemySpawner::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	DisableEnemySpawner(false);
 }
 
 

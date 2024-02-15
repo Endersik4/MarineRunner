@@ -174,3 +174,8 @@ void ADoorVent::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, c
 	UpdatedData.ObjectTransform = FTransform(GetActorRotation(), GetActorLocation());
 	SavedDataObject->AddCustomSaveData(IDkey, UpdatedData);
 }
+
+void ADoorVent::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
+}

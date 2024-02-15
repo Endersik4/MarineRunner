@@ -262,7 +262,8 @@ void AEnemyPawn::Shoot()
 FRotator AEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
 {
 	FRotator BoneRotation;
-	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName), EnemyGunComponent->PredictWhereToShoot(bLookStraight));
+	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName), 
+		EnemyGunComponent->PredictWhereToShoot(bLookStraight));
 	BoneRotation.Roll = FoundRotation.Pitch * -1.f;
 	BoneRotation.Yaw = FoundRotation.Yaw - GetActorRotation().Yaw;
 
@@ -353,6 +354,12 @@ void AEnemyPawn::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, 
 	UpdatedData.ObjectToSaveData = this;
 	SavedDataObject->AddCustomSaveData(IDkey, UpdatedData);
 }
+
+void AEnemyPawn::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	Destroy();
+}
+
 #pragma endregion
 
 void AEnemyPawn::AddImpulseToPhysicsMesh(const FVector& Impulse)

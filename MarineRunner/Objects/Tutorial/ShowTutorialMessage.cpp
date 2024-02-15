@@ -84,3 +84,8 @@ void AShowTutorialMessage::SaveData(ASavedDataObject* SavedDataObject, const int
 {
 	;
 }
+
+void AShowTutorialMessage::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
+}

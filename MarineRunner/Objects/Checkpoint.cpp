@@ -88,3 +88,8 @@ void ACheckpoint::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey,
 	;
 }
 
+void ACheckpoint::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
+}
+

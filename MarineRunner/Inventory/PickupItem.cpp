@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 
 #include "MarineRunner/Inventory/PickupItem.h"
@@ -255,11 +255,24 @@ void APickupItem::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCusto
 	}
 }
 
-void APickupItem::DisableItem()
+void APickupItem::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	SetActorTickEnabled(false);
-	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
-	ItemMesh->SetSimulatePhysics(false);
+	if (SavedCustomData.ObjectState == 1)
+	{
+		DisableItem(false);
+	}
+	else if (SavedCustomData.ObjectState == 3)
+	{
+		SavedDataObject->RemoveCustomSaveData(IDkey);
+		Destroy();
+	}
+}
+
+void APickupItem::DisableItem(bool bDisable)
+{
+	SetActorTickEnabled(!bDisable);
+	SetActorHiddenInGame(bDisable);
+	SetActorEnableCollision(!bDisable);
+	ItemMesh->SetSimulatePhysics(!bDisable);
 }
 #pragma endregion

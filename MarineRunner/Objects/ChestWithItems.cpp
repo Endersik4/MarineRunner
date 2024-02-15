@@ -35,7 +35,8 @@ void AChestWithItems::BeginPlay()
 	Super::BeginPlay();
 	
 	FrontChestPanelWidget = Cast<UDoorPanelWidget>(FrontPanelWidget->GetUserWidgetObject());
-	if (FrontChestPanelWidget == nullptr) return;
+	if (FrontChestPanelWidget == nullptr) 
+		return;
 
 	if (IsValid(FrontChestPanelWidget) == true)
 	{
@@ -91,7 +92,7 @@ void AChestWithItems::OpenChest()
 		}
 	}
 
-	SaveChestState(2);
+	SaveChestState(bUsePinCode ? 4 : 2);
 	bIsChestOpen = true;
 }
 
@@ -121,9 +122,32 @@ void AChestWithItems::LoadData(const int32 IDkey, const FCustomDataSaved& SavedC
 		FrontChestPanelWidget->SetVisibility(ESlateVisibility::Hidden);
 		ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 		ChestSkeletalMesh->SetPosition(1.3f);
+		ChestSkeletalMesh->SetMaterial(3, UpperOpenLockMaterial);
 	}
 }
 
 void AChestWithItems::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
+	;
+}
+
+void AChestWithItems::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	if (SavedCustomData.ObjectState == 2 || SavedCustomData.ObjectState == 4)
+	{
+		bIsChestOpen = false;
+		FrontChestPanelWidget->SetVisibility(ESlateVisibility::Visible);
+		FrontChestPanelWidget->RestartDoorPanelWidget();
+		ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
+		ChestSkeletalMesh->SetPosition(0.f);
+		ChestSkeletalMesh->Stop();
+		ChestSkeletalMesh->SetMaterial(3, UpperClosedLockMaterial);
+	}
+
+	if (SavedCustomData.ObjectState == 1 || SavedCustomData.ObjectState == 4)
+	{
+		if (bUsePinCode == true)
+			FrontChestPanelWidget->ChangeDoorPanelToUsePin(PinCode);
+	}
+
 }

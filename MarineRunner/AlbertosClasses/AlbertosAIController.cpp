@@ -18,6 +18,7 @@ void AAlbertosAIController::BeginPlay()
 	if (!AIBehaviour)
 		return;
 	RunBehaviorTree(AIBehaviour);
+	SetCanMove(true);
 }
 
 void AAlbertosAIController::CallAlbertosToThePlayer(FVector PlayerLoc)

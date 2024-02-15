@@ -63,6 +63,7 @@ public:
 	void PlayOpenCloseEffects();
 
 	void PinIsCorrect(bool bClickedByOwner = false);
+	void RestartDoorPanelWidget();
 
 private:
 

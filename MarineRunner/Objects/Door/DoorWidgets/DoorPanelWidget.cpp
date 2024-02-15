@@ -7,6 +7,7 @@
 #include "Components/TileView.h"
 #include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
+#include "Animation/WidgetAnimation.h"
 
 #include "MarineRunner/Objects/Door/Door.h"
 #include "PinNumberEntryObject.h"
@@ -76,6 +77,8 @@ void UDoorPanelWidget::OnUnhoveredInteractDoorButton()
 
 void UDoorPanelWidget::ChangeDoorPanelToUsePin(int32 PinCode)
 {
+	PinNumbersTileView->ClearListItems();
+
 	InteractDoorButton->SetVisibility(ESlateVisibility::Hidden);
 	InteractDoorText->SetVisibility(ESlateVisibility::Hidden);
 
@@ -95,6 +98,9 @@ void UDoorPanelWidget::ChangeDoorPanelToUsePin(int32 PinCode)
 		PinNumbersTileView->AddItem(CreatedPinEntryObject);
 	}
 
+	CurrentlyEnteredPin.Empty();
+	CurrentlyEnteredPin_Text.Empty();
+	PinCodeText->SetText(FText::FromString(CurrentlyEnteredPin_Text));
 	CurrentPinCode = PinCode;
 }
 
@@ -135,4 +141,13 @@ void UDoorPanelWidget::PinIsCorrect(bool bClickedByOwner)
 	{
 		ActorWithWidget->GetOtherPanelWidget(this)->PinIsCorrect(false);
 	}
+}
+
+void UDoorPanelWidget::RestartDoorPanelWidget()
+{
+	InteractDoorButton->SetIsEnabled(true);
+	InteractDoorButton->SetVisibility(ESlateVisibility::Visible);
+	InteractDoorText->SetVisibility(ESlateVisibility::Visible);
+	InteractDoorButton->SetRenderOpacity(1.f);
+	InteractDoorText->SetRenderOpacity(1.f);
 }

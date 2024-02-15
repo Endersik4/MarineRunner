@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineRunner/Objects/ExplosionBarrel.h"
 #include "Components/StaticMeshComponent.h"
@@ -22,7 +21,8 @@ AExplosionBarrel::AExplosionBarrel()
 
 void AExplosionBarrel::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
-	if (bExploded == true) return;
+	if (bExploded == true) 
+		return;
 	bExploded = true;
 
 	FTimerHandle SpawnExplosionBarrelGeometryHandle;
@@ -117,7 +117,7 @@ void AExplosionBarrel::SpawnEffects()
 
 void AExplosionBarrel::SpawnExplosionBarrelGeometry()
 {
-	GetWorld()->SpawnActor<AActor>(ExplosionBarrelGeometryClass, GetActorLocation(), GetActorRotation());
+	SpawnedBarrelGeometry = GetWorld()->SpawnActor<AActor>(ExplosionBarrelGeometryClass, GetActorLocation(), GetActorRotation());
 }
 
 void AExplosionBarrel::BarrelExplodedSaveData()
@@ -155,10 +155,26 @@ void AExplosionBarrel::SaveData(ASavedDataObject* SavedDataObject, const int32 I
 	SavedDataObject->AddCustomSaveData(IDkey, UpdatedData);
 }
 
-void AExplosionBarrel::DisableBarrel()
+void AExplosionBarrel::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	SetActorTickEnabled(false);
-	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
-	ExplosionBarrelMesh->SetSimulatePhysics(false);
+	if (SavedCustomData.ObjectState == 1)
+	{
+		DisableBarrel(false);
+		if (IsValid(SpawnedBarrelGeometry))
+			SpawnedBarrelGeometry->Destroy();
+	}
+	else
+	{
+		SetActorLocation(SavedCustomData.ObjectTransform.GetLocation());
+		SetActorRotation(SavedCustomData.ObjectTransform.GetRotation());
+	}
+}
+
+void AExplosionBarrel::DisableBarrel(bool bDisable)
+{
+	bExploded = bDisable;
+	SetActorTickEnabled(!bDisable);
+	SetActorHiddenInGame(bDisable);
+	SetActorEnableCollision(!bDisable);
+	ExplosionBarrelMesh->SetSimulatePhysics(!bDisable);
 }

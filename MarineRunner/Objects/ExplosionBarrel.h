@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -26,6 +26,7 @@ protected:
 
 	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
+	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
 	// Called every frame
@@ -67,8 +68,9 @@ private:
 
 	bool bExploded;
 
+	AActor* SpawnedBarrelGeometry;
 	int32 CurrentUniqueID = 0;
 	void BarrelExplodedSaveData();
-	void DisableBarrel();
+	void DisableBarrel(bool bDisable = true);
 
 };

@@ -219,6 +219,11 @@ void AAlbertosPawn::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCus
 	SetActorRotation(SavedCustomData.ObjectTransform.GetRotation());
 }
 
+void AAlbertosPawn::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	LoadData(IDkey, SavedCustomData);
+}
+
 #pragma endregion 
 
 void AAlbertosPawn::ChangeMaxSpeedOfFloatingMovement(bool bTowardsPlayer)

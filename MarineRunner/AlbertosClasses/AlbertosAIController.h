@@ -21,7 +21,7 @@ public:
 	AAlbertosAIController();
 
 	UFUNCTION(BlueprintCallable)
-		FORCEINLINE void SetCanMove(bool bCan);
+		void SetCanMove(bool bCan);
 
 	void CallAlbertosToThePlayer(FVector PlayerLoc);
 private:

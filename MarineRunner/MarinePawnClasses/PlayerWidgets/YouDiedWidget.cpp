@@ -11,8 +11,7 @@
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
-#include "MarineRunner/EnemiesClasses/EnemyPawn.h"
-#include "MarineRunner/GunClasses/Gun.h"
+
 
 void UYouDiedWidget::NativeConstruct()
 {
@@ -74,35 +73,16 @@ void UYouDiedWidget::QuitButton_OnUnhovered()
 void UYouDiedWidget::RestartGame()
 {
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
-	UGameplayStatics::OpenLevel(GetWorld(), FName(UGameplayStatics::GetCurrentLevelName(GetWorld())));
+	//UGameplayStatics::OpenLevel(GetWorld(), FName(UGameplayStatics::GetCurrentLevelName(GetWorld())));
 
-	/*UGameplayStatics::SetGamePaused(GetWorld(), false);
+	UWidgetLayoutLibrary::RemoveAllWidgets(GetWorld());
 
 	AMarineCharacter* Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (IsValid(Player) == false)
 		return;
 
-	TArray<AActor*> AllEnemiesOnMap;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyPawn::StaticClass(), AllEnemiesOnMap);
-	auto lambda = [&AllEnemiesOnMap]() {
-		for (AActor* CurrentEnemy : AllEnemiesOnMap)
-		{
-			CurrentEnemy->Destroy();
-		}
-	};
-	lambda();
-
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGun::StaticClass(), AllEnemiesOnMap);
-	lambda();
-
-	UWidgetLayoutLibrary::RemoveAllWidgets(GetWorld());
-
-	AMarineCharacter* SpawnedNewPlayer = GetWorld()->SpawnActor<AMarineCharacter>(PlayerClass, FTransform(FRotator(0.f), FVector(0.f)));
-	if (IsValid(SpawnedNewPlayer) == false)
-		return;
-
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(SpawnedNewPlayer);
-	Player->Destroy();*/
+	Player->GetSaveLoadPlayerComponent()->RestartGame();
+	RemoveFromParent();
 }
 
 void UYouDiedWidget::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim)

@@ -272,6 +272,11 @@ void AElevator::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, c
 	;
 }
 
+void AElevator::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
+}
+
 void AElevator::SaveElevatorState(int32 SaveState)
 {
 	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));

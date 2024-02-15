@@ -38,9 +38,6 @@ public:
 	void ChangeMouseSensitivity(const FSettingSavedInJsonFile& NewMouseSensitivity, bool bResetMouseSensitivity = false);
 	void LoadFieldOfViewFromSettings();
 
-	UPROPERTY(EditAnywhere, Category = "Alberto")
-		class AAlbertosPawn* AlbertoPawn;
-
 	FORCEINLINE float GetMovementForce() const { return MovementForce; }
 	FORCEINLINE float GetHealth() const { return Health; }
 	bool GetIsWallrunning() const;
@@ -70,6 +67,7 @@ public:
 	FORCEINLINE class UWallrunComponent* GetWallrunComponent() const { return WallrunComponent; }
 	FORCEINLINE class UCroachAndSlide* GetCroachAndSlideComponent() const { return CroachAndSlideComponent; }
 	FORCEINLINE FSettingSavedInJsonFile& GetMouseSensitivityJSON()  { return MouseSensitivityJSON; }
+	FORCEINLINE class AAlbertosPawn* GetAlbertosPawn() { return AlbertoPawn; }
 	bool GetIsMessageDisplayed() const;
 	bool GetIsInPauseMenu() const;
 
@@ -77,6 +75,7 @@ public:
 	FORCEINLINE void SetMovementForceDividerWhenInADS(float NewForceDivider) { MovementForceDividerWhenInADS = NewForceDivider; }
 	FORCEINLINE void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMutliplier = NewSpeed; }
 	FORCEINLINE void SetShouldPlayerGoForward(bool bShould) { bShouldPlayerGoForward = bShould; }
+	FORCEINLINE void SetAlbertosPawn(class AAlbertosPawn* NewAlbertos) { AlbertoPawn = NewAlbertos; }
 
 
 	void SetHealth(float NewHealth) { Health = NewHealth; }
@@ -90,6 +89,10 @@ public:
 	void MakeCrosshire(bool bShouldRemoveFromParent = false);
 
 	bool bIsPlayerInElevator = false;
+
+	UFUNCTION(BlueprintCallable)
+		void PlayerDead();
+
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -107,40 +110,43 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetInteractionComponent* WidgetInteractionComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UInventoryComponent* InventoryComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UJumpComponent* JumpComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UCroachAndSlide* CroachAndSlideComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UDashComponent* DashComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UTakeAndDrop* TakeAndDropComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UWallrunComponent* WallrunComponent;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class USlowMotionComponent* SlowMotionComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UPullUpComponent* PullUpComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UWeaponInventoryComponent* WeaponInventoryComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UPauseMenuComponent* PauseMenuComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class USwingComponent* SwingComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UWeaponHandlerComponent* WeaponHandlerComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class USpawnDeathWidgetComponent* SpawnDeathWidgetComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UMessageHandlerComponent* MessageHandlerComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class USaveLoadPlayerComponent* SaveLoadPlayerComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UArmsSwayComponent* ArmsSwayComponent;
+
+	UPROPERTY(EditAnywhere, Category = "Albertos")
+		class AAlbertosPawn* AlbertoPawn;
 
 	UPROPERTY(EditAnywhere, Category = "Set Up Marine Pawn")
 		float Health = 100.f;
@@ -207,7 +213,6 @@ private:
 	class UCraftingAlbertosWidget* CraftingWidget;
 
 	bool bIsDead;
-	void PlayerDead();
 
 	//Taking Items
 	void KeyEPressed();

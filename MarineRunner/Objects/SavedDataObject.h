@@ -29,16 +29,20 @@ public:
 	void RemoveCustomSaveData(const int32& SavedCustomDataID);
 
 	FORCEINLINE const TMap<int32, FCustomDataSaved> & GetCustomSavedData() const { return CustomSavedData; }
+	FORCEINLINE const TMap<int32, FCustomDataSaved> & GetTempCustomSavedData() const { return TempCustomSavedData; }
 	int32 CreateUniqueIDForObject() const;
 
-
 	FORCEINLINE void SetCustomSavedData(TMap<int32, FCustomDataSaved>& NewSavedData) { CustomSavedData = NewSavedData; }
+	FORCEINLINE void EmptyTempCustomSavedData() { TempCustomSavedData.Empty(); }
 
 	void LoadObjectsData();
 	void UpdateObjectsData();
+	void RestartObjectsData();
 private:
 	UPROPERTY(EditAnywhere)
 		TMap<int32, FCustomDataSaved> CustomSavedData;
+	UPROPERTY(EditAnywhere)
+		TMap<int32, FCustomDataSaved> TempCustomSavedData;
 	UPROPERTY(EditAnywhere)
 		FFloatRange RandomDataIDRange = FFloatRange(1.f, 1000.f);
 };

@@ -91,3 +91,8 @@ void AChangeMusicActor::SaveData(ASavedDataObject* SavedDataObject, const int32 
 {
 	;
 }
+
+void AChangeMusicActor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
+}

@@ -25,6 +25,8 @@ public:
 
 	void ToggleOpenDoor(bool bOpenDoor);
 
+	FORCEINLINE void SetPlayerPawn(APawn* NewPlayerPawn) { Player = NewPlayerPawn; }
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
 		float ActiveAlbertosRadius = 1000.f;
@@ -38,7 +40,6 @@ private:
 		USoundBase* OpenDoorSound;
 
 	bool bIsFrontDoorOpen;
-
 
 	// When Players is near Albertos
 	bool bPlayerIsClose;

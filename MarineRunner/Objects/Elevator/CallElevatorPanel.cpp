@@ -136,6 +136,8 @@ void UCallElevatorPanel::AddNumberToEnteredPin(int32 Number)
 
 void UCallElevatorPanel::ChangeDoorPanelToUsePin(int32 PinCode)
 {
+	PinNumbersTileView->ClearListItems();
+
 	CallElevatorButton->SetVisibility(ESlateVisibility::Hidden);
 	CallElevatorText->SetVisibility(ESlateVisibility::Hidden);
 	WaitForElevatorText->SetVisibility(ESlateVisibility::Hidden);
@@ -159,6 +161,9 @@ void UCallElevatorPanel::ChangeDoorPanelToUsePin(int32 PinCode)
 		PinNumbersTileView->AddItem(CreatedPinEntryObject);
 	}
 
+	CurrentlyEnteredPin.Empty();
+	CurrentlyEnteredPin_Text.Empty();
+	PinCodeText->SetText(FText::FromString(CurrentlyEnteredPin_Text));
 	CurrentPinCode = PinCode;
 }
 

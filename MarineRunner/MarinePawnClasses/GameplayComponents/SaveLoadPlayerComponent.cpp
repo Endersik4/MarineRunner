@@ -15,6 +15,9 @@
 #include "MarineRunner/Objects/SavedDataObject.h"
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/EnemiesClasses/EnemyPawn.h"
+#include "MarineRunner/GunClasses/Gun.h"
+#include "MarineRunner/AlbertosClasses/Components/PlayerIsNearAlbertosComponent.h"
 
 // Sets default values for this component's properties
 USaveLoadPlayerComponent::USaveLoadPlayerComponent()
@@ -67,6 +70,7 @@ void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString&
 	Player->GetWeaponInventoryComponent()->SaveInitialWeaponInventory();
 	CreatedSaveGame->WeaponInventory_Saved = Player->GetWeaponInventoryComponent()->InitialWeaponInventory;
 
+	SavedDataObject->EmptyTempCustomSavedData();
 	SavedDataObject->UpdateObjectsData();
 	CreatedSaveGame->SavedCustomData = SavedDataObject->GetCustomSavedData();
 
@@ -104,6 +108,36 @@ void USaveLoadPlayerComponent::LoadGame()
 
 	LoadGameInstance->LoadGame(Player, GameInstance);
 	LoadGameInstance->LoadOtherObjectsData(SavedDataObject);
+}
+
+void USaveLoadPlayerComponent::RestartGame()
+{
+	if (IsValid(Player) == false)
+		return;
+
+	TArray<AActor*> AllEnemiesOnMap;
+	auto lambda = [&AllEnemiesOnMap]() {
+		for (AActor* CurrentEnemy : AllEnemiesOnMap)
+		{
+			CurrentEnemy->Destroy();
+		}
+	};
+
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGun::StaticClass(), AllEnemiesOnMap);
+	lambda();
+
+	SavedDataObject->RestartObjectsData();
+
+	AMarineCharacter* SpawnedNewPlayer = GetWorld()->SpawnActor<AMarineCharacter>(PlayerClass, FTransform(FRotator(0.f), FVector(0.f)));
+	if (IsValid(SpawnedNewPlayer) == false)
+		return;
+
+	SpawnedNewPlayer->SetAlbertosPawn(Player->GetAlbertosPawn());
+	Player->GetAlbertosPawn()->GetPlayerIsNearComponent()->SetPlayerPawn(SpawnedNewPlayer);
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(SpawnedNewPlayer);
+
+
+	Player->Destroy();
 }
 
 void USaveLoadPlayerComponent::LoadSavedSettingsFromGameInstance()

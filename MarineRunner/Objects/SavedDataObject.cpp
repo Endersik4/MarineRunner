@@ -3,16 +3,11 @@
 
 #include "MarineRunner/Objects/SavedDataObject.h"
 
-
-// Sets default values
 ASavedDataObject::ASavedDataObject()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
-
 }
 
-// Called when the game starts or when spawned
 void ASavedDataObject::BeginPlay()
 {
 	Super::BeginPlay();
@@ -20,12 +15,15 @@ void ASavedDataObject::BeginPlay()
 
 void ASavedDataObject::AddCustomSaveData(const int32& SavedCustomDataKey, const FCustomDataSaved& SavedCustomData)
 {
+	RemoveCustomSaveData(SavedCustomDataKey);
 	CustomSavedData.Add(SavedCustomDataKey, SavedCustomData);
+	TempCustomSavedData.Add(SavedCustomDataKey, SavedCustomData);
 }
 
 void ASavedDataObject::RemoveCustomSaveData(const int32& SavedCustomDataID)
 {
 	CustomSavedData.Remove(SavedCustomDataID);
+	TempCustomSavedData.Remove(SavedCustomDataID);
 }
 
 void ASavedDataObject::LoadObjectsData()
@@ -68,6 +66,21 @@ void ASavedDataObject::UpdateObjectsData()
 			continue;
 		
 		ActorWithSaveInterface->SaveData(this, Pair.Key, Pair.Value);
+	}
+}
+
+void ASavedDataObject::RestartObjectsData()
+{
+	for (const TPair<int32, FCustomDataSaved>& Pair : TempCustomSavedData)
+	{
+		if (IsValid(Pair.Value.ObjectToSaveData) == false)
+			continue;
+
+		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
+		if (ActorWithSaveInterface == nullptr)
+			continue;
+
+		ActorWithSaveInterface->RestartData(this, Pair.Key, Pair.Value);
 	}
 }
 

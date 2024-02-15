@@ -29,6 +29,7 @@ protected:
 
 	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
+	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
 	// Called every frame
@@ -82,7 +83,7 @@ private:
 
 	void SaveItemWasTaken();
 	void SaveItem(class ASavedDataObject* SavedDataObject,const FCustomDataSaved& DataToSave);
-	void DisableItem();
+	void DisableItem(bool bDisable = true);
 
 	int32 CurrentUniqueID = 0;
 };

@@ -105,4 +105,7 @@ public:
 
 	UFUNCTION()
 		virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) = 0;
+
+	UFUNCTION()
+		virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) = 0;
 };

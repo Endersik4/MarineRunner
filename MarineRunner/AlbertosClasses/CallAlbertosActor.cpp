@@ -43,10 +43,10 @@ void ACallAlbertosActor::CallAlbertosBoxBeginOverlap(UPrimitiveComponent* Overla
 	AMarineCharacter* Player = Cast<AMarineCharacter>(OtherActor);
 	if (IsValid(Player) == false)
 		return;
-	if (IsValid(Player->AlbertoPawn) == false)
+	if (IsValid(Player->GetAlbertosPawn()) == false)
 		return;
 
-	Player->AlbertoPawn->SetActorLocation(TeleportAlbertosLocation);
+	Player->GetAlbertosPawn()->SetActorLocation(TeleportAlbertosLocation);
 
 	bWasCalled = true;
 }

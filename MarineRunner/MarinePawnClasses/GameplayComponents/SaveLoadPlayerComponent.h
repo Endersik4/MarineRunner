@@ -29,6 +29,7 @@ public:
 	void LoadSavedSettingsFromGameInstance();
 
 	void LoadGame();
+	void RestartGame();
 	void SpawnNewGameWidget();
 
 private:
@@ -40,6 +41,8 @@ private:
 		TSubclassOf<class UUserWidget> NewGameBeginsWidgetClass;
 	UPROPERTY(EditAnywhere, Category = "Saves")
 		class ASavedDataObject* SavedDataObject;
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+		TSubclassOf<class AMarineCharacter> PlayerClass;
 
 	//Saving/Loading Game
 	class USaveMarineRunner* CreatedSaveGame;

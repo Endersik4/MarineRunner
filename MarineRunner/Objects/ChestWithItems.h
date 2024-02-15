@@ -55,6 +55,7 @@ protected:
 
 	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
+	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
 	// Called every frame
@@ -70,6 +71,8 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Chest Settings")
 		UMaterialInstance* UpperOpenLockMaterial;
+	UPROPERTY(EditAnywhere, Category = "Chest Settings")
+		UMaterial* UpperClosedLockMaterial;
 	UPROPERTY(EditAnywhere, Category = "Chest Settings")
 		bool bUsePinCode;
 	UPROPERTY(EditAnywhere, Category = "Chest Settings", meta = (EditCondition = "bUsePin", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))

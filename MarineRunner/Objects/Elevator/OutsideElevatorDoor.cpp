@@ -14,8 +14,7 @@
 // Sets default values
 AOutsideElevatorDoor::AOutsideElevatorDoor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	OutsideElevatorDoorsSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Outside Elevator Doors Skeletal Mesh"));
 	RootComponent = OutsideElevatorDoorsSkeletalMesh;
@@ -123,4 +122,13 @@ void AOutsideElevatorDoor::LoadData(const int32 IDkey, const FCustomDataSaved& S
 void AOutsideElevatorDoor::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
 	;
+}
+
+void AOutsideElevatorDoor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	if (SavedCustomData.ObjectState == 1)
+	{
+		if (bUsePinCode == true)
+			ElevatorPanelWidget->ChangeDoorPanelToUsePin(PinCode);
+	}
 }

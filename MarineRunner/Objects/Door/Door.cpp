@@ -162,6 +162,14 @@ void ADoor::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const
 	;
 }
 
+void ADoor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	if (SavedCustomData.ObjectState == 1)
+	{
+		SetUpDoorPanels();
+	}
+}
+
 void ADoor::StopUsingPin()
 {
 	DoorPanelWidget->PinIsCorrect(false);
