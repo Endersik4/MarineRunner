@@ -259,6 +259,7 @@ void APickupItem::RestartData(ASavedDataObject* SavedDataObject, const int32 IDk
 {
 	if (SavedCustomData.ObjectState == 1)
 	{
+		CurrentUniqueID = 0;
 		DisableItem(false);
 	}
 	else if (SavedCustomData.ObjectState == 3)

@@ -32,6 +32,8 @@ struct FCustomDataSaved
 		FTransform ObjectTransform;
 	UPROPERTY(EditAnywhere)
 		float ValueToSave;
+	UPROPERTY(EditAnywhere)
+		bool bValueNotSavedWhileInGame;
 
 	FCustomDataSaved()
 	{
@@ -41,31 +43,35 @@ struct FCustomDataSaved
 		ObjectToSpawnFromClass = nullptr;
 		ObjectTransform = FTransform();
 		ValueToSave = 0.f;
+		bValueNotSavedWhileInGame = false;
 	}
 
 	
 	FCustomDataSaved(const TEnumAsByte<ESavedDataState> & _SavedDataState, AActor* _ObjectToSaveData,
-		const int32& _ObjectState, const float & _ValueToSave = 0)
+		const int32& _ObjectState, const float & _ValueToSave = 0, const bool& _ValueNotSavedWhileInGame = false)
 	{
 		SavedDataState = _SavedDataState;
 		ObjectToSaveData = _ObjectToSaveData;
 		ObjectState = _ObjectState;
 		ValueToSave = _ValueToSave;
+		bValueNotSavedWhileInGame = _ValueNotSavedWhileInGame;
 	}
 	
 	FCustomDataSaved(const TEnumAsByte<ESavedDataState>& _SavedDataState, TSubclassOf<AActor> _ObjectToSpawnFromClass,
-		const FTransform& _ObjectTransform, const float& _ValueToSave = 0)
+		const FTransform& _ObjectTransform, const float& _ValueToSave = 0, const bool& _ValueNotSavedWhileInGame = false)
 	{
 		SavedDataState = _SavedDataState;
 		ObjectToSpawnFromClass = _ObjectToSpawnFromClass;
 		ObjectTransform = _ObjectTransform;
 		ValueToSave = _ValueToSave;
+		bValueNotSavedWhileInGame = _ValueNotSavedWhileInGame;
+
 	}
 
 	FCustomDataSaved(const TEnumAsByte<ESavedDataState>& _SavedDataState,
 		AActor* _ObjectToSaveData,
 		const int32& _ObjectState, TSubclassOf<AActor> _ObjectToSpawnFromClass,
-		const FTransform& _ObjectTransform, const float& _ValueToSave = 0)
+		const FTransform& _ObjectTransform, const float& _ValueToSave = 0, const bool& _ValueNotSavedWhileInGame = false)
 	{
 		SavedDataState = _SavedDataState;
 		ObjectToSaveData = _ObjectToSaveData;
@@ -73,6 +79,7 @@ struct FCustomDataSaved
 		ObjectToSpawnFromClass = _ObjectToSpawnFromClass;
 		ObjectTransform = _ObjectTransform;
 		ValueToSave = _ValueToSave;
+		bValueNotSavedWhileInGame = _ValueNotSavedWhileInGame;
 	}
 
 	FCustomDataSaved& operator=(const FCustomDataSaved& OtherObject)
@@ -83,6 +90,7 @@ struct FCustomDataSaved
 		ObjectToSpawnFromClass = OtherObject.ObjectToSpawnFromClass;
 		ObjectTransform = OtherObject.ObjectTransform;
 		ValueToSave = OtherObject.ValueToSave;
+		bValueNotSavedWhileInGame = OtherObject.bValueNotSavedWhileInGame;
 		return *this;
 	}
 };

@@ -133,9 +133,11 @@ void USaveLoadPlayerComponent::RestartGame()
 		return;
 
 	SpawnedNewPlayer->SetAlbertosPawn(Player->GetAlbertosPawn());
+	SpawnedNewPlayer->GetSaveLoadPlayerComponent()->SetSavedDataObject(Player->GetSaveLoadPlayerComponent()->GetSavedDataObject());
 	Player->GetAlbertosPawn()->GetPlayerIsNearComponent()->SetPlayerPawn(SpawnedNewPlayer);
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(SpawnedNewPlayer);
 
+	GameInstance->ResetDetectedEnemy();
 
 	Player->Destroy();
 }

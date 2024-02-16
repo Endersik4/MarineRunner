@@ -32,6 +32,10 @@ public:
 	void RestartGame();
 	void SpawnNewGameWidget();
 
+	FORCEINLINE void SetSavedDataObject(class ASavedDataObject* NewSavedDataObject) { SavedDataObject = NewSavedDataObject; }
+	FORCEINLINE class ASavedDataObject* GetSavedDataObject() {return SavedDataObject;}
+
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass;

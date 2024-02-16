@@ -51,6 +51,11 @@ void ASavedDataObject::LoadObjectsData()
 			continue;
 
 		ActorWithSaveInterface->LoadData(Pair.Key, Pair.Value);
+
+		if (Pair.Value.bValueNotSavedWhileInGame == true)
+		{
+			TempCustomSavedData.Add(Pair);
+		}
 	}
 }
 
@@ -81,7 +86,16 @@ void ASavedDataObject::RestartObjectsData()
 			continue;
 
 		ActorWithSaveInterface->RestartData(this, Pair.Key, Pair.Value);
+
+
+		if (Pair.Value.bValueNotSavedWhileInGame == false)
+		{
+			CustomSavedData.FindAndRemoveChecked(Pair.Key);
+			TempCustomSavedData.FindAndRemoveChecked(Pair.Key);
+		}
 	}
+
+	//TempCustomSavedData.Empty();
 }
 
 int32 ASavedDataObject::CreateUniqueIDForObject() const
