@@ -5,14 +5,10 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
 #include "Particles/ParticleSystemComponent.h"
-#include "TimerManager.h"
 #include "Components/DecalComponent.h"
 #include "Components/WidgetComponent.h"
 
-#include "MarineRunner/EnemiesClasses/EnemyAiController.h"
-#include "MarineRunner/EnemiesClasses/EnemyGunComponent.h"
 #include "MarineRunner/EnemiesClasses/EnemyIndicatorWidget.h"
 #include "MarineRunner/Objects/SavedDataObject.h"
 
@@ -32,8 +28,6 @@ AEnemyPawn::AEnemyPawn()
 	EnemySkeletalMesh->SetupAttachment(EnemyCapsule);
 	EnemySkeletalMesh->SetSimulatePhysics(false);
 	EnemySkeletalMesh->SetCollisionProfileName(FName(TEXT("EnemySkeletalProf")));
-
-	EnemyGunComponent = CreateDefaultSubobject<UEnemyGunComponent>(TEXT("Enemy Gun Component"));
 
 	EnemyIndicatorWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Enemy Indicator Widget Component"));
 	EnemyIndicatorWidgetComponent->SetupAttachment(EnemySkeletalMesh);
@@ -60,16 +54,10 @@ void AEnemyPawn::Tick(float DeltaTime)
 
 	PlayFootstepsSound();
 
-	if (bEnemyDetectedTarget == true)
-		FocusBonesOnPlayerWhenPlayerDetected();
 }
-
 #pragma region ///////////////// DAMAGE ///////////////////////
 void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
-	if (bCanEnemyBeKilled == false)
-		return;
-
 	FHitBoneType* FoundBone = HitBoneTypes.FindByKey(NewHit.BoneName);
 	if (FoundBone)
 	{
@@ -86,10 +74,7 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitR
 		EnemyIndicatorWidget->SetCurrentHealthInHealthBar(Health);
 	}
 
-	bool bEnemyKilled = KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadius);
-	if (bEnemyKilled == true) return;
-
-	EnemyRunAway();
+	KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadius);
 }
 
 bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
@@ -100,15 +85,12 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AAct
 	if (bIsDead == false)
 	{
 		bIsDead = true;
-		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
 
 		EnemySkeletalMesh->Stop();
 		EnemySkeletalMesh->SetSimulatePhysics(true);
 		SetLifeSpan(LifeSpanAfterDeath);
 
 		RemoveEnemySavedDataFromSave();
-
-		SetEnemyKilledInAIController();
 
 		EnemyIndicatorWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
@@ -128,20 +110,7 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AAct
 	return true;
 }
 
-bool AEnemyPawn::EnemyRunAway()
-{
-	if (Health > MaxEnemyHealthForRunAway || bCanEnemyRunAway == false) 
-		return false;
 
-	float ShouldRunAwayRandom = FMath::FRandRange(0.f, 100.f);
-	if (ShouldRunAwayRandom <= ChanceOfEnemyToRunAway)
-	{
-		ShouldRunAway();
-		return true;
-	}
-
-	return false;
-}
 
 #pragma endregion 
 
@@ -162,18 +131,19 @@ void AEnemyPawn::SpawnShotBloodDecal(const FHitResult& Hit)
 
 void AEnemyPawn::PlayFootstepsSound()
 {
-	if (FootstepsSound == nullptr) 
-		return;
 	if (GetVelocity().Length() < 1.f || bCanPlayFootstepsSound == false || bIsDead) 
 		return;
 
-	float FootstepsTime = 0.42f;
+	float FootstepsTime = TimeBetweenNextStep;
+	
 	if (bIsRunningAway && FootstepsRunningAwaySound)
 	{
 		UGameplayStatics::SpawnSoundAttached(FootstepsRunningAwaySound, EnemySkeletalMesh);
-		FootstepsTime = 0.2f;
+		FootstepsTime = TimeBetweenNextStepWhileRunningAway;
 	}
-	else UGameplayStatics::SpawnSoundAttached(FootstepsSound, EnemySkeletalMesh);
+	else if (FootstepsSound)
+		UGameplayStatics::SpawnSoundAttached(FootstepsSound, EnemySkeletalMesh);
+
 
 	bCanPlayFootstepsSound = false;
 	GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AEnemyPawn::SetCanPlayFootstepsSound, FootstepsTime, false);
@@ -222,87 +192,6 @@ void AEnemyPawn::SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const
 		SpawnedDecal->DecalSize.X += 20.f;
 		SpawnedDecal->SetFadeOut(BloodFadeOutStartDelay, BloodFadeOutDuration);
 	}
-}
-#pragma endregion
-
-#pragma region ////////////// ENEMY SEE PLAYER //////////////
-void AEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget)
-{
-	FocusedActor = SeenTarget;
-	bEnemyDetectedTarget = bSaw;
-
-	EnemyIndicatorWidgetComponent->SetVisibility(bSaw);
-
-	PlayPrepareToShootAnimation(bSaw);
-
-	const float& StartShootingTime = TimeToStartShooting + FMath::FRandRange(StartShootingRandomTimeRange.GetLowerBoundValue(), StartShootingRandomTimeRange.GetUpperBoundValue());
-	if (bSaw == true)
-		GetWorld()->GetTimerManager().SetTimer(StartShootingHandle, this, &AEnemyPawn::StartShooting, StartShootingTime, false);
-	else
-		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
-}
-
-void AEnemyPawn::StartShooting()
-{
-	if (bIsDead == true)
-		return;
-
-	GetWorld()->GetTimerManager().SetTimer(ShootHandle, this, &AEnemyPawn::Shoot, ShootTime, true, 0.f);
-}
-
-void AEnemyPawn::Shoot()
-{
-	if (EnemyGunComponent->CanShootAgain() == false)
-		return;
-
-	EnemyGunComponent->Shoot();
-	PlayShootMontageAnimation();
-}
-
-FRotator AEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
-{
-	FRotator BoneRotation;
-	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName), 
-		EnemyGunComponent->PredictWhereToShoot(bLookStraight));
-	BoneRotation.Roll = FoundRotation.Pitch * -1.f;
-	BoneRotation.Yaw = FoundRotation.Yaw - GetActorRotation().Yaw;
-
-	return BoneRotation;
-}
-
-void AEnemyPawn::ShouldRunAway()
-{
-	SawTheTarget(false);
-
-	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(GetController());
-	if (IsValid(EnemyAIController) == true)
-	{
-		EnemyAIController->EnemyKilled(true);
-	}
-
-	bIsRunningAway = true;
-	SetShouldRunningAwayInAnimBP();
-	SetEnemyRunawayInAIController();
-}
-#pragma endregion
-
-#pragma region //////////// ENEMY AI CONTROLLER //////////////
-void AEnemyPawn::SetEnemyKilledInAIController()
-{
-	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(GetController());
-	if (IsValid(EnemyAIController) == false)
-		return;
-
-	EnemyAIController->EnemyKilled();
-}
-
-void AEnemyPawn::SetEnemyRunawayInAIController()
-{
-	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(GetController());
-	if (IsValid(EnemyAIController) == false)
-		return;
-
-	EnemyAIController->RunAway();
 }
 #pragma endregion
 

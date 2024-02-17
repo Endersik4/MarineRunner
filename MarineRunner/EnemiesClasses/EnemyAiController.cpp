@@ -8,7 +8,7 @@
 #include "BrainComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "MarineRunner/EnemiesClasses/EnemyPawn.h"
+#include "MarineRunner/EnemiesClasses/TypesOfEnemy/ShootingEnemyPawn.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
 AEnemyAiController::AEnemyAiController()
@@ -60,9 +60,11 @@ void AEnemyAiController::HearingHandle(AActor* SensedActor, const FAIStimulus& H
 	
 	if (bDoEnemySeePlayer == false)
 		StopMovement();
+
+	DetectPlayerWithDelay(true, SensedActor, false);
 }
 
-void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor)
+void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor, bool bStartAttackingTheTarget)
 {
 	bDoEnemySeePlayer = bIsDetected;
 
@@ -70,7 +72,6 @@ void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected, AActor* Detecte
 	{
 		SetFocus(DetectedActor);
 		GetBlackboardComponent()->SetValueAsObject(TEXT("FocusedActor"), DetectedActor);
-
 	}
 	else
 	{
@@ -83,10 +84,10 @@ void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected, AActor* Detecte
 
 	AddEnemyToDetected(bDoEnemySeePlayer);
 
-	AEnemyPawn* EnemyPawn = Cast<AEnemyPawn>(GetPawn());
+	AShootingEnemyPawn* EnemyPawn = Cast<AShootingEnemyPawn>(GetPawn());
 	if (IsValid(EnemyPawn) == false) 
 		return;
-	EnemyPawn->SawTheTarget(bDoEnemySeePlayer, DetectedActor);
+	EnemyPawn->SawTheTarget(bDoEnemySeePlayer, DetectedActor, bStartAttackingTheTarget);
 }
 
 bool AEnemyAiController::bCanSeeTheTarget(AActor* TargetActor)
@@ -126,7 +127,7 @@ void AEnemyAiController::SetAIVariables()
 	GetBlackboardComponent()->SetValueAsInt(TEXT("HowManyLocations"), HowManyLocations);
 	GetBlackboardComponent()->SetValueAsInt(TEXT("CurrentLocations"), HowManyLocations);
 
-	AEnemyPawn* EnemyPawn = Cast<AEnemyPawn>(GetPawn());
+	AShootingEnemyPawn* EnemyPawn = Cast<AShootingEnemyPawn>(GetPawn());
 	if (IsValid(EnemyPawn) == false) 
 		return;
 

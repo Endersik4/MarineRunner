@@ -206,7 +206,7 @@ void AAlbertosPawn::SaveData(ASavedDataObject* SavedDataObject, const int32 IDke
 		return;
 
 	CurrentUniqueID = IDkey;
-	FCustomDataSaved LocationData = FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1);
+	FCustomDataSaved LocationData = SavedCustomData;
 	LocationData.ObjectTransform = FTransform(GetActorRotation(), GetActorLocation());
 	SavedDataObject->RemoveCustomSaveData(CurrentUniqueID);
 	SavedDataObject->AddCustomSaveData(CurrentUniqueID, LocationData);

@@ -73,8 +73,6 @@ void UYouDiedWidget::QuitButton_OnUnhovered()
 void UYouDiedWidget::RestartGame()
 {
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
-	//UGameplayStatics::OpenLevel(GetWorld(), FName(UGameplayStatics::GetCurrentLevelName(GetWorld())));
-
 	UWidgetLayoutLibrary::RemoveAllWidgets(GetWorld());
 
 	AMarineCharacter* Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));

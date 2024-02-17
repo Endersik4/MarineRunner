@@ -52,7 +52,8 @@ private:
 	class USaveMarineRunner* CreatedSaveGame;
 	void SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn);
 
-		
+	void SpawnNewPlayer();
+
 	class AMarineCharacter* Player;
 	class AMarinePlayerController* PlayerController;
 	class UMarineRunnerGameInstance* GameInstance;

@@ -27,13 +27,11 @@ public:
 	void AddEnemyToDetected(bool bWas);
 
 private:
-	//virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
-
 	UFUNCTION()
 		void HandleTargetPerceptionUpdated(AActor* Actor, struct FAIStimulus Stimulus);
 
 	UFUNCTION()
-		void DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor);
+		void DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor, bool bStartAttackingTheTarget = true);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UAIPerceptionComponent* EnemyPerception;

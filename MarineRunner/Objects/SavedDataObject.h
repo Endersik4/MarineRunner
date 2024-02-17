@@ -29,7 +29,6 @@ public:
 	void RemoveCustomSaveData(const int32& SavedCustomDataID);
 
 	FORCEINLINE const TMap<int32, FCustomDataSaved> & GetCustomSavedData() const { return CustomSavedData; }
-	FORCEINLINE const TMap<int32, FCustomDataSaved> & GetTempCustomSavedData() const { return TempCustomSavedData; }
 	int32 CreateUniqueIDForObject() const;
 
 	FORCEINLINE void SetCustomSavedData(TMap<int32, FCustomDataSaved>& NewSavedData) { CustomSavedData = NewSavedData; }

@@ -76,31 +76,8 @@ public:
 	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
 
 	FORCEINLINE virtual USkeletalMeshComponent* GetSkeletalMesh() override { return EnemySkeletalMesh; }
-	FORCEINLINE virtual class AActor* GetFocusedActor() override { return FocusedActor; }
+	FORCEINLINE virtual class AActor* GetFocusedActor() override { return nullptr; }
 	FORCEINLINE virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) override;
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void SetShouldRunningAwayInAnimBP();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void RestoreBonesToInitialRotation();
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void PlayPrepareToShootAnimation(bool bTargetWasDetected);
-	UFUNCTION(BlueprintImplementableEvent)
-		void PlayShootMontageAnimation();
-
-	//Had to get AnimInstance of AnimationBlueprint so in blueprint you are setting what bone you want to looking at the player
-	UFUNCTION(BlueprintImplementableEvent)
-		void FocusBonesOnPlayerWhenPlayerDetected();
-
-	// Bone Rotation - Bone will be looking at the player when he is detected.
-	// bLookStraight means whether Bone should look directly at the player's camera or with some margin
-	UFUNCTION(BlueprintCallable)
-		FRotator FocusBoneOnPlayer(FName BoneName, bool bLookStraight);
-
-	UFUNCTION(BlueprintPure)
-		float GetSpeedOfEnemyWhenIsRunningAway() const { return SpeedOfEnemyWhenIsRunningAway; }
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
 		USkeletalMeshComponent* EnemySkeletalMesh;
@@ -111,47 +88,29 @@ public:
 	// saving/loading
 	void SaveEnemySpawnedDataAtRuntime();
 
-	void SawTheTarget(bool bSaw, AActor* SeenTarget = nullptr);
-private:
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UCapsuleComponent* EnemyCapsule;
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		class UEnemyGunComponent* EnemyGunComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UWidgetComponent* EnemyIndicatorWidgetComponent;
+protected:
+	bool bIsDead;
+	virtual bool KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius);
 
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
-		bool bCanEnemyBeKilled = true;	
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		float Health = 100.f;
 
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
-		bool bShouldAvoidBullet = true;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UWidgetComponent* EnemyIndicatorWidgetComponent;
+
+	bool bIsRunningAway;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UCapsuleComponent* EnemyCapsule;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 		float LifeSpanAfterDeath = 10.f;
-
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
-		float TimeToStartShooting = 1.f;
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
-		float ShootTime = 1.f;
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
-		FFloatRange StartShootingRandomTimeRange = FFloatRange(1.f, 3.f);
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Custom Hit on Bone")
 		TArray<FHitBoneType> HitBoneTypes;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Custom Hit on Bone")
 		USoundBase* DefaultBoneHitSound;
-
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Enemy Run Away")
-		bool bCanEnemyRunAway = true;
-	// if enemy has less hp then MaxEnemyHealthForRunAway then choose random if enemy should run away
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Enemy Run Away", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
-		float MaxEnemyHealthForRunAway = 10.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Enemy Run Away", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
-		float SpeedOfEnemyWhenIsRunningAway = 1600.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Enemy Run Away", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
-		float ChanceOfEnemyToRunAway = 20.f;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
 		float MaxDistanceToObjectForBlood = 600.f;
@@ -165,11 +124,15 @@ private:
 		float BloodFadeOutDuration = 5.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
 		UMaterialInstance* BloodOnObjectDecalMaterial;
-		
+
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Footsteps")
+		float TimeBetweenNextStep = 0.42f;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Footsteps")
+		float TimeBetweenNextStepWhileRunningAway = 0.21f;
 	//SOUNDS
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* FootstepsSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
+	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* FootstepsRunningAwaySound;
 
 	//Materials
@@ -182,29 +145,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Particles")
 		UParticleSystem* EnemyBloodParticle;
 
-	//Got Hit
-	bool bIsDead;
-	void ShouldRunAway();
-
-	// Shooting
-	FTimerHandle StartShootingHandle;
-	FTimerHandle ShootHandle;
-	void StartShooting();
-	void Shoot();
-
 	// Effects
 	void SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType* PtrHitBoneType);
 	void SpawnShotBloodDecal(const FHitResult& Hit);
 	void SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const FVector& HitLocation);
-
-	// Damage
-	bool bIsRunningAway;
-	bool KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius);
-	bool EnemyRunAway();
-
-	//If enemy see the player then he will execute given functions
-	AActor* FocusedActor;
-	bool bEnemyDetectedTarget;
 
 	// Enemy Indicator Widget
 	class UEnemyIndicatorWidget* EnemyIndicatorWidget;
@@ -214,10 +158,6 @@ private:
 	bool bCanPlayFootstepsSound = true;
 	FTimerHandle FootstepsHandle;
 	void SetCanPlayFootstepsSound() { bCanPlayFootstepsSound = true; }
-
-	//EnemyAIController
-	void SetEnemyKilledInAIController();
-	void SetEnemyRunawayInAIController();
 
 	int32 CurrentUniqueID = 0;
 	void RemoveEnemySavedDataFromSave();

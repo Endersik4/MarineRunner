@@ -278,7 +278,7 @@ void AMarineCharacter::PlayFootstepsSound()
 		}
 		else if (FootstepsSound) UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);
 
-		UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 0.4f, this);
+		UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 0.7f, this, 1400.f);
 
 		bCanPlayFootstepsSound = false;
 		GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AMarineCharacter::SetCanPlayFootstepsSound, TimeOfHandle, false);

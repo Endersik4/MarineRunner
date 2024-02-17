@@ -115,19 +115,24 @@ void USaveLoadPlayerComponent::RestartGame()
 	if (IsValid(Player) == false)
 		return;
 
-	TArray<AActor*> AllEnemiesOnMap;
-	auto lambda = [&AllEnemiesOnMap]() {
-		for (AActor* CurrentEnemy : AllEnemiesOnMap)
-		{
-			CurrentEnemy->Destroy();
-		}
-	};
+	TArray<AActor*> AllGunsOnMap;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGun::StaticClass(), AllGunsOnMap);
+	for (AActor* CurrentEnemy : AllGunsOnMap)
+	{
+		CurrentEnemy->Destroy();
+	}
 
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGun::StaticClass(), AllEnemiesOnMap);
-	lambda();
+	SavedDataObject->RestartObjectsData(); // Restart Objects on map
 
-	SavedDataObject->RestartObjectsData();
+	SpawnNewPlayer();
 
+	GameInstance->ResetDetectedEnemy();
+
+	Player->Destroy();
+}
+
+void USaveLoadPlayerComponent::SpawnNewPlayer()
+{
 	AMarineCharacter* SpawnedNewPlayer = GetWorld()->SpawnActor<AMarineCharacter>(PlayerClass, FTransform(FRotator(0.f), FVector(0.f)));
 	if (IsValid(SpawnedNewPlayer) == false)
 		return;
@@ -136,10 +141,6 @@ void USaveLoadPlayerComponent::RestartGame()
 	SpawnedNewPlayer->GetSaveLoadPlayerComponent()->SetSavedDataObject(Player->GetSaveLoadPlayerComponent()->GetSavedDataObject());
 	Player->GetAlbertosPawn()->GetPlayerIsNearComponent()->SetPlayerPawn(SpawnedNewPlayer);
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(SpawnedNewPlayer);
-
-	GameInstance->ResetDetectedEnemy();
-
-	Player->Destroy();
 }
 
 void USaveLoadPlayerComponent::LoadSavedSettingsFromGameInstance()
