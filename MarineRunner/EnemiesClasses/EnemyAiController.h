@@ -53,6 +53,7 @@ private:
 		float LoseSightOfPlayerTime = 5.f;
 
 	void SetAIVariables();
+	bool bDead;
 
 	bool bDoEnemySeePlayer;
 	bool bCanSeeTheTarget(AActor* TargetActor);
@@ -60,6 +61,4 @@ private:
 	FTimerHandle DetectPlayerDelayHandle;
 	void SightHandle(AActor* SensedActor, const struct FAIStimulus& SightStimulus);
 	void HearingHandle(AActor* SensedActor, const struct FAIStimulus& HearingStimulus);
-
-	class UMarineRunnerGameInstance* MarineRunnerGameInstance;
 };

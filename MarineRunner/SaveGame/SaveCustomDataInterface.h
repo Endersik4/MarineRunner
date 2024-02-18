@@ -25,7 +25,7 @@ struct FCustomDataSaved
 		AActor* ObjectToSaveData;
 	UPROPERTY(EditAnywhere)
 		int32 ObjectState;
-		
+
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AActor> ObjectToSpawnFromClass;
 	UPROPERTY(EditAnywhere)
@@ -46,9 +46,9 @@ struct FCustomDataSaved
 		bValueNotSavedWhileInGame = false;
 	}
 
-	
-	FCustomDataSaved(const TEnumAsByte<ESavedDataState> & _SavedDataState, AActor* _ObjectToSaveData,
-		const int32& _ObjectState, const float & _ValueToSave = 0, const bool& _ValueNotSavedWhileInGame = false)
+
+	FCustomDataSaved(const TEnumAsByte<ESavedDataState>& _SavedDataState, AActor* _ObjectToSaveData,
+		const int32& _ObjectState, const float& _ValueToSave = 0, const bool& _ValueNotSavedWhileInGame = false)
 	{
 		SavedDataState = _SavedDataState;
 		ObjectToSaveData = _ObjectToSaveData;
@@ -56,7 +56,7 @@ struct FCustomDataSaved
 		ValueToSave = _ValueToSave;
 		bValueNotSavedWhileInGame = _ValueNotSavedWhileInGame;
 	}
-	
+
 	FCustomDataSaved(const TEnumAsByte<ESavedDataState>& _SavedDataState, TSubclassOf<AActor> _ObjectToSpawnFromClass,
 		const FTransform& _ObjectTransform, const float& _ValueToSave = 0, const bool& _ValueNotSavedWhileInGame = false)
 	{

@@ -23,7 +23,7 @@ void ASavedDataObject::AddCustomSaveData(const int32& SavedCustomDataKey, const 
 void ASavedDataObject::RemoveCustomSaveData(const int32& SavedCustomDataID)
 {
 	CustomSavedData.Remove(SavedCustomDataID);
-	TempCustomSavedData.Remove(SavedCustomDataID);
+	//TempCustomSavedData.Remove(SavedCustomDataID);
 }
 
 void ASavedDataObject::LoadObjectsData()
@@ -76,6 +76,9 @@ void ASavedDataObject::UpdateObjectsData()
 
 void ASavedDataObject::RestartObjectsData()
 {
+	if (TempCustomSavedData.Num() == 0)
+		return;
+
 	for (const TPair<int32, FCustomDataSaved>& Pair : TempCustomSavedData)
 	{
 		if (IsValid(Pair.Value.ObjectToSaveData) == false)
@@ -87,15 +90,12 @@ void ASavedDataObject::RestartObjectsData()
 
 		ActorWithSaveInterface->RestartData(this, Pair.Key, Pair.Value);
 
-
 		if (Pair.Value.bValueNotSavedWhileInGame == false)
 		{
-			CustomSavedData.FindAndRemoveChecked(Pair.Key);
-			TempCustomSavedData.FindAndRemoveChecked(Pair.Key);
+			CustomSavedData.Remove(Pair.Key);
+			TempCustomSavedData.Remove(Pair.Key);
 		}
 	}
-
-	//TempCustomSavedData.Empty();
 }
 
 int32 ASavedDataObject::CreateUniqueIDForObject() const

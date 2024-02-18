@@ -131,7 +131,10 @@ void AEnemyPawn::SpawnShotBloodDecal(const FHitResult& Hit)
 
 void AEnemyPawn::PlayFootstepsSound()
 {
-	if (GetVelocity().Length() < 1.f || bCanPlayFootstepsSound == false || bIsDead) 
+	if (bCanPlayFootstepsSound == false || bIsDead) 
+		return;
+
+	if (GetVelocity().Length() >= 0.f && GetVelocity().Length() <= 5.f)
 		return;
 
 	float FootstepsTime = TimeBetweenNextStep;
@@ -246,7 +249,7 @@ void AEnemyPawn::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, 
 
 void AEnemyPawn::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	Destroy();
+	;
 }
 
 #pragma endregion

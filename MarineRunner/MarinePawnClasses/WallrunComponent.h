@@ -36,7 +36,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-		void SetShouldLerpRotation(bool bShould) { bShouldLerpRotation = bShould; }
+	void SetShouldLerpRotation(bool bShould) { bShouldLerpRotation = bShould;}
 
 	UFUNCTION(BlueprintCallable)
 		bool GetIsWallrunning() const { return bIsWallrunning; }

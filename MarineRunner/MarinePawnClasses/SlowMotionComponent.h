@@ -28,6 +28,9 @@ public:
 	void TurnOnSlowMotion() { SlowMotionPressed(); };
 	FORCEINLINE bool GetIsInSlowMotion() const { return bIsInSlowMotion; }
 	FORCEINLINE float GetCounterForceMultiplierWhenInAir() const {return CounterForceMultiplierWhenInAir;}
+
+	UFUNCTION()
+		void OnOwnerDestroyed(AActor* DestroyedActor);
 private:
 	//Speed of SlowMotion
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")

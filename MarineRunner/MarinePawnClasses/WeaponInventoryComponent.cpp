@@ -18,14 +18,18 @@ void UWeaponInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	MarinePawn = Cast<AMarineCharacter>(GetOwner());
+}
 
+void UWeaponInventoryComponent::StartTimerForSpawnNewWeapons()
+{
 	FTimerHandle SpawnWeaponsFromInventoryHandle;
-	GetWorld()->GetTimerManager().SetTimer(SpawnWeaponsFromInventoryHandle, this, &UWeaponInventoryComponent::SpawnWeaponsFromInventory, 0.1f, false);
+	GetWorld()->GetTimerManager().SetTimer(SpawnWeaponsFromInventoryHandle, this, &UWeaponInventoryComponent::SpawnWeaponsFromInventory, 0.02f, false);
 }
 
 void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
 {
+	MarinePawn = Cast<AMarineCharacter>(GetOwner());
+
 	if (IsValid(MarinePawn) == false || InitialWeaponInventory.Num() == 0)
 		return;
 

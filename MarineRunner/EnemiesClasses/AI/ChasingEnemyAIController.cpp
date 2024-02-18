@@ -14,18 +14,21 @@ void AChasingEnemyAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetWorld()->GetTimerManager().SetTimer(DistanceCheckHandle, this, &AChasingEnemyAIController::CheckDistanceToPlayer, CheckForDistanceInterval, true);
 
-	EnemyOwner = Cast<APunchingEnemyPawn>(GetPawn());
+	GetWorld()->GetTimerManager().SetTimer(DistanceCheckHandle, this, &AChasingEnemyAIController::CheckDistanceToPlayer, CheckForDistanceInterval, true);
 }
 
 void AChasingEnemyAIController::CheckDistanceToPlayer()
 {
-	APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	if (IsValid(Player) == false || IsValid(GetPawn()) == false)
+	APunchingEnemyPawn* EnemyOwner = Cast<APunchingEnemyPawn>(GetPawn());
+	if (IsValid(EnemyOwner) == false)
 		return;
 
-	if (FVector::Dist(GetPawn()->GetActorLocation(), Player->GetActorLocation()) > MaxDistanceToDetectPlayer)
+	APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (IsValid(Player) == false)
+		return;
+
+	if (FVector::Dist(EnemyOwner->GetActorLocation(), Player->GetActorLocation()) > MaxDistanceToDetectPlayer)
 	{
 		EnemyOwner->PlayerDetected(false);
 		return;

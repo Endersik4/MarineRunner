@@ -24,9 +24,9 @@ void AMarinePlayerController::SetupInputComponent()
 	InputComponent->BindAxis(TEXT("LookRight"), this, &AMarinePlayerController::LookRight);
 }
 
-void AMarinePlayerController::HandleOnPossessedPawnChanged(APawn* _OldPawn, APawn* NewPawn)
+void AMarinePlayerController::HandleOnPossessedPawnChanged(APawn* _NewPawn, APawn* _OldPawn)
 {
-	MarinePawn = Cast<AMarineCharacter>(NewPawn);
+	MarinePawn = Cast<AMarineCharacter>(_NewPawn);
 }
 
 void AMarinePlayerController::LookUp(float AxisValue)
@@ -46,13 +46,19 @@ void AMarinePlayerController::LookRight(float AxisValue)
 bool AMarinePlayerController::bShouldDisableCameraRotate(float CurrentLookValue)
 {
 	if (IsValid(MarinePawn) == false)
+	{
 		return false;
+	}
 
 	if (MarinePawn->GetWallrunComponent()->GetIsWallrunning() == false)
+	{
 		return false;
+	}
 
-	if (CurrentLookValue < MarginForPlayerToMove.GetUpperBoundValue() && CurrentLookValue > MarginForPlayerToMove.GetLowerBoundValue())
+	if (CurrentLookValue > MarginForPlayerToMove.GetLowerBoundValue() && CurrentLookValue < MarginForPlayerToMove.GetUpperBoundValue())
+	{
 		return false;
+	}
 
 	return true;
 }

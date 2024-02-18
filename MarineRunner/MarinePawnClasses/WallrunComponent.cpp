@@ -191,6 +191,7 @@ void UWallrunComponent::CallResetWallrunningAfterLanding()
 
 void UWallrunComponent::RotateCameraYaw(ESideOfLine CurrentSide, FVector HitNormal)
 {
+
 	bShouldLerpRotation = true;
 	WhereToInterp = HitNormal.Rotation().Yaw + ((CurrentSide == Left ? -1 : 1) * AngleOfHitImpact);
 	PlayerRotationWallrun.Yaw = WhereToInterp;
@@ -198,10 +199,8 @@ void UWallrunComponent::RotateCameraYaw(ESideOfLine CurrentSide, FVector HitNorm
 
 void UWallrunComponent::CameraRotationInterp(float Delta)
 {
-	if (!bShouldLerpRotation || IsValid(PlayerController) == false)
+	if (bShouldLerpRotation == false|| IsValid(PlayerController) == false)
 		return;
-
-
 	FRotator CurrentRotation = PlayerController->GetControlRotation();
 	FRotator TargetRotation = CurrentRotation;
 	TargetRotation.Yaw = WhereToInterp;

@@ -4,6 +4,7 @@
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
+#include "Blueprint/WidgetLayoutLibrary.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
@@ -102,6 +103,9 @@ void USaveLoadPlayerComponent::LoadGame()
 
 	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 
+	GameInstance->ResetDetectedEnemy();
+	GameInstance->ChangeBackgroundMusic(EMT_Exploration, true);
+
 	Player->SetActorLocation(LoadGameInstance->SavedPlayerLocation);
 	if (IsValid(PlayerController) == true)
 		PlayerController->SetControlRotation(LoadGameInstance->SavedPlayerRotation);
@@ -122,8 +126,18 @@ void USaveLoadPlayerComponent::RestartGame()
 		CurrentEnemy->Destroy();
 	}
 
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyPawn::StaticClass(), AllGunsOnMap);
+	for (AActor* CurrentEnemy : AllGunsOnMap)
+	{
+		CurrentEnemy->Destroy();
+	}
+
 	SavedDataObject->RestartObjectsData(); // Restart Objects on map
 
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
+	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 1.f, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
+
+	UWidgetLayoutLibrary::RemoveAllWidgets(GetWorld());
 	SpawnNewPlayer();
 
 	GameInstance->ResetDetectedEnemy();
@@ -133,13 +147,15 @@ void USaveLoadPlayerComponent::RestartGame()
 
 void USaveLoadPlayerComponent::SpawnNewPlayer()
 {
-	AMarineCharacter* SpawnedNewPlayer = GetWorld()->SpawnActor<AMarineCharacter>(PlayerClass, FTransform(FRotator(0.f), FVector(0.f)));
+	AMarineCharacter* SpawnedNewPlayer = GetWorld()->SpawnActorDeferred<AMarineCharacter>(PlayerClass, FTransform(FRotator(0.f), FVector(0.f)));
 	if (IsValid(SpawnedNewPlayer) == false)
 		return;
 
 	SpawnedNewPlayer->SetAlbertosPawn(Player->GetAlbertosPawn());
 	SpawnedNewPlayer->GetSaveLoadPlayerComponent()->SetSavedDataObject(Player->GetSaveLoadPlayerComponent()->GetSavedDataObject());
 	Player->GetAlbertosPawn()->GetPlayerIsNearComponent()->SetPlayerPawn(SpawnedNewPlayer);
+	SpawnedNewPlayer->FinishSpawning(FTransform(FRotator(0.f), FVector(0.f)));
+
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(SpawnedNewPlayer);
 }
 

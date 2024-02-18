@@ -101,12 +101,12 @@ void AShootingEnemyPawn::Shoot()
 
 FRotator AShootingEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
 {
-	FRotator BoneRotation;
+	FRotator BoneRotation = FRotator(0.f);
 	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName),
 		EnemyGunComponent->PredictWhereToShoot(bLookStraight));
 	BoneRotation.Roll = FoundRotation.Pitch * -1.f;
 	BoneRotation.Yaw = FoundRotation.Yaw - GetActorRotation().Yaw;
-
+	UE_LOG(LogTemp, Warning, TEXT("BONE ROTATION %s"), *BoneRotation.ToCompactString());
 	return BoneRotation;
 }
 

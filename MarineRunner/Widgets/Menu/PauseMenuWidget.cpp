@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 
 #include "MarineRunner/Widgets/Menu/PauseMenuWidget.h"
@@ -47,14 +47,7 @@ void UPauseMenuWidget::NativeOnInitialized()
 
 	MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
-	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	MusicTypeBeforePause = MarineRunnerGameInstance->GetCurrentMusicType();
-	MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_PauseMusic);
-	if (PauseMenuMusic)
-	{
-		CurrentPauseMenuMusic = UGameplayStatics::SpawnSound2D(GetWorld(), PauseMenuMusic);
-		CurrentPauseMenuMusic->FadeIn(1.f);
-	}
+	PlayPauseMenuMusic();
 
 	FillMenuButtonsAndTextMap();
 
@@ -67,10 +60,28 @@ void UPauseMenuWidget::NativeDestruct()
 	StopPauseMenuMusic();
 }
 
+void UPauseMenuWidget::PlayPauseMenuMusic()
+{
+	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (MarineRunnerGameInstance->GetCurrentMusicType() != EMT_Combat)
+	{
+		MusicTypeBeforePause = MarineRunnerGameInstance->GetCurrentMusicType();
+		MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_PauseMusic);
+		if (PauseMenuMusic)
+		{
+			CurrentPauseMenuMusic = UGameplayStatics::SpawnSound2D(GetWorld(), PauseMenuMusic);
+			CurrentPauseMenuMusic->FadeIn(1.f);
+		}
+	}
+}
+
 void UPauseMenuWidget::StopPauseMenuMusic()
 {
 	if (IsValid(MarineRunnerGameInstance) == true)
 	{
+		if (MarineRunnerGameInstance->GetCurrentMusicType() == EMT_Combat)
+			return;
+
 		MarineRunnerGameInstance->ChangeBackgroundMusic(MusicTypeBeforePause, true);
 	}
 

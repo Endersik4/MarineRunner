@@ -103,12 +103,13 @@ bool AEnemyAiController::bCanSeeTheTarget(AActor* TargetActor)
 
 void AEnemyAiController::AddEnemyToDetected(bool bWas)
 {
+	UMarineRunnerGameInstance* MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (IsValid(MarineRunnerGameInstance) == false)
 		return;
 
-	if (bWas == true)
+	if (bWas == true && bDead == false)
 	{
-		MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn(), false);
+		MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn());
 	}
 	else
 	{
@@ -118,8 +119,6 @@ void AEnemyAiController::AddEnemyToDetected(bool bWas)
 
 void AEnemyAiController::SetAIVariables()
 {
-	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-
 	if (AIBehaviour == nullptr) 
 		return;
 	RunBehaviorTree(AIBehaviour);
@@ -136,6 +135,8 @@ void AEnemyAiController::SetAIVariables()
 
 void AEnemyAiController::EnemyKilled(bool bRunAwayInsteadOfKill)
 {
+	bDead = true;
+
 	EnemyPerception->SetSenseEnabled(SightSenseClass, false);
 	EnemyPerception->SetSenseEnabled(HearingSenseClass, false);
 	ClearFocus(EAIFocusPriority::Gameplay);

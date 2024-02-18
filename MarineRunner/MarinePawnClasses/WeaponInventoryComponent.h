@@ -42,8 +42,11 @@ public:
 	int32 GetLastWeaponSlotFromStorage(AGun* ValueToIgnore);
 
 	void SaveInitialWeaponInventory();
-	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
+	void StartTimerForSpawnNewWeapons();
+
+	UPROPERTY(EditAnywhere, Category = "Weapon Inventory Settings Settings")
 		TMap<int32, TSubclassOf<class AGun>> InitialWeaponInventory;
+
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
@@ -53,7 +56,7 @@ private:
 	class AGun* GunFromInventory;
 
 	void SpawnWeaponsFromInventory();
-		
+
 	void SortWeapons();
 
 	class AMarineCharacter* MarinePawn;

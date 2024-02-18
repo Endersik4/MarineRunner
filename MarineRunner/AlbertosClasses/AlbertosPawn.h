@@ -56,10 +56,10 @@ public:
 
 	FORCEINLINE class UCraftItemAlbertosComponent* GetCraftItemAlbertosComponent() {return CraftItemAlbertosComponent;}
 	FORCEINLINE class UPlayerIsNearAlbertosComponent* GetPlayerIsNearComponent() {return PlayerIsNearAlbertosComponent;}
-	FORCEINLINE UUserWidget* GetCraftingTableWidget() const;
+	UUserWidget* GetCraftingTableWidget() const;
 	UFUNCTION(BlueprintPure)
 		FORCEINLINE USkeletalMeshComponent* GetAlbertosSkeletal() const { return AlbertosSkeletalMesh; }
-	FORCEINLINE void CallToggleOpenDoor(bool bOpenDoor) const;
+	void CallToggleOpenDoor(bool bOpenDoor) const;
 
 	void CallAlbertoToThePlayer(FVector PlayerLoc);
 

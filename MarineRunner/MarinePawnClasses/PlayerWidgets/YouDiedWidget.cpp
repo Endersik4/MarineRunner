@@ -6,7 +6,6 @@
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
-#include "Blueprint/WidgetLayoutLibrary.h"
 
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
@@ -73,14 +72,12 @@ void UYouDiedWidget::QuitButton_OnUnhovered()
 void UYouDiedWidget::RestartGame()
 {
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
-	UWidgetLayoutLibrary::RemoveAllWidgets(GetWorld());
 
 	AMarineCharacter* Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (IsValid(Player) == false)
 		return;
 
 	Player->GetSaveLoadPlayerComponent()->RestartGame();
-	RemoveFromParent();
 }
 
 void UYouDiedWidget::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim)

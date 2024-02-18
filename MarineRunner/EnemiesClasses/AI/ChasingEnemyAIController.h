@@ -29,5 +29,4 @@ private:
 
 	void PlayerDetected(APawn* DetectedPlayer);
 
-	class APunchingEnemyPawn* EnemyOwner;
 };

@@ -113,13 +113,13 @@ private:
 		USoundBase* DefaultBoneHitSound;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-		float MaxDistanceToObjectForBlood = 600.f;
+		float MaxDistanceToObjectForBlood = 900.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
 		float BloodDistanceSizeMutliplier = 0.8f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
 		FFloatRange ClampBloodOnObjectSize = FFloatRange(40.f, 140.f);
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-		float BloodFadeOutStartDelay = 3.f;
+		float BloodFadeOutStartDelay = 10.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
 		float BloodFadeOutDuration = 5.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")

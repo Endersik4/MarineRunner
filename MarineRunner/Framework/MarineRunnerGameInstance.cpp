@@ -112,7 +112,7 @@ void UMarineRunnerGameInstance::SpawnBackgroundMusic(USoundBase* SoundToSpawn)
 	if (SoundToSpawn == nullptr)
 		return;
 	CurrentPlayingMusic = UGameplayStatics::SpawnSound2D(GetWorld(), SoundToSpawn, 1.f, 1.f, 0.f, nullptr, true);
-	CurrentPlayingMusic->FadeIn(1.2f, 1.f);
+	CurrentPlayingMusic->FadeIn(2.0f, 1.f);
 }
 
 void UMarineRunnerGameInstance::ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut)
@@ -121,7 +121,7 @@ void UMarineRunnerGameInstance::ChangeBackgroundMusic(EMusicType MusicType, bool
 		return;
 
 	CurrentMusicType = MusicType;
-	GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, this, &UMarineRunnerGameInstance::ChangeMusicAfterFadeOut, 1.21f, false);
+	GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, this, &UMarineRunnerGameInstance::ChangeMusicAfterFadeOut, 2.01f, false);
 
 	if (IsValid(CurrentPlayingMusic) == false)
 		return;
@@ -132,7 +132,7 @@ void UMarineRunnerGameInstance::ChangeBackgroundMusic(EMusicType MusicType, bool
 		return;
 	}
 
-	CurrentPlayingMusic->FadeOut(1.2f, 0.f);
+	CurrentPlayingMusic->FadeOut(2.f, 0.f);
 }
 
 void UMarineRunnerGameInstance::ChangeMusicAfterFadeOut()

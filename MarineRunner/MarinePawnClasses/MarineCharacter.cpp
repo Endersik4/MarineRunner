@@ -41,6 +41,8 @@ AMarineCharacter::AMarineCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	CapsulePawn = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule Pawn Component"));
+	CapsulePawn->SetCapsuleHalfHeight(180.f);
+	CapsulePawn->SetCapsuleRadius(70.f);
 	RootComponent = CapsulePawn;
 
 	CapsulePawn->SetSimulatePhysics(true);
@@ -97,12 +99,7 @@ void AMarineCharacter::BeginPlay()
 	MakeCrosshire();
 	MakeHudWidget();
 
-	if (IsValid(HudWidget))
-	{
-		HudWidget->SetHealthBarPercent(Health);
-		FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
-		HudWidget->SetCurrentNumberOfFirstAidKits(FirstAidKitItem ? FirstAidKitItem->Item_Amount : 0);
-	}
+	UpdateHudWidget();
 
 	ReplaceRootComponentRotation();
 }
@@ -278,7 +275,7 @@ void AMarineCharacter::PlayFootstepsSound()
 		}
 		else if (FootstepsSound) UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);
 
-		UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 0.7f, this, 1400.f);
+		UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 0.5f, this, 1000.f);
 
 		bCanPlayFootstepsSound = false;
 		GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AMarineCharacter::SetCanPlayFootstepsSound, TimeOfHandle, false);
@@ -414,8 +411,18 @@ void AMarineCharacter::UpdateHudWidget()
 {
 	WeaponHandlerComponent->UpdateWeaponInformationOnHud();
 
+	if (IsValid(HudWidget) == false)
+		return;
+
+	HudWidget->SetHealthBarPercent(Health);
 	FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
-	HudWidget->SetCurrentNumberOfFirstAidKits(FirstAidKitItem ? FirstAidKitItem->Item_Amount : 0);
+
+	if (FirstAidKitItem)
+	{
+		HudWidget->SetCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount > 99 ? 99 : FirstAidKitItem->Item_Amount);
+	}
+	else
+		HudWidget->SetCurrentNumberOfFirstAidKits(0);
 }
 #pragma endregion 
 

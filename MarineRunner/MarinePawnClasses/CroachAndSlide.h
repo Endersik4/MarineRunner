@@ -46,7 +46,7 @@ private:
 		float TimeToChangeCrouchState = 0.2f;
 	// Lower Value is a target for Actor Z Scale when crouching, Upper value is for when standing up
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		FFloatRange ScalePlayerWhenCrouching = FFloatRange(0.4f, 1.f);
+		FFloatRange ScalePlayerWhenCrouching = FFloatRange(0.46f, 1.f);
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
 		float CrouchPressedVignetteIntensity = 0.7f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
@@ -62,7 +62,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 		float InitialVelocityOfSliding = 190000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float MaxSlideForce = 120000.f;
+		float MaxSlideForce = 100000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 		float SlideDelayInSeconds = 0.01f;
 	//How fast Pawn will gain speed on ramp when sliding
@@ -70,7 +70,7 @@ private:
 		float RampForce = 70000.f;
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding on ramp (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
-		float SlideSpeedRamp = 450000.f;
+		float SlideSpeedRamp = 45000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 		TSubclassOf<UCameraShakeBase> RampCameraShake;
 

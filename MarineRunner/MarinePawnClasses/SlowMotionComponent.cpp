@@ -21,8 +21,18 @@ void USlowMotionComponent::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	if (IsValid(MarinePawn) == false) 
+	if (IsValid(MarinePawn) == false)
+	{
 		UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN SLOW MOTIOn COMPONENT!"));
+		return;
+	}
+
+	MarinePawn->OnDestroyed.AddDynamic(this, &USlowMotionComponent::OnOwnerDestroyed);
+}
+
+void USlowMotionComponent::OnOwnerDestroyed(AActor* DestroyedActor)
+{
+	if (IsValid(SlowMotionSoundSpawned)) SlowMotionSoundSpawned->Stop();
 }
 
 void USlowMotionComponent::SlowMotionPressed()
