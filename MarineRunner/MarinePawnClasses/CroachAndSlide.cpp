@@ -26,6 +26,15 @@ void UCroachAndSlide::BeginPlay()
 
 	OriginalMovementForce = CurrentMovementForce;
 	MarinePawn->GetCamera()->PostProcessSettings.bOverride_VignetteIntensity = true;
+
+	MarinePawn->OnDestroyed.AddDynamic(this, &UCroachAndSlide::OnOwnerDestroyed);
+
+}
+
+void UCroachAndSlide::OnOwnerDestroyed(AActor* DestroyedActor)
+{
+	if (IsValid(SpawnedSlideSound))
+		SpawnedSlideSound->Stop();
 }
 
 // Called every frame

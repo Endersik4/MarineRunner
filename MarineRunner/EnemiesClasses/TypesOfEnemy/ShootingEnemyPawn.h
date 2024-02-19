@@ -83,7 +83,6 @@ private:
 	AActor* FocusedActor;
 	bool bEnemyDetectedTarget;
 
-	//EnemyAIController
 	void SetEnemyKilledInAIController();
-	void SetEnemyRunawayInAIController();
+
 };

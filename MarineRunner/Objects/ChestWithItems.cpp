@@ -119,10 +119,12 @@ void AChestWithItems::LoadData(const int32 IDkey, const FCustomDataSaved& SavedC
 	else if (SavedCustomData.ObjectState == 2)
 	{
 		bIsChestOpen = true;
-		FrontChestPanelWidget->SetVisibility(ESlateVisibility::Hidden);
 		ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 		ChestSkeletalMesh->SetPosition(1.3f);
 		ChestSkeletalMesh->SetMaterial(3, UpperOpenLockMaterial);
+
+		if (IsValid(FrontChestPanelWidget))
+			FrontChestPanelWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 

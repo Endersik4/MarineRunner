@@ -26,6 +26,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION()
+		void OnOwnerDestroyed(AActor* DestroyedActor);
+
 	void CrouchPressed(bool bSlide = false);
 	void CrouchReleased();
 

@@ -66,7 +66,7 @@ void UPauseMenuWidget::PlayPauseMenuMusic()
 	if (MarineRunnerGameInstance->GetCurrentMusicType() != EMT_Combat)
 	{
 		MusicTypeBeforePause = MarineRunnerGameInstance->GetCurrentMusicType();
-		MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_PauseMusic);
+		MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_PauseMusic, true);
 		if (PauseMenuMusic)
 		{
 			CurrentPauseMenuMusic = UGameplayStatics::SpawnSound2D(GetWorld(), PauseMenuMusic);

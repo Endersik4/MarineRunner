@@ -49,6 +49,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		USoundBase* SavedExplorationMusic;
 
+
+
 	void PrepareSaveGame(const FString& NewSaveName = "ManualSave_", bool bAddSaveNumber = true);
 	FString OriginalSaveName;
 	bool bAddSaveNumber;

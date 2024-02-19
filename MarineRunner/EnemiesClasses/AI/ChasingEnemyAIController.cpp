@@ -28,18 +28,12 @@ void AChasingEnemyAIController::CheckDistanceToPlayer()
 	if (IsValid(Player) == false)
 		return;
 
-	if (FVector::Dist(EnemyOwner->GetActorLocation(), Player->GetActorLocation()) > MaxDistanceToDetectPlayer)
+	if (FVector::Dist(EnemyOwner->GetActorLocation(), Player->GetActorLocation()) > MaxDistanceToDetectPlayer && bPlayerDetected == false)
 	{
-		EnemyOwner->PlayerDetected(false);
 		return;
 	}
 
-	PlayerDetected(Player);
+	bPlayerDetected = true;
+	MoveToActor(Player, 40.f);
 	EnemyOwner->PlayerDetected(true, Player);
-	//GetWorld()->GetTimerManager().ClearTimer(DistanceCheckHandle);
-}
-
-void AChasingEnemyAIController::PlayerDetected(APawn* DetectedPlayer)
-{
-	MoveToActor(DetectedPlayer, 40.f);
 }

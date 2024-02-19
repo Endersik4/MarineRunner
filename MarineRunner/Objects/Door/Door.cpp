@@ -172,6 +172,9 @@ void ADoor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, co
 
 void ADoor::StopUsingPin()
 {
+	if (IsValid(DoorPanelWidget) == false || IsValid(DoorPanelWidget) == false)
+		return;
+
 	DoorPanelWidget->PinIsCorrect(false);
 	DoorPanelSecondWidget->PinIsCorrect(false);
 }

@@ -64,6 +64,7 @@ APickupItem* UCraftItemAlbertosComponent::SpawnCraftedItem(const FItemStruct* It
 	if (IsValid(SpawnedItem) == false)
 		return nullptr;
 
+	SpawnedItem->SaveItemIfSpawnedRunTime();
 	SpawnedItem->GetItemMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECR_Ignore); // Take Trace
 	SpawnedItem->GetItemMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Ignore); // Bullet Trace
 

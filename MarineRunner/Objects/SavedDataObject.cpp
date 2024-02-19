@@ -26,6 +26,12 @@ void ASavedDataObject::RemoveCustomSaveData(const int32& SavedCustomDataID)
 	//TempCustomSavedData.Remove(SavedCustomDataID);
 }
 
+void ASavedDataObject::StartLoadingObjects()
+{
+	FTimerHandle test;
+	GetWorld()->GetTimerManager().SetTimer(test, this, &ASavedDataObject::LoadObjectsData, 0.05f, false);
+}
+
 void ASavedDataObject::LoadObjectsData()
 {
 	for (const TPair<int32, FCustomDataSaved>& Pair : CustomSavedData)

@@ -106,42 +106,28 @@ FRotator AShootingEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraigh
 		EnemyGunComponent->PredictWhereToShoot(bLookStraight));
 	BoneRotation.Roll = FoundRotation.Pitch * -1.f;
 	BoneRotation.Yaw = FoundRotation.Yaw - GetActorRotation().Yaw;
-	UE_LOG(LogTemp, Warning, TEXT("BONE ROTATION %s"), *BoneRotation.ToCompactString());
+
 	return BoneRotation;
 }
 
 void AShootingEnemyPawn::ShouldRunAway()
 {
-	SawTheTarget(false);
+	SetEnemyKilledInAIController();
 
-	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(GetController());
-	if (IsValid(EnemyAIController) == true)
-	{
-		EnemyAIController->EnemyKilled(true);
-	}
+	SawTheTarget(false);
+	GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
+	GetWorld()->GetTimerManager().ClearTimer(StartShootingHandle);
 
 	bIsRunningAway = true;
 	SetShouldRunningAwayInAnimBP();
-	SetEnemyRunawayInAIController();
 }
 #pragma endregion
 
-#pragma region //////////// ENEMY AI CONTROLLER //////////////
 void AShootingEnemyPawn::SetEnemyKilledInAIController()
 {
 	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(GetController());
 	if (IsValid(EnemyAIController) == false)
 		return;
 
-	EnemyAIController->EnemyKilled();
+	EnemyAIController->EnemyKilled(true);
 }
-
-void AShootingEnemyPawn::SetEnemyRunawayInAIController()
-{
-	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(GetController());
-	if (IsValid(EnemyAIController) == false)
-		return;
-
-	EnemyAIController->RunAway();
-}
-#pragma endregion

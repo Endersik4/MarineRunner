@@ -10,9 +10,7 @@
 // Sets default values
 AMainMenuPawn::AMainMenuPawn()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
 }
 
 // Called when the game starts or when spawned
@@ -23,7 +21,6 @@ void AMainMenuPawn::BeginPlay()
 	SpawnMainMenuWidget();
 }
 
-// Called every frame
 void AMainMenuPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -51,6 +48,7 @@ void AMainMenuPawn::SpawnMainMenuWidget()
 		return;
 
 	MainMenuWidget->AddToViewport();
+	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PC, MainMenuWidget);
 
 	bIsInMainMenu = true;
 }
@@ -62,4 +60,3 @@ void AMainMenuPawn::BackToPreviousMenu()
 
 	MainMenuWidget->RemoveCurrentMenuWidgetsFromViewport();
 }
-

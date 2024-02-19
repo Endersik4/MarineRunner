@@ -35,6 +35,7 @@ public:
 	FORCEINLINE void EmptyTempCustomSavedData() { TempCustomSavedData.Empty(); }
 
 	void LoadObjectsData();
+	void StartLoadingObjects();
 	void UpdateObjectsData();
 	void RestartObjectsData();
 private:

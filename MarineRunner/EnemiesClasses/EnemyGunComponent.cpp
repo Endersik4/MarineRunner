@@ -69,8 +69,15 @@ void UEnemyGunComponent::SpawnBullet()
 	FBulletStruct BulletDataForSpawnedBullet = BulletData;
 	BulletDataForSpawnedBullet.Damage = (bManyBulletAtOnce == false ? BulletData.Damage : BulletData.Damage / HowManyBulletsToSpawn);
 	BulletDataForSpawnedBullet.HitImpulseForce = (bManyBulletAtOnce == false ? BulletData.HitImpulseForce : BulletData.HitImpulseForce / HowManyBulletsToSpawn);
+	if (BulletData.bUsePhysicsForMovement == true)
+	{
+		const FVector& Gravity = FVector(0.f, 0.f, -980.f);
+		float CalculatedImpulse_X = (OwningEnemyInterface->GetFocusedActor()->GetActorLocation() - BulletTransform.GetLocation() - (Gravity / 2)).X;
+		BulletDataForSpawnedBullet.Speed = 3 * FMath::Clamp(CalculatedImpulse_X, BulletSpeedClamp.GetLowerBoundValue(), BulletSpeedClamp.GetUpperBoundValue());
+	}
 
 	SpawnedBullet->SetBulletData(BulletDataForSpawnedBullet);
+
 	SpawnedBullet->FinishSpawning(BulletTransform);
 
 	CurrentSocketNameIndex++;

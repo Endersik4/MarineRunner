@@ -73,6 +73,8 @@ public:
 		int32 CurrentSaveNumber = 0;
 	UPROPERTY(EditAnywhere, Category = "Saving")
 		float TotalPlayTimeInSeconds = 0.f;
+	UPROPERTY(EditAnywhere, Category = "Saving")
+		float LastGameTimePlayTime = 0.f;
 
 	UPROPERTY(EditAnywhere, Category = "Saving")
 		TArray<FSettingSavedInJsonFile> CustomSavedSettings;
@@ -91,10 +93,12 @@ public:
 
 	void SetSaveNumberAccordingToNumOfFiles(const FString& WildCard = "*ManualSave*");
 
-	void SaveCustomSavedSettingsToConfig();
-
-	void FindSavedValueAccordingToName(const FString& SavedSettingName, float& Value);
-	void ReplaceValueInSavedSettingByName(float NewValue, const FString& SavedSettingName);
+	UFUNCTION(BlueprintCallable)
+		void SaveCustomSavedSettingsToConfig();
+	UFUNCTION(BlueprintCallable)
+		void FindSavedValueAccordingToName(const FString& SavedSettingName, float& Value);
+	UFUNCTION(BlueprintCallable)
+		void ReplaceValueInSavedSettingByName(float NewValue, const FString& SavedSettingName);
 
 	void AddNewDetectedEnemy(AActor* NewEnemy, bool bIsEnemyDead = false);
 	void RemoveDetectedEnemy(AActor* NewEnemy);

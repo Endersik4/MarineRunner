@@ -27,6 +27,5 @@ private:
 	FTimerHandle DistanceCheckHandle;
 	void CheckDistanceToPlayer();
 
-	void PlayerDetected(APawn* DetectedPlayer);
-
+	bool bPlayerDetected;
 };

@@ -145,12 +145,10 @@ void AEnemyAiController::EnemyKilled(bool bRunAwayInsteadOfKill)
 	GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
 
 	if (bRunAwayInsteadOfKill == true)
+	{
+		GetBlackboardComponent()->SetValueAsBool(TEXT("isRunningAway"), true);
 		return;
+	}
 
 	GetBrainComponent()->StopLogic(FString("dead"));
-}
-
-void AEnemyAiController::RunAway()
-{
-	GetBlackboardComponent()->SetValueAsBool(TEXT("isRunningAway"), true);
 }

@@ -23,7 +23,6 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void EnemyKilled(bool bRunAwayInsteadOfKill = false);
-	void RunAway();
 	void AddEnemyToDetected(bool bWas);
 
 private:
@@ -61,4 +60,5 @@ private:
 	FTimerHandle DetectPlayerDelayHandle;
 	void SightHandle(AActor* SensedActor, const struct FAIStimulus& SightStimulus);
 	void HearingHandle(AActor* SensedActor, const struct FAIStimulus& HearingStimulus);
+
 };

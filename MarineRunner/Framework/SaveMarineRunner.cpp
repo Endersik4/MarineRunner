@@ -38,7 +38,8 @@ void USaveMarineRunner::CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld, 
 	SaveNumber = GameInstance->CurrentSaveNumber;
 
 	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
-	GameInstance->TotalPlayTimeInSeconds += UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld);
+	GameInstance->TotalPlayTimeInSeconds += UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld) - GameInstance->LastGameTimePlayTime;
+	GameInstance->LastGameTimePlayTime = UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld);
 
 	TotalPlayTimeInSeconds = GameInstance->TotalPlayTimeInSeconds;
 }
@@ -101,6 +102,7 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 
 	GameInstance->SetSaveNumberAccordingToNumOfFiles();
 	GameInstance->TotalPlayTimeInSeconds = TotalPlayTimeInSeconds;
+	UE_LOG(LogTemp, Error, TEXT("LOAD TOTAL PLAY TIJME %f"), GameInstance->TotalPlayTimeInSeconds)
 
 	if (GameInstance->GetCurrentExplorationMusic() != SavedExplorationMusic)
 	{
@@ -116,7 +118,7 @@ void USaveMarineRunner::LoadOtherObjectsData(ASavedDataObject* OtherObjectsData)
 
 	OtherObjectsData->SetCustomSavedData(SavedCustomData);
 	OtherObjectsData->EmptyTempCustomSavedData();
-	OtherObjectsData->LoadObjectsData();
+	OtherObjectsData->StartLoadingObjects();
 }
 
 #pragma endregion

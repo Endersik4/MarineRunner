@@ -30,6 +30,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UMainMenuWidget> MainMenuWidgetClass;
 
+
 	void BackToPreviousMenu();
 
 	bool bIsInMainMenu;
