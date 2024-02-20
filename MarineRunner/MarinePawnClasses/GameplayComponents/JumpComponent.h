@@ -48,14 +48,14 @@ private:
 		float JumpUpTime = 0.35f;
 	//Time for Delay Jump
 	UPROPERTY(EditAnywhere, Category = "Jump Settings")
-		float DelayJumpTime = 0.15f;
+		float DelayJumpTime = 0.2f;
 	UPROPERTY(EditAnywhere, Category = "Jump Settings")
-		float DelayIsInAirTime = 0.3f;
+		float DelayIsInAirTime = 0.4f;
 	UPROPERTY(EditAnywhere, Category = "Jump Settings|Sounds")
 		USoundBase* JumpSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
-		FVector BoxSizeToCheckIfSomethingIsBelow = FVector(25.f, 25.f, 10.f);
+		FVector BoxSizeToCheckIfSomethingIsBelow = FVector(25.f, 25.f, 20.f);
 	// Divide Movement speed and CounterMovementForce by this value when in Air
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 		float DividerForCounterForceWhenInAir = 8.f;

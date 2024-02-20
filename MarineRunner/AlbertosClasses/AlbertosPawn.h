@@ -26,12 +26,12 @@ public:
 	// Sets default values for this pawn's properties
 	AAlbertosPawn();
 
+	virtual void TakeItem(class AMarineCharacter* Character) override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	// Take Item Interface
-	virtual void TakeItem(class AMarineCharacter* Character) override;
 	virtual void ItemHover(class AMarineCharacter* Character) override;
 	virtual void ItemUnHover(class AMarineCharacter* Character) override;
 

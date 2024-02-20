@@ -1,6 +1,5 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-
 #include "MarineRunner/EnemiesClasses/TypesOfEnemy/ShootingEnemyPawn.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/WidgetComponent.h"
@@ -13,6 +12,13 @@ AShootingEnemyPawn::AShootingEnemyPawn()
 	EnemyGunComponent = CreateDefaultSubobject<UEnemyGunComponent>(TEXT("Enemy Gun Component"));
 }
 
+void AShootingEnemyPawn::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetUpShootAlert();
+}
+
 void AShootingEnemyPawn::Tick(float DeltaTime)
 {
 	if (bIsDead == true)
@@ -22,6 +28,8 @@ void AShootingEnemyPawn::Tick(float DeltaTime)
 
 	if (bEnemyDetectedTarget == true)
 		FocusBonesOnPlayerWhenPlayerDetected();
+
+	ChangeParameterInAlertMaterial(DeltaTime);
 }
 
 void AShootingEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
@@ -38,6 +46,7 @@ bool AShootingEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewH
 	if (bKilled == true)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
+		bStartAlert = false;
 		SetEnemyKilledInAIController();
 	}
 	else
@@ -65,13 +74,18 @@ bool AShootingEnemyPawn::EnemyRunAway()
 #pragma region ////////////// ENEMY SEE PLAYER //////////////
 void AShootingEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget, bool bStartAttackingTheTarget)
 {
+	if (bSaw == bEnemyDetectedTarget)
+		return;
+
 	FocusedActor = SeenTarget;
-	bEnemyDetectedTarget = bSaw;
 
 	PlayPrepareToShootAnimation(bSaw);
 
 	if (bStartAttackingTheTarget == false)
 		return;
+
+	bEnemyDetectedTarget = bSaw;
+
 
 	EnemyIndicatorWidgetComponent->SetVisibility(bSaw);
 
@@ -79,7 +93,10 @@ void AShootingEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget, bool bStart
 	if (bSaw == true)
 		GetWorld()->GetTimerManager().SetTimer(StartShootingHandle, this, &AShootingEnemyPawn::StartShooting, StartShootingTime, false);
 	else
+	{
 		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
+		bStartAlert = false;
+	}
 }
 
 void AShootingEnemyPawn::StartShooting()
@@ -87,13 +104,16 @@ void AShootingEnemyPawn::StartShooting()
 	if (bIsDead == true)
 		return;
 
-	GetWorld()->GetTimerManager().SetTimer(ShootHandle, this, &AShootingEnemyPawn::Shoot, ShootTime, true, 0.f);
+	bStartAlert = true;
+	GetWorld()->GetTimerManager().SetTimer(ShootHandle, this, &AShootingEnemyPawn::Shoot, ShootTime, true);
 }
 
 void AShootingEnemyPawn::Shoot()
 {
 	if (EnemyGunComponent->CanShootAgain() == false)
 		return;
+
+	ResetAlertMaterial();
 
 	EnemyGunComponent->Shoot();
 	PlayShootMontageAnimation();
@@ -117,9 +137,50 @@ void AShootingEnemyPawn::ShouldRunAway()
 	SawTheTarget(false);
 	GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
 	GetWorld()->GetTimerManager().ClearTimer(StartShootingHandle);
+	ResetAlertMaterial();
 
 	bIsRunningAway = true;
 	SetShouldRunningAwayInAnimBP();
+}
+#pragma endregion
+
+#pragma region //////// ALERT ABOUT SHOOT /////////
+void AShootingEnemyPawn::SetUpShootAlert()
+{
+	if (bAlertAboutShoot == false)
+		return;
+
+	CurrentAlertMaterial = UMaterialInstanceDynamic::Create(EnemySkeletalMesh->GetMaterial(AlertMaterialIndexToChange), this);
+	EnemySkeletalMesh->SetMaterial(AlertMaterialIndexToChange, CurrentAlertMaterial);
+}
+
+void AShootingEnemyPawn::ChangeParameterInAlertMaterial(float Delta)
+{
+	if (EnemyGunComponent->CanShootAgain() == false)
+		return;
+
+	if (bAlertAboutShoot == false || bStartAlert == false || IsValid(CurrentAlertMaterial) == false)
+		return;
+
+	AlertTimeElapsed += Delta;
+
+	if (AlertTimeElapsed <= BeginParameterChangeAfterShootTime)
+	{
+		return;
+	}
+
+	CurrentAlertMaterial->SetScalarParameterValue(AlertParameterNameToChange, FMath::Lerp(0.f, EndValueForAlertParameter, AlertTimeElapsed / FinishAlertParameterChangeTime));
+}
+
+void AShootingEnemyPawn::ResetAlertMaterial()
+{
+	if (bAlertAboutShoot == false)
+		return;
+
+	if (CurrentAlertMaterial)
+		CurrentAlertMaterial->SetScalarParameterValue(AlertParameterNameToChange, 0.f);
+
+	AlertTimeElapsed = 0.f;
 }
 #pragma endregion
 

@@ -525,4 +525,9 @@ bool AMarineCharacter::GetIsInAir() const
 {
 	return JumpComponent->GetIsInAir();
 }
+
+bool AMarineCharacter::GetIsInPullUpMode() const
+{
+	return PullUpComponent->GetIsInPullUpMode();
+}
 #pragma endregion 

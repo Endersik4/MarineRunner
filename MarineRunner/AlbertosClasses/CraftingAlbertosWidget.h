@@ -62,6 +62,9 @@ protected:
 		class UButton* AmountMultiplier_16x;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		class UButton* CloseWidgetButton;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UButton* CraftButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UProgressBar* CraftingTimeProgressBar;
@@ -129,6 +132,15 @@ protected:
 		void RightArrowUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
 		UWidgetAnimation* RightArrowHoveredAnim;
+
+	UFUNCTION()
+		void CloseWidgetButtonClicked();
+	UFUNCTION()
+		void CloseWidgetButtonHovered();
+	UFUNCTION()
+		void CloseWidgetButtonUnhovered();
+	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
+		UWidgetAnimation* CloseWidgetButtonHoveredAnim;
 
 	UFUNCTION()
 		void Multiplier_1xClicked();

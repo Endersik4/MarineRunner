@@ -85,6 +85,7 @@ void ASavedDataObject::RestartObjectsData()
 	if (TempCustomSavedData.Num() == 0)
 		return;
 
+	// to do:
 	for (const TPair<int32, FCustomDataSaved>& Pair : TempCustomSavedData)
 	{
 		if (IsValid(Pair.Value.ObjectToSaveData) == false)

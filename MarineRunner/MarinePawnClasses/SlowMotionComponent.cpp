@@ -12,7 +12,7 @@
 // Sets default values for this component's properties
 USlowMotionComponent::USlowMotionComponent()
 {
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 // Called when the game starts
@@ -32,7 +32,7 @@ void USlowMotionComponent::BeginPlay()
 
 void USlowMotionComponent::OnOwnerDestroyed(AActor* DestroyedActor)
 {
-	if (IsValid(SlowMotionSoundSpawned)) SlowMotionSoundSpawned->Stop();
+	PauseSlowMotionSound(true);
 }
 
 void USlowMotionComponent::SlowMotionPressed()
@@ -42,23 +42,13 @@ void USlowMotionComponent::SlowMotionPressed()
 	
 	SuddentDisabledSlowMotion();
 
-	if (bCanSlowMotion == false) return;
+	if (bCanSlowMotion == false) 
+		return;
+
 	SettingUpSlowMotion();
 
 	GetWorld()->GetTimerManager().SetTimer(SlowMotionTimeHandle, this, &USlowMotionComponent::DisableSlowMotion, SlowMotionTime * SlowMotionValue);
 }	
-
-void USlowMotionComponent::SuddentDisabledSlowMotion()
-{
-	if (bIsInSlowMotion == false)
-		return;
-
-	if (IsValid(SlowMotionSoundSpawned)) SlowMotionSoundSpawned->Stop();
-	if (CancelSlowMotionSound) UGameplayStatics::PlaySound2D(GetWorld(), CancelSlowMotionSound);
-
-	GetWorld()->GetTimerManager().ClearTimer(SlowMotionTimeHandle);
-	DisableSlowMotion();
-}
 
 void USlowMotionComponent::SettingUpSlowMotion()
 {
@@ -71,6 +61,20 @@ void USlowMotionComponent::SettingUpSlowMotion()
 	SlowMotionEffects();
 }
 
+void USlowMotionComponent::SuddentDisabledSlowMotion()
+{
+	if (bIsInSlowMotion == false)
+		return;
+
+	if (IsValid(SlowMotionSoundSpawned))
+		SlowMotionSoundSpawned->Stop();
+	if (CancelSlowMotionSound)
+		UGameplayStatics::PlaySound2D(GetWorld(), CancelSlowMotionSound);
+
+	GetWorld()->GetTimerManager().ClearTimer(SlowMotionTimeHandle);
+	DisableSlowMotion();
+}
+
 void USlowMotionComponent::SlowMotionEffects()
 {
 	if (SlowMotionSound) SlowMotionSoundSpawned = UGameplayStatics::SpawnSound2D(GetWorld(), SlowMotionSound);
@@ -80,7 +84,7 @@ void USlowMotionComponent::SlowMotionEffects()
 	if (IsValid(MarinePawn) == false)
 		return;
 
-	ElementBar SlowMoElementBar{ SlowMotionDelay + SlowMotionTime * SlowMotionValue };
+	ElementBar SlowMoElementBar{ SlowMotionTime };
 	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::SlowMo, SlowMoElementBar);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
 
@@ -108,6 +112,10 @@ void USlowMotionComponent::DisableSlowMotion()
 	MarinePawn->GetCamera()->PostProcessSettings.SceneFringeIntensity = 0.f;
 	MarinePawn->GetHudWidget()->SetColorAndOpacity(FLinearColor::White);
 
+	ElementBar SlowMoElementBar{ SlowMotionDelay };
+	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::SlowMo, SlowMoElementBar);
+	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
+
 	//Enable delay for SlowMotion
 	GetWorld()->GetTimerManager().SetTimer(SlowMotionDelayHandle, this, &USlowMotionComponent::DelayCompleted, SlowMotionDelay);
 }
@@ -117,3 +125,10 @@ void USlowMotionComponent::DelayCompleted()
 	bCanSlowMotion = true;
 }
 
+void USlowMotionComponent::PauseSlowMotionSound(bool bPause)
+{
+	if (IsValid(SlowMotionSoundSpawned) == false)
+		return;
+
+	SlowMotionSoundSpawned->SetPaused(bPause);
+}

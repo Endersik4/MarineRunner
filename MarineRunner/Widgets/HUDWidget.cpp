@@ -17,7 +17,7 @@ void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);
 
-	WhichElementShouldProgress();
+	WhichElementShouldProgress(DeltaTime);
 }
 
 void UHUDWidget::SetHealthBarPercent(float CurrentHealth)
@@ -74,16 +74,17 @@ void UHUDWidget::ShowWeaponOnHud(bool bShow)
 #pragma endregion
 
 #pragma region ////////////// FILL PROGRESS BARS //////////////////
-void UHUDWidget::WhichElementShouldProgress()
+void UHUDWidget::WhichElementShouldProgress(float Delta)
 {
-	if (bShouldProgress == false) return;
+	if (bShouldProgress == false || UGameplayStatics::IsGamePaused(GetWorld()) == true) 
+		return;
 
-	ProgressBarForUseableElements(HealBar, EUseableElement::Heal, ActiveHealAnim);
-	ProgressBarForUseableElements(DashBar, EUseableElement::Dash, ActiveDashAnim);
-	ProgressBarForUseableElements(SlowMoBar, EUseableElement::SlowMo, ActiveSlowMotionAnim);
+	ProgressBarForUseableElements(HealBar, EUseableElement::Heal, ActiveHealAnim, Delta);
+	ProgressBarForUseableElements(DashBar, EUseableElement::Dash, ActiveDashAnim, Delta);
+	ProgressBarForUseableElements(SlowMoBar, EUseableElement::SlowMo, ActiveSlowMotionAnim, Delta);
 }
 
-void UHUDWidget::ProgressBarForUseableElements(UProgressBar* ProgressBarElement, EUseableElement Element, UWidgetAnimation* AnimToPlayAfterFinish)
+void UHUDWidget::ProgressBarForUseableElements(UProgressBar* ProgressBarElement, EUseableElement Element, UWidgetAnimation* AnimToPlayAfterFinish, float Delta)
 {
 	if (!WhichElementToProgress.Contains(Element)) return;
 
@@ -92,7 +93,8 @@ void UHUDWidget::ProgressBarForUseableElements(UProgressBar* ProgressBarElement,
 		float NewPercent = FMath::Lerp(1.f, 0.f, WhichElementToProgress[Element].ProgressTimeElapsed / WhichElementToProgress[Element].MaxToZeroTime);
 
 		ProgressBarElement->SetPercent(NewPercent);
-		WhichElementToProgress[Element].ProgressTimeElapsed += UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+		WhichElementToProgress[Element].ProgressTimeElapsed += Delta;
+
 		return;
 	}
 	else

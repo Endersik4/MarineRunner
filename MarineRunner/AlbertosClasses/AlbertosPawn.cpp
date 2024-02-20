@@ -189,7 +189,7 @@ bool AAlbertosPawn::TeleportAlbertosToPlayer(FVector& PlayerLoc)
 		return false;
 
 	FNavLocation RandomTeleportLocation;
-	bool bFoundLoc = UNavigationSystemV1::GetCurrent(GetWorld())->GetRandomPointInNavigableRadius(PlayerLoc, TeleportToPlayerRadius, RandomTeleportLocation);
+	bool bFoundLoc = UNavigationSystemV1::GetCurrent(GetWorld())->GetRandomReachablePointInRadius(PlayerLoc, TeleportToPlayerRadius, RandomTeleportLocation);
 	if (bFoundLoc == false)
 		return false;
 

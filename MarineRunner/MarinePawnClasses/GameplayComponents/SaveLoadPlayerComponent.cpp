@@ -56,7 +56,7 @@ void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString&
 	if (IsValid(Player) == false)
 		return;
 
-	CreatedSaveGame = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+	USaveMarineRunner* CreatedSaveGame = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
 
 	CreatedSaveGame->PrepareSaveGame(_SaveName);
 	CreatedSaveGame->CopySaveInfoToCurrentGameInstance(GetWorld(), _WildCard);
@@ -92,16 +92,9 @@ void USaveLoadPlayerComponent::LoadGame()
 	if (GameInstance->bNewGame == true)
 		return;
 
-	FString SlotName = GameInstance->SlotSaveGameNameToLoad;
-	SlotName += "/" + SlotName;
-
-	USaveMarineRunner* LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
-	if (!UGameplayStatics::LoadGameFromSlot(SlotName, 0))
-	{
+	USaveMarineRunner* LoadGameInstance = CreateLoadGame();
+	if (IsValid(LoadGameInstance) == false)
 		return;
-	}
-
-	LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 
 	GameInstance->ResetDetectedEnemy();
 	GameInstance->ChangeBackgroundMusic(EMT_Exploration, true);
@@ -147,16 +140,37 @@ void USaveLoadPlayerComponent::RestartGame()
 
 void USaveLoadPlayerComponent::SpawnNewPlayer()
 {
-	AMarineCharacter* SpawnedNewPlayer = GetWorld()->SpawnActorDeferred<AMarineCharacter>(PlayerClass, FTransform(FRotator(0.f), FVector(0.f)));
+	FTransform NewPlayerTransform = FTransform(FRotator(0.f), FVector(0.f));
+
+	USaveMarineRunner* LoadGameInstance = CreateLoadGame();
+	if (IsValid(LoadGameInstance) == true)
+		NewPlayerTransform = FTransform(LoadGameInstance->SavedPlayerRotation, LoadGameInstance->SavedPlayerLocation);
+
+	AMarineCharacter* SpawnedNewPlayer = GetWorld()->SpawnActorDeferred<AMarineCharacter>(PlayerClass, NewPlayerTransform);
 	if (IsValid(SpawnedNewPlayer) == false)
 		return;
 
 	SpawnedNewPlayer->SetAlbertosPawn(Player->GetAlbertosPawn());
 	SpawnedNewPlayer->GetSaveLoadPlayerComponent()->SetSavedDataObject(Player->GetSaveLoadPlayerComponent()->GetSavedDataObject());
 	Player->GetAlbertosPawn()->GetPlayerIsNearComponent()->SetPlayerPawn(SpawnedNewPlayer);
-	SpawnedNewPlayer->FinishSpawning(FTransform(FRotator(0.f), FVector(0.f)));
+
+	SpawnedNewPlayer->FinishSpawning(NewPlayerTransform);
 
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(SpawnedNewPlayer);
+}
+
+USaveMarineRunner* USaveLoadPlayerComponent::CreateLoadGame()
+{
+	FString SlotName = GameInstance->SlotSaveGameNameToLoad;
+	SlotName += "/" + SlotName;
+
+	USaveMarineRunner* LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+	if (UGameplayStatics::LoadGameFromSlot(SlotName, 0) == nullptr)
+	{
+		return nullptr;
+	}
+
+	return Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 }
 
 void USaveLoadPlayerComponent::LoadSavedSettingsFromGameInstance()

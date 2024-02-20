@@ -60,33 +60,46 @@ void UWallrunComponent::Wallrunning(float Delta)
 
 void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitNormal)
 {
-	if (bIsWallrunning == false)
-	{
-		//The player must move forward to perform the wallrun
-		if (!(MarinePawn->GetInputAxisValue("Forward") > 0.5f)) return;
-		WallrunTimeElapsed = 0.6f;
+	//The player must move forward to perform the wallrun
+	if (bIsWallrunning == false && MarinePawn->GetInputAxisValue("Forward") > 0.5f == false)
+		return;
 
-		MarinePawn->MovementStuffThatCannotHappen(true); //Things that cannot happen while Wallrunning
-		MarinePawn->SetShouldPlayerGoForward(true);
-		//Setting up MarinePawn variables
-		MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
-		CurrentRotatedCameraRoll = CurrentSide;
-		RotateCameraWhileWallrunning(CurrentSide == Right ? CameraRollRightSideCurve : CameraRollLeftSideCurve);//Rotating the camera in Roll, Definition of this function is in Blueprint of MarineCharacter
-
-		RotateCameraYaw(CurrentSide, HitNormal);
-		float YawMovementImpulse = HitNormal.Rotation().Yaw + (85 * (CurrentSide == Left ? -1 : 1));
-		WallrunDirection = FRotator(0, YawMovementImpulse, 0).Vector();
-
-		bIsWallrunning = true;
-
-		bCanJumpWhileWallrunning = false;
-		GetWorld()->GetTimerManager().SetTimer(CanJumpHandle, this, &UWallrunComponent::SetCanJumpWhileWallrunning, 0.1f);
-	}
+	BeginWallrun(CurrentSide, HitNormal);
 	WallrunningWhereToJump = HitNormal;
+
+	if (MarinePawn->GetVelocity().Length() > VelocityRangeToStopWallrunming.GetLowerBoundValue() && MarinePawn->GetVelocity().Length() < VelocityRangeToStopWallrunming.GetUpperBoundValue())
+	{
+		ResetWallrunning();
+		return;
+	}
 
 	//added Impulse to Stick with Obstacle
 	FVector Impulse = (-HitNormal) * StickWithObstacleImpulse * 100.f;
 	MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
+}
+
+void UWallrunComponent::BeginWallrun(ESideOfLine CurrentSide, FVector HitNormal)
+{
+	if (bIsWallrunning == true)
+		return;
+
+	WallrunTimeElapsed = 0.6f;
+
+	MarinePawn->MovementStuffThatCannotHappen(true); //Things that cannot happen while Wallrunning
+	MarinePawn->SetShouldPlayerGoForward(true);
+	//Setting up MarinePawn variables
+	MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
+	CurrentRotatedCameraRoll = CurrentSide;
+	RotateCameraWhileWallrunning(CurrentSide == Right ? CameraRollRightSideCurve : CameraRollLeftSideCurve);//Rotating the camera in Roll, Definition of this function is in Blueprint of MarineCharacter
+
+	RotateCameraYaw(CurrentSide, HitNormal);
+	float YawMovementImpulse = HitNormal.Rotation().Yaw + (85 * (CurrentSide == Left ? -1 : 1));
+	WallrunDirection = FRotator(0, YawMovementImpulse, 0).Vector();
+
+	bIsWallrunning = true;
+
+	bCanJumpWhileWallrunning = false;
+	GetWorld()->GetTimerManager().SetTimer(CanJumpHandle, this, &UWallrunComponent::SetCanJumpWhileWallrunning, 0.1f);
 }
 
 bool UWallrunComponent::IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& OutCurrentSide, ESideOfLine WhichSideToLook)
@@ -154,6 +167,13 @@ bool UWallrunComponent::CanDoWallrun(float Delta)
 		return false;
 	}
 
+	if (MarinePawn->GetIsInPullUpMode() == true)
+		return false;
+	if (MarinePawn->GetIsCrouching() == true)
+		return false;
+	if ((MarinePawn->GetVelocity() * FVector(1.f, 1.f, 0.f)).Length() < MinVelocityToPerformWallrun)
+		return false;
+
 	//if player looks far away from the wall while wallrunning it then stop wallruning
 	float DistanceBetweenYaws = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PlayerRotationWallrun, PlayerRotationWhileWallrun).Yaw);
 	if (bIsWallrunning && DistanceBetweenYaws > 45.f)
@@ -191,7 +211,6 @@ void UWallrunComponent::CallResetWallrunningAfterLanding()
 
 void UWallrunComponent::RotateCameraYaw(ESideOfLine CurrentSide, FVector HitNormal)
 {
-
 	bShouldLerpRotation = true;
 	WhereToInterp = HitNormal.Rotation().Yaw + ((CurrentSide == Left ? -1 : 1) * AngleOfHitImpact);
 	PlayerRotationWallrun.Yaw = WhereToInterp;

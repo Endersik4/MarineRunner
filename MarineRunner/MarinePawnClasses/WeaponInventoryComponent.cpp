@@ -33,9 +33,13 @@ void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
 	if (IsValid(MarinePawn) == false || InitialWeaponInventory.Num() == 0)
 		return;
 
-	for (const TPair<int32, TSubclassOf<AGun>> CurrentPair : InitialWeaponInventory)
+	for (const TPair<int32, FString> CurrentPair : InitialWeaponInventory)
 	{
-		AGun* SpawnedGun = GetWorld()->SpawnActor<AGun>(CurrentPair.Value, FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
+		const FSoftClassPath GunClassPath = CurrentPair.Value;
+		if (GunClassPath.TryLoadClass<UObject>() == NULL)
+			continue;
+
+		AGun* SpawnedGun = GetWorld()->SpawnActor<AGun>(GunClassPath.TryLoadClass<UObject>(), FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
 		if (IsValid(SpawnedGun) == false)
 			continue;
 
@@ -112,7 +116,7 @@ void UWeaponInventoryComponent::SaveInitialWeaponInventory()
 	InitialWeaponInventory.Empty();
 	for (const TPair<int32, class AGun* > CurrentPair : WeaponsStorage)
 	{
-		InitialWeaponInventory.Add(CurrentPair.Value->GetMagazineCapacity(), CurrentPair.Value->GetClass());
+		InitialWeaponInventory.Add(CurrentPair.Value->GetMagazineCapacity(), CurrentPair.Value->GetClass()->GetClassPathName().ToString());
 	}
 }
 

@@ -166,6 +166,6 @@ private:
 	// Progress bars (health, slow mo...)
 	bool bShouldProgress;
 	TMap<EUseableElement, ElementBar> WhichElementToProgress;
-	void WhichElementShouldProgress();
-	void ProgressBarForUseableElements(class UProgressBar* ProgressBarElement, EUseableElement Element, UWidgetAnimation* AnimToPlayAfterFinish);
+	void WhichElementShouldProgress(float Delta);
+	void ProgressBarForUseableElements(class UProgressBar* ProgressBarElement, EUseableElement Element, UWidgetAnimation* AnimToPlayAfterFinish, float Delta);
 };

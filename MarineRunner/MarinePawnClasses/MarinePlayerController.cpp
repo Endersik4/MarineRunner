@@ -59,7 +59,6 @@ bool AMarinePlayerController::bShouldDisableCameraRotate(float CurrentLookValue)
 	{
 		return false;
 	}
-
 	return true;
 }
 

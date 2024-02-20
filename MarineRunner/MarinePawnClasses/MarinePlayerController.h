@@ -33,7 +33,7 @@ public:
 		void HandleOnPossessedPawnChanged(APawn* _NewPawn, APawn* _OldPawn);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Player Controller Settings")
-		FFloatRange MarginForPlayerToMove = FFloatRange(-0.75f, 0.75f);
+		FFloatRange MarginForPlayerToMove = FFloatRange(-0.2f, 0.2f);
 
 	void LookUp(float AxisValue);
 	void LookRight(float AxisValue);

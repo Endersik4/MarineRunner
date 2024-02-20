@@ -31,6 +31,8 @@ public:
 
 	UFUNCTION()
 		void OnOwnerDestroyed(AActor* DestroyedActor);
+
+	void PauseSlowMotionSound(bool bPause);
 private:
 	//Speed of SlowMotion
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
@@ -54,8 +56,8 @@ private:
 
 	bool bCanSlowMotion = true;
 	bool bIsInSlowMotion = false;
-	FTimerHandle SlowMotionTimeHandle;
 	FTimerHandle SlowMotionDelayHandle;
+	FTimerHandle SlowMotionTimeHandle;
 	void SettingUpSlowMotion();
 
 	void SlowMotionPressed();

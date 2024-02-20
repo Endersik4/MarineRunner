@@ -7,6 +7,7 @@
 
 #include "MarineRunner/Widgets/Menu/PauseMenuWidget.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/MarinePawnClasses/SlowMotionComponent.h"
 
 // Sets default values for this component's properties
 UPauseMenuComponent::UPauseMenuComponent()
@@ -31,6 +32,7 @@ void UPauseMenuComponent::PauseGame()
 	PlayerController->SetShowMouseCursor(true);
 	bIsInPauseMenu = true;
 	SpawnPauseMenuWidget();
+	MarinePawn->GetSlowMotionComponent()->PauseSlowMotionSound(true);
 
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
@@ -48,6 +50,8 @@ void UPauseMenuComponent::UnPauseGame()
 		ChangeUIToGameOnly();
 	}
 	bIsInPauseMenu = false;
+
+	MarinePawn->GetSlowMotionComponent()->PauseSlowMotionSound(false);
 
 	PauseMenuWidget->RemoveFromParent();
 	PauseMenuWidget = nullptr;

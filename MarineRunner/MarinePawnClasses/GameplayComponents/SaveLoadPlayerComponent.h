@@ -49,8 +49,8 @@ private:
 		TSubclassOf<class AMarineCharacter> PlayerClass;
 
 	//Saving/Loading Game
-	class USaveMarineRunner* CreatedSaveGame;
 	void SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn);
+	class USaveMarineRunner* CreateLoadGame();
 
 	void SpawnNewPlayer();
 

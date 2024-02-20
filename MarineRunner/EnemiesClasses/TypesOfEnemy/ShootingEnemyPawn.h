@@ -18,6 +18,7 @@ protected:
 	AShootingEnemyPawn();
 
 	virtual void Tick(float DeltaTime) override;
+	virtual void BeginPlay() override;
 
 public:
 	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
@@ -60,6 +61,19 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
 		FFloatRange StartShootingRandomTimeRange = FFloatRange(1.f, 3.f);
 
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot")
+		bool bAlertAboutShoot = false;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot", meta = (EditCondition = "bAlertAboutShoot", EditConditionHides))
+		int32 AlertMaterialIndexToChange;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot", meta = (EditCondition = "bAlertAboutShoot", EditConditionHides))
+		FName AlertParameterNameToChange;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot", meta = (EditCondition = "bAlertAboutShoot", EditConditionHides))
+		float BeginParameterChangeAfterShootTime;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot", meta = (EditCondition = "bAlertAboutShoot", EditConditionHides))
+		float FinishAlertParameterChangeTime;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot", meta = (EditCondition = "bAlertAboutShoot", EditConditionHides))
+		float EndValueForAlertParameter;
+
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Enemy Run Away")
 		bool bCanEnemyRunAway = true;
 	// if enemy has less hp then MaxEnemyHealthForRunAway then choose random if enemy should run away
@@ -78,6 +92,14 @@ private:
 	FTimerHandle ShootHandle;
 	void StartShooting();
 	void Shoot();
+
+	// Alert about shoot
+	float AlertTimeElapsed;
+	bool bStartAlert;
+	void SetUpShootAlert();
+	void ChangeParameterInAlertMaterial(float Delta);
+	void ResetAlertMaterial();
+	UMaterialInstanceDynamic* CurrentAlertMaterial;
 
 	//If enemy see the player then he will execute given functions
 	AActor* FocusedActor;

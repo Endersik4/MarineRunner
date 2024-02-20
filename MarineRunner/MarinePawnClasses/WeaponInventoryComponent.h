@@ -45,7 +45,7 @@ public:
 	void StartTimerForSpawnNewWeapons();
 
 	UPROPERTY(EditAnywhere, Category = "Weapon Inventory Settings Settings")
-		TMap<int32, TSubclassOf<class AGun>> InitialWeaponInventory;
+		TMap<int32, FString> InitialWeaponInventory;
 
 private:
 

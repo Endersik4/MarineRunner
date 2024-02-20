@@ -27,6 +27,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	FORCEINLINE bool GetIsInPullUpMode() const { return bShouldPullUpLerp; }
+
 private:
 	//How Fast (in seconds) lerp to PullUp location will be done 
 	UPROPERTY(EditAnywhere, Category = "PullUp")

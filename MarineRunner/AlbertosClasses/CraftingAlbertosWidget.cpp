@@ -33,21 +33,21 @@ void UCraftingAlbertosWidget::NativeOnInitialized()
 	LeftArrowButton->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::LeftArrowHovered);
 	LeftArrowButton->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::LeftArrowUnhovered);
 
-
 	RightArrowButton->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::RightArrowClicked);
 	RightArrowButton->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::RightArrowHovered);
 	RightArrowButton->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::RightArrowUnhovered);
 
+	CloseWidgetButton->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::CloseWidgetButtonClicked);
+	CloseWidgetButton->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::CloseWidgetButtonHovered);
+	CloseWidgetButton->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::CloseWidgetButtonUnhovered);
 
 	AmountMultiplier_1x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_1xClicked);
 	AmountMultiplier_1x->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_1xHovered);
 	AmountMultiplier_1x->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_1xUnhovered);
 
-
 	AmountMultiplier_2x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_2xClicked);
 	AmountMultiplier_2x->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_2xHovered);
 	AmountMultiplier_2x->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_2xUnhovered);
-
 
 	AmountMultiplier_4x->OnClicked.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_4xClicked);
 	AmountMultiplier_4x->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_4xHovered);
@@ -383,6 +383,24 @@ void UCraftingAlbertosWidget::RightArrowUnhovered()
 }
 
 #pragma endregion
+
+void UCraftingAlbertosWidget::CloseWidgetButtonClicked()
+{
+	if (IsValid(AlbertosPawn) == false)
+		return;
+
+	AlbertosPawn->TakeItem(MarinePawn);
+}
+
+void UCraftingAlbertosWidget::CloseWidgetButtonHovered()
+{
+	PlayButtonAnimation(CloseWidgetButtonHoveredAnim);
+}
+
+void UCraftingAlbertosWidget::CloseWidgetButtonUnhovered()
+{
+	PlayButtonAnimation(CloseWidgetButtonHoveredAnim, false);
+}
 
 #pragma region //////////////////////////////// Mutlipliers Buttons/////////////////////////////////
 

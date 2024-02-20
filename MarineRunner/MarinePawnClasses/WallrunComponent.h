@@ -63,6 +63,10 @@ private:
 	//How much should change the angle of the impact vector
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float AngleOfHitImpact = 85.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
+		FFloatRange VelocityRangeToStopWallrunming = FFloatRange(-5.f, 400.f);
+	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
+		float MinVelocityToPerformWallrun = 120.f;
 
 	//Interp Speed of Changing the Yaw Camera
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")
@@ -101,6 +105,7 @@ private:
 	void Wallrunning(float Delta);
 	void ResetWallrunning(); //Disable Wallrun
 	void StickToTheObstacle(ESideOfLine CurrentSide, FVector HitNormal);
+	void BeginWallrun(ESideOfLine CurrentSide, FVector HitNorma);
 	bool IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& OutCurrentSide, ESideOfLine WhichSideToLook = ESideOfLine::Left);
 	bool CanDoWallrun(float Delta);
 

@@ -44,6 +44,7 @@ public:
 	bool GetIsPlayerLerpingToHookLocation() const;
 	bool GetIsCrouching() const;
 	bool GetIsInSlowMotion() const;
+	bool GetIsInPullUpMode() const;
 	FORCEINLINE bool GetIsDead() const { return bIsDead; }
 	FORCEINLINE bool GetShouldPlayerGoForward() const { return bShouldPlayerGoForward; }
 	bool GetIsInAir() const;
@@ -66,6 +67,7 @@ public:
 	FORCEINLINE class UArmsSwayComponent* GetArmsSwayComponent() const { return ArmsSwayComponent; }
 	FORCEINLINE class UWallrunComponent* GetWallrunComponent() const { return WallrunComponent; }
 	FORCEINLINE class UCroachAndSlide* GetCroachAndSlideComponent() const { return CroachAndSlideComponent; }
+	FORCEINLINE class USlowMotionComponent* GetSlowMotionComponent() const { return SlowMotionComponent; }
 	FORCEINLINE FSettingSavedInJsonFile& GetMouseSensitivityJSON()  { return MouseSensitivityJSON; }
 	FORCEINLINE class AAlbertosPawn* GetAlbertosPawn() { return AlbertoPawn; }
 	bool GetIsMessageDisplayed() const;
