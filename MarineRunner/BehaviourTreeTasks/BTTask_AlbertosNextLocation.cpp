@@ -1,9 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineRunner/BehaviourTreeTasks/BTTask_AlbertosNextLocation.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "NavigationSystem.h"
 
 #include "MarineRunner/AlbertosClasses/AlbertosAIController.h"
 
@@ -19,7 +19,7 @@ EBTNodeResult::Type UBTTask_AlbertosNextLocation::ExecuteTask(UBehaviorTreeCompo
 	UBlackboardComponent* BlackBoardComp = OwnerComp.GetBlackboardComponent();
 	if (!BlackBoardComp) return EBTNodeResult::Failed;
 
-	FVector NextLocation = CalculateNextLocationNearThePlayer(OwnerComp.GetAIOwner()->GetPawn()->GetActorLocation().Z);
+	FVector NextLocation = CalculateNextLocationNearThePlayer();
 
 	if (BlackBoardComp->IsVectorValueSet(FName(TEXT("PlayerLocation"))))
 	{
@@ -32,17 +32,17 @@ EBTNodeResult::Type UBTTask_AlbertosNextLocation::ExecuteTask(UBehaviorTreeCompo
 	return EBTNodeResult::Type();
 }
 
-EBTNodeResult::Type UBTTask_AlbertosNextLocation::AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
+FVector UBTTask_AlbertosNextLocation::CalculateNextLocationNearThePlayer()
 {
-	return EBTNodeResult::Type();
-}
+	if (IsValid(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)) == false)
+		return FVector(0.f);
 
-FVector UBTTask_AlbertosNextLocation::CalculateNextLocationNearThePlayer(float Albertos_Z)
-{
-	FVector Loc = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
-	Loc.Z = Albertos_Z;
-	float NewX = FMath::FRandRange(-2500.f, 2500.f);
-	float NewY = FMath::FRandRange(-2500.f, 2500.f);
-	Loc += FVector(NewX, NewY, 0.f);
-	return Loc;
+	FNavLocation RandomNavLocation;
+	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	if (IsValid(NavSystem) == false)
+		return FVector(0.f);
+
+	NavSystem->GetRandomReachablePointInRadius(UGameplayStatics::GetPlayerPawn(GetWorld(),0)->GetActorLocation(), RadiusToPickFromPlayerLocation, RandomNavLocation);
+
+	return RandomNavLocation.Location;
 }

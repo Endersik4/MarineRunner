@@ -85,7 +85,8 @@ void ASavedDataObject::RestartObjectsData()
 	if (TempCustomSavedData.Num() == 0)
 		return;
 
-	// to do:
+	TArray<int32> KeysToRemoveFromCustomSavedData;
+
 	for (const TPair<int32, FCustomDataSaved>& Pair : TempCustomSavedData)
 	{
 		if (IsValid(Pair.Value.ObjectToSaveData) == false)
@@ -99,9 +100,14 @@ void ASavedDataObject::RestartObjectsData()
 
 		if (Pair.Value.bValueNotSavedWhileInGame == false)
 		{
-			CustomSavedData.Remove(Pair.Key);
-			TempCustomSavedData.Remove(Pair.Key);
+			KeysToRemoveFromCustomSavedData.Add(Pair.Key);
 		}
+	}
+
+	for (const int32& CurrentKeyToRemove : KeysToRemoveFromCustomSavedData)
+	{
+		CustomSavedData.Remove(CurrentKeyToRemove);
+		TempCustomSavedData.Remove(CurrentKeyToRemove);
 	}
 }
 

@@ -49,11 +49,11 @@ void UInventoryComponent::AddNewItemToInventory(FName ItemRowNameFromDataTable, 
 		return;
 
 	FItemStruct ItemWithAmount = *ItemFromDataTable;
-	ItemWithAmount.Item_Amount = AddAmountToItem;
 
 	if (ItemWithAmount.bIsItCraftable)
 		Items_Recipes.Add(ItemWithAmount);
 
+	ItemWithAmount.Item_Amount = AddAmountToItem;
 	Inventory_Items.Add(ItemWithAmount);
 }
 

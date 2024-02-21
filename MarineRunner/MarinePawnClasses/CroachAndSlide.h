@@ -112,6 +112,7 @@ private:
 	void Sliding(float Delta);
 	bool ShouldStopSliding();
 	void StopSliding();
+	void StopSlideCameraShake();
 
 	// Sliding sound
 	void TurnOnSlideSound();

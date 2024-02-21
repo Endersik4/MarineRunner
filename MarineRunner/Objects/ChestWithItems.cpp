@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 
 #include "MarineRunner/Objects/ChestWithItems.h"
@@ -48,11 +48,12 @@ void AChestWithItems::BeginPlay()
 	}
 }
 
-void AChestWithItems::ClickedOpenButton(class UDoorPanelWidget* ClickedWidget)
+void AChestWithItems::ClickedOpenButton(UDoorPanelWidget* ClickedWidget)
 {
 	if (bIsChestOpen == true) 
 		return;
 
+	FrontPanelWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	OpenChest();
 }
 
@@ -139,6 +140,8 @@ void AChestWithItems::RestartData(ASavedDataObject* SavedDataObject, const int32
 	{
 		bIsChestOpen = false;
 		FrontChestPanelWidget->SetVisibility(ESlateVisibility::Visible);
+		FrontPanelWidget->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
 		FrontChestPanelWidget->RestartDoorPanelWidget();
 		ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 		ChestSkeletalMesh->SetPosition(0.f);

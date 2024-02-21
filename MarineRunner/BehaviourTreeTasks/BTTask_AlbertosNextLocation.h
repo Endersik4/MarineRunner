@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -19,9 +19,12 @@ public:
 
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
-	virtual EBTNodeResult::Type AbortTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 
+
+public:
+	UPROPERTY(EditAnywhere)
+		float RadiusToPickFromPlayerLocation = 2000.f;
 private:
-	FVector CalculateNextLocationNearThePlayer(float Albertos_Z);
+	FVector CalculateNextLocationNearThePlayer();
 	
 };

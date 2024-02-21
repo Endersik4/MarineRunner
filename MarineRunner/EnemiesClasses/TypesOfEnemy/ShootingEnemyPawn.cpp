@@ -134,6 +134,9 @@ void AShootingEnemyPawn::ShouldRunAway()
 {
 	SetEnemyKilledInAIController();
 
+	if (bEnemyDetectedTarget == true)
+		PlayPrepareToShootAnimation(false);
+
 	SawTheTarget(false);
 	GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
 	GetWorld()->GetTimerManager().ClearTimer(StartShootingHandle);

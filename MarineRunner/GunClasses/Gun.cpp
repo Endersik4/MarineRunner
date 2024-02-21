@@ -7,7 +7,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Perception/AISense_Hearing.h"
-
+#include "Components/TimelineComponent.h"
 #include "MarineRunner/GunClasses/Bullet.h"
 #include "MarineRunner/GunClasses/Scope.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
@@ -27,6 +27,9 @@ AGun::AGun()
 
 	GunSkeletalMesh->SetCollisionProfileName(TEXT("NoCollision"));
 
+	CameraRecoilPitchTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("Camera Recoil Pitch Timeline"));
+	ShootRecoilTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("Shoot Recoil Timeline"));
+
 	Tags.Add(TEXT("Gun"));
 }
 
@@ -36,10 +39,26 @@ void AGun::BeginPlay()
 	Super::BeginPlay();
 
 	if (RecoilCameraCurveRandomRotation)
-		SetupFloatTimeline(&RecoilGunTimeline, FName(TEXT("ShootRecoilTimelineProgress")), FName(TEXT("")), RecoilCameraCurveRandomRotation);
-	
+	{
+		FOnTimelineFloat TimelineFloatProgress;
+		TimelineFloatProgress.BindUFunction(this, "ShootRecoilTimelineProgress");
+		ShootRecoilTimeline->AddInterpFloat(RecoilCameraCurveRandomRotation, TimelineFloatProgress);
+
+		//ShootRecoilTimeline->SetIgnoreTimeDilation(true);
+	}
+
 	if (bShouldUseCurveRecoil)
-		SetupFloatTimeline(&RecoilCameraTimeline, FName(TEXT("RecoilCameraTimelineCallback")), FName(TEXT("RecoilCameraTimelineFinishedCallback")), RecoilCameraCurveY);
+	{
+		FOnTimelineFloat TimelineFloatProgress;
+		TimelineFloatProgress.BindUFunction(this, "RecoilCameraTimelineCallback");
+		CameraRecoilPitchTimeline->AddInterpFloat(RecoilCameraCurveY, TimelineFloatProgress);
+
+		FOnTimelineEventStatic TimelineCallbackFinished;
+		TimelineCallbackFinished.BindUFunction(this, "RecoilCameraTimelineFinishedCallback");
+		CameraRecoilPitchTimeline->SetTimelineFinishedFunc(TimelineCallbackFinished);
+
+		//CameraRecoilPitchTimeline->SetIgnoreTimeDilation(true);
+	}
 
 	OriginalMagazineCapacity = MagazineCapacity;
 	PC = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
@@ -77,9 +96,6 @@ void AGun::Tick(float DeltaTime)
 
 	UpRecoilCameraUsingCurve(DeltaTime);
 	CameraInterpBackToInitialPosition(DeltaTime);
-
-	RecoilGunTimeline.TickTimeline(DeltaTime);
-	RecoilCameraTimeline.TickTimeline(DeltaTime);
 }
 
 #pragma region //////////////////////////////////// SHOOT /////////////////////////////////////
@@ -169,16 +185,18 @@ void AGun::ShootFinished()
 void AGun::PlayRecoil()
 {
 	SetCameraRecoil(); //Recoil CAMERA
-	RecoilGunTimeline.PlayFromStart();
+	ShootRecoilTimeline->PlayFromStart();
 }
 #pragma endregion
 
 #pragma region //////////////////////////////// GUN RECOIL ////////////////////////////////////
 void AGun::ShootRecoilTimelineProgress(float RecoilDirection)
 {
-	float ControlRotationPitch = RandomRecoilPitch * RecoilCameraCurveRandomRotation->GetFloatValue(RecoilGunTimeline.GetPlaybackPosition());
-	float ControlRotationYaw = RandomRecoilYaw * RecoilCameraCurveRandomRotation->GetFloatValue(RecoilGunTimeline.GetPlaybackPosition());
+	float ControlRotationPitch = RandomRecoilPitch * RecoilCameraCurveRandomRotation->GetFloatValue(ShootRecoilTimeline->GetPlaybackPosition());
+	float ControlRotationYaw = RandomRecoilYaw * RecoilCameraCurveRandomRotation->GetFloatValue(ShootRecoilTimeline->GetPlaybackPosition());
 		
+	ControlRotationYaw *= UGameplayStatics::GetGlobalTimeDilation(GetWorld());
+	ControlRotationPitch *= UGameplayStatics::GetGlobalTimeDilation(GetWorld());
 	PC->AddYawInput(ControlRotationYaw);
 	PC->AddPitchInput(-ControlRotationPitch);
 }
@@ -193,6 +211,7 @@ void AGun::RecoilCameraTimelineCallback(float ControlRotationY)
 	if (StatusOfGun == ADS)
 		ControlRotationY /= DividerOfRecoilWhileADS;
 
+	ControlRotationY *= UGameplayStatics::GetGlobalTimeDilation(GetWorld());
 	PC->AddYawInput(ControlRotationY);
 }
 
@@ -204,7 +223,7 @@ void AGun::SetCameraRecoil()
 
 	if (bShouldUseCurveRecoil)
 	{
-		RecoilCameraTimeline.PlayFromStart();
+		CameraRecoilPitchTimeline->PlayFromStart();
 		RandomValueForCameraYRecoil = FMath::FRandRange(RandomRangeFromRecoilCurveY.GetLowerBoundValue(), RandomRangeFromRecoilCurveY.GetUpperBoundValue());
 
 		bCanRecoilCamera = true;
@@ -219,6 +238,7 @@ void AGun::SetCameraRecoil()
 		RandomRecoilYaw /= DividerOfRecoilWhileADS;
 		RandomRecoilPitch /= DividerOfRecoilWhileADS;
 	}
+
 }
 
 void AGun::UpRecoilCameraUsingCurve(float Delta)
@@ -226,11 +246,14 @@ void AGun::UpRecoilCameraUsingCurve(float Delta)
 	if (bCanRecoilCamera == false || bShouldUseCurveRecoil == false) 
 		return;
 
+	
 	float ControlRotationPitch = (DistanceFromStart * 0.375) * Delta / ((OriginalMagazineCapacity * ShootTime) + 0.2f);
 	if (StatusOfGun == ADS)
 	{
 		ControlRotationPitch /= DividerOfRecoilWhileADS;
 	}
+	ControlRotationPitch *= UGameplayStatics::GetGlobalTimeDilation(GetWorld());
+
 	PC->AddPitchInput(-ControlRotationPitch);
 }
 
@@ -267,7 +290,8 @@ void AGun::BackCameraToItsInitialRotation()
 
 void AGun::CameraInterpBackToInitialPosition(float Delta)
 {
-	if (!MarinePawn) return;
+	if (IsValid(MarinePawn) == false) 
+		return;
 
 	if (bShouldCameraInterpBack == false) return;
 
@@ -284,7 +308,7 @@ void AGun::CameraInterpBackToInitialPosition(float Delta)
 		return;
 	}
 
-	FRotator NewRotation = UKismetMathLibrary::RInterpTo(PC->GetControlRotation(), InitialCameraRotation, Delta, InitalCameraPositionSpeed);
+	FRotator NewRotation = UKismetMathLibrary::RInterpTo(PC->GetControlRotation(), InitialCameraRotation, Delta * UGameplayStatics::GetGlobalTimeDilation(GetWorld()), InitalCameraPositionSpeed);
 	PC->SetControlRotation(NewRotation);
 }
 
@@ -295,7 +319,7 @@ void AGun::ResetVariablesForCameraRecoil()
 	bConstantlyShoot = false;
 
 	if (bShouldUseCurveRecoil) 
-		RecoilCameraTimeline.Stop();
+		CameraRecoilPitchTimeline->Stop();
 }
 #pragma endregion
 

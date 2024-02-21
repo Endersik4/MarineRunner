@@ -43,6 +43,7 @@ public:
 
 	//Getters
 	FORCEINLINE bool GetCanJump() const { return bCanJumpWhileWallrunning; }
+	FORCEINLINE bool GetCanJumpAfterWallrun() const { return bCanJumpAfterWallrun; }
 	FORCEINLINE FVector GetWallrunDirection() const { return WallrunDirection; }
 
 	bool ShouldAddImpulseAfterWallrun(bool bShould); //Check If Should Add This Impulse. Return true if Pawn is wallrunning, false otherwise
@@ -63,6 +64,8 @@ private:
 	//How much should change the angle of the impact vector
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float AngleOfHitImpact = 85.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
+		float CanJumpAfterWallrunTime = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
 		FFloatRange VelocityRangeToStopWallrunming = FFloatRange(-5.f, 400.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
@@ -108,6 +111,12 @@ private:
 	void BeginWallrun(ESideOfLine CurrentSide, FVector HitNorma);
 	bool IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& OutCurrentSide, ESideOfLine WhichSideToLook = ESideOfLine::Left);
 	bool CanDoWallrun(float Delta);
+
+	// coyote time after wallrun
+	bool bCanJumpAfterWallrun;
+	FTimerHandle CanJumpAfterWallrunHandle;
+	void DisableCanJumpAfterWallrun();
+
 
 	FRotator PlayerRotationWallrun;
 	FRotator PlayerRotationWhileWallrun;

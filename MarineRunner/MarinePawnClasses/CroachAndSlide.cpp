@@ -114,9 +114,20 @@ void UCroachAndSlide::StopSliding()
 {
 	CurrentMovementForce = CrouchForceSpeed;
 	TurnOffSlideSound();
-	if (IsValid(CameraShakeBase))
-		CameraShakeBase->StopShake(false);
+	StopSlideCameraShake();
+
 	bSlide = false;
+}
+
+void UCroachAndSlide::StopSlideCameraShake()
+{
+	if (IsValid(CameraShakeBase) == false)
+		return;
+
+	if (CameraShakeBase->IsActive() == false)
+		return;
+
+	CameraShakeBase->StopShake(false);
 }
 
 void UCroachAndSlide::TurnOnSlideSound()
@@ -219,8 +230,7 @@ void UCroachAndSlide::StopCrouching()
 	GetWorld()->GetTimerManager().ClearTimer(SlideDelayHandle);
 
 	bRampCameraShakeStarted = false;
-	if (IsValid(CameraShakeBase))
-		CameraShakeBase->StopShake(false);
+	StopSlideCameraShake();
 
 	PrepareVariablesForChangingCrouchState(ScalePlayerWhenCrouching.GetUpperBoundValue(), 0.f);
 	bIsNowChangingCrouchState = true;

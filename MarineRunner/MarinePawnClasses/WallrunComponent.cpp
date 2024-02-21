@@ -156,6 +156,14 @@ void UWallrunComponent::ResetWallrunning()
 	MarinePawn->SetMovementSpeedMutliplier(1.f);
 
 	RotateCameraWhileWallrunning(CurrentRotatedCameraRoll == Right ? CameraRollRightSideCurve : CameraRollLeftSideCurve);
+
+	bCanJumpAfterWallrun = true;
+	GetWorld()->GetTimerManager().SetTimer(CanJumpAfterWallrunHandle, this, &UWallrunComponent::DisableCanJumpAfterWallrun, CanJumpAfterWallrunTime, false);
+}
+
+void UWallrunComponent::DisableCanJumpAfterWallrun()
+{
+	bCanJumpAfterWallrun = false;
 }
 
 bool UWallrunComponent::CanDoWallrun(float Delta)

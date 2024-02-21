@@ -37,10 +37,11 @@ void UJumpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 #pragma region ////////////////////////////////// JUMP /////////////////////////////////
 void UJumpComponent::Jump()
 {
-	if (Player->GetWallrunComponent()->GetCanJump() == false) 
+	if (Player->GetWallrunComponent()->GetCanJump() == false)
 		return;
 
-	if (bIsInAir == false || (bDelayIsInAir && bIsJumping == false) || Player->GetWallrunComponent()->ShouldAddImpulseAfterWallrun(true))
+	if (bIsInAir == false || (bDelayIsInAir && bIsJumping == false) || Player->GetWallrunComponent()->ShouldAddImpulseAfterWallrun(true) || 
+		Player->GetWallrunComponent()->GetCanJumpAfterWallrun())
 	{
 		bIsJumping = true;
 		JumpTimeElapsed = 0;
@@ -74,7 +75,10 @@ void UJumpComponent::JumpTick(float DeltaTime)
 
 			Player->GetPlayerCapsule()->SetPhysicsLinearVelocity(LinearVelocity);
 		}
-		else JumpTimeElapsed += JumpUpTime;
+		else
+		{
+			JumpTimeElapsed += JumpUpTime;
+		}
 
 		Player->GetWallrunComponent()->AddImpulseAfterWallrun(JumpTimeElapsed);
 
@@ -90,6 +94,7 @@ void UJumpComponent::JumpTick(float DeltaTime)
 	}
 	else
 	{
+		bDelayIsInAir = false;
 		bDownForce = false;
 		bIsJumping = false;
 	}
@@ -122,7 +127,7 @@ void UJumpComponent::CheckIfIsInAir()
 	FHitResult GroundHitResult;
 	FVector GroundCheckLocation = Player->GetGroundLocationSceneComponent()->GetComponentLocation();
 	//Check if there is ground under the player, if not, the player is in the air
-	bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GroundCheckLocation, GroundCheckLocation, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
+	bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GroundCheckLocation, GroundCheckLocation, FQuat::Identity, ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
 	if (bSomethingIsBelowThePlayer == false)
 	{
 		if (bIsInAir == true)

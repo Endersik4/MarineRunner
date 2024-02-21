@@ -134,7 +134,7 @@ void AEnemyPawn::PlayFootstepsSound()
 	if (bCanPlayFootstepsSound == false || bIsDead) 
 		return;
 
-	if (GetVelocity().Length() >= 0.f && GetVelocity().Length() <= 5.f)
+	if (GetVelocity().Length() >= 0.f && GetVelocity().Length() <= 25.f)
 		return;
 
 	float FootstepsTime = TimeBetweenNextStep;

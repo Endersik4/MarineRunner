@@ -92,6 +92,10 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		USkeletalMeshComponent* GunSkeletalMesh;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UTimelineComponent* CameraRecoilPitchTimeline;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UTimelineComponent* ShootRecoilTimeline;
 
 	UFUNCTION()
 		void ShootRecoilTimelineProgress(float x);
@@ -304,7 +308,6 @@ private:
 	/////////// GUN RECOIL /////////////////
 	void PlayRecoil();
 	FTimerHandle PlayRecoilHandle;
-	FTimeline RecoilGunTimeline;
 	////////////////////////////////////////////
 
 	/////////////// Constantly Shooting ///////////
@@ -339,7 +342,6 @@ private:
 	float RandomValueForCameraYRecoil;
 	FRotator InitialCameraRotation;
 	FTimerHandle ShootTimerHandle;
-	FTimeline RecoilCameraTimeline;
 	void SetCameraRecoil();
 	void ResetVariablesForCameraRecoil();
 	void BackCameraToItsInitialRotation();

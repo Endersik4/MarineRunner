@@ -58,7 +58,6 @@ void APunchingEnemyPawn::ApplyDamageToPlayer()
 	FHitResult DamagePlayerResult;
 	
 	bool bPlayerTakenDamage = GetWorld()->SweepSingleByChannel(DamagePlayerResult, DamageSphereLocation, DamageSphereLocation, FQuat::Identity, ECC_GameTraceChannel3, FCollisionShape::MakeSphere(DamageSphereRadius));
-
 	if (bPlayerTakenDamage == false)
 		return;
 

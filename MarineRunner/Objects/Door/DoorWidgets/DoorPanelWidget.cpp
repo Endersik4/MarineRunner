@@ -129,9 +129,6 @@ void UDoorPanelWidget::PinIsCorrect(bool bClickedByOwner)
 	PinNumbersTileView->SetVisibility(ESlateVisibility::Hidden);
 	BackgroundPinImage->SetVisibility(ESlateVisibility::Hidden);
 
-	InteractDoorButton->SetVisibility(ESlateVisibility::Visible);
-	InteractDoorText->SetVisibility(ESlateVisibility::Visible);
-
 	if (bClickedByOwner == false)
 		return;
 
@@ -141,6 +138,8 @@ void UDoorPanelWidget::PinIsCorrect(bool bClickedByOwner)
 	{
 		ActorWithWidget->GetOtherPanelWidget(this)->PinIsCorrect(false);
 	}
+
+	OnClickedInteractDoorButton();
 }
 
 void UDoorPanelWidget::RestartDoorPanelWidget()

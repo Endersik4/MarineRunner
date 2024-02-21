@@ -101,6 +101,9 @@ void AAlbertosPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 #pragma region //////////////////// Inventory /////////////////
 void AAlbertosPawn::TakeItem(AMarineCharacter* Character)
 {
+	if (IsValid(Character) == false)
+		return;
+
 	if (CraftingWidgetAnimationComponent->GetIsCraftingWidgetAnimatinPlaying() == true)
 		return;
 
@@ -110,8 +113,11 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character)
 		Character->UpdateAlbertosInventory(true, true);
 	}
 
-	if (IsValid(SpawnedRandomSound)) 
-		SpawnedRandomSound->Stop();
+	if (IsValid(SpawnedRandomSound))
+	{
+		if (SpawnedRandomSound->IsActive() == true)
+			SpawnedRandomSound->Stop();
+	}
 }
 
 void AAlbertosPawn::ItemHover(AMarineCharacter* Character)
