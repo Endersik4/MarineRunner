@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 
 #include "MarineRunner/Widgets/Menu/LoadGameMenu/LoadGameMenuWidget.h"
@@ -37,7 +37,7 @@ void ULoadGameMenuWidget::FillSavesListView()
 
 	FillDeserializedSaveFilesToArray(Txt_Files, DeserlializedSaves);
 
-	DeserlializedSaves.Sort([](const FSaveDataMenuStruct& a, const FSaveDataMenuStruct& b) { return a.SaveNumber > b.SaveNumber; });
+	DeserlializedSaves.Sort([](const FSaveDataMenuStruct& a, const FSaveDataMenuStruct& b) { return a.SavedDateValue > b.SavedDateValue; });
 
 	ConvertArrayToLoadGameMenuEntryList(DeserlializedSaves);
 }
@@ -59,6 +59,7 @@ void ULoadGameMenuWidget::FillDeserializedSaveFilesToArray(TArray<FString>& Path
 		NewSaveDataMenu.SaveDateTime = JsonObject->GetStringField("SavedGameDate");
 		NewSaveDataMenu.LevelNameToLoad = JsonObject->GetStringField("SavedLevelName");
 		NewSaveDataMenu.TotalPlayTimeInSeconds = JsonObject->GetNumberField("TotalPlayTime");
+		NewSaveDataMenu.SavedDateValue = JsonObject->GetNumberField("SavedDateValue");
 
 		ArrayToFill.Add(NewSaveDataMenu);
 	}

@@ -43,6 +43,7 @@ void UJumpComponent::Jump()
 	if (bIsInAir == false || (bDelayIsInAir && bIsJumping == false) || Player->GetWallrunComponent()->ShouldAddImpulseAfterWallrun(true) || 
 		Player->GetWallrunComponent()->GetCanJumpAfterWallrun())
 	{
+		Player->GetWallrunComponent()->SetCanJumpAfterWallrun(false);
 		bIsJumping = true;
 		JumpTimeElapsed = 0;
 		if (JumpSound) UGameplayStatics::SpawnSound2D(GetWorld(), JumpSound);

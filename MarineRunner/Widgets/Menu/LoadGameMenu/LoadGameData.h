@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -23,6 +23,8 @@ struct FSaveDataMenuStruct
 		FString ScreenshotPathSave;
 	UPROPERTY(EditDefaultsOnly)
 		FString SaveDateTime;
+	UPROPERTY(EditDefaultsOnly)
+		float SavedDateValue;
 	UPROPERTY(EditDefaultsOnly)
 		FString LevelNameToLoad;
 	UPROPERTY(EditDefaultsOnly)

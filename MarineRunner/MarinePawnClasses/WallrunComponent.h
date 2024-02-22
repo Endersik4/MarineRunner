@@ -41,6 +41,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		bool GetIsWallrunning() const { return bIsWallrunning; }
 
+	FORCEINLINE void SetCanJumpAfterWallrun(bool bCan) { bCanJumpAfterWallrun = bCan; }
+
 	//Getters
 	FORCEINLINE bool GetCanJump() const { return bCanJumpWhileWallrunning; }
 	FORCEINLINE bool GetCanJumpAfterWallrun() const { return bCanJumpAfterWallrun; }

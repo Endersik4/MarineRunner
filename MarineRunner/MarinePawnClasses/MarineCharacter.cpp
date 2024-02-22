@@ -198,7 +198,7 @@ void AMarineCharacter::Forward(float Axis)
 	// There is a bug where ForwardVector is not correct and had to use Controller->RootComponent but this way have other bug, when player looks up or down then he cant 
 	// go forward/backward and to fix this i had to rotate RightVector by -90.f
 	FVector Dir = MarinePlayerController->GetRootComponent()->GetRightVector().RotateAngleAxis(DegreeForForwardVector, FVector(0.f, 0.f, 1.f));
-
+	
 	if (bShouldPlayerGoForward == true)
 	{
 		Axis = 1.f;

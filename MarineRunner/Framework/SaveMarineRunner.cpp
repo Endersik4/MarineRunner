@@ -77,6 +77,7 @@ void USaveMarineRunner::MakeJsonFileWithSaveInfo(APlayerController* PlayerContro
 	JsonObject->SetNumberField("SavedDataNumber", SaveNumber);
 	JsonObject->SetStringField("PathToThumbnail", PathToScreenshot);
 	JsonObject->SetStringField("SavedGameDate", ConvertCurrentDateToText());
+	JsonObject->SetNumberField("SavedDateValue", (FDateTime::Now().GetHour() * 1000.f) + (FDateTime::Now().GetMinute() * 100.f) + FDateTime::Now().GetSecond());
 	JsonObject->SetStringField("SavedLevelName", CurrentLevelName);
 	JsonObject->SetNumberField("TotalPlayTime", TotalPlayTimeInSeconds);
 
@@ -102,7 +103,6 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 
 	GameInstance->SetSaveNumberAccordingToNumOfFiles();
 	GameInstance->TotalPlayTimeInSeconds = TotalPlayTimeInSeconds;
-	UE_LOG(LogTemp, Error, TEXT("LOAD TOTAL PLAY TIJME %f"), GameInstance->TotalPlayTimeInSeconds)
 
 	if (GameInstance->GetCurrentExplorationMusic() != SavedExplorationMusic)
 	{

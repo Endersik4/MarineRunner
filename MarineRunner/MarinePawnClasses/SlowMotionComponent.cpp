@@ -116,6 +116,8 @@ void USlowMotionComponent::DisableSlowMotion()
 	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::SlowMo, SlowMoElementBar);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
 
+	SlowMotionSoundSpawned = nullptr;
+
 	//Enable delay for SlowMotion
 	GetWorld()->GetTimerManager().SetTimer(SlowMotionDelayHandle, this, &USlowMotionComponent::DelayCompleted, SlowMotionDelay);
 }
@@ -127,7 +129,10 @@ void USlowMotionComponent::DelayCompleted()
 
 void USlowMotionComponent::PauseSlowMotionSound(bool bPause)
 {
-	if (IsValid(SlowMotionSoundSpawned) == false)
+	if (SlowMotionSoundSpawned == nullptr)
+		return;
+
+	if (SlowMotionSoundSpawned->IsActive() == false)
 		return;
 
 	SlowMotionSoundSpawned->SetPaused(bPause);

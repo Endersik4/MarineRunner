@@ -112,12 +112,6 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character)
 	{
 		Character->UpdateAlbertosInventory(true, true);
 	}
-
-	if (IsValid(SpawnedRandomSound))
-	{
-		if (SpawnedRandomSound->IsActive() == true)
-			SpawnedRandomSound->Stop();
-	}
 }
 
 void AAlbertosPawn::ItemHover(AMarineCharacter* Character)

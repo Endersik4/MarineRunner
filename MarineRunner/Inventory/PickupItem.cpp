@@ -28,6 +28,8 @@ APickupItem::APickupItem()
 	ItemMesh->SetGenerateOverlapEvents(false);
 	ItemMesh->bRenderCustomDepth = false; //Its for outline material 
 
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
 	SoundOnHitComponent = CreateDefaultSubobject<USoundOnHitComponent>(TEXT("Sound On Hit Comp"));
 }
 

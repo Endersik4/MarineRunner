@@ -112,6 +112,10 @@ void UMarineRunnerGameInstance::SpawnBackgroundMusic(USoundBase* SoundToSpawn)
 	if (SoundToSpawn == nullptr)
 		return;
 	CurrentPlayingMusic = UGameplayStatics::SpawnSound2D(GetWorld(), SoundToSpawn, 1.f, 1.f, 0.f, nullptr, true);
+
+	if (IsValid(CurrentPlayingMusic) == false)
+		return;
+
 	CurrentPlayingMusic->FadeIn(2.0f, 1.f);
 }
 

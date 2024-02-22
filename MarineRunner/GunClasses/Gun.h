@@ -24,6 +24,15 @@ enum EWhenSpawnCasing
 	EWSC_WhileReloading UMETA(DisplayName = "WhileReloading"),
 };
 
+UENUM(BlueprintType)
+enum EReloadType
+{
+	ERT_BeginReload UMETA(DisplayName = "Begin Reload"),
+	ERT_EndReload UMETA(DisplayName = "End Reload"),
+	ERT_BeginEndReload UMETA(DisplayName = "Begin End Reload"),
+	ERT_Reload UMETA(DisplayName = "Reload"),
+};
+
 USTRUCT(BlueprintType)
 struct FWeaponAnimation
 {
@@ -326,6 +335,9 @@ private:
 	bool CanReload();
 	void RemoveAmmunitionFromInventory(FItemStruct* AmmoFromInventory);
 	void Reload();
+
+	EReloadType CurrentReloadType = ERT_EndReload;
+	EReloadType GetCurrentReloadTypeAccordingToSituation();
 	////////////////////
 
 	//////////// First bullet without any recoil ////////////////
@@ -363,8 +375,6 @@ private:
 	EStatusOfAimedGun StatusOfGun = HipFire;
 
 	void PlayGivenWeaponWithArmsAnimation(const FWeaponAnimation& AnimToPlay) const;
-
-	void SetupFloatTimeline(FTimeline* TimelineToCreate, FName TimelineProgressFuncName, FName TimelineFinishedFuncName, UCurveFloat* CurveForTimeline);
 
 	class AMarineCharacter* MarinePawn;
 	class AMarinePlayerController* PC;

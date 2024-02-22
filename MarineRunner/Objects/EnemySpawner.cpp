@@ -26,7 +26,7 @@ void AEnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SpawnEnemiesBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemySpawner::OnSpawnEnemiesBoxBeginOverlap);
+	GetWorld()->GetTimerManager().SetTimer(ActivateEnemySpawnerHandle, this, &AEnemySpawner::EnableSpawnEnemiesBoxBeginOverlap, DelayToActivateEnemySpawner, false);
 }
 
 // Called every frame
@@ -105,3 +105,10 @@ void AEnemySpawner::RestartData(ASavedDataObject* SavedDataObject, const int32 I
 }
 
 
+void AEnemySpawner::EnableSpawnEnemiesBoxBeginOverlap()
+{
+	if (bEnemiesSpawned == true)
+		return;
+
+	SpawnEnemiesBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemySpawner::OnSpawnEnemiesBoxBeginOverlap);
+}

@@ -57,8 +57,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UBoxComponent* SpawnEnemiesBox;
 
-	UPROPERTY(EditAnywhere, Category = "Components")
+	UPROPERTY(EditAnywhere, Category = "Enemy spawner settings")
 		TArray<FEnemiesSpawner> EnemiesSpawner;
+	UPROPERTY(EditAnywhere, Category = "Enemy spawner settings")
+		float DelayToActivateEnemySpawner = 1.f;
 
 	UFUNCTION()
 		void OnSpawnEnemiesBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -68,6 +70,9 @@ private:
 
 	void EnemiesSpawnedSaveData();
 	void DisableEnemySpawner(bool bDisable = true);
+
+	FTimerHandle ActivateEnemySpawnerHandle;
+	void EnableSpawnEnemiesBoxBeginOverlap();
 
 	int32 CurrentUniqueID = 0;
 };

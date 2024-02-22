@@ -43,8 +43,6 @@ void AGun::BeginPlay()
 		FOnTimelineFloat TimelineFloatProgress;
 		TimelineFloatProgress.BindUFunction(this, "ShootRecoilTimelineProgress");
 		ShootRecoilTimeline->AddInterpFloat(RecoilCameraCurveRandomRotation, TimelineFloatProgress);
-
-		//ShootRecoilTimeline->SetIgnoreTimeDilation(true);
 	}
 
 	if (bShouldUseCurveRecoil)
@@ -56,8 +54,6 @@ void AGun::BeginPlay()
 		FOnTimelineEventStatic TimelineCallbackFinished;
 		TimelineCallbackFinished.BindUFunction(this, "RecoilCameraTimelineFinishedCallback");
 		CameraRecoilPitchTimeline->SetTimelineFinishedFunc(TimelineCallbackFinished);
-
-		//CameraRecoilPitchTimeline->SetIgnoreTimeDilation(true);
 	}
 
 	OriginalMagazineCapacity = MagazineCapacity;
@@ -366,6 +362,9 @@ void AGun::RandomBulletDirection(FRotator& NewBulletRotation)
 #pragma region ////////////////////////////////// RELOAD //////////////////////////////////////
 bool AGun::CanReload()
 {
+	if (bIsReloading == true)
+		return false;
+
 	FItemStruct* AmmoFromInventory = PlayerInventory->GetItemFromInventory(RowNameForAmmunitionItem);
 	if (AmmoFromInventory == nullptr || MagazineCapacity == OriginalMagazineCapacity || GetWorldTimerManager().IsTimerActive(ReloadHandle))
 	{
@@ -378,6 +377,9 @@ bool AGun::CanReload()
 		return false;
 	}
 
+	if (bCanShoot == false)
+		return false;
+
 	return true;
 }
 
@@ -389,6 +391,9 @@ void AGun::WaitToReload()
 	bCanShoot = false;
 	ShootReleased();
 
+	if (bReloadOneBullet)
+		CurrentReloadType = GetCurrentReloadTypeAccordingToSituation();
+	
 	MarinePawn->GetWeaponHandlerComponent()->ADSReleased();
 
 	const FWeaponAnimation& ReloadAnimToPlay = ReloadAnimAccordingToSituation();
@@ -405,14 +410,17 @@ const FWeaponAnimation& AGun::ReloadAnimAccordingToSituation()
 	if (MagazineCapacity == 0)
 		return WeaponReloadWithNoBulletsAnim;
 
-	if (bReloadOneBullet == true && bIsReloading == false && MagazineCapacity == OriginalMagazineCapacity - 1 || PlayerInventory->GetItemFromInventory(RowNameForAmmunitionItem)->Item_Amount <= 1)
-		return WeaponReload_BeginEnd;
+	if (bReloadOneBullet == true)
+	{
+		if (CurrentReloadType == ERT_BeginEndReload)
+			return WeaponReload_BeginEnd;
 
-	if (bReloadOneBullet == true && bIsReloading == false)
-		return WeaponReload_Begin;
+		if (CurrentReloadType == ERT_BeginReload)
+			return WeaponReload_Begin;
 
-	if (bReloadOneBullet == true && bIsReloading == true && MagazineCapacity == OriginalMagazineCapacity - 1 || PlayerInventory->GetItemFromInventory(RowNameForAmmunitionItem)->Item_Amount <= 1)
-		return WeaponReload_End;
+		if (CurrentReloadType == ERT_EndReload)
+			return WeaponReload_End;
+	}
 
 	return WeaponReloadAnim;
 }
@@ -433,11 +441,10 @@ void AGun::Reload()
 	MarinePawn->UpdateAlbertosInventory();
 
 	GetWorldTimerManager().ClearTimer(ReloadHandle);
+	bIsReloading = false;
+
 	if (bReloadOneBullet) 
 		WaitToReload();
-	else 
-		bIsReloading = false;
-
 }
 
 void AGun::CancelReload()
@@ -447,6 +454,7 @@ void AGun::CancelReload()
 
 	bCanShoot = true;
 	bIsReloading = false;
+	CurrentReloadType = ERT_EndReload;
 }
 
 void AGun::RemoveAmmunitionFromInventory(FItemStruct* AmmoFromInventory)
@@ -469,6 +477,25 @@ void AGun::RemoveAmmunitionFromInventory(FItemStruct* AmmoFromInventory)
 		AmmoFromInventory->Item_Amount -= RestAmmo;
 		MagazineCapacity = OriginalMagazineCapacity;
 	}
+}
+
+EReloadType AGun::GetCurrentReloadTypeAccordingToSituation()
+{
+
+	if (CurrentReloadType == ERT_EndReload && (MagazineCapacity == OriginalMagazineCapacity - 1 || PlayerInventory->GetItemFromInventory(RowNameForAmmunitionItem)->Item_Amount <= 1))
+	{
+		return ERT_BeginEndReload;
+	}
+	if (CurrentReloadType == ERT_EndReload || CurrentReloadType == ERT_BeginEndReload)
+	{
+		return ERT_BeginReload;
+	}
+	if ((CurrentReloadType == ERT_Reload || CurrentReloadType == ERT_BeginReload) && (MagazineCapacity == OriginalMagazineCapacity - 1 || PlayerInventory->GetItemFromInventory(RowNameForAmmunitionItem)->Item_Amount <= 1))
+	{
+		return ERT_EndReload;
+	}
+
+	return ERT_Reload;
 }
 #pragma endregion
 
@@ -766,16 +793,3 @@ void AGun::AddAmmoToInventory()
 
 #pragma endregion
 
-void AGun::SetupFloatTimeline(FTimeline* TimelineToCreate, FName TimelineProgressFuncName, FName TimelineFinishedFuncName, UCurveFloat* CurveForTimeline)
-{
-	FOnTimelineFloat TimelineFloatProgress;
-	TimelineFloatProgress.BindUFunction(this, TimelineProgressFuncName);
-	TimelineToCreate->AddInterpFloat(CurveForTimeline, TimelineFloatProgress);
-
-	if (TimelineFinishedFuncName == FName(TEXT("")))
-		return;
-
-	FOnTimelineEventStatic TimelineCallbackFinished;
-	TimelineCallbackFinished.BindUFunction(this, TimelineFinishedFuncName);
-	TimelineToCreate->SetTimelineFinishedFunc(TimelineCallbackFinished);
-}

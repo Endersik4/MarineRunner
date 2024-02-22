@@ -71,7 +71,9 @@ void AChestWithItems::Tick(float DeltaTime)
 
 void AChestWithItems::OpenChest()
 {
-	if (OpenChestSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), OpenChestSound, ChestSkeletalMesh->GetSocketLocation(FName(TEXT("temSpawnLocation"))));
+	if (OpenChestSound) 
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), OpenChestSound, ChestSkeletalMesh->GetSocketLocation(FName(TEXT("temSpawnLocation"))));
+
 	ChestSkeletalMesh->SetMaterial(3, UpperOpenLockMaterial);
 	ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 
