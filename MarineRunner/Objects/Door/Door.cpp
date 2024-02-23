@@ -154,6 +154,11 @@ void ADoor::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 	if (SavedCustomData.ObjectState == 1)
 	{
 		StopUsingPin();
+
+		if (IsValid(DoorPanelWidget) == true)
+			DoorPanelWidget->RestartDoorPanelWidget();
+		if (IsValid(DoorPanelSecondWidget) == true)
+			DoorPanelSecondWidget->RestartDoorPanelWidget();
 	}
 }
 
@@ -172,7 +177,7 @@ void ADoor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, co
 
 void ADoor::StopUsingPin()
 {
-	if (IsValid(DoorPanelWidget) == false || IsValid(DoorPanelWidget) == false)
+	if (IsValid(DoorPanelWidget) == false || IsValid(DoorPanelSecondWidget) == false)
 		return;
 
 	DoorPanelWidget->PinIsCorrect(false);

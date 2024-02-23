@@ -77,11 +77,15 @@ void USaveMarineRunner::MakeJsonFileWithSaveInfo(APlayerController* PlayerContro
 	JsonObject->SetNumberField("SavedDataNumber", SaveNumber);
 	JsonObject->SetStringField("PathToThumbnail", PathToScreenshot);
 	JsonObject->SetStringField("SavedGameDate", ConvertCurrentDateToText());
-	JsonObject->SetNumberField("SavedDateValue", (FDateTime::Now().GetHour() * 1000.f) + (FDateTime::Now().GetMinute() * 100.f) + FDateTime::Now().GetSecond());
+	JsonObject->SetNumberField("SavedDateValue", FMath::RoundToInt32(FDateTime::Now().ToUnixTimestampDecimal() / 10.f));
 	JsonObject->SetStringField("SavedLevelName", CurrentLevelName);
 	JsonObject->SetNumberField("TotalPlayTime", TotalPlayTimeInSeconds);
-
 	USaveGameJsonFile::WriteJson(JsonObject, FilePath);
+}
+
+float USaveMarineRunner::GetSecondsFromDateTime(const FDateTime& DateTimeToConvert)
+{
+	return (DateTimeToConvert.GetDay() * 10000.f) + (DateTimeToConvert.GetHour() * 1000.f) + (DateTimeToConvert.GetMinute() * 60.f) + DateTimeToConvert.GetSecond();
 }
 #pragma endregion
 

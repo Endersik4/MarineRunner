@@ -70,4 +70,6 @@ private:
 	FString TakeSaveScreenshot(APlayerController* PlayerController);
 	FString ConvertCurrentDateToText();
 
+	float GetSecondsFromDateTime(const FDateTime& DateTimeToConvert);
+
 };

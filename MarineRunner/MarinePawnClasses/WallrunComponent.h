@@ -67,7 +67,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float AngleOfHitImpact = 85.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float CanJumpAfterWallrunTime = 0.5f;
+		float CanJumpAfterWallrunTime = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
 		FFloatRange VelocityRangeToStopWallrunming = FFloatRange(-5.f, 400.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")

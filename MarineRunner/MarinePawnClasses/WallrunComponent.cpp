@@ -157,6 +157,9 @@ void UWallrunComponent::ResetWallrunning()
 
 	RotateCameraWhileWallrunning(CurrentRotatedCameraRoll == Right ? CameraRollRightSideCurve : CameraRollLeftSideCurve);
 
+	if (MarinePawn->GetJumpComponent()->GetIsJumping() == true)
+		return;
+
 	bCanJumpAfterWallrun = true;
 	GetWorld()->GetTimerManager().SetTimer(CanJumpAfterWallrunHandle, this, &UWallrunComponent::DisableCanJumpAfterWallrun, CanJumpAfterWallrunTime, false);
 }

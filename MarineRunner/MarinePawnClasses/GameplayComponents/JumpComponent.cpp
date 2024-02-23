@@ -40,8 +40,7 @@ void UJumpComponent::Jump()
 	if (Player->GetWallrunComponent()->GetCanJump() == false)
 		return;
 
-	if (bIsInAir == false || (bDelayIsInAir && bIsJumping == false) || Player->GetWallrunComponent()->ShouldAddImpulseAfterWallrun(true) || 
-		Player->GetWallrunComponent()->GetCanJumpAfterWallrun())
+	if (bIsInAir == false || ((bDelayIsInAir || Player->GetWallrunComponent()->GetCanJumpAfterWallrun()) && bIsJumping == false) || Player->GetWallrunComponent()->ShouldAddImpulseAfterWallrun(true))
 	{
 		Player->GetWallrunComponent()->SetCanJumpAfterWallrun(false);
 		bIsJumping = true;

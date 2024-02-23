@@ -58,11 +58,11 @@ void AChangeMusicActor::ChangeBackgroundMusic()
 	GameInstance->ChangeBackgroundMusic(EMusicType::EMT_Exploration);
 }
 
-void AChangeMusicActor::DisableChangeMusic()
+void AChangeMusicActor::DisableChangeMusic(bool bDisable)
 {
-	SetActorTickEnabled(false);
-	SetActorHiddenInGame(true);
-	SetActorEnableCollision(false);
+	SetActorTickEnabled(!bDisable);
+	SetActorHiddenInGame(bDisable);
+	SetActorEnableCollision(!bDisable);
 }
 
 void AChangeMusicActor::ChangedMusicSaveData()
@@ -94,5 +94,6 @@ void AChangeMusicActor::SaveData(ASavedDataObject* SavedDataObject, const int32 
 
 void AChangeMusicActor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	;
+	bChangeMusic = false;
+	DisableChangeMusic(false);
 }

@@ -24,7 +24,7 @@ struct FSaveDataMenuStruct
 	UPROPERTY(EditDefaultsOnly)
 		FString SaveDateTime;
 	UPROPERTY(EditDefaultsOnly)
-		float SavedDateValue;
+		int32 SavedDateValue;
 	UPROPERTY(EditDefaultsOnly)
 		FString LevelNameToLoad;
 	UPROPERTY(EditDefaultsOnly)
@@ -37,9 +37,10 @@ struct FSaveDataMenuStruct
 		ScreenshotPathSave = "";
 		SaveDateTime = "";
 		TotalPlayTimeInSeconds = 0.f;
+		SavedDateValue = 0;
 	}
 
-	FSaveDataMenuStruct(FString NewName, int32 NewSaveNumber, FString NewScreenshotPath, FString NewSaveDate, FString NewLevelName, float NewTotalTimeInMinutes)
+	FSaveDataMenuStruct(FString NewName, int32 NewSaveNumber, FString NewScreenshotPath, FString NewSaveDate, FString NewLevelName, float NewTotalTimeInMinutes, int32 NewSavedDateValue)
 	{
 		SaveName = NewName;
 		SaveNumber = NewSaveNumber;
@@ -47,6 +48,7 @@ struct FSaveDataMenuStruct
 		SaveDateTime = NewSaveDate;
 		LevelNameToLoad = NewLevelName;
 		TotalPlayTimeInSeconds = NewTotalTimeInMinutes;
+		SavedDateValue = NewSavedDateValue;
 	}
 
 	FORCEINLINE bool operator<(const FSaveDataMenuStruct& OtherSaveDataMenu) const
