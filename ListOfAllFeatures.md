@@ -32,19 +32,19 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li><strong>Mid-Air Detection:</strong> Checks whether the player is currently airborne.</li>
 	    <li><strong>Ramp Interaction:</strong> Detects if the player is on a ramp, initiating a sliding action.</li>
 	</ul>
-- <h4> Arms sway component </h4>
+<h4> - Arms sway component </h4>
 	<ul>
 	    <li><strong>Responsive Arm Movement:</strong> Arms sway in response to mouse movements and return to their initial position.</li>
 	    <li><strong>Dynamic Arm Animation:</strong> Arms follow the player's movement, adjusting accordingly, and smoothly return to their original position.</li>
 	    <li><strong>Walking Animation:</strong> When the player moves, the arms simulate a walking motion using the Lemniscate of Bernoulli curve.</li>
 	</ul>
-- <h4> Message Handler component </h4>
+<h4> - Message Handler component </h4>
 	<ul>
 		<li><strong>Responsible for managing various in-game messages and interactions with widgets</strong> </li>
 		<li><strong>Widget Message Handling:</strong> Displays messages related to in-game events, such as notifications for unlocking new recipes or warnings about insufficient weapon slots.</li>
    		<li><strong>Message Closure:</strong> Allows for the closure of the current message (e.g., a note) through a designated key binding, ensuring seamless interaction, except when in the pause menu.</li>
 	</ul>
-- <h4> Pause Game component </h4>
+<h4> - Pause Game component </h4>
 	<ul>
 	    <li><strong>Manages the game's pause functionality.</strong></li>
 	    <li><strong>Check for Pause:</strong> Verifies if the player is allowed to pause the game.</li>
@@ -52,8 +52,8 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li><strong>Activate PauseMenu Widget:</strong> When the player initiates a pause, the PauseMenu Widget is displayed, providing additional options and information (see below).</li>
 	</ul>
 	
-- <h4> Save/Load/Restart Game component </h4>
-	<h4> Save </h4>
+<h4> - Save/Load/Restart Game component </h4>
+	<h6> Save </h6>
 	<ul>
 	    <li>Checks if the player can save the game, considering factors like being in the air, in the ads, or in an elevator.</li>
 	    <li>Determines save name (manual or autosave) based on whether the player saves in the Pause Menu or if a checkpoint triggers the save.</li>
@@ -65,7 +65,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li>Saves the currently playing exploration music.</li>
 	    <li>Spawns a widget notifying about the saved game.</li>
 	</ul>
-	<h4> Load </h4>
+	<h6> Load </h6>
 	<ul>
 	    <li>Loads the game by opening the current level.</li>
 	    <li>Resets detected enemies, transitioning music from combat to exploration, in game instance.</li>
@@ -74,7 +74,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li>Loads data for other objects, handling cases like item pickup or spawn.</li>
 	    <li>Loads mouse sensitivity and Field Of View.</li>
 	</ul>
-	<h4> Restart </h4>
+	<h6> Restart </h6>
 	<ul>
 	    <li>Restarts the game by resetting values for all temporary objects and the player.</li>
 	    <li>Destroys all enemies and guns on the map.</li>
@@ -84,7 +84,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li>Spawns a new player.</li>
 	</ul>
 	
-- <h4> Swing Component </h4>
+<h4>  - Swing Component </h4>
 	<ul>
 	    <li><strong>Hook Detection:</strong> Checks if the raycast hits the Hook (actor) in the game world.</li>
 	    <li><strong>Hook Visualization:</strong> Displays a flipbook animation when the Hook is found, enhancing visibility for the player.</li>
@@ -94,7 +94,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li><strong>Swing Interruption:</strong> If the player is close to the hook and has started swinging, stop the swing.</li>
 	</ul>
 	
-- <h4>Weapon Handler Component</h4>
+<h4> - Weapon Handler Component</h4>
 <p>Manages various weapon interactions and functionalities for a dynamic and responsive gameplay experience.</p>
 
 <ul>
@@ -242,6 +242,5 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	- Can be open from two sides by clicking on panel (3D Widget)  <br/>
 	- Door can require pin code to open <br/>
 	- After opening the door, close door timer will play <br/>
-
 
 
