@@ -5,26 +5,26 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 </h2>
 
 <h2> Player</h2>
-<h4> - Physics-based movement </h4>
-<h4> - Arms as skeletal mesh  </h4>
-<h4> - HUD </h4>
+<h3> - Physics-based movement </h3>
+<h3> - Arms as skeletal mesh  </h3>
+<h3> - HUD </h3>
 	<ul>
 		<li> <strong>Health Display:</strong> Presents the player's current health through a visually informative progress bar.</li>
 		<li> <strong>Weapon and Ammunition Information:</strong> Indicates the currently equipped weapon along with ammunition details. </li>
 		<li> <strong>Item Information Tooltip:</strong> Upon hovering over an item, displays relevant details such as name, description, and icon. </li>
-		//<li> <strong>(First Aid Kit, Dash, Slow Motion) information:</strong> when to use, how much left, what button to press </li>
+		<li> <strong>(First Aid Kit, Dash, Slow Motion) information:</strong> when to use, how much left, what button to press </li>
 		<li> <strong>Animation:</strong> Enhances user experience through visually appealing animations for events like hits, dashes, changes in health, and activation of slow motion. </li>
 	</ul>
-<h4> - Take Damage</h4>
+<h3> - Take Damage</h3>
 	<ul>
 	    <li><strong>Handles the application of damage to the player character and manages related functionalities.</strong></li>
 	    <li><strong>Damage Application:</strong> Utilizes the TakeDamageInterface to apply damage to the player character.</li>
 	    <li><strong>Health Check:</strong> Monitors the player's health, and if it drops to or below 0, triggers the appearance of the YouDied Widget.</li>	
      </ul>
      
-<h4> - Can use The First Ait kit </h4>
+<h3> - Can use The First Ait kit </h3>
 
-<h4> - Jump Component </h4>
+<h3> - Jump Component </h3>
 	<ul>
 	    <li><strong>Jump Capability:</strong> Enables the player to execute jumps.</li>
 	    <li><strong>Coyote Time Mechanic:</strong> Implements a responsive jumping experience with a coyote time mechanism.</li>
@@ -32,19 +32,19 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li><strong>Mid-Air Detection:</strong> Checks whether the player is currently airborne.</li>
 	    <li><strong>Ramp Interaction:</strong> Detects if the player is on a ramp, initiating a sliding action.</li>
 	</ul>
-<h4> - Arms sway component </h4>
+<h3> - Arms sway component </h3>
 	<ul>
 	    <li><strong>Responsive Arm Movement:</strong> Arms sway in response to mouse movements and return to their initial position.</li>
 	    <li><strong>Dynamic Arm Animation:</strong> Arms follow the player's movement, adjusting accordingly, and smoothly return to their original position.</li>
 	    <li><strong>Walking Animation:</strong> When the player moves, the arms simulate a walking motion using the Lemniscate of Bernoulli curve.</li>
 	</ul>
-<h4> - Message Handler component </h4>
+<h3> - Message Handler component </h3>
 	<ul>
 		<li><strong>Responsible for managing various in-game messages and interactions with widgets</strong> </li>
 		<li><strong>Widget Message Handling:</strong> Displays messages related to in-game events, such as notifications for unlocking new recipes or warnings about insufficient weapon slots.</li>
    		<li><strong>Message Closure:</strong> Allows for the closure of the current message (e.g., a note) through a designated key binding, ensuring seamless interaction, except when in the pause menu.</li>
 	</ul>
-<h4> - Pause Game component </h4>
+<h3> - Pause Game component </h3>
 	<ul>
 	    <li><strong>Manages the game's pause functionality.</strong></li>
 	    <li><strong>Check for Pause:</strong> Verifies if the player is allowed to pause the game.</li>
@@ -52,8 +52,8 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li><strong>Activate PauseMenu Widget:</strong> When the player initiates a pause, the PauseMenu Widget is displayed, providing additional options and information (see below).</li>
 	</ul>
 	
-<h4> - Save/Load/Restart Game component </h4>
-	<h6> Save </h6>
+<h3> - Save/Load/Restart Game component </h3>
+	<h5> Save </h5>
 	<ul>
 	    <li>Checks if the player can save the game, considering factors like being in the air, in the ads, or in an elevator.</li>
 	    <li>Determines save name (manual or autosave) based on whether the player saves in the Pause Menu or if a checkpoint triggers the save.</li>
@@ -65,7 +65,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li>Saves the currently playing exploration music.</li>
 	    <li>Spawns a widget notifying about the saved game.</li>
 	</ul>
-	<h6> Load </h6>
+	<h5> Load </h5>
 	<ul>
 	    <li>Loads the game by opening the current level.</li>
 	    <li>Resets detected enemies, transitioning music from combat to exploration, in game instance.</li>
@@ -74,7 +74,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li>Loads data for other objects, handling cases like item pickup or spawn.</li>
 	    <li>Loads mouse sensitivity and Field Of View.</li>
 	</ul>
-	<h6> Restart </h6>
+	<h5> Restart </h5>
 	<ul>
 	    <li>Restarts the game by resetting values for all temporary objects and the player.</li>
 	    <li>Destroys all enemies and guns on the map.</li>
@@ -84,7 +84,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li>Spawns a new player.</li>
 	</ul>
 	
-<h4>  - Swing Component </h4>
+<h3>  - Swing Component </h3>
 	<ul>
 	    <li><strong>Hook Detection:</strong> Checks if the raycast hits the Hook (actor) in the game world.</li>
 	    <li><strong>Hook Visualization:</strong> Displays a flipbook animation when the Hook is found, enhancing visibility for the player.</li>
@@ -94,7 +94,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li><strong>Swing Interruption:</strong> If the player is close to the hook and has started swinging, stop the swing.</li>
 	</ul>
 	
-<h4> - Weapon Handler Component</h4>
+<h3> - Weapon Handler Component</h3>
 <p>Manages various weapon interactions and functionalities for a dynamic and responsive gameplay experience.</p>
 
 <ul>
@@ -114,14 +114,14 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 
 <h3> Pause Menu <a href="https://youtu.be/TWsT171ZXYA?t=9"> Showcase </a></h3> 
 - Pause Menu with working resume, load game, save game, settings and quit buttons<br/>
-<h4> - Load Game </h4>
+<h3> - Load Game </h3>
 - List View with all saves  <br/>
 - list view entry shows the name of the save, screenshot taken while saving the game, save date, total game time saved <br/>
 - The message "Confirm Loading" will appear. <br/>
-<h4> - Save Game </h4>
+<h3> - Save Game </h3>
 - Saves game when can (cant save while in Air or in Combat) <br/>
 - The notification "Saved Game" appear after saving the game <br/>
-<h4> - Settings </h4>
+<h3> - Settings </h3>
 - (Game, Audio, Video, Bindings) Settings, Accept, Back to Defaults <br/>
 - Every settings (game, audio etc) is in List View and one entry == one setting <br/>
 - Any Entry value can be saved to config and is loaded When the game is first launched <br/>
@@ -142,7 +142,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	<li>none <br/></li>
 </ul>
 - Entry can be disabled and grayed out <br/>
-<h4> - Quit Game </h4> 
+<h3> - Quit Game </h3> 
 - The message "Confirm quiting" will appear <br/>
 
 <h3> Main Menu </h3>
@@ -213,32 +213,32 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 		</ul>
 	- saving chests or door is possible thanks to custom save interface 
 <h3> Objects </h3>
-<h4> Item: </h4>
+<h3> Item: </h3>
 	- The Item can be picked up or crafted <br/>
 	- In the properties of an item, you can set its name, amount, description, icon, is craftable, resource requirements (and other small things). <br/>
 	- When the player hovers the mouse over an item, an outline will appear and the item message widget will appear.<br/>
 	- The item message widget contains the item icon, name and description. It plays a startup animation and disappears after some time. <br/>
 	- If an object requires an item to work with it, then in that object you can set which item is required (for example, a weapon requires an ammunition-item). <br/>
-<h4> Explosion Barrels </h4>
+<h3> Explosion Barrels </h3>
 	- When the bullet hits the explosion barrel, spawn a geometry collection and add the impulse from the bullet to the geometry collection. <br/>
 	- Spawn Explosion Decal, Sound and Particle Effect <br/>
 	- When something is near it checks if nothing is blocking the way from explosion to the object that was hit and if not then apply damage according to distance and all the effects <br/>
-<h4> Object Rotates when the bullet hits the button: </h4>
+<h3> Object Rotates when the bullet hits the button: </h3>
 	- When the player shoots the button then play rotator timeline and apply new rotation  <br/>
 	- Object Shows the current time remaining until the object returns to its original rotation.  (Text Render Comp)  <br/>
 	- Play rotate sound <br/>
-<h4> Message: </h4>
+<h3> Message: </h3>
 	- Works like item but instead of taking message to inventory, the massage widget is spawning with animation. <br/>
 	- Message was made using Rich Text Block, its possible to customize the font (for example highlight the important thing) <br/>
 	- Player can quit the message by clicking the quit message button (default - E) <br/>
-<h4> Elevator: </h4>
+<h3> Elevator: </h3>
 	- Player can call elevator from outside and while elevator goes to the player, "Wait For Elevator" animation will play on widget <br/>
 	- When Player is in the elevator, he can choose floor to go to and after elevator starting animation it wll go to the floor that player chose <br/>
 	- Select Floor on widget is entry in Tile View and can be many of these, Select Floor entry can be also set up as blocked then player cant go to this floor <br/>
 	- Eleveator can require pin code to enter <br/>
 	- When player selects floor that he currently is then it will open elevator doors <br/>
 	- Everything is animated in Widget Blueprint <br/>
-<h4> Doors </h4>
+<h3> Doors </h3>
 	- Can be open from two sides by clicking on panel (3D Widget)  <br/>
 	- Door can require pin code to open <br/>
 	- After opening the door, close door timer will play <br/>
