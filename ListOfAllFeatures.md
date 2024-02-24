@@ -244,3 +244,4 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	- After opening the door, close door timer will play <br/>
 
 
+
