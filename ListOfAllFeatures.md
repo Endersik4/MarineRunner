@@ -7,7 +7,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 <h2> Player</h2>
 <h3> - Physics-based movement </h3>
 <h3> - Arms as skeletal mesh  </h3>
-<h3> - HUD </h3>
+<h3> - HUD: </h3>
 	<ul>
 		<li> <strong>Health Display:</strong> Presents the player's current health through a visually informative progress bar.</li>
 		<li> <strong>Weapon and Ammunition Information:</strong> Indicates the currently equipped weapon along with ammunition details. </li>
@@ -15,7 +15,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 		<li> <strong>(First Aid Kit, Dash, Slow Motion) information:</strong> when to use, how much left, what button to press </li>
 		<li> <strong>Animation:</strong> Enhances user experience through visually appealing animations for events like hits, dashes, changes in health, and activation of slow motion. </li>
 	</ul>
-<h3> - Take Damage</h3>
+<h3> - Take Damage: </h3>
 	<ul>
 	    <li><strong>Handles the application of damage to the player character and manages related functionalities.</strong></li>
 	    <li><strong>Damage Application:</strong> Utilizes the TakeDamageInterface to apply damage to the player character.</li>
@@ -24,7 +24,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
      
 <h3> - Can use The First Ait kit </h3>
 
-<h3> - Jump Component </h3>
+<h3> - Jump Component: </h3>
 	<ul>
 	    <li><strong>Jump Capability:</strong> Enables the player to execute jumps.</li>
 	    <li><strong>Coyote Time Mechanic:</strong> Implements a responsive jumping experience with a coyote time mechanism.</li>
@@ -32,19 +32,19 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li><strong>Mid-Air Detection:</strong> Checks whether the player is currently airborne.</li>
 	    <li><strong>Ramp Interaction:</strong> Detects if the player is on a ramp, initiating a sliding action.</li>
 	</ul>
-<h3> - Arms sway component </h3>
+<h3> - Arms sway component: </h3>
 	<ul>
 	    <li><strong>Responsive Arm Movement:</strong> Arms sway in response to mouse movements and return to their initial position.</li>
 	    <li><strong>Dynamic Arm Animation:</strong> Arms follow the player's movement, adjusting accordingly, and smoothly return to their original position.</li>
 	    <li><strong>Walking Animation:</strong> When the player moves, the arms simulate a walking motion using the Lemniscate of Bernoulli curve.</li>
 	</ul>
-<h3> - Message Handler component </h3>
+<h3> - Message Handler component: </h3>
 	<ul>
 		<li><strong>Responsible for managing various in-game messages and interactions with widgets</strong> </li>
 		<li><strong>Widget Message Handling:</strong> Displays messages related to in-game events, such as notifications for unlocking new recipes or warnings about insufficient weapon slots.</li>
    		<li><strong>Message Closure:</strong> Allows for the closure of the current message (e.g., a note) through a designated key binding, ensuring seamless interaction, except when in the pause menu.</li>
 	</ul>
-<h3> - Pause Game component </h3>
+<h3> - Pause Game component: </h3>
 	<ul>
 	    <li><strong>Manages the game's pause functionality.</strong></li>
 	    <li><strong>Check for Pause:</strong> Verifies if the player is allowed to pause the game.</li>
@@ -52,8 +52,8 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li><strong>Activate PauseMenu Widget:</strong> When the player initiates a pause, the PauseMenu Widget is displayed, providing additional options and information (see below).</li>
 	</ul>
 	
-<h3> - Save/Load/Restart Game component </h3>
-	<h5> Save </h5>
+<h3> - Save/Load/Restart Game component: </h3>
+	<p> Save: </p>
 	<ul>
 	    <li>Checks if the player can save the game, considering factors like being in the air, in the ads, or in an elevator.</li>
 	    <li>Determines save name (manual or autosave) based on whether the player saves in the Pause Menu or if a checkpoint triggers the save.</li>
@@ -65,7 +65,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li>Saves the currently playing exploration music.</li>
 	    <li>Spawns a widget notifying about the saved game.</li>
 	</ul>
-	<h5> Load </h5>
+	<p> Load: </p>
 	<ul>
 	    <li>Loads the game by opening the current level.</li>
 	    <li>Resets detected enemies, transitioning music from combat to exploration, in game instance.</li>
@@ -74,7 +74,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li>Loads data for other objects, handling cases like item pickup or spawn.</li>
 	    <li>Loads mouse sensitivity and Field Of View.</li>
 	</ul>
-	<h5> Restart </h5>
+	<p> Restart: </p>
 	<ul>
 	    <li>Restarts the game by resetting values for all temporary objects and the player.</li>
 	    <li>Destroys all enemies and guns on the map.</li>
@@ -94,9 +94,8 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 	    <li><strong>Swing Interruption:</strong> If the player is close to the hook and has started swinging, stop the swing.</li>
 	</ul>
 	
-<h3> - Weapon Handler Component</h3>
+<h3> - Weapon Handler Component: </h3>
 <p>Manages various weapon interactions and functionalities for a dynamic and responsive gameplay experience.</p>
-
 <ul>
     <li><strong>Shoot:</strong> Controls the firing mechanism of equipped weapons.</li>
     <li><strong>Reload:</strong> Manages the reloading process for the player's currently equipped weapon.</li>
