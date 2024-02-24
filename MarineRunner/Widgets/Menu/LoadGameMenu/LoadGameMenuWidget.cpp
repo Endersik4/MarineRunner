@@ -39,11 +39,6 @@ void ULoadGameMenuWidget::FillSavesListView()
 
 	DeserlializedSaves.Sort([](const FSaveDataMenuStruct& a, const FSaveDataMenuStruct& b) { return a.SavedDateValue > b.SavedDateValue; });
 
-	for (const FSaveDataMenuStruct& CurrentSaveDataMenu : DeserlializedSaves)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Name %s | CurrentSaveDataMenu %d"), *CurrentSaveDataMenu.SaveName, CurrentSaveDataMenu.SavedDateValue);
-	}
-
 	ConvertArrayToLoadGameMenuEntryList(DeserlializedSaves);
 }
 
@@ -60,14 +55,12 @@ void ULoadGameMenuWidget::FillDeserializedSaveFilesToArray(TArray<FString>& Path
 			return;
 
 		NewSaveDataMenu.SaveName = JsonObject->GetStringField("SavedDataName");
-		NewSaveDataMenu.SaveNumber = JsonObject->GetNumberField("SavedDataNumber");
+		NewSaveDataMenu.SaveNumber = JsonObject->GetIntegerField("SavedDataNumber");
 		NewSaveDataMenu.ScreenshotPathSave = JsonObject->GetStringField("PathToThumbnail");
 		NewSaveDataMenu.SaveDateTime = JsonObject->GetStringField("SavedGameDate");
 		NewSaveDataMenu.LevelNameToLoad = JsonObject->GetStringField("SavedLevelName");
 		NewSaveDataMenu.TotalPlayTimeInSeconds = JsonObject->GetNumberField("TotalPlayTime");
-
 		NewSaveDataMenu.SavedDateValue = JsonObject->GetIntegerField("SavedDateValue");
-		UE_LOG(LogTemp, Warning, TEXT("new %d"), NewSaveDataMenu.SavedDateValue);
 
 		ArrayToFill.Add(NewSaveDataMenu);
 	}

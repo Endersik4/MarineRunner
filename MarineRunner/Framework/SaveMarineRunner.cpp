@@ -38,7 +38,7 @@ void USaveMarineRunner::CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld, 
 	SaveNumber = GameInstance->CurrentSaveNumber;
 
 	GameInstance->SlotSaveGameNameToLoad = GetSaveGameName();
-	GameInstance->TotalPlayTimeInSeconds += UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld) - GameInstance->LastGameTimePlayTime;
+	GameInstance->TotalPlayTimeInSeconds += (UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld) - GameInstance->LastGameTimePlayTime);
 	GameInstance->LastGameTimePlayTime = UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld);
 
 	TotalPlayTimeInSeconds = GameInstance->TotalPlayTimeInSeconds;
@@ -82,11 +82,6 @@ void USaveMarineRunner::MakeJsonFileWithSaveInfo(APlayerController* PlayerContro
 	JsonObject->SetNumberField("TotalPlayTime", TotalPlayTimeInSeconds);
 	USaveGameJsonFile::WriteJson(JsonObject, FilePath);
 }
-
-float USaveMarineRunner::GetSecondsFromDateTime(const FDateTime& DateTimeToConvert)
-{
-	return (DateTimeToConvert.GetDay() * 10000.f) + (DateTimeToConvert.GetHour() * 1000.f) + (DateTimeToConvert.GetMinute() * 60.f) + DateTimeToConvert.GetSecond();
-}
 #pragma endregion
 
 #pragma region ////////// LOADING //////////////
@@ -107,6 +102,7 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 
 	GameInstance->SetSaveNumberAccordingToNumOfFiles();
 	GameInstance->TotalPlayTimeInSeconds = TotalPlayTimeInSeconds;
+	GameInstance->LastGameTimePlayTime = 0.f;
 
 	if (GameInstance->GetCurrentExplorationMusic() != SavedExplorationMusic)
 	{

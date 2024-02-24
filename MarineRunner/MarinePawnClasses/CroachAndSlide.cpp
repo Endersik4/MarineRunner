@@ -51,12 +51,18 @@ void UCroachAndSlide::BeginSlide()
 {
 	// Cant slide if going uphill
 	if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == true)
+	{
 		return;
+	}
 	// Cant Slide backward
 	if (MarinePawn->GetInputAxisValue(TEXT("Forward")) != 1.f && MarinePawn->GetInputAxisValue(TEXT("Right")) == 0)
+	{
 		return;
+	}
 	if (MarinePawn->GetJumpComponent()->GetIsJumping())
+	{
 		return;
+	}
 
 	CurrentMovementForce = OriginalMovementForce + InitialVelocityOfSliding;
 	bSlide = true;

@@ -1,32 +1,116 @@
-<h3>List of all features MarineRunner has, this is described in brief without details, each of these things has many more smaller things in it that make it all work nicely. <br/>
-Some of the features may be unclear. I recommend watching the latest demo version for better context. </h3>
+<h3>Here is a brief overview of MarineRunner's features. <br/>
+Keep in mind that each of these includes various details and functionalities, contributing to a seamless gaming experience. <br/>
+Some of the features may be unclear. I recommend watching the latest demo version for better context.  <br/>
+The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of music. <br/>
+</h3>
 
 <h2> Player </h2>
-- Physics-based movement  <br/>
-- Crouch <br/>
-- Pull up on the edge <br/>
-- Slide <br/>
-- Sliding down the ramp (speed increases while sliding down the ramp) <br/>
-- Wallrun <br/>
-- Dash <br/>
-- Slow Motion <br/>
-- Hook/Swing (force is applied to the player in the direction of the hook) <br/>
-- Can use the First Aid Kit <br/>
-- Quick Inventory for weapons (1 - first weapon, 2 - second weapon etc) <br/>
-- Take Item (resources, weapons etc) <br/>
-- Drop Item  <br/>
-- Save game (player location, play time, date, inventory etc) <br/>
-- Dynamic music depending on events with fade out (menu, combat, exploration music) <br/>
-- Pause Menu (with video, keybindings, audio, game settings) <br/>
-- Death widget when player died (player can load last save or exit the game) <br/>
-- Messages that player can pick up and read  <br/>
-- tutorial with customizable text that shows on player screen and disapear after time
-<h4> - HUD </h4> 
-- Shows current health on progress bar <br/>
-- Shows currently holding weapon with ammunition information <br/>
-- When you hover over an item, information (name, description, icon) about that item will appear <br/>
-- (First Aid Kit, Dash, Slow Motion) information (when to use, how much left, what button to press) <br/>
-- Hit, Dash, Slow Motion animation <br/>
+- Physics-based movement
+- Arms as skeletal mesh 
+- HUD 
+	<ul>
+		<li> Health Display: Presents the player's current health through a visually informative progress bar.</li>
+		<li> Weapon and Ammunition Information: Indicates the currently equipped weapon along with ammunition details. </li>
+		<li> Item Information Tooltip: Upon hovering over an item, displays relevant details such as name, description, and icon. </li>
+		<li> (First Aid Kit, Dash, Slow Motion) information (when to use, how much left, what button to press) </li>
+		<li> Animation: Enhances user experience through visually appealing animations for events like hits, dashes, changes in health, and activation of slow motion. </li>
+	</ul>
+- Take Damage
+	<ul>
+	    <li>Handles the application of damage to the player character and manages related functionalities.</li>
+	    <li>Damage Application: Utilizes the TakeDamageInterface to apply damage to the player character.</li>
+	    <li>Health Check: Monitors the player's health, and if it drops to or below 0, triggers the appearance of the YouDied Widget.</li>	
+     </ul>
+     
+- Can use The First Ait kit 
+
+- <h3> Jump Component </h3>
+	<ul>
+	    <li>Allows the player to perform jumps.</li>
+	    <li>Implements a coyote time mechanic for more responsive jumping.</li>
+	    <li>Triggers a landing effect when the player lands on the ground for the first time.</li>
+	    <li>Checks whether the player is currently in mid-air.</li>
+	    <li>Detects if the player is on a ramp, initiating a sliding action.</li>
+	</ul>	
+- <h3> Arms sway component </h3>
+	<ul>
+	    <li>Responsive Arm Movement: Arms sway in response to mouse movements and return to their initial position.</li>
+	    <li>Dynamic Arm Animation: Arms follow the player's movement, adjusting accordingly, and smoothly return to their original position.</li>
+	    <li>Walking Animation: When the player moves, the arms simulate a walking motion using the Lemniscate of Bernoulli curve.</li>
+	</ul>
+- <h3> Message Handler component </h3>
+	<ul>
+		<li>Responsible for managing various in-game messages and interactions with widgets </li>
+		<li>Widget Message Handling: Displays messages related to in-game events, such as notifications for unlocking new recipes or warnings about insufficient weapon slots.</li>
+   		<li>Message Closure: Allows for the closure of the current message (e.g., a note) through a designated key binding, ensuring seamless interaction, except when in the pause menu.</li>
+	</ul>
+- <h3> Pause Game component </h3>
+	<ul>
+	    <li>Manages the game's pause functionality.</li>
+	    <li>Check for Pause: Verifies if the player is allowed to pause the game.</li>
+	    <li>Control HUD Widget: Pauses the functions of the HUD Widget, ensuring proper interactions when activated.</li>
+	    <li>Activate PauseMenu Widget: When the player initiates a pause, the PauseMenu Widget is displayed, providing additional options and information (see below).</li>
+	</ul>
+	
+- <h3> Save/Load/Restart Game component </h3>
+	<h4> Save </h4>
+	<ul>
+	    <li>Checks if the player can save the game, considering factors like being in the air, in the ads, or in an elevator.</li>
+	    <li>Determines save name (manual or autosave) based on whether the player saves in the Pause Menu or if a checkpoint triggers the save.</li>
+	    <li>Saves essential information to the game instance, including the save name.</li>
+	    <li>Saves player data, like Inventory, Recipes, weapon inventory, Location, Rotation, and Health.</li>
+	    <li>Updates objects with the Save Interface, e.g saving their location if moved.</li>
+	    <li>Saves CustomSavedData, an object storing specific data about other objects, e.g., unlocking a door with a pin.</li>
+	    <li>Generates a JSON file containing save information (Save Name, Save date, thumbnail path, playtime, current level name, and more).</li>
+	    <li>Saves the currently playing exploration music.</li>
+	    <li>Spawns a widget notifying about the saved game.</li>
+	</ul>
+	<h4> Load </h4>
+	<ul>
+	    <li>Loads the game by opening the current level.</li>
+	    <li>Resets detected enemies, transitioning music from combat to exploration, in game instance.</li>
+	    <li>Loads player data, including inventory, recipes, weapon inventory, and health.</li>
+	    <li>Loading the music if different from the saved one.</li>
+	    <li>Loads data for other objects, handling cases like item pickup or spawn.</li>
+	    <li>Loads mouse sensitivity and Field Of View.</li>
+	</ul>
+	<h4> Restart </h4>
+	<ul>
+	    <li>Restarts the game by resetting values for all temporary objects and the player.</li>
+	    <li>Destroys all enemies and guns on the map.</li>
+	    <li>Resets object data in TempCustomSavedData within SavedDataobject using SaveCustomDataInterface with RestartData function.</li>
+	    <li>Restarts slow motion if activated when the player died.</li>
+	    <li>Resets detected enemies.</li>
+	    <li>Spawns a new player.</li>
+	</ul>
+	
+- <h3> Swing Component </h3>
+	<ul>
+	    <li><strong>Hook Detection:</strong> Checks if the raycast hits the Hook (actor) in the game world.</li>
+	    <li><strong>Hook Visualization:</strong> Displays a flipbook animation when the Hook is found, enhancing visibility for the player.</li>
+	    <li><strong>Hook Interaction:</strong> Allows the player to grab the hook when close, triggering another flipbook animation on the hook itself.</li>
+	    <li><strong>Previous Hook Management:</strong> Disables the previous hook if the player moves away or stops looking at it.</li>
+	    <li><strong>Swing Initiation:</strong> If all conditions are met and the player presses the Swing Button, spawns a Niagara particle (SwingLineActor), waits briefly, and swings using VInterp to HookLocation.</li>
+	    <li><strong>Swing Interruption:</strong> If the player is close to the hook and has started swinging, stop the swing.</li>
+	</ul>
+	
+- <h3>Weapon Handler Component</h3>
+<p>Manages various weapon interactions and functionalities for a dynamic and responsive gameplay experience.</p>
+
+<ul>
+    <li><strong>Shoot:</strong> Controls the firing mechanism of equipped weapons.</li>
+    <li><strong>Reload:</strong> Manages the reloading process for the player's currently equipped weapon.</li>
+    <li><strong>ADS In:</strong> Handles the aiming down sights (ADS) animation and behavior.</li>
+    <li><strong>ADS Out:</strong> Manages the transition out of aiming down sights.</li>
+    <li><strong>Zoom:</strong> enables sniper scope zoom-in functionality; Adjusts mouse sensitivity dynamically based on the zoom level.</li>
+    <li><strong>Equips Weapon:</strong> Allows the player to draw a weapon from storage using a specified key (e.g., pressing '1' equips the weapon from slot 1).</li>
+    <li><strong>Drops Gun:</strong> Facilitates the action of dropping the currently held weapon.</li>
+    <li><strong>Loads Mouse Sensitivities:</strong> Retrieves mouse sensitivity settings from the configuration save, including values for ADS, 2x, 4x, and 8x zoom.</li>
+</ul>
+	
+- Footsteps sounds
+
+
 
 <h2> Pause Menu <a href="https://youtu.be/TWsT171ZXYA?t=9"> Showcase </a></h2> 
 - Pause Menu with working resume, load game, save game, settings and quit buttons<br/>

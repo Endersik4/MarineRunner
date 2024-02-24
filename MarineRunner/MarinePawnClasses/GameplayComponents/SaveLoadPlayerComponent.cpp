@@ -100,6 +100,7 @@ void USaveLoadPlayerComponent::LoadGame()
 	GameInstance->ChangeBackgroundMusic(EMT_Exploration, true);
 
 	Player->SetActorLocation(LoadGameInstance->SavedPlayerLocation);
+	Player->SetActorRotation(LoadGameInstance->SavedPlayerRotation);
 	if (IsValid(PlayerController) == true)
 		PlayerController->SetControlRotation(LoadGameInstance->SavedPlayerRotation);
 
@@ -157,6 +158,7 @@ void USaveLoadPlayerComponent::SpawnNewPlayer()
 	SpawnedNewPlayer->FinishSpawning(NewPlayerTransform);
 
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(SpawnedNewPlayer);
+	SpawnedNewPlayer->ReplaceRootComponentRotation();
 }
 
 USaveMarineRunner* USaveLoadPlayerComponent::CreateLoadGame()

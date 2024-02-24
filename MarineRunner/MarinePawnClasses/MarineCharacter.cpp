@@ -1,4 +1,4 @@
-// Copyright Adam Bartela.All Rights Reserved
+	// Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineCharacter.h"
 #include "Components/CapsuleComponent.h"
@@ -473,6 +473,9 @@ void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayT
 // because of this, the RootComponent Forward vector may point in the wrong direction
 void AMarineCharacter::ReplaceRootComponentRotation()
 {
+	if (IsValid(MarinePlayerController) == false)
+		return;
+
 	FRotator RootCompRot = MarinePlayerController->GetRootComponent()->GetComponentRotation();
 	RootCompRot.Yaw = GetActorRotation().Yaw;
 	MarinePlayerController->GetRootComponent()->SetWorldRotation(RootCompRot);

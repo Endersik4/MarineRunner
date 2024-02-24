@@ -95,6 +95,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void PlayerDead();
 
+	void ReplaceRootComponentRotation();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -208,7 +209,6 @@ private:
 	FTimerHandle FootstepsHandle;
 	void SetCanPlayFootstepsSound() { bCanPlayFootstepsSound = true; }
 
-	void ReplaceRootComponentRotation();
 
 	//Albertos
 	void CallAlbertosPressed();
