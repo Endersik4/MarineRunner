@@ -5,51 +5,51 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 </h3>
 
 <h2> Player </h2>
-- Physics-based movement
-- Arms as skeletal mesh 
-- HUD 
+- <h3>Physics-based movement </h3>
+- <h3>Arms as skeletal mesh  </h3>
+- <h3> HUD </h3>
 	<ul>
-		<li> Health Display: Presents the player's current health through a visually informative progress bar.</li>
-		<li> Weapon and Ammunition Information: Indicates the currently equipped weapon along with ammunition details. </li>
-		<li> Item Information Tooltip: Upon hovering over an item, displays relevant details such as name, description, and icon. </li>
-		<li> (First Aid Kit, Dash, Slow Motion) information (when to use, how much left, what button to press) </li>
-		<li> Animation: Enhances user experience through visually appealing animations for events like hits, dashes, changes in health, and activation of slow motion. </li>
+		<li> <strong>Health Display:</strong> Presents the player's current health through a visually informative progress bar.</li>
+		<li> <strong>Weapon and Ammunition Information:</strong> Indicates the currently equipped weapon along with ammunition details. </li>
+		<li> <strong>Item Information Tooltip:</strong> Upon hovering over an item, displays relevant details such as name, description, and icon. </li>
+		<li> <strong>(First Aid Kit, Dash, Slow Motion) information:</strong> when to use, how much left, what button to press </li>
+		<li> <strong>Animation:</strong> Enhances user experience through visually appealing animations for events like hits, dashes, changes in health, and activation of slow motion. </li>
 	</ul>
-- Take Damage
+- <h3>Take Damage</h3>
 	<ul>
-	    <li>Handles the application of damage to the player character and manages related functionalities.</li>
-	    <li>Damage Application: Utilizes the TakeDamageInterface to apply damage to the player character.</li>
-	    <li>Health Check: Monitors the player's health, and if it drops to or below 0, triggers the appearance of the YouDied Widget.</li>	
+	    <li><strong>Handles the application of damage to the player character and manages related functionalities.</strong></li>
+	    <li><strong>Damage Application:</strong> Utilizes the TakeDamageInterface to apply damage to the player character.</li>
+	    <li><strong>Health Check:</strong> Monitors the player's health, and if it drops to or below 0, triggers the appearance of the YouDied Widget.</li>	
      </ul>
      
-- Can use The First Ait kit 
+- <h3> Can use The First Ait kit </h3>
 
 - <h3> Jump Component </h3>
 	<ul>
-	    <li>Allows the player to perform jumps.</li>
-	    <li>Implements a coyote time mechanic for more responsive jumping.</li>
-	    <li>Triggers a landing effect when the player lands on the ground for the first time.</li>
-	    <li>Checks whether the player is currently in mid-air.</li>
-	    <li>Detects if the player is on a ramp, initiating a sliding action.</li>
-	</ul>	
+	    <li><strong>Jump Capability:</strong> Enables the player to execute jumps.</li>
+	    <li><strong>Coyote Time Mechanic:</strong> Implements a responsive jumping experience with a coyote time mechanism.</li>
+	    <li><strong>Landing Effect:</strong> Triggers a visual effect upon the player's initial landing on the ground.</li>
+	    <li><strong>Mid-Air Detection:</strong> Checks whether the player is currently airborne.</li>
+	    <li><strong>Ramp Interaction:</strong> Detects if the player is on a ramp, initiating a sliding action.</li>
+	</ul>
 - <h3> Arms sway component </h3>
 	<ul>
-	    <li>Responsive Arm Movement: Arms sway in response to mouse movements and return to their initial position.</li>
-	    <li>Dynamic Arm Animation: Arms follow the player's movement, adjusting accordingly, and smoothly return to their original position.</li>
-	    <li>Walking Animation: When the player moves, the arms simulate a walking motion using the Lemniscate of Bernoulli curve.</li>
+	    <li><strong>Responsive Arm Movement:</strong> Arms sway in response to mouse movements and return to their initial position.</li>
+	    <li><strong>Dynamic Arm Animation:</strong> Arms follow the player's movement, adjusting accordingly, and smoothly return to their original position.</li>
+	    <li><strong>Walking Animation:</strong> When the player moves, the arms simulate a walking motion using the Lemniscate of Bernoulli curve.</li>
 	</ul>
 - <h3> Message Handler component </h3>
 	<ul>
-		<li>Responsible for managing various in-game messages and interactions with widgets </li>
-		<li>Widget Message Handling: Displays messages related to in-game events, such as notifications for unlocking new recipes or warnings about insufficient weapon slots.</li>
-   		<li>Message Closure: Allows for the closure of the current message (e.g., a note) through a designated key binding, ensuring seamless interaction, except when in the pause menu.</li>
+		<li><strong>Responsible for managing various in-game messages and interactions with widgets</strong> </li>
+		<li><strong>Widget Message Handling:</strong> Displays messages related to in-game events, such as notifications for unlocking new recipes or warnings about insufficient weapon slots.</li>
+   		<li><strong>Message Closure:</strong> Allows for the closure of the current message (e.g., a note) through a designated key binding, ensuring seamless interaction, except when in the pause menu.</li>
 	</ul>
 - <h3> Pause Game component </h3>
 	<ul>
-	    <li>Manages the game's pause functionality.</li>
-	    <li>Check for Pause: Verifies if the player is allowed to pause the game.</li>
-	    <li>Control HUD Widget: Pauses the functions of the HUD Widget, ensuring proper interactions when activated.</li>
-	    <li>Activate PauseMenu Widget: When the player initiates a pause, the PauseMenu Widget is displayed, providing additional options and information (see below).</li>
+	    <li><strong>Manages the game's pause functionality.</strong></li>
+	    <li><strong>Check for Pause:</strong> Verifies if the player is allowed to pause the game.</li>
+	    <li><strong>Control HUD Widget:</strong> Pauses the functions of the HUD Widget, ensuring proper interactions when activated.</li>
+	    <li><strong>Activate PauseMenu Widget:</strong> When the player initiates a pause, the PauseMenu Widget is displayed, providing additional options and information (see below).</li>
 	</ul>
 	
 - <h3> Save/Load/Restart Game component </h3>
