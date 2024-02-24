@@ -4,7 +4,7 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of music. <br/>
 </h2>
 
-<h3> Player</h3>
+<h2> Player</h2>
 <h4> - Physics-based movement </h4>
 <h4> - Arms as skeletal mesh  </h4>
 <h4> - HUD </h4>
@@ -12,7 +12,7 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
 		<li> <strong>Health Display:</strong> Presents the player's current health through a visually informative progress bar.</li>
 		<li> <strong>Weapon and Ammunition Information:</strong> Indicates the currently equipped weapon along with ammunition details. </li>
 		<li> <strong>Item Information Tooltip:</strong> Upon hovering over an item, displays relevant details such as name, description, and icon. </li>
-		<li> <strong>(First Aid Kit, Dash, Slow Motion) information:</strong> when to use, how much left, what button to press </li>
+		//<li> <strong>(First Aid Kit, Dash, Slow Motion) information:</strong> when to use, how much left, what button to press </li>
 		<li> <strong>Animation:</strong> Enhances user experience through visually appealing animations for events like hits, dashes, changes in health, and activation of slow motion. </li>
 	</ul>
 <h4> - Take Damage</h4>
