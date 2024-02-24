@@ -1,7 +1,7 @@
 <h2>Here is a brief overview of MarineRunner's features. <br/>
 Keep in mind that each of these includes various details and functionalities, contributing to a seamless gaming experience. <br/>
 Some of the features may be unclear. I recommend watching the latest demo version for better context.  <br/>
-The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of music. <br/>
+The game includes over 150 <i>animations (+ many widget animations)</i>, 360 <i>3D models</i>, 160 <i>sounds and </i>8<i> pieces of music</i>. <br/>
 </h2>
 
 <hr>
@@ -108,6 +108,71 @@ The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of
     <li><strong>Loads Mouse Sensitivities:</strong> Retrieves mouse sensitivity settings from the configuration save, including values for ADS, 2x, 4x, and 8x zoom.</li>
 </ul>
 	
+<h3> - Crouch and Slide Component </h3>
+	<ul>
+	    <li><strong>Crouch Check:</strong> Verifies if the player can enter a crouched state.</li>
+	    <li><strong>Crouch Animation:</strong> If crouching is possible, smoothly lerps from the initial player scale (Actor 3D Scale) to the crouch scale.</li>
+	    <li><strong>Crouch State Effects:</strong> While in the crouched state, adjusts gameplay elements such as footstep sounds and movement speed.</li>
+	    <li><strong>Stand Check:</strong> If the player intends to stop crouching, checks if standing is achievable (e.g., no obstruction overhead) and lerps back to the initial actor scale.</li>
+	    <li><strong>Slide Activation:</strong> Activates sliding, triggered by a different button than crouch.</li>
+	    <li><strong>Slide Conditions:</strong> Checks various conditions for sliding, e.g., cant slide backward, cant slide during jumping, etc.</li>
+	    <li><strong>Slide Mechanics:</strong> Initiates sliding by setting the CurrentMovementForce to the Initial Sliding Velocity and gradually subtracting SlideSpeed over time. If CurrentMovementForce drops below Crouch Speed, the player begins crouching.</li>
+	    <li><strong>Ramp Slide:</strong> If the player starts sliding on a ramp, initiates a camera shake and adjusts movement forces. Instead of subtracting SlideSpeed, a ramp force is added, causing the player to accelerate until CurrentMovementSpeed exceeds MaxRampSpeed.</li>
+	</ul>
+
+<h3> - Dash Component </h3>
+	<ul>
+	    <li><strong>Dash Availability:</strong> Verifies if the player can perform a dash.</li>
+	    <li><strong>Dash Location Calculation:</strong> Determines the dash destination by connecting two raycasts, one from the head location and the other from the ground location and selects the closer one.</li>
+	    <li><strong>Dash Execution:</strong> Lerps from the initial player location to the calculated dash location, initiating dash effects in the process.</li>
+	    <li><strong>Dash Widget Spawn:</strong> Spawns a Dash Widget to provide visual feedback to the player.</li>
+	</ul>
+	
+<h3> - Pull Up Component</h3>
+	<ul>
+	    <li><strong>Edge Detection:</strong> Identifies the edge of the object that the player can pull up on.</li>
+	    <li><strong>End Location Calculation:</strong> Calculates the end location over the detected edge, ensuring a proper pull-up position.</li>
+	    <li><strong>Pull Up Execution:</strong> Lerps from the initial player location to the pull-up location and applies an impulse at the end for a smooth transition and realistic motion.</li>
+	</ul>
+	
+<h3> - Slow Motion Component</h3>
+	<ul>
+	    <li><strong>Slow Motion Activation Check:</strong> Verifies if the slow motion effect can be activated.</li>
+	    <li><strong>Slow Motion Activation:</strong> Sets the Global Time Dilation to a specified SlowMotionValue and initiates visual effects associated with slow motion (e.g., chromatic aberration, color grain in Post Process).</li>
+	    <li><strong>Slow Motion Deactivation:</strong> Disables the slow motion effect after a defined SlowMotionTime duration.</li>
+	    <li><strong>User-Initiated Deactivation:</strong> Allows the player to manually disable the slow-motion effect before the set duration elapses.</li>
+	</ul>
+	
+<h3> - Take Component</h3>
+	<ul>
+	    <li><strong>Raycast for Items:</strong> Does raycasting to detect objects with ITakeInterface from the player's camera view.</li>
+	    <li><strong>Item Hover Interaction:</strong> If the raycast hits an item with the ITakeInterface, highlights the item and displays relevant information about it.</li>
+	    <li><strong>Item Pickup:</strong> If the player presses the take button, triggers the TakeItem function from the ITakeInterface and pick up the item.</li>
+	</ul>
+
+<h3> - Wallrun Component</h3>
+	<ul>
+	    <li><strong>Wallrun Check:</strong> Verifies if the player can perform a wallrun, considering conditions such as being in pull-up mode, crouching, or having a velocity below a certain threshold.</li>
+	    <li><strong>Object Detection:</strong> Checks if the player is next to a wall or another suitable object for wallrunning.</li>
+	    <li><strong>Sticking to Obstacle:</strong> Attaches the player to the obstacle by applying a significant impulse towards the object based on the hit normal.</li>
+	    <li><strong>Wallrun Variable Adjustment:</strong> Sets player variables specific to wallrun, such as increased movement speed.</li>
+	    <li><strong>Camera Roll Animation:</strong> Rotates the camera roll smoothly using Timelines to enhance the visual effect of wallrunning.</li>
+	    <li><strong>Camera Yaw Rotation:</strong> Adjusts the camera yaw to align with the direction of the wallrun.</li>
+	    <li><strong>Mouse Movement Interaction:</strong> Pauses the rotation of the camera yaw if the player moves the mouse during a wallrun.</li>
+	    <li><strong>Automatic Wallrun Termination:</strong> If the obstacle is no longer detected, automatically pushes the player away from the obstacle.</li>
+	    <li><strong>Coyote Time Implementation:</strong> Allows the player to jump even if the obstacle is no longer detected (slight delay).</li>
+	</ul>
+
+<h3> - Weapon Inventory Component</h3>
+	<ul>
+	    <li><strong>Weapon Storage:</strong> Manages the storage of all weapons within the game.</li>
+	    <li><strong>Weapons Data Preservation:</strong> Stores weapons using pointers to spawned guns when items are taken. During game saves, transfers guns as pointers to an array with the class of the guns, enabling their respawn after loading the game.</li>
+	    <li><strong>Weapon Addition:</strong> Adds a weapon to the inventory when an item with the "Weapon" boolean is taken, ensuring the total number of weapons does not exceed the specified <em>MaxAmountOfItems</em>.</li>
+	    <li><strong>Weapon Removal:</strong> Removes a weapon from the inventory when the player drops the gun.</li>
+	    <li><strong>Weapon Switching:</strong> When a new gun is added, puts away any currently equipped gun through an animation, then draws the new gun.</li>
+	    <li><strong>Slot-Specific Weapon Handling:</strong> Manages taking weapons from a specified slot within the inventory.</li>
+	</ul>
+
 - Footsteps sounds
 
 
