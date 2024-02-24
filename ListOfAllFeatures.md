@@ -1,7 +1,7 @@
 <h2>Here is a brief overview of MarineRunner's features. <br/>
 Keep in mind that each of these includes various details and functionalities, contributing to a seamless gaming experience. <br/>
 Some of the features may be unclear. I recommend watching the latest demo version for better context.  <br/>
-The game includes over 150 <i>animations (+ many widget animations)</i>, 360 <i>3D models</i>, 160 <i>sounds and </i>8<i> pieces of music</i>. <br/>
+The game includes over <i>150</i> animations (+ many widget animations), <i>360</i> 3D models, <i>160</i> sounds and <i>8</i> pieces of music. <br/>
 </h2>
 
 <hr>
