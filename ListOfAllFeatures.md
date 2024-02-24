@@ -4,8 +4,7 @@ Some of the features may be unclear. I recommend watching the latest demo versio
 The game includes over 150 animations, 360 3D models, 160 sounds and 8 pieces of music. <br/>
 </h3>
 
-<h2> ```json
-- //Player ```</h2>
+<h2 style="color:blue;">Player</h2>
 - <h3>Physics-based movement </h3>
 - <h3>Arms as skeletal mesh  </h3>
 - <h3> HUD </h3>
