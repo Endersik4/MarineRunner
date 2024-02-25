@@ -217,9 +217,7 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 <br/>
 
 <hr>
-
-
-	<h2> ENEMIES </h2>
+<h2> ENEMIES </h2>
 <h3> - Enemy Base</h3>
 	<ul>
 	    <li>Above the enemy, an Enemy Widget Indicator displays the current health of the enemy.</li>
