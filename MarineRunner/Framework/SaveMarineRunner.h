@@ -42,6 +42,8 @@ public:
 		int32 SaveNumber = 0;
 	UPROPERTY(EditAnywhere)
 		float TotalPlayTimeInSeconds = 0.f;
+	UPROPERTY(EditAnywhere)
+		float LastGameTimePlayTime = 0.f;
 
 	UPROPERTY(EditAnywhere)
 		TMap<int32, FCustomDataSaved> SavedCustomData;

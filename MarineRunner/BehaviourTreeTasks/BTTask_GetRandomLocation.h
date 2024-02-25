@@ -24,6 +24,8 @@ public:
 	// Get random reachable point location where pawn location is origin and RandomLocationRadius is radius
 	UPROPERTY(EditAnywhere)
 		float RandomLocationRadius = 600.f;
+	UPROPERTY(EditAnywhere)
+		bool bClearValue = true;
 private:
 
 	void PickRandomLocation(UBehaviorTreeComponent& OwnerComp);

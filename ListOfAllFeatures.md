@@ -173,8 +173,50 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li><strong>Slot-Specific Weapon Handling:</strong> Manages taking weapons from a specified slot within the inventory.</li>
 	</ul>
 
-- Footsteps sounds
+<h3- Footsteps sounds</h3>
 
+<hr>
+	<h2> ALBERTOS <small>(Crafting Robot)</small></h2>
+<h3> - Albertos Movement</h3>
+<ul>
+    <li>Moves to a random location within a specified radius from the player.</li>
+    <li>Can play random sounds at intervals.</li>
+    <li>When the player presses the "Take Item" button on Albertos, the robot will display the Crafting Widget.</li>
+</ul>
+
+<h3> - Call Albertos Component</h3>
+<ul>
+    <li>Allows the player to call Albertos, prompting the robot to move quickly to the player's location.</li>
+    <li>If Albertos is too far away, it will be teleported beside the player.</li>
+</ul>
+
+<h3> - Crafting Albertos Widget</h3>
+<ul>
+    <li>Displays the player's inventory with a breakdown of resources and items in Tile View as entries.</li>
+    <li>Hovering over an entry provides detailed information about the item.</li>
+    <li>Shows the currently selected item to craft with a description, crafting time, and quantity.</li>
+    <li>Displays requirements for crafting an item as entries in Tile View. If the player lacks sufficient resources, the entry turns red, and the craft button is disabled.</li>
+    <li>Allows the player to switch the currently selected item to craft with a smooth animation.</li>
+    <li>Enables the player to adjust the quantity multiplier for crafting multiple items at once.</li>
+    <li>When the player presses the craft button, relevant buttons are disabled, and the CraftItemAlbertosComponent handles the crafting process.</li>
+</ul>
+
+<h3> - Craft Item Component</h3>
+<ul>
+    <li>When the craft button is pressed in the Crafting Albertos widget, an item is spawned that cannot be taken by the player initially.</li>
+    <li>The dissolve material initiates its effect on the crafted item.</li>
+    <li>Calculates sound cues for crafting (beginning, mid-loop, end) based on Item Craft Time.</li>
+    <li>Once the item is spawned, it is moved to the Final Item Location in Albertos' Skeletal, and the player is then allowed to take the item.</li>
+    <li>If the crafted item is too large to fit in Albertos, it is spawned with a given Craft Scale, and while the item is moving to the Final Item Location, it lerps to the normal scale.</li>
+</ul>
+
+<h3> - Player is Near Albertos Component</h3>
+<ul>
+    <li>Checks if the player is near Albertos; if so, stops moving and rotates towards the player.</li>
+    <li>If the player leaves, Albertos resumes wandering.</li>
+    <li>If the player leaves while an item is being crafted, Albertos waits for the crafting to finish, plays a closing animation, and then resumes wandering.</li>
+</ul>
+	
 
 
 <h3> Pause Menu <a href="https://youtu.be/TWsT171ZXYA?t=9"> Showcase </a></h3> 

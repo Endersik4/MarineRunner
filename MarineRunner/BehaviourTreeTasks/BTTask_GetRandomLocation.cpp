@@ -29,12 +29,17 @@ void UBTTask_GetRandomLocation::PickRandomLocation(UBehaviorTreeComponent& Owner
 	if (IsValid(OwnerComp.GetBlackboardComponent()) == false)
 		return;
 
-	if (OwnerComp.GetBlackboardComponent()->GetValueAsInt(TEXT("CurrentLocations")) > 0)
-		OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), GetRandomLocation());
-	else
+	if (bClearValue == true)
 	{
-		OwnerComp.GetBlackboardComponent()->ClearValue(GetSelectedBlackboardKey());
+		if (OwnerComp.GetBlackboardComponent()->GetValueAsInt(TEXT("CurrentLocations")) <= 0)
+		{
+			OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), GetRandomLocation());
+			return;
+		}
 	}
+	
+	OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), GetRandomLocation());
+
 }
 
 FVector UBTTask_GetRandomLocation::GetRandomLocation()

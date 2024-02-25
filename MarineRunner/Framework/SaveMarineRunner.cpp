@@ -42,6 +42,7 @@ void USaveMarineRunner::CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld, 
 	GameInstance->LastGameTimePlayTime = UKismetSystemLibrary::GetGameTimeInSeconds(CurrentWorld);
 
 	TotalPlayTimeInSeconds = GameInstance->TotalPlayTimeInSeconds;
+	LastGameTimePlayTime = GameInstance->LastGameTimePlayTime;
 }
 
 FString USaveMarineRunner::TakeSaveScreenshot(APlayerController* PlayerController)
@@ -102,7 +103,7 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 
 	GameInstance->SetSaveNumberAccordingToNumOfFiles();
 	GameInstance->TotalPlayTimeInSeconds = TotalPlayTimeInSeconds;
-	GameInstance->LastGameTimePlayTime = 0.f;
+	GameInstance->LastGameTimePlayTime = LastGameTimePlayTime;
 
 	if (GameInstance->GetCurrentExplorationMusic() != SavedExplorationMusic)
 	{

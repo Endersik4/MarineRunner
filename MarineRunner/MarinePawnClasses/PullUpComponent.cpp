@@ -34,26 +34,6 @@ void UPullUpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 	MovePlayerToPullUpLocation(DeltaTime);
 }
 
-bool UPullUpComponent::DetectEdge(const FVector& PlayerForwardVector)
-{
-	FVector StartTrueLine = MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupTrueLineZ);
-	FVector StartFalseLine = MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupFalseLineZ);
-	FHitResult Line1Hit, Line2Hit;
-
-	bool bObjectWasDetected = GetWorld()->LineTraceSingleByChannel(Line1Hit, StartTrueLine, StartTrueLine + PlayerForwardVector * PullupLinesDistance, ECC_GameTraceChannel8);
-	bool bStillObjectIsDetected = GetWorld()->LineTraceSingleByChannel(Line1Hit, StartFalseLine, StartFalseLine + PlayerForwardVector * PullupLinesDistance, ECC_GameTraceChannel8);
-
-	#ifdef WITH_EDITOR
-		if (bDrawHelpersForPullup == true)
-		{
-			DrawDebugLine(GetWorld(), StartTrueLine, StartTrueLine + PlayerForwardVector * PullupLinesDistance, FColor::Green, true);
-			DrawDebugLine(GetWorld(), StartFalseLine, StartFalseLine + PlayerForwardVector * PullupLinesDistance, FColor::Red, true);
-		}
-	#endif // !WITH_EDITOR
-
-	return bObjectWasDetected && bStillObjectIsDetected == false;
-}
-
 void UPullUpComponent::StartPullUpOnEdge()
 {
 	if (IsValid(MarinePawn) == false)
@@ -77,10 +57,30 @@ void UPullUpComponent::StartPullUpOnEdge()
 	bShouldPullUpLerp = true;
 	PullupTimeElapsed = 0.f;
 
+#ifdef WITH_EDITOR
+	if (bDrawHelpersForPullup)
+		DrawDebugBox(GetWorld(), PullupLocationZ, FVector(10.f), FColor::Blue, true);
+#endif // !WITH_EDITOR
+}
+
+bool UPullUpComponent::DetectEdge(const FVector& PlayerForwardVector)
+{
+	FVector StartTrueLine = MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupTrueLineZ);
+	FVector StartFalseLine = MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupFalseLineZ);
+	FHitResult Line1Hit, Line2Hit;
+
+	bool bObjectWasDetected = GetWorld()->LineTraceSingleByChannel(Line1Hit, StartTrueLine, StartTrueLine + PlayerForwardVector * PullupLinesDistance, ECC_GameTraceChannel8);
+	bool bStillObjectIsDetected = GetWorld()->LineTraceSingleByChannel(Line1Hit, StartFalseLine, StartFalseLine + PlayerForwardVector * PullupLinesDistance, ECC_GameTraceChannel8);
+
 	#ifdef WITH_EDITOR
-		if(bDrawHelpersForPullup) 
-			DrawDebugBox(GetWorld(), PullupLocationZ, FVector(10.f), FColor::Blue, true);
+		if (bDrawHelpersForPullup == true)
+		{
+			DrawDebugLine(GetWorld(), StartTrueLine, StartTrueLine + PlayerForwardVector * PullupLinesDistance, FColor::Green, true);
+			DrawDebugLine(GetWorld(), StartFalseLine, StartFalseLine + PlayerForwardVector * PullupLinesDistance, FColor::Red, true);
+		}
 	#endif // !WITH_EDITOR
+
+	return bObjectWasDetected && bStillObjectIsDetected == false;
 }
 
 bool UPullUpComponent::GetEdgeLocationOfTheObject(const FVector& PlayerForwardVector, FVector& EdgeLocation)
