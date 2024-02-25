@@ -173,8 +173,8 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li><strong>Slot-Specific Weapon Handling:</strong> Manages taking weapons from a specified slot within the inventory.</li>
 	</ul>
 
-<h3- Footsteps sounds</h3>
-
+<h3>- Footsteps sounds</h3>
+<br/>
 <hr>
 	<h2> ALBERTOS <small>(Crafting Robot)</small></h2>
 <h3> - Albertos Movement</h3>
