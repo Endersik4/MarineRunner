@@ -175,14 +175,12 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 
 <h3>- Footsteps sounds</h3>
 <br/>
+
 <hr>
 	<h2> ALBERTOS <small>(Crafting Robot)</small></h2>
-<h3> - Albertos Movement</h3>
-<ul>
-    <li>Moves to a random location within a specified radius from the player.</li>
-    <li>Can play random sounds at intervals.</li>
-    <li>When the player presses the "Take Item" button on Albertos, the robot will display the Crafting Widget.</li>
-</ul>
+  <h3>Moves to a random location within a specified radius from the player.</h3>
+    <h3>Can play random sounds at intervals.</h3>
+    <h3>When the player presses the "Take Item" button on Albertos, the robot will display the Crafting Widget.</h3>
 
 <h3> - Call Albertos Component</h3>
 <ul>
@@ -216,8 +214,81 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
     <li>If the player leaves, Albertos resumes wandering.</li>
     <li>If the player leaves while an item is being crafted, Albertos waits for the crafting to finish, plays a closing animation, and then resumes wandering.</li>
 </ul>
-	
+<br/>
 
+<hr>
+
+
+	<h2> ENEMIES </h2>
+<h3> - Enemy Base</h3>
+	<ul>
+	    <li>Above the enemy, an Enemy Widget Indicator displays the current health of the enemy.</li>
+	    <li>Enemy can take damage:</li>
+		    <ul>
+		        <li>Damage can be directed to specific bones for damage multipliers, accompanied by different sounds (e.g., headshots have distinct sounds and cause more damage).</li>
+		        <li>Spawns a blood hole decal on the enemy's body.</li>
+		        <li>Generates a blood particle spray from the bullet hole decal location.</li>
+		        <li>Performs a raycast from the normal (hit) and spawns a blood decal at the hit location.</li>
+		        <li>If the enemy is killed, halts all logic, initiates ragdoll, and eventually makes the body disappear.</li>
+		    </ul>
+	    <li>Produces footsteps sounds.</li>
+	    <li>Enemy state (health, location) can be saved.</li>
+	</ul>
+<h3> - Shooting Enemy  </h3>
+	<ul>
+	    <li>The enemy may run away if its health is below a specified threshold (MaxEnemyHealthForRunaway), randomly determining whether to flee.</li>
+	    <li>If the enemy spots the player, it plays a preparation animation before shooting.</li>
+	    <li>The Enemy starts shooting using the Enemy Gun Component.</li>
+	    <li>Enemy Gun Component</li>
+			<ul>
+			    <li>Manages shooting mechanics, including both visual and physical effects throughout the game.</li>
+			    <li>Controls the spawning of bullets, applying specified rotations and physics-based movement.</li>
+			    <li>Capable of spawning multiple bullets simultaneously.</li>
+			    <li>Details about the bullet actor is below.</li>
+			    <li>Predicts the target location for shooting, taking into account factors such as distance, offsets, and player movement.</li>
+			    <li>Integrates recoil by applying an impulse to the enemy's physics mesh during shooting.</li>
+			    <li>Handles reloading mechanics, preventing shooting during the reload period and resetting the magazine capacity.</li>
+			    <li>Customizable settings for all aspects of the component.</li>
+			</ul>
+	    <li>Focuses a bone towards the player (e.g., the enemy's head looks at the player), with options to look straight or predict values for focus.</li>
+	    <li>If the enemy starts a timer to shoot the player, an alert about the impending shot can be enabled (e.g., glowing material on the enemy).</li>
+	</ul>
+<h3> - Shooting Enemy AI Controller</h3>
+	<ul>
+	    <li>Handles perception updates, distinguishing between sight and hearing stimuli.</li>
+	    <li>Uses timers to delay player detection and react to losing sight of the player.</li>
+	    <li>Controls enemy behavior based on player detection, focusing on or clearing the player as a target.</li>
+	    <li>Updates blackboard values, such as the player's last known location.</li>
+	    <li>Manages enemy detection and removal from the game instance based on whether the enemy was seen or killed.</li>
+	    <li>Handles AI logic for running away or stopping behavior when the enemy is killed.</li>
+	</ul>
+<h3> - Punching Enemy Pawn</h3>
+	<ul>
+	    <li>Performs a line trace to determine if the player is close enough to initiate a punch.</li>
+	    <li>If the player is within range, triggers the punching sequence, including animation, sound, and applying damage.</li>
+	    <li>Utilizes timers to control the timing of the damage application and to handle the end of the punching animation.</li>
+	    <li>Applies damage to the player using a sphere sweep and interacts with objects implementing the Interact Interface.</li>
+	    <li>Ensures that damage is applied only once within a specified time window.</li>
+	</ul>	
+<h3> - Chasing Enemy AI Controller</h3>
+	<ul>
+	    <li>Initialization sets up a timer for periodic distance checking to the player.</li>
+	    <li>On each timer tick, calculates the distance to the player and initiates chasing behavior if within the specified range.</li>
+	</ul>
+<h3> - Enemy Turret Pawn</h3>
+	<ul>
+	    <li>Handles rotation of turret bones towards a detected actor and initiates shooting based on a timer.</li>
+	    <li>Shoots projectiles using the Enemy Gun Component and plays a shooting animation montage.</li>
+	    <li>Implements logic for detecting and focusing on a player, with a timer to control shooting intervals.</li>
+	    <li>Manages bone rotation based on specified rotation rules, considering limitations and custom axis rotations.</li>
+	</ul>
+<h3> - Turret Enemy AI Controller</h3>
+	<ul>
+	    <li>Handles perception updates, distinguishing between stimuli successfully sensed and not sensed.</li>
+	    <li>Interacts with the associated Turret Pawn, informing it about the player's visibility status.</li>
+	    <li>Manages the game instance, adding or removing the turret enemy based on whether it was detected or not.</li>
+	    <li>Utilizes timers to control the duration of seeing the actor and preventing frequent changes in detection status.</li>
+	</ul>
 
 <h3> Pause Menu <a href="https://youtu.be/TWsT171ZXYA?t=9"> Showcase </a></h3> 
 - Pause Menu with working resume, load game, save game, settings and quit buttons<br/>
