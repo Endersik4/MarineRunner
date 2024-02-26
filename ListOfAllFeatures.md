@@ -295,6 +295,116 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li>Manages the game instance, adding or removing the turret enemy based on whether it was detected or not.</li>
 	    <li>Utilizes timers to control the duration of seeing the actor and preventing frequent changes in detection status.</li>
 	</ul>
+	
+<br/>
+<hr>
+<h2> GUNS </h2>
+<h3> - Shoot </h3>
+<ul>
+    <li>Checks if the gun can shoot.</li>
+    <li>Single-shot and continuous shooting modes (holding the button for continuous fire).</li>
+    <li>"Coyote time" allows shooting if the shoot button is pressed slightly before it's ready.</li>
+    <li>If no bullets are left, play EmptyMagazineSound.</li>
+    <li>Can shoot multiple bullets at once (e.g., shotgun).</li>
+    <li>Updates ammunition information on the HUD.</li>
+    <li>Plays effects like particles, sounds, and shooting animation.</li>
+    <li>If the player reloads before emptying the magazine, a different animation will play.</li>
+    <li>If the gun has only one bullet left in the magazine, a different shoot animation will play.</li>
+</ul>
+
+<h3> - Drop Casing </h3>
+<ul>
+    <li>Can be triggered when dropping casing, reloading, or shooting.</li>
+    <li>Drop Casing rotation can be randomized.</li>
+    <li>Drop Casing is an actor with an animation played instantly after spawning.</li>
+    <li>When the casing hits the ground, play DropCasing Sound and destroy the actor.</li>
+</ul>
+
+<h3> - Recoil </h3>
+<ul>
+    <li>Randomized recoil camera rotation (Yaw and Pitch) with a timeline for smoothness.</li>
+    <li>RecoilCameraRandomRotationCurve controls the speed of rotation to randomized Yaw and Pitch.</li>
+    <li>Option to use Curve for Camera Yaw rotation instead of randomized values.</li>
+    <li>Camera Pitch calculated based on shooting distance for controlled recoil (e.g., for SMG). Values from the curve can be randomized too</li>
+    <li>Reverts to initial rotation after shooting if the rotation difference is small; otherwise, maintains the offset.</li>
+    <li>Initiates recoil camera shake.</li>
+    <li>Spawned bullets can have randomized rotation values if set within a given range.</li>
+</ul>
+
+<h3> - Reload </h3>
+<ul>
+    <li>Checks if the gun can reload (having enough ammunition).</li>
+    <li>Plays the reload animation according to the situation.</li>
+    <li>Timer runs with the duration of the reload animation, deducts ammunition, and reloads the magazine.</li>
+    <li>Reload one bullet:</li>
+    <ul>
+        <li>Can be set to reload only one bullet (e.g., shotgun).</li>
+        <li>If the reload is completed, it will automatically start another one unless the player cancels it.</li>
+        <li>Three types of reload animations: Begin Reload, Normal Reload, End Reload, and Begin with End Reload.</li>
+        <li>Begin Reload starts the reload, after reloading one bullet, transitions to normal reload animation.</li>
+        <li>If reloading when only one bullet can be loaded, plays Begin with End Reload Animation.</li>
+    </ul>
+    <li>If no bullets are left, a different reload animation is played.</li>
+    <li>Reload can be canceled at any time.</li>
+</ul>
+
+<h3> - ADS </h3>
+<ul>
+    <li>Plays ADS animation based on the current state (ADS or Hipfire).</li>
+    <li>When in ADS:</li>
+    <ul>
+        <li>Player movement speed multiplier changes.</li>
+        <li>Camera and bullet recoil are reduced.</li>
+        <li>Weapon sway is decreased.</li>
+        <li>Different shoot animations are played.</li>
+    </ul>
+    <li>Scope (Zoom):</li>
+    <ul>
+        <li>Can be set to use zoom when in ADS.</li>
+        <li>Mouse Scroll changes zoom in the scope.</li>
+        <li>Render Target is set on Scope material, turning on when in ADS and off when not.</li>
+        <li>Zoom works by changing FOV to small values.</li>
+        <li>Different mouse sensitivities for all zoom levels (2x, 4x, 8x).</li>
+    </ul>
+</ul>
+
+<h3> - TAKE </h3>
+	<ul>
+		<li>Handles the process of a player taking a gun for the first time.</li>
+		<li>Sets all necessary variables for the player to use the gun.</li>
+		<li>If the player already has a gun and takes another one, hides the first one and plays the Take Animation for the second one.</li>
+		<li>Adds ammunition from Stored Ammo to the player's inventory if the weapon is taken for the first time.</li>
+		<li>This function is also used when loading a saved game and weapons need to spawn.</li>
+	</ul>
+
+<h3> - DRAW </h3>
+	<ul>
+		<li>Displays the weapon on the HUD.</li>
+		<li>Sets variables for the player to use the gun (enables tick, unhides the actor, sets the gun as the currently held one, etc.).</li>
+		<li>Plays the Draw Animation and starts a timer with the duration of the Draw Animation.</li>
+		<li>After the timer finishes, sets the ability to shoot.</li>
+	</ul>
+
+<h3> - PUT AWAY </h3>
+	<ul>
+		<li>Cancels the reload if reloading.</li>
+		<li>Hides the weapon HUD.</li>
+		<li>Plays the Put Away Animation and starts a timer with the duration of the Put Away Animation.</li>
+		<li>After the timer finishes, hides the gun (disables tick, hides actor, stops animation, etc.).</li>
+	</ul>
+
+<h3> - DROP </h3>
+	<ul>
+		<li>When the player drops the gun, performs the Put Away Gun functions, and when the gun is hidden, performs the Drop Gun function.</li>
+		<li>Spawns an item of this gun.</li>
+		<li>Sets the current magazine capacity for the player. If taken again, the item spawns with the proper amount of magazine capacity.</li>
+		<li>Sets that the item was once taken so the Take Animation will not be played again.</li>
+		<li>Adds the item to SavedDataObject to save that the item was spawned.</li>
+		<li>Deletes the gun from the inventory.</li>
+		<li>Destroys the gun.</li>
+	</ul>
+
+
 
 <h3> Pause Menu <a href="https://youtu.be/TWsT171ZXYA?t=9"> Showcase </a></h3> 
 - Pause Menu with working resume, load game, save game, settings and quit buttons<br/>
@@ -349,8 +459,6 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	- Can spawn more bullets at once (like shotgun)<br/>
 	- The weapon can be set to automatic (by holding down the button, the weapon will fire continuously).<br/>
 	- When a bullet spawns then a random value from the range is selected for the bullet rotation<br/>
-	- The gun can sway while moving the camera or in motion  (diffrent sway for other case)<br/>
-	- Animation: Shoot, Reload and empty magazine<br/>
 	
 <h3> <a href="https://www.youtube.com/embed/dtFB4vfd2Eg"> Albertos </a> (crafting item robot)</h3>
 	- It Takes player's location and then selects a random location within a specified radius around the player's location and goes there <br/>
