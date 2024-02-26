@@ -259,6 +259,14 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li>Updates blackboard values, such as the player's last known location.</li>
 	    <li>Manages enemy detection and removal from the game instance based on whether the enemy was seen or killed.</li>
 	    <li>Handles AI logic for running away or stopping behavior when the enemy is killed.</li>
+	    <li> Behavior Tree Logic: </li>
+			<ul>
+			    <li>Enemy moves to a random location, waits for a given time, then repeats the process.</li>
+			    <li>After RandomLocationCounter reaches 0, the enemy returns to its initial location.</li>
+			    <li><strong>If the enemy spots the player:</strong> Get a random location, move there, wait, run EQS Query (to find cover), move to Cover Location, wait, and repeat.</li>
+			    <li><strong>If the enemy loses sight of the player:</strong> Move to the last known player location, wait, then return to wandering behavior.</li>
+			    <li><strong>If the enemy is set to run away:</strong> Abort all tasks and execute the RunAway task (pick a random location, move there, and repeat if the move was successful).</li>
+			</ul>
 	</ul>
 <h3> - Punching Enemy Pawn</h3>
 	<ul>
