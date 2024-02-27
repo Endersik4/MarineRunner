@@ -89,8 +89,16 @@ void ASavedDataObject::RestartObjectsData()
 
 	for (const TPair<int32, FCustomDataSaved>& Pair : TempCustomSavedData)
 	{
-		if (IsValid(Pair.Value.ObjectToSaveData) == false)
+		try 
+		{	
+			if (IsValid(Pair.Value.ObjectToSaveData) == false)
+				continue;
+		}
+		catch(...)
+		{
+			UE_LOG(LogTemp, Error, TEXT("NIE DZIALA"));
 			continue;
+		}
 
 		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
 		if (ActorWithSaveInterface == nullptr)

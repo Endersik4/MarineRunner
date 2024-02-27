@@ -121,6 +121,7 @@ public:
 
 	void AddNewItemToInventory(FName ItemRowNameFromDataTable, float AddAmountToItem = 0.f);
 	void DeleteItemFromInventory(FItemStruct ItemToDelete);
+	void MoveWeaponRecipesToEndQueue();
 
 private:
 

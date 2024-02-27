@@ -126,12 +126,25 @@ void UHUDWidget::PlayAppearAnimForItemHover(bool bForwardAnim)
 
 void UHUDWidget::PlayUseFirstAidKitAnim()
 {
-	PlayAnimationForward(UseFirstAidKitAnim);
+	if (HealthBar->GetPercent() > 0.2f)
+	{
+		PlayAnimationForward(UseFirstAidKitAnim);
+
+	}
+	else
+		PlayAnimationForward(UseFirstAidKitLessHPAnim);
+	
 }
 
 void UHUDWidget::PlayGotDamageAnim()
 {
-	PlayAnimationForward(GotDamageAnim);
+	if (HealthBar->GetPercent() > 0.2f)
+	{
+		PlayAnimationForward(GotDamageAnim);
+
+	}
+	else
+		PlayAnimationForward(GotDamageLessHPAnim);
 }
 
 void UHUDWidget::PlayButtonAnimation(EAnimationToPlay AnimToPlay)

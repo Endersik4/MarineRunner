@@ -24,9 +24,13 @@ void UTakeAndDrop::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
+	MarinePawn->OnDestroyed.AddDynamic(this, &UTakeAndDrop::OnOwnerDestroyed);
 }
 
-
+void UTakeAndDrop::OnOwnerDestroyed(AActor* DestroyedActor)
+{
+	TakeReleased();
+}
 // Called every frame
 void UTakeAndDrop::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
@@ -50,6 +54,8 @@ bool UTakeAndDrop::RaycastForHoverItems()
 
 void UTakeAndDrop::Take()
 {
+	GetWorld()->GetTimerManager().SetTimer(ConstantlyTakeHandle, this, &UTakeAndDrop::Take, TakeAnotherItemTime, true);
+
 	if (RaycastForHoverItems() == false)
 	{
 		return;
@@ -64,6 +70,11 @@ void UTakeAndDrop::Take()
 		return;
 
 	TakeInterface->TakeItem(MarinePawn);
+}
+
+void UTakeAndDrop::TakeReleased()
+{
+	GetWorld()->GetTimerManager().ClearTimer(ConstantlyTakeHandle);
 }
 
 bool UTakeAndDrop::WhetherRaycastOnTheSameItem(const FHitResult& CurrentItemHit)

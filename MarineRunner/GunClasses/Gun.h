@@ -224,8 +224,7 @@ private:
 	//Curve that is responisble for Yaw Camera Recoil (left, right)
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
 		UCurveFloat* RecoilCameraCurveY;
-	//Takes Value from RecoilCameraCurveY and randomize it with value from TArray<>. First Number in TArray is The Min and Second is The Max.
-	//If TArray<> has more then 2 values then Value will not be randomize
+
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Camera Recoil", meta = (EditCondition = "bShouldUseCurveRecoil", EditConditionHides))
 		FFloatRange RandomRangeFromRecoilCurveY = FFloatRange(-0.2f, 0.2f);
 

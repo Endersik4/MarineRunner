@@ -241,7 +241,6 @@ void AGun::UpRecoilCameraUsingCurve(float Delta)
 {
 	if (bCanRecoilCamera == false || bShouldUseCurveRecoil == false) 
 		return;
-
 	
 	float ControlRotationPitch = (DistanceFromStart * 0.375) * Delta / ((OriginalMagazineCapacity * ShootTime) + 0.2f);
 	if (StatusOfGun == ADS)

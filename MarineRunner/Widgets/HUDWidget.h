@@ -68,6 +68,8 @@ public:
 		class UImage* UseFirstAidKidImage;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* UseFirstAidKitAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* UseFirstAidKitLessHPAnim = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UProgressBar* HealthBar;
@@ -122,6 +124,8 @@ public:
 		class UImage* GotDamageImage;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* GotDamageAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* GotDamageLessHPAnim = nullptr;
 #pragma endregion
 
 #pragma region ///////////// WEAPON UI /////////////

@@ -57,6 +57,22 @@ void UInventoryComponent::AddNewItemToInventory(FName ItemRowNameFromDataTable, 
 	Inventory_Items.Add(ItemWithAmount);
 }
 
+void UInventoryComponent::MoveWeaponRecipesToEndQueue()
+{
+	TArray<FItemStruct> WeaponRecipes;
+	for (const FItemStruct& CurrentItem : Items_Recipes)
+	{
+		if (CurrentItem.bIsItWeapon == true)
+			WeaponRecipes.Add(CurrentItem);
+	}
+
+	for (const FItemStruct& CurrentWeapon : WeaponRecipes)
+	{
+		Items_Recipes.Remove(CurrentWeapon);
+		Items_Recipes.Add(CurrentWeapon);
+	}
+}
+
 void UInventoryComponent::DeleteItemFromInventory(FItemStruct ItemToDelete)
 {
 	Inventory_Items.Remove(ItemToDelete);

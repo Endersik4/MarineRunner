@@ -79,6 +79,7 @@ void UCraftingAlbertosWidget::SetRecipesData(AMarineCharacter* Player)
 		return;
 
 	MarinePawn = Player;
+	Player->GetInventoryComponent()->MoveWeaponRecipesToEndQueue();
 	RecipesOfCraftableItems = Player->GetInventoryComponent()->Items_Recipes;
 }
 

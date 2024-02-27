@@ -25,17 +25,25 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void Take();
+	void TakeReleased();
 
+	UFUNCTION()
+		void OnOwnerDestroyed(AActor* DestroyedActor);
 private:
 	UPROPERTY(EditAnywhere, Category = "Take Items")
 		float TakeDistance = 400.f;
-	UPROPERTY(EditAnywhere, Category = "Gun options")
+	UPROPERTY(EditAnywhere, Category = "Take Items")
 		FVector CollisionBoxSize = FVector(20.f);
+	UPROPERTY(EditAnywhere, Category = "Take Items")
+		float TakeAnotherItemTime = 0.12f;
+
 
 	class AMarineCharacter* MarinePawn;
 	class ITakeInterface* TakeInterface;
 
 	bool RaycastForHoverItems();
+
+	FTimerHandle ConstantlyTakeHandle;
 		
 	FHitResult LastHitResult;
 	bool WhetherRaycastOnTheSameItem(const FHitResult& CurrentItemHit);

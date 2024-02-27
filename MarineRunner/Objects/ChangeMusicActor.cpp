@@ -26,7 +26,7 @@ void AChangeMusicActor::BeginPlay()
 	Super::BeginPlay();
 
 	ChangeMusicBoxComp->OnComponentBeginOverlap.AddDynamic(this, &AChangeMusicActor::ChangeMusicBoxBeginOverlap);
-
+	OriginalChangeMusic = bChangeMusic;
 }
 
 // Called every frame
@@ -51,7 +51,7 @@ void AChangeMusicActor::ChangeMusicBoxBeginOverlap(UPrimitiveComponent* Overlapp
 void AChangeMusicActor::ChangeBackgroundMusic()
 {
 	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(GetGameInstance());
-	if (IsValid(GameInstance) == false)
+	if (IsValid(GameInstance) == false || MusicToChange == nullptr)
 		return;
 
 	GameInstance->SetCurrentExplorationMusic(MusicToChange);
@@ -94,6 +94,6 @@ void AChangeMusicActor::SaveData(ASavedDataObject* SavedDataObject, const int32 
 
 void AChangeMusicActor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	bChangeMusic = false;
+	bChangeMusic = OriginalChangeMusic;
 	DisableChangeMusic(false);
 }

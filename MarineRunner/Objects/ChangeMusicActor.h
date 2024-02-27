@@ -49,5 +49,6 @@ private:
 
 	void ChangedMusicSaveData();
 
+	bool OriginalChangeMusic;
 	int32 CurrentUniqueID = 0;
 };

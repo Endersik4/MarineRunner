@@ -303,9 +303,9 @@ void AMarineCharacter::UseFirstAidKit()
 	if (UseFirstAidKitSound) 
 		UGameplayStatics::PlaySound2D(GetWorld(), UseFirstAidKitSound);
 
+	HudWidget->PlayUseFirstAidKitAnim();
 	HudWidget->SetHealthBarPercent(Health);
 	HudWidget->SetCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount);
-	HudWidget->PlayUseFirstAidKitAnim();
 
 	ElementBar ProgressHealBar{ DelayAfterUseFirstAidKit };
 	HudWidget->AddElementToProgress(EUseableElement::Heal, ProgressHealBar);
@@ -334,6 +334,7 @@ void AMarineCharacter::KeyEPressed()
 void AMarineCharacter::KeyEReleased()
 {
 	WidgetInteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
+	TakeAndDropComponent->TakeReleased();
 }
 #pragma endregion 
 

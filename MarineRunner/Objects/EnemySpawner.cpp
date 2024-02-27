@@ -104,7 +104,6 @@ void AEnemySpawner::RestartData(ASavedDataObject* SavedDataObject, const int32 I
 	DisableEnemySpawner(false);
 }
 
-
 void AEnemySpawner::EnableSpawnEnemiesBoxBeginOverlap()
 {
 	if (bEnemiesSpawned == true)

@@ -157,8 +157,12 @@ void USaveLoadPlayerComponent::SpawnNewPlayer()
 
 	SpawnedNewPlayer->FinishSpawning(NewPlayerTransform);
 
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->Possess(SpawnedNewPlayer);
+	PlayerController->Possess(SpawnedNewPlayer);
 	SpawnedNewPlayer->ReplaceRootComponentRotation();
+	PlayerController->SetMouseSensitivity(Player->GetMouseSensitivityJSON());
+
+	if (IsValid(LoadGameInstance) == true && IsValid(GameInstance) == true)
+		GameInstance->LastGameTimePlayTime = LoadGameInstance->LastGameTimePlayTime;
 }
 
 USaveMarineRunner* USaveLoadPlayerComponent::CreateLoadGame()
