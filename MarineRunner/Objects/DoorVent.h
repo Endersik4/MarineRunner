@@ -47,10 +47,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings")
 		UTexture2D* DoorVentIcon;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
-		FVector FinalLocation;
-	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
-		FRotator FinalRotation;
-	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
 		bool bVentDoorsBasedOnPhysics;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
 		bool TurnOnPhysicsInsteadOfTimeline = false;
@@ -62,6 +58,7 @@ private:
 	// X = Roll, Y = Pitch, Z = Yaw;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings|Open", meta = (EditCondition = "!TurnOnPhysicsInsteadOfTimeline", EditConditionHides))
 		UCurveVector* DoorVentOpenRotationCurve;
+
 
 	UFUNCTION()
 		void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);

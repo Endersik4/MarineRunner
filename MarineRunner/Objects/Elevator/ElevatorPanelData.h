@@ -20,11 +20,15 @@ struct FElevatorFloor
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bAccessible", EditConditionHides))
 		FText NotAccessibleText;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bAccessible", EditConditionHides))
-		FSlateColor NotAccessibleTextColor;
+		FSlateColor NotAccessibleTextColor = FSlateColor(FLinearColor(1.f, 0.f, 0.f, 1.f));;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bAccessible", EditConditionHides))
-		FLinearColor NotAccessibleButtonColor;
+		FLinearColor NotAccessibleButtonColor = FLinearColor(1.f, 0.f, 0.f, 1.f);;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bAccessible", EditConditionHides))
 		FVector FloorLocation;
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "bAccessible", EditConditionHides))
+		FSlateColor AccessibleTextColor = FSlateColor(FLinearColor(0.f, 0.9f, 1.f, 1.f));;
+	UPROPERTY(EditAnywhere, meta = (EditCondition = "bAccessible", EditConditionHides))
+		FLinearColor AccessibleButtonColor = FLinearColor(0.68f, 0.045f, 0.8f, 1.f);;
 
 public:
 	FElevatorFloor()
@@ -32,8 +36,11 @@ public:
 		Floor = 0;
 		bAccessible = true;
 		NotAccessibleText = FText();
-		NotAccessibleTextColor = FSlateColor();
+		NotAccessibleTextColor = FSlateColor(FLinearColor(1.f, 0.f, 0.f, 1.f));
+		NotAccessibleButtonColor = FLinearColor(1.f, 0.f, 0.f, 1.f);
 		FloorLocation = FVector(0.f);
+		AccessibleTextColor = FSlateColor(FLinearColor(0.f, 0.9f, 1.f, 1.f));
+		AccessibleButtonColor = FLinearColor(0.68f,0.045f, 0.8f,1.f);
 	}
 
 	FElevatorFloor(int32 _Floor, bool _bAccessible, FVector _FloorLocation)

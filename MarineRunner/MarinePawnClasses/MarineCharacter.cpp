@@ -1,4 +1,4 @@
-	// Copyright Adam Bartela.All Rights Reserved
+// Copyright Adam Bartela.All Rights Reserved
 
 #include "MarineCharacter.h"
 #include "Components/CapsuleComponent.h"
@@ -64,7 +64,7 @@ AMarineCharacter::AMarineCharacter()
 	JumpComponent = CreateDefaultSubobject<UJumpComponent>(TEXT("JumpComponent"));
 	CroachAndSlideComponent = CreateDefaultSubobject<UCroachAndSlide>(TEXT("CroachAndSlideComponent"));
 
-	TakeAndDropComponent = CreateDefaultSubobject<UTakeAndDrop>(TEXT("TakeAndDropComponent"));
+	TakeAndDropComponent = CreateDefaultSubobject<UTakeAndDrop>(TEXT("Take Component"));
 
 	DashComponent = CreateDefaultSubobject<UDashComponent>(TEXT("DashComponent"));
 	WallrunComponent = CreateDefaultSubobject<UWallrunComponent>(TEXT("WallrunComponent"));
@@ -328,13 +328,16 @@ void AMarineCharacter::KeyEPressed()
 	{
 		WidgetInteractionComponent->PressPointerKey(EKeys::LeftMouseButton);
 	}
-	else TakeAndDropComponent->Take();
+	else if (IsValid(TakeAndDropComponent)) 
+		TakeAndDropComponent->Take();
 }
 
 void AMarineCharacter::KeyEReleased()
 {
 	WidgetInteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
-	TakeAndDropComponent->TakeReleased();
+
+	if (IsValid(TakeAndDropComponent))
+		TakeAndDropComponent->TakeReleased();
 }
 #pragma endregion 
 

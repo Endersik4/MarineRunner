@@ -5,11 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/TimelineComponent.h"
+#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
 
 #include "WallrunOnButton.generated.h"
 
 UCLASS()
-class MARINERUNNER_API AWallrunOnButton : public AActor
+class MARINERUNNER_API AWallrunOnButton : public AActor, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 	
@@ -20,6 +21,10 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
+	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
+	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
 	// Called every frame
@@ -35,6 +40,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UBoxComponent* ActivateRotateBoxComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		class UStaticMeshComponent* ActivateMeshComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UTextRenderComponent* ResetCurrentTimeText;
 
 	// X = roll, Y = Pitch, Z = Yaw
@@ -42,6 +49,12 @@ private:
 		class UCurveVector* RelativeRotationCurve;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
 		float ResetToInitialRotationTime = 6.f;
+	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
+		int32 IndexForMaterialToChange = 0;
+	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
+		FLinearColor NotActiveMaterialColor;
+	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
+		FLinearColor ActiveMaterialColor;
 
 	UFUNCTION()
 		void OnTimelineCallback(FVector NewRotation);
@@ -60,6 +73,10 @@ private:
 	void ResetRotateMeshTimeline();
 	void ResetTimeSeconds();
 
+	FRotator InitialSocketRotation;
+
 	void StartRotateMeshTimeline();
 	FTimeline RotateMeshTimeline;
+
+	UMaterialInstanceDynamic* ActiveDynamicMaterial;
 };

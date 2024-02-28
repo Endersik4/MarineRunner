@@ -86,7 +86,6 @@ void AShootingEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget, bool bStart
 
 	bEnemyDetectedTarget = bSaw;
 
-
 	EnemyIndicatorWidgetComponent->SetVisibility(bSaw);
 
 	const float& StartShootingTime = TimeToStartShooting + FMath::FRandRange(StartShootingRandomTimeRange.GetLowerBoundValue(), StartShootingRandomTimeRange.GetUpperBoundValue());

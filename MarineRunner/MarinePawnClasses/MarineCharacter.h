@@ -97,6 +97,8 @@ public:
 
 	void ReplaceRootComponentRotation();
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (BlueprintSpawnableComponent))
+		class UTakeAndDrop* TakeAndDropComponent;
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UCapsuleComponent* CapsulePawn;
@@ -121,8 +123,6 @@ private:
 		class UCroachAndSlide* CroachAndSlideComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UDashComponent* DashComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		class UTakeAndDrop* TakeAndDropComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		class UWallrunComponent* WallrunComponent;
 

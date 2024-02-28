@@ -77,8 +77,6 @@ void ADoorVent::PlayOpenDoorVentLocTimeline()
 	OpenDoorVentLocTimeline.SetTimelineFinishedFunc(TimelineFinished);
 
 	OpenDoorVentLocTimeline.PlayFromStart();
-	
-	SaveCurrentStateOfVent(2, FTransform(FinalRotation, FinalLocation));
 }
 
 void ADoorVent::OnOpenDoorVentLocProgress(FVector VectorValue)
@@ -109,6 +107,7 @@ void ADoorVent::OnOpenDoorVentLocFinished()
 {
 	DoorVentMesh->SetSimulatePhysics(true);
 	SaveCurrentStateOfVent(3, FTransform(GetActorRotation(), GetActorLocation()));
+	OpenDoorVentLocTimeline.Stop();
 }
 
 void ADoorVent::ItemHover(AMarineCharacter* Character)
@@ -169,7 +168,6 @@ void ADoorVent::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, c
 	if (SavedCustomData.ObjectState == 2)
 		return;
 
-	SavedDataObject->RemoveCustomSaveData(IDkey);
 	FCustomDataSaved UpdatedData = SavedCustomData;
 	UpdatedData.ObjectTransform = FTransform(GetActorRotation(), GetActorLocation());
 	SavedDataObject->AddCustomSaveData(IDkey, UpdatedData);

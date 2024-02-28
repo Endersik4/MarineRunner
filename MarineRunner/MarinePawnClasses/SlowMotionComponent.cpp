@@ -8,6 +8,7 @@
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 
 // Sets default values for this component's properties
 USlowMotionComponent::USlowMotionComponent()
@@ -57,7 +58,7 @@ void USlowMotionComponent::SettingUpSlowMotion()
 
 	//SlowMotion command
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowMotionValue);
-
+	
 	SlowMotionEffects();
 }
 

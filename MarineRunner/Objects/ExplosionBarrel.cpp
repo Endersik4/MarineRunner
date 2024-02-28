@@ -160,8 +160,13 @@ void AExplosionBarrel::RestartData(ASavedDataObject* SavedDataObject, const int3
 	if (SavedCustomData.ObjectState == 1)
 	{
 		DisableBarrel(false);
-		if (IsValid(SpawnedBarrelGeometry))
-			SpawnedBarrelGeometry->Destroy();
+
+		try
+		{
+			if (IsValid(SpawnedBarrelGeometry))
+				SpawnedBarrelGeometry->Destroy();
+		}
+		catch(...){}
 	}
 	else
 	{

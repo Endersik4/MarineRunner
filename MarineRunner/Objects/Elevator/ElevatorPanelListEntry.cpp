@@ -28,6 +28,10 @@ void UElevatorPanelListEntry::SetUpEntry()
 	if (EntryFloor->ElevatorFloor.bAccessible == true)
 	{
 		FString NewText = "-" + FString::FromInt(EntryFloor->ElevatorFloor.Floor) + "-";
+		if (EntryFloor->ElevatorFloor.Floor == EntryFloor->ElevatorPanelWidget->GetCurrentFloor())
+		{
+			NewText = "-curr-";
+		}
 		FloorTextBlock->SetText(FText::FromString(NewText));
 
 		if (EntryFloor->ElevatorFloor.Floor == EntryFloor->ElevatorPanelWidget->GetCurrentFloor() && EntryFloor->ElevatorPanelWidget->GetDoorOpen() == true)
@@ -38,6 +42,8 @@ void UElevatorPanelListEntry::SetUpEntry()
 		{
 			DisableElevatorPanelEntry(false);
 		}
+		FloorTextBlock->SetColorAndOpacity(EntryFloor->ElevatorFloor.AccessibleTextColor);
+		SelectFloorButton->SetBackgroundColor(EntryFloor->ElevatorFloor.AccessibleButtonColor);
 	}
 	else
 	{
@@ -61,7 +67,6 @@ void UElevatorPanelListEntry::OnClickedSelectFloorButton()
 
 void UElevatorPanelListEntry::DisableElevatorPanelEntry(bool bDisable)
 {
-
 	SelectFloorButton->SetIsEnabled(!bDisable);
 }
 

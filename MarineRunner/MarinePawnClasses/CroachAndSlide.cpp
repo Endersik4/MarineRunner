@@ -94,7 +94,7 @@ void UCroachAndSlide::SlideOnRamp(const float& Delta)
 {
 	if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == true)
 	{
-		CurrentMovementForce -= SlideSpeedRamp * Delta;
+		CurrentMovementForce -= (SlideSpeedRamp * 10)*Delta;
 		return;
 	}
 

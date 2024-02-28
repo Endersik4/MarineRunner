@@ -130,7 +130,7 @@ void UWeaponHandlerComponent::Zoom(float WheelAxis)
 #pragma region ////////////////////// EQUIP WEAPON FROM INVENTORY //////////////////////
 void UWeaponHandlerComponent::SelectWeaponFromQuickInventory(int32 HandNumber)
 {
-	if (bCanChangeWeapon == false)
+	if (bCanChangeWeapon == false || bIsPlayerADS == true)
 		return;
 
 

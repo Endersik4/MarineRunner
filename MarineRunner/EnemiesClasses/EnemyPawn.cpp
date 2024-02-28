@@ -254,6 +254,7 @@ void AEnemyPawn::RestartData(ASavedDataObject* SavedDataObject, const int32 IDke
 
 #pragma endregion
 
+
 void AEnemyPawn::AddImpulseToPhysicsMesh(const FVector& Impulse)
 {
 	EnemyCapsule->AddImpulse(Impulse);

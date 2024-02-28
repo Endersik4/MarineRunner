@@ -23,13 +23,12 @@ void ASavedDataObject::AddCustomSaveData(const int32& SavedCustomDataKey, const 
 void ASavedDataObject::RemoveCustomSaveData(const int32& SavedCustomDataID)
 {
 	CustomSavedData.Remove(SavedCustomDataID);
-	//TempCustomSavedData.Remove(SavedCustomDataID);
 }
 
 void ASavedDataObject::StartLoadingObjects()
 {
-	FTimerHandle test;
-	GetWorld()->GetTimerManager().SetTimer(test, this, &ASavedDataObject::LoadObjectsData, 0.05f, false);
+	FTimerHandle LoadingObjectsDelayHandle;
+	GetWorld()->GetTimerManager().SetTimer(LoadingObjectsDelayHandle, this, &ASavedDataObject::LoadObjectsData, 0.05f, false);
 }
 
 void ASavedDataObject::LoadObjectsData()
@@ -80,13 +79,12 @@ void ASavedDataObject::UpdateObjectsData()
 	}
 }
 
-void ASavedDataObject::RestartObjectsData()
+void ASavedDataObject::RestartObjectsData(bool bOnlyDeleteFromTemp)
 {
 	if (TempCustomSavedData.Num() == 0)
 		return;
 
 	TArray<int32> KeysToRemoveFromCustomSavedData;
-
 	for (const TPair<int32, FCustomDataSaved>& Pair : TempCustomSavedData)
 	{
 		try 
@@ -96,15 +94,14 @@ void ASavedDataObject::RestartObjectsData()
 		}
 		catch(...)
 		{
-			UE_LOG(LogTemp, Error, TEXT("NIE DZIALA"));
 			continue;
 		}
 
 		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
 		if (ActorWithSaveInterface == nullptr)
 			continue;
-
-		ActorWithSaveInterface->RestartData(this, Pair.Key, Pair.Value);
+		if (bOnlyDeleteFromTemp == false)
+			ActorWithSaveInterface->RestartData(this, Pair.Key, Pair.Value);
 
 		if (Pair.Value.bValueNotSavedWhileInGame == false)
 		{
@@ -114,7 +111,8 @@ void ASavedDataObject::RestartObjectsData()
 
 	for (const int32& CurrentKeyToRemove : KeysToRemoveFromCustomSavedData)
 	{
-		CustomSavedData.Remove(CurrentKeyToRemove);
+		if (bOnlyDeleteFromTemp == false)
+			CustomSavedData.Remove(CurrentKeyToRemove);
 		TempCustomSavedData.Remove(CurrentKeyToRemove);
 	}
 }

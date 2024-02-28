@@ -35,12 +35,23 @@ void UJumpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 }
 
 #pragma region ////////////////////////////////// JUMP /////////////////////////////////
+bool UJumpComponent::CanJump()
+{
+	FHitResult SomethinhUpResult;
+	bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(SomethinhUpResult, Player->GetRoofLocationSceneComponent()->GetComponentLocation(), Player->GetRoofLocationSceneComponent()->GetComponentLocation(), FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
+	
+	if (bObstacleAbovePlayer == true)
+		return false;
+
+	return bIsInAir == false || ((bDelayIsInAir || Player->GetWallrunComponent()->GetCanJumpAfterWallrun()) && bIsJumping == false) || Player->GetWallrunComponent()->ShouldAddImpulseAfterWallrun(true);
+}
+
 void UJumpComponent::Jump()
 {
 	if (Player->GetWallrunComponent()->GetCanJump() == false)
 		return;
 
-	if (bIsInAir == false || ((bDelayIsInAir || Player->GetWallrunComponent()->GetCanJumpAfterWallrun()) && bIsJumping == false) || Player->GetWallrunComponent()->ShouldAddImpulseAfterWallrun(true))
+	if (CanJump())
 	{
 		Player->GetWallrunComponent()->SetCanJumpAfterWallrun(false);
 		bIsJumping = true;
@@ -64,7 +75,7 @@ void UJumpComponent::JumpTick(float DeltaTime)
 		FVector CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
 		FHitResult HitR;
 
-		bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(HitR, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeBox(FVector(4.4, 4.4, 8.5)));
+		bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(HitR, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
 		if (bObstacleAbovePlayer == false)
 		{
 			//Jumps Up
@@ -194,14 +205,18 @@ void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
 		}
 
 		//Check if Pawn is going UP on ramp, if he is then he cant slide
-		if (!GroundHitResult.GetActor()->GetActorForwardVector().Equals(Player->GetActorForwardVector(), 1.1f))
+		if (PlayerLocationOnRamp.Z < Player->GetActorLocation().Z)
 		{
 			bIsGoingUp = true;
 		}
-		else
+		else if (bIsGoingUp == true)
 		{
+			bIsOnRamp = false;
+			Player->SetShouldPlayerGoForward(false);
+
 			bIsGoingUp = false;
 		}
+		PlayerLocationOnRamp = Player->GetActorLocation();
 	}
 	else DisablePlayerOnRampActions();
 }
@@ -212,6 +227,7 @@ void UJumpComponent::DisablePlayerOnRampActions()
 		return;
 
 	bIsOnRamp = false;
+	bIsGoingUp = false;
 	Player->SetShouldPlayerGoForward(false);
 	Player->GetCroachAndSlideComponent()->CrouchReleasedByObject();
 }

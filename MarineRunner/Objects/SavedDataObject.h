@@ -32,12 +32,11 @@ public:
 	int32 CreateUniqueIDForObject() const;
 
 	FORCEINLINE void SetCustomSavedData(TMap<int32, FCustomDataSaved>& NewSavedData) { CustomSavedData = NewSavedData; }
-	FORCEINLINE void EmptyTempCustomSavedData() { TempCustomSavedData.Empty(); }
 
 	void LoadObjectsData();
 	void StartLoadingObjects();
 	void UpdateObjectsData();
-	void RestartObjectsData();
+	void RestartObjectsData(bool bOnlyDeleteFromTemp = false);
 private:
 	UPROPERTY(EditAnywhere)
 		TMap<int32, FCustomDataSaved> CustomSavedData;

@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/TextRenderComponent.h"
+#include "Curves/CurveVector.h"
 
 // Sets default values
 AWallrunOnButton::AWallrunOnButton()
@@ -26,6 +27,9 @@ AWallrunOnButton::AWallrunOnButton()
 	ActivateRotateBoxComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
 	ActivateRotateBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel3, ECR_Block);
 
+	ActivateMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Activate Mesh Component"));
+	ActivateMeshComponent->SetupAttachment(ActivateRotateBoxComponent);
+
 	ResetCurrentTimeText = CreateDefaultSubobject<UTextRenderComponent>(TEXT("ResetCurrentTimeText"));
 	ResetCurrentTimeText->SetupAttachment(ActivateRotateBoxComponent);
 }
@@ -39,6 +43,11 @@ void AWallrunOnButton::BeginPlay()
 	ResetCurrentTimeText->SetText(FText::AsNumber(CurrentResetSecond));
 
 	ActivateRotateBoxComponent->OnComponentHit.AddDynamic(this, &AWallrunOnButton::OnActivateRotateBoxHit);
+
+	ActiveDynamicMaterial = UMaterialInstanceDynamic::Create(ActivateMeshComponent->GetMaterial(IndexForMaterialToChange), this);
+	ActivateMeshComponent->SetMaterial(IndexForMaterialToChange, ActiveDynamicMaterial);
+
+	InitialSocketRotation = SocketRotateMeshComponent->GetRelativeRotation();
 }
 
 // Called every frame
@@ -59,6 +68,7 @@ void AWallrunOnButton::OnActivateRotateBoxHit(UPrimitiveComponent* HitComp, AAct
 
 	bWasRotated = true;
 	StartRotateMeshTimeline();
+	ActiveDynamicMaterial->SetVectorParameterValue(FName("Color"), ActiveMaterialColor);
 }
 
 void AWallrunOnButton::StartRotateMeshTimeline()
@@ -102,6 +112,8 @@ void AWallrunOnButton::ResetRotateMeshTimeline()
 {
 	bResetingRotation = true;
 	RotateMeshTimeline.ReverseFromEnd();
+	ActiveDynamicMaterial->SetVectorParameterValue(FName("Color"), NotActiveMaterialColor);
+
 }
 
 void AWallrunOnButton::ResetTimeSeconds()
@@ -111,4 +123,32 @@ void AWallrunOnButton::ResetTimeSeconds()
 
 	if (CurrentResetSecond <= 0)
 		GetWorldTimerManager().ClearTimer(DisplayResetTimeHandle);
+}
+
+void AWallrunOnButton::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
+}
+
+void AWallrunOnButton::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
+}
+
+void AWallrunOnButton::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	if (bWasRotated == false)
+		return;
+
+	ActiveDynamicMaterial->SetVectorParameterValue(FName("Color"), NotActiveMaterialColor);
+	bResetingRotation = false;
+	bWasRotated = false;
+	GetWorldTimerManager().ClearTimer(DisplayResetTimeHandle);
+	GetWorldTimerManager().ClearTimer(ResetToInitialRotationHandle);
+
+	CurrentResetSecond = FMath::RoundToInt(ResetToInitialRotationTime);
+	ResetCurrentTimeText->SetText(FText::AsNumber(CurrentResetSecond));
+	RotateMeshTimeline.Stop();
+
+	SocketRotateMeshComponent->SetRelativeRotation(InitialSocketRotation);
 }

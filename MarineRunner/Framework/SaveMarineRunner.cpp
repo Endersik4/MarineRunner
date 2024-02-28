@@ -119,7 +119,7 @@ void USaveMarineRunner::LoadOtherObjectsData(ASavedDataObject* OtherObjectsData)
 		return;
 
 	OtherObjectsData->SetCustomSavedData(SavedCustomData);
-	OtherObjectsData->EmptyTempCustomSavedData();
+	OtherObjectsData->RestartObjectsData(true);
 	OtherObjectsData->StartLoadingObjects();
 }
 

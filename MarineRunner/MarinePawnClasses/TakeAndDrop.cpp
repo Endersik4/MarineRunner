@@ -54,7 +54,8 @@ bool UTakeAndDrop::RaycastForHoverItems()
 
 void UTakeAndDrop::Take()
 {
-	GetWorld()->GetTimerManager().SetTimer(ConstantlyTakeHandle, this, &UTakeAndDrop::Take, TakeAnotherItemTime, true);
+	if (GetWorld()->GetTimerManager().IsTimerActive(ConstantlyTakeHandle) == false)
+		GetWorld()->GetTimerManager().SetTimer(ConstantlyTakeHandle, this, &UTakeAndDrop::Take, TakeAnotherItemTime, true);
 
 	if (RaycastForHoverItems() == false)
 	{

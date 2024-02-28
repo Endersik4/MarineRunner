@@ -71,7 +71,7 @@ void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString&
 	Player->GetWeaponInventoryComponent()->SaveInitialWeaponInventory();
 	CreatedSaveGame->WeaponInventory_Saved = Player->GetWeaponInventoryComponent()->InitialWeaponInventory;
 
-	SavedDataObject->EmptyTempCustomSavedData();
+	SavedDataObject->RestartObjectsData(true);
 	SavedDataObject->UpdateObjectsData();
 	CreatedSaveGame->SavedCustomData = SavedDataObject->GetCustomSavedData();
 
@@ -91,19 +91,19 @@ void USaveLoadPlayerComponent::LoadGame()
 
 	if (GameInstance->bNewGame == true)
 		return;
-
+	
 	USaveMarineRunner* LoadGameInstance = CreateLoadGame();
 	if (IsValid(LoadGameInstance) == false)
 		return;
-
+	
 	GameInstance->ResetDetectedEnemy();
 	GameInstance->ChangeBackgroundMusic(EMT_Exploration, true);
-
+	
 	Player->SetActorLocation(LoadGameInstance->SavedPlayerLocation);
 	Player->SetActorRotation(LoadGameInstance->SavedPlayerRotation);
 	if (IsValid(PlayerController) == true)
 		PlayerController->SetControlRotation(LoadGameInstance->SavedPlayerRotation);
-
+	
 	LoadGameInstance->LoadGame(Player, GameInstance);
 	LoadGameInstance->LoadOtherObjectsData(SavedDataObject);
 }
@@ -135,6 +135,7 @@ void USaveLoadPlayerComponent::RestartGame()
 	SpawnNewPlayer();
 
 	GameInstance->ResetDetectedEnemy();
+	UGameplayStatics::GetPlayerCameraManager(GetWorld(),0)->StopAllCameraShakes();
 
 	Player->Destroy();
 }

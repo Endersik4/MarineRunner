@@ -56,6 +56,8 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 		FVector BoxSizeToCheckIfSomethingIsBelow = FVector(25.f, 25.f, 20.f);
+	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
+		FVector BoxSizeToCheckIfSomethingIsUp = FVector(25.f, 25.f, 25.f);
 	// Divide Movement speed and CounterMovementForce by this value when in Air
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 		float DividerForCounterForceWhenInAir = 8.f;
@@ -74,6 +76,7 @@ private:
 	bool bDownForce;
 	bool bIsJumping;
 	float JumpTimeElapsed;
+	bool CanJump();
 	void JumpTick(float DeltaTime);
 
 	//Delayed jump
@@ -93,6 +96,7 @@ private:
 	void DisablePlayerOnRampActions();
 	bool bIsOnRamp;
 	bool bIsGoingUp;
+	FVector PlayerLocationOnRamp;
 
 	void LandingEffect();
 	void CreateImpactOnFloorTimeline();
