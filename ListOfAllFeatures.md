@@ -528,95 +528,83 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 <hr>
 <h2> PAUSE MENU </h2>
 	<h3> - RESUME </h3>
-	<ul>
-		 <li>On Clicked unpauses the game.</li>
-	</ul>
+		<ul>
+		    <li><strong>Resume Game:</strong> On Clicked, unpauses the game.</li>
+		</ul>
+		
 	<h3> - LOAD GAME </h3>
-	<ul>
-		 <li>On Clicked toggles spawning Load Game Widget.</li>
-		 <li> Load Game Widget </li>
-		 <ul>
-	        <li>If there are saves, hide NoSavedDataText.</li>
-	        <li>Get locations of all JSON file saves, then deserialize all JSON to FSaveDataMenuStruct and add them to the DeserializedSaves array.</li>
-	        <li>Sort the DeserializedSaves array according to when the save was made, so the first save is the one that was saved most recently.</li>
-	        <li>Add items from DeserializedSaves to SavesListView as LoadGameEntry.</li>
-	        <li>LoadGameEntry:</li>
-	        <ul>
-	            <li>Displays save name, date of the saved save, total playtime, image of the screenshot taken when the player saved the game.</li>
-	            <li>On clicked, when ShowConfirmLoadingWidget is set to false, then open the saved level; if set to true, then spawn the confirm widget.</li>
-	            <li>When the confirm widget is spawned, the player can choose to continue or go back.</li>
-	        </ul>
-		 </ul>
-	</ul>
+		<ul>
+		    <li><strong>Toggle Widget:</strong> On Clicked, toggles spawning the Load Game Widget.</li>
+		    <li><strong>Load Game Widget:</strong></li>
+		    <ul>
+		        <li><strong>Saves Check:</strong> If there are saves, hides NoSavedDataText.</li>
+		        <li><strong>JSON Deserialization:</strong> Gets locations of all JSON file saves, then deserializes all JSON to FSaveDataMenuStruct and adds them to the DeserializedSaves array.</li>
+		        <li><strong>Sorting:</strong> Sorts the DeserializedSaves array based on the save date, ensuring the most recent save is listed first.</li>
+		        <li>Add items from DeserializedSaves to SavesListView as LoadGameEntry.</li>
+		        <li><strong>LoadGameEntry:</strong></li>
+		        <ul>
+		            <li><strong>Display Information:</strong> Displays save name, date of the saved save, total playtime, and an image of the screenshot taken when the player saved the game.</li>
+		            <li><strong>Interaction:</strong> On clicked, opens the saved level. If ShowConfirmLoadingWidget is true, spawns the confirm widget for the player to choose to continue or go back.</li>
+		        </ul>
+		    </ul>
+		</ul>
+		
 	<h3> - SAVE GAME </h3>
-	<ul>
-	    <li>If the player can't save the game, the Cannot Save Game Widget will spawn.</li>
-	    <li>Saves the game in SaveLoadPlayerComponent.</li>
-	    <li>Unpauses the pause menu.</li>
-	</ul>
+		<ul>
+		    <li><strong>Check Can Save:</strong> If the player can't save the game, the Cannot Save Game Widget will spawn.</li>
+		    <li><strong>Save Process:</strong> Saves the game in the SaveLoadPlayerComponent.</li>
+		    <li><strong>Unpause:</strong> Unpauses the pause menu.</li>
+		</ul>
+
 	<h3> - SETTINGS </h3>
-	<ul>
-		<li>On Clicked toggles spawning Settings Widget.</li>
-	</ul>
+		<ul>
+		    <li><strong>Toggle Widget:</strong> On Clicked, toggles spawning the Settings Widget.</li>
+		    <li><strong>Settings Widget:</strong></li>
+		    <ul>
+		        <li><strong>Category Buttons:</strong> Contains buttons for Game, Video, Audio, and Bindings. Each button fills the SettingsTileView with relevant settings.</li>
+		        <li><strong>Settings Menu Entry:</strong></li>
+		        <ul>
+		            <li><strong>Save and Load:</strong> Values can be saved to config and are loaded on the game's initial launch.</li>
+		            <li><strong>Setting Types:</strong> Can be set as Category, Quality, Checkbox, Slider, Key Mapping, Screen Resolution, or Window Type.</li>
+		            <li><strong>Interconnected Controls:</strong> Checkboxes can influence other settings.</li>
+		            <li><strong>Adjustable Parameters:</strong> Slider values have a customizable range and decimal digits.</li>
+		            <li><strong>User Input:</strong> Key mappings allow changes by referencing Key Mapping names.</li>
+		            <li><strong>Display Settings:</strong> Screen resolutions are presented as a list of possible options.</li>
+		            <li><strong>Acceptance Methods:</strong> Settings can be applied via console command execution, sound adjustments (volume in specific sound classes), or remain unapplied.</li>
+		            <li><strong>Disabled State:</strong> Entries can be disabled and appear grayed out.</li>
+		        </ul>
+		        <li><strong>Accept Button:</strong></li>
+		        <ul>
+		            <li><strong>Confirmation Widget:</strong> Spawns a widget confirming applied settings.</li>
+		            <li><strong>Save Settings:</strong> Saves all values according to the current configuration, including console commands, sound adjustments, and JSON file (if enabled).</li>
+		            <li><strong>Load Settings:</strong> Loads all player-saved settings, applying changes like FOV adjustments.</li>
+		        </ul>
+		    </ul>
+		</ul>
 	<h3> - QUIT GAME </h3>
-	<ul>
-	    <li>Spawns Confirm Widget that asks if the player wants to continue or go back.</li>
-	    <li>If the player wants to continue, quits the game.</li>
-	</ul>
-	<h3>Plays animation on all buttons - on hovered/unhovered</h3>
+		<ul>
+		    <li><strong>Confirm Widget:</strong> Spawns Confirm Widget that asks if the player wants to continue or go back.</li>
+		    <li><strong>Quit Process:</strong> If the player wants to continue, quits the game.</li>
+		</ul>
+	
+	<h3> - Button Animations </h3>
+		<ul>
+		    <li><strong>Hover/Unhover Animation:</strong> Plays animation on all buttons when hovered/unhovered.</li>
+		</ul>
 	
 <h2> MAIN MENU </h2>
 	<h3> - CONTINUE </h3>
-	<ul>
-	    <li>Gets the last saved game and loads it.</li>
-	</ul>
+		<ul>
+		    <li><strong>Load Last Save:</strong> Gets the last saved game and loads it.</li>
+		</ul>
 	<h3> - NEW GAME </h3>
+		<ul>
+		    <li><strong>Widget Spawn:</strong> On Clicked, spawns a new game widget and after some time opens a new level without loading a save.</li>
+		</ul>
+	<h3> The rest are the same as in Pause Menu: </h3>
 	<ul>
-	    <li>On Clicked, Spawns new game widget and after some time open new level without loading a save.</li>
+		<li>load game</li>
+		<li>save game</li>
+		<li>settings</li>
+		<li>quit game</li>
 	</ul>
-	<h3> The rest are the same as in Pause Menu </h3>
-	<h3> - LOAD GAME </h3>
-	<h3> - SAVE GAME </h3>
-	<h3> - SETTINGS </h3>
-	<h3> - QUIT </h3>
-
-
-
-<h3> Pause Menu <a href="https://youtu.be/TWsT171ZXYA?t=9"> Showcase </a></h3> 
-- Pause Menu with working resume, load game, save game, settings and quit buttons<br/>
-<h3> - Load Game </h3>
-- List View with all saves  <br/>
-- list view entry shows the name of the save, screenshot taken while saving the game, save date, total game time saved <br/>
-- The message "Confirm Loading" will appear. <br/>
-<h3> - Save Game </h3>
-- Saves game when can (cant save while in Air or in Combat) <br/>
-- The notification "Saved Game" appear after saving the game <br/>
-<h3> - Settings </h3>
-- (Game, Audio, Video, Bindings) Settings, Accept, Back to Defaults <br/>
-- Every settings (game, audio etc) is in List View and one entry == one setting <br/>
-- Any Entry value can be saved to config and is loaded When the game is first launched <br/>
-- Entry can be set to: 
-<ul>
-        <li>Category (centered text with diffrent color) </li>
-	<li>Quality (like Low, Med, High, Ultra - 0,1,2,3 value) </li>
-	<li>Checkbox (true, false value) and checkbox can be connected to other settings </li>
-	<li>Slider value (slider range or number of decimal digits that can be set) </li>
-	<li>Key mapping (changed by Key mapping name) </li>
-	<li>Set resolution of screen (gets list of possible resolutions)</li>
-	<li>Set Window Type (FullScreen, Windowed etc) </li>
-</ul>
-- Entry value can be applied by:
-<ul>
-	<li>executing command in console <br/></li>
-	<li>sounds (value is saved as volume in given sound class and mix sound class) <br/></li>
-	<li>none <br/></li>
-</ul>
-- Entry can be disabled and grayed out <br/>
-<h3> - Quit Game </h3> 
-- The message "Confirm quiting" will appear <br/>
-
-<h3> Main Menu </h3>
-- Almost the same as the pause menu, but without saving the game and with a new game/continue button
-
-
-
