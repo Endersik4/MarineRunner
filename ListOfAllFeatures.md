@@ -423,7 +423,7 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li>Utilizes timers to control the duration of seeing the actor and preventing frequent changes in detection status.</li>
 	</ul>
 	
-	<br/>
+<br/>	
 <hr>
 <h2> PAUSE MENU </h2>
 	<h3> - RESUME </h3>
