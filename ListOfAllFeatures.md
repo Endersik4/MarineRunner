@@ -311,6 +311,13 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li><strong>Reload Interaction:</strong> Different animation if reloading before emptying the magazine.</li>
 	    <li><strong>Low Ammo:</strong> Unique animation for the last bullet in the magazine.</li>
 	</ul>
+	<h3> - Drop Casing </h3>
+	<ul>
+	    <li><strong>Trigger Conditions:</strong> Can be triggered during casing drop, reloading, or shooting.</li>
+	    <li><strong>Randomized Rotation:</strong> Allows randomization of Drop Casing rotation.</li>
+	    <li><strong>Actor Animation:</strong> Drop Casing is an actor with an animation played instantly after spawning.</li>
+	    <li><strong>Sound Effect:</strong> Plays DropCasing Sound upon casing hitting the ground, followed by actor destruction.</li>
+	</ul>
 
 
 
