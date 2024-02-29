@@ -403,6 +403,24 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		<li>Deletes the gun from the inventory.</li>
 		<li>Destroys the gun.</li>
 	</ul>
+	
+<h3> - BULLET </h3>
+	<ul>
+		<li>Has two movement types: </li>
+		<ul>
+			<li>Based On Physics: Uses Add Impulse as movement.</li>
+			<li>Custom Movement: Sets bullet location by multiplying BulletSpeed with ForwardVector, and when the bullet passes BulletMinDistance, it starts falling down.</li>
+		</ul>
+		<li>When bullet hits something: </li>
+		<ul>
+			<li>Checks if the bullet is stuck in an actor; if it is, teleports it a bit forward.</li>
+			<li>If set to true, plays a camera shake on hit.</li>
+			<li>Can use a sphere for damage; spawns a sphere and damages all actors inside it.</li>
+			<li>Uses the Damage Interface on the hit actor; if the actor doesn't have an interface, performs default effects (bullet hole, particles, sounds).</li>
+			<li>If the bullet can go through an object (like through a thin wall), it doesn't destroy the bullet unless MaxObjectsForBulletGoThrough == 0, moves a bit forward, and reduces damage and impulse.</li>
+		</ul>
+	</ul>
+
 
 
 
