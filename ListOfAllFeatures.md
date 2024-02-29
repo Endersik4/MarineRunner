@@ -360,6 +360,14 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	        <li><strong>Mouse Sensitivities:</strong> Different mouse sensitivities for all zoom levels (2x, 4x, 8x).</li>
 	    </ul>
 	</ul>
+	<h3> - TAKE </h3>
+	<ul>
+	    <li><strong>Initialization:</strong> Handles the process of a player taking a gun for the first time.</li>
+	    <li><strong>Variable Setup:</strong> Sets all necessary variables for the player to use the gun.</li>
+	    <li><strong>Existing Gun:</strong> If the player already has a gun and takes another one, hides the first one and plays the Take Animation for the second one.</li>
+	    <li><strong>Ammunition Transfer:</strong> Adds ammunition from Stored Ammo to the player's inventory if the weapon is taken for the first time.</li>
+	    <li><strong>Load Game Support:</strong> This function is also used when loading a saved game, and weapons need to spawn.</li>
+	</ul>
 
 
 
