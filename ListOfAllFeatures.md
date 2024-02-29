@@ -423,16 +423,116 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 <br/>
 <hr>
 <h2> OBJECTS </h2>
-<h3> - ELEVATOR </h3>
+	<h3> - ELEVATOR </h3>
+		<ul>
+			<li><strong>Call Elevator:</strong> Allows the player to call the elevator from outside.</li>
+			<li><strong>Waiting Animation:</strong> Displays a "Wait For Elevator" animation on the widget while the elevator moves to the player.</li>
+			<li><strong>Floor Selection:</strong> When in the elevator, the player can choose the desired floor from a Tile View entry on the widget.</li>
+			<li><strong>Starting Animation:</strong> Initiates an animation when the player selects the floor, and the elevator moves accordingly.</li>
+			<li><strong>Blocked Floors:</strong> Supports blocking specific floors, preventing the player from choosing them.</li>
+			<li><strong>Pin Code Access:</strong> Optionally requires a pin code for entry.</li>
+			<li><strong>Door Opening:</strong> Opens the elevator doors when the player selects the current floor.</li>
+			<li><strong>Widget Animation:</strong> Handles all animations within the Widget Blueprint.</li>
+		</ul>
+	<h3> - DOOR </h3>
+		<ul>
+		    <li><strong>Control Mechanism:</strong> Can be opened/closed through the DoorPanel.</li>
+		    <li><strong>Auto-Close Feature:</strong> Closes the door automatically after a set period.</li>
+		    <li><strong>Pin Code Access:</strong> Optionally requires a pin code for entry.</li>
+		</ul>
+	<h3> - Sound On Hit Component </h3>
+		<ul>
+			    <li><strong>Functionality:</strong> Component can be added to any actor on map.</li>
+			    <li><strong>Trigger Condition:</strong> Plays a sound when the actor collides with something (OnComponentHit).</li>
+			    <li><strong>Velocity Check:</strong> Initiates sound playback only if the collision velocity magnitude exceeds a defined tolerance (VelocityLengthErrorTolerance).</li>
+		</ul>
+	<h3> - SHOW TUTORIAL MESSAGE </h3>
+		<ul>
+		    <li><strong>Trigger Condition:</strong> Activates when the player collides with the ShowMessageBox.</li>
+		    <li><strong>Combat Check:</strong> Verifies if the player is in combat; if not, spawns the Tutorial Message Widget.</li>
+		    <li><strong>Tutorial Customization:</strong> Allows setting tutorial information on the widget in the Actor.</li>
+		    <li><strong>Widget Display:</strong> Spawns the tutorial message to the player.</li>
+		    <li><strong>Hide Animation:</strong> Initiates the Hide Widget animation after a specified duration (HideMessageAfterTime).</li>
+		</ul>
+		</ul>
+	<h3> - Hammer </h3>
+		<ul>
+		    <li><strong>Dynamic Location:</strong> An actor that adjusts its own location based on a timeline.</li>
+		    <li><strong>Audio Cue:</strong> Triggers a hit sound after a specified time.</li>
+		    <li><strong>Player Collision:</strong> Causes the player to be eliminated upon collision with the HammerBox.</li>
+		</ul>
+	<h3> - CHANGE MUSIC/SOUND </h3>
+		<ul>
+		    <li><strong>Audio Environment:</strong> Alters music or sound upon player collision with the ChangeBox.</li>
+		    <li><strong>Custom Game Instance:</strong> Modifies music in the custom game instance, with a fading effect.</li>
+		</ul>
+	<h3> - CHECKPOINT </h3>
+		<ul>
+		    <li><strong>Save Progress:</strong> Upon player collision with the Checkpoint, initiates a game save with a specified name (e.g., Autosave).</li>
+		</ul>
+	<h3> - CHEST WITH ITEMS </h3>
+		<ul>
+			<li> When player opens the chest:</li>
+			<ul>
+				<li>Plays open animation and changes given Material to Unlock one</li>
+				<li>Takes ItemRandomSpawnStruct from Array and checks if given item can spawn according to random percent</li>
+				<li>If Random Percent is in given range then spawn an item with given Offset</li>
+				<li><strong>Pin Code Access:</strong> Optionally requires a pin code to open.</li>
+			</ul>
+		</ul>
+	<h3> - CHEST WITH ITEMS </h3>
 	<ul>
-		<li><strong>Call Elevator:</strong> Allows the player to call the elevator from outside.</li>
-		<li><strong>Waiting Animation:</strong> Displays a "Wait For Elevator" animation on the widget while the elevator moves to the player.</li>
-		<li><strong>Floor Selection:</strong> When in the elevator, the player can choose the desired floor from a Tile View entry on the widget.</li>
-		<li><strong>Starting Animation:</strong> Initiates an animation when the player selects the floor, and the elevator moves accordingly.</li>
-		<li><strong>Blocked Floors:</strong> Supports blocking specific floors, preventing the player from choosing them.</li>
-		<li><strong>Pin Code Access:</strong> Optionally requires a pin code for entry.</li>
-		<li><strong>Door Opening:</strong> Opens the elevator doors when the player selects the current floor.</li>
-		<li><strong>Widget Animation:</strong> Handles all animations within the Widget Blueprint.</li>
+	    <li><strong> When the player interacts with the chest:</strong></li>
+	    <ul>
+	        <li>Plays an opening animation and updates the material to signify unlocking.</li>
+	        <li>Takes ItemRandomSpawnStruct from an array and evaluates if the specified item can spawn based on a random percentage.</li>
+	        <li>If the random percentage falls within the defined range, spawns the item with the specified offset.</li>
+	        <li><strong>Pin Code Access:</strong> Optionally requires a pin code to open.</li>
+	    </ul>
+	</ul>
+	<h3> - CONVEYOR BELT </h3>
+	<ul>
+	    <li><strong>Mesh Generation:</strong> Creates instanced meshes based on Direction, Offset, and Amount parameters.</li>
+	    <li><strong>ConveyorBox Properties:</strong> Calculates the location and scale of the ConveyorBox based on instanced meshes.</li>
+	    <li><strong>Collision Interaction:</strong> If an object collides with the ConveyorBox, it begins moving at the specified speed in the ConveyorBelt direction.</li>
+	</ul>
+	<h3> - DOOR VENT </h3>
+	<ul>
+	    <li><strong>Interactive Interface:</strong> Implements ITakeInterface, providing item-like behavior when the player hovers the mouse over it (spawning item information widget, making the outline visible, etc).</li>
+	    <li><strong>Physics Interaction:</strong> Player can shoot or hit the door vent, causing it to change to simulate physics.</li>
+	    <li><strong>Take Action:</strong> If the player presses the Take Button, it activates physics or plays a timeline that modifies the location and rotation.</li>
+	    <li><strong>Timeline Effect:</strong> When the timeline is finished, physics is enabled.</li>
+	    <li><strong>Post-Interaction State:</strong> After opening the vent, the player cannot hover over it again.</li>
+	</ul>
+	<h3> - ENEMY SPAWNER </h3>
+	<ul>
+	    <li><strong>Spawn Mechanism:</strong> Initiates the spawning of an enemy with a specified class and transform.</li>
+	    <li><strong>Activation Trigger:</strong> Spawning occurs when the player collides with the EnemySpawnerBox.</li>
+	</ul>
+	<h3> - EXPLOSION BARREL </h3>
+	<ul>
+	    <li><strong>Player Interaction:</strong> Shooting the explosion barrel triggers a series of events.</li>
+	    <li><strong>Damage Radius:</strong> Spawns a sphere, applying damage to all actors within the radius with IDamageInterface (similar to Bullet).</li>
+	    <li><strong>Effects:</strong> Generates various effects, including sound, particles, decals, camera shake, and breaking the explosion barrel geometry into smaller pieces.</li>
+	</ul>
+	<h3> - MESSAGE TO READ </h3>
+	<ul>
+	    <li><strong>Interactive Interface:</strong> Implements ITakeInterface, simulating item-like behavior upon mouse hover (spawning item information widget, displaying the outline, etc).</li>
+	    <li><strong>Player Interaction:</strong> When the player uses the take button, it spawns a message widget after a delay and pauses the game.</li>
+	</ul>
+	<h3> - CHANGE LEVEL </h3>
+	<ul>
+	    <li>Upon colliding with the ChangeLevelBox, it spawns a widget and, after a set duration, opens the specified level.</li>
+	</ul>
+	<h3> - ROTATE ON BUTTON </h3>
+	<ul>
+	    <li>When the player shoots the RotateBox:</li>
+	    <ul>
+	        <li>Uses a timeline to rotate the Socket mesh.</li>
+	        <li>Changes the material of ActivateRotateMesh to the activated one.</li>
+	        <li>Initiates a timer that is displayed on ActivateRotateMesh.</li>
+	    </ul>
+	    <li>Upon completion of the rotate timer, the SocketMesh is rotated back to its initial rotation, the timer is restarted, and the material is reset.</li>
 	</ul>
 
 
