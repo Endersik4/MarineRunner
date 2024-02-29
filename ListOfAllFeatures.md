@@ -189,6 +189,160 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li><strong>Wallrunning Variation:</strong> Use different footsteps sounds when the player is wallrunning.</li>
 	</ul>
 
+<br/>	
+<hr>
+<h2> PAUSE MENU </h2>
+	<h3> - RESUME </h3>
+		<ul>
+		    <li><strong>Resume Game:</strong> On Clicked, unpauses the game.</li>
+		</ul>
+	<h3> - LOAD GAME </h3>
+		<ul>
+		    <li><strong>Toggle Widget:</strong> On Clicked, toggles spawning the Load Game Widget.</li>
+		    <li><strong>Load Game Widget:</strong></li>
+		    <ul>
+		        <li><strong>Saves Check:</strong> If there are saves, hides NoSavedDataText.</li>
+		        <li><strong>JSON Deserialization:</strong> Gets locations of all JSON file saves, then deserializes all JSON to FSaveDataMenuStruct and adds them to the DeserializedSaves array.</li>
+		        <li><strong>Sorting:</strong> Sorts the DeserializedSaves array based on the save date, ensuring the most recent save is listed first.</li>
+		        <li>Add items from DeserializedSaves to SavesListView as LoadGameEntry.</li>
+		        <li><strong>LoadGameEntry:</strong></li>
+		        <ul>
+		            <li><strong>Display Information:</strong> Displays save name, date of the saved save, total playtime, and an image of the screenshot taken when the player saved the game.</li>
+		            <li><strong>Interaction:</strong> On clicked, opens the saved level. If ShowConfirmLoadingWidget is true, spawns the confirm widget for the player to choose to continue or go back.</li>
+		        </ul>
+		    </ul>
+		</ul>
+	<h3> - SAVE GAME </h3>
+		<ul>
+		    <li><strong>Check Can Save:</strong> If the player can't save the game, the Cannot Save Game Widget will spawn.</li>
+		    <li><strong>Save Process:</strong> Saves the game in the SaveLoadPlayerComponent.</li>
+		    <li><strong>Unpause:</strong> Unpauses the pause menu.</li>
+		</ul>
+	<h3> - SETTINGS </h3>
+		<ul>
+		    <li><strong>Toggle Widget:</strong> On Clicked, toggles spawning the Settings Widget.</li>
+		    <li><strong>Settings Widget:</strong></li>
+		    <ul>
+		        <li><strong>Category Buttons:</strong> Contains buttons for Game, Video, Audio, and Bindings. Each button fills the SettingsTileView with relevant settings.</li>
+		        <li><strong>Settings Menu Entry:</strong></li>
+		        <ul>
+		            <li><strong>Save and Load:</strong> Values can be saved to config and are loaded on the game's initial launch.</li>
+		            <li><strong>Setting Types:</strong> Can be set as Category, Quality, Checkbox, Slider, Key Mapping, Screen Resolution, or Window Type.</li>
+		            <li><strong>Interconnected Controls:</strong> Checkboxes can influence other settings.</li>
+		            <li><strong>Adjustable Parameters:</strong> Slider values have a customizable range and decimal digits.</li>
+		            <li><strong>User Input:</strong> Key mappings allow changes by referencing Key Mapping names.</li>
+		            <li><strong>Display Settings:</strong> Screen resolutions are presented as a list of possible options.</li>
+		            <li><strong>Acceptance Methods:</strong> Settings can be applied via console command execution, sound adjustments (volume in specific sound classes), or remain unapplied.</li>
+		            <li><strong>Disabled State:</strong> Entries can be disabled and appear grayed out.</li>
+		        </ul>
+		        <li><strong>Accept Button:</strong></li>
+		        <ul>
+		            <li><strong>Confirmation Widget:</strong> Spawns a widget confirming applied settings.</li>
+		            <li><strong>Save Settings:</strong> Saves all values according to the current configuration, including console commands, sound adjustments, and JSON file (if enabled).</li>
+		            <li><strong>Load Settings:</strong> Loads all player-saved settings, applying changes like FOV adjustments.</li>
+		        </ul>
+		    </ul>
+		</ul>
+	<h3> - QUIT GAME </h3>
+		<ul>
+		    <li><strong>Confirm Widget:</strong> Spawns Confirm Widget that asks if the player wants to continue or go back.</li>
+		    <li><strong>Quit Process:</strong> If the player wants to continue, quits the game.</li>
+		</ul>
+	<h3> - Button Animations </h3>
+		<ul>
+		    <li><strong>Hover/Unhover Animation:</strong> Plays animation on all buttons when hovered/unhovered.</li>
+		</ul>
+
+<h2> MAIN MENU </h2>
+	<h3> - CONTINUE </h3>
+		<ul>
+		    <li><strong>Load Last Save:</strong> Gets the last saved game and loads it.</li>
+		</ul>
+	<h3> - NEW GAME </h3>
+		<ul>
+		    <li><strong>Widget Spawn:</strong> On Clicked, spawns a new game widget and after some time opens a new level without loading a save.</li>
+		</ul>
+	<h3> The rest are the same as in Pause Menu: </h3>
+	<ul>
+		<li>load game</li>
+		<li>save game</li>
+		<li>settings</li>
+		<li>quit game</li>
+	</ul>
+	
+<br/>
+<hr>
+<h2> SAVING | LOADING </h2>
+	<h3> Save Marine Runner </h3>
+		<ul>
+		    <li><strong>Screenshot:</strong> Takes a screenshot.</li>
+		    <li><strong>Date Conversion:</strong> Converts the current date to text.</li>
+		    <li><strong>Playtime Calculation:</strong> Calculates total playtime and save number.</li>
+		    <li><strong>JSON Creation:</strong> Creates a JSON file with information about the save (e.g., save name, save number, path to screenshot...).</li>
+		    <li><strong>Player Data Load:</strong> Loads all the player's data (e.g., health, inventory, recipes...).</li>
+		    <li><strong>Objects Data Load:</strong> Loads objects data in SavedDataObject.</li>
+		</ul>
+	<h3> Save Custom Data Interface </h3>
+	<ul>
+	    <li><strong>Usage:</strong> Every actor with this interface will be saved/loaded/restarted according to player actions.</li>
+	    <li><strong>Data Structure:</strong> It has an FCustomDataSaved structure that contains:</li>
+	    <ul>
+	        <li><strong>Data State:</strong> SavedDataState as enum where it can be set to only LoadData or SpawnObject.</li>
+	        <li><strong>Actor Pointer:</strong> Pointer to the actor to save data to/load data from.</li>
+	        <li><strong>Object State:</strong> Object State as int that lets you save the state of the actor (e.g., when the player unlocks the door using a pin, then ObjectState = 1, and when loading the game, it checks if ObjectState == 1, then unlock the door).</li>
+	        <li><strong>Class Pointer:</strong> Pointer to the class for spawn when SavedDataState == SpawnObject.</li>
+	        <li><strong>Object Transform:</strong></li>
+	        <li><strong>Value:</strong> Value to save as float.</li>
+	        <li><strong>From The Beginning:</strong> SavedFromTheBeginning as a boolean; it's used for when we want to save an object that the player can't interact with (e.g., Explosion barrel should save when changed location or albertos).</li>
+	    </ul>
+	    <li><strong>Definition:</strong> What to save/load or restart is defined in the actor CPP.</li>
+	    <li><strong>Actors Using Interface:</strong> Actors that use this interface to save/load/restart:</li>
+	    <ul>
+	        <li>Albertos Pawn</li>
+	        <li>Enemy Pawn</li>
+	        <li>Pickup Item</li>
+	        <li>Change Music Actor</li>
+	        <li>Checkpoint</li>
+	        <li>Chest with Items</li>
+	        <li>Door</li>
+	        <li>Door Vent</li>
+	        <li>Elevator</li>
+	        <li>Outside Elevator Door</li>
+	        <li>Enemy Spawner</li>
+	        <li>Explosion Barrel</li>
+	        <li>Show Tutorial Message</li>
+	        <li>Wallrun on Button</li>
+	    </ul>
+	</ul>
+	<h3> Saved Data Object </h3>
+	<ul>
+	    <li><strong>Data Container:</strong> Object that contains all saved data from actors with ISaveCustomDataInterface.</li>
+	    <li><strong>Data Management:</strong> Object is added to CustomSavedData array and TempCustomSavedData.</li>
+	    <li><strong>Load Actor Data:</strong> Loads all the actors' data (e.g., item should be spawned with transform or unlock the door).</li>
+	    <li><strong>Update Actor Data:</strong> Updates all the actors' data (e.g., Albertos moved, so update its transform).</li>
+	    <li><strong>Restart Actor Data:</strong> Restarts all the actors' data. All objects that are in TempCustomSavedData are going to be restarted. TempCustomSavedData array is only cleared when the player saves the game.</li>
+	</ul>
+
+<br/>
+<hr>
+<h2> Game Instance </h2>
+	<h3> Custom Saved Settings </h3>
+		<ul>
+		    <li><strong>Definition:</strong> Values need to be defined with a name and default value to save.</li>
+		    <li><strong>Saving:</strong> These values will be saved to a file and can be loaded.</li>
+		    <li><strong>Example:</strong> For instance, mouse sensitivity is saved in Menu Settings to Game Instance. When opening the game for the first time, it takes the value from Game Instance to load mouse sensitivity.</li>
+		</ul>
+	<h3> Detected by Enemies </h3>
+		<ul>
+		    <li><strong>Player Detection:</strong> When an enemy detects the player, the game instance handles this. When it's the first time the player is detected, change the music to combat.</li>
+		</ul>
+	<h3> Music </h3>
+		<ul>
+		    <li><strong>No Music:</strong> When there is no music, spawn exploration music with fade-in.</li>
+		    <li><strong>Music Transition:</strong> When a different type of music has to play, the current music fades out. After the fade-out time, another music is spawned with fade-in.</li>
+		</ul>
+
+
 <br/>
 <hr>
 <h2> GUNS </h2>
@@ -422,160 +576,7 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li>Manages the game instance, adding or removing the turret enemy based on whether it was detected or not.</li>
 	    <li>Utilizes timers to control the duration of seeing the actor and preventing frequent changes in detection status.</li>
 	</ul>
-	
-<br/>	
-<hr>
-<h2> PAUSE MENU </h2>
-	<h3> - RESUME </h3>
-		<ul>
-		    <li><strong>Resume Game:</strong> On Clicked, unpauses the game.</li>
-		</ul>
-	<h3> - LOAD GAME </h3>
-		<ul>
-		    <li><strong>Toggle Widget:</strong> On Clicked, toggles spawning the Load Game Widget.</li>
-		    <li><strong>Load Game Widget:</strong></li>
-		    <ul>
-		        <li><strong>Saves Check:</strong> If there are saves, hides NoSavedDataText.</li>
-		        <li><strong>JSON Deserialization:</strong> Gets locations of all JSON file saves, then deserializes all JSON to FSaveDataMenuStruct and adds them to the DeserializedSaves array.</li>
-		        <li><strong>Sorting:</strong> Sorts the DeserializedSaves array based on the save date, ensuring the most recent save is listed first.</li>
-		        <li>Add items from DeserializedSaves to SavesListView as LoadGameEntry.</li>
-		        <li><strong>LoadGameEntry:</strong></li>
-		        <ul>
-		            <li><strong>Display Information:</strong> Displays save name, date of the saved save, total playtime, and an image of the screenshot taken when the player saved the game.</li>
-		            <li><strong>Interaction:</strong> On clicked, opens the saved level. If ShowConfirmLoadingWidget is true, spawns the confirm widget for the player to choose to continue or go back.</li>
-		        </ul>
-		    </ul>
-		</ul>
-	<h3> - SAVE GAME </h3>
-		<ul>
-		    <li><strong>Check Can Save:</strong> If the player can't save the game, the Cannot Save Game Widget will spawn.</li>
-		    <li><strong>Save Process:</strong> Saves the game in the SaveLoadPlayerComponent.</li>
-		    <li><strong>Unpause:</strong> Unpauses the pause menu.</li>
-		</ul>
-	<h3> - SETTINGS </h3>
-		<ul>
-		    <li><strong>Toggle Widget:</strong> On Clicked, toggles spawning the Settings Widget.</li>
-		    <li><strong>Settings Widget:</strong></li>
-		    <ul>
-		        <li><strong>Category Buttons:</strong> Contains buttons for Game, Video, Audio, and Bindings. Each button fills the SettingsTileView with relevant settings.</li>
-		        <li><strong>Settings Menu Entry:</strong></li>
-		        <ul>
-		            <li><strong>Save and Load:</strong> Values can be saved to config and are loaded on the game's initial launch.</li>
-		            <li><strong>Setting Types:</strong> Can be set as Category, Quality, Checkbox, Slider, Key Mapping, Screen Resolution, or Window Type.</li>
-		            <li><strong>Interconnected Controls:</strong> Checkboxes can influence other settings.</li>
-		            <li><strong>Adjustable Parameters:</strong> Slider values have a customizable range and decimal digits.</li>
-		            <li><strong>User Input:</strong> Key mappings allow changes by referencing Key Mapping names.</li>
-		            <li><strong>Display Settings:</strong> Screen resolutions are presented as a list of possible options.</li>
-		            <li><strong>Acceptance Methods:</strong> Settings can be applied via console command execution, sound adjustments (volume in specific sound classes), or remain unapplied.</li>
-		            <li><strong>Disabled State:</strong> Entries can be disabled and appear grayed out.</li>
-		        </ul>
-		        <li><strong>Accept Button:</strong></li>
-		        <ul>
-		            <li><strong>Confirmation Widget:</strong> Spawns a widget confirming applied settings.</li>
-		            <li><strong>Save Settings:</strong> Saves all values according to the current configuration, including console commands, sound adjustments, and JSON file (if enabled).</li>
-		            <li><strong>Load Settings:</strong> Loads all player-saved settings, applying changes like FOV adjustments.</li>
-		        </ul>
-		    </ul>
-		</ul>
-	<h3> - QUIT GAME </h3>
-		<ul>
-		    <li><strong>Confirm Widget:</strong> Spawns Confirm Widget that asks if the player wants to continue or go back.</li>
-		    <li><strong>Quit Process:</strong> If the player wants to continue, quits the game.</li>
-		</ul>
-	<h3> - Button Animations </h3>
-		<ul>
-		    <li><strong>Hover/Unhover Animation:</strong> Plays animation on all buttons when hovered/unhovered.</li>
-		</ul>
-
-<h2> MAIN MENU </h2>
-	<h3> - CONTINUE </h3>
-		<ul>
-		    <li><strong>Load Last Save:</strong> Gets the last saved game and loads it.</li>
-		</ul>
-	<h3> - NEW GAME </h3>
-		<ul>
-		    <li><strong>Widget Spawn:</strong> On Clicked, spawns a new game widget and after some time opens a new level without loading a save.</li>
-		</ul>
-	<h3> The rest are the same as in Pause Menu: </h3>
-	<ul>
-		<li>load game</li>
-		<li>save game</li>
-		<li>settings</li>
-		<li>quit game</li>
-	</ul>
-	
-<br/>
-<hr>
-<h2> SAVING | LOADING </h2>
-	<h3> Save Marine Runner </h3>
-		<ul>
-		    <li><strong>Screenshot:</strong> Takes a screenshot.</li>
-		    <li><strong>Date Conversion:</strong> Converts the current date to text.</li>
-		    <li><strong>Playtime Calculation:</strong> Calculates total playtime and save number.</li>
-		    <li><strong>JSON Creation:</strong> Creates a JSON file with information about the save (e.g., save name, save number, path to screenshot...).</li>
-		    <li><strong>Player Data Load:</strong> Loads all the player's data (e.g., health, inventory, recipes...).</li>
-		    <li><strong>Objects Data Load:</strong> Loads objects data in SavedDataObject.</li>
-		</ul>
-	<h3> Save Custom Data Interface </h3>
-	<ul>
-	    <li><strong>Usage:</strong> Every actor with this interface will be saved/loaded/restarted according to player actions.</li>
-	    <li><strong>Data Structure:</strong> It has an FCustomDataSaved structure that contains:</li>
-	    <ul>
-	        <li><strong>Data State:</strong> SavedDataState as enum where it can be set to only LoadData or SpawnObject.</li>
-	        <li><strong>Actor Pointer:</strong> Pointer to the actor to save data to/load data from.</li>
-	        <li><strong>Object State:</strong> Object State as int that lets you save the state of the actor (e.g., when the player unlocks the door using a pin, then ObjectState = 1, and when loading the game, it checks if ObjectState == 1, then unlock the door).</li>
-	        <li><strong>Class Pointer:</strong> Pointer to the class for spawn when SavedDataState == SpawnObject.</li>
-	        <li><strong>Object Transform:</strong></li>
-	        <li><strong>Value:</strong> Value to save as float.</li>
-	        <li><strong>From The Beginning:</strong> SavedFromTheBeginning as a boolean; it's used for when we want to save an object that the player can't interact with (e.g., Explosion barrel should save when changed location or albertos).</li>
-	    </ul>
-	    <li><strong>Definition:</strong> What to save/load or restart is defined in the actor CPP.</li>
-	    <li><strong>Actors Using Interface:</strong> Actors that use this interface to save/load/restart:</li>
-	    <ul>
-	        <li>Albertos Pawn</li>
-	        <li>Enemy Pawn</li>
-	        <li>Pickup Item</li>
-	        <li>Change Music Actor</li>
-	        <li>Checkpoint</li>
-	        <li>Chest with Items</li>
-	        <li>Door</li>
-	        <li>Door Vent</li>
-	        <li>Elevator</li>
-	        <li>Outside Elevator Door</li>
-	        <li>Enemy Spawner</li>
-	        <li>Explosion Barrel</li>
-	        <li>Show Tutorial Message</li>
-	        <li>Wallrun on Button</li>
-	    </ul>
-	</ul>
-	<h3> Saved Data Object </h3>
-	<ul>
-	    <li><strong>Data Container:</strong> Object that contains all saved data from actors with ISaveCustomDataInterface.</li>
-	    <li><strong>Data Management:</strong> Object is added to CustomSavedData array and TempCustomSavedData.</li>
-	    <li><strong>Load Actor Data:</strong> Loads all the actors' data (e.g., item should be spawned with transform or unlock the door).</li>
-	    <li><strong>Update Actor Data:</strong> Updates all the actors' data (e.g., Albertos moved, so update its transform).</li>
-	    <li><strong>Restart Actor Data:</strong> Restarts all the actors' data. All objects that are in TempCustomSavedData are going to be restarted. TempCustomSavedData array is only cleared when the player saves the game.</li>
-	</ul>
-
-<br/>
-<hr>
-<h2> Game Instance </h2>
-	<h3> Custom Saved Settings </h3>
-		<ul>
-		    <li><strong>Definition:</strong> Values need to be defined with a name and default value to save.</li>
-		    <li><strong>Saving:</strong> These values will be saved to a file and can be loaded.</li>
-		    <li><strong>Example:</strong> For instance, mouse sensitivity is saved in Menu Settings to Game Instance. When opening the game for the first time, it takes the value from Game Instance to load mouse sensitivity.</li>
-		</ul>
-	<h3> Detected by Enemies </h3>
-		<ul>
-		    <li><strong>Player Detection:</strong> When an enemy detects the player, the game instance handles this. When it's the first time the player is detected, change the music to combat.</li>
-		</ul>
-	<h3> Music </h3>
-		<ul>
-		    <li><strong>No Music:</strong> When there is no music, spawn exploration music with fade-in.</li>
-		    <li><strong>Music Transition:</strong> When a different type of music has to play, the current music fades out. After the fade-out time, another music is spawned with fade-in.</li>
-		</ul>
-	
+		
 <br/>
 <hr>
 <h2> OBJECTS </h2>
