@@ -343,33 +343,6 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li><strong>Reload Cancellation:</strong> Reload can be canceled at any time.</li>
 	</ul>
 	
-	<h3> - ADS </h3>
-	<ul>
-	    <li><strong>ADS Animation:</strong> Plays ADS animation based on the current state (ADS or Hipfire).</li>
-	    <li><strong>Effects of ADS:</strong></li>
-	    <ul>
-	        <li><strong>Movement Changes:</strong> Alters player movement speed multiplier.</li>
-	        <li><strong>Recoil Reduction:</strong> Reduces camera and bullet recoil.</li>
-	        <li><strong>Weapon Sway:</strong> Decreases weapon sway.</li>
-	        <li><strong>Different Shoot Animations:</strong> Plays different shoot animations.</li>
-	    </ul>
-	    <li><strong>Scope (Zoom):</strong></li>
-	    <ul>
-	        <li><strong>Zoom Settings:</strong> Can use zoom when in ADS; mouse scroll changes zoom levels in the scope.</li>
-	        <li><strong>Render Target:</strong> Sets Render Target on Scope material, turning on when in ADS and off when not.</li>
-	        <li><strong>Zoom Mechanism:</strong> Achieves zoom by changing FOV to small values.</li>
-	        <li><strong>Mouse Sensitivities:</strong> Different mouse sensitivities for all zoom levels (2x, 4x, 8x).</li>
-	    </ul>
-	</ul>
-	
-	<h3> - TAKE </h3>
-	<ul>
-	    <li><strong>Initialization:</strong> Handles the process of a player taking a gun for the first time.</li>
-	    <li><strong>Variable Setup:</strong> Sets all necessary variables for the player to use the gun.</li>
-	    <li><strong>Existing Gun:</strong> If the player already has a gun and takes another one, hides the first one and plays the Take Animation for the second one.</li>
-	    <li><strong>Ammunition Transfer:</strong> Adds ammunition from Stored Ammo to the player's inventory if the weapon is taken for the first time.</li>
-	    <li><strong>Load Game Support:</strong> This function is also used when loading a saved game, and weapons need to spawn.</li>
-	</ul>
 
 
 
