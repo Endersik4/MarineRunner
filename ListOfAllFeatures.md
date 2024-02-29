@@ -409,8 +409,6 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    </ul>
 	</ul>
 
-
-
 <br/>
 <hr>
 <h2> OBJECTS </h2>
@@ -525,6 +523,63 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    </ul>
 	    <li>Upon completion of the rotate timer, the SocketMesh is rotated back to its initial rotation, the timer is restarted, and the material is reset.</li>
 	</ul>
+	
+<br/>
+<hr>
+<h2> PAUSE MENU </h2>
+	<h3> - RESUME </h3>
+	<ul>
+		 <li>On Clicked unpauses the game.</li>
+	</ul>
+	<h3> - LOAD GAME </h3>
+	<ul>
+		 <li>On Clicked toggles spawning Load Game Widget.</li>
+		 <li> Load Game Widget </li>
+		 <ul>
+	        <li>If there are saves, hide NoSavedDataText.</li>
+	        <li>Get locations of all JSON file saves, then deserialize all JSON to FSaveDataMenuStruct and add them to the DeserializedSaves array.</li>
+	        <li>Sort the DeserializedSaves array according to when the save was made, so the first save is the one that was saved most recently.</li>
+	        <li>Add items from DeserializedSaves to SavesListView as LoadGameEntry.</li>
+	        <li>LoadGameEntry:</li>
+	        <ul>
+	            <li>Displays save name, date of the saved save, total playtime, image of the screenshot taken when the player saved the game.</li>
+	            <li>On clicked, when ShowConfirmLoadingWidget is set to false, then open the saved level; if set to true, then spawn the confirm widget.</li>
+	            <li>When the confirm widget is spawned, the player can choose to continue or go back.</li>
+	        </ul>
+		 </ul>
+	</ul>
+	<h3> - SAVE GAME </h3>
+	<ul>
+	    <li>If the player can't save the game, the Cannot Save Game Widget will spawn.</li>
+	    <li>Saves the game in SaveLoadPlayerComponent.</li>
+	    <li>Unpauses the pause menu.</li>
+	</ul>
+	<h3> - SETTINGS </h3>
+	<ul>
+		<li>On Clicked toggles spawning Settings Widget.</li>
+	</ul>
+	<h3> - QUIT GAME </h3>
+	<ul>
+	    <li>Spawns Confirm Widget that asks if the player wants to continue or go back.</li>
+	    <li>If the player wants to continue, quits the game.</li>
+	</ul>
+	<h3>Plays animation on all buttons - on hovered/unhovered</h3>
+	
+<h2> MAIN MENU </h2>
+	<h3> - CONTINUE </h3>
+	<ul>
+	    <li>Gets the last saved game and loads it.</li>
+	</ul>
+	<h3> - NEW GAME </h3>
+	<ul>
+	    <li>On Clicked, Spawns new game widget and after some time open new level without loading a save.</li>
+	</ul>
+	<h3> The rest are the same as in Pause Menu </h3>
+	<h3> - LOAD GAME </h3>
+	<h3> - SAVE GAME </h3>
+	<h3> - SETTINGS </h3>
+	<h3> - QUIT </h3>
+
 
 
 <h3> Pause Menu <a href="https://youtu.be/TWsT171ZXYA?t=9"> Showcase </a></h3> 
@@ -563,28 +618,5 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 <h3> Main Menu </h3>
 - Almost the same as the pause menu, but without saving the game and with a new game/continue button
 
-<h3> Objects </h3>
-<h3> Item: </h3>
-	- The Item can be picked up or crafted <br/>
-	- In the properties of an item, you can set its name, amount, description, icon, is craftable, resource requirements (and other small things). <br/>
-	- When the player hovers the mouse over an item, an outline will appear and the item message widget will appear.<br/>
-	- The item message widget contains the item icon, name and description. It plays a startup animation and disappears after some time. <br/>
-	- If an object requires an item to work with it, then in that object you can set which item is required (for example, a weapon requires an ammunition-item). <br/>
-<h3> Explosion Barrels </h3>
-	- When the bullet hits the explosion barrel, spawn a geometry collection and add the impulse from the bullet to the geometry collection. <br/>
-	- Spawn Explosion Decal, Sound and Particle Effect <br/>
-	- When something is near it checks if nothing is blocking the way from explosion to the object that was hit and if not then apply damage according to distance and all the effects <br/>
-<h3> Object Rotates when the bullet hits the button: </h3>
-	- When the player shoots the button then play rotator timeline and apply new rotation  <br/>
-	- Object Shows the current time remaining until the object returns to its original rotation.  (Text Render Comp)  <br/>
-	- Play rotate sound <br/>
-<h3> Message: </h3>
-	- Works like item but instead of taking message to inventory, the massage widget is spawning with animation. <br/>
-	- Message was made using Rich Text Block, its possible to customize the font (for example highlight the important thing) <br/>
-	- Player can quit the message by clicking the quit message button (default - E) <br/>
-<h3> Doors </h3>
-	- Can be open from two sides by clicking on panel (3D Widget)  <br/>
-	- Door can require pin code to open <br/>
-	- After opening the door, close door timer will play <br/>
 
 
