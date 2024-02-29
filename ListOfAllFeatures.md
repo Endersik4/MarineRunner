@@ -172,8 +172,23 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li><strong>Weapon Switching:</strong> When a new gun is added, puts away any currently equipped gun through an animation, then draws the new gun.</li>
 	    <li><strong>Slot-Specific Weapon Handling:</strong> Manages taking weapons from a specified slot within the inventory.</li>
 	</ul>
+<h3> - Inventory Component </h3>
+	<ul>
+	    <li><strong>Inventory Management:</strong> Contains all the inventory items and recipes.</li>
+	    <li><strong>Starting Items Transformation:</strong> Transforms all starting items into the inventory.</li>
+	    <li><strong>Recipe Sorting:</strong> Sorts recipes, ensuring that weapons are placed last.</li>
+	</ul>
+<h3> - Footsteps sounds</h3>
+<ul>
+	<li>If player crouches then  use diffreent footsteps sounds</li>
+	<li>If player does wallrunning then  use diffreent footsteps sounds</li>
+</ul>
+<h3> - Footsteps Sounds </h3>
+	<ul>
+	    <li><strong>Crouch Variation:</strong> Use different footsteps sounds when the player is crouching.</li>
+	    <li><strong>Wallrunning Variation:</strong> Use different footsteps sounds when the player is wallrunning.</li>
+	</ul>
 
-<h3>- Footsteps sounds</h3>
 <br/>
 
 <hr>
@@ -412,6 +427,19 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 <br/>
 <hr>
 <h2> OBJECTS </h2>
+	<h3> - Pickup Item </h3>
+	<ul>
+	    <li><strong>Hover Interaction:</strong> Player can hover the mouse over it, showing the item information widget with details like item icon, name, and description.</li>
+	    <li><strong>Item Acquisition:</strong> When the player takes the item:</li>
+	    <ul>
+	        <li><strong>Item Data:</strong> Gets information about the item from the Data Table.</li>
+	        <li><strong>Inventory Check:</strong> If the item is a weapon and there are not enough free slots to take the weapon, spawn the NotEnoughSlotsForWeaponWidget, and the item is not taken.</li>
+	        <li><strong>Inventory Update:</strong> If the item was found in the inventory, add the amount to it; if not, check if can and add a new item to the inventory.</li>
+	        <li><strong>Craft Recipe:</strong> Adds a craft recipe if taken for the first time and the item is set to be craftable.</li>
+	        <li><strong>Weapon Attachment:</strong> If the item is a weapon, spawn the Weapon actor and attach it to the player.</li>
+	    </ul>
+	    <li><strong>Crafting Animation:</strong> When the Pickup item is being crafted, set a dissolve material. Over time, it's going to disappear.</li>
+	</ul>
 	<h3> - ELEVATOR </h3>
 		<ul>
 			<li><strong>Call Elevator:</strong> Allows the player to call the elevator from outside.</li>
@@ -588,7 +616,6 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		    <li><strong>Hover/Unhover Animation:</strong> Plays animation on all buttons when hovered/unhovered.</li>
 		</ul>
 
-	
 <h2> MAIN MENU </h2>
 	<h3> - CONTINUE </h3>
 		<ul>
@@ -605,3 +632,76 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		<li>settings</li>
 		<li>quit game</li>
 	</ul>
+	
+<br/>
+<hr>
+<h2> SAVING | LOADING </h2>
+	<h3> Save Marine Runner </h3>
+		<ul>
+		    <li><strong>Screenshot:</strong> Takes a screenshot.</li>
+		    <li><strong>Date Conversion:</strong> Converts the current date to text.</li>
+		    <li><strong>Playtime Calculation:</strong> Calculates total playtime and save number.</li>
+		    <li><strong>JSON Creation:</strong> Creates a JSON file with information about the save (e.g., save name, save number, path to screenshot...).</li>
+		    <li><strong>Player Data Load:</strong> Loads all the player's data (e.g., health, inventory, recipes...).</li>
+		    <li><strong>Objects Data Load:</strong> Loads objects data in SavedDataObject.</li>
+		</ul>
+	<h3> Save Custom Data Interface </h3>
+	<ul>
+	    <li><strong>Usage:</strong> Every actor with this interface will be saved/loaded/restarted according to player actions.</li>
+	    <li><strong>Data Structure:</strong> It has an FCustomDataSaved structure that contains:</li>
+	    <ul>
+	        <li><strong>Data State:</strong> SavedDataState as enum where it can be set to only LoadData or SpawnObject.</li>
+	        <li><strong>Actor Pointer:</strong> Pointer to the actor to save data to/load data from.</li>
+	        <li><strong>Object State:</strong> Object State as int that lets you save the state of the actor (e.g., when the player unlocks the door using a pin, then ObjectState = 1, and when loading the game, it checks if ObjectState == 1, then unlock the door).</li>
+	        <li><strong>Class Pointer:</strong> Pointer to the class for spawn when SavedDataState == SpawnObject.</li>
+	        <li><strong>Object Transform:</strong></li>
+	        <li><strong>Value:</strong> Value to save as float.</li>
+	        <li><strong>From The Beginning:</strong> SavedFromTheBeginning as a boolean; it's used for when we want to save an object that the player can't interact with (e.g., Explosion barrel should save when changed location or albertos).</li>
+	    </ul>
+	    <li><strong>Definition:</strong> What to save/load or restart is defined in the actor CPP.</li>
+	    <li><strong>Actors Using Interface:</strong> Actors that use this interface to save/load/restart:</li>
+	    <ul>
+	        <li>Albertos Pawn</li>
+	        <li>Enemy Pawn</li>
+	        <li>Pickup Item</li>
+	        <li>Change Music Actor</li>
+	        <li>Checkpoint</li>
+	        <li>Chest with Items</li>
+	        <li>Door</li>
+	        <li>Door Vent</li>
+	        <li>Elevator</li>
+	        <li>Outside Elevator Door</li>
+	        <li>Enemy Spawner</li>
+	        <li>Explosion Barrel</li>
+	        <li>Show Tutorial Message</li>
+	        <li>Wallrun on Button</li>
+	    </ul>
+	</ul>
+	<h3> Saved Data Object </h3>
+	<ul>
+	    <li><strong>Data Container:</strong> Object that contains all saved data from actors with ISaveCustomDataInterface.</li>
+	    <li><strong>Data Management:</strong> Object is added to CustomSavedData array and TempCustomSavedData.</li>
+	    <li><strong>Load Actor Data:</strong> Loads all the actors' data (e.g., item should be spawned with transform or unlock the door).</li>
+	    <li><strong>Update Actor Data:</strong> Updates all the actors' data (e.g., Albertos moved, so update its transform).</li>
+	    <li><strong>Restart Actor Data:</strong> Restarts all the actors' data. All objects that are in TempCustomSavedData are going to be restarted. TempCustomSavedData array is only cleared when the player saves the game.</li>
+	</ul>
+
+<br/>
+<hr>
+<h2> Game Instance </h2>
+	<h3> Custom Saved Settings </h3>
+		<ul>
+		    <li><strong>Definition:</strong> Values need to be defined with a name and default value to save.</li>
+		    <li><strong>Saving:</strong> These values will be saved to a file and can be loaded.</li>
+		    <li><strong>Example:</strong> For instance, mouse sensitivity is saved in Menu Settings to Game Instance. When opening the game for the first time, it takes the value from Game Instance to load mouse sensitivity.</li>
+		</ul>
+	<h3> Detected by Enemies </h3>
+		<ul>
+		    <li><strong>Player Detection:</strong> When an enemy detects the player, the game instance handles this. When it's the first time the player is detected, change the music to combat.</li>
+		</ul>
+	<h3> Music </h3>
+		<ul>
+		    <li><strong>No Music:</strong> When there is no music, spawn exploration music with fade-in.</li>
+		    <li><strong>Music Transition:</strong> When a different type of music has to play, the current music fades out. After the fade-out time, another music is spawned with fade-in.</li>
+		</ul>
+
