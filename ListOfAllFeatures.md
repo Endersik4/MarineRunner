@@ -531,7 +531,6 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		<ul>
 		    <li><strong>Resume Game:</strong> On Clicked, unpauses the game.</li>
 		</ul>
-		
 	<h3> - LOAD GAME </h3>
 		<ul>
 		    <li><strong>Toggle Widget:</strong> On Clicked, toggles spawning the Load Game Widget.</li>
@@ -548,14 +547,12 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		        </ul>
 		    </ul>
 		</ul>
-		
 	<h3> - SAVE GAME </h3>
 		<ul>
 		    <li><strong>Check Can Save:</strong> If the player can't save the game, the Cannot Save Game Widget will spawn.</li>
 		    <li><strong>Save Process:</strong> Saves the game in the SaveLoadPlayerComponent.</li>
 		    <li><strong>Unpause:</strong> Unpauses the pause menu.</li>
 		</ul>
-
 	<h3> - SETTINGS </h3>
 		<ul>
 		    <li><strong>Toggle Widget:</strong> On Clicked, toggles spawning the Settings Widget.</li>
@@ -586,11 +583,11 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		    <li><strong>Confirm Widget:</strong> Spawns Confirm Widget that asks if the player wants to continue or go back.</li>
 		    <li><strong>Quit Process:</strong> If the player wants to continue, quits the game.</li>
 		</ul>
-	
 	<h3> - Button Animations </h3>
 		<ul>
 		    <li><strong>Hover/Unhover Animation:</strong> Plays animation on all buttons when hovered/unhovered.</li>
 		</ul>
+
 	
 <h2> MAIN MENU </h2>
 	<h3> - CONTINUE </h3>
