@@ -342,7 +342,24 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li><strong>Empty Magazine:</strong> Different reload animation if no bullets are left.</li>
 	    <li><strong>Reload Cancellation:</strong> Reload can be canceled at any time.</li>
 	</ul>
-	
+	<h3> - ADS </h3>
+	<ul>
+	    <li><strong>ADS Animation:</strong> Plays ADS animation based on the current state (ADS or Hipfire).</li>
+	    <li><strong>Effects of ADS:</strong></li>
+	    <ul>
+	        <li><strong>Movement Changes:</strong> Alters player movement speed multiplier.</li>
+	        <li><strong>Recoil Reduction:</strong> Reduces camera and bullet recoil.</li>
+	        <li><strong>Weapon Sway:</strong> Decreases weapon sway.</li>
+	        <li><strong>Different Shoot Animations:</strong> Plays different shoot animations.</li>
+	    </ul>
+	    <li><strong>Scope (Zoom):</strong></li>
+	    <ul>
+	        <li><strong>Zoom Settings:</strong> Can use zoom when in ADS; mouse scroll changes zoom levels in the scope.</li>
+	        <li><strong>Render Target:</strong> Sets Render Target on Scope material, turning on when in ADS and off when not.</li>
+	        <li><strong>Zoom Mechanism:</strong> Achieves zoom by changing FOV to small values.</li>
+	        <li><strong>Mouse Sensitivities:</strong> Different mouse sensitivities for all zoom levels (2x, 4x, 8x).</li>
+	    </ul>
+	</ul>
 
 
 
