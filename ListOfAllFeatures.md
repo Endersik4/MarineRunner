@@ -368,6 +368,46 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li><strong>Ammunition Transfer:</strong> Adds ammunition from Stored Ammo to the player's inventory if the weapon is taken for the first time.</li>
 	    <li><strong>Load Game Support:</strong> This function is also used when loading a saved game, and weapons need to spawn.</li>
 	</ul>
+	<h3> - DRAW </h3>
+	<ul>
+	    <li><strong>HUD Display:</strong> Displays the weapon on the HUD.</li>
+	    <li><strong>Variable Configuration:</strong> Sets variables for the player to use the gun (enables tick, unhides the actor, sets the gun as the currently held one, etc.).</li>
+	    <li><strong>Draw Animation:</strong> Plays the Draw Animation and starts a timer with the duration of the Draw Animation.</li>
+	    <li><strong>Post-Animation:</strong> After the timer finishes, sets the ability to shoot.</li>
+	</ul>
+	<h3> - PUT AWAY </h3>
+	<ul>
+	    <li><strong>Reload Cancellation:</strong> Cancels the reload if reloading.</li>
+	    <li><strong>HUD Hide:</strong> Hides the weapon HUD.</li>
+	    <li><strong>Put Away Animation:</strong> Plays the Put Away Animation and starts a timer with the duration of the Put Away Animation.</li>
+	    <li><strong>Post-Animation:</strong> After the timer finishes, hides the gun (disables tick, hides actor, stops animation, etc.).</li>
+	</ul>
+	<h3> - DROP </h3>
+	<ul>
+	    <li><strong>Drop Process:</strong> When the player drops the gun, performs the Put Away Gun functions, and when the gun is hidden, performs the Drop Gun function.</li>
+	    <li><strong>Item Spawn:</strong> Spawns an item of this gun.</li>
+	    <li><strong>Magazine Capacity Setting:</strong> Sets the current magazine capacity for the player. If taken again, the item spawns with the proper amount of magazine capacity.</li>
+	    <li><strong>Take Animation Check:</strong> Sets that the item was once taken so the Take Animation will not be played again.</li>
+	    <li><strong>Saved Data:</strong> Adds the item to SavedDataObject to save that the item was spawned.</li>
+	    <li><strong>Inventory Removal:</strong> Remove the gun from the inventory.</li>
+	    <li><strong>Gun Destruction:</strong> Destroys the gun.</li>
+	</ul>
+	<h3> - BULLET </h3>
+	<ul>
+	    <li><strong>Movement Types:</strong></li>
+	    <ul>
+	        <li><strong>Physics-Based:</strong> Uses Add Impulse as movement.</li>
+	        <li><strong>Custom Movement:</strong> Sets bullet location by multiplying BulletSpeed with ForwardVector, and when the bullet passes BulletMinDistance, it starts falling down.</li>
+	    </ul>
+	    <li><strong>Collision Handling:</strong></li>
+	    <ul>
+	        <li><strong>Stuck Bullet:</strong> Checks if the bullet is stuck in an actor; if it is, teleports it a bit forward.</li>
+	        <li><strong>Camera Shake:</strong> Plays a camera shake on hit if set to true.</li>
+	        <li><strong>Sphere Damage:</strong> Can use a sphere for damage; spawns a sphere and damages all actors inside it.</li>
+	        <li><strong>Damage Interface:</strong> Uses the Damage Interface on the hit actor; if the actor doesn't have an interface, performs default effects (bullet hole, particles, sounds).</li>
+	        <li><strong>Bullet Penetration:</strong> If the bullet can go through an object (e.g., a thin wall), it doesn't destroy the bullet unless MaxObjectsForBulletGoThrough == 0, moves a bit forward, and reduces damage and impulse.</li>
+	    </ul>
+	</ul>
 
 
 
