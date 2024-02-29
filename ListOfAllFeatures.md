@@ -190,7 +190,119 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	</ul>
 
 <br/>
+<hr>
+<h2> GUNS </h2>
+	<h3> - Shoot </h3>
+	<ul>
+	    <li><strong>Check Shoot:</strong> Verifies if the gun is ready to shoot.</li>
+	    <li><strong>Single and Continuous Modes:</strong> Supports single-shot and continuous shooting (holding the button).</li>
+	    <li><strong>Coyote Time:</strong> Allows shooting if the button is pressed slightly before ready.</li>
+	    <li><strong>Empty Magazine:</strong> Plays EmptyMagazineSound if no bullets are left.</li>
+	    <li><strong>Multi-Bullet Shooting:</strong> Capable of shooting multiple bullets simultaneously (e.g., shotgun).</li>
+	    <li><strong>HUD Update:</strong> Displays ammunition information on the HUD.</li>
+	    <li><strong>Effects and Animation:</strong> Plays effects like particles, sounds, and shooting animation.</li>
+	    <li><strong>Reload Interaction:</strong> Different animation if reloading before emptying the magazine.</li>
+	    <li><strong>Low Ammo:</strong> Unique animation for the last bullet in the magazine.</li>
+	</ul>
+	<h3> - Drop Casing </h3>
+	<ul>
+	    <li><strong>Trigger Conditions:</strong> Can be triggered during casing drop, reloading, or shooting.</li>
+	    <li><strong>Randomized Rotation:</strong> Allows randomization of Drop Casing rotation.</li>
+	    <li><strong>Actor Animation:</strong> Drop Casing is an actor with an animation played instantly after spawning.</li>
+	    <li><strong>Sound Effect:</strong> Plays DropCasing Sound upon casing hitting the ground, followed by actor destruction.</li>
+	</ul>
+	<h3> - Recoil </h3>
+	<ul>
+	    <li><strong>Randomized Camera Recoil:</strong> Applies randomized recoil camera rotation (Yaw and Pitch) with a timeline for smoothness.</li>
+	    <li><strong>Controlled Yaw:</strong> Option to use a Curve for Camera Yaw rotation instead of random values.</li>
+	    <li><strong>Camera Pitch Calculation:</strong> Calculates Camera Pitch based on shooting distance for controlled recoil.</li>
+	    <li><strong>Reversion to Initial Position:</strong> Returns to initial rotation after shooting if the difference is small.</li>
+	    <li><strong>Camera Shake:</strong> Initiates recoil camera shake.</li>
+	    <li><strong>Randomized Bullet Rotation:</strong> Spawned bullets can have randomized rotation values if set within a given range.</li>
+	</ul>
+	<h3> - Reload </h3>
+	<ul>
+	    <li><strong>Check Reload:</strong> Verifies if the gun can reload (having enough ammunition).</li>
+	    <li><strong>Reload Animation:</strong> Plays the reload animation according to the situation.</li>
+	    <li><strong>Reload Timer:</strong> Timer runs with the duration of the reload animation, deducts ammunition, and reloads the magazine.</li>
+	    <li><strong>Single Bullet Reload:</strong></li>
+	    <ul>
+	        <li><strong>Condition:</strong> Can be set to reload only one bullet (e.g., shotgun).</li>
+	        <li><strong>Automatic Restart:</strong> If the reload is completed, automatically starts another unless canceled by the player.</li>
+	        <li><strong>Animation Types:</strong> Three types of reload animations: Begin Reload, Normal Reload, End Reload, and Begin with End Reload.</li>
+	        <li><strong>Transition:</strong> Begins with the reload, transitions to normal reload animation after one bullet, or plays Begin with End Reload Animation if reloading with only one bullet to reload.</li>
+	    </ul>
+	    <li><strong>Empty Magazine:</strong> Different reload animation if no bullets are left.</li>
+	    <li><strong>Reload Cancellation:</strong> Reload can be canceled at any time.</li>
+	</ul>
+	<h3> - ADS </h3>
+	<ul>
+	    <li><strong>ADS Animation:</strong> Plays ADS animation based on the current state (ADS or Hipfire).</li>
+	    <li><strong>Effects of ADS:</strong></li>
+	    <ul>
+	        <li><strong>Movement Changes:</strong> Alters player movement speed multiplier.</li>
+	        <li><strong>Recoil Reduction:</strong> Reduces camera and bullet recoil.</li>
+	        <li><strong>Weapon Sway:</strong> Decreases weapon sway.</li>
+	        <li><strong>Different Shoot Animations:</strong> Plays different shoot animations.</li>
+	    </ul>
+	    <li><strong>Scope (Zoom):</strong></li>
+	    <ul>
+	        <li><strong>Zoom Settings:</strong> Can use zoom when in ADS; mouse scroll changes zoom levels in the scope.</li>
+	        <li><strong>Render Target:</strong> Sets Render Target on Scope material, turning on when in ADS and off when not.</li>
+	        <li><strong>Zoom Mechanism:</strong> Achieves zoom by changing FOV to small values.</li>
+	        <li><strong>Mouse Sensitivities:</strong> Different mouse sensitivities for all zoom levels (2x, 4x, 8x).</li>
+	    </ul>
+	</ul>
+	<h3> - TAKE </h3>
+	<ul>
+	    <li><strong>Initialization:</strong> Handles the process of a player taking a gun for the first time.</li>
+	    <li><strong>Variable Setup:</strong> Sets all necessary variables for the player to use the gun.</li>
+	    <li><strong>Existing Gun:</strong> If the player already has a gun and takes another one, hides the first one and plays the Take Animation for the second one.</li>
+	    <li><strong>Ammunition Transfer:</strong> Adds ammunition from Stored Ammo to the player's inventory if the weapon is taken for the first time.</li>
+	    <li><strong>Load Game Support:</strong> This function is also used when loading a saved game, and weapons need to spawn.</li>
+	</ul>
+	<h3> - DRAW </h3>
+	<ul>
+	    <li><strong>HUD Display:</strong> Displays the weapon on the HUD.</li>
+	    <li><strong>Variable Configuration:</strong> Sets variables for the player to use the gun (enables tick, unhides the actor, sets the gun as the currently held one, etc.).</li>
+	    <li><strong>Draw Animation:</strong> Plays the Draw Animation and starts a timer with the duration of the Draw Animation.</li>
+	    <li><strong>Post-Animation:</strong> After the timer finishes, sets the ability to shoot.</li>
+	</ul>
+	<h3> - PUT AWAY </h3>
+	<ul>
+	    <li><strong>Reload Cancellation:</strong> Cancels the reload if reloading.</li>
+	    <li><strong>HUD Hide:</strong> Hides the weapon HUD.</li>
+	    <li><strong>Put Away Animation:</strong> Plays the Put Away Animation and starts a timer with the duration of the Put Away Animation.</li>
+	    <li><strong>Post-Animation:</strong> After the timer finishes, hides the gun (disables tick, hides actor, stops animation, etc.).</li>
+	</ul>
+	<h3> - DROP </h3>
+	<ul>
+	    <li><strong>Drop Process:</strong> When the player drops the gun, performs the Put Away Gun functions, and when the gun is hidden, performs the Drop Gun function.</li>
+	    <li><strong>Item Spawn:</strong> Spawns an item of this gun.</li>
+	    <li><strong>Magazine Capacity Setting:</strong> Sets the current magazine capacity for the player. If taken again, the item spawns with the proper amount of magazine capacity.</li>
+	    <li><strong>Take Animation Check:</strong> Sets that the item was once taken so the Take Animation will not be played again.</li>
+	    <li><strong>Saved Data:</strong> Adds the item to SavedDataObject to save that the item was spawned.</li>
+	    <li><strong>Inventory Removal:</strong> Remove the gun from the inventory.</li>
+	    <li><strong>Gun Destruction:</strong> Destroys the gun.</li>
+	</ul>
+	<h3> - BULLET </h3>
+	<ul>
+	    <li><strong>Movement Types:</strong></li>
+	    <ul>
+	        <li><strong>Physics-Based:</strong> Uses Add Impulse as movement.</li>
+	        <li><strong>Custom Movement:</strong> Sets bullet location by multiplying BulletSpeed with ForwardVector, and when the bullet passes BulletMinDistance, it starts falling down.</li>
+	    </ul>
+	    <li><strong>Collision Handling:</strong></li>
+	    <ul>
+	        <li><strong>Stuck Bullet:</strong> Checks if the bullet is stuck in an actor; if it is, teleports it a bit forward.</li>
+	        <li><strong>Camera Shake:</strong> Plays a camera shake on hit if set to true.</li>
+	        <li><strong>Sphere Damage:</strong> Can use a sphere for damage; spawns a sphere and damages all actors inside it.</li>
+	        <li><strong>Damage Interface:</strong> Uses the Damage Interface on the hit actor; if the actor doesn't have an interface, performs default effects (bullet hole, particles, sounds).</li>
+	        <li><strong>Bullet Penetration:</strong> If the bullet can go through an object (e.g., a thin wall), it doesn't destroy the bullet unless MaxObjectsForBulletGoThrough == 0, moves a bit forward, and reduces damage and impulse.</li>
+	    </ul>
+	</ul>
 
+<br/>
 <hr>
 	<h2> ALBERTOS <small>(Crafting Robot)</small></h2>
   <h3>Moves to a random location within a specified radius from the player.</h3>
@@ -311,248 +423,7 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li>Utilizes timers to control the duration of seeing the actor and preventing frequent changes in detection status.</li>
 	</ul>
 	
-<br/>
-<hr>
-<h2> GUNS </h2>
-	<h3> - Shoot </h3>
-	<ul>
-	    <li><strong>Check Shoot:</strong> Verifies if the gun is ready to shoot.</li>
-	    <li><strong>Single and Continuous Modes:</strong> Supports single-shot and continuous shooting (holding the button).</li>
-	    <li><strong>Coyote Time:</strong> Allows shooting if the button is pressed slightly before ready.</li>
-	    <li><strong>Empty Magazine:</strong> Plays EmptyMagazineSound if no bullets are left.</li>
-	    <li><strong>Multi-Bullet Shooting:</strong> Capable of shooting multiple bullets simultaneously (e.g., shotgun).</li>
-	    <li><strong>HUD Update:</strong> Displays ammunition information on the HUD.</li>
-	    <li><strong>Effects and Animation:</strong> Plays effects like particles, sounds, and shooting animation.</li>
-	    <li><strong>Reload Interaction:</strong> Different animation if reloading before emptying the magazine.</li>
-	    <li><strong>Low Ammo:</strong> Unique animation for the last bullet in the magazine.</li>
-	</ul>
-	<h3> - Drop Casing </h3>
-	<ul>
-	    <li><strong>Trigger Conditions:</strong> Can be triggered during casing drop, reloading, or shooting.</li>
-	    <li><strong>Randomized Rotation:</strong> Allows randomization of Drop Casing rotation.</li>
-	    <li><strong>Actor Animation:</strong> Drop Casing is an actor with an animation played instantly after spawning.</li>
-	    <li><strong>Sound Effect:</strong> Plays DropCasing Sound upon casing hitting the ground, followed by actor destruction.</li>
-	</ul>
-	<h3> - Recoil </h3>
-	<ul>
-	    <li><strong>Randomized Camera Recoil:</strong> Applies randomized recoil camera rotation (Yaw and Pitch) with a timeline for smoothness.</li>
-	    <li><strong>Controlled Yaw:</strong> Option to use a Curve for Camera Yaw rotation instead of random values.</li>
-	    <li><strong>Camera Pitch Calculation:</strong> Calculates Camera Pitch based on shooting distance for controlled recoil.</li>
-	    <li><strong>Reversion to Initial Position:</strong> Returns to initial rotation after shooting if the difference is small.</li>
-	    <li><strong>Camera Shake:</strong> Initiates recoil camera shake.</li>
-	    <li><strong>Randomized Bullet Rotation:</strong> Spawned bullets can have randomized rotation values if set within a given range.</li>
-	</ul>
-	<h3> - Reload </h3>
-	<ul>
-	    <li><strong>Check Reload:</strong> Verifies if the gun can reload (having enough ammunition).</li>
-	    <li><strong>Reload Animation:</strong> Plays the reload animation according to the situation.</li>
-	    <li><strong>Reload Timer:</strong> Timer runs with the duration of the reload animation, deducts ammunition, and reloads the magazine.</li>
-	    <li><strong>Single Bullet Reload:</strong></li>
-	    <ul>
-	        <li><strong>Condition:</strong> Can be set to reload only one bullet (e.g., shotgun).</li>
-	        <li><strong>Automatic Restart:</strong> If the reload is completed, automatically starts another unless canceled by the player.</li>
-	        <li><strong>Animation Types:</strong> Three types of reload animations: Begin Reload, Normal Reload, End Reload, and Begin with End Reload.</li>
-	        <li><strong>Transition:</strong> Begins with the reload, transitions to normal reload animation after one bullet, or plays Begin with End Reload Animation if reloading with only one bullet to reload.</li>
-	    </ul>
-	    <li><strong>Empty Magazine:</strong> Different reload animation if no bullets are left.</li>
-	    <li><strong>Reload Cancellation:</strong> Reload can be canceled at any time.</li>
-	</ul>
-	<h3> - ADS </h3>
-	<ul>
-	    <li><strong>ADS Animation:</strong> Plays ADS animation based on the current state (ADS or Hipfire).</li>
-	    <li><strong>Effects of ADS:</strong></li>
-	    <ul>
-	        <li><strong>Movement Changes:</strong> Alters player movement speed multiplier.</li>
-	        <li><strong>Recoil Reduction:</strong> Reduces camera and bullet recoil.</li>
-	        <li><strong>Weapon Sway:</strong> Decreases weapon sway.</li>
-	        <li><strong>Different Shoot Animations:</strong> Plays different shoot animations.</li>
-	    </ul>
-	    <li><strong>Scope (Zoom):</strong></li>
-	    <ul>
-	        <li><strong>Zoom Settings:</strong> Can use zoom when in ADS; mouse scroll changes zoom levels in the scope.</li>
-	        <li><strong>Render Target:</strong> Sets Render Target on Scope material, turning on when in ADS and off when not.</li>
-	        <li><strong>Zoom Mechanism:</strong> Achieves zoom by changing FOV to small values.</li>
-	        <li><strong>Mouse Sensitivities:</strong> Different mouse sensitivities for all zoom levels (2x, 4x, 8x).</li>
-	    </ul>
-	</ul>
-	<h3> - TAKE </h3>
-	<ul>
-	    <li><strong>Initialization:</strong> Handles the process of a player taking a gun for the first time.</li>
-	    <li><strong>Variable Setup:</strong> Sets all necessary variables for the player to use the gun.</li>
-	    <li><strong>Existing Gun:</strong> If the player already has a gun and takes another one, hides the first one and plays the Take Animation for the second one.</li>
-	    <li><strong>Ammunition Transfer:</strong> Adds ammunition from Stored Ammo to the player's inventory if the weapon is taken for the first time.</li>
-	    <li><strong>Load Game Support:</strong> This function is also used when loading a saved game, and weapons need to spawn.</li>
-	</ul>
-	<h3> - DRAW </h3>
-	<ul>
-	    <li><strong>HUD Display:</strong> Displays the weapon on the HUD.</li>
-	    <li><strong>Variable Configuration:</strong> Sets variables for the player to use the gun (enables tick, unhides the actor, sets the gun as the currently held one, etc.).</li>
-	    <li><strong>Draw Animation:</strong> Plays the Draw Animation and starts a timer with the duration of the Draw Animation.</li>
-	    <li><strong>Post-Animation:</strong> After the timer finishes, sets the ability to shoot.</li>
-	</ul>
-	<h3> - PUT AWAY </h3>
-	<ul>
-	    <li><strong>Reload Cancellation:</strong> Cancels the reload if reloading.</li>
-	    <li><strong>HUD Hide:</strong> Hides the weapon HUD.</li>
-	    <li><strong>Put Away Animation:</strong> Plays the Put Away Animation and starts a timer with the duration of the Put Away Animation.</li>
-	    <li><strong>Post-Animation:</strong> After the timer finishes, hides the gun (disables tick, hides actor, stops animation, etc.).</li>
-	</ul>
-	<h3> - DROP </h3>
-	<ul>
-	    <li><strong>Drop Process:</strong> When the player drops the gun, performs the Put Away Gun functions, and when the gun is hidden, performs the Drop Gun function.</li>
-	    <li><strong>Item Spawn:</strong> Spawns an item of this gun.</li>
-	    <li><strong>Magazine Capacity Setting:</strong> Sets the current magazine capacity for the player. If taken again, the item spawns with the proper amount of magazine capacity.</li>
-	    <li><strong>Take Animation Check:</strong> Sets that the item was once taken so the Take Animation will not be played again.</li>
-	    <li><strong>Saved Data:</strong> Adds the item to SavedDataObject to save that the item was spawned.</li>
-	    <li><strong>Inventory Removal:</strong> Remove the gun from the inventory.</li>
-	    <li><strong>Gun Destruction:</strong> Destroys the gun.</li>
-	</ul>
-	<h3> - BULLET </h3>
-	<ul>
-	    <li><strong>Movement Types:</strong></li>
-	    <ul>
-	        <li><strong>Physics-Based:</strong> Uses Add Impulse as movement.</li>
-	        <li><strong>Custom Movement:</strong> Sets bullet location by multiplying BulletSpeed with ForwardVector, and when the bullet passes BulletMinDistance, it starts falling down.</li>
-	    </ul>
-	    <li><strong>Collision Handling:</strong></li>
-	    <ul>
-	        <li><strong>Stuck Bullet:</strong> Checks if the bullet is stuck in an actor; if it is, teleports it a bit forward.</li>
-	        <li><strong>Camera Shake:</strong> Plays a camera shake on hit if set to true.</li>
-	        <li><strong>Sphere Damage:</strong> Can use a sphere for damage; spawns a sphere and damages all actors inside it.</li>
-	        <li><strong>Damage Interface:</strong> Uses the Damage Interface on the hit actor; if the actor doesn't have an interface, performs default effects (bullet hole, particles, sounds).</li>
-	        <li><strong>Bullet Penetration:</strong> If the bullet can go through an object (e.g., a thin wall), it doesn't destroy the bullet unless MaxObjectsForBulletGoThrough == 0, moves a bit forward, and reduces damage and impulse.</li>
-	    </ul>
-	</ul>
-
-<br/>
-<hr>
-<h2> OBJECTS </h2>
-	<h3> - Pickup Item </h3>
-	<ul>
-	    <li><strong>Hover Interaction:</strong> Player can hover the mouse over it, showing the item information widget with details like item icon, name, and description.</li>
-	    <li><strong>Item Acquisition:</strong> When the player takes the item:</li>
-	    <ul>
-	        <li><strong>Item Data:</strong> Gets information about the item from the Data Table.</li>
-	        <li><strong>Inventory Check:</strong> If the item is a weapon and there are not enough free slots to take the weapon, spawn the NotEnoughSlotsForWeaponWidget, and the item is not taken.</li>
-	        <li><strong>Inventory Update:</strong> If the item was found in the inventory, add the amount to it; if not, check if can and add a new item to the inventory.</li>
-	        <li><strong>Craft Recipe:</strong> Adds a craft recipe if taken for the first time and the item is set to be craftable.</li>
-	        <li><strong>Weapon Attachment:</strong> If the item is a weapon, spawn the Weapon actor and attach it to the player.</li>
-	    </ul>
-	    <li><strong>Crafting Animation:</strong> When the Pickup item is being crafted, set a dissolve material. Over time, it's going to disappear.</li>
-	</ul>
-	<h3> - ELEVATOR </h3>
-		<ul>
-			<li><strong>Call Elevator:</strong> Allows the player to call the elevator from outside.</li>
-			<li><strong>Waiting Animation:</strong> Displays a "Wait For Elevator" animation on the widget while the elevator moves to the player.</li>
-			<li><strong>Floor Selection:</strong> When in the elevator, the player can choose the desired floor from a Tile View entry on the widget.</li>
-			<li><strong>Starting Animation:</strong> Initiates an animation when the player selects the floor, and the elevator moves accordingly.</li>
-			<li><strong>Blocked Floors:</strong> Supports blocking specific floors, preventing the player from choosing them.</li>
-			<li><strong>Pin Code Access:</strong> Optionally requires a pin code for entry.</li>
-			<li><strong>Door Opening:</strong> Opens the elevator doors when the player selects the current floor.</li>
-			<li><strong>Widget Animation:</strong> Handles all animations within the Widget Blueprint.</li>
-		</ul>
-	<h3> - DOOR </h3>
-		<ul>
-		    <li><strong>Control Mechanism:</strong> Can be opened/closed through the DoorPanel.</li>
-		    <li><strong>Auto-Close Feature:</strong> Closes the door automatically after a set period.</li>
-		    <li><strong>Pin Code Access:</strong> Optionally requires a pin code for entry.</li>
-		</ul>
-	<h3> - Sound On Hit Component </h3>
-		<ul>
-			    <li><strong>Functionality:</strong> Component can be added to any actor on map.</li>
-			    <li><strong>Trigger Condition:</strong> Plays a sound when the actor collides with something (OnComponentHit).</li>
-			    <li><strong>Velocity Check:</strong> Initiates sound playback only if the collision velocity magnitude exceeds a defined tolerance (VelocityLengthErrorTolerance).</li>
-		</ul>
-	<h3> - SHOW TUTORIAL MESSAGE </h3>
-		<ul>
-		    <li><strong>Trigger Condition:</strong> Activates when the player collides with the ShowMessageBox.</li>
-		    <li><strong>Combat Check:</strong> Verifies if the player is in combat; if not, spawns the Tutorial Message Widget.</li>
-		    <li><strong>Tutorial Customization:</strong> Allows setting tutorial information on the widget in the Actor.</li>
-		    <li><strong>Widget Display:</strong> Spawns the tutorial message to the player.</li>
-		    <li><strong>Hide Animation:</strong> Initiates the Hide Widget animation after a specified duration (HideMessageAfterTime).</li>
-		</ul>
-		</ul>
-	<h3> - Hammer </h3>
-		<ul>
-		    <li><strong>Dynamic Location:</strong> An actor that adjusts its own location based on a timeline.</li>
-		    <li><strong>Audio Cue:</strong> Triggers a hit sound after a specified time.</li>
-		    <li><strong>Player Collision:</strong> Causes the player to be eliminated upon collision with the HammerBox.</li>
-		</ul>
-	<h3> - CHANGE MUSIC/SOUND </h3>
-		<ul>
-		    <li><strong>Audio Environment:</strong> Alters music or sound upon player collision with the ChangeBox.</li>
-		    <li><strong>Custom Game Instance:</strong> Modifies music in the custom game instance, with a fading effect.</li>
-		</ul>
-	<h3> - CHECKPOINT </h3>
-		<ul>
-		    <li><strong>Save Progress:</strong> Upon player collision with the Checkpoint, initiates a game save with a specified name (e.g., Autosave).</li>
-		</ul>
-	<h3> - CHEST WITH ITEMS </h3>
-		<ul>
-			<li> When player opens the chest:</li>
-			<ul>
-				<li>Plays open animation and changes given Material to Unlock one</li>
-				<li>Takes ItemRandomSpawnStruct from Array and checks if given item can spawn according to random percent</li>
-				<li>If Random Percent is in given range then spawn an item with given Offset</li>
-				<li><strong>Pin Code Access:</strong> Optionally requires a pin code to open.</li>
-			</ul>
-		</ul>
-	<h3> - CHEST WITH ITEMS </h3>
-	<ul>
-	    <li><strong> When the player interacts with the chest:</strong></li>
-	    <ul>
-	        <li>Plays an opening animation and updates the material to signify unlocking.</li>
-	        <li>Takes ItemRandomSpawnStruct from an array and evaluates if the specified item can spawn based on a random percentage.</li>
-	        <li>If the random percentage falls within the defined range, spawns the item with the specified offset.</li>
-	        <li><strong>Pin Code Access:</strong> Optionally requires a pin code to open.</li>
-	    </ul>
-	</ul>
-	<h3> - CONVEYOR BELT </h3>
-	<ul>
-	    <li><strong>Mesh Generation:</strong> Creates instanced meshes based on Direction, Offset, and Amount parameters.</li>
-	    <li><strong>ConveyorBox Properties:</strong> Calculates the location and scale of the ConveyorBox based on instanced meshes.</li>
-	    <li><strong>Collision Interaction:</strong> If an object collides with the ConveyorBox, it begins moving at the specified speed in the ConveyorBelt direction.</li>
-	</ul>
-	<h3> - DOOR VENT </h3>
-	<ul>
-	    <li><strong>Interactive Interface:</strong> Implements ITakeInterface, providing item-like behavior when the player hovers the mouse over it (spawning item information widget, making the outline visible, etc).</li>
-	    <li><strong>Physics Interaction:</strong> Player can shoot or hit the door vent, causing it to change to simulate physics.</li>
-	    <li><strong>Take Action:</strong> If the player presses the Take Button, it activates physics or plays a timeline that modifies the location and rotation.</li>
-	    <li><strong>Timeline Effect:</strong> When the timeline is finished, physics is enabled.</li>
-	    <li><strong>Post-Interaction State:</strong> After opening the vent, the player cannot hover over it again.</li>
-	</ul>
-	<h3> - ENEMY SPAWNER </h3>
-	<ul>
-	    <li><strong>Spawn Mechanism:</strong> Initiates the spawning of an enemy with a specified class and transform.</li>
-	    <li><strong>Activation Trigger:</strong> Spawning occurs when the player collides with the EnemySpawnerBox.</li>
-	</ul>
-	<h3> - EXPLOSION BARREL </h3>
-	<ul>
-	    <li><strong>Player Interaction:</strong> Shooting the explosion barrel triggers a series of events.</li>
-	    <li><strong>Damage Radius:</strong> Spawns a sphere, applying damage to all actors within the radius with IDamageInterface (similar to Bullet).</li>
-	    <li><strong>Effects:</strong> Generates various effects, including sound, particles, decals, camera shake, and breaking the explosion barrel geometry into smaller pieces.</li>
-	</ul>
-	<h3> - MESSAGE TO READ </h3>
-	<ul>
-	    <li><strong>Interactive Interface:</strong> Implements ITakeInterface, simulating item-like behavior upon mouse hover (spawning item information widget, displaying the outline, etc).</li>
-	    <li><strong>Player Interaction:</strong> When the player uses the take button, it spawns a message widget after a delay and pauses the game.</li>
-	</ul>
-	<h3> - CHANGE LEVEL </h3>
-	<ul>
-	    <li>Upon colliding with the ChangeLevelBox, it spawns a widget and, after a set duration, opens the specified level.</li>
-	</ul>
-	<h3> - ROTATE ON BUTTON </h3>
-	<ul>
-	    <li>When the player shoots the RotateBox:</li>
-	    <ul>
-	        <li>Uses a timeline to rotate the Socket mesh.</li>
-	        <li>Changes the material of ActivateRotateMesh to the activated one.</li>
-	        <li>Initiates a timer that is displayed on ActivateRotateMesh.</li>
-	    </ul>
-	    <li>Upon completion of the rotate timer, the SocketMesh is rotated back to its initial rotation, the timer is restarted, and the material is reset.</li>
-	</ul>
-	
-<br/>
+	<br/>
 <hr>
 <h2> PAUSE MENU </h2>
 	<h3> - RESUME </h3>
@@ -704,4 +575,132 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		    <li><strong>No Music:</strong> When there is no music, spawn exploration music with fade-in.</li>
 		    <li><strong>Music Transition:</strong> When a different type of music has to play, the current music fades out. After the fade-out time, another music is spawned with fade-in.</li>
 		</ul>
+	
+<br/>
+<hr>
+<h2> OBJECTS </h2>
+	<h3> - Pickup Item </h3>
+	<ul>
+	    <li><strong>Hover Interaction:</strong> Player can hover the mouse over it, showing the item information widget with details like item icon, name, and description.</li>
+	    <li><strong>Item Acquisition:</strong> When the player takes the item:</li>
+	    <ul>
+	        <li><strong>Item Data:</strong> Gets information about the item from the Data Table.</li>
+	        <li><strong>Inventory Check:</strong> If the item is a weapon and there are not enough free slots to take the weapon, spawn the NotEnoughSlotsForWeaponWidget, and the item is not taken.</li>
+	        <li><strong>Inventory Update:</strong> If the item was found in the inventory, add the amount to it; if not, check if can and add a new item to the inventory.</li>
+	        <li><strong>Craft Recipe:</strong> Adds a craft recipe if taken for the first time and the item is set to be craftable.</li>
+	        <li><strong>Weapon Attachment:</strong> If the item is a weapon, spawn the Weapon actor and attach it to the player.</li>
+	    </ul>
+	    <li><strong>Crafting Animation:</strong> When the Pickup item is being crafted, set a dissolve material. Over time, it's going to disappear.</li>
+	</ul>
+	<h3> - ELEVATOR </h3>
+		<ul>
+			<li><strong>Call Elevator:</strong> Allows the player to call the elevator from outside.</li>
+			<li><strong>Waiting Animation:</strong> Displays a "Wait For Elevator" animation on the widget while the elevator moves to the player.</li>
+			<li><strong>Floor Selection:</strong> When in the elevator, the player can choose the desired floor from a Tile View entry on the widget.</li>
+			<li><strong>Starting Animation:</strong> Initiates an animation when the player selects the floor, and the elevator moves accordingly.</li>
+			<li><strong>Blocked Floors:</strong> Supports blocking specific floors, preventing the player from choosing them.</li>
+			<li><strong>Pin Code Access:</strong> Optionally requires a pin code for entry.</li>
+			<li><strong>Door Opening:</strong> Opens the elevator doors when the player selects the current floor.</li>
+			<li><strong>Widget Animation:</strong> Handles all animations within the Widget Blueprint.</li>
+		</ul>
+	<h3> - DOOR </h3>
+		<ul>
+		    <li><strong>Control Mechanism:</strong> Can be opened/closed through the DoorPanel.</li>
+		    <li><strong>Auto-Close Feature:</strong> Closes the door automatically after a set period.</li>
+		    <li><strong>Pin Code Access:</strong> Optionally requires a pin code for entry.</li>
+		</ul>
+	<h3> - Sound On Hit Component </h3>
+		<ul>
+			    <li><strong>Functionality:</strong> Component can be added to any actor on map.</li>
+			    <li><strong>Trigger Condition:</strong> Plays a sound when the actor collides with something (OnComponentHit).</li>
+			    <li><strong>Velocity Check:</strong> Initiates sound playback only if the collision velocity magnitude exceeds a defined tolerance (VelocityLengthErrorTolerance).</li>
+		</ul>
+	<h3> - SHOW TUTORIAL MESSAGE </h3>
+		<ul>
+		    <li><strong>Trigger Condition:</strong> Activates when the player collides with the ShowMessageBox.</li>
+		    <li><strong>Combat Check:</strong> Verifies if the player is in combat; if not, spawns the Tutorial Message Widget.</li>
+		    <li><strong>Tutorial Customization:</strong> Allows setting tutorial information on the widget in the Actor.</li>
+		    <li><strong>Widget Display:</strong> Spawns the tutorial message to the player.</li>
+		    <li><strong>Hide Animation:</strong> Initiates the Hide Widget animation after a specified duration (HideMessageAfterTime).</li>
+		</ul>
+		</ul>
+	<h3> - Hammer </h3>
+		<ul>
+		    <li><strong>Dynamic Location:</strong> An actor that adjusts its own location based on a timeline.</li>
+		    <li><strong>Audio Cue:</strong> Triggers a hit sound after a specified time.</li>
+		    <li><strong>Player Collision:</strong> Causes the player to be eliminated upon collision with the HammerBox.</li>
+		</ul>
+	<h3> - CHANGE MUSIC/SOUND </h3>
+		<ul>
+		    <li><strong>Audio Environment:</strong> Alters music or sound upon player collision with the ChangeBox.</li>
+		    <li><strong>Custom Game Instance:</strong> Modifies music in the custom game instance, with a fading effect.</li>
+		</ul>
+	<h3> - CHECKPOINT </h3>
+		<ul>
+		    <li><strong>Save Progress:</strong> Upon player collision with the Checkpoint, initiates a game save with a specified name (e.g., Autosave).</li>
+		</ul>
+	<h3> - CHEST WITH ITEMS </h3>
+		<ul>
+			<li> When player opens the chest:</li>
+			<ul>
+				<li>Plays open animation and changes given Material to Unlock one</li>
+				<li>Takes ItemRandomSpawnStruct from Array and checks if given item can spawn according to random percent</li>
+				<li>If Random Percent is in given range then spawn an item with given Offset</li>
+				<li><strong>Pin Code Access:</strong> Optionally requires a pin code to open.</li>
+			</ul>
+		</ul>
+	<h3> - CHEST WITH ITEMS </h3>
+	<ul>
+	    <li><strong> When the player interacts with the chest:</strong></li>
+	    <ul>
+	        <li>Plays an opening animation and updates the material to signify unlocking.</li>
+	        <li>Takes ItemRandomSpawnStruct from an array and evaluates if the specified item can spawn based on a random percentage.</li>
+	        <li>If the random percentage falls within the defined range, spawns the item with the specified offset.</li>
+	        <li><strong>Pin Code Access:</strong> Optionally requires a pin code to open.</li>
+	    </ul>
+	</ul>
+	<h3> - CONVEYOR BELT </h3>
+	<ul>
+	    <li><strong>Mesh Generation:</strong> Creates instanced meshes based on Direction, Offset, and Amount parameters.</li>
+	    <li><strong>ConveyorBox Properties:</strong> Calculates the location and scale of the ConveyorBox based on instanced meshes.</li>
+	    <li><strong>Collision Interaction:</strong> If an object collides with the ConveyorBox, it begins moving at the specified speed in the ConveyorBelt direction.</li>
+	</ul>
+	<h3> - DOOR VENT </h3>
+	<ul>
+	    <li><strong>Interactive Interface:</strong> Implements ITakeInterface, providing item-like behavior when the player hovers the mouse over it (spawning item information widget, making the outline visible, etc).</li>
+	    <li><strong>Physics Interaction:</strong> Player can shoot or hit the door vent, causing it to change to simulate physics.</li>
+	    <li><strong>Take Action:</strong> If the player presses the Take Button, it activates physics or plays a timeline that modifies the location and rotation.</li>
+	    <li><strong>Timeline Effect:</strong> When the timeline is finished, physics is enabled.</li>
+	    <li><strong>Post-Interaction State:</strong> After opening the vent, the player cannot hover over it again.</li>
+	</ul>
+	<h3> - ENEMY SPAWNER </h3>
+	<ul>
+	    <li><strong>Spawn Mechanism:</strong> Initiates the spawning of an enemy with a specified class and transform.</li>
+	    <li><strong>Activation Trigger:</strong> Spawning occurs when the player collides with the EnemySpawnerBox.</li>
+	</ul>
+	<h3> - EXPLOSION BARREL </h3>
+	<ul>
+	    <li><strong>Player Interaction:</strong> Shooting the explosion barrel triggers a series of events.</li>
+	    <li><strong>Damage Radius:</strong> Spawns a sphere, applying damage to all actors within the radius with IDamageInterface (similar to Bullet).</li>
+	    <li><strong>Effects:</strong> Generates various effects, including sound, particles, decals, camera shake, and breaking the explosion barrel geometry into smaller pieces.</li>
+	</ul>
+	<h3> - MESSAGE TO READ </h3>
+	<ul>
+	    <li><strong>Interactive Interface:</strong> Implements ITakeInterface, simulating item-like behavior upon mouse hover (spawning item information widget, displaying the outline, etc).</li>
+	    <li><strong>Player Interaction:</strong> When the player uses the take button, it spawns a message widget after a delay and pauses the game.</li>
+	</ul>
+	<h3> - CHANGE LEVEL </h3>
+	<ul>
+	    <li>Upon colliding with the ChangeLevelBox, it spawns a widget and, after a set duration, opens the specified level.</li>
+	</ul>
+	<h3> - ROTATE ON BUTTON </h3>
+	<ul>
+	    <li>When the player shoots the RotateBox:</li>
+	    <ul>
+	        <li>Uses a timeline to rotate the Socket mesh.</li>
+	        <li>Changes the material of ActivateRotateMesh to the activated one.</li>
+	        <li>Initiates a timer that is displayed on ActivateRotateMesh.</li>
+	    </ul>
+	    <li>Upon completion of the rotate timer, the SocketMesh is rotated back to its initial rotation, the timer is restarted, and the material is reset.</li>
+	</ul>
 
