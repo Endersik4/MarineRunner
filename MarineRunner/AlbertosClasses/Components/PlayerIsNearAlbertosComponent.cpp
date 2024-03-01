@@ -34,7 +34,7 @@ void UPlayerIsNearAlbertosComponent::TickComponent(float DeltaTime, ELevelTick T
 #pragma region ///////////////////////// The Player is Located Near Albertos /////////////////////////
 void UPlayerIsNearAlbertosComponent::CheckIfThePlayerIsNear()
 {
-	if (IsValid(AlbertosAI) == false || bIgnorePlayer == true || IsValid(Player) == false)
+	if (IsValid(AlbertosAI) == false || bIgnorePlayer == true || IsValid(Player) == false || IsValid(AlbertosOwner) == false)
 		return;
 
 	if (FVector::Distance(Player->GetActorLocation(), AlbertosOwner->GetActorLocation()) <= ActiveAlbertosRadius)

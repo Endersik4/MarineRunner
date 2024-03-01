@@ -713,10 +713,12 @@ void AGun::HideGun()
 	SetActorTickEnabled(false);
 	GunSkeletalMesh->Stop();
 
+	MarinePawn->GetArmsSkeletalMesh()->Stop();
+	GetWorld()->GetTimerManager().ClearTimer(PlayRecoilHandle);
+
 	if (MarinePawn->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1 && bDropGun == true)
 	{
 		MarinePawn->GetArmsSkeletalMesh()->SetForceRefPose(true);
-		MarinePawn->GetArmsSkeletalMesh()->Stop();
 	}
 	else 
 		MarinePawn->GetWeaponHandlerComponent()->DrawNewGun();

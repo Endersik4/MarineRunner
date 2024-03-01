@@ -12,7 +12,7 @@ USoundOnHitComponent::USoundOnHitComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
 	// ...
 }
@@ -35,7 +35,7 @@ void USoundOnHitComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void USoundOnHitComponent::OnHitPlaySound(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (!HitGroundSound) 
+	if (HitGroundSound == nullptr || IsValid(GetOwner()) == false) 
 		return;
 
 	if (FMath::IsNearlyEqual(GetOwner()->GetVelocity().Length(), 0.f, VelocityLengthErrorTolerance))

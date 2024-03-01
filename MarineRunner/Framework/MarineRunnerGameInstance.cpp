@@ -109,7 +109,7 @@ void UMarineRunnerGameInstance::ResetDetectedEnemy()
 
 void UMarineRunnerGameInstance::SpawnBackgroundMusic(USoundBase* SoundToSpawn)
 {
-	if (SoundToSpawn == nullptr)
+	if (SoundToSpawn == nullptr || IsValid(GetWorld()) == false)
 		return;
 	CurrentPlayingMusic = UGameplayStatics::SpawnSound2D(GetWorld(), SoundToSpawn, 1.f, 1.f, 0.f, nullptr, true);
 

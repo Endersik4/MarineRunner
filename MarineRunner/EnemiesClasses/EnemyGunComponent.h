@@ -72,8 +72,6 @@ private:
 	// A random number is taken from this range and then added to the bullet Yaw rotation
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Bullet")
 		FFloatRange RandomRangeForYawBullet = FFloatRange(-1.5f, 1.5f);
-	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Bullet")
-		FFloatRange BulletSpeedClamp = FFloatRange(700.f, 1000000.f);
 	
 	//Delay time after the enemy runs out of ammunition
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")

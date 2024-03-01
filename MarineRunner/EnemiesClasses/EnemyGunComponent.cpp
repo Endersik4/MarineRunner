@@ -72,8 +72,8 @@ void UEnemyGunComponent::SpawnBullet()
 	if (BulletData.bUsePhysicsForMovement == true)
 	{
 		const FVector& Gravity = FVector(0.f, 0.f, -980.f);
-		float CalculatedImpulse_X = (OwningEnemyInterface->GetFocusedActor()->GetActorLocation() - BulletTransform.GetLocation() - (Gravity / 2)).X;
-		BulletDataForSpawnedBullet.Speed = 3 * FMath::Clamp(CalculatedImpulse_X, BulletSpeedClamp.GetLowerBoundValue(), BulletSpeedClamp.GetUpperBoundValue());
+		float CalculatedImpulse_X = FMath::Abs((OwningEnemyInterface->GetFocusedActor()->GetActorLocation() - BulletTransform.GetLocation() - (Gravity / 2)).X);
+		BulletDataForSpawnedBullet.Speed = BulletData.Speed * CalculatedImpulse_X;
 	}
 
 	SpawnedBullet->SetBulletData(BulletDataForSpawnedBullet);

@@ -1,4 +1,4 @@
-// Copyright Adam Bartela.All Rights Reserved
+	// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 

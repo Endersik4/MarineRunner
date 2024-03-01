@@ -28,7 +28,7 @@ void UWeaponInventoryComponent::StartTimerForSpawnNewWeapons()
 
 void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
 {
-	MarinePawn = Cast<AMarineCharacter>(GetOwner());
+	AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(GetOwner());
 
 	if (IsValid(MarinePawn) == false || InitialWeaponInventory.Num() == 0)
 		return;

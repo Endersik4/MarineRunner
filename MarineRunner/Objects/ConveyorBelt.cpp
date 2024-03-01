@@ -61,9 +61,14 @@ void AConveyorBelt::MoveActors(float Delta)
 {
 	if (bConveyorBeltActive == false)
 		return;
-
-	for (AActor* CurrentActor : ActorsOnConveyorBelt)
+	
+	// make sure to not remove actor while array is iterating
+	TArray<AActor*> SaveActorsOnConveyorBelt = ActorsOnConveyorBelt;
+	for (AActor* CurrentActor : SaveActorsOnConveyorBelt)
 	{
+		if (IsValid(CurrentActor) == false)
+			continue;
+
 		FVector Offset = GetActorForwardVector() * Delta * SpeedOfActorOnConveyorBelt;
 		CurrentActor->AddActorWorldOffset(Offset);
 	}

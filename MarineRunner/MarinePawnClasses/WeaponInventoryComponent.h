@@ -58,6 +58,4 @@ private:
 	void SpawnWeaponsFromInventory();
 
 	void SortWeapons();
-
-	class AMarineCharacter* MarinePawn;
 };
