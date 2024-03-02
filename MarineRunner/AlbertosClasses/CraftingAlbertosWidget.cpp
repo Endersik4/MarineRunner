@@ -63,6 +63,10 @@ void UCraftingAlbertosWidget::NativeOnInitialized()
 	AmountMultiplier_16x->OnHovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xHovered);
 	AmountMultiplier_16x->OnUnhovered.AddDynamic(this, &UCraftingAlbertosWidget::Multiplier_16xUnhovered);
 
+	StorageInventoryTileView->OnItemIsHoveredChanged().AddUFunction(this, FName("OnItemInTileViewHovered"));
+	ResourcesInventoryTileView->OnItemIsHoveredChanged().AddUFunction(this, FName("OnItemInTileViewHovered"));
+	RequirementsInventoryTileView->OnItemIsHoveredChanged().AddUFunction(this, FName("OnItemInTileViewHovered"));
+
 	FWidgetAnimationDynamicEvent SlideCraftingAnimFinished;
 	SlideCraftingAnimFinished.BindDynamic(this, &UCraftingAlbertosWidget::OnSlideCraftingAnimFinished);
 	BindToAnimationFinished(Left_SlideCraftingImagesAnim, SlideCraftingAnimFinished);
@@ -83,12 +87,12 @@ void UCraftingAlbertosWidget::SetRecipesData(AMarineCharacter* Player)
 	RecipesOfCraftableItems = Player->GetInventoryComponent()->Items_Recipes;
 }
 
-void UCraftingAlbertosWidget::AddItemToTileView(TArray<FItemStruct> InventoryItems)
+void UCraftingAlbertosWidget::AddItemToInventoryTileView(const TArray<FItemStruct> & InventoryItems)
 {
 	StorageInventoryTileView->ClearListItems();
 	ResourcesInventoryTileView->ClearListItems();
 
-	for (FItemStruct Items : InventoryItems)
+	for (const FItemStruct & Items : InventoryItems)
 	{
 		UItemDataObject* ConstructedItemObject = NewObject<UItemDataObject>(ItemDataObject);
 		ConstructedItemObject->ItemData = Items;
@@ -102,7 +106,7 @@ void UCraftingAlbertosWidget::AddItemToTileView(TArray<FItemStruct> InventoryIte
 #pragma region ///////////////// item options /////////////////////
 void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshInventory)
 {
-	if (bCanCraft == false || IsValid(MarinePawn) == false)
+	if (bCanUseCraftPanel == false || IsValid(MarinePawn) == false)
 		return;
 
 	RequirementsInventoryTileView->ClearListItems();
@@ -112,7 +116,7 @@ void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshInventory)
 
 	SetItemDataToUI(bRefreshInventory);
 
-	PlayProperSwipeItemIconAnim();
+	PlaySwipeItemIconAnim();
 
 	bCanCraftItem = true;
 	CraftButton->SetIsEnabled(true);
@@ -144,15 +148,15 @@ void UCraftingAlbertosWidget::SetItemDataToUI(bool bRefreshInventory)
 	ItemValue_AmountText->SetText(FText::FromString(AmountTextStr));
 
 	// Player cant craft multiple weapons at the same time
-	if (RecipesOfCraftableItems[ChoiceOfCraftableItem].bIsItWeapon == true) SetisEnableAllMultipliers(false);
-	else SetisEnableAllMultipliers(true);
+	if (RecipesOfCraftableItems[ChoiceOfCraftableItem].bIsItWeapon == true) SetEnableAllMultipliers(false);
+	else SetEnableAllMultipliers(true);
 }
 
 void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshInventory)
 {
 	TArray<FString> ResourcesName;
 	RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.GenerateKeyArray(ResourcesName);
-	for (FString NameOfResource : ResourcesName)
+	for (const FString & NameOfResource : ResourcesName)
 	{
 		if (MarinePawn->GetInventoryComponent()->Inventory_Items.FindByKey(NameOfResource) == nullptr) 
 			continue;
@@ -170,8 +174,6 @@ void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshIn
 			bCanCraftItem = false;
 			CraftButton->SetIsEnabled(false);
 		}
-
-		ConstructedItemObject->ConditionalBeginDestroy();
 	}
 }
 
@@ -201,7 +203,7 @@ bool UCraftingAlbertosWidget::DoesHaveEnoughResources(FString Resource, bool bDe
 }
 #pragma endregion
 
-void UCraftingAlbertosWidget::OnItemHovered(UObject* Item, bool bIsHovered)
+void UCraftingAlbertosWidget::OnItemInTileViewHovered(UObject* Item, bool bIsHovered)
 {
 	if (IsValid(MarinePawn) == false) 
 		return;
@@ -226,7 +228,7 @@ void UCraftingAlbertosWidget::CraftPressed()
 	if (IsValid(MarinePawn) == false || IsValid(AlbertosPawn) == false)
 		return;
 
-	if (bCanCraftItem == false || bCanCraft == false)
+	if (bCanCraftItem == false || bCanUseCraftPanel == false)
 		return;
 
 	SwitchCurrentCraftingItem(true);
@@ -241,13 +243,13 @@ void UCraftingAlbertosWidget::CraftPressed()
 	CraftingTimeProgressBar->SetVisibility(ESlateVisibility::Visible);
 
 	// Fill in Progress bar
-	TimeElapsed = 0.f;
-	CopiedItemCraftTime = RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft;
+	CurrentItemCraftingTimeElapsed = 0.f;
+	ItemCraftTimeLeftInSeconds = RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft;
 
 	// Set Can craft again after TimeCraft
-	bCanCraft = false;
-	WaitTime = RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft;
-	GetWorld()->GetTimerManager().SetTimer(TimeCraftHandle, this, &UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar, 0.001f, true);
+	bCanUseCraftPanel = false;
+	CurrentItemCraftTime = RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft;
+	GetWorld()->GetTimerManager().SetTimer(TimeCraftHandle, this, &UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar, FillCraftingPercentBarTimerTime, true);
 }
 
 void UCraftingAlbertosWidget::CraftHovered()
@@ -262,28 +264,28 @@ void UCraftingAlbertosWidget::CraftUnhovered()
 
 void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar()
 {
-	if (bCanCraft == true)
+	if (bCanUseCraftPanel == true)
 		return;
 
-	if (TimeElapsed <= WaitTime)
+	if (CurrentItemCraftingTimeElapsed <= CurrentItemCraftTime)
 	{
-		float Progress = FMath::Lerp(0.f, 1.f, TimeElapsed / WaitTime);
-		CraftingTimeProgressBar->SetPercent(Progress);
-		FString TimeInSeconds = FString::SanitizeFloat(FMath::RoundValuesToGivenDecimalNumbers(CopiedItemCraftTime, 2)) + "s";
-		ItemCraftTimeText->SetText(FText::FromString(TimeInSeconds));
+		float CraftingTimeProgress = FMath::Lerp(0.f, 1.f, CurrentItemCraftingTimeElapsed / CurrentItemCraftTime);
+		CraftingTimeProgressBar->SetPercent(CraftingTimeProgress);
 
-		CopiedItemCraftTime -= 0.001f;
-		TimeElapsed += 0.001f;
+		FString SecondsLeftString = FString::SanitizeFloat(FMath::RoundValuesToGivenDecimalNumbers(ItemCraftTimeLeftInSeconds, 2)) + "s";
+		ItemCraftTimeText->SetText(FText::FromString(SecondsLeftString));
+
+		ItemCraftTimeLeftInSeconds -= FillCraftingPercentBarTimerTime;
+		CurrentItemCraftingTimeElapsed += FillCraftingPercentBarTimerTime;
 	}
 	else
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TimeCraftHandle);
-		SetCanCraftAgain();
+		SetCanUseCraftPanelAgain();
 	}
-
 }
 
-void UCraftingAlbertosWidget::SetCanCraftAgain()
+void UCraftingAlbertosWidget::SetCanUseCraftPanelAgain()
 {
 	CraftingTimeProgressBar->SetPercent(0.f);
 	CraftingTimeProgressBar->SetVisibility(ESlateVisibility::Hidden);
@@ -296,13 +298,13 @@ void UCraftingAlbertosWidget::SetCanCraftAgain()
 	FString Time = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
 	ItemCraftTimeText->SetText(FText::FromString(Time));
 
-	bCanCraft = true;
+	bCanUseCraftPanel = true;
 	CraftButton->SetIsEnabled(true);
 }
 #pragma endregion
 
 #pragma region /////////////////// Swipe Items Icons Images Animation //////////////////////
-void UCraftingAlbertosWidget::PlayProperSwipeItemIconAnim()
+void UCraftingAlbertosWidget::PlaySwipeItemIconAnim()
 {
 	if (CurrentChoiceOfArrow == ECA_Left)
 	{
@@ -335,7 +337,7 @@ void UCraftingAlbertosWidget::LeftArrowClicked()
 	}
 	else return;
 
-	if (MultiplierChoice != AmountMultiplier_1x)
+	if (MultiplierButtonChoice != AmountMultiplier_1x)
 	{
 		Multiplier_1xHovered();
 	}
@@ -366,7 +368,7 @@ void UCraftingAlbertosWidget::RightArrowClicked()
 	}
 	else return;
 
-	if (MultiplierChoice != AmountMultiplier_1x)
+	if (MultiplierButtonChoice != AmountMultiplier_1x)
 	{
 		Multiplier_1xHovered();
 	}
@@ -390,7 +392,7 @@ void UCraftingAlbertosWidget::CloseWidgetButtonClicked()
 	if (IsValid(AlbertosPawn) == false)
 		return;
 
-	AlbertosPawn->TakeItem(MarinePawn);
+	AlbertosPawn->ToggleInventoryVisibility();
 }
 
 void UCraftingAlbertosWidget::CloseWidgetButtonHovered()
@@ -405,7 +407,7 @@ void UCraftingAlbertosWidget::CloseWidgetButtonUnhovered()
 
 #pragma region //////////////////////////////// Mutlipliers Buttons/////////////////////////////////
 
-void UCraftingAlbertosWidget::MultiplierClicked(int32 Mutliplier)
+void UCraftingAlbertosWidget::MultiplierButtonClicked(int32 Mutliplier)
 {	
 	CraftingMultiplier = Mutliplier;
 	SwitchCurrentCraftingItem();
@@ -416,7 +418,7 @@ void UCraftingAlbertosWidget::MultiplierClicked(int32 Mutliplier)
 	}
 }
 
-void UCraftingAlbertosWidget::SetisEnableAllMultipliers(bool bEnable)
+void UCraftingAlbertosWidget::SetEnableAllMultipliers(bool bEnable)
 {
 	AmountMultiplier_2x->SetIsEnabled(bEnable);
 	AmountMultiplier_4x->SetIsEnabled(bEnable);
@@ -426,16 +428,16 @@ void UCraftingAlbertosWidget::SetisEnableAllMultipliers(bool bEnable)
 
 void UCraftingAlbertosWidget::Multiplier_1xClicked()
 {
-	if (bCanCraft == false) return;
+	if (bCanUseCraftPanel == false) return;
 
-	MultiplierChoice = AmountMultiplier_1x;
-	MultiplierClicked(1);
+	MultiplierButtonChoice = AmountMultiplier_1x;
+	MultiplierButtonClicked(1);
 	CurrentMultiplierUnhoveredFunc = &UCraftingAlbertosWidget::Multiplier_1xUnhovered;
 }
 
 void UCraftingAlbertosWidget::Multiplier_1xHovered()
 {
-	if (MultiplierChoice == AmountMultiplier_1x)
+	if (MultiplierButtonChoice == AmountMultiplier_1x)
 		return;
 
 	PlayButtonAnimation(Multiplier_1xHoveredAnim);
@@ -443,7 +445,7 @@ void UCraftingAlbertosWidget::Multiplier_1xHovered()
 
 void UCraftingAlbertosWidget::Multiplier_1xUnhovered()
 {
-	if (MultiplierChoice == AmountMultiplier_1x)
+	if (MultiplierButtonChoice == AmountMultiplier_1x)
 		return;
 
 	PlayButtonAnimation(Multiplier_1xHoveredAnim, false);
@@ -451,16 +453,16 @@ void UCraftingAlbertosWidget::Multiplier_1xUnhovered()
 
 void UCraftingAlbertosWidget::Multiplier_2xClicked()
 {
-	if (bCanCraft == false) return;
+	if (bCanUseCraftPanel == false) return;
 
-	MultiplierChoice = AmountMultiplier_2x;
-	MultiplierClicked(2);
+	MultiplierButtonChoice = AmountMultiplier_2x;
+	MultiplierButtonClicked(2);
 	CurrentMultiplierUnhoveredFunc = &UCraftingAlbertosWidget::Multiplier_2xUnhovered;
 }
 
 void UCraftingAlbertosWidget::Multiplier_2xHovered()
 {
-	if (MultiplierChoice == AmountMultiplier_2x)
+	if (MultiplierButtonChoice == AmountMultiplier_2x)
 		return;
 
 	PlayButtonAnimation(Multiplier_2xHoveredAnim);
@@ -468,7 +470,7 @@ void UCraftingAlbertosWidget::Multiplier_2xHovered()
 
 void UCraftingAlbertosWidget::Multiplier_2xUnhovered()
 {
-	if (MultiplierChoice == AmountMultiplier_2x)
+	if (MultiplierButtonChoice == AmountMultiplier_2x)
 		return;
 
 	PlayButtonAnimation(Multiplier_2xHoveredAnim, false);
@@ -476,16 +478,16 @@ void UCraftingAlbertosWidget::Multiplier_2xUnhovered()
 
 void UCraftingAlbertosWidget::Multiplier_4xClicked()
 {
-	if (bCanCraft == false) return;
+	if (bCanUseCraftPanel == false) return;
 
-	MultiplierChoice = AmountMultiplier_4x;
-	MultiplierClicked(4);
+	MultiplierButtonChoice = AmountMultiplier_4x;
+	MultiplierButtonClicked(4);
 	CurrentMultiplierUnhoveredFunc = &UCraftingAlbertosWidget::Multiplier_4xUnhovered;
 }
 
 void UCraftingAlbertosWidget::Multiplier_4xHovered()
 {
-	if (MultiplierChoice == AmountMultiplier_4x)
+	if (MultiplierButtonChoice == AmountMultiplier_4x)
 		return;
 
 	PlayButtonAnimation(Multiplier_4xHoveredAnim);
@@ -493,7 +495,7 @@ void UCraftingAlbertosWidget::Multiplier_4xHovered()
 
 void UCraftingAlbertosWidget::Multiplier_4xUnhovered()
 {
-	if (MultiplierChoice == AmountMultiplier_4x)
+	if (MultiplierButtonChoice == AmountMultiplier_4x)
 		return;
 
 	PlayButtonAnimation(Multiplier_4xHoveredAnim, false);
@@ -501,16 +503,16 @@ void UCraftingAlbertosWidget::Multiplier_4xUnhovered()
 
 void UCraftingAlbertosWidget::Multiplier_8xClicked()
 {
-	if (bCanCraft == false) return;
+	if (bCanUseCraftPanel == false) return;
 
-	MultiplierChoice = AmountMultiplier_8x;
-	MultiplierClicked(8);
+	MultiplierButtonChoice = AmountMultiplier_8x;
+	MultiplierButtonClicked(8);
 	CurrentMultiplierUnhoveredFunc = &UCraftingAlbertosWidget::Multiplier_8xUnhovered;
 }
 
 void UCraftingAlbertosWidget::Multiplier_8xHovered()
 {
-	if (MultiplierChoice == AmountMultiplier_8x)
+	if (MultiplierButtonChoice == AmountMultiplier_8x)
 		return;
 
 	PlayButtonAnimation(Multiplier_8xHoveredAnim);
@@ -518,7 +520,7 @@ void UCraftingAlbertosWidget::Multiplier_8xHovered()
 
 void UCraftingAlbertosWidget::Multiplier_8xUnhovered()
 {
-	if (MultiplierChoice == AmountMultiplier_8x)
+	if (MultiplierButtonChoice == AmountMultiplier_8x)
 		return;
 
 	PlayButtonAnimation(Multiplier_8xHoveredAnim, false);
@@ -526,16 +528,16 @@ void UCraftingAlbertosWidget::Multiplier_8xUnhovered()
 
 void UCraftingAlbertosWidget::Multiplier_16xClicked()
 {
-	if (bCanCraft == false) return;
+	if (bCanUseCraftPanel == false) return;
 
-	MultiplierChoice = AmountMultiplier_16x;
-	MultiplierClicked(16);
+	MultiplierButtonChoice = AmountMultiplier_16x;
+	MultiplierButtonClicked(16);
 	CurrentMultiplierUnhoveredFunc = &UCraftingAlbertosWidget::Multiplier_16xUnhovered;
 }
 
 void UCraftingAlbertosWidget::Multiplier_16xHovered()
 {
-	if (MultiplierChoice == AmountMultiplier_16x)
+	if (MultiplierButtonChoice == AmountMultiplier_16x)
 		return;
 
 	PlayButtonAnimation(Multiplier_16xHoveredAnim);
@@ -543,7 +545,7 @@ void UCraftingAlbertosWidget::Multiplier_16xHovered()
 
 void UCraftingAlbertosWidget::Multiplier_16xUnhovered()
 {
-	if (MultiplierChoice == AmountMultiplier_16x)
+	if (MultiplierButtonChoice == AmountMultiplier_16x)
 		return;
 
 	PlayButtonAnimation(Multiplier_16xHoveredAnim, false);

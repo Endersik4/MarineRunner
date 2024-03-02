@@ -3,6 +3,7 @@
 #include "MarineRunner/AlbertosClasses/Components/PlayerIsNearAlbertosComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "MediaPlayer.h"
 
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
 #include "MarineRunner/AlbertosClasses/AlbertosAIController.h"
@@ -20,6 +21,9 @@ void UPlayerIsNearAlbertosComponent::BeginPlay()
 	AlbertosOwner = Cast<AAlbertosPawn>(GetOwner());
 	AlbertosAI = Cast<AAlbertosAIController>(AlbertosOwner->GetController());
 	Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	
+	if (IsValid(AlbertosMediaPlayer))
+		AlbertosMediaPlayer->OpenSource(AlbertosMediaSource);
 
 	GetWorld()->GetTimerManager().SetTimer(PlayerIsNearHandle, this, &UPlayerIsNearAlbertosComponent::CheckIfThePlayerIsNear, TimeToCheckIfPlayerIsNear, true);
 }
@@ -34,7 +38,10 @@ void UPlayerIsNearAlbertosComponent::TickComponent(float DeltaTime, ELevelTick T
 #pragma region ///////////////////////// The Player is Located Near Albertos /////////////////////////
 void UPlayerIsNearAlbertosComponent::CheckIfThePlayerIsNear()
 {
-	if (IsValid(AlbertosAI) == false || bIgnorePlayer == true || IsValid(Player) == false || IsValid(AlbertosOwner) == false)
+	if (IsValid(AlbertosAI) == false || IsValid(Player) == false || IsValid(AlbertosOwner) == false)
+		return;
+
+	if (bIgnorePlayer == true)
 		return;
 
 	if (FVector::Distance(Player->GetActorLocation(), AlbertosOwner->GetActorLocation()) <= ActiveAlbertosRadius)
@@ -66,19 +73,36 @@ void UPlayerIsNearAlbertosComponent::GoBackToWendering()
 
 	AlbertosAI->SetCanMove(true);
 
-	AlbertosOwner->SetInventoryVisibility(false);
+	if (AlbertosOwner->GetIsCraftingTableWidgetVisible() == true)
+		AlbertosOwner->ToggleInventoryVisibility();
 
-	ToggleOpenDoor(false);
+	OpenAlbertosDoor(false);
 
 	bPlayerIsClose = false;
 }
 
-void UPlayerIsNearAlbertosComponent::ToggleOpenDoor(bool bOpenDoor)
+void UPlayerIsNearAlbertosComponent::OpenAlbertosDoor(bool bOpenDoor)
 {
-	if (bIsFrontDoorOpen == bOpenDoor)
+	if (bIsFrontDoorOpen == bOpenDoor || IsValid(AlbertosOwner) == false)
 		return;
 
-	AlbertosOwner->OpenFrontDoor(AlbertosOwner->GetAlbertosSkeletal(), bOpenDoor);
+	if (bOpenDoor == true)
+	{
+		if (AlbertosOpenAnimationMontage)
+			AlbertosOwner->GetAlbertosSkeletal()->GetAnimInstance()->Montage_Play(AlbertosOpenAnimationMontage);
+
+		if (IsValid(AlbertosMediaPlayer) == true)
+			AlbertosMediaPlayer->Play();
+	}
+	else
+	{
+		if (AlbertosCloseAnimationMontage)
+			AlbertosOwner->GetAlbertosSkeletal()->GetAnimInstance()->Montage_Play(AlbertosCloseAnimationMontage);
+
+		if (IsValid(AlbertosMediaPlayer) == true)
+			AlbertosMediaPlayer->Pause();
+	}
+
 	bIsFrontDoorOpen = bOpenDoor;
 
 	if (OpenDoorSound)
@@ -87,15 +111,20 @@ void UPlayerIsNearAlbertosComponent::ToggleOpenDoor(bool bOpenDoor)
 
 void UPlayerIsNearAlbertosComponent::RotateAlbertosTowardsPlayer(float Delta)
 {
+	if (IsValid(AlbertosOwner) == false || IsValid(Player) == false)
+		return; 
+
 	if (bRotateAlbertosTowardPlayer == false)
 		return;
 
-	FRotator RotatorLook = AlbertosOwner->GetActorRotation();
-	RotatorLook.Yaw = UKismetMathLibrary::FindLookAtRotation(AlbertosOwner->GetActorLocation(), UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation()).Yaw;
-	FRotator NewRotation = UKismetMathLibrary::RInterpTo(AlbertosOwner->GetActorRotation(), RotatorLook, Delta, 8.f);
-	AlbertosOwner->SetActorRotation(NewRotation);
+	FRotator RotationTowardsPlayer = AlbertosOwner->GetActorRotation();
+	RotationTowardsPlayer.Yaw = UKismetMathLibrary::FindLookAtRotation(AlbertosOwner->GetActorLocation(), Player->GetActorLocation()).Yaw;
+	FRotator RotatedAlbertos = UKismetMathLibrary::RInterpTo(AlbertosOwner->GetActorRotation(), RotationTowardsPlayer, Delta, SpeedToRotateTowardsPlayer);
+	AlbertosOwner->SetActorRotation(RotatedAlbertos);
 
-	if (FMath::IsNearlyEqual(RotatorLook.Yaw, NewRotation.Yaw, 2.f))
+	if (FMath::IsNearlyEqual(RotationTowardsPlayer.Yaw, RotatedAlbertos.Yaw, ToleranceToRotateAlbertos))
+	{
 		bRotateAlbertosTowardPlayer = false;
+	}
 }
 #pragma endregion

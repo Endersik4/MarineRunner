@@ -4,7 +4,6 @@
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/StaticMeshComponent.h"
-#include "Components/AudioComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavigationSystem.h"
@@ -52,13 +51,10 @@ AAlbertosPawn::AAlbertosPawn()
 	CraftingTableWidget->SetupAttachment(AlbertosSkeletalMesh);
 	CraftingTableWidget->SetDrawAtDesiredSize(true);
 
-	Hologram_1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Hologram_1"));
-	Hologram_1->SetupAttachment(CraftingTableWidget);
-	Hologram_1->SetCollisionProfileName(FName(TEXT("NoCollision")));
-	Hologram_2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Hologram_2"));
-	Hologram_2->SetCollisionProfileName(FName(TEXT("NoCollision")));
-	Hologram_2->SetupAttachment(CraftingTableWidget);
-	Hologram_2->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	HologramMeshEffect = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HologramMeshEffect"));
+	HologramMeshEffect->SetCollisionProfileName(FName(TEXT("NoCollision")));
+	HologramMeshEffect->SetupAttachment(CraftingTableWidget);
+	HologramMeshEffect->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	DissolveBox_Left = CreateOptionalDefaultSubobject<UChildActorComponent>(TEXT("DissolveBox_Left"));
 	DissolveBox_Left->SetupAttachment(CraftingTableWidget);
@@ -73,17 +69,13 @@ void AAlbertosPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AlbertosAI = Cast<AAlbertosAIController>(GetController());
-
 	OriginalMoveSpeed = AlbertosFloatingMovement->GetMaxSpeed();
 
 	UCraftingAlbertosWidget* CraftingWidget = Cast<UCraftingAlbertosWidget>(GetCraftingTableWidget());
 	if (IsValid(CraftingWidget)) 
 		CraftingWidget->SetAlbertosPawn(this);
 
-	TimeForRandomSound = FMath::FRandRange(TimeRangeToPlayRandomSounds.GetLowerBoundValue(), TimeRangeToPlayRandomSounds.GetUpperBoundValue());
-	GetWorld()->GetTimerManager().SetTimer(RandomSoundHandle, this, &AAlbertosPawn::PlayRandomAlbertoSound, TimeForRandomSound, false);
-
+	SetUpRandomSoundTimer();
 }
 // Called every frame
 void AAlbertosPawn::Tick(float DeltaTime)
@@ -104,10 +96,11 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character)
 	if (IsValid(Character) == false)
 		return;
 
-	if (CraftingWidgetAnimationComponent->GetIsCraftingWidgetAnimatinPlaying() == true)
+	if (CraftingWidgetAnimationComponent->GetIsCraftingWidgetAnimationPlaying() == true)
 		return;
 
-	SetInventoryVisibility(!CraftingTableWidget->IsVisible());
+	ToggleInventoryVisibility();
+
 	if (CraftingTableWidget->IsVisible())
 	{
 		Character->UpdateAlbertosInventory(true, true);
@@ -116,42 +109,41 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character)
 
 void AAlbertosPawn::ItemHover(AMarineCharacter* Character)
 {
-	if (IsValid(OnAlbertosHoverMaterial) == false|| bIsHovered == true || CraftingWidgetAnimationComponent->GetIsCraftingWidgetAnimatinPlaying() == true)
+	if (IsValid(OnAlbertosHoverMaterial) == false|| bIsHovered == true || CraftingWidgetAnimationComponent->GetIsCraftingWidgetAnimationPlaying() == true)
 		return;
 
-	AlbertosSkeletalMesh->SetMaterial(3, OnAlbertosHoverMaterial);
+	AlbertosSkeletalMesh->SetMaterial(AlbertosHoverMaterialIndex, OnAlbertosHoverMaterial);
 
 	if (HoverSound) 
-		UGameplayStatics::SpawnSoundAttached(HoverSound, AlbertosSkeletalMesh, FName(TEXT("Root")));
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), HoverSound, GetActorLocation());
+
 	bIsHovered = true;
 }
 
 void AAlbertosPawn::ItemUnHover(AMarineCharacter* Character)
 {
-	if (OnAlbertosUnHoverMaterial == nullptr || bIsHovered == false) 
+	if (IsValid(OnAlbertosUnHoverMaterial) == false || bIsHovered == false)
 		return;
 
-	AlbertosSkeletalMesh->SetMaterial(3, OnAlbertosUnHoverMaterial);
+	AlbertosSkeletalMesh->SetMaterial(AlbertosHoverMaterialIndex, OnAlbertosUnHoverMaterial);
 	bIsHovered = false;
 }
 
-void AAlbertosPawn::SetInventoryVisibility(bool bVisible)
+void AAlbertosPawn::ToggleInventoryVisibility()
 {
-	if (bVisible)
+	if (CraftingTableWidget->IsVisible() == false)
 	{
-		if (CraftingTableWidget->IsVisible() == true)
-			return;
-
 		if (AppearCraftingSound)
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AppearCraftingSound, CraftingTableWidget->GetComponentLocation());
 
 		ToggleVisibilityCraftingWidget();
 		CraftingWidgetAnimationComponent->PrepareCraftingWidgetAnimation(true);
 	}
-	else if (CraftingTableWidget->IsVisible() == true)
+	else
 	{
 		if (AppearCraftingSound)
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AppearCraftingSound, CraftingTableWidget->GetComponentLocation());
+
 		CraftingWidgetAnimationComponent->PrepareCraftingWidgetAnimation(false);
 	}
 }
@@ -159,14 +151,26 @@ void AAlbertosPawn::SetInventoryVisibility(bool bVisible)
 void AAlbertosPawn::ToggleVisibilityCraftingWidget()
 {
 	CraftingTableWidget->ToggleVisibility();
-	Hologram_1->ToggleVisibility();
-	Hologram_2->ToggleVisibility();
+	HologramMeshEffect->ToggleVisibility();
 }
-#pragma endregion;
+#pragma endregion
+
+void AAlbertosPawn::EnableCraftingAnimation(bool bEnableCraftingAnim)
+{
+	if (bEnableCraftingAnim)
+	{
+		if (AlbertosCraftingAnimation)
+			AlbertosSkeletalMesh->GetAnimInstance()->Montage_Play(AlbertosCraftingAnimation);
+	}
+	else
+		AlbertosSkeletalMesh->GetAnimInstance()->Montage_Stop(CraftingAnimationBlendOut, AlbertosCraftingAnimation);
+
+}
 
 #pragma region /////// player action //////////
-void AAlbertosPawn::CallAlbertoToThePlayer(FVector PlayerLoc)
+void AAlbertosPawn::CallAlbertosToThePlayer(FVector PlayerLoc)
 {
+	AAlbertosAIController* AlbertosAI =  Cast<AAlbertosAIController>(GetController());
 	if (IsValid(AlbertosAI) == false) 
 		return;
 
@@ -179,10 +183,10 @@ void AAlbertosPawn::CallAlbertoToThePlayer(FVector PlayerLoc)
 	if (CallAlbertosSound) 
 		UGameplayStatics::PlaySound2D(GetWorld(), CallAlbertosSound);
 
-	ChangeMaxSpeedOfFloatingMovement();
+	ChangeMaxSpeedOfFloatingMovement(true);
 }
 
-// if player is furhter away from TeleportToPlayerRadius then teleport albertos to location near player
+// if player is further away from TeleportToPlayerRadius then teleport albertos to location near player
 bool AAlbertosPawn::TeleportAlbertosToPlayer(FVector& PlayerLoc)
 {
 	if (FVector::Distance(PlayerLoc, GetActorLocation()) < MaxDistanceToPlayer)
@@ -195,6 +199,12 @@ bool AAlbertosPawn::TeleportAlbertosToPlayer(FVector& PlayerLoc)
 
 	SetActorLocation(RandomTeleportLocation.Location);
 	return true;
+}
+
+void AAlbertosPawn::ChangeMaxSpeedOfFloatingMovement(bool bTowardsPlayer)
+{
+	if (bTowardsPlayer == true) AlbertosFloatingMovement->MaxSpeed = MaxSpeedWhenMovingTowardsPlayer;
+	else AlbertosFloatingMovement->MaxSpeed = OriginalMoveSpeed;
 }
 
 #pragma endregion
@@ -226,21 +236,23 @@ void AAlbertosPawn::RestartData(ASavedDataObject* SavedDataObject, const int32 I
 
 #pragma endregion 
 
-void AAlbertosPawn::ChangeMaxSpeedOfFloatingMovement(bool bTowardsPlayer)
+#pragma region //////////// random sounds //////////
+void AAlbertosPawn::SetUpRandomSoundTimer()
 {
-	if (bTowardsPlayer == true) AlbertosFloatingMovement->MaxSpeed = MaxSpeedWhenMovingTowardsPlayer;
-	else AlbertosFloatingMovement->MaxSpeed = OriginalMoveSpeed;
+	const float& RandomSoundDuration = FMath::FRandRange(TimeRangeToPlayRandomSounds.GetLowerBoundValue(), TimeRangeToPlayRandomSounds.GetUpperBoundValue());
+	GetWorld()->GetTimerManager().SetTimer(RandomSoundHandle, this, &AAlbertosPawn::PlayRandomAlbertoSound, RandomSoundDuration, false);
 }
 
 void AAlbertosPawn::PlayRandomAlbertoSound()
 {
-	if (RandomAlbertoSounds && CraftingTableWidget->IsVisible() == false) 
-		SpawnedRandomSound = UGameplayStatics::SpawnSoundAttached(RandomAlbertoSounds, AlbertosSkeletalMesh, FName(TEXT("Root")));
+	if (RandomAlbertoSounds) 
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), RandomAlbertoSounds, GetActorLocation());
 
-	TimeForRandomSound = FMath::FRandRange(TimeRangeToPlayRandomSounds.GetLowerBoundValue(), TimeRangeToPlayRandomSounds.GetUpperBoundValue());
-	GetWorld()->GetTimerManager().SetTimer(RandomSoundHandle, this, &AAlbertosPawn::PlayRandomAlbertoSound, TimeForRandomSound, false);
+	SetUpRandomSoundTimer();
 }
+#pragma endregion
 
+#pragma region //////////// GETTERS ////////////
 class UUserWidget* AAlbertosPawn::GetCraftingTableWidget() const
 {
 	return CraftingTableWidget->GetUserWidgetObject();
@@ -248,5 +260,11 @@ class UUserWidget* AAlbertosPawn::GetCraftingTableWidget() const
 
 void AAlbertosPawn::CallToggleOpenDoor(bool bOpenDoor) const
 {
-	PlayerIsNearAlbertosComponent->ToggleOpenDoor(bOpenDoor);
+	PlayerIsNearAlbertosComponent->OpenAlbertosDoor(bOpenDoor);
 }
+
+bool AAlbertosPawn::GetIsCraftingTableWidgetVisible() const
+{
+	return CraftingTableWidget->IsVisible();
+}
+#pragma endregion

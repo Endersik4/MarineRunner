@@ -48,7 +48,7 @@ void UCraftItemAlbertosComponent::CraftPressed(class AMarineCharacter* Player, c
 	}
 
 	AlbertosPawn->CallToggleOpenDoor(true);
-	AlbertosPawn->EnableCraftingAnimation(AlbertosPawn->GetAlbertosSkeletal());
+	AlbertosPawn->EnableCraftingAnimation(true);
 
 	CraftedItem->SetDissolveMaterial(Player, ItemToCraft->Item_TimeCraft, OverlayCraftingMaterial);
 
@@ -85,7 +85,7 @@ FTransform UCraftItemAlbertosComponent::ItemToCraftOffsetTransform(const FVector
 
 void UCraftItemAlbertosComponent::CraftingFinished()
 {
-	AlbertosPawn->EnableCraftingAnimation(AlbertosPawn->GetAlbertosSkeletal(), false);
+	AlbertosPawn->EnableCraftingAnimation(false);
 
 	if (IsValid(CraftedItem) == false)
 		return;
@@ -93,7 +93,7 @@ void UCraftItemAlbertosComponent::CraftingFinished()
 	CraftedItem->GetItemMesh()->SetSimulatePhysics(false);
 
 	bMoveCraftedItemToFinalPosition = true;
-	FinalLocationItem = CraftedItem->GetActorLocation() + AlbertosPawn->GetActorForwardVector() * FVector::Distance(AlbertosPawn->GetAlbertosSkeletal()->GetSocketLocation(FName(TEXT("FinalItemPosition"))), CraftedItem->GetActorLocation());
+	FinalLocationItem = CraftedItem->GetActorLocation() + AlbertosPawn->GetActorForwardVector() * FVector::Distance(AlbertosPawn->GetAlbertosSkeletal()->GetSocketLocation(FinalItemLocationSocketName), CraftedItem->GetActorLocation());
 }
 #pragma endregion
 
@@ -138,16 +138,16 @@ void UCraftItemAlbertosComponent::MoveCraftedItemToFinalPosition(float Delta)
 	if (bMoveCraftedItemToFinalPosition == false || IsValid(CraftedItem) == false) 
 		return;
 
-	if (CraftedItem->GetActorLocation().Equals(FinalLocationItem, 10.f) == false)
+	if (CraftedItem->GetActorLocation().Equals(FinalLocationItem, FinalLocationItemTolerance) == false)
 	{
-		FVector NewLocation = FMath::VInterpTo(CraftedItem->GetActorLocation(), FinalLocationItem, Delta, ItemMoveSpeedAfterCrafting);
-		CraftedItem->SetActorLocation(NewLocation);
+		FVector NewItemLocation = FMath::VInterpTo(CraftedItem->GetActorLocation(), FinalLocationItem, Delta, ItemMoveSpeedAfterCrafting);
+		CraftedItem->SetActorLocation(NewItemLocation);
 
 		if (bShouldScaleCraftedItem == false) 
 			return;
 
-		FVector NewScale = FMath::VInterpTo(CraftedItem->GetActorScale3D(), TargetScaleOfCraftedItem, Delta, ItemScaleSpeedAfterCrafting);
-		CraftedItem->SetActorScale3D(NewScale);
+		FVector NewItemScale = FMath::VInterpTo(CraftedItem->GetActorScale3D(), TargetScaleOfCraftedItem, Delta, ItemScaleSpeedAfterCrafting);
+		CraftedItem->SetActorScale3D(NewItemScale);
 
 		return;
 	}

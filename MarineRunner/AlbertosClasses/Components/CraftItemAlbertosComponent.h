@@ -32,23 +32,27 @@ public:
 	FORCEINLINE const bool isCraftedItemValid() const;
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
-		float ItemMoveSpeedAfterCrafting = 5.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
-		float ItemScaleSpeedAfterCrafting = 11.f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
 		FName ItemSpawnLocationSocketName = TEXT("ItemSpawnLocation");
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
-		FName FinalItemLocationSocketName = TEXT("FinalItemPosition");
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
 		UMaterialInstance* OverlayCraftingMaterial;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds")
 		USoundBase* Craft_Start_Sound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds")
 		USoundBase* Craft_Middle_Sound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds")
 		USoundBase* Craft_End_Sound;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Move Item")
+		float ItemMoveSpeedAfterCrafting = 5.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Move Item")
+		float ItemScaleSpeedAfterCrafting = 11.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Move Item")
+		FName FinalItemLocationSocketName = TEXT("FinalItemPosition");
+	UPROPERTY(EditDefaultsOnly, Category = "Move Item")
+		float FinalLocationItemTolerance = 10.f;
+
 
 	class APickupItem* CraftedItem;
 	class APickupItem* SpawnCraftedItem(const FItemStruct* ItemToCraft);

@@ -61,8 +61,8 @@ bool AShootingEnemyPawn::EnemyRunAway()
 	if (Health > MaxEnemyHealthForRunAway || bCanEnemyRunAway == false)
 		return false;
 
-	float ShouldRunAwayRandom = FMath::FRandRange(0.f, 100.f);
-	if (ShouldRunAwayRandom <= ChanceOfEnemyToRunAway)
+	float RandomPercent = FMath::FRandRange(0.f, 100.f);
+	if (PercentForEnemyRunaway > RandomPercent)
 	{
 		ShouldRunAway();
 		return true;
@@ -71,6 +71,21 @@ bool AShootingEnemyPawn::EnemyRunAway()
 	return false;
 }
 
+void AShootingEnemyPawn::ShouldRunAway()
+{
+	SetEnemyKilledInAIController();
+
+	if (bEnemyDetectedTarget == true)
+		PlayPrepareToShootAnimation(false);
+
+	SawTheTarget(false);
+	GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
+	GetWorld()->GetTimerManager().ClearTimer(StartShootingHandle);
+	ResetAlertMaterial();
+
+	bIsRunningAway = true;
+	SetShouldRunningAwayInAnimBP();
+}
 #pragma region ////////////// ENEMY SEE PLAYER //////////////
 void AShootingEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget, bool bStartAttackingTheTarget)
 {
@@ -127,22 +142,6 @@ FRotator AShootingEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraigh
 	BoneRotation.Yaw = FoundRotation.Yaw - GetActorRotation().Yaw;
 
 	return BoneRotation;
-}
-
-void AShootingEnemyPawn::ShouldRunAway()
-{
-	SetEnemyKilledInAIController();
-
-	if (bEnemyDetectedTarget == true)
-		PlayPrepareToShootAnimation(false);
-
-	SawTheTarget(false);
-	GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
-	GetWorld()->GetTimerManager().ClearTimer(StartShootingHandle);
-	ResetAlertMaterial();
-
-	bIsRunningAway = true;
-	SetShouldRunningAwayInAnimBP();
 }
 #pragma endregion
 

@@ -20,11 +20,6 @@ void UEnemyGunComponent::BeginPlay()
 	InitialMagazineCapacity = MagazineCapacity;
 }
 
-void UEnemyGunComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
 void UEnemyGunComponent::Shoot()
 {
 	if (CanShoot() == false)
@@ -44,9 +39,21 @@ void UEnemyGunComponent::Shoot()
 		Reload();
 }
 
+bool UEnemyGunComponent::CanShoot()
+{
+	if (IsValid(BulletData.BulletClass) == false)
+		return false;
+
+	if (bCanShoot == false)
+		return false;
+
+	return true;
+}
+
 void UEnemyGunComponent::ShootEffects()
 {
-	if (ShootingSound) UGameplayStatics::SpawnSoundAttached(ShootingSound, OwningEnemyInterface->GetSkeletalMesh(), MuzzleFleshSocketNames[CurrentSocketNameIndex]);
+	if (IsValid(ShootingSound) == true) 
+		UGameplayStatics::SpawnSoundAttached(ShootingSound, OwningEnemyInterface->GetSkeletalMesh(), MuzzleFleshSocketNames[CurrentSocketNameIndex]);
 	if (ShootParticle)
 	{
 		UParticleSystemComponent* SpawnedShootParticle = UGameplayStatics::SpawnEmitterAttached(ShootParticle, OwningEnemyInterface->GetSkeletalMesh(), MuzzleFleshSocketNames[CurrentSocketNameIndex], FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
@@ -96,8 +103,6 @@ FVector UEnemyGunComponent::PredictWhereToShoot(bool bIgnoreOffset)
 
 	if (bIgnoreOffset == true)
 		return FocusedActorLocation;
-
-	float Distance = UKismetMathLibrary::Vector_Distance(GetOwner()->GetActorLocation(), FocusedActorLocation) / PredictWhereToShootDistanceDivider;
 
 	FocusedActorLocation += CurrentFocusedActor->GetActorUpVector() * PredictWhereToShootOffset_UP;
 	FocusedActorLocation += CurrentFocusedActor->GetActorRightVector() * CurrentFocusedActor->GetInputAxisValue("Right") * PredictWhereToShootOffset_Right ;
@@ -152,16 +157,3 @@ const bool UEnemyGunComponent::CanShootAgain()
 	bCanShoot = bIsReloading == false && MagazineCapacity > 0;
 	return bCanShoot;
 }
-
-bool UEnemyGunComponent::CanShoot()
-{
-	if (BulletData.BulletClass == NULL)
-		return false;
-
-	if (bCanShoot == false)
-		return false;
-
-	return true;
-}
-
-

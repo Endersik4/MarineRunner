@@ -27,15 +27,14 @@ void APunchingEnemyPawn::IsPlayerCloseForHit()
 		return;
 
 	FHitResult PlayerCloseHitResult;
-	FVector RaycastStart = EnemySkeletalMesh->GetSocketLocation(PlayerCloseRaycastSocketNameLocation);
-	FVector RaycastEnd = RaycastStart + UKismetMathLibrary::GetForwardVector(EnemySkeletalMesh->GetSocketRotation(PlayerCloseRaycastSocketNameLocation)) * MaxPlayerCloseRaycastDistance;
-	bool bPlayerIsClose = GetWorld()->LineTraceSingleByChannel(PlayerCloseHitResult, RaycastStart, RaycastEnd, ECC_GameTraceChannel3);
+	FVector HitPlayerRaycastStart = EnemySkeletalMesh->GetSocketLocation(PlayerCloseRaycastSocketNameLocation);
+	FVector HitPlayerRaycastEnd = HitPlayerRaycastStart + UKismetMathLibrary::GetForwardVector(EnemySkeletalMesh->GetSocketRotation(PlayerCloseRaycastSocketNameLocation)) * MaxPlayerCloseRaycastDistance;
+	bool bPlayerIsClose = GetWorld()->LineTraceSingleByChannel(PlayerCloseHitResult, HitPlayerRaycastStart, HitPlayerRaycastEnd, ECC_GameTraceChannel3);
 	
-	if (bPlayerIsClose)
-	{
-		DamageSphereLocation = RaycastEnd;
-		StartPunchingPlayer();
-	}
+	if (bPlayerIsClose == false)
+		return;
+	DamageSphereLocation = HitPlayerRaycastEnd;
+	StartPunchingPlayer();
 }
 
 void APunchingEnemyPawn::StartPunchingPlayer()

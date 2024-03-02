@@ -8,7 +8,7 @@ public class MarineRunner : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Niagara", "UMG", "Paper2D", "AIModule", "GameplayTasks", "GeometryCollectionEngine", "Slate", "SlateCore", "NavigationSystem"});
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "Niagara", "UMG", "Paper2D", "AIModule", "GameplayTasks", "GeometryCollectionEngine", "Slate", "SlateCore", "NavigationSystem", "MediaAssets" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] { "Json", "JsonUtilities" });
 

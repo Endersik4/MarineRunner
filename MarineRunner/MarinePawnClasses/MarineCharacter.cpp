@@ -442,7 +442,7 @@ void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool
 
 	if (bShouldUpdateInventory == true)
 	{
-		CraftingWidget->AddItemToTileView(InventoryComponent->Inventory_Items);
+		CraftingWidget->AddItemToInventoryTileView(InventoryComponent->Inventory_Items);
 	}
 
 	if (bShouldUpdateCrafting == true)
@@ -457,7 +457,7 @@ void AMarineCharacter::CallAlbertosPressed()
 	if (IsValid(AlbertoPawn) == false)
 		return;
 
-	AlbertoPawn->CallAlbertoToThePlayer(GetActorLocation());
+	AlbertoPawn->CallAlbertosToThePlayer(GetActorLocation());
 }
 
 #pragma endregion 

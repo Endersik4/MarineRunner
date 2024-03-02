@@ -64,6 +64,10 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	//Function From IInteractInterface
+	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
+
+	// ISaveCustomDataInterface
 	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
@@ -71,9 +75,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	//Function From Interface
-	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
 
 	FORCEINLINE virtual USkeletalMeshComponent* GetSkeletalMesh() override { return EnemySkeletalMesh; }
 	FORCEINLINE virtual class AActor* GetFocusedActor() override { return nullptr; }
@@ -92,7 +93,7 @@ protected:
 	bool bIsDead;
 	virtual bool KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius);
 
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
+	UPROPERTY(Transient, EditAnywhere, Category = "Setting Enemy")
 		float Health = 100.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
@@ -124,30 +125,43 @@ private:
 		float BloodFadeOutDuration = 5.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
 		UMaterialInstance* BloodOnObjectDecalMaterial;
+	// It was added to the Blood On Object Decal after spawn, because sometimes the decal is not visible on the body if it was moved slightly.
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Blood On Objects")
+		float AdditionalBloodOnObjectSize_X = 20.f;
 
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Footsteps")
+	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
+		FFloatRange GunshotWoundRandomSizeRange = FFloatRange(8.f, 18.f);
+	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
+		float GunshotWoundDecalLifeSpan = 10.f;
+	// It was added to the decal of gunshot wounds after spawn, because sometimes the decal is not visible on the body if it was moved slightly.
+	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
+		float AdditionalGunshotWoundSize_X = 20.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
+		UMaterialInstance* GunshotWoundDecalMaterial;
+
+	UPROPERTY(EditAnywhere, Category = "Footsteps")
 		float TimeBetweenNextStep = 0.42f;
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Footsteps")
+	UPROPERTY(EditAnywhere, Category = "Footsteps")
 		float TimeBetweenNextStepWhileRunningAway = 0.21f;
-	//SOUNDS
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
+		FFloatRange VelocityRangeToActivateFootsteps = FFloatRange(0.f, 25.f);
+	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
 		USoundBase* FootstepsSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
+	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
 		USoundBase* FootstepsRunningAwaySound;
 
-	//Materials
-	UPROPERTY(EditDefaultsOnly, Category = "Materials")
-		UMaterialInstance* ShotBloodDecalMaterial;
-
-	//Particles
-	UPROPERTY(EditDefaultsOnly, Category = "Particles")
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Blood Spray")
+		FRotator EnemyBloodParticleRotationOffset = FRotator(90.f, 0.f, 0.f);
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Blood Spray")
 		FColor BloodColor;
-	UPROPERTY(EditDefaultsOnly, Category = "Particles")
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Blood Spray")
+		FName BloodColorParameterName = FName(TEXT("ColorOfBlood"));
+	UPROPERTY(EditDefaultsOnly, Category = "Enemy Blood Spray")
 		UParticleSystem* EnemyBloodParticle;
 
 	// Effects
 	void SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType* PtrHitBoneType);
-	void SpawnShotBloodDecal(const FHitResult& Hit);
+	void SpawnGunshotWoundDecal(const FHitResult& Hit);
 	void SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const FVector& HitLocation);
 
 	// Enemy Indicator Widget

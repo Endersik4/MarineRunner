@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -20,34 +20,32 @@ protected:
 
 	virtual void NativeOnInitialized() override;
 
-public:
-
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* StorageItemButton;
+		class UButton* ItemButton;
 	UFUNCTION()
-		void StorageItemButtonHovered();
+		void ItemButtonHovered();
 	UFUNCTION()
-		void StorageItemButtonUnhovered();
+		void ItemButtonUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* StorageItemButtonHoveredAnim;
+		UWidgetAnimation* ItemHoveredAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* DisabledStorageItemButtonHoveredAnim;
+		UWidgetAnimation* DisabledItemHoveredAnim;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* ItemImageListEntry;
+		class UImage* ItemImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* ItemAmountListEntry;
+		class UTextBlock* ItemAmountTextBlock;
 
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* DisableStorageAnim;
+		UWidgetAnimation* DisableItemAnim;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Storage List Entry")
 		FString TextWhenItemAmountIsMoreThen999 = "+999";
 
 	bool bNotEnoughResources = false;
-	void ItemDataToEntry(class UItemDataObject* ItemDataObject);
+	void ItemDataToUI(class UItemDataObject* ItemDataObject);
 };

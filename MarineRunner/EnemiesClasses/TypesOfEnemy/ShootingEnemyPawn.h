@@ -82,7 +82,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Enemy Run Away", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
 		float SpeedOfEnemyWhenIsRunningAway = 1600.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Enemy Run Away", meta = (EditCondition = "bCanEnemyRunAway", EditConditionHides))
-		float ChanceOfEnemyToRunAway = 20.f;
+		float PercentForEnemyRunaway = 20.f;
 
 	void ShouldRunAway();
 	bool EnemyRunAway();

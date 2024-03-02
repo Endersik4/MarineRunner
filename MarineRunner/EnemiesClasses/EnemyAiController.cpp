@@ -54,9 +54,9 @@ void AEnemyAiController::HearingHandle(AActor* SensedActor, const FAIStimulus& H
 	if (IsValid(SensedActor) == false || HearingStimulus.WasSuccessfullySensed() == false || bDoEnemySeePlayer == true)
 		return;
 
-	FRotator CurrentPawnRotation = GetPawn()->GetActorRotation();
-	CurrentPawnRotation.Yaw = (UKismetMathLibrary::FindLookAtRotation(GetPawn()->GetActorLocation(), SensedActor->GetActorLocation())).Yaw;
-	GetPawn()->SetActorRotation(CurrentPawnRotation);
+	FRotator RotatePawnTowardsSound = GetPawn()->GetActorRotation();
+	RotatePawnTowardsSound.Yaw = (UKismetMathLibrary::FindLookAtRotation(GetPawn()->GetActorLocation(), SensedActor->GetActorLocation())).Yaw;
+	GetPawn()->SetActorRotation(RotatePawnTowardsSound);
 	
 	if (bDoEnemySeePlayer == false)
 		StopMovement();

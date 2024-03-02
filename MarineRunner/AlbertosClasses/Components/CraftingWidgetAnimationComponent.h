@@ -24,7 +24,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	FORCEINLINE const bool GetIsCraftingWidgetAnimatinPlaying() const { return bIsCraftingWidgetAnimatinPlaying; }
+	FORCEINLINE const bool GetIsCraftingWidgetAnimationPlaying() const { return bIsCraftingWidgetAnimatinPlaying; }
 	void PrepareCraftingWidgetAnimation(bool bForwardAnim);
 
 private:

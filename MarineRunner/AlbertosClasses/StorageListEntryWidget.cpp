@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 
 #include "MarineRunner/AlbertosClasses/StorageListEntryWidget.h"
@@ -15,8 +15,8 @@ void UStorageListEntryWidget::NativeConstruct()
 
 void UStorageListEntryWidget::NativeOnInitialized()
 {
-	StorageItemButton->OnHovered.AddDynamic(this, &UStorageListEntryWidget::StorageItemButtonHovered);
-	StorageItemButton->OnUnhovered.AddDynamic(this, &UStorageListEntryWidget::StorageItemButtonUnhovered);
+	ItemButton->OnHovered.AddDynamic(this, &UStorageListEntryWidget::ItemButtonHovered);
+	ItemButton->OnUnhovered.AddDynamic(this, &UStorageListEntryWidget::ItemButtonUnhovered);
 }
 
 void UStorageListEntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
@@ -25,12 +25,12 @@ void UStorageListEntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 	if (IsValid(ItemDataObject) == false)
 		return;
 
-	ItemDataToEntry(ItemDataObject);
+	ItemDataToUI(ItemDataObject);
 }
 
-void UStorageListEntryWidget::ItemDataToEntry(UItemDataObject* ItemDataObject)
+void UStorageListEntryWidget::ItemDataToUI(UItemDataObject* ItemDataObject)
 {
-	ItemImageListEntry->SetBrushFromTexture(ItemDataObject->ItemData.Item_StorageIcon);
+	ItemImage->SetBrushFromTexture(ItemDataObject->ItemData.Item_StorageIcon);
 
 	FString ItemAmountValueString = "";
 	if (ItemDataObject->ItemData.Item_Amount > 999)
@@ -39,39 +39,40 @@ void UStorageListEntryWidget::ItemDataToEntry(UItemDataObject* ItemDataObject)
 	}
 	else
 		ItemAmountValueString = FString::FromInt(ItemDataObject->ItemData.Item_Amount);
-	ItemAmountListEntry->SetText(FText::FromString(ItemAmountValueString));
+
+	ItemAmountTextBlock->SetText(FText::FromString(ItemAmountValueString));
 
 	bNotEnoughResources = ItemDataObject->bIsItEnoughToCraft;
 	if (bNotEnoughResources == false)
 	{
-		PlayAnimationForward(DisableStorageAnim);
+		PlayAnimationForward(DisableItemAnim);
 	}
 	else
 	{
-		PlayAnimation(StorageItemButtonHoveredAnim, 1.f, 1, EUMGSequencePlayMode::Reverse);
+		PlayAnimation(ItemHoveredAnim, 1.f, 1, EUMGSequencePlayMode::Reverse);
 	}
 }
 
-void UStorageListEntryWidget::StorageItemButtonHovered()
+void UStorageListEntryWidget::ItemButtonHovered()
 {
 	if (bNotEnoughResources == false)
 	{
-		PlayAnimationForward(DisabledStorageItemButtonHoveredAnim);
+		PlayAnimationForward(DisabledItemHoveredAnim);
 	}
 	else
 	{
-		PlayAnimationForward(StorageItemButtonHoveredAnim);
+		PlayAnimationForward(ItemHoveredAnim);
 	}
 }
 
-void UStorageListEntryWidget::StorageItemButtonUnhovered()
+void UStorageListEntryWidget::ItemButtonUnhovered()
 {
 	if (bNotEnoughResources == false)
 	{
-		PlayAnimationReverse(DisabledStorageItemButtonHoveredAnim);
+		PlayAnimationReverse(DisabledItemHoveredAnim);
 	}
 	else
 	{
-		PlayAnimationReverse(StorageItemButtonHoveredAnim);
+		PlayAnimationReverse(ItemHoveredAnim);
 	}
 }

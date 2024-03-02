@@ -32,10 +32,12 @@ protected:
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crafting Albertos Widget Settings")
 		TSubclassOf<class UItemDataObject> ItemDataObject;
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting Albertos Widget Settings")
+		float FillCraftingPercentBarTimerTime = 0.001f;
 
-	void AddItemToTileView(TArray<struct FItemStruct> InventoryItems);
+	void AddItemToInventoryTileView(const TArray<FItemStruct> & InventoryItems);
 	void SetRecipesData(class AMarineCharacter* Player);
 	void SwitchCurrentCraftingItem(bool bDeleteResources = false);
 
@@ -87,9 +89,6 @@ protected:
 	// The Place where only Resources will be stored
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		class UTileView* ResourcesInventoryTileView;
-
-	UFUNCTION(BlueprintCallable)
-		void OnItemHovered(UObject* Item, bool bIsHovered);
 
 	// The Place where it will be shown what Player needs to craft an item
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -187,6 +186,9 @@ protected:
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
 		UWidgetAnimation* Multiplier_16xHoveredAnim;
 
+	UFUNCTION()
+		void OnItemInTileViewHovered(UObject* Item, bool bIsHovered);
+
 private:
 
 	TArray<FItemStruct> RecipesOfCraftableItems;
@@ -195,28 +197,28 @@ private:
 	int32 CraftingMultiplier = 1;
 	
 	// Crafting
-	bool bCanCraft = true;
+	bool bCanUseCraftPanel = true;
 	bool bCanCraftItem = true;
 	void SetItemDataToUI(bool bDeleteResources);
 	void AddItemResourcesToRequirementsList(bool bDeleteResources);
 	bool DoesHaveEnoughResources(FString Resource, bool bDeleteResources = false);
 
 	// Craft Button Progress Bar
-	float TimeElapsed;
-	float WaitTime;
-	float CopiedItemCraftTime;
+	float CurrentItemCraftingTimeElapsed;
+	float CurrentItemCraftTime;
+	float ItemCraftTimeLeftInSeconds;
 	FTimerHandle TimeCraftHandle;
 	void SetPercentOfCraftingProgressBar();
-	void SetCanCraftAgain();
+	void SetCanUseCraftPanelAgain();
 
 	// Swipe Items Icon Images Anim
 	EChoiceOfArrow CurrentChoiceOfArrow = ECA_None;
-	void PlayProperSwipeItemIconAnim();
+	void PlaySwipeItemIconAnim();
 
 	// Multiplier Buttons
-	class UButton* MultiplierChoice;
-	void MultiplierClicked(int32 Mutliplier);
-	void SetisEnableAllMultipliers(bool bEnable);
+	class UButton* MultiplierButtonChoice;
+	void MultiplierButtonClicked(int32 Mutliplier);
+	void SetEnableAllMultipliers(bool bEnable);
 
 	void (UCraftingAlbertosWidget::*CurrentMultiplierUnhoveredFunc)(void);
 
