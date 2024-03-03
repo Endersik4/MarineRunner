@@ -26,6 +26,7 @@ public:
 	void OpenAlbertosDoor(bool bOpenDoor);
 
 	FORCEINLINE void SetPlayerPawn(APawn* NewPlayerPawn) { Player = NewPlayerPawn; }
+	FORCEINLINE void SetRotateAlbertosTowardPlayer(bool bRotate) { bRotateAlbertosTowardPlayer = bRotate; }
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Setting up Player Is Near")

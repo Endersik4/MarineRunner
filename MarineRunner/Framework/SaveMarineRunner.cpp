@@ -5,7 +5,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
-#include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/SaveGame/SaveGameJsonFile.h"
@@ -27,7 +26,7 @@ FString USaveMarineRunner::GetSaveGameName()
 }
 
 #pragma region ///////// SAVING ////////////
-void USaveMarineRunner::CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld, const FString& _WildCard)
+void USaveMarineRunner::TransferSavedVariablesToGameInstance(UWorld* CurrentWorld, const FString& _WildCard)
 {
 	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(CurrentWorld));
 	if (IsValid(GameInstance) == false)

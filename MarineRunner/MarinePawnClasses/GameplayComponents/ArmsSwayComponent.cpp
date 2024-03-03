@@ -41,8 +41,7 @@ void UArmsSwayComponent::GunSway(float Delta)
 
 	FVector GunLocationInterp = Player->GetArmsSkeletalMesh()->GetRelativeLocation();
 
-	bool bADSGunSway = CalculateGunSway(GunLocationInterp, GunRotationSway, Delta);
-	if (bADSGunSway == true) return;
+	CalculateGunSway(GunLocationInterp, GunRotationSway, Delta);
 
 	Player->GetArmsSkeletalMesh()->SetRelativeLocation(GunLocationInterp);
 	Player->GetArmsSkeletalMesh()->SetRelativeRotation(GunRotationSway);
@@ -54,7 +53,7 @@ void UArmsSwayComponent::GunSway(float Delta)
 		Player->GetArmsSkeletalMesh()->SetRelativeLocation(BackToOriginalPosition);
 	}
 }
-bool UArmsSwayComponent::CalculateGunSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, float Delta)
+void UArmsSwayComponent::CalculateGunSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, float Delta)
 {
 	//Preparing variables
 	float LookUp = PlayerController->GetInputAxisValue("LookUp");
@@ -87,8 +86,6 @@ bool UArmsSwayComponent::CalculateGunSway(FVector& CalculatedLocation, FRotator&
 
 	CalculatedRotation = FRotator(RotationSwayUP, RotationSwayRight, 0.f);
 	CalculatedLocation = FVector(LocationSwayForward, LocationSwayRight, CalculatedLocation.Z);
-
-	return false;
 }
 
 void UArmsSwayComponent::GunSwayWhileMoving()
@@ -122,4 +119,10 @@ FVector UArmsSwayComponent::CalculateLOBGunSwayWhileMoving()
 	CalculatedGunSway.Z += (LocZ * MultiplierOfLocationZSwayWhileMoving);
 
 	return CalculatedGunSway;
+}
+
+void UArmsSwayComponent::ResetArmsLocation()
+{
+	Player->GetArmsSkeletalMesh()->SetRelativeLocation(RelativeLocationInPawn);
+
 }

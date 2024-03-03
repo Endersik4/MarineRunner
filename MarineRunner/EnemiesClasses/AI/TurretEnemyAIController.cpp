@@ -17,10 +17,9 @@ ATurretEnemyAIController::ATurretEnemyAIController()
 
 void ATurretEnemyAIController::BeginPlay()
 {
-	EnemyPerception->OnTargetPerceptionUpdated.AddDynamic(this, &ATurretEnemyAIController::HandleTargetPerceptionUpdated);
+	EnemyPerception->OnTargetPerceptionUpdated.AddUniqueDynamic(this, &ATurretEnemyAIController::HandleTargetPerceptionUpdated);
 
 	TurretPawn = Cast<AEnemyTurretPawn>(GetPawn());
-	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 }
 
 void ATurretEnemyAIController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
@@ -49,10 +48,12 @@ void ATurretEnemyAIController::HandleTargetPerceptionUpdated(AActor* Actor, FAIS
 
 void ATurretEnemyAIController::AddEnemyToDetected(bool bWas)
 {
+	UMarineRunnerGameInstance* MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+
 	if (IsValid(MarineRunnerGameInstance) == false)
 		return;
 
-	if (bWas == true) MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn(), false);
+	if (bWas == true) MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn());
 	else MarineRunnerGameInstance->RemoveDetectedEnemy(GetPawn());
 }
 

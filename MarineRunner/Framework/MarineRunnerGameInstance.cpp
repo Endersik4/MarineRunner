@@ -25,7 +25,7 @@ void UMarineRunnerGameInstance::LoadCustomSavedSettingsFromConfig()
 {
 	FString ConfigPath = FPaths::GeneratedConfigDir() + CustomSavedSettingsConfigPath;
 	bWasJsonDeserialized = USaveGameJsonFile::ReadJson(ConfigPath, SavedDataJsonFile);
-	if (bWasJsonDeserialized == false) 
+	if (bWasJsonDeserialized == false)
 		return;
 
 	for (FSettingSavedInJsonFile& CurrentSavedSetting : CustomSavedSettings)
@@ -54,7 +54,7 @@ void UMarineRunnerGameInstance::FindSavedValueAccordingToName(const FString& Sav
 {
 	FSettingSavedInJsonFile NewStruct = FSettingSavedInJsonFile(SavedSettingName, 0.f);
 	int32 FoundItemIndex = NewStruct.GetItemIndexInGivenArray(CustomSavedSettings);
-	
+
 	if (FoundItemIndex == INDEX_NONE)
 		return;
 
@@ -73,10 +73,8 @@ void UMarineRunnerGameInstance::ReplaceValueInSavedSettingByName(float NewValue,
 }
 #pragma endregion
 
-void UMarineRunnerGameInstance::AddNewDetectedEnemy(AActor* NewEnemy, bool bIsEnemyDead)
+void UMarineRunnerGameInstance::AddNewDetectedEnemy(AActor* NewEnemy)
 {
-	if (bIsEnemyDead)
-		return;
 	DetectedPlayerEnemies.AddUnique(NewEnemy);
 
 	if (DetectedPlayerEnemies.Num() > 0 && bIsDetectedByEnemies == false)
@@ -109,14 +107,15 @@ void UMarineRunnerGameInstance::ResetDetectedEnemy()
 
 void UMarineRunnerGameInstance::SpawnBackgroundMusic(USoundBase* SoundToSpawn)
 {
-	if (SoundToSpawn == nullptr || IsValid(GetWorld()) == false)
+	if (IsValid(SoundToSpawn) == false || IsValid(GetWorld()) == false)
 		return;
+
 	CurrentPlayingMusic = UGameplayStatics::SpawnSound2D(GetWorld(), SoundToSpawn, 1.f, 1.f, 0.f, nullptr, true);
 
 	if (IsValid(CurrentPlayingMusic) == false)
 		return;
 
-	CurrentPlayingMusic->FadeIn(2.0f, 1.f);
+	CurrentPlayingMusic->FadeIn(NewMusicFadeIn);
 }
 
 void UMarineRunnerGameInstance::ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut)
@@ -135,33 +134,32 @@ void UMarineRunnerGameInstance::ChangeBackgroundMusic(EMusicType MusicType, bool
 	}
 	else
 	{
-		GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, this, &UMarineRunnerGameInstance::ChangeMusicAfterFadeOut, 2.01f, false);
+		GetWorld()->GetTimerManager().SetTimer(BackgroundMusicHandle, this, &UMarineRunnerGameInstance::ChangeMusicAfterFadeOut, OldMusicFadeOut + 0.01f, false);
 
 		if (IsValid(CurrentPlayingMusic))
-			CurrentPlayingMusic->FadeOut(2.f, 0.f);
+			CurrentPlayingMusic->FadeOut(OldMusicFadeOut, 0.f);
 	}
 }
 
 void UMarineRunnerGameInstance::ChangeMusicAfterFadeOut()
 {
 	if (CurrentMusicType == EMT_Combat)
-		SpawnBackgroundMusic(CombatMusic);
-	else if (CurrentMusicType == EMT_PauseMusic)
 	{
+		SpawnBackgroundMusic(CombatMusic);
 		return;
 	}
-	else
+
+	if (CurrentMusicType != EMT_Exploration)
+		return;
+
+	if (IsValid(CurrentPlayingMusic) == true)
 	{
-		if (IsValid(CurrentPlayingMusic) == true)
+		if (CurrentPlayingMusic->GetSound() == CurrentExplorationMusic)
 		{
-			if (CurrentPlayingMusic->GetSound() != CurrentExplorationMusic)
-				SpawnBackgroundMusic(CurrentExplorationMusic);
-			else
-				CurrentPlayingMusic->SetPaused(false);
-		}
-		else
-		{
-			SpawnBackgroundMusic(CurrentExplorationMusic);
+			CurrentPlayingMusic->SetPaused(false);
+			return;
 		}
 	}
+
+	SpawnBackgroundMusic(CurrentExplorationMusic);
 }

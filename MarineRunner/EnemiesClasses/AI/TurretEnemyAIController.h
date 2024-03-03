@@ -36,6 +36,5 @@ private:
 	bool bActorWasSeen = false;
 	void StopSeeingActor();
 	class AEnemyTurretPawn* TurretPawn;
-	class UMarineRunnerGameInstance* MarineRunnerGameInstance;
 
 };

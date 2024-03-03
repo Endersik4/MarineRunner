@@ -40,7 +40,8 @@ void APunchingEnemyPawn::IsPlayerCloseForHit()
 void APunchingEnemyPawn::StartPunchingPlayer()
 {
 	bIsPunching = true;
-	PlayPunchAnimMontage();
+	if (PunchAnimMontage)
+		EnemySkeletalMesh->GetAnimInstance()->Montage_Play(PunchAnimMontage);
 
 	FTimerHandle ApplyDamageHandle;
 	GetWorld()->GetTimerManager().SetTimer(ApplyDamageHandle, this, &APunchingEnemyPawn::ApplyDamageToPlayer, ApplyDamageTime, false);

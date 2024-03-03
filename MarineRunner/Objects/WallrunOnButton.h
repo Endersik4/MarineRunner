@@ -55,6 +55,8 @@ private:
 		FLinearColor NotActiveMaterialColor;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
 		FLinearColor ActiveMaterialColor;
+	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
+		TObjectPtr<USoundBase> RotateObjectSound;
 
 	UFUNCTION()
 		void OnTimelineCallback(FVector NewRotation);

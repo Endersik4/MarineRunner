@@ -66,6 +66,9 @@ void AConveyorBelt::MoveActors(float Delta)
 	TArray<AActor*> SaveActorsOnConveyorBelt = ActorsOnConveyorBelt;
 	for (AActor* CurrentActor : SaveActorsOnConveyorBelt)
 	{
+		if (!ensureMsgf(IsValid(CurrentActor), TEXT("Actor To Move in Conveyor Belt is nullptr")))
+			continue;
+
 		if (IsValid(CurrentActor) == false)
 			continue;
 

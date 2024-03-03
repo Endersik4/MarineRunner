@@ -31,11 +31,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void SetShouldRunningAwayInAnimBP();
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void PlayPrepareToShootAnimation(bool bTargetWasDetected);
-	UFUNCTION(BlueprintImplementableEvent)
-		void PlayShootMontageAnimation();
-
 	//Had to get AnimInstance of AnimationBlueprint so in blueprint you are setting what bone you want to looking at the player
 	UFUNCTION(BlueprintImplementableEvent)
 		void FocusBonesOnPlayerWhenPlayerDetected();
@@ -60,6 +55,12 @@ private:
 		float ShootTime = 1.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
 		FFloatRange StartShootingRandomTimeRange = FFloatRange(1.f, 3.f);
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot|Animations")
+		UAnimMontage* ShootAnimMontage;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot|Animations")
+		UAnimMontage* EnableShootAnimMontage;
+	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot|Animations")
+		UAnimMontage* DisableShootAnimMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot")
 		bool bAlertAboutShoot = false;
@@ -92,6 +93,7 @@ private:
 	FTimerHandle ShootHandle;
 	void StartShooting();
 	void Shoot();
+	void PlayPrepareToShootAnimation(bool bTargetWasDetected);
 
 	// Alert about shoot
 	float AlertTimeElapsed;

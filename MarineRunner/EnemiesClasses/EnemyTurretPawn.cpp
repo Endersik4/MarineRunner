@@ -44,7 +44,9 @@ void AEnemyTurretPawn::Shoot()
 {
 	TurretGunComponent->CanShootAgain();
 	TurretGunComponent->Shoot();
-	PlayShootAnimMontage();
+
+	if (IsValid(ShootAnimMontage))
+		TurretSkeletalMesh->GetAnimInstance()->Montage_Play(ShootAnimMontage);
 }
 
 void AEnemyTurretPawn::PlayerWasSeen(bool bWas, AActor* ActorSeen)

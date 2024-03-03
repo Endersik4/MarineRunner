@@ -75,8 +75,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UWidgetComponent* CraftingTableWidget;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UBoxComponent* OpenInventoryBoxComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UStaticMeshComponent* HologramMeshEffect;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		class UFloatingPawnMovement* AlbertosFloatingMovement;
@@ -116,6 +114,9 @@ private:
 		UMaterialInstance* OnAlbertosUnHoverMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Hover")
 		USoundBase* HoverSound;
+
+	UPROPERTY(Transient)
+		TObjectPtr<class AAlbertosAIController> AlbertosAI;
 
 	float OriginalMoveSpeed;
 	bool bIsHovered = false;

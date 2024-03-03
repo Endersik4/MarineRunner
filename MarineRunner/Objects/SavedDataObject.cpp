@@ -87,15 +87,13 @@ void ASavedDataObject::RestartObjectsData(bool bOnlyDeleteFromTemp)
 	TArray<int32> KeysToRemoveFromCustomSavedData;
 	for (const TPair<int32, FCustomDataSaved>& Pair : TempCustomSavedData)
 	{
-		try 
-		{	
-			if (IsValid(Pair.Value.ObjectToSaveData) == false)
-				continue;
-		}
-		catch(...)
+		if (!ensureMsgf(IsValid(Pair.Value.ObjectToSaveData), TEXT("Object To restart data is nullptr")))
 		{
 			continue;
 		}
+
+		if (IsValid(Pair.Value.ObjectToSaveData) == false)
+			continue;
 
 		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
 		if (ActorWithSaveInterface == nullptr)

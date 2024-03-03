@@ -6,7 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "Curves/CurveVector.h"
-
+#include "Kismet/GameplayStatics.h"
 // Sets default values
 AWallrunOnButton::AWallrunOnButton()
 {
@@ -65,6 +65,9 @@ void AWallrunOnButton::OnActivateRotateBoxHit(UPrimitiveComponent* HitComp, AAct
 {
 	if (bWasRotated == true)
 		return;
+
+	if (IsValid(RotateObjectSound))
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), RotateObjectSound, SocketRotateMeshComponent->GetComponentLocation());
 
 	bWasRotated = true;
 	StartRotateMeshTimeline();

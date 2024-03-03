@@ -8,6 +8,7 @@
 #include "Camera/CameraComponent.h"
 #include "Perception/AISense_Hearing.h"
 #include "Components/TimelineComponent.h"
+
 #include "MarineRunner/GunClasses/Bullet.h"
 #include "MarineRunner/GunClasses/Scope.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
@@ -122,10 +123,18 @@ void AGun::Shoot()
 	if (CanShoot() == false) 
 		return;
 
-	if (bIsAutomatic) 
+	if (bIsAutomatic)
+	{
+		// if the player has released the shoot button before ShootFinished(), the weapon will fire indefinitely, preventing the bug
+		if (bShootButtonPressed == false) 
+		{
+			ShootReleased();
+			return;
+		}
 		bConstantlyShoot = true;
+	}
 
-	if (bCanShoot == false)
+	if (bCanShoot == false )
 	{
 		bShouldDelayShoot = true;
 		GetWorldTimerManager().SetTimer(DelayShootHandle, this, &AGun::DelayShoot, DelayShootTime, false);
@@ -159,7 +168,9 @@ void AGun::Shoot()
 
 void AGun::ShootReleased()
 {
-	if (bCanRecoilCamera == false) return;
+	bShootButtonPressed = false;
+	if (bCanRecoilCamera == false) 
+		return;
 
 	GetWorldTimerManager().SetTimer(FirstBulletHandle, this, &AGun::ShouldFirstBulletGoStraight, FirstBulletWithoutRecoilTime, false);
 	ResetVariablesForCameraRecoil();
@@ -170,10 +181,12 @@ void AGun::ShootFinished()
 {
 	SetCanShoot();
 
-	if (bConstantlyShoot)
+	if (bConstantlyShoot || bShouldDelayShoot)
+	{
+		bShouldDelayShoot = false;
+		bConstantlyShoot = false;
 		Shoot();
-
-	if (bShouldDelayShoot) bShouldDelayShoot = false;
+	}
 }
 #pragma endregion
 
@@ -577,6 +590,8 @@ void AGun::AimTheGun(EStatusOfAimedGun NewGunStatus)
 	StatusOfGun = NewGunStatus;
 
 	MarinePawn->GetArmsSwayComponent()->SetInADS(StatusOfGun == EStatusOfAimedGun::ADS);
+	if (StatusOfGun == EStatusOfAimedGun::ADS)
+		MarinePawn->GetArmsSwayComponent()->ResetArmsLocation();
 
 	// When in ADS, change weapon sway to other values, or back to original values if player is not in ADS
 	MarinePawn->GetArmsSwayComponent()->SetWeaponSwayDivider(StatusOfGun == EStatusOfAimedGun::ADS ? WeaponSwayInADSDivider : 1.f);
@@ -637,8 +652,6 @@ void AGun::TakeGun(AMarineCharacter* Player, bool bWasTaken, int32 SavedMagazine
 	MarinePawn->GetWeaponHandlerComponent()->SetCanChangeWeapon(false);
 
 	PlayGivenWeaponWithArmsAnimation(bWasTaken ? WeaponDrawAnim : WeaponFirstTimeTakeAnim);
-
-	OriginalPlayerFOV = MarinePawn->GetCamera()->FieldOfView;
 
 	if (bWasTaken == false)
 		AddAmmoToInventory();

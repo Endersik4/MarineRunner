@@ -93,6 +93,7 @@ public:
 	FORCEINLINE FName GetAttachToSocketName() const { return AttachToSocketName; }
 
 	FORCEINLINE void SetDropGun(bool bDrop) { bDropGun = bDrop; }
+	FORCEINLINE void SetShootButtonPressed(bool bPressed) {bShootButtonPressed= bPressed; }
 
 	void AimTheGun(EStatusOfAimedGun NewGundStatus);
 
@@ -284,8 +285,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* DropGunSound;
 
-	float OriginalPlayerFOV = 90.f;
-	
+	bool bShootButtonPressed;
+
 	////////////// SHOOT ////////////
 	bool bCanShoot = true;
 	bool CanShoot();

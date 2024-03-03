@@ -102,7 +102,6 @@ void AShootingEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget, bool bStart
 
 	bEnemyDetectedTarget = bSaw;
 
-
 	const float& StartShootingTime = TimeToStartShooting + FMath::FRandRange(StartShootingRandomTimeRange.GetLowerBoundValue(), StartShootingRandomTimeRange.GetUpperBoundValue());
 	if (bSaw == true)
 		GetWorld()->GetTimerManager().SetTimer(StartShootingHandle, this, &AShootingEnemyPawn::StartShooting, StartShootingTime, false);
@@ -111,6 +110,17 @@ void AShootingEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget, bool bStart
 		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
 		bStartAlert = false;
 	}
+}
+
+void AShootingEnemyPawn::PlayPrepareToShootAnimation(bool bTargetWasDetected)
+{
+	if (IsValid(EnableShootAnimMontage) == false || IsValid(DisableShootAnimMontage) == false)
+		return;
+
+	if (bTargetWasDetected)
+		EnemySkeletalMesh->GetAnimInstance()->Montage_Play(EnableShootAnimMontage);
+	else
+		EnemySkeletalMesh->GetAnimInstance()->Montage_Play(DisableShootAnimMontage);
 }
 
 void AShootingEnemyPawn::StartShooting()
@@ -130,7 +140,9 @@ void AShootingEnemyPawn::Shoot()
 	ResetAlertMaterial();
 
 	EnemyGunComponent->Shoot();
-	PlayShootMontageAnimation();
+
+	if (IsValid(ShootAnimMontage))
+		EnemySkeletalMesh->GetAnimInstance()->Montage_Play(ShootAnimMontage);
 }
 
 FRotator AShootingEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
@@ -164,7 +176,6 @@ void AShootingEnemyPawn::ChangeParameterInAlertMaterial(float Delta)
 		return;
 
 	AlertTimeElapsed += Delta;
-
 	if (AlertTimeElapsed <= BeginParameterChangeAfterShootTime)
 	{
 		return;

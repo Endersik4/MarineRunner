@@ -28,6 +28,8 @@ public:
 	FORCEINLINE void SetWeaponSwayWhileMovingDivider(float NewSwayWhileMovingDivder) { WeaponSwayWhileMovingDivider = NewSwayWhileMovingDivder; }
 	FORCEINLINE void SetInADS(bool bNewIsnADS) { bInADS = bNewIsnADS; }
 
+	void ResetArmsLocation();
+
 private:
 	//Rotation Sway Pitch
 //Maximal Pitch rotation of Gun when player looking down
@@ -87,7 +89,7 @@ private:
 	float WeaponSwayWhileMovingDivider = 1.f;
 	bool bInADS = false;
 
-	bool CalculateGunSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, float Delta);
+	void CalculateGunSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, float Delta);
 	void GunSway(float Delta);
 	FRotator GunRotationSway;
 	FVector RelativeLocationInPawn;

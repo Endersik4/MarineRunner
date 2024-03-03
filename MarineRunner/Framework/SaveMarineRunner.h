@@ -5,11 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
-#include "MarineRunner/SaveGame/SaveCustomDataInterface.h"
 
 #include "SaveMarineRunner.generated.h"
-
-class ISaveCustomDataInterface;
 
 /**
  * 
@@ -52,12 +49,11 @@ public:
 		USoundBase* SavedExplorationMusic;
 
 
-
 	void PrepareSaveGame(const FString& NewSaveName = "ManualSave_", bool bAddSaveNumber = true);
 	FString OriginalSaveName;
 	bool bAddSaveNumber;
 
-	void CopySaveInfoToCurrentGameInstance(UWorld* CurrentWorld, const FString& _WildCard);
+	void TransferSavedVariablesToGameInstance(UWorld* CurrentWorld, const FString& _WildCard);
 
 	void MakeJsonFileWithSaveInfo(APlayerController* PlayerController, const FString & CurrentLevelName);
 

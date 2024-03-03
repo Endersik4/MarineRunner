@@ -20,7 +20,7 @@ void AEnemyAiController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	EnemyPerception->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAiController::HandleTargetPerceptionUpdated);
+	EnemyPerception->OnTargetPerceptionUpdated.AddUniqueDynamic(this, &AEnemyAiController::HandleTargetPerceptionUpdated);
 
 	SetAIVariables();
 }

@@ -20,9 +20,6 @@ protected:
 public:
 	void PlayerDetected(bool bDetected, APawn* DetectedPawn = nullptr);
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void PlayPunchAnimMontage();
-
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Check if player is close")
@@ -41,6 +38,8 @@ private:
 		float DamageSphereRadius = 20.f;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
 		float CanDamageAgainTime = 0.6f;
+	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
+		UAnimMontage* PunchAnimMontage;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
 		USoundBase* PunchSound;
 

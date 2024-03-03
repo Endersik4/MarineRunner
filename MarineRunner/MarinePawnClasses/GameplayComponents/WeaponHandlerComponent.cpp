@@ -88,6 +88,7 @@ void UWeaponHandlerComponent::Shoot()
 	if (IsValid(Gun) == false) 
 		return;
 
+	Gun->SetShootButtonPressed(true);
 	Gun->Shoot();
 }
 

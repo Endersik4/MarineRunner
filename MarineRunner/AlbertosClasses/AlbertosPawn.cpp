@@ -7,6 +7,7 @@
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavigationSystem.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
 #include "MarineRunner/AlbertosClasses/AlbertosAIController.h"
@@ -42,11 +43,6 @@ AAlbertosPawn::AAlbertosPawn()
 	CraftingWidgetAnimationComponent = CreateDefaultSubobject<UCraftingWidgetAnimationComponent>(TEXT("Crafting Widget Animation Component"));
 	PlayerIsNearAlbertosComponent = CreateDefaultSubobject<UPlayerIsNearAlbertosComponent>(TEXT("Player Is Near Albertos Component"));
 
-	OpenInventoryBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Inventory Box Component"));
-	OpenInventoryBoxComponent->SetupAttachment(AlbertosSkeletalMesh);
-	OpenInventoryBoxComponent->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	OpenInventoryBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
-
 	CraftingTableWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("CraftingTableWidget"));
 	CraftingTableWidget->SetupAttachment(AlbertosSkeletalMesh);
 	CraftingTableWidget->SetDrawAtDesiredSize(true);
@@ -70,6 +66,7 @@ void AAlbertosPawn::BeginPlay()
 	Super::BeginPlay();
 
 	OriginalMoveSpeed = AlbertosFloatingMovement->GetMaxSpeed();
+	AlbertosAI = Cast<AAlbertosAIController>(GetController());
 
 	UCraftingAlbertosWidget* CraftingWidget = Cast<UCraftingAlbertosWidget>(GetCraftingTableWidget());
 	if (IsValid(CraftingWidget)) 
@@ -103,6 +100,7 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character)
 
 	if (CraftingTableWidget->IsVisible())
 	{
+		PlayerIsNearAlbertosComponent->SetRotateAlbertosTowardPlayer(true);
 		Character->UpdateAlbertosInventory(true, true);
 	}
 }
@@ -170,7 +168,6 @@ void AAlbertosPawn::EnableCraftingAnimation(bool bEnableCraftingAnim)
 #pragma region /////// player action //////////
 void AAlbertosPawn::CallAlbertosToThePlayer(FVector PlayerLoc)
 {
-	AAlbertosAIController* AlbertosAI =  Cast<AAlbertosAIController>(GetController());
 	if (IsValid(AlbertosAI) == false) 
 		return;
 
@@ -179,6 +176,7 @@ void AAlbertosPawn::CallAlbertosToThePlayer(FVector PlayerLoc)
 
 	PlayerLoc.Z = GetActorLocation().Z;
 	AlbertosAI->CallAlbertosToThePlayer(PlayerLoc);
+	PlayerIsNearAlbertosComponent->SetRotateAlbertosTowardPlayer(true);
 
 	if (CallAlbertosSound) 
 		UGameplayStatics::PlaySound2D(GetWorld(), CallAlbertosSound);

@@ -51,6 +51,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	FORCEINLINE virtual USkeletalMeshComponent* GetSkeletalMesh() override { return TurretSkeletalMesh; }
+	virtual class AActor* GetFocusedActor() override { return FocusedActor; }
+	FORCEINLINE virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) override {};
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -58,17 +61,10 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FORCEINLINE virtual USkeletalMeshComponent* GetSkeletalMesh() override { return TurretSkeletalMesh; }
-	virtual class AActor* GetFocusedActor() override { return FocusedActor; }
-	FORCEINLINE virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) override {};
-
 	void PlayerWasSeen(bool bWas, AActor* ActorSeen);
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void BoneDirectionToFocusedActor(const FRotator& RotationToActor, const FName& BoneToRotate);
-
-	UFUNCTION(BlueprintImplementableEvent)
-		void PlayShootAnimMontage();
 
 	UFUNCTION(BlueprintPure)
 		bool IsStillShooting();
@@ -83,6 +79,8 @@ private:
 		TArray<FRotateTurretBone> RotateTurretBones;
 	UPROPERTY(EditAnywhere, Category = "Turret Settings")
 		float TimeBetweenShoots = 0.1f;
+	UPROPERTY(EditAnywhere, Category = "Turret Settings")
+		UAnimMontage* ShootAnimMontage;
 
 	FTimerHandle StartShootingHandle;
 	void Shoot();

@@ -59,7 +59,7 @@ void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString&
 	USaveMarineRunner* CreatedSaveGame = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
 
 	CreatedSaveGame->PrepareSaveGame(_SaveName);
-	CreatedSaveGame->CopySaveInfoToCurrentGameInstance(GetWorld(), _WildCard);
+	CreatedSaveGame->TransferSavedVariablesToGameInstance(GetWorld(), _WildCard);
 	
 	CreatedSaveGame->CurrentHealthSaved = Player->GetHealth();
 	CreatedSaveGame->SavedPlayerLocation = Player->GetActorLocation();
