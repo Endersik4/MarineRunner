@@ -79,7 +79,6 @@ public:
 	FORCEINLINE void SetShouldPlayerGoForward(bool bShould) { bShouldPlayerGoForward = bShould; }
 	FORCEINLINE void SetAlbertosPawn(class AAlbertosPawn* NewAlbertos) { AlbertoPawn = NewAlbertos; }
 
-
 	void SetHealth(float NewHealth) { Health = NewHealth; }
 
 	void MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings = false);

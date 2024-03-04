@@ -81,15 +81,15 @@ public:
 
 	void SetSaveNumberAccordingToNumOfFiles(const FString& WildCard = "*ManualSave*");
 
-	void AddNewDetectedEnemy(AActor* NewEnemy);
-	void RemoveDetectedEnemy(AActor* NewEnemy);
+	void AddNewDetectedEnemy(TObjectPtr<AActor> NewEnemy);
+	void RemoveDetectedEnemy(TObjectPtr<AActor> NewEnemy);
 	void ResetDetectedEnemy();
 	FORCEINLINE bool IsPlayerInCombat() const { return DetectedPlayerEnemies.Num() > 0; }
 
 	void ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut = false);
 	FORCEINLINE EMusicType GetCurrentMusicType() const { return CurrentMusicType; }
-	FORCEINLINE void SetCurrentExplorationMusic(USoundBase* MusicToSet) { CurrentExplorationMusic = MusicToSet; }
-	FORCEINLINE USoundBase* GetCurrentExplorationMusic() const { return CurrentExplorationMusic; }
+	FORCEINLINE void SetCurrentExplorationMusic(TObjectPtr<USoundBase> MusicToSet) { CurrentExplorationMusic = MusicToSet; }
+	FORCEINLINE TObjectPtr<USoundBase> GetCurrentExplorationMusic() const { return CurrentExplorationMusic; }
 
 	bool bNewGame = false;
 
@@ -121,17 +121,19 @@ private:
 	UPROPERTY(Transient)
 		TObjectPtr<UAudioComponent> CurrentPlayingMusic;
 
+
 	bool bWasJsonDeserialized;
 	TSharedPtr<FJsonObject> SavedDataJsonFile;
 	void LoadCustomSavedSettingsFromConfig();
 
 	// Enemies that see the player
-	TArray<TObjectPtr<AActor>> DetectedPlayerEnemies;
+	UPROPERTY(Transient)
+		TArray<TObjectPtr<AActor>> DetectedPlayerEnemies;
 	bool bIsDetectedByEnemies = false;
 
 	// Background music
 	FTimerHandle BackgroundMusicHandle;
 	EMusicType CurrentMusicType;
-	void SpawnBackgroundMusic(USoundBase* SoundToSpawn);
+	void SpawnBackgroundMusic(TObjectPtr<USoundBase> SoundToSpawn);
 	void ChangeMusicAfterFadeOut();
 };

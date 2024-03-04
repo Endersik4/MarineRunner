@@ -21,14 +21,14 @@ void UStorageListEntryWidget::NativeOnInitialized()
 
 void UStorageListEntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
-	UItemDataObject* ItemDataObject = Cast<UItemDataObject>(ListItemObject);
-	if (IsValid(ItemDataObject) == false)
+	TObjectPtr<UItemDataObject> ItemDataObject = Cast<UItemDataObject>(ListItemObject);
+	if (!IsValid(ItemDataObject))
 		return;
 
 	ItemDataToUI(ItemDataObject);
 }
 
-void UStorageListEntryWidget::ItemDataToUI(UItemDataObject* ItemDataObject)
+void UStorageListEntryWidget::ItemDataToUI(TObjectPtr<UItemDataObject> ItemDataObject)
 {
 	ItemImage->SetBrushFromTexture(ItemDataObject->ItemData.Item_StorageIcon);
 
@@ -43,7 +43,7 @@ void UStorageListEntryWidget::ItemDataToUI(UItemDataObject* ItemDataObject)
 	ItemAmountTextBlock->SetText(FText::FromString(ItemAmountValueString));
 
 	bNotEnoughResources = ItemDataObject->bIsItEnoughToCraft;
-	if (bNotEnoughResources == false)
+	if (!bNotEnoughResources)
 	{
 		PlayAnimationForward(DisableItemAnim);
 	}
@@ -55,7 +55,7 @@ void UStorageListEntryWidget::ItemDataToUI(UItemDataObject* ItemDataObject)
 
 void UStorageListEntryWidget::ItemButtonHovered()
 {
-	if (bNotEnoughResources == false)
+	if (!bNotEnoughResources)
 	{
 		PlayAnimationForward(DisabledItemHoveredAnim);
 	}
@@ -67,7 +67,7 @@ void UStorageListEntryWidget::ItemButtonHovered()
 
 void UStorageListEntryWidget::ItemButtonUnhovered()
 {
-	if (bNotEnoughResources == false)
+	if (!bNotEnoughResources)
 	{
 		PlayAnimationReverse(DisabledItemHoveredAnim);
 	}

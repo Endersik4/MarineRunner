@@ -31,5 +31,6 @@ private:
 	void PickRandomLocation(UBehaviorTreeComponent& OwnerComp);
 	FVector GetRandomLocation();
 
-	AActor* OwningActor;
+	UPROPERTY(Transient)
+		TObjectPtr<AActor> OwningActor;
 };

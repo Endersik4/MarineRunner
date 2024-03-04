@@ -272,8 +272,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Animation|Handle")
 		FWeaponAnimation WeaponADSOutAnim;
 
-
-	//SOUNDS
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
 		USoundBase* ShootingSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
@@ -313,11 +311,9 @@ private:
 	bool bDropGun;
 	void DropGun();
 
-	// Put away gun
 	/////////// GUN RECOIL /////////////////
 	void PlayRecoil();
 	FTimerHandle PlayRecoilHandle;
-	////////////////////////////////////////////
 
 	/////////////// Constantly Shooting ///////////
 	bool bConstantlyShoot;

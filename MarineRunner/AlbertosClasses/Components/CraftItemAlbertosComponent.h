@@ -26,23 +26,22 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void CraftPressed(class AMarineCharacter* Player, const FItemStruct* ItemToCraft, int32 ItemAmountMultiplier);
+	void CraftPressed(TObjectPtr<class AMarineCharacter> Player, const FItemStruct* ItemToCraft, int32 ItemAmountMultiplier);
 	void CraftingFinished();
 
 	FORCEINLINE const bool isCraftedItemValid() const;
-
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
 		FName ItemSpawnLocationSocketName = TEXT("ItemSpawnLocation");
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting")
-		UMaterialInstance* OverlayCraftingMaterial;
+		TObjectPtr<UMaterialInstance> OverlayCraftingMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds")
-		USoundBase* Craft_Start_Sound;
+		TObjectPtr<USoundBase> Craft_Start_Sound;
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds")
-		USoundBase* Craft_Middle_Sound;
+		TObjectPtr<USoundBase> Craft_Middle_Sound;
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting|Sounds")
-		USoundBase* Craft_End_Sound;
+		TObjectPtr<USoundBase> Craft_End_Sound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Move Item")
 		float ItemMoveSpeedAfterCrafting = 5.f;
@@ -53,9 +52,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Move Item")
 		float FinalLocationItemTolerance = 10.f;
 
-
-	class APickupItem* CraftedItem;
-	class APickupItem* SpawnCraftedItem(const FItemStruct* ItemToCraft);
+	UPROPERTY(Transient)
+		TObjectPtr<class APickupItem> CraftedItem;
+	TObjectPtr<APickupItem> SpawnCraftedItem(const FItemStruct* ItemToCraft);
 	FTransform ItemToCraftOffsetTransform(const FVector & OffsetVector, const FRotator & OffsetRotator, const FVector& ItemInitialScale);
 
 	// Crafting Sound
@@ -72,6 +71,7 @@ private:
 	void ItemWasMoved();
 	void MoveCraftedItemToFinalPosition(float Delta);
 
-	class AAlbertosPawn* AlbertosPawn;
+	UPROPERTY(Transient)
+		TObjectPtr<class AAlbertosPawn> AlbertosPawn;
 		
 };

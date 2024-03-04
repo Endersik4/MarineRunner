@@ -47,15 +47,17 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	FORCEINLINE class UCraftItemAlbertosComponent* GetCraftItemAlbertosComponent() {return CraftItemAlbertosComponent;}
-	FORCEINLINE class UPlayerIsNearAlbertosComponent* GetPlayerIsNearComponent() {return PlayerIsNearAlbertosComponent;}
-	FORCEINLINE USkeletalMeshComponent* GetAlbertosSkeletal() const { return AlbertosSkeletalMesh; }
-	UUserWidget* GetCraftingTableWidget() const;
-	bool GetIsCraftingTableWidgetVisible() const;
-	void CallToggleOpenDoor(bool bOpenDoor) const;
+	void SetFloatingMovementMaxSpeed(const float& NewSpeed);
 
-	void CallAlbertosToThePlayer(FVector PlayerLoc);
-	void ChangeMaxSpeedOfFloatingMovement(bool bTowardsPlayer = true);
+	FORCEINLINE TObjectPtr<class UCraftItemAlbertosComponent> GetCraftItemAlbertosComponent() {return CraftItemAlbertosComponent;}
+	FORCEINLINE TObjectPtr<class UPlayerIsNearAlbertosComponent> GetPlayerIsNearComponent() {return PlayerIsNearAlbertosComponent;}
+	FORCEINLINE TObjectPtr<class UAlbertosToPlayerComponent> GetAlbertosToPlayerComponent() {return AlbertosToPlayerComponent;}
+	FORCEINLINE TObjectPtr<USkeletalMeshComponent> GetAlbertosSkeletal() const { return AlbertosSkeletalMesh; }
+	TObjectPtr<UUserWidget> GetCraftingTableWidget() const;
+	bool GetIsCraftingTableWidgetVisible() const;
+	float GetFloatingMovementMaxSpeed() const;
+
+	void CallToggleOpenDoor(bool bOpenDoor) const;
 
 	void ToggleInventoryVisibility();
 	void ToggleVisibilityCraftingWidget();
@@ -64,74 +66,55 @@ public:
 	void EnableCraftingAnimation(bool bEnableCraftingAnim = true);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UChildActorComponent* DissolveBox_Left;
+		TObjectPtr<UChildActorComponent> DissolveBox_Left;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UChildActorComponent* DissolveBox_Right;
+		TObjectPtr<UChildActorComponent> DissolveBox_Right;
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UBoxComponent* AlbertosBoxComponent;
+		TObjectPtr<class UBoxComponent> AlbertosBoxComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		USkeletalMeshComponent* AlbertosSkeletalMesh;
+		TObjectPtr<USkeletalMeshComponent> AlbertosSkeletalMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UWidgetComponent* CraftingTableWidget;
+		TObjectPtr<class UWidgetComponent> CraftingTableWidget;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UStaticMeshComponent* HologramMeshEffect;
+		TObjectPtr<class UStaticMeshComponent> HologramMeshEffect;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UFloatingPawnMovement* AlbertosFloatingMovement;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UCraftItemAlbertosComponent* CraftItemAlbertosComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UCraftingWidgetAnimationComponent* CraftingWidgetAnimationComponent;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UPlayerIsNearAlbertosComponent* PlayerIsNearAlbertosComponent;
+		TObjectPtr<class UFloatingPawnMovement> AlbertosFloatingMovement;
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
+		TObjectPtr<class UCraftItemAlbertosComponent> CraftItemAlbertosComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
+		TObjectPtr<class UCraftingWidgetAnimationComponent> CraftingWidgetAnimationComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
+		TObjectPtr<class UPlayerIsNearAlbertosComponent> PlayerIsNearAlbertosComponent;
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
+		TObjectPtr<class UAlbertosToPlayerComponent> AlbertosToPlayerComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
 		FFloatRange TimeRangeToPlayRandomSounds = FFloatRange(4.f, 10.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
-		USoundBase* RandomAlbertoSounds;
+		TObjectPtr<USoundBase> RandomAlbertoSounds;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
-		USoundBase* AppearCraftingSound;
+		TObjectPtr<USoundBase> AppearCraftingSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Crafting Animations")
-		UAnimMontage* AlbertosCraftingAnimation;
+		TObjectPtr<UAnimMontage> AlbertosCraftingAnimation;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Crafting Animations")
 		float CraftingAnimationBlendOut = 0.5f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Player")
-		float MaxSpeedWhenMovingTowardsPlayer = 3000.f;
-	// Teleports albertos to the player when the player is far away.
-	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Player")
-		float MaxDistanceToPlayer = 4000.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Player")
-		float TeleportToPlayerRadius = 3000.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Player")
-		USoundBase* CallAlbertosSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Hover")
 		int32 AlbertosHoverMaterialIndex = 3;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Hover")
-		UMaterialInstance* OnAlbertosHoverMaterial;
+		TObjectPtr<UMaterialInstance> OnAlbertosHoverMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Hover")
-		UMaterialInstance* OnAlbertosUnHoverMaterial;
+		TObjectPtr<UMaterialInstance> OnAlbertosUnHoverMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Hover")
-		USoundBase* HoverSound;
+		TObjectPtr<USoundBase> HoverSound;
 
-	UPROPERTY(Transient)
-		TObjectPtr<class AAlbertosAIController> AlbertosAI;
-
-	float OriginalMoveSpeed;
 	bool bIsHovered = false;
 
 	// Random Sounds
 	FTimerHandle RandomSoundHandle;
 	void SetUpRandomSoundTimer();
 	void PlayRandomAlbertoSound();
-
-	/// <summary>
-	/// Check if the distance to the player is greater than MaxDistanceToPlayer, if so, teleport Alberto near the player.
-	/// </summary>
-	/// <returns>True - if albertos is further from the player then MaxDistanceToPlayer <br/>
-	/// False - otherwise</returns>
-	bool TeleportAlbertosToPlayer(FVector& PlayerLoc);
 
 	int32 CurrentUniqueID = 0;
 };

@@ -43,9 +43,17 @@ private:
 		float HideMessageAfterTime = 15.f;
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
 		TSubclassOf<class UMessageToReadWidget> MessageWidgetClass;
+	UPROPERTY(EditAnywhere, Category = "Message Settings")
+		bool bUnlockGameplayMechanicsInHud = false;
+	UPROPERTY(EditAnywhere, Category = "Message Settings", meta = (EditCondition = "bUnlockGameplayMechanicsInHud", EditConditionHides))
+		TEnumAsByte<enum EUnlockInHud> UnlockInHud;
 
 	bool bCanShowTutorialMessage = true;
 	FTimerHandle SpawnMessageWidgetHandle;
+
+	void EnableShowTutorialMessage(bool bDisable);
+
+	void UnlockGameplayMechanicsInHud(TObjectPtr<AActor> Player);
 
 	void MessageReadedSaveData();
 	int32 CurrentUniqueID = 0;

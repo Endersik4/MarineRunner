@@ -54,8 +54,11 @@ void UJumpComponent::Jump()
 	if (CanJump())
 	{
 		Player->GetWallrunComponent()->SetCanJumpAfterWallrun(false);
+		Player->GetCroachAndSlideComponent()->CrouchReleasedByObject();
+
 		bIsJumping = true;
 		JumpTimeElapsed = 0;
+
 		if (JumpSound) UGameplayStatics::SpawnSound2D(GetWorld(), JumpSound);
 	}
 	else
@@ -199,8 +202,8 @@ void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
 			if (Player->GetCroachAndSlideComponent()->GetIsSliding() == false)
 			{
 				Player->SetShouldPlayerGoForward(true);
-				Player->GetCroachAndSlideComponent()->BeginSlide();
 				Player->GetCroachAndSlideComponent()->CrouchPressed();
+				Player->GetCroachAndSlideComponent()->BeginSlide();
 			}
 		}
 

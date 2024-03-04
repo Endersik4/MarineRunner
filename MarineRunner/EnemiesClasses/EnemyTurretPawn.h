@@ -71,22 +71,22 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		USkeletalMeshComponent* TurretSkeletalMesh;
+		TObjectPtr<USkeletalMeshComponent> TurretSkeletalMesh;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		class UEnemyGunComponent* TurretGunComponent;
+		TObjectPtr<class UEnemyGunComponent> TurretGunComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Turret Settings")
 		TArray<FRotateTurretBone> RotateTurretBones;
 	UPROPERTY(EditAnywhere, Category = "Turret Settings")
 		float TimeBetweenShoots = 0.1f;
 	UPROPERTY(EditAnywhere, Category = "Turret Settings")
-		UAnimMontage* ShootAnimMontage;
+		TObjectPtr<UAnimMontage> ShootAnimMontage;
 
 	FTimerHandle StartShootingHandle;
 	void Shoot();
 
 	bool bRotateBones;
-	AActor* FocusedActor;
+	TObjectPtr<AActor> FocusedActor;
 	void LimitAngleAccordingToRange(double& Angle, const FFloatRange& Range);
 	void RotateBonesTowardDetectedActor(float Delta);
 

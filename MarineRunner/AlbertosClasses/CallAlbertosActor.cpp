@@ -40,7 +40,7 @@ void ACallAlbertosActor::CallAlbertosBoxBeginOverlap(UPrimitiveComponent* Overla
 	if (bWasCalled == true)
 		return;
 
-	AMarineCharacter* Player = Cast<AMarineCharacter>(OtherActor);
+	TObjectPtr<AMarineCharacter> Player = Cast<AMarineCharacter>(OtherActor);
 	if (IsValid(Player) == false)
 		return;
 	if (IsValid(Player->GetAlbertosPawn()) == false)

@@ -26,10 +26,10 @@ void UBTTask_GetRandomLocation::SetOwner(AActor* ActorOwner)
 
 void UBTTask_GetRandomLocation::PickRandomLocation(UBehaviorTreeComponent& OwnerComp)
 {
-	if (IsValid(OwnerComp.GetBlackboardComponent()) == false)
+	if (!IsValid(OwnerComp.GetBlackboardComponent()))
 		return;
 
-	if (bClearValue == true)
+	if (bClearValue)
 	{
 		if (OwnerComp.GetBlackboardComponent()->GetValueAsInt(TEXT("CurrentLocations")) <= 0)
 		{
@@ -44,12 +44,12 @@ void UBTTask_GetRandomLocation::PickRandomLocation(UBehaviorTreeComponent& Owner
 
 FVector UBTTask_GetRandomLocation::GetRandomLocation()
 {
-	if (IsValid(OwningActor) == false)
+	if (!IsValid(OwningActor))
 		return FVector(0.f);
 
 	FNavLocation RandomNavLocation;
-	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
-	if (IsValid(NavSystem) == false)
+	TObjectPtr<UNavigationSystemV1> NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	if (!IsValid(NavSystem))
 		return FVector(0.f);
 
 	NavSystem->GetRandomReachablePointInRadius(OwningActor->GetActorLocation(), RandomLocationRadius, RandomNavLocation);

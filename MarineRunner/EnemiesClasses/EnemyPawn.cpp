@@ -49,7 +49,7 @@ void AEnemyPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bIsDead == true)
+	if (bIsDead)
 		return;
 
 	PlayFootstepsSound();
@@ -77,12 +77,12 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitR
 	KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadiusToApplyDamage);
 }
 
-bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadiusToApplyDamage)
+bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObjectPtr<AActor> BulletActor, float NewSphereRadiusToApplyDamage)
 {
 	if (Health > 0.f) 
 		return false;
 
-	if (bIsDead == false)
+	if (!bIsDead)
 	{
 		bIsDead = true;
 
@@ -95,7 +95,7 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AAct
 		EnemyIndicatorWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
-	if (IsValid(BulletActor) == false)
+	if (!IsValid(BulletActor))
 		return true;
 
 	// If the radius of the sphere is 0, the bullet did not use the radial sphere to deal damage.
@@ -116,12 +116,12 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AAct
 #pragma region ///////////// EFFECTS ////////////////////
 void AEnemyPawn::SpawnGunshotWoundDecal(const FHitResult& Hit)
 {
-	if (IsValid(GunshotWoundDecalMaterial) == false) 
+	if (!IsValid(GunshotWoundDecalMaterial)) 
 		return;
 
 	FVector GunshotWoundSize = FVector(FMath::FRandRange(GunshotWoundRandomSizeRange.GetLowerBoundValue(), GunshotWoundRandomSizeRange.GetUpperBoundValue()));
 	FRotator GunshotWoundRotation = Hit.ImpactNormal.Rotation();
-	UDecalComponent* SpawnedDecal = UGameplayStatics::SpawnDecalAttached(GunshotWoundDecalMaterial, GunshotWoundSize, EnemySkeletalMesh, Hit.BoneName, Hit.Location, GunshotWoundRotation, EAttachLocation::KeepWorldPosition, GunshotWoundDecalLifeSpan);
+	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAttached(GunshotWoundDecalMaterial, GunshotWoundSize, EnemySkeletalMesh, Hit.BoneName, Hit.Location, GunshotWoundRotation, EAttachLocation::KeepWorldPosition, GunshotWoundDecalLifeSpan);
 	if (IsValid(SpawnedDecal))
 	{
 		SpawnedDecal->SetFadeScreenSize(0.f);
@@ -131,7 +131,7 @@ void AEnemyPawn::SpawnGunshotWoundDecal(const FHitResult& Hit)
 
 void AEnemyPawn::PlayFootstepsSound()
 {
-	if (bCanPlayFootstepsSound == false || bIsDead == true) 
+	if (!bCanPlayFootstepsSound || bIsDead) 
 		return;
 
 	if (GetVelocity().Length() >= VelocityRangeToActivateFootsteps.GetLowerBoundValue() 
@@ -154,10 +154,10 @@ void AEnemyPawn::PlayFootstepsSound()
 
 void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType* PtrHitBoneType)
 {
-	if (IsValid(EnemyBloodParticle) == true)
+	if (IsValid(EnemyBloodParticle))
 	{
 		FRotator EnemyBloodParticleRotation = Hit.ImpactNormal.Rotation() - EnemyBloodParticleRotationOffset;
-		UParticleSystemComponent* SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, EnemyBloodParticleRotation);
+		TObjectPtr<UParticleSystemComponent> SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, EnemyBloodParticleRotation);
 		SpawnedParticle->SetColorParameter(BloodColorParameterName, BloodColor);
 	}
 
@@ -174,21 +174,21 @@ void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType
 		UGameplayStatics::PlaySound2D(GetWorld(), DefaultBoneHitSound);
 }
 
-void AEnemyPawn::SpawnBloodOnObjectDecal(const AActor* BulletThatHitEnemy, const FVector& HitLocation)
+void AEnemyPawn::SpawnBloodOnObjectDecal(TObjectPtr<const AActor> BulletThatHitEnemy, const FVector& HitLocation)
 {
-	if (IsValid(BloodOnObjectDecalMaterial) == false|| IsValid(BulletThatHitEnemy) == false)
+	if (!IsValid(BloodOnObjectDecalMaterial) || !IsValid(BulletThatHitEnemy))
 		return;
 
 	FHitResult ObjectToSpawnBloodOnHitResult;
 	bool bObjectHit = GetWorld()->LineTraceSingleByChannel(ObjectToSpawnBloodOnHitResult, HitLocation, HitLocation + BulletThatHitEnemy->GetActorForwardVector() * MaxDistanceToObjectForBlood, ECC_GameTraceChannel5);
 
-	if (bObjectHit == false)
+	if (!bObjectHit)
 		return;
 
 	FVector DecalSizeAccordingToDistance = FVector(FMath::Clamp(ObjectToSpawnBloodOnHitResult.Distance * BloodDistanceSizeMutliplier, ClampBloodOnObjectSize.GetLowerBoundValue(), ClampBloodOnObjectSize.GetUpperBoundValue()));
-	UDecalComponent* SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BloodOnObjectDecalMaterial, DecalSizeAccordingToDistance, ObjectToSpawnBloodOnHitResult.Location, (ObjectToSpawnBloodOnHitResult.Normal * -1.f).Rotation());
+	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BloodOnObjectDecalMaterial, DecalSizeAccordingToDistance, ObjectToSpawnBloodOnHitResult.Location, (ObjectToSpawnBloodOnHitResult.Normal * -1.f).Rotation());
 
-	if (IsValid(SpawnedDecal) == false)
+	if (!IsValid(SpawnedDecal))
 		return;
 
 	SpawnedDecal->SetFadeScreenSize(0.f);
@@ -203,9 +203,9 @@ void AEnemyPawn::RemoveEnemySavedDataFromSave()
 	if (CurrentUniqueID == 0)
 		return;
 
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
-	if (IsValid(SavedDataObject) == false)
+	if (!IsValid(SavedDataObject))
 		return;
 
 	SavedDataObject->RemoveCustomSaveData(CurrentUniqueID);
@@ -213,9 +213,9 @@ void AEnemyPawn::RemoveEnemySavedDataFromSave()
 
 void AEnemyPawn::SaveEnemySpawnedDataAtRuntime()
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
-	if (IsValid(SavedDataObject) == false)
+	if (!IsValid(SavedDataObject))
 		return;
 
 	FCustomDataSaved ItemSpawnedData = FCustomDataSaved(ESavedDataState::ESDS_SpawnObject, GetClass(), FTransform(GetActorRotation(), GetActorLocation()), Health);
@@ -238,6 +238,9 @@ void AEnemyPawn::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustom
 
 void AEnemyPawn::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
+	if (!IsValid(SavedDataObject))
+		return;
+
 	SavedDataObject->RemoveCustomSaveData(IDkey);
 	FCustomDataSaved UpdatedData = SavedCustomData;
 	UpdatedData.ObjectTransform = FTransform(GetActorRotation(), GetActorLocation());

@@ -23,29 +23,29 @@ protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* ItemButton;
+		TObjectPtr<class UButton> ItemButton;
 	UFUNCTION()
 		void ItemButtonHovered();
 	UFUNCTION()
 		void ItemButtonUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* ItemHoveredAnim;
+		TObjectPtr<UWidgetAnimation> ItemHoveredAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* DisabledItemHoveredAnim;
+		TObjectPtr<UWidgetAnimation> DisabledItemHoveredAnim;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* ItemImage;
+		TObjectPtr<class UImage> ItemImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* ItemAmountTextBlock;
+		TObjectPtr<class UTextBlock> ItemAmountTextBlock;
 
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* DisableItemAnim;
+		TObjectPtr<UWidgetAnimation> DisableItemAnim;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Storage List Entry")
 		FString TextWhenItemAmountIsMoreThen999 = "+999";
 
 	bool bNotEnoughResources = false;
-	void ItemDataToUI(class UItemDataObject* ItemDataObject);
+	void ItemDataToUI(TObjectPtr<class UItemDataObject> ItemDataObject);
 };

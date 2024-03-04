@@ -45,5 +45,6 @@ private:
 	void ToggleVisibilityForDissolveBoxes();
 	void CraftingWidgetAnimation(float Delta);
 
-	class AAlbertosPawn* AlbertosOwner;
+	UPROPERTY(Transient)
+		TObjectPtr<class AAlbertosPawn> AlbertosOwner;
 };

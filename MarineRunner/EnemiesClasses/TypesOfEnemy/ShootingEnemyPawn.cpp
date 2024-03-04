@@ -21,12 +21,12 @@ void AShootingEnemyPawn::BeginPlay()
 
 void AShootingEnemyPawn::Tick(float DeltaTime)
 {
-	if (bIsDead == true)
+	if (bIsDead)
 		return;
 
 	Super::Tick(DeltaTime);
 
-	if (bEnemyDetectedTarget == true)
+	if (bEnemyDetectedTarget)
 		FocusBonesOnPlayerWhenPlayerDetected();
 
 	ChangeParameterInAlertMaterial(DeltaTime);
@@ -39,11 +39,11 @@ void AShootingEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, con
 	KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadius);
 }
 
-bool AShootingEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
+bool AShootingEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObjectPtr<AActor> BulletActor, float NewSphereRadius)
 {
 	bool bKilled = Super::KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadius);
 
-	if (bKilled == true)
+	if (bKilled)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
 		bStartAlert = false;
@@ -58,7 +58,7 @@ bool AShootingEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewH
 
 bool AShootingEnemyPawn::EnemyRunAway()
 {
-	if (Health > MaxEnemyHealthForRunAway || bCanEnemyRunAway == false)
+	if (Health > MaxEnemyHealthForRunAway || !bCanEnemyRunAway)
 		return false;
 
 	float RandomPercent = FMath::FRandRange(0.f, 100.f);
@@ -75,7 +75,7 @@ void AShootingEnemyPawn::ShouldRunAway()
 {
 	SetEnemyKilledInAIController();
 
-	if (bEnemyDetectedTarget == true)
+	if (bEnemyDetectedTarget)
 		PlayPrepareToShootAnimation(false);
 
 	SawTheTarget(false);
@@ -87,7 +87,7 @@ void AShootingEnemyPawn::ShouldRunAway()
 	SetShouldRunningAwayInAnimBP();
 }
 #pragma region ////////////// ENEMY SEE PLAYER //////////////
-void AShootingEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget, bool bStartAttackingTheTarget)
+void AShootingEnemyPawn::SawTheTarget(bool bSaw, TObjectPtr<AActor> SeenTarget, bool bStartAttackingTheTarget)
 {
 	if (bSaw == bEnemyDetectedTarget)
 		return;
@@ -97,13 +97,13 @@ void AShootingEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget, bool bStart
 	PlayPrepareToShootAnimation(bSaw);
 	EnemyIndicatorWidgetComponent->SetVisibility(bSaw);
 
-	if (bStartAttackingTheTarget == false)
+	if (!bStartAttackingTheTarget)
 		return;
 
 	bEnemyDetectedTarget = bSaw;
 
 	const float& StartShootingTime = TimeToStartShooting + FMath::FRandRange(StartShootingRandomTimeRange.GetLowerBoundValue(), StartShootingRandomTimeRange.GetUpperBoundValue());
-	if (bSaw == true)
+	if (bSaw)
 		GetWorld()->GetTimerManager().SetTimer(StartShootingHandle, this, &AShootingEnemyPawn::StartShooting, StartShootingTime, false);
 	else
 	{
@@ -114,7 +114,7 @@ void AShootingEnemyPawn::SawTheTarget(bool bSaw, AActor* SeenTarget, bool bStart
 
 void AShootingEnemyPawn::PlayPrepareToShootAnimation(bool bTargetWasDetected)
 {
-	if (IsValid(EnableShootAnimMontage) == false || IsValid(DisableShootAnimMontage) == false)
+	if (!IsValid(EnableShootAnimMontage)|| !IsValid(DisableShootAnimMontage))
 		return;
 
 	if (bTargetWasDetected)
@@ -125,7 +125,7 @@ void AShootingEnemyPawn::PlayPrepareToShootAnimation(bool bTargetWasDetected)
 
 void AShootingEnemyPawn::StartShooting()
 {
-	if (bIsDead == true)
+	if (bIsDead)
 		return;
 
 	bStartAlert = true;
@@ -134,7 +134,7 @@ void AShootingEnemyPawn::StartShooting()
 
 void AShootingEnemyPawn::Shoot()
 {
-	if (EnemyGunComponent->CanShootAgain() == false)
+	if (!EnemyGunComponent->CanShootAgain())
 		return;
 
 	ResetAlertMaterial();
@@ -160,7 +160,7 @@ FRotator AShootingEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraigh
 #pragma region //////// ALERT ABOUT SHOOT /////////
 void AShootingEnemyPawn::SetUpShootAlert()
 {
-	if (bAlertAboutShoot == false)
+	if (!bAlertAboutShoot)
 		return;
 
 	CurrentAlertMaterial = UMaterialInstanceDynamic::Create(EnemySkeletalMesh->GetMaterial(AlertMaterialIndexToChange), this);
@@ -169,10 +169,10 @@ void AShootingEnemyPawn::SetUpShootAlert()
 
 void AShootingEnemyPawn::ChangeParameterInAlertMaterial(float Delta)
 {
-	if (EnemyGunComponent->CanShootAgain() == false)
+	if (!EnemyGunComponent->CanShootAgain())
 		return;
 
-	if (bAlertAboutShoot == false || bStartAlert == false || IsValid(CurrentAlertMaterial) == false)
+	if (!bAlertAboutShoot|| !bStartAlert || !IsValid(CurrentAlertMaterial))
 		return;
 
 	AlertTimeElapsed += Delta;
@@ -186,7 +186,7 @@ void AShootingEnemyPawn::ChangeParameterInAlertMaterial(float Delta)
 
 void AShootingEnemyPawn::ResetAlertMaterial()
 {
-	if (bAlertAboutShoot == false)
+	if (!bAlertAboutShoot)
 		return;
 
 	if (CurrentAlertMaterial)
@@ -198,7 +198,7 @@ void AShootingEnemyPawn::ResetAlertMaterial()
 
 void AShootingEnemyPawn::SetEnemyKilledInAIController()
 {
-	AEnemyAiController* EnemyAIController = Cast<AEnemyAiController>(GetController());
+	TObjectPtr<AEnemyAiController> EnemyAIController = Cast<AEnemyAiController>(GetController());
 	if (IsValid(EnemyAIController) == false)
 		return;
 

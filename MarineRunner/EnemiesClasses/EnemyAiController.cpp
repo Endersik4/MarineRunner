@@ -1,6 +1,5 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-
 #include "EnemyAiController.h"
 #include "Kismet/GameplayStatics.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -39,9 +38,12 @@ void AEnemyAiController::HandleTargetPerceptionUpdated(AActor* TargetActor, FAIS
 		HearingHandle(TargetActor, Stimulus);
 }
 
-void AEnemyAiController::SightHandle(AActor* SensedActor, const FAIStimulus& SightStimulus)
+void AEnemyAiController::SightHandle(TObjectPtr<AActor> SensedActor, const FAIStimulus& SightStimulus)
 {
-	if (bCanSeeTheTarget(SensedActor) == false)
+	if (!CanSeeTheTarget(SensedActor))
+		return;
+
+	if (SightStimulus.WasSuccessfullySensed() && GetWorld()->GetTimerManager().IsTimerActive(DetectPlayerDelayHandle))
 		return;
 
 	FTimerDelegate DetectPlayerWithDelayDelegate;
@@ -49,16 +51,16 @@ void AEnemyAiController::SightHandle(AActor* SensedActor, const FAIStimulus& Sig
 	GetWorld()->GetTimerManager().SetTimer(DetectPlayerDelayHandle, DetectPlayerWithDelayDelegate, SightStimulus.WasSuccessfullySensed() ? DetectPlayerTime : LoseSightOfPlayerTime, false);
 }
 
-void AEnemyAiController::HearingHandle(AActor* SensedActor, const FAIStimulus& HearingStimulus)
+void AEnemyAiController::HearingHandle(TObjectPtr<AActor> SensedActor, const FAIStimulus& HearingStimulus)
 {
-	if (IsValid(SensedActor) == false || HearingStimulus.WasSuccessfullySensed() == false || bDoEnemySeePlayer == true)
+	if (!IsValid(SensedActor) || !HearingStimulus.WasSuccessfullySensed() || bDoEnemySeePlayer)
 		return;
 
 	FRotator RotatePawnTowardsSound = GetPawn()->GetActorRotation();
 	RotatePawnTowardsSound.Yaw = (UKismetMathLibrary::FindLookAtRotation(GetPawn()->GetActorLocation(), SensedActor->GetActorLocation())).Yaw;
 	GetPawn()->SetActorRotation(RotatePawnTowardsSound);
 	
-	if (bDoEnemySeePlayer == false)
+	if (!bDoEnemySeePlayer)
 		StopMovement();
 
 	DetectPlayerWithDelay(true, SensedActor, false);
@@ -68,7 +70,7 @@ void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected, AActor* Detecte
 {
 	bDoEnemySeePlayer = bIsDetected;
 
-	if (bDoEnemySeePlayer == true)
+	if (bDoEnemySeePlayer)
 	{
 		SetFocus(DetectedActor);
 		GetBlackboardComponent()->SetValueAsObject(TEXT("FocusedActor"), DetectedActor);
@@ -84,17 +86,17 @@ void AEnemyAiController::DetectPlayerWithDelay(bool bIsDetected, AActor* Detecte
 
 	AddEnemyToDetected(bDoEnemySeePlayer);
 
-	AShootingEnemyPawn* EnemyPawn = Cast<AShootingEnemyPawn>(GetPawn());
-	if (IsValid(EnemyPawn) == false) 
+	TObjectPtr<class AShootingEnemyPawn > EnemyPawn = Cast<AShootingEnemyPawn>(GetPawn());
+	if (!IsValid(EnemyPawn)) 
 		return;
 	EnemyPawn->SawTheTarget(bDoEnemySeePlayer, DetectedActor, bStartAttackingTheTarget);
 }
 
-bool AEnemyAiController::bCanSeeTheTarget(AActor* TargetActor)
+bool AEnemyAiController::CanSeeTheTarget(TObjectPtr<AActor> TargetActor)
 {
-	if (IsValid(TargetActor) == false || IsValid(GetBlackboardComponent()) == false) 
+	if (!IsValid(TargetActor) || !IsValid(GetBlackboardComponent())) 
 		return false;
-	if (TargetActor->ActorHasTag("Player") == false || GetBlackboardComponent()->GetValueAsBool(TEXT("isRunningAway"))) 
+	if (!TargetActor->ActorHasTag("Player")|| GetBlackboardComponent()->GetValueAsBool(TEXT("isRunningAway"))) 
 		return false;
 
 	return true;
@@ -103,11 +105,11 @@ bool AEnemyAiController::bCanSeeTheTarget(AActor* TargetActor)
 
 void AEnemyAiController::AddEnemyToDetected(bool bWas)
 {
-	UMarineRunnerGameInstance* MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (IsValid(MarineRunnerGameInstance) == false)
+	TObjectPtr<UMarineRunnerGameInstance> MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!IsValid(MarineRunnerGameInstance))
 		return;
 
-	if (bWas == true && bDead == false)
+	if (bWas && !bDead)
 	{
 		MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn());
 	}
@@ -119,15 +121,15 @@ void AEnemyAiController::AddEnemyToDetected(bool bWas)
 
 void AEnemyAiController::SetAIVariables()
 {
-	if (AIBehaviour == nullptr) 
+	if (!AIBehaviour) 
 		return;
 	RunBehaviorTree(AIBehaviour);
 
 	GetBlackboardComponent()->SetValueAsInt(TEXT("HowManyLocations"), HowManyLocations);
 	GetBlackboardComponent()->SetValueAsInt(TEXT("CurrentLocations"), HowManyLocations);
 
-	AShootingEnemyPawn* EnemyPawn = Cast<AShootingEnemyPawn>(GetPawn());
-	if (IsValid(EnemyPawn) == false) 
+	TObjectPtr<AShootingEnemyPawn > EnemyPawn = Cast<AShootingEnemyPawn>(GetPawn());
+	if (!IsValid(EnemyPawn)) 
 		return;
 
 	GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), EnemyPawn->GetActorLocation());
@@ -144,7 +146,7 @@ void AEnemyAiController::EnemyKilled(bool bRunAwayInsteadOfKill)
 	AddEnemyToDetected(false);
 	GetWorld()->GetTimerManager().ClearTimer(DetectPlayerDelayHandle);
 
-	if (bRunAwayInsteadOfKill == true)
+	if (bRunAwayInsteadOfKill)
 	{
 		GetBlackboardComponent()->SetValueAsBool(TEXT("isRunningAway"), true);
 		return;

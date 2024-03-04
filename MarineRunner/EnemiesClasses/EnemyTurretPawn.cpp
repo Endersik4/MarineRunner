@@ -52,12 +52,12 @@ void AEnemyTurretPawn::Shoot()
 void AEnemyTurretPawn::PlayerWasSeen(bool bWas, AActor* ActorSeen)
 {
 	// first time turret saw it
-	if (bRotateBones == false && bWas == true)
+	if (!bRotateBones && bWas)
 	{
 		GetWorld()->GetTimerManager().SetTimer(StartShootingHandle, this, &AEnemyTurretPawn::Shoot, TimeBetweenShoots, true);
 	}
 
-	if (bWas == false)
+	if (!bWas)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(StartShootingHandle);
 	}
@@ -68,7 +68,7 @@ void AEnemyTurretPawn::PlayerWasSeen(bool bWas, AActor* ActorSeen)
 
 void AEnemyTurretPawn::RotateBonesTowardDetectedActor(float Delta)
 {
-	if (bRotateBones == false || IsValid(FocusedActor) == false)
+	if (!bRotateBones || !IsValid(FocusedActor))
 		return;
 
 	for (const FRotateTurretBone& RotateBone : RotateTurretBones)
@@ -80,7 +80,7 @@ void AEnemyTurretPawn::RotateBonesTowardDetectedActor(float Delta)
 		FoundRot.Yaw *= RotateBone.RotateInAxis.Yaw;
 		FoundRot.Roll *= RotateBone.RotateInAxis.Roll;
 
-		if (RotateBone.bLimitedRotation == true)
+		if (RotateBone.bLimitedRotation)
 		{
 			LimitAngleAccordingToRange(FoundRot.Pitch, RotateBone.RotateAngleRange);
 			LimitAngleAccordingToRange(FoundRot.Yaw, RotateBone.RotateAngleRange);

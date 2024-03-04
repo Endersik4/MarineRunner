@@ -22,7 +22,7 @@ void UEnemyGunComponent::BeginPlay()
 
 void UEnemyGunComponent::Shoot()
 {
-	if (CanShoot() == false)
+	if (!CanShoot())
 		return;
 
 	ShootEffects();
@@ -41,10 +41,10 @@ void UEnemyGunComponent::Shoot()
 
 bool UEnemyGunComponent::CanShoot()
 {
-	if (IsValid(BulletData.BulletClass) == false)
+	if (!IsValid(BulletData.BulletClass))
 		return false;
 
-	if (bCanShoot == false)
+	if (!bCanShoot)
 		return false;
 
 	return true;
@@ -52,7 +52,7 @@ bool UEnemyGunComponent::CanShoot()
 
 void UEnemyGunComponent::ShootEffects()
 {
-	if (IsValid(ShootingSound) == true) 
+	if (IsValid(ShootingSound)) 
 		UGameplayStatics::SpawnSoundAttached(ShootingSound, OwningEnemyInterface->GetSkeletalMesh(), MuzzleFleshSocketNames[CurrentSocketNameIndex]);
 	if (ShootParticle)
 	{
@@ -76,7 +76,7 @@ void UEnemyGunComponent::SpawnBullet()
 	FBulletStruct BulletDataForSpawnedBullet = BulletData;
 	BulletDataForSpawnedBullet.Damage = (bManyBulletAtOnce == false ? BulletData.Damage : BulletData.Damage / HowManyBulletsToSpawn);
 	BulletDataForSpawnedBullet.HitImpulseForce = (bManyBulletAtOnce == false ? BulletData.HitImpulseForce : BulletData.HitImpulseForce / HowManyBulletsToSpawn);
-	if (BulletData.bUsePhysicsForMovement == true)
+	if (BulletData.bUsePhysicsForMovement)
 	{
 		const FVector& Gravity = FVector(0.f, 0.f, -980.f);
 		float CalculatedImpulse_X = FMath::Abs((OwningEnemyInterface->GetFocusedActor()->GetActorLocation() - BulletTransform.GetLocation() - (Gravity / 2)).X);
@@ -96,12 +96,12 @@ void UEnemyGunComponent::SpawnBullet()
 
 FVector UEnemyGunComponent::PredictWhereToShoot(bool bIgnoreOffset)
 {
-	AActor* CurrentFocusedActor = OwningEnemyInterface->GetFocusedActor();
-	if (IsValid(CurrentFocusedActor) == false)
+	TObjectPtr<AActor> CurrentFocusedActor = OwningEnemyInterface->GetFocusedActor();
+	if (!IsValid(CurrentFocusedActor))
 		return FVector(0.f);
 	FVector FocusedActorLocation = CurrentFocusedActor->GetActorLocation();
 
-	if (bIgnoreOffset == true)
+	if (bIgnoreOffset)
 		return FocusedActorLocation;
 
 	FocusedActorLocation += CurrentFocusedActor->GetActorUpVector() * PredictWhereToShootOffset_UP;
@@ -113,7 +113,7 @@ FVector UEnemyGunComponent::PredictWhereToShoot(bool bIgnoreOffset)
 FRotator UEnemyGunComponent::CalculateBulletRotation()
 {
 	FRotator BulletRotation;
-	if (bFindBulletRotationTowardsTarget == true)
+	if (bFindBulletRotationTowardsTarget)
 	{
 		BulletRotation = UKismetMathLibrary::FindLookAtRotation(OwningEnemyInterface->GetSkeletalMesh()->GetSocketLocation(BulletSocketsNames[CurrentSocketNameIndex]), PredictWhereToShoot());
 	}
@@ -137,7 +137,7 @@ void UEnemyGunComponent::AddImpulseDuringShooting()
 
 void UEnemyGunComponent::Reload()
 {
-	if (bIsReloading == true)
+	if (bIsReloading)
 		return;
 
 	bIsReloading = true;

@@ -77,7 +77,7 @@ void UCraftingAlbertosWidget::NativeOnInitialized()
 }
 
 #pragma region /////////////////////// ADD DATA TO INVENTORY ///////////////////
-void UCraftingAlbertosWidget::SetRecipesData(AMarineCharacter* Player)
+void UCraftingAlbertosWidget::SetRecipesData(TObjectPtr<AMarineCharacter> Player)
 {
 	if (IsValid(Player) == false)
 		return;
@@ -94,10 +94,13 @@ void UCraftingAlbertosWidget::AddItemToInventoryTileView(const TArray<FItemStruc
 
 	for (const FItemStruct & Items : InventoryItems)
 	{
-		UItemDataObject* ConstructedItemObject = NewObject<UItemDataObject>(ItemDataObject);
+		TObjectPtr<UItemDataObject> ConstructedItemObject = NewObject<UItemDataObject>(ItemDataObject);
+		if (!IsValid(ConstructedItemObject))
+			continue;
+
 		ConstructedItemObject->ItemData = Items;
 
-		if (Items.bIsItResource == true) ResourcesInventoryTileView->AddItem(ConstructedItemObject);
+		if (Items.bIsItResource) ResourcesInventoryTileView->AddItem(ConstructedItemObject);
 		else StorageInventoryTileView->AddItem(ConstructedItemObject);
 	}
 }
@@ -106,7 +109,7 @@ void UCraftingAlbertosWidget::AddItemToInventoryTileView(const TArray<FItemStruc
 #pragma region ///////////////// item options /////////////////////
 void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshInventory)
 {
-	if (bCanUseCraftPanel == false || IsValid(MarinePawn) == false)
+	if (!bCanUseCraftPanel|| !IsValid(MarinePawn))
 		return;
 
 	RequirementsInventoryTileView->ClearListItems();
@@ -126,7 +129,7 @@ void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshInventory)
 
 void UCraftingAlbertosWidget::SetItemDataToUI(bool bRefreshInventory)
 {
-	if (bRefreshInventory == true) 
+	if (bRefreshInventory) 
 		return;
 
 	if (CurrentChoiceOfArrow == ECA_None)
@@ -163,13 +166,16 @@ void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshIn
 
 		bool HaveEnough = DoesHaveEnoughResources(NameOfResource, bRefreshInventory);
 
-		UItemDataObject* ConstructedItemObject = NewObject<UItemDataObject>(ItemDataObject);
+		TObjectPtr<UItemDataObject> ConstructedItemObject = NewObject<UItemDataObject>(ItemDataObject);
+		if (!IsValid(ConstructedItemObject))
+			continue;
+
 		ConstructedItemObject->ItemData = *MarinePawn->GetInventoryComponent()->Inventory_Items.FindByKey(NameOfResource);
 		ConstructedItemObject->ItemData.Item_Amount = (*RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.Find(NameOfResource) * CraftingMultiplier);
 		ConstructedItemObject->bIsItEnoughToCraft = HaveEnough;
 		RequirementsInventoryTileView->AddItem(ConstructedItemObject);
 
-		if (bCanCraftItem == true && HaveEnough == false)
+		if (bCanCraftItem && !HaveEnough)
 		{
 			bCanCraftItem = false;
 			CraftButton->SetIsEnabled(false);
@@ -180,17 +186,17 @@ void UCraftingAlbertosWidget::AddItemResourcesToRequirementsList(bool bRefreshIn
 bool UCraftingAlbertosWidget::DoesHaveEnoughResources(FString Resource, bool bDeleteResources)
 {
 	FItemStruct* ResourceFromInventory = MarinePawn->GetInventoryComponent()->Inventory_Items.FindByKey(Resource);
-	if (ResourceFromInventory == nullptr) 
+	if (!ResourceFromInventory) 
 		return false;
 
 	int32* NumberOfResourcesNeeded = RecipesOfCraftableItems[ChoiceOfCraftableItem].ResourceRequirements.Find(Resource);
-	if (NumberOfResourcesNeeded == nullptr) 
+	if (!NumberOfResourcesNeeded) 
 		return false;
 
 	if (ResourceFromInventory->Item_Amount < *NumberOfResourcesNeeded * CraftingMultiplier)
 		return false;
 
-	if (bDeleteResources == true)
+	if (bDeleteResources)
 	{
 		ResourceFromInventory->Item_Amount -= *NumberOfResourcesNeeded * CraftingMultiplier;
 
@@ -205,15 +211,15 @@ bool UCraftingAlbertosWidget::DoesHaveEnoughResources(FString Resource, bool bDe
 
 void UCraftingAlbertosWidget::OnItemInTileViewHovered(UObject* Item, bool bIsHovered)
 {
-	if (IsValid(MarinePawn) == false) 
+	if (!IsValid(MarinePawn)) 
 		return;
-	if (IsValid(MarinePawn->GetHudWidget()) == false) 
+	if (!IsValid(MarinePawn->GetHudWidget())) 
 		return;
 
 	if (bIsHovered == true)
 	{
-		UItemDataObject* NewItem = Cast<UItemDataObject>(Item);
-		if (IsValid(NewItem) == false)
+		TObjectPtr<UItemDataObject> NewItem = Cast<UItemDataObject>(Item);
+		if (!IsValid(NewItem))
 			return;
 
 		MarinePawn->GetHudWidget()->SetItemHoverInformations(NewItem->ItemData.Item_Name, NewItem->ItemData.Item_Description, NewItem->ItemData.Item_StorageIcon);
@@ -225,10 +231,10 @@ void UCraftingAlbertosWidget::OnItemInTileViewHovered(UObject* Item, bool bIsHov
 #pragma region ///////////////// CRAFTING /////////////////////
 void UCraftingAlbertosWidget::CraftPressed()
 {
-	if (IsValid(MarinePawn) == false || IsValid(AlbertosPawn) == false)
+	if (!IsValid(MarinePawn) || !IsValid(AlbertosPawn))
 		return;
 
-	if (bCanCraftItem == false || bCanUseCraftPanel == false)
+	if (!bCanCraftItem|| !bCanUseCraftPanel)
 		return;
 
 	SwitchCurrentCraftingItem(true);
@@ -264,7 +270,7 @@ void UCraftingAlbertosWidget::CraftUnhovered()
 
 void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar()
 {
-	if (bCanUseCraftPanel == true)
+	if (bCanUseCraftPanel)
 		return;
 
 	if (CurrentItemCraftingTimeElapsed <= CurrentItemCraftTime)
@@ -389,7 +395,7 @@ void UCraftingAlbertosWidget::RightArrowUnhovered()
 
 void UCraftingAlbertosWidget::CloseWidgetButtonClicked()
 {
-	if (IsValid(AlbertosPawn) == false)
+	if (!IsValid(AlbertosPawn))
 		return;
 
 	AlbertosPawn->ToggleInventoryVisibility();
@@ -428,7 +434,8 @@ void UCraftingAlbertosWidget::SetEnableAllMultipliers(bool bEnable)
 
 void UCraftingAlbertosWidget::Multiplier_1xClicked()
 {
-	if (bCanUseCraftPanel == false) return;
+	if (!bCanUseCraftPanel) 
+		return;
 
 	MultiplierButtonChoice = AmountMultiplier_1x;
 	MultiplierButtonClicked(1);
@@ -453,7 +460,8 @@ void UCraftingAlbertosWidget::Multiplier_1xUnhovered()
 
 void UCraftingAlbertosWidget::Multiplier_2xClicked()
 {
-	if (bCanUseCraftPanel == false) return;
+	if (!bCanUseCraftPanel) 
+		return;
 
 	MultiplierButtonChoice = AmountMultiplier_2x;
 	MultiplierButtonClicked(2);
@@ -478,7 +486,8 @@ void UCraftingAlbertosWidget::Multiplier_2xUnhovered()
 
 void UCraftingAlbertosWidget::Multiplier_4xClicked()
 {
-	if (bCanUseCraftPanel == false) return;
+	if (!bCanUseCraftPanel) 
+		return;
 
 	MultiplierButtonChoice = AmountMultiplier_4x;
 	MultiplierButtonClicked(4);
@@ -503,7 +512,8 @@ void UCraftingAlbertosWidget::Multiplier_4xUnhovered()
 
 void UCraftingAlbertosWidget::Multiplier_8xClicked()
 {
-	if (bCanUseCraftPanel == false) return;
+	if (!bCanUseCraftPanel) 
+		return;
 
 	MultiplierButtonChoice = AmountMultiplier_8x;
 	MultiplierButtonClicked(8);
@@ -528,7 +538,8 @@ void UCraftingAlbertosWidget::Multiplier_8xUnhovered()
 
 void UCraftingAlbertosWidget::Multiplier_16xClicked()
 {
-	if (bCanUseCraftPanel == false) return;
+	if (!bCanUseCraftPanel) 
+		return;
 
 	MultiplierButtonChoice = AmountMultiplier_16x;
 	MultiplierButtonClicked(16);

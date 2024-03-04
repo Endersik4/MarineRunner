@@ -20,15 +20,15 @@ void AChasingEnemyAIController::BeginPlay()
 
 void AChasingEnemyAIController::CheckDistanceToPlayer()
 {
-	APunchingEnemyPawn* EnemyOwner = Cast<APunchingEnemyPawn>(GetPawn());
-	if (IsValid(EnemyOwner) == false)
+	TObjectPtr<APunchingEnemyPawn> EnemyOwner = Cast<APunchingEnemyPawn>(GetPawn());
+	if (!IsValid(EnemyOwner))
 		return;
 
-	APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	if (IsValid(Player) == false)
+	TObjectPtr<APawn> Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (!IsValid(Player))
 		return;
 
-	if (FVector::Dist(EnemyOwner->GetActorLocation(), Player->GetActorLocation()) > MaxDistanceToDetectPlayer && bPlayerDetected == false)
+	if (FVector::Dist(EnemyOwner->GetActorLocation(), Player->GetActorLocation()) > MaxDistanceToDetectPlayer && !bPlayerDetected)
 	{
 		return;
 	}

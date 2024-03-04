@@ -30,7 +30,7 @@ void UCraftItemAlbertosComponent::TickComponent(float DeltaTime, ELevelTick Tick
 }
 
 #pragma region //////////////// craft item ////////////////
-void UCraftItemAlbertosComponent::CraftPressed(class AMarineCharacter* Player, const FItemStruct* ItemToCraft, int32 ItemAmountMultiplier)
+void UCraftItemAlbertosComponent::CraftPressed(TObjectPtr<class AMarineCharacter> Player, const FItemStruct* ItemToCraft, int32 ItemAmountMultiplier)
 {
 	if (ItemToCraft == nullptr)
 		return;
@@ -56,11 +56,11 @@ void UCraftItemAlbertosComponent::CraftPressed(class AMarineCharacter* Player, c
 
 }
 
-APickupItem* UCraftItemAlbertosComponent::SpawnCraftedItem(const FItemStruct* ItemToCraft)
+TObjectPtr<APickupItem> UCraftItemAlbertosComponent::SpawnCraftedItem(const FItemStruct* ItemToCraft)
 {
 	FTransform ItemToCraftTransform = ItemToCraftOffsetTransform(ItemToCraft->InitialCraftLocationOffset, ItemToCraft->InitialCraftRotation, ItemToCraft->InitialCraftScale);
 
-	APickupItem* SpawnedItem = GetWorld()->SpawnActor<APickupItem>(ItemToCraft->ItemObject, ItemToCraftTransform);
+	TObjectPtr<APickupItem> SpawnedItem = GetWorld()->SpawnActor<APickupItem>(ItemToCraft->ItemObject, ItemToCraftTransform);
 	if (IsValid(SpawnedItem) == false)
 		return nullptr;
 

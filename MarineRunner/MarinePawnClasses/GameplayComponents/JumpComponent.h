@@ -106,6 +106,5 @@ private:
 	bool bDelayIsInAir;
 	FTimerHandle DelayIsInAirHandle;
 	void SetDelayIsInAir() { bDelayIsInAir = false; };
-		
 	class AMarineCharacter* Player;
 };

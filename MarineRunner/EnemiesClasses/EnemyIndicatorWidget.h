@@ -15,12 +15,12 @@ class MARINERUNNER_API UEnemyIndicatorWidget : public UUserWidget
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UProgressBar* CurrentHealthBar;
+		TObjectPtr<UProgressBar> CurrentHealthBar;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UProgressBar* DelayedHealthBar;
+		TObjectPtr<UProgressBar> DelayedHealthBar;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* EnemyIndicatorImage;
+		TObjectPtr<class UImage> EnemyIndicatorImage;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

@@ -15,7 +15,7 @@ void APunchingEnemyPawn::PlayerDetected(bool bDetected, APawn* DetectedPawn)
 {
 	DetectedPlayer = DetectedPawn;
 
-	if (bDetected == true)
+	if (bDetected)
 		GetWorld()->GetTimerManager().SetTimer(PlayerCloseForHitHandle, this, &APunchingEnemyPawn::IsPlayerCloseForHit, PlayerCloseRaycastInterval, true);
 	else
 		GetWorld()->GetTimerManager().ClearTimer(PlayerCloseForHitHandle);
@@ -23,7 +23,7 @@ void APunchingEnemyPawn::PlayerDetected(bool bDetected, APawn* DetectedPawn)
 
 void APunchingEnemyPawn::IsPlayerCloseForHit()
 {
-	if (IsValid(DetectedPlayer) == false || bIsPunching == true || bIsDead == true)
+	if (!IsValid(DetectedPlayer) || bIsPunching || bIsDead)
 		return;
 
 	FHitResult PlayerCloseHitResult;
@@ -31,7 +31,7 @@ void APunchingEnemyPawn::IsPlayerCloseForHit()
 	FVector HitPlayerRaycastEnd = HitPlayerRaycastStart + UKismetMathLibrary::GetForwardVector(EnemySkeletalMesh->GetSocketRotation(PlayerCloseRaycastSocketNameLocation)) * MaxPlayerCloseRaycastDistance;
 	bool bPlayerIsClose = GetWorld()->LineTraceSingleByChannel(PlayerCloseHitResult, HitPlayerRaycastStart, HitPlayerRaycastEnd, ECC_GameTraceChannel3);
 	
-	if (bPlayerIsClose == false)
+	if (!bPlayerIsClose)
 		return;
 	DamageSphereLocation = HitPlayerRaycastEnd;
 	StartPunchingPlayer();
@@ -40,7 +40,7 @@ void APunchingEnemyPawn::IsPlayerCloseForHit()
 void APunchingEnemyPawn::StartPunchingPlayer()
 {
 	bIsPunching = true;
-	if (PunchAnimMontage)
+	if (IsValid(PunchAnimMontage))
 		EnemySkeletalMesh->GetAnimInstance()->Montage_Play(PunchAnimMontage);
 
 	FTimerHandle ApplyDamageHandle;

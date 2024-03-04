@@ -172,3 +172,23 @@ void UHUDWidget::SetItemHoverInformations(const FString& ItemName, const FString
 	ItemHoverDescription->SetText(FText::FromString(ItemDescription));
 	ItemHoverImage->SetBrushFromTexture(ItemIcon);
 }
+
+void UHUDWidget::ShowGameplayMechanicsBars(bool bUnlockHeal, bool bUnlockDash, bool bUnlockSlowMo)
+{
+	if (bUnlockHeal)
+		PlayAnimationForward(ShowHealBarAnim);
+	if (bUnlockDash)
+		PlayAnimationForward(ShowDashBarAnim);
+	if (bUnlockSlowMo)
+		PlayAnimationForward(ShowSlowMotionBarAnim);
+}
+
+void UHUDWidget::ShowGameplayMechanicsBars(const EUnlockInHud& WhatToUnlock)
+{
+	if (WhatToUnlock == EUnlockInHud::EUIN_HealBar)
+		PlayAnimationForward(ShowHealBarAnim);
+	else if (WhatToUnlock == EUnlockInHud::EUIN_DashBar)
+		PlayAnimationForward(ShowDashBarAnim);
+	else if (WhatToUnlock == EUnlockInHud::EUIN_SlowMoBar)
+		PlayAnimationForward(ShowSlowMotionBarAnim);
+}

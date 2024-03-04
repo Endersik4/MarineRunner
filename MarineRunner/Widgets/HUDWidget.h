@@ -30,6 +30,13 @@ struct ElementBar
 	float ProgressTimeElapsed = 0.f;
 };
 
+UENUM(BlueprintType)
+enum EUnlockInHud
+{
+	EUIN_HealBar,
+	EUIN_DashBar,
+	EUIN_SlowMoBar,
+};
 /**
  *
  */
@@ -62,6 +69,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void NewGameStartedWidgetAnimation();
+
+	void ShowGameplayMechanicsBars(bool bUnlockHeal, bool bUnlockDash, bool bUnlockSlowMo);
+	void ShowGameplayMechanicsBars(const EUnlockInHud& WhatToUnlock);
 
 #pragma region ///////////// USE FIRST AID KIT UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -151,6 +161,13 @@ public:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		UWidgetAnimation* ItemHoverAppearAnim = nullptr;
 #pragma endregion
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* ShowHealBarAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* ShowDashBarAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		UWidgetAnimation* ShowSlowMotionBarAnim = nullptr;
 
 	// On Item Hover
 	void PlayAppearAnimForItemHover(bool bForwardAnim = true);

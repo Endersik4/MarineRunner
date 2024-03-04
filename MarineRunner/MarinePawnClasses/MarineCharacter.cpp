@@ -31,6 +31,7 @@
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
+#include "MarineRunner/AlbertosClasses/Components/AlbertosToPlayerComponent.h"
 #include "MarineRunner/AlbertosClasses/CraftingAlbertosWidget.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/ArmsSwayComponent.h"
 
@@ -390,6 +391,7 @@ void AMarineCharacter::MakeHudWidget()
 	HudWidget->AddToViewport();
 
 	SaveLoadPlayerComponent->SpawnNewGameWidget();
+	SaveLoadPlayerComponent->LoadHudVariables();
 }
 
 void AMarineCharacter::MakeCrosshire(bool bShouldRemoveFromParent)
@@ -457,7 +459,7 @@ void AMarineCharacter::CallAlbertosPressed()
 	if (IsValid(AlbertoPawn) == false)
 		return;
 
-	AlbertoPawn->CallAlbertosToThePlayer(GetActorLocation());
+	AlbertoPawn->GetAlbertosToPlayerComponent()->CallAlbertosToThePlayer(GetActorLocation());
 }
 
 #pragma endregion 

@@ -22,6 +22,12 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		float CurrentHealthSaved;
+	UPROPERTY(EditAnywhere)
+		bool bShowHealBar;
+	UPROPERTY(EditAnywhere)
+		bool bShowDashBar;
+	UPROPERTY(EditAnywhere)
+		bool bShowSlowMotionBar;
 
 	UPROPERTY(EditAnywhere)
 		FVector SavedPlayerLocation;
@@ -46,26 +52,25 @@ public:
 		TMap<int32, FCustomDataSaved> SavedCustomData;
 
 	UPROPERTY(EditAnywhere)
-		USoundBase* SavedExplorationMusic;
-
+		TObjectPtr<USoundBase> SavedExplorationMusic;
 
 	void PrepareSaveGame(const FString& NewSaveName = "ManualSave_", bool bAddSaveNumber = true);
 	FString OriginalSaveName;
 	bool bAddSaveNumber;
 
-	void TransferSavedVariablesToGameInstance(UWorld* CurrentWorld, const FString& _WildCard);
+	void TransferSavedVariablesToGameInstance(TObjectPtr<UWorld> CurrentWorld, const FString& _WildCard);
 
-	void MakeJsonFileWithSaveInfo(APlayerController* PlayerController, const FString & CurrentLevelName);
+	void MakeJsonFileWithSaveInfo(TObjectPtr<APlayerController> PlayerController, const FString & CurrentLevelName);
 
-	void LoadGame(class AMarineCharacter* MarinePawn, class UMarineRunnerGameInstance* GameInstance);
-	void LoadOtherObjectsData(class ASavedDataObject* OtherObjectsData);
+	void LoadGame(TObjectPtr<class AMarineCharacter> MarinePawn, TObjectPtr<class UMarineRunnerGameInstance> GameInstance);
+	void LoadOtherObjectsData(TObjectPtr<class ASavedDataObject> OtherObjectsData);
 
 	FString GetSaveGameName();
 
 private:
 
 	// return Screnshot path
-	FString TakeSaveScreenshot(APlayerController* PlayerController);
+	FString TakeSaveScreenshot(TObjectPtr<APlayerController> PlayerController);
 	FString ConvertCurrentDateToText();
 
 };

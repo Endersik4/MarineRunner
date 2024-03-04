@@ -26,7 +26,7 @@ public:
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UBoxComponent* CallAlbertosBoxComp;
+		TObjectPtr<class UBoxComponent> CallAlbertosBoxComp;
 
 	UPROPERTY(EditAnywhere, Category = "Call Albertos Settings")
 		FVector TeleportAlbertosLocation;

@@ -28,8 +28,9 @@ private:
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UBehaviorTree* AIBehaviour;
+		TObjectPtr<class UBehaviorTree> AIBehaviour;
 	
 	bool bIsMovingTowardsPlayer;
-	class AAlbertosPawn* AlbertosOwner;
+	UPROPERTY(Transient)
+		TObjectPtr<class AAlbertosPawn> AlbertosOwner;
 };

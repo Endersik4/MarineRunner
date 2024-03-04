@@ -33,10 +33,10 @@ private:
 		void DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor, bool bStartAttackingTheTarget = true);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UAIPerceptionComponent* EnemyPerception;
+		TObjectPtr<class UAIPerceptionComponent> EnemyPerception;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		class UBehaviorTree* AIBehaviour;
+		TObjectPtr<class UBehaviorTree> AIBehaviour;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		TSubclassOf<class UAISense> SightSenseClass;
@@ -51,14 +51,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		float LoseSightOfPlayerTime = 5.f;
 
+	
+
 	void SetAIVariables();
 	bool bDead;
 
 	bool bDoEnemySeePlayer;
-	bool bCanSeeTheTarget(AActor* TargetActor);
+	bool CanSeeTheTarget(TObjectPtr<AActor> TargetActor);
 
 	FTimerHandle DetectPlayerDelayHandle;
-	void SightHandle(AActor* SensedActor, const struct FAIStimulus& SightStimulus);
-	void HearingHandle(AActor* SensedActor, const struct FAIStimulus& HearingStimulus);
+	void SightHandle(TObjectPtr<AActor> SensedActor, const struct FAIStimulus& SightStimulus);
+	void HearingHandle(TObjectPtr<AActor> SensedActor, const struct FAIStimulus& HearingStimulus);
 
 };

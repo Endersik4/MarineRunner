@@ -12,8 +12,8 @@ UBTTask_SettingCurrentLocation::UBTTask_SettingCurrentLocation()
 
 EBTNodeResult::Type UBTTask_SettingCurrentLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	UBlackboardComponent* BlackBoardComp = OwnerComp.GetBlackboardComponent();
-	if (IsValid(BlackBoardComp) == false)
+	TObjectPtr<UBlackboardComponent> BlackBoardComp = OwnerComp.GetBlackboardComponent();
+	if (!IsValid(BlackBoardComp))
 	{
 		return EBTNodeResult::Failed;
 	}

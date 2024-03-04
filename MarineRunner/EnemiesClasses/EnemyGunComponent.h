@@ -23,7 +23,6 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-
 	const bool CanShootAgain();
 	void Shoot();
 
@@ -35,10 +34,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun")
 		float DelayTimeMagazine;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		USoundBase* ShootingSound;
+		TObjectPtr<USoundBase> ShootingSound;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot Particle")
-		UParticleSystem* ShootParticle;
+		TObjectPtr<UParticleSystem> ShootParticle;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot Particle")
 		float ShootParticleScale;
 

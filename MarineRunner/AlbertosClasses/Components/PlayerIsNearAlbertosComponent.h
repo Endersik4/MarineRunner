@@ -25,7 +25,7 @@ public:
 
 	void OpenAlbertosDoor(bool bOpenDoor);
 
-	FORCEINLINE void SetPlayerPawn(APawn* NewPlayerPawn) { Player = NewPlayerPawn; }
+	FORCEINLINE void SetPlayerPawn(TObjectPtr<APawn> NewPlayerPawn) { Player = NewPlayerPawn; }
 	FORCEINLINE void SetRotateAlbertosTowardPlayer(bool bRotate) { bRotateAlbertosTowardPlayer = bRotate; }
 private:
 
@@ -41,18 +41,18 @@ private:
 		float ToleranceToRotateAlbertos = 2.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
-		UAnimMontage* AlbertosOpenAnimationMontage;
+		TObjectPtr<UAnimMontage> AlbertosOpenAnimationMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
-		UAnimMontage* AlbertosCloseAnimationMontage;
+		TObjectPtr<UAnimMontage> AlbertosCloseAnimationMontage;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
 		FName OpenDoorSoundSocketName = FName(TEXT("Wysuwak"));
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
-		USoundBase* OpenDoorSound;
+		TObjectPtr<USoundBase> OpenDoorSound;
 
 	UPROPERTY(EditAnywhere, Category = "Setting up Media Player")
-		class UMediaPlayer* AlbertosMediaPlayer;
+		TObjectPtr<class UMediaPlayer> AlbertosMediaPlayer;
 	UPROPERTY(EditAnywhere, Category = "Setting up Media Player")
-		class UMediaSource* AlbertosMediaSource;
+		TObjectPtr<class UMediaSource> AlbertosMediaSource;
 
 	bool bIsFrontDoorOpen;
 
@@ -65,7 +65,10 @@ private:
 	void PlayerIsCloseToAlbertos();
 	void RotateAlbertosTowardsPlayer(float Delta);
 
-	class AAlbertosPawn* AlbertosOwner;
-	class AAlbertosAIController* AlbertosAI;
-	APawn* Player;
+	UPROPERTY(Transient)
+		TObjectPtr<class AAlbertosPawn> AlbertosOwner;
+	UPROPERTY(Transient)
+		TObjectPtr<class AAlbertosAIController> AlbertosAI;
+	UPROPERTY(Transient)
+		TObjectPtr<APawn> Player;
 };

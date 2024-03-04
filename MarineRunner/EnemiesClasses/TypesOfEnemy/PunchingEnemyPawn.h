@@ -39,9 +39,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
 		float CanDamageAgainTime = 0.6f;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
-		UAnimMontage* PunchAnimMontage;
+		TObjectPtr<UAnimMontage> PunchAnimMontage;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
-		USoundBase* PunchSound;
+		TObjectPtr<USoundBase> PunchSound;
 
 	FTimerHandle PlayerCloseForHitHandle;
 	void IsPlayerCloseForHit();
@@ -54,5 +54,6 @@ private:
 
 	void DamageAnimFinished();
 
-	APawn* DetectedPlayer;
+	UPROPERTY(Transient)
+		TObjectPtr<APawn> DetectedPlayer;
 };

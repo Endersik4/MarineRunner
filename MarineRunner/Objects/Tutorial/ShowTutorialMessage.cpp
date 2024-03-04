@@ -9,6 +9,10 @@
 #include "MarineRunner/Objects/MessageToReadWidget.h"
 #include "MarineRunner/Objects/SavedDataObject.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
+#include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
+
 
 // Sets default values
 AShowTutorialMessage::AShowTutorialMessage()
@@ -46,6 +50,8 @@ void AShowTutorialMessage::ShowMessageBoxBeginOverlap(UPrimitiveComponent* Overl
 			return;
 	}
 	
+	UnlockGameplayMechanicsInHud(OtherActor);
+
 	UMessageToReadWidget* MessageWidget = Cast<UMessageToReadWidget>(CreateWidget(PC, MessageWidgetClass));
 	if (IsValid(MessageWidget) == false)
 		return;
@@ -54,8 +60,28 @@ void AShowTutorialMessage::ShowMessageBoxBeginOverlap(UPrimitiveComponent* Overl
 	MessageWidget->SetMessageInformation(MessageTitle, MessageText);
 	MessageWidget->HideMessageAfterTime(HideMessageAfterTime);
 
-	bCanShowTutorialMessage = false;
+	EnableShowTutorialMessage(false);
 	MessageReadedSaveData();
+}
+
+void AShowTutorialMessage::EnableShowTutorialMessage(bool bEnable)
+{
+	SetActorEnableCollision(bEnable);
+	SetActorTickEnabled(bEnable);
+	bCanShowTutorialMessage = bEnable;
+}
+
+void AShowTutorialMessage::UnlockGameplayMechanicsInHud(TObjectPtr<AActor> Player)
+{
+	if (bUnlockGameplayMechanicsInHud == false || IsValid(Player) == false)
+		return;
+
+	TObjectPtr<AMarineCharacter> MarinePlayer = Cast<AMarineCharacter>(Player);
+	if (IsValid(MarinePlayer) == false)
+		return;
+	if (IsValid(MarinePlayer->GetSaveLoadPlayerComponent()) == false)
+		return;
+	MarinePlayer->GetSaveLoadPlayerComponent()->ShowGameplayMechanicsOnHud(UnlockInHud);
 }
 
 void AShowTutorialMessage::MessageReadedSaveData()
@@ -87,5 +113,5 @@ void AShowTutorialMessage::SaveData(ASavedDataObject* SavedDataObject, const int
 
 void AShowTutorialMessage::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	;
+	EnableShowTutorialMessage(true);
 }

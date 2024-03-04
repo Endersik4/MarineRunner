@@ -35,6 +35,8 @@ private:
 
 	bool bActorWasSeen = false;
 	void StopSeeingActor();
-	class AEnemyTurretPawn* TurretPawn;
+
+	UPROPERTY(Transient)
+		TObjectPtr<class AEnemyTurretPawn> TurretPawn;
 
 };

@@ -26,17 +26,17 @@ void ATurretEnemyAIController::HandleTargetPerceptionUpdated(AActor* Actor, FAIS
 {
 	IInteractInterface* ActorCanTakeDamageInterface = Cast<IInteractInterface>(Actor);
 
-	if (ActorCanTakeDamageInterface == nullptr || IsValid(TurretPawn) == false)
+	if (!ActorCanTakeDamageInterface|| !IsValid(TurretPawn))
 		return;
 
-	if (Stimulus.WasSuccessfullySensed() == true)
+	if (Stimulus.WasSuccessfullySensed())
 	{
 		GetWorldTimerManager().ClearTimer(StopSeeingTheActorHandle);
 	}
 
 	TurretPawn->PlayerWasSeen(Stimulus.WasSuccessfullySensed(), Actor);
 
-	if (bActorWasSeen == true && Stimulus.WasSuccessfullySensed() == false && GetWorldTimerManager().IsTimerActive(StopSeeingTheActorHandle) == false)
+	if (bActorWasSeen && !Stimulus.WasSuccessfullySensed() && !GetWorldTimerManager().IsTimerActive(StopSeeingTheActorHandle))
 	{
 		GetWorldTimerManager().SetTimer(StopSeeingTheActorHandle, this, &ATurretEnemyAIController::StopSeeingActor, StopSeeingTheActorTime, false);
 		return;
@@ -48,12 +48,11 @@ void ATurretEnemyAIController::HandleTargetPerceptionUpdated(AActor* Actor, FAIS
 
 void ATurretEnemyAIController::AddEnemyToDetected(bool bWas)
 {
-	UMarineRunnerGameInstance* MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-
-	if (IsValid(MarineRunnerGameInstance) == false)
+	TObjectPtr<UMarineRunnerGameInstance> MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!IsValid(MarineRunnerGameInstance))
 		return;
 
-	if (bWas == true) MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn());
+	if (bWas) MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn());
 	else MarineRunnerGameInstance->RemoveDetectedEnemy(GetPawn());
 }
 

@@ -23,11 +23,11 @@ void UCroachAndSlide::BeginPlay()
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 	CurrentMovementForce = MarinePawn->GetMovementForce();
-
 	OriginalMovementForce = CurrentMovementForce;
+
 	MarinePawn->GetCamera()->PostProcessSettings.bOverride_VignetteIntensity = true;
 
-	MarinePawn->OnDestroyed.AddDynamic(this, &UCroachAndSlide::OnOwnerDestroyed);
+	MarinePawn->OnDestroyed.AddUniqueDynamic(this, &UCroachAndSlide::OnOwnerDestroyed);
 
 }
 
@@ -59,7 +59,7 @@ void UCroachAndSlide::BeginSlide()
 	{
 		return;
 	}
-	if (MarinePawn->GetJumpComponent()->GetIsJumping())
+	if (MarinePawn->GetJumpComponent()->GetIsJumping() || MarinePawn->GetJumpComponent()->GetIsInAir())
 	{
 		return;
 	}
@@ -95,6 +95,8 @@ void UCroachAndSlide::SlideOnRamp(const float& Delta)
 	if (MarinePawn->GetJumpComponent()->GetIsGoingUp() == true)
 	{
 		CurrentMovementForce -= (SlideSpeedRamp * 10)*Delta;
+		MarinePawn->SetShouldPlayerGoForward(false);
+
 		return;
 	}
 

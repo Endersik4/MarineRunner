@@ -26,10 +26,10 @@ FString USaveMarineRunner::GetSaveGameName()
 }
 
 #pragma region ///////// SAVING ////////////
-void USaveMarineRunner::TransferSavedVariablesToGameInstance(UWorld* CurrentWorld, const FString& _WildCard)
+void USaveMarineRunner::TransferSavedVariablesToGameInstance(TObjectPtr<UWorld> CurrentWorld, const FString& _WildCard)
 {
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(CurrentWorld));
-	if (IsValid(GameInstance) == false)
+	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(CurrentWorld));
+	if (!IsValid(GameInstance))
 		return;
 
 	GameInstance->SetSaveNumberAccordingToNumOfFiles(_WildCard);
@@ -45,9 +45,9 @@ void USaveMarineRunner::TransferSavedVariablesToGameInstance(UWorld* CurrentWorl
 	LastGameTimePlayTime = GameInstance->LastGameTimePlayTime;
 }
 
-FString USaveMarineRunner::TakeSaveScreenshot(APlayerController* PlayerController)
+FString USaveMarineRunner::TakeSaveScreenshot(TObjectPtr<APlayerController> PlayerController)
 {
-	if (IsValid(PlayerController) == false) return "0";
+	if (!IsValid(PlayerController)) return "0";
 
 	FString ScreenshotName = GetSaveGameName() +".jpg";
 	FString SaveGamesDir = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + ScreenshotName;
@@ -66,7 +66,7 @@ FString USaveMarineRunner::ConvertCurrentDateToText()
 	return SaveDateText;
 }
 
-void USaveMarineRunner::MakeJsonFileWithSaveInfo(APlayerController* PlayerController, const FString& CurrentLevelName)
+void USaveMarineRunner::MakeJsonFileWithSaveInfo(TObjectPtr<APlayerController> PlayerController, const FString& CurrentLevelName)
 {
 	const FString& PathToScreenshot = TakeSaveScreenshot(PlayerController);
 	const FString& SaveDateText = ConvertCurrentDateToText();
@@ -86,9 +86,9 @@ void USaveMarineRunner::MakeJsonFileWithSaveInfo(APlayerController* PlayerContro
 #pragma endregion
 
 #pragma region ////////// LOADING //////////////
-void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGameInstance* GameInstance)
+void USaveMarineRunner::LoadGame(TObjectPtr<AMarineCharacter> MarinePawn, TObjectPtr<UMarineRunnerGameInstance> GameInstance)
 {
-	if (IsValid(MarinePawn) == false) 
+	if (!IsValid(MarinePawn)) 
 		return;
 
 	MarinePawn->SetHealth(CurrentHealthSaved);
@@ -98,7 +98,7 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 	MarinePawn->GetWeaponInventoryComponent()->InitialWeaponInventory = WeaponInventory_Saved;
 	MarinePawn->GetWeaponInventoryComponent()->StartTimerForSpawnNewWeapons();
 
-	if (IsValid(GameInstance) == false) 
+	if (!IsValid(GameInstance)) 
 		return;
 
 	GameInstance->SetSaveNumberAccordingToNumOfFiles();
@@ -112,9 +112,9 @@ void USaveMarineRunner::LoadGame(AMarineCharacter* MarinePawn, UMarineRunnerGame
 	}
 }
 
-void USaveMarineRunner::LoadOtherObjectsData(ASavedDataObject* OtherObjectsData)
+void USaveMarineRunner::LoadOtherObjectsData(TObjectPtr<ASavedDataObject> OtherObjectsData)
 {
-	if (IsValid(OtherObjectsData) == false)
+	if (!IsValid(OtherObjectsData))
 		return;
 
 	OtherObjectsData->SetCustomSavedData(SavedCustomData);

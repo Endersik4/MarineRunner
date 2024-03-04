@@ -40,14 +40,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 		FRotator FocusBoneOnPlayer(FName BoneName, bool bLookStraight);
 
-	void SawTheTarget(bool bSaw, AActor* SeenTarget = nullptr, bool bStartAttackingTheTarget = true);
+	void SawTheTarget(bool bSaw, TObjectPtr<AActor> SeenTarget = nullptr, bool bStartAttackingTheTarget = true);
 protected:
 
-	virtual bool KillEnemy(float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
+	virtual bool KillEnemy(float NewImpulseForce, const FHitResult& NewHit,TObjectPtr<AActor> BulletActor, float NewSphereRadius) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		class UEnemyGunComponent* EnemyGunComponent;
+		TObjectPtr<class UEnemyGunComponent> EnemyGunComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
 		float TimeToStartShooting = 1.f;
@@ -56,11 +56,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
 		FFloatRange StartShootingRandomTimeRange = FFloatRange(1.f, 3.f);
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot|Animations")
-		UAnimMontage* ShootAnimMontage;
+		TObjectPtr<UAnimMontage> ShootAnimMontage;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot|Animations")
-		UAnimMontage* EnableShootAnimMontage;
+		TObjectPtr<UAnimMontage> EnableShootAnimMontage;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot|Animations")
-		UAnimMontage* DisableShootAnimMontage;
+		TObjectPtr<UAnimMontage> DisableShootAnimMontage;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot")
 		bool bAlertAboutShoot = false;
@@ -101,10 +101,12 @@ private:
 	void SetUpShootAlert();
 	void ChangeParameterInAlertMaterial(float Delta);
 	void ResetAlertMaterial();
-	UMaterialInstanceDynamic* CurrentAlertMaterial;
+	UPROPERTY(Transient)
+		TObjectPtr<UMaterialInstanceDynamic>CurrentAlertMaterial;
 
 	//If enemy see the player then he will execute given functions
-	AActor* FocusedActor;
+	UPROPERTY(Transient)
+		TObjectPtr<AActor> FocusedActor;
 	bool bEnemyDetectedTarget;
 
 	void SetEnemyKilledInAIController();

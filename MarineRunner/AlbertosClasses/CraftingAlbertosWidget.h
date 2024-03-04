@@ -20,6 +20,12 @@ enum EChoiceOfArrow
 	ECA_Right,
 	ECA_None
 };
+class UButton; 
+class UImage; 
+class UTextBlock;
+class UTileView;
+class UProgressBar;
+
 UCLASS()
 class MARINERUNNER_API UCraftingAlbertosWidget : public UUserWidget
 {
@@ -38,72 +44,72 @@ public:
 		float FillCraftingPercentBarTimerTime = 0.001f;
 
 	void AddItemToInventoryTileView(const TArray<FItemStruct> & InventoryItems);
-	void SetRecipesData(class AMarineCharacter* Player);
+	void SetRecipesData(TObjectPtr<class AMarineCharacter> Player);
 	void SwitchCurrentCraftingItem(bool bDeleteResources = false);
 
-	void SetAlbertosPawn(class AAlbertosPawn* NewAlbertos) { AlbertosPawn = NewAlbertos; }
+	void SetAlbertosPawn(TObjectPtr<class AAlbertosPawn> NewAlbertos) { AlbertosPawn = NewAlbertos; }
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* BackgroundImage;
+		TObjectPtr<UImage> BackgroundImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* LeftArrowButton;
+		TObjectPtr<UButton> LeftArrowButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* RightArrowButton;
+		TObjectPtr<UButton> RightArrowButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* AmountMultiplier_1x;
+		TObjectPtr<UButton> AmountMultiplier_1x;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* AmountMultiplier_2x;
+		TObjectPtr<UButton> AmountMultiplier_2x;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* AmountMultiplier_4x;
+		TObjectPtr<UButton> AmountMultiplier_4x;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* AmountMultiplier_8x;
+		TObjectPtr<UButton> AmountMultiplier_8x;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* AmountMultiplier_16x;
+		TObjectPtr<UButton> AmountMultiplier_16x;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* CloseWidgetButton;
+		TObjectPtr<UButton> CloseWidgetButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* CraftButton;
+		TObjectPtr<UButton> CraftButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UProgressBar* CraftingTimeProgressBar;
+		TObjectPtr<UProgressBar> CraftingTimeProgressBar;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* CraftingItemImage;
+		TObjectPtr<UImage> CraftingItemImage;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* SecondCraftingItemImageForAnim;
+		TObjectPtr<UImage> SecondCraftingItemImageForAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* Right_SlideCraftingImagesAnim;
+		TObjectPtr < UWidgetAnimation> Right_SlideCraftingImagesAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* Left_SlideCraftingImagesAnim;
+		TObjectPtr < UWidgetAnimation> Left_SlideCraftingImagesAnim;
 	UFUNCTION()
 		void OnSlideCraftingAnimFinished();
 
 	// A place where all items will be stored except resources (first aid kits, ammunition...).
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTileView* StorageInventoryTileView;
+		TObjectPtr<UTileView> StorageInventoryTileView;
 
 	// The Place where only Resources will be stored
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTileView* ResourcesInventoryTileView;
+		TObjectPtr<UTileView> ResourcesInventoryTileView;
 
 	// The Place where it will be shown what Player needs to craft an item
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTileView* RequirementsInventoryTileView;
+		TObjectPtr<UTileView> RequirementsInventoryTileView;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* ItemNameToBeCraftedText;
+		TObjectPtr<UTextBlock> ItemNameToBeCraftedText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* ItemDescriptionText;
+		TObjectPtr<UTextBlock> ItemDescriptionText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* ItemTimeAndAmountText;
+		TObjectPtr<UTextBlock> ItemTimeAndAmountText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* ItemCraftTimeText;
+		TObjectPtr<UTextBlock> ItemCraftTimeText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* ItemValue_AmountText;
+		TObjectPtr<UTextBlock> ItemValue_AmountText;
 
 	UFUNCTION()
 		void CraftPressed();
@@ -112,7 +118,7 @@ protected:
 	UFUNCTION()
 		void CraftUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* CraftHoveredAnim;
+		TObjectPtr < UWidgetAnimation> CraftHoveredAnim;
 
 	UFUNCTION()
 		void LeftArrowClicked();
@@ -121,7 +127,7 @@ protected:
 	UFUNCTION()
 		void LeftArrowUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* LeftArrowHoveredAnim;
+		TObjectPtr < UWidgetAnimation> LeftArrowHoveredAnim;
 
 	UFUNCTION()
 		void RightArrowClicked();
@@ -130,7 +136,7 @@ protected:
 	UFUNCTION()
 		void RightArrowUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* RightArrowHoveredAnim;
+		TObjectPtr < UWidgetAnimation>  RightArrowHoveredAnim;
 
 	UFUNCTION()
 		void CloseWidgetButtonClicked();
@@ -139,7 +145,7 @@ protected:
 	UFUNCTION()
 		void CloseWidgetButtonUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* CloseWidgetButtonHoveredAnim;
+		TObjectPtr < UWidgetAnimation>  CloseWidgetButtonHoveredAnim;
 
 	UFUNCTION()
 		void Multiplier_1xClicked();
@@ -148,7 +154,7 @@ protected:
 	UFUNCTION()
 		void Multiplier_1xUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* Multiplier_1xHoveredAnim;
+		TObjectPtr < UWidgetAnimation>  Multiplier_1xHoveredAnim;
 
 	UFUNCTION()
 		void Multiplier_2xClicked();
@@ -157,7 +163,7 @@ protected:
 	UFUNCTION()
 		void Multiplier_2xUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* Multiplier_2xHoveredAnim;
+		TObjectPtr < UWidgetAnimation>  Multiplier_2xHoveredAnim;
 
 	UFUNCTION()
 		void Multiplier_4xClicked();
@@ -166,7 +172,7 @@ protected:
 	UFUNCTION()
 		void Multiplier_4xUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* Multiplier_4xHoveredAnim;
+		TObjectPtr < UWidgetAnimation> Multiplier_4xHoveredAnim;
 
 	UFUNCTION()
 		void Multiplier_8xClicked();
@@ -175,7 +181,7 @@ protected:
 	UFUNCTION()
 		void Multiplier_8xUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* Multiplier_8xHoveredAnim;
+		TObjectPtr < UWidgetAnimation> Multiplier_8xHoveredAnim;
 
 	UFUNCTION()
 		void Multiplier_16xClicked();
@@ -184,7 +190,7 @@ protected:
 	UFUNCTION()
 		void Multiplier_16xUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* Multiplier_16xHoveredAnim;
+		TObjectPtr < UWidgetAnimation> Multiplier_16xHoveredAnim;
 
 	UFUNCTION()
 		void OnItemInTileViewHovered(UObject* Item, bool bIsHovered);
@@ -216,7 +222,7 @@ private:
 	void PlaySwipeItemIconAnim();
 
 	// Multiplier Buttons
-	class UButton* MultiplierButtonChoice;
+	TObjectPtr<UButton> MultiplierButtonChoice;
 	void MultiplierButtonClicked(int32 Mutliplier);
 	void SetEnableAllMultipliers(bool bEnable);
 
@@ -224,6 +230,8 @@ private:
 
 	void PlayButtonAnimation(UWidgetAnimation* AnimToPlay, bool bForward = true);
 
-	class AMarineCharacter* MarinePawn;
-	class AAlbertosPawn* AlbertosPawn;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> MarinePawn;
+	UPROPERTY(Transient)
+		TObjectPtr<class AAlbertosPawn> AlbertosPawn;
 };

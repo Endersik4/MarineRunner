@@ -65,6 +65,10 @@ void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString&
 	CreatedSaveGame->SavedPlayerLocation = Player->GetActorLocation();
 	CreatedSaveGame->SavedPlayerRotation = Player->GetActorRotation();
 
+	CreatedSaveGame->bShowHealBar = bShowHealBar;
+	CreatedSaveGame->bShowDashBar = bShowDashBar;
+	CreatedSaveGame->bShowSlowMotionBar =bShowSlowMotionBar;
+
 	CreatedSaveGame->Inventory_ItemsSaved = Player->GetInventoryComponent()->Inventory_Items;
 	CreatedSaveGame->Inventory_RecipesSaved = Player->GetInventoryComponent()->Items_Recipes;
 
@@ -98,14 +102,41 @@ void USaveLoadPlayerComponent::LoadGame()
 	
 	GameInstance->ResetDetectedEnemy();
 	GameInstance->ChangeBackgroundMusic(EMT_Exploration, true);
-	
+
+	bShowHealBar = LoadGameInstance->bShowHealBar;
+	bShowDashBar = LoadGameInstance->bShowDashBar;
+	bShowSlowMotionBar = LoadGameInstance->bShowSlowMotionBar;
+
 	Player->SetActorLocation(LoadGameInstance->SavedPlayerLocation);
 	Player->SetActorRotation(LoadGameInstance->SavedPlayerRotation);
 	if (IsValid(PlayerController) == true)
 		PlayerController->SetControlRotation(LoadGameInstance->SavedPlayerRotation);
-	
+
 	LoadGameInstance->LoadGame(Player, GameInstance);
 	LoadGameInstance->LoadOtherObjectsData(SavedDataObject);
+}
+
+void USaveLoadPlayerComponent::LoadHudVariables()
+{
+	if (IsValid(Player->GetHudWidget()) == false)
+		return;
+
+	Player->GetHudWidget()->ShowGameplayMechanicsBars(bShowHealBar, bShowDashBar, bShowSlowMotionBar);
+}
+
+void USaveLoadPlayerComponent::ShowGameplayMechanicsOnHud(const EUnlockInHud& WhatToUnlock)
+{
+	if (WhatToUnlock == EUnlockInHud::EUIN_DashBar)
+		bShowDashBar = true;
+	else if (WhatToUnlock == EUnlockInHud::EUIN_HealBar)
+		bShowHealBar = true;
+	else if (WhatToUnlock == EUnlockInHud::EUIN_SlowMoBar)
+		bShowSlowMotionBar = true;
+
+	if (IsValid(Player->GetHudWidget()) == false)
+		return;
+
+	Player->GetHudWidget()->ShowGameplayMechanicsBars(WhatToUnlock);
 }
 
 void USaveLoadPlayerComponent::RestartGame()

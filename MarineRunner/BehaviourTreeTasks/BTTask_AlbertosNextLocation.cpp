@@ -16,15 +16,17 @@ UBTTask_AlbertosNextLocation::UBTTask_AlbertosNextLocation()
 
 EBTNodeResult::Type UBTTask_AlbertosNextLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	UBlackboardComponent* BlackBoardComp = OwnerComp.GetBlackboardComponent();
-	if (!BlackBoardComp) return EBTNodeResult::Failed;
+	TObjectPtr<UBlackboardComponent> BlackBoardComp = OwnerComp.GetBlackboardComponent();
+	if (!BlackBoardComp) 
+		return EBTNodeResult::Failed;
 
 	FVector NextLocation = CalculateNextLocationNearThePlayer();
 
-	if (BlackBoardComp->IsVectorValueSet(FName(TEXT("PlayerLocation"))))
+	// if Player Location vector value is set then go to the Player Location instead of Caluclated Next Location
+	if (BlackBoardComp->IsVectorValueSet(PlayerLocationValueName))
 	{
-		NextLocation = BlackBoardComp->GetValueAsVector(FName(TEXT("PlayerLocation")));
-		BlackBoardComp->ClearValue(FName(TEXT("PlayerLocation")));
+		NextLocation = BlackBoardComp->GetValueAsVector(PlayerLocationValueName);
+		BlackBoardComp->ClearValue(PlayerLocationValueName);
 	}
 
 	OwnerComp.GetBlackboardComponent()->SetValueAsVector(GetSelectedBlackboardKey(), NextLocation);
@@ -34,12 +36,12 @@ EBTNodeResult::Type UBTTask_AlbertosNextLocation::ExecuteTask(UBehaviorTreeCompo
 
 FVector UBTTask_AlbertosNextLocation::CalculateNextLocationNearThePlayer()
 {
-	if (IsValid(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)) == false)
+	if (!IsValid(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)))
 		return FVector(0.f);
 
 	FNavLocation RandomNavLocation;
-	UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
-	if (IsValid(NavSystem) == false)
+	TObjectPtr<UNavigationSystemV1> NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
+	if (!IsValid(NavSystem))
 		return FVector(0.f);
 
 	NavSystem->GetRandomReachablePointInRadius(UGameplayStatics::GetPlayerPawn(GetWorld(),0)->GetActorLocation(), RadiusToPickFromPlayerLocation, RandomNavLocation);

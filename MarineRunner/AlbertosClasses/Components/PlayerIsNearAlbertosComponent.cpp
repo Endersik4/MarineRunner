@@ -83,35 +83,35 @@ void UPlayerIsNearAlbertosComponent::GoBackToWendering()
 
 void UPlayerIsNearAlbertosComponent::OpenAlbertosDoor(bool bOpenDoor)
 {
-	if (bIsFrontDoorOpen == bOpenDoor || IsValid(AlbertosOwner) == false)
+	if (bIsFrontDoorOpen == bOpenDoor || !IsValid(AlbertosOwner))
 		return;
 
 	if (bOpenDoor == true)
 	{
-		if (AlbertosOpenAnimationMontage)
+		if (IsValid(AlbertosOpenAnimationMontage))
 			AlbertosOwner->GetAlbertosSkeletal()->GetAnimInstance()->Montage_Play(AlbertosOpenAnimationMontage);
 
-		if (IsValid(AlbertosMediaPlayer) == true)
+		if (IsValid(AlbertosMediaPlayer))
 			AlbertosMediaPlayer->Play();
 	}
 	else
 	{
-		if (AlbertosCloseAnimationMontage)
+		if (IsValid(AlbertosCloseAnimationMontage))
 			AlbertosOwner->GetAlbertosSkeletal()->GetAnimInstance()->Montage_Play(AlbertosCloseAnimationMontage);
 
-		if (IsValid(AlbertosMediaPlayer) == true)
+		if (IsValid(AlbertosMediaPlayer))
 			AlbertosMediaPlayer->Pause();
 	}
 
 	bIsFrontDoorOpen = bOpenDoor;
 
-	if (OpenDoorSound)
+	if (IsValid(OpenDoorSound))
 		UGameplayStatics::SpawnSoundAttached(OpenDoorSound, AlbertosOwner->GetAlbertosSkeletal(), OpenDoorSoundSocketName);
 }
 
 void UPlayerIsNearAlbertosComponent::RotateAlbertosTowardsPlayer(float Delta)
 {
-	if (IsValid(AlbertosOwner) == false || IsValid(Player) == false)
+	if (!IsValid(AlbertosOwner)|| !IsValid(Player))
 		return; 
 
 	if (bRotateAlbertosTowardPlayer == false)

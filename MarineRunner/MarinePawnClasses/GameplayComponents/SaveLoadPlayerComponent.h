@@ -31,11 +31,12 @@ public:
 	void LoadGame();
 	void RestartGame();
 	void SpawnNewGameWidget();
+	void LoadHudVariables();
 
 	FORCEINLINE void SetSavedDataObject(class ASavedDataObject* NewSavedDataObject) { SavedDataObject = NewSavedDataObject; }
 	FORCEINLINE class ASavedDataObject* GetSavedDataObject() {return SavedDataObject;}
 
-
+	void ShowGameplayMechanicsOnHud(const enum EUnlockInHud& WhatToUnlock);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass;
@@ -47,12 +48,18 @@ private:
 		class ASavedDataObject* SavedDataObject;
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 		TSubclassOf<class AMarineCharacter> PlayerClass;
+	UPROPERTY(EditAnywhere, Category = "Loading")
+		float TimeToLoadHudVariables = 0.02f;
 
 	//Saving/Loading Game
 	void SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn);
 	class USaveMarineRunner* CreateLoadGame();
 
 	void SpawnNewPlayer();
+
+	bool bShowHealBar;
+	bool bShowDashBar;
+	bool bShowSlowMotionBar;
 
 	class AMarineCharacter* Player;
 	class AMarinePlayerController* PlayerController;

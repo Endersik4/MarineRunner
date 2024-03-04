@@ -4,6 +4,7 @@
 #include "BehaviorTree/BlackboardComponent.h"
 
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
+#include "MarineRunner/AlbertosClasses/Components/AlbertosToPlayerComponent.h"
 
 AAlbertosAIController::AAlbertosAIController()
 {
@@ -30,10 +31,10 @@ void AAlbertosAIController::CallAlbertosToThePlayer(FVector PlayerLoc)
 
 void AAlbertosAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result)
 {
-	if (bIsMovingTowardsPlayer == false || IsValid(AlbertosOwner) == false) 
+	if (!bIsMovingTowardsPlayer|| !IsValid(AlbertosOwner)) 
 		return;
 
-	AlbertosOwner->ChangeMaxSpeedOfFloatingMovement(false);
+	AlbertosOwner->GetAlbertosToPlayerComponent()->ChangeMaxSpeedOfFloatingMovement(false);
 	bIsMovingTowardsPlayer = false;
 }
 
