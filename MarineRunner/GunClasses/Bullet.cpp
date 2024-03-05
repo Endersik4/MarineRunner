@@ -24,14 +24,14 @@ ABullet::ABullet()
 	BulletMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	BulletMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore); //For the enemy bullet set this to BLOCK
 	BulletMesh->bReturnMaterialOnMove = true;
-
-	OnActorHit.AddDynamic(this, &ABullet::OnHit);
 }	
 
 // Called when the game starts or when spawned
 void ABullet::BeginPlay()
 {
 	Super::BeginPlay();
+
+	OnActorHit.AddDynamic(this, &ABullet::OnHit);
 
 	SetBulletMovementType();
 }

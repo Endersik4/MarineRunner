@@ -5,6 +5,8 @@
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/GunClasses/Components/GunControlsComponent.h"
+#include "MarineRunner/GunClasses/Components/GunReloadComponent.h"
 
 // Sets default values for this component's properties
 UWeaponInventoryComponent::UWeaponInventoryComponent()
@@ -43,8 +45,8 @@ void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
 		if (IsValid(SpawnedGun) == false)
 			continue;
 
-		SpawnedGun->AttachToComponent(MarinePawn->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnedGun->GetAttachToSocketName());
-		SpawnedGun->TakeGun(MarinePawn, true, CurrentPair.Key);
+		SpawnedGun->AttachToComponent(MarinePawn->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnedGun->GetGunControlsComponent()->GetAttachToSocketName());
+		SpawnedGun->GetGunControlsComponent()->TakeGun(MarinePawn, true, CurrentPair.Key);
 	}
 }
 
@@ -75,7 +77,7 @@ bool UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, class A
 	if (GunFromInventory == CurrentWeapon)
 		return false;
 
-	CurrentWeapon->PutAwayGun();
+	CurrentWeapon->GetGunControlsComponent()->PutAwayGun();
 
 	return true;
 }
@@ -116,7 +118,7 @@ void UWeaponInventoryComponent::SaveInitialWeaponInventory()
 	InitialWeaponInventory.Empty();
 	for (const TPair<int32, class AGun* > CurrentPair : WeaponsStorage)
 	{
-		InitialWeaponInventory.Add(CurrentPair.Value->GetMagazineCapacity(), CurrentPair.Value->GetClass()->GetClassPathName().ToString());
+		InitialWeaponInventory.Add(CurrentPair.Value->GetGunReloadComponent()->GetMagazineCapacity(), CurrentPair.Value->GetClass()->GetClassPathName().ToString());
 	}
 }
 

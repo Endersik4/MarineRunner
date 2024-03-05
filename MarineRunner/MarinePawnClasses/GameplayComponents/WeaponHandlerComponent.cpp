@@ -9,6 +9,8 @@
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
 #include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/GunClasses/Scope.h"
+#include "MarineRunner/GunClasses/Components/GunControlsComponent.h"
+#include "MarineRunner/GunClasses/Components/GunReloadComponent.h"
 
 // Sets default values for this component's properties
 UWeaponHandlerComponent::UWeaponHandlerComponent()
@@ -33,8 +35,8 @@ void UWeaponHandlerComponent::ADSPressed()
 	if (IsValid(Gun) == false) 
 		return;
 
-	if (Gun->GetIsReloading() && Gun->GetReloadOneBullet())
-		Gun->CancelReload();
+	if (Gun->GetGunReloadComponent()->GetIsReloading() && Gun->GetGunReloadComponent()->GetReloadOneBullet())
+		Gun->GetGunReloadComponent()->CancelReload();
 
 	if (Gun->GetCanShoot() == false) 
 		return;
@@ -46,7 +48,7 @@ void UWeaponHandlerComponent::ADSPressed()
 		UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
 
 	bIsPlayerADS = true;
-	Gun->AimTheGun(EStatusOfAimedGun::ADS);
+	Gun->AimTheGun(EStatusOfAimedGun::ESAG_ADS);
 
 	if (CurrentScopeIndex >= MouseSensitivityWhenScope.Num())
 		return;
@@ -65,7 +67,7 @@ void UWeaponHandlerComponent::ADSReleased()
 	if (ADSOutSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
 	bIsPlayerADS = false;
 
-	Gun->AimTheGun(EStatusOfAimedGun::HipFire);
+	Gun->AimTheGun(EStatusOfAimedGun::ESAG_HipFire);
 
 	MarinePawn->ChangeMouseSensitivity(FSettingSavedInJsonFile(), true);
 
@@ -80,7 +82,7 @@ void UWeaponHandlerComponent::UpdateWeaponInformationOnHud()
 	if (IsValid(Gun) == false)
 		return;
 	
-	Gun->UpdateWeaponDataInHud(true);
+	Gun->GetGunControlsComponent()->UpdateWeaponDataInHud(true);
 }
 
 void UWeaponHandlerComponent::Shoot()
@@ -105,7 +107,7 @@ void UWeaponHandlerComponent::Reload()
 	if (IsValid(Gun) == false) 
 		return;
 
-	Gun->WaitToReload();
+	Gun->GetGunReloadComponent()->PrepareToReload();
 }
 
 void UWeaponHandlerComponent::Zoom(float WheelAxis)
@@ -150,7 +152,7 @@ void UWeaponHandlerComponent::DrawNewGun()
 		return;
 
 	Gun = MarinePawn->GetWeaponInventoryComponent()->GetCurrentGunToDraw();
-	Gun->DrawGun();
+	Gun->GetGunControlsComponent()->DrawGun();
 }
 
 void UWeaponHandlerComponent::DropGun()
@@ -161,9 +163,9 @@ void UWeaponHandlerComponent::DropGun()
 	if (IsValid(Gun) == false)
 		return;
 
-	Gun->SetDropGun(true);
+	Gun->GetGunControlsComponent()->SetDropGun(true);
 	if (MarinePawn->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1)
-		Gun->PutAwayGun();
+		Gun->GetGunControlsComponent()->PutAwayGun();
 	else 
 		SelectWeaponFromQuickInventory(MarinePawn->GetWeaponInventoryComponent()->GetLastWeaponSlotFromStorage(Gun));
 }
@@ -173,7 +175,7 @@ void UWeaponHandlerComponent::HideCurrentHoldingGun()
 	if (IsValid(Gun) == false)
 		return;
 
-	Gun->HideGun();
+	Gun->GetGunControlsComponent()->HideGun();
 }
 #pragma endregion 
 

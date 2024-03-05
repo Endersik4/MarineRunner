@@ -12,6 +12,7 @@
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/MessageHandlerComponent.h"
 #include "MarineRunner/Objects/SavedDataObject.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
+#include "MarineRunner/GunClasses/Components/GunControlsComponent.h"
 
 // Sets default values
 APickupItem::APickupItem()
@@ -128,8 +129,8 @@ void APickupItem::SpawnWeaponForPlayer(class AMarineCharacter* Player, FItemStru
 	if (IsValid(SpawnedGun) == false)
 		return;
 	
-	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnedGun->GetAttachToSocketName());
-	SpawnedGun->TakeGun(Player, bWasOnceTaken, CurrentMagazineCapacity);
+	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnedGun->GetGunControlsComponent()->GetAttachToSocketName());
+	SpawnedGun->GetGunControlsComponent()->TakeGun(Player, bWasOnceTaken, CurrentMagazineCapacity);
 }
 #pragma endregion
 

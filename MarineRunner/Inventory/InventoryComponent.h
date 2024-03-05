@@ -120,8 +120,8 @@ public:
 	FItemStruct* GetItemInformationFromDataTable(FName ItemRowNameFromDataTable);
 
 	void AddNewItemToInventory(FName ItemRowNameFromDataTable, float AddAmountToItem = 0.f);
-	void DeleteItemFromInventory(FItemStruct ItemToDelete);
 	void MoveWeaponRecipesToEndQueue();
+	void DeleteItemFromInventory(FItemStruct ItemToDelete);
 
 private:
 
