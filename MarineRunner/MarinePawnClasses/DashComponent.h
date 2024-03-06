@@ -13,51 +13,51 @@ class MARINERUNNER_API UDashComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UDashComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void Dash();
-	bool GetIsPerformingDash() const { return bIsPerformingDash; }
+	FORCEINLINE bool GetIsPerformingDash() const { return bIsPerformingDash; }
 private:
-	UPROPERTY(EditAnywhere, Category = "Dash Settings")
+	UPROPERTY(EditAnywhere, Category = "Dash")
 		float DashDistance = 2500.f;
-	UPROPERTY(EditAnywhere, Category = "Dash Settings")
+	UPROPERTY(EditAnywhere, Category = "Dash")
 		float DashTime = 0.2f;
 	//Dash cooldown in Seconds
-	UPROPERTY(EditAnywhere, Category = "Dash Settings")
+	UPROPERTY(EditAnywhere, Category = "Dash")
 		float DashCoolDown = 1.8f;
 	// Offset from obstacle that is on the dash way 
-	UPROPERTY(EditAnywhere, Category = "Dash Settings")
+	UPROPERTY(EditAnywhere, Category = "Dash")
 		float OffsetFromObstacle = 100.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Dash Settings")
-		TSubclassOf<class UUserWidget> DashWidgetClass;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Dash Sounds")
-		USoundBase* DashSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+		TSubclassOf<class UDashWidget> DashWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+		TObjectPtr<USoundBase> DashSound;
 
 	bool CanPlayerPerformDash() const;
-
 	bool bCanDash = true;
 	bool bIsPerformingDash;
 
-	float DashTimeElapsed = 0.f;
-	float CalculatedDashTime;
-
 	FVector InitialPlayerPosition;
 	FVector DashLocation;
-	void LerpToDashLocation(float Delta);
+
+	/// <summary>
+	/// Calculates closer hit result from two raycast, one from head location, the second from ground location
+	/// </summary>
+	/// <param name="OutHitResult"> Closer Hit Result</param>
+	/// <returns>True if object was hit by one of the raycasts, false otherwise</returns>
+	bool GetCloserHitResult(FHitResult& OutHitResult);
 	FVector CalculateEndDashPosition();
 	const FVector CalculateDashDirection();
-	bool GetCloserHitResult(FHitResult& OutHitResult);
+
+	float DashTimeElapsed = 0.f;
+	float CalculatedDashTime;
+	void MoveToDashLocation(float Delta);
 
 	void TurnOffDash();
 	void DashEffects();
@@ -65,6 +65,6 @@ private:
 	FTimerHandle DashCooldownHandle;
 	FORCEINLINE void EndDashCooldown() { bCanDash = true; }
 
-	class AMarineCharacter* MarinePawn;
-
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> MarinePawn;
 };

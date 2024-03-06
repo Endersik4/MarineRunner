@@ -19,12 +19,10 @@ USwingComponent::USwingComponent()
 
 }
 
-// Called when the game starts
 void USwingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
 	MarinePlayer = Cast<AMarineCharacter>(GetOwner());
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 }
@@ -34,14 +32,14 @@ void USwingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	SwingInterp(DeltaTime);
+	MovingToHook(DeltaTime);
 	HookLineCheck();
 }
 
 #pragma region ///////////////////////////////// SWING /////////////////////////////////
 void USwingComponent::HookLineCheck()
 {
-	if (bCanMakeSwingLineCheck == false || bIsPlayerLerpingToHookPosition == true) 
+	if (!bCanMakeSwingLineCheck || bIsPlayerMovingToHook) 
 		return;
 
 	FVector LineStart = MarinePlayer->GetCamera()->GetComponentLocation();
@@ -49,18 +47,17 @@ void USwingComponent::HookLineCheck()
 
 	FHitResult HitResults;
 	bool bHookHovered = GetWorld()->LineTraceSingleByChannel(HitResults, LineStart, LineEnd, ECC_GameTraceChannel2) && IsValid(HitResults.GetActor());
-	if (bHookHovered && HitResults.GetActor()->ActorHasTag("Hook") == true)
+	if (bHookHovered)
 	{
 		ActivateCurrentHoveredHook(HitResults.GetActor());
 	}	
 	else ClearLastActivatedHook();
 }
 
-void USwingComponent::ActivateCurrentHoveredHook(AActor* HookActorFromHit)
+void USwingComponent::ActivateCurrentHoveredHook(TObjectPtr<AActor> HookActorFromHit)
 {
-	AHook* HoveredHook = Cast<AHook>(HookActorFromHit);
-
-	if (IsValid(HoveredHook) == false)
+	TObjectPtr<AHook> HoveredHook = Cast<AHook>(HookActorFromHit);
+	if (!IsValid(HoveredHook))
 		return;
 
 	if (HoveredHook == CurrentFocusedHook)
@@ -70,7 +67,7 @@ void USwingComponent::ActivateCurrentHoveredHook(AActor* HookActorFromHit)
 	if (IsValid(CurrentFocusedHook))
 		CurrentFocusedHook->ChangeToIdleAnim();
 
-	if (HoveredHook->bCanGrabTheHook == false)
+	if (!HoveredHook->GetCanGrabHook())
 		return;
 
 	bCanPlayerSwing = true;
@@ -80,7 +77,7 @@ void USwingComponent::ActivateCurrentHoveredHook(AActor* HookActorFromHit)
 
 void USwingComponent::ClearLastActivatedHook()
 {
-	if (IsValid(CurrentFocusedHook) == false || bWasSwingPressed == true)
+	if (!IsValid(CurrentFocusedHook)|| bWasSwingPressed)
 		return;
 
 	CurrentFocusedHook->ChangeToIdleAnim();
@@ -92,13 +89,13 @@ void USwingComponent::ClearLastActivatedHook()
 //If the player press the Swing button then spawn the Line that is going to the Hook and then wait for SwingDelay to elapsed
 void USwingComponent::SwingPressed()
 {
-	if (IsValid(CurrentFocusedHook) == false)
+	if (!IsValid(CurrentFocusedHook))
 		return;
 
-	if (bCanPlayerSwing == false)
+	if (!bCanPlayerSwing)
 		return;
 
-	if (bIsPlayerLerpingToHookPosition == true || bWasSwingPressed == true)
+	if (bIsPlayerMovingToHook || bWasSwingPressed)
 		return;
 
 	CurrentFocusedHook->StartHookCooldown();
@@ -107,32 +104,31 @@ void USwingComponent::SwingPressed()
 
 	SpawnSwingEffects();
 
-	GetWorld()->GetTimerManager().SetTimer(SwingHandle, this, &USwingComponent::StartSwingToHook, SwingDelay);
+	GetWorld()->GetTimerManager().SetTimer(SwingHandle, this, &USwingComponent::PrepareMoveToHook, SwingDelay);
 }
 
 void USwingComponent::SpawnSwingEffects()
 {
-	if (SwingSound) UGameplayStatics::SpawnSound2D(GetWorld(), SwingSound);
+	if (IsValid(SwingSound)) 
+		UGameplayStatics::SpawnSound2D(GetWorld(), SwingSound);
 
 	FVector SpawnLocation = MarinePlayer->GetCamera()->GetComponentLocation();
 	SpawnLocation += PlayerController->GetRootComponent()->GetForwardVector() * ForwardSwingLineOffset + PlayerController->GetRootComponent()->GetRightVector() * RightSwingLineOffset;
 	ASwingLine* SwingLine = GetWorld()->SpawnActor<ASwingLine>(SwingLineClass, SpawnLocation, FRotator(0, 0, 0));
 
-	if (IsValid(SwingLine) == false)
+	if (!IsValid(SwingLine))
 		return;
 
-	SwingLine->SetHookLocation(CurrentFocusedHook->GetActorLocation()- CurrentFocusedHook->GetSwingLineLocationOffset());
-	SwingLine->SetSpeedLine(SwingDelay);
-	SwingLine->SetCanTick(true);
+	SwingLine->StartMovingToHookLocation(CurrentFocusedHook->GetActorLocation() - CurrentFocusedHook->GetSwingLineLocationOffset(), SwingDelay);
 }
 
-void USwingComponent::StartSwingToHook()
+void USwingComponent::PrepareMoveToHook()
 {
-	if (IsValid(CurrentFocusedHook) == false) 
+	if (!IsValid(CurrentFocusedHook)) 
 		return;
 
 	MarinePlayer->GetPlayerCapsule()->SetPhysicsLinearVelocity(FVector(0));
-	bIsPlayerLerpingToHookPosition = true;
+	bIsPlayerMovingToHook = true;
 
 	HookLocation = CurrentFocusedHook->GetActorLocation() - CurrentFocusedHook->GetHookLocationOffset();
 
@@ -140,29 +136,27 @@ void USwingComponent::StartSwingToHook()
 	SwingImpulse = DirectionTowardsHook * SwingForce;
 	MarinePlayer->GetPlayerCapsule()->AddImpulse(SwingImpulse);
 
-	//Things that cannot happen while Swing
-	MarinePlayer->MovementStuffThatCannotHappen();
+	//MarinePlayer->MovementStuffThatCannotHappen();
 }
 
 //Interp player to location of the Hook
-void USwingComponent::SwingInterp(float Delta)
+void USwingComponent::MovingToHook(float Delta)
 {
-	if (!bIsPlayerLerpingToHookPosition) 
+	if (!bIsPlayerMovingToHook) 
 		return;
 
-	FVector LocationInterp = FMath::VInterpTo(MarinePlayer->GetActorLocation(), HookLocation, Delta, SwingSpeed);
+	FVector NewLocation = FMath::VInterpTo(MarinePlayer->GetActorLocation(), HookLocation, Delta, SwingSpeed);
+	MarinePlayer->SetActorLocation(NewLocation);
 
-	StopSwingInterp();
-
-	MarinePlayer->SetActorLocation(LocationInterp);
+	StopMovingToHook();
 }
-void USwingComponent::StopSwingInterp()
+void USwingComponent::StopMovingToHook()
 {
-	if (MarinePlayer->GetCamera()->GetComponentLocation().Equals(HookLocation, MaxHookDistanceToFinishInterp) == false)
+	if (!MarinePlayer->GetCamera()->GetComponentLocation().Equals(HookLocation, MaxHookDistanceToFinishInterp))
 		return;
 
 	bWasSwingPressed = false;
-	bIsPlayerLerpingToHookPosition = false;
+	bIsPlayerMovingToHook = false;
 	bCanMakeSwingLineCheck = true;
 	CurrentFocusedHook = nullptr;
 

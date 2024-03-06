@@ -108,7 +108,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadWrite)
 		TMap<FName, int32> RowNameForStartingItems;
 	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadWrite)
-		UDataTable* ItemsDataTable;
+		TObjectPtr<UDataTable> ItemsDataTable;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 		TArray<FItemStruct> Inventory_Items;
@@ -116,14 +116,17 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 		TArray<FItemStruct> Items_Recipes;
 
+
 	FItemStruct* GetItemFromInventory(FName ItemRowNameFromDataTable);
 	FItemStruct* GetItemInformationFromDataTable(FName ItemRowNameFromDataTable);
+	FORCEINLINE int32 GetMaxSlotsInInventory() const { return MaxSlotsInInventory; }
 
 	void AddNewItemToInventory(FName ItemRowNameFromDataTable, float AddAmountToItem = 0.f);
 	void MoveWeaponRecipesToEndQueue();
 	void DeleteItemFromInventory(FItemStruct ItemToDelete);
 
 private:
-
+	UPROPERTY(VisibleAnywhere, Category = "Inventory")
+		int32 MaxSlotsInInventory = 31;
 	void TransformItemsDataToInventory();
 };

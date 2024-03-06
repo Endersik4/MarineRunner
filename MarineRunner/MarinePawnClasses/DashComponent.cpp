@@ -13,8 +13,6 @@ UDashComponent::UDashComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-
-// Called when the game starts
 void UDashComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -22,18 +20,16 @@ void UDashComponent::BeginPlay()
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
 }
 
-
-// Called every frame
 void UDashComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	LerpToDashLocation(DeltaTime);
+	MoveToDashLocation(DeltaTime);
 }
 
 void UDashComponent::Dash()
 {
-	if (CanPlayerPerformDash() == false)
+	if (!CanPlayerPerformDash())
 		return;
 
 	bIsPerformingDash = true;
@@ -67,28 +63,19 @@ bool UDashComponent::GetCloserHitResult(FHitResult& OutHitResult)
 	bool bHitLower = GetWorld()->LineTraceSingleByChannel(HitResultLower, InitialPlayerPosition, EndRaycastLowerLoc, ECC_GameTraceChannel7);
 	bool bHitHigher = GetWorld()->LineTraceSingleByChannel(HitResultHigher, MarinePawn->GetCameraLocation(), EndRaycastHigherLoc, ECC_GameTraceChannel7);
 
-	if (bHitLower == true || bHitHigher == true)
+	// Returns HitResult that was closer to the player 
+	if (bHitLower || bHitHigher)
 	{
-		HitResultHigher.Location.Z = InitialPlayerPosition.Z;
-		if (bHitHigher == false)
+		if (bHitLower && bHitHigher)
 		{
-			OutHitResult = HitResultLower;
+			OutHitResult = HitResultLower.Distance <= HitResultHigher.Distance ? HitResultLower : HitResultHigher;
 		}
-		else if (bHitLower == false)
-		{
-			OutHitResult = HitResultHigher;
-		}
-		else if (HitResultLower.Distance <= HitResultHigher.Distance)
-		{
-			OutHitResult = HitResultLower;
-		}
-		else
-			OutHitResult = HitResultHigher;
-
+		OutHitResult = bHitLower ? HitResultLower : HitResultHigher;
+		OutHitResult.Location.Z = InitialPlayerPosition.Z;
 		return true;
 	}
-	else 
-		return false;
+
+	return false;
 }
 
 const FVector UDashComponent::CalculateDashDirection()
@@ -102,23 +89,24 @@ const FVector UDashComponent::CalculateDashDirection()
 
 void UDashComponent::DashEffects()
 {
-	if (DashSound) UGameplayStatics::SpawnSound2D(GetWorld(), DashSound);
+	if (IsValid(DashSound)) 
+		UGameplayStatics::SpawnSound2D(GetWorld(), DashSound);
 
-	UDashWidget* DashWidget = Cast<UDashWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), DashWidgetClass));
+	TObjectPtr<UDashWidget> DashWidget = Cast<UDashWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(),0), DashWidgetClass));
 	if (IsValid(DashWidget))
 		DashWidget->AddToViewport();
 
-	if (IsValid(MarinePawn) == false)
+	if (!IsValid(MarinePawn))
 		return;
-
+	
 	ElementBar DashElementBar{ DashCoolDown };
 	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Dash, DashElementBar);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_Dash);
 }
 
-void UDashComponent::LerpToDashLocation(float Delta)
+void UDashComponent::MoveToDashLocation(float Delta)
 {
-	if (bIsPerformingDash == false)
+	if (!bIsPerformingDash)
 		return;
 
 	if (DashTimeElapsed <= CalculatedDashTime)
@@ -127,10 +115,9 @@ void UDashComponent::LerpToDashLocation(float Delta)
 		MarinePawn->SetActorLocation(NewLoc);
 	}
 	else
-	{
 		TurnOffDash();
-	}
-	DashTimeElapsed += (Delta / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
+
+	DashTimeElapsed += (Delta / UGameplayStatics::GetGlobalTimeDilation(GetWorld())); // When in slowmotion the speed of dash is the same
 }
 
 void UDashComponent::TurnOffDash()
@@ -142,13 +129,13 @@ void UDashComponent::TurnOffDash()
 
 bool UDashComponent::CanPlayerPerformDash() const
 {
-	if (IsValid(MarinePawn) == false || bCanDash == false)
+	if (!IsValid(MarinePawn)|| !bCanDash)
 		return false;
 
-	if (MarinePawn->GetIsPlayerLerpingToHookLocation() == true || MarinePawn->GetIsWallrunning() == true) 
+	if (MarinePawn->GetIsPlayerMovingToHookLocation()|| MarinePawn->GetIsWallrunning()) 
 		return false;
 
-	if (MarinePawn->GetIsCrouching() == true )
+	if (MarinePawn->GetIsCrouching() )
 		return false;
 
 	if (MarinePawn->GetInputAxisValue("Right") == 0.f && MarinePawn->GetInputAxisValue("Forward") == 0.f)

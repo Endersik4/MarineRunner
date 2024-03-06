@@ -21,14 +21,14 @@ public:
 	AScope();
 
 	FORCEINLINE void SetZoomMaterialIndexOnWeapon(int32 NewIndex) { ZoomMaterialIndexOnWeapon = NewIndex; }
-	void SetUpZoomMaterial(class AGun* Gun);
+	void SetUpZoomMaterial(TObjectPtr<class AGun> Gun);
 
 	int32 Zoom(float WheelAxis, bool bShouldRestartScope = false);
 	void ActiveZoom(bool bShouldActive);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class USceneCaptureComponent2D* ZoomCamera;
+		TObjectPtr<class USceneCaptureComponent2D> ZoomCamera;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
 		UMaterial* ZoomNotActiveMaterial;
@@ -36,15 +36,17 @@ private:
 		UMaterial* ZoomRenderTargetMaterial;
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
 		TArray<float> Scope_FOVValues = { 16.f, 10.f, 5.f, 1.f };
+	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
+		TObjectPtr<USoundBase> ZoomSound;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* ZoomSound;
-	
 	int32 CurrentScope = 0;
 	void ChangeScope(int32 CurrentScopeIndex);
-	class AGun* OwningGun;
+
+	UPROPERTY(Transient)
+		TObjectPtr<class AGun> OwningGun;
 
 	int32 ZoomMaterialIndexOnWeapon;
 
-	UMaterialInstanceDynamic* DynamicScopeMaterial;
+	UPROPERTY(Transient)
+		TObjectPtr<UMaterialInstanceDynamic> DynamicScopeMaterial;
 };

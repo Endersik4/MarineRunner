@@ -5,11 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
-#include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
-#include "MarineRunner/GunClasses/Gun.h"
-#include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/Interfaces/TakeInterface.h"
-#include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 
 // Sets default values for this component's properties
 UTakeAndDrop::UTakeAndDrop()
@@ -54,20 +50,16 @@ bool UTakeAndDrop::RaycastForHoverItems()
 
 void UTakeAndDrop::Take()
 {
-	if (GetWorld()->GetTimerManager().IsTimerActive(ConstantlyTakeHandle) == false)
+	if (!GetWorld()->GetTimerManager().IsTimerActive(ConstantlyTakeHandle))
 		GetWorld()->GetTimerManager().SetTimer(ConstantlyTakeHandle, this, &UTakeAndDrop::Take, TakeAnotherItemTime, true);
 
-	if (RaycastForHoverItems() == false)
-	{
+	if (!RaycastForHoverItems())
 		return;
-	}
-	if (IsValid(LastHitResult.GetActor()) == false)
-	{
+	if (!IsValid(LastHitResult.GetActor()))
 		return;
-	}
 
 	TakeInterface = Cast<ITakeInterface>(LastHitResult.GetActor());
-	if (TakeInterface == nullptr)
+	if (!TakeInterface)
 		return;
 
 	TakeInterface->TakeItem(MarinePawn);
@@ -82,7 +74,8 @@ bool UTakeAndDrop::WhetherRaycastOnTheSameItem(const FHitResult& CurrentItemHit)
 {
 	if (IsValid(LastHitResult.GetActor()))
 	{
-		if (LastHitResult.GetActor() == CurrentItemHit.GetActor()) return false;
+		if (LastHitResult.GetActor() == CurrentItemHit.GetActor()) 
+			return false;
 	}
 
 	return true;
@@ -90,20 +83,21 @@ bool UTakeAndDrop::WhetherRaycastOnTheSameItem(const FHitResult& CurrentItemHit)
 
 void UTakeAndDrop::HoverHitItem(const bool& bWasHit, const FHitResult& CurrentItemHit)
 {
-	if (bWasHit == true)
+	if (bWasHit)
 	{
-		if (WhetherRaycastOnTheSameItem(CurrentItemHit) == false) return;
+		if (!WhetherRaycastOnTheSameItem(CurrentItemHit)) 
+			return;
 
 		DisableLastHoveredItem();
 		LastHitResult = CurrentItemHit;
 
 		ITakeInterface* HoverInterface = Cast<ITakeInterface>(CurrentItemHit.GetActor());
-		if (HoverInterface == nullptr)
+		if (!HoverInterface)
 			return;
 		
 		HoverInterface->ItemHover(MarinePawn);
 	}
-	else if (IsValid(LastHitResult.GetActor()) == true)
+	else if (IsValid(LastHitResult.GetActor()))
 	{
 		DisableLastHoveredItem();
 		LastHitResult = CurrentItemHit;
@@ -112,10 +106,11 @@ void UTakeAndDrop::HoverHitItem(const bool& bWasHit, const FHitResult& CurrentIt
 
 void UTakeAndDrop::DisableLastHoveredItem()
 {
-	if (IsValid(LastHitResult.GetActor()) == false) return;
+	if (!IsValid(LastHitResult.GetActor())) 
+		return;
 
 	ITakeInterface* HoverInterface = Cast<ITakeInterface>(LastHitResult.GetActor());
-	if (HoverInterface == nullptr)
+	if (!HoverInterface)
 		return;
 	
 	HoverInterface->ItemUnHover(MarinePawn);

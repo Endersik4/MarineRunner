@@ -21,16 +21,16 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* BackgroundImage;
+		TObjectPtr<class UImage> BackgroundImage;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* RestartGameText;
+		TObjectPtr<class UTextBlock> RestartGameText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* QuitGameText;
+		TObjectPtr<class UTextBlock> QuitGameText;
 	
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* RestartGameButton;
+		TObjectPtr<UButton> RestartGameButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* QuitGameButton;
+		TObjectPtr<UButton> QuitGameButton;
 
 	UFUNCTION()
 		void RestartGameButton_OnClicked();
@@ -47,16 +47,16 @@ public:
 		void QuitButton_OnUnhovered();
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* ShowWidgetAnim = nullptr;
+		TObjectPtr<UWidgetAnimation> ShowWidgetAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* RestartGameHoveredAnim = nullptr;
+		TObjectPtr<UWidgetAnimation> RestartGameHoveredAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* QuitHoveredAnim = nullptr;
+		TObjectPtr<UWidgetAnimation> QuitHoveredAnim = nullptr;
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* DeathSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Death")
+		TObjectPtr<USoundBase> DeathSound;
 
-	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
+	void PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true);
 	void RestartGame();
 };

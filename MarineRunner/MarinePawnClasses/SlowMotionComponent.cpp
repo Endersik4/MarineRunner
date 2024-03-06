@@ -2,18 +2,16 @@
 
 #include "SlowMotionComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "TimerManager.h"
 #include "Camera/CameraComponent.h"
 #include "Components/AudioComponent.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
-#include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 
 // Sets default values for this component's properties
 USlowMotionComponent::USlowMotionComponent()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 // Called when the game starts
@@ -22,7 +20,7 @@ void USlowMotionComponent::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	if (IsValid(MarinePawn) == false)
+	if (!IsValid(MarinePawn))
 	{
 		UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN SLOW MOTIOn COMPONENT!"));
 		return;
@@ -38,12 +36,12 @@ void USlowMotionComponent::OnOwnerDestroyed(AActor* DestroyedActor)
 
 void USlowMotionComponent::SlowMotionPressed()
 {
-	if (MarinePawn->GetIsPlayerLerpingToHookLocation() == true) 
+	if (MarinePawn->GetIsPlayerMovingToHookLocation()) 
 		return;
 	
 	SuddentDisabledSlowMotion();
 
-	if (bCanSlowMotion == false) 
+	if (!bCanSlowMotion) 
 		return;
 
 	SettingUpSlowMotion();
@@ -56,7 +54,6 @@ void USlowMotionComponent::SettingUpSlowMotion()
 	bCanSlowMotion = false;
 	bIsInSlowMotion = true;
 
-	//SlowMotion command
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), SlowMotionValue);
 	
 	SlowMotionEffects();
@@ -64,7 +61,7 @@ void USlowMotionComponent::SettingUpSlowMotion()
 
 void USlowMotionComponent::SuddentDisabledSlowMotion()
 {
-	if (bIsInSlowMotion == false)
+	if (!bIsInSlowMotion)
 		return;
 
 	if (IsValid(SlowMotionSoundSpawned))
@@ -78,11 +75,12 @@ void USlowMotionComponent::SuddentDisabledSlowMotion()
 
 void USlowMotionComponent::SlowMotionEffects()
 {
-	if (SlowMotionSound) SlowMotionSoundSpawned = UGameplayStatics::SpawnSound2D(GetWorld(), SlowMotionSound);
+	if (SlowMotionSound) 
+		SlowMotionSoundSpawned = UGameplayStatics::SpawnSound2D(GetWorld(), SlowMotionSound);
 
-	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 0.5f, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
+	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), GlobalPitchModulation, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
 
-	if (IsValid(MarinePawn) == false)
+	if (!IsValid(MarinePawn))
 		return;
 
 	ElementBar SlowMoElementBar{ SlowMotionTime };
@@ -120,20 +118,20 @@ void USlowMotionComponent::DisableSlowMotion()
 	SlowMotionSoundSpawned = nullptr;
 
 	//Enable delay for SlowMotion
-	GetWorld()->GetTimerManager().SetTimer(SlowMotionDelayHandle, this, &USlowMotionComponent::DelayCompleted, SlowMotionDelay);
+	GetWorld()->GetTimerManager().SetTimer(SlowMotionDelayHandle, this, &USlowMotionComponent::SetCanSlowMotionAgain, SlowMotionDelay);
 }
 
-void USlowMotionComponent::DelayCompleted()
+void USlowMotionComponent::SetCanSlowMotionAgain()
 {
 	bCanSlowMotion = true;
 }
 
 void USlowMotionComponent::PauseSlowMotionSound(bool bPause)
 {
-	if (SlowMotionSoundSpawned == nullptr)
+	if (!SlowMotionSoundSpawned)
 		return;
 
-	if (SlowMotionSoundSpawned->IsActive() == false)
+	if (!SlowMotionSoundSpawned->IsActive())
 		return;
 
 	SlowMotionSoundSpawned->SetPaused(bPause);

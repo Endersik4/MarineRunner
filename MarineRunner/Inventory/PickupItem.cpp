@@ -6,13 +6,13 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
-#include "MarineRunner/GunClasses/Gun.h"
-#include "MarineRunner/Widgets/HUDWidget.h"
-#include "MarineRunner/Objects/ObjectsComponents/SoundOnHitComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/MessageHandlerComponent.h"
-#include "MarineRunner/Objects/SavedDataObject.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
+#include "MarineRunner/Widgets/HUDWidget.h"
+#include "MarineRunner/GunClasses/Gun.h"
 #include "MarineRunner/GunClasses/Components/GunControlsComponent.h"
+#include "MarineRunner/Objects/ObjectsComponents/SoundOnHitComponent.h"
+#include "MarineRunner/Objects/SavedDataObject.h"
 
 // Sets default values
 APickupItem::APickupItem()
@@ -50,15 +50,15 @@ void APickupItem::Tick(float DeltaTime)
 #pragma region ///////////// TAKE ITEM ////////////////
 void APickupItem::TakeItem(AMarineCharacter* Player)
 {
-	UInventoryComponent* Inventory = Player->GetInventoryComponent();
-	if (!Inventory) 
+	TObjectPtr<UInventoryComponent> Inventory = Player->GetInventoryComponent();
+	if (!IsValid(Inventory)) 
 		return;
 
 	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
-	if (ItemInformationFromDataTable == nullptr)
+	if (!ItemInformationFromDataTable)
 		return;
 
-	if (ItemInformationFromDataTable->bIsItWeapon == true && Player->GetWeaponInventoryComponent()->CanPlayerTakeWeaponToInventory() == false)
+	if (ItemInformationFromDataTable->bIsItWeapon && !Player->GetWeaponInventoryComponent()->CanPlayerTakeWeaponToInventory())
 	{
 		Player->GetMessageHandlerComponent()->SpawnNotEnoughSlotsForWeaponWidget();
 		return;
@@ -66,9 +66,9 @@ void APickupItem::TakeItem(AMarineCharacter* Player)
 
 	bool bAmountWasAdded = AddAmountToItemIfFound(Inventory->GetItemFromInventory(ItemRowName), ItemInformationFromDataTable->Item_Amount * AmountMultiplier);
 
-	if (bAmountWasAdded == false)
+	if (!bAmountWasAdded)
 	{
-		if (Inventory->Inventory_Items.Num() > 31) 
+		if (Inventory->Inventory_Items.Num() > Inventory->GetMaxSlotsInInventory())
 			return;
 
 		FItemStruct ItemToAdd = *ItemInformationFromDataTable;
@@ -95,7 +95,7 @@ void APickupItem::TakeItem(AMarineCharacter* Player)
 
 bool APickupItem::AddAmountToItemIfFound(FItemStruct* ItemFromInventory, float AmountToAdd)
 {
-	if (ItemFromInventory == nullptr)
+	if (!ItemFromInventory)
 		return false;
 
 	if (ItemFromInventory->MaxItem_Amount != 0 && ItemFromInventory->Item_Amount >= ItemFromInventory->MaxItem_Amount)
@@ -106,27 +106,27 @@ bool APickupItem::AddAmountToItemIfFound(FItemStruct* ItemFromInventory, float A
 	return true;
 }
 
-void APickupItem::AddCraftRecipeIfCraftable(class AMarineCharacter* Player, FItemStruct* ItemDataFromDataTable)
+void APickupItem::AddCraftRecipeIfCraftable(TObjectPtr<class AMarineCharacter> Player, FItemStruct* ItemDataFromDataTable)
 {
-	if (ItemDataFromDataTable->bIsItCraftable == false)
+	if (!ItemDataFromDataTable->bIsItCraftable)
 		return;
 
 	// if there is craft recipe of this item then dont add another one
-	if (Player->GetInventoryComponent()->Items_Recipes.FindByKey(*ItemDataFromDataTable) != nullptr)
+	if (Player->GetInventoryComponent()->Items_Recipes.FindByKey(*ItemDataFromDataTable))
 		return;
 
 	Player->GetMessageHandlerComponent()->SpawnNewRecipeUnlockedWidget();
 	Player->GetInventoryComponent()->Items_Recipes.Add(*ItemDataFromDataTable);
 }
 
-void APickupItem::SpawnWeaponForPlayer(class AMarineCharacter* Player, FItemStruct* ItemDataFromDataTable)
+void APickupItem::SpawnWeaponForPlayer(TObjectPtr<class AMarineCharacter> Player, FItemStruct* ItemDataFromDataTable)
 {
-	if (ItemDataFromDataTable->bIsItWeapon == false || ItemDataFromDataTable->WeaponClass == nullptr)
+	if (!ItemDataFromDataTable->bIsItWeapon || !ItemDataFromDataTable->WeaponClass)
 		return;
 
 	FTransform WeaponTransform = FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f));
-	AGun* SpawnedGun = GetWorld()->SpawnActor<AGun>(ItemDataFromDataTable->WeaponClass, WeaponTransform);
-	if (IsValid(SpawnedGun) == false)
+	TObjectPtr<AGun> SpawnedGun = GetWorld()->SpawnActor<AGun>(ItemDataFromDataTable->WeaponClass, WeaponTransform);
+	if (!IsValid(SpawnedGun))
 		return;
 	
 	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnedGun->GetGunControlsComponent()->GetAttachToSocketName());
@@ -138,10 +138,10 @@ void APickupItem::SpawnWeaponForPlayer(class AMarineCharacter* Player, FItemStru
 void APickupItem::ItemHover(AMarineCharacter* Player)
 {
 	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
-	if (ItemInformationFromDataTable == nullptr)
+	if (!ItemInformationFromDataTable)
 		return;
 
-	if (IsValid(Player->GetHudWidget()) == false)
+	if (!IsValid(Player->GetHudWidget()))
 		return;
 
 	ItemMesh->SetRenderCustomDepth(true);
@@ -150,7 +150,7 @@ void APickupItem::ItemHover(AMarineCharacter* Player)
 
 void APickupItem::ItemUnHover(AMarineCharacter* Player)
 {
-	if (IsValid(Player->GetHudWidget()) == false)
+	if (!IsValid(Player->GetHudWidget()))
 		return;
 
 	ItemMesh->SetRenderCustomDepth(false);
@@ -161,11 +161,11 @@ void APickupItem::ItemUnHover(AMarineCharacter* Player)
 #pragma region /////////// DISSOLVE MATERIAL ON MESH //////////////
 void APickupItem::SetDissolveMaterial(class AMarineCharacter* Player, float TimeToEndDisolve, UMaterialInstance* OverlayInstanceMaterial)
 {
-	if (IsValid(OverlayInstanceMaterial) == false) 
+	if (!IsValid(OverlayInstanceMaterial)) 
 		return;
 
 	DissolveDynamicMaterial = UMaterialInstanceDynamic::Create(OverlayInstanceMaterial, this);
-	if (IsValid(DissolveDynamicMaterial) == false)
+	if (!IsValid(DissolveDynamicMaterial))
 		return;
 
 	ItemMesh->SetOverlayMaterial(DissolveDynamicMaterial);
@@ -176,7 +176,7 @@ void APickupItem::SetDissolveMaterial(class AMarineCharacter* Player, float Time
 
 void APickupItem::Dissolve(float Delta)
 {
-	if (bShouldDissolve == false || IsValid(DissolveDynamicMaterial) == false) 
+	if (!bShouldDissolve || !IsValid(DissolveDynamicMaterial)) 
 		return;
 
 	if (DissolveTimeElapsed <= TimeToCraftAnItem)
@@ -197,9 +197,8 @@ void APickupItem::Dissolve(float Delta)
 #pragma region /////////// SAVE/LOAD /////////////
 void APickupItem::SaveItemWasTaken()
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
-
-	if (IsValid(SavedDataObject) == false)
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	if (!IsValid(SavedDataObject))
 		return;
 
 	if (CurrentUniqueID != 0)
@@ -213,9 +212,8 @@ void APickupItem::SaveItemWasTaken()
 
 void APickupItem::SaveItemIfSpawnedRunTime()
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
-
-	if (IsValid(SavedDataObject) == false)
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	if (!IsValid(SavedDataObject) == false)
 		return;
 
 	FCustomDataSaved ItemSpawnedData = FCustomDataSaved(ESavedDataState::ESDS_SpawnObject, GetClass(), FTransform(GetActorRotation(), GetActorLocation()), CurrentMagazineCapacity);
@@ -224,7 +222,7 @@ void APickupItem::SaveItemIfSpawnedRunTime()
 	SaveItem(SavedDataObject, ItemSpawnedData);
 }
 
-void APickupItem::SaveItem(ASavedDataObject* SavedDataObject, const FCustomDataSaved& DataToSave)
+void APickupItem::SaveItem(TObjectPtr<class ASavedDataObject> SavedDataObject, const FCustomDataSaved& DataToSave)
 {
 	CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
 	FCustomDataSaved SavedDataItemWasSpawned = DataToSave;

@@ -26,10 +26,10 @@ protected:
 
 public:	
 
-	class AGun* GetGun() const { return Gun; }
-	bool GetIsPlayerInAds() const { return bIsPlayerADS; }
+	FORCEINLINE TObjectPtr<class AGun> GetGun() const { return Gun; }
+	FORCEINLINE bool GetIsPlayerInAds() const { return bIsPlayerADS; }
 
-	FORCEINLINE void SetGun(class AGun* NewGun) { Gun = NewGun; }
+	FORCEINLINE void SetGun(TObjectPtr<class AGun> NewGun) { Gun = NewGun; }
 	FORCEINLINE void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
 
 	void Shoot();
@@ -49,7 +49,7 @@ public:
 
 	void LoadSavedSettingsFromGameInstance();
 private:
-	UPROPERTY(EditAnywhere, Category = "Set up Gun")
+	UPROPERTY(EditAnywhere, Category = "Gun")
 		TArray<FSettingSavedInJsonFile> MouseSensitivityWhenScope = 
 	{
 		FSettingSavedInJsonFile("MouseSensitivityADS", 0.4f),
@@ -58,25 +58,22 @@ private:
 		FSettingSavedInJsonFile("MouseSensitivity8x", 0.05f),
 	};
 
-	UPROPERTY(EditDefaultsOnly, Category = "ADS SEttings")
+	UPROPERTY(EditDefaultsOnly, Category = "Gun|Ads")
 		float MovementForceDividerWhenInADS = 1.5f;
-
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* ADSInSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* ADSOutSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Gun|Ads")
+		TObjectPtr<USoundBase> ADSInSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Gun|Ads")
+		TObjectPtr<USoundBase> ADSOutSound;
 
 	//Gun
 	int32 CurrentScopeIndex;
-	class AGun* Gun;
+	UPROPERTY(Transient)
+		TObjectPtr<class AGun> Gun;
 
-	//Aiming
 	bool bIsPlayerADS;
 
-	//Weapon Inventory
 	bool bCanChangeWeapon = true;
 
-
-	class AMarineCharacter* MarinePawn;	
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> Player;	
 };

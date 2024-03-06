@@ -19,7 +19,7 @@ void UPullUpComponent::BeginPlay()
 	Super::BeginPlay();
 
 	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	if (IsValid(MarinePawn) == false) 
+	if (!IsValid(MarinePawn)) 
 		UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN SLOW MOTIOn COMPONENT!"));
 
 	GetWorld()->GetTimerManager().SetTimer(CheckIfShouldPullUpHandle, this, &UPullUpComponent::StartPullUpOnEdge, CheckLinesForPullUpTime, true);
@@ -36,25 +36,24 @@ void UPullUpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UPullUpComponent::StartPullUpOnEdge()
 {
-	if (IsValid(MarinePawn) == false)
+	if (!IsValid(MarinePawn))
 		return;
 
-	if (bShouldPullUpLerp || MarinePawn->GetIsInAir() == false)
+	if (bIsPullingUp || !MarinePawn->GetIsInAir())
 		return;
 
 	FVector PlayerForwardVector = CalculateForwardVectorForPlayer();
-
-	if (DetectEdge(PlayerForwardVector) == false)
+	if (!DetectEdge(PlayerForwardVector))
 		return;
 
 	FVector ImpactPoint;
-	if (GetEdgeLocationOfTheObject(PlayerForwardVector, ImpactPoint) == false)
+	if (!GetEdgeLocationOfTheObject(PlayerForwardVector, ImpactPoint))
 		return;
 
 	PullupLocationZ = MarinePawn->GetActorLocation();
 	PullupLocationZ.Z = ImpactPoint.Z + PullupOffset_Z;
 	PlayerLocation = MarinePawn->GetActorLocation();
-	bShouldPullUpLerp = true;
+	bIsPullingUp = true;
 	PullupTimeElapsed = 0.f;
 
 #ifdef WITH_EDITOR
@@ -87,26 +86,24 @@ bool UPullUpComponent::GetEdgeLocationOfTheObject(const FVector& PlayerForwardVe
 {
 	FHitResult HitResult;
 	TArray<AActor*> ActorsToIgnore;
-	FVector LineStart = (MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupTrueLineZ)) + PlayerForwardVector * 100.f;
-	FVector LineEnd = LineStart + (MarinePawn->GetActorUpVector() * 200.f);
+	FVector EdgeDetectionLineStart = (MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupTrueLineZ)) + PlayerForwardVector * EdgeDetectionLineStartDistance;
+	FVector EdgeDetectionLineEnd = EdgeDetectionLineStart + (MarinePawn->GetActorUpVector() * EdgeDetectionLineEndDistance);
 
-	bool bObjectHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), LineStart, LineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel8), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
+	bool bObjectHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), EdgeDetectionLineStart, EdgeDetectionLineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel8), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
 	
-	if (bObjectHit == true)
-	{
-		EdgeLocation = HitResult.ImpactPoint;
-		return true;
-	}
-	
-	return false;
+	if (!bObjectHit)
+		return false;
+
+	EdgeLocation = HitResult.ImpactPoint;
+	return true;
 }
 
 void UPullUpComponent::MovePlayerToPullUpLocation(float Delta)
 {
-	if (!bShouldPullUpLerp) 
+	if (!bIsPullingUp) 
 		return;
 
-	if (IsValid(MarinePawn) == false)
+	if (!IsValid(MarinePawn))
 		return;
 
 	if (PullupTimeElapsed <= PullUpTime)
@@ -122,7 +119,7 @@ void UPullUpComponent::MovePlayerToPullUpLocation(float Delta)
 		FVector Impulse = (CalculateForwardVectorForPlayer() * PullUpForceForward) + FVector(0.f, 0.f, PullUpForceUp);
 		MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
 
-		bShouldPullUpLerp = false;
+		bIsPullingUp = false;
 	}
 }
 

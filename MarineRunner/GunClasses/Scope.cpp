@@ -10,15 +10,13 @@
 // Sets default values
 AScope::AScope()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick =false;
+	PrimaryActorTick.bCanEverTick = false;
 
 	//Configuring the SceneCaptureComponent responsible for capturing another screen for Scope
 	ZoomCamera = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("ZoomCamera"));
 	RootComponent = ZoomCamera;
 	ZoomCamera->FOVAngle = 16.f;
 	ZoomCamera->CaptureSource = ESceneCaptureSource::SCS_FinalToneCurveHDR;
-	//
 
 	Tags.Add(FName("Scope"));
 }
@@ -31,12 +29,12 @@ void AScope::BeginPlay()
 	ZoomCamera->SetActive(false);
 }
 
-void AScope::SetUpZoomMaterial(AGun* Gun)
+void AScope::SetUpZoomMaterial(TObjectPtr<AGun> Gun)
 {
-	if (IsValid(Gun) == false)
+	if (!IsValid(Gun))
 		return;
 
-	if (Gun->GetGunSkeletalMesh()->GetMaterial(ZoomMaterialIndexOnWeapon) == nullptr)
+	if (!Gun->GetGunSkeletalMesh()->GetMaterial(ZoomMaterialIndexOnWeapon))
 		return;
 
 	OwningGun = Gun;
@@ -44,9 +42,10 @@ void AScope::SetUpZoomMaterial(AGun* Gun)
 
 int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
 {
-	if (Scope_FOVValues.Num() < 1) return 0;
+	if (Scope_FOVValues.Num() < 1) 
+		return 0;
 
-	if (bShouldRestartScope == true)
+	if (bShouldRestartScope)
 	{
 		ChangeScope(0);
 		return 0;
@@ -60,9 +59,10 @@ int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
 	{
 		ChangeScope(CurrentScope - 1);
 	}
-	else return CurrentScope;
+	else 
+		return CurrentScope;
 
-	if (ZoomSound) 
+	if (IsValid(ZoomSound)) 
 		UGameplayStatics::PlaySound2D(GetWorld(), ZoomSound);
 
 	return CurrentScope;
@@ -81,11 +81,13 @@ void AScope::ActiveZoom(bool bShouldActive)
 {
 	if (bShouldActive)
 	{
-		OwningGun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomRenderTargetMaterial);
+		if (ZoomRenderTargetMaterial)
+			OwningGun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomRenderTargetMaterial);
 	}
 	else
 	{ 
-		OwningGun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomNotActiveMaterial);
+		if (ZoomNotActiveMaterial)
+			OwningGun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomNotActiveMaterial);
 	}
 
 	ZoomCamera->SetActive(bShouldActive);

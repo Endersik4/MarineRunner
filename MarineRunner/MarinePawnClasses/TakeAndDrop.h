@@ -37,10 +37,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Take Items")
 		float TakeAnotherItemTime = 0.12f;
 
-
-	class AMarineCharacter* MarinePawn;
-	class ITakeInterface* TakeInterface;
-
 	bool RaycastForHoverItems();
 
 	FTimerHandle ConstantlyTakeHandle;
@@ -50,4 +46,7 @@ private:
 	void HoverHitItem(const bool& bWasHit, const FHitResult& ItemHit);
 	void DisableLastHoveredItem();
 
+	class ITakeInterface* TakeInterface;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> MarinePawn;
 };

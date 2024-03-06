@@ -1,19 +1,16 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-
 #include "MarineRunner/MarinePawnClasses/MainMenu/MainMenuPawn.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "MarineRunner/MarinePawnClasses/MainMenu/MainMenuWidget.h"
 
-// Sets default values
 AMainMenuPawn::AMainMenuPawn()
 {
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
 void AMainMenuPawn::BeginPlay()
 {
 	Super::BeginPlay();
@@ -21,13 +18,6 @@ void AMainMenuPawn::BeginPlay()
 	SpawnMainMenuWidget();
 }
 
-void AMainMenuPawn::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
 void AMainMenuPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
@@ -37,25 +27,25 @@ void AMainMenuPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 
 void AMainMenuPawn::SpawnMainMenuWidget()
 {
-	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (IsValid(PC) == false || MainMenuWidgetClass == nullptr)
+	TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(PlayerController) || !IsValid(MainMenuWidgetClass))
 		return;
 
-	PC->SetShowMouseCursor(true);
+	PlayerController->SetShowMouseCursor(true);
 
-	MainMenuWidget = Cast<UMainMenuWidget>(CreateWidget(PC, MainMenuWidgetClass));
-	if (IsValid(MainMenuWidget) == false)
+	MainMenuWidget = Cast<UMainMenuWidget>(CreateWidget(PlayerController, MainMenuWidgetClass));
+	if (!IsValid(MainMenuWidget))
 		return;
 
 	MainMenuWidget->AddToViewport();
-	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PC, MainMenuWidget);
+	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerController, MainMenuWidget);
 
 	bIsInMainMenu = true;
 }
 
 void AMainMenuPawn::BackToPreviousMenu()
 {
-	if (bIsInMainMenu == false || IsValid(MainMenuWidget) == false)
+	if (!bIsInMainMenu || !IsValid(MainMenuWidget))
 		return;
 
 	MainMenuWidget->RemoveCurrentMenuWidgetsFromViewport();

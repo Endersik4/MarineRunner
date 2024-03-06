@@ -4,7 +4,6 @@
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/GunClasses/Gun.h"
-#include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/GunClasses/Components/GunControlsComponent.h"
 #include "MarineRunner/GunClasses/Components/GunReloadComponent.h"
 
@@ -30,19 +29,19 @@ void UWeaponInventoryComponent::StartTimerForSpawnNewWeapons()
 
 void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
 {
-	AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(GetOwner());
+	TObjectPtr<AMarineCharacter> MarinePawn = Cast<AMarineCharacter>(GetOwner());
 
-	if (IsValid(MarinePawn) == false || InitialWeaponInventory.Num() == 0)
+	if (!IsValid(MarinePawn) || InitialWeaponInventory.Num() == 0)
 		return;
 
 	for (const TPair<int32, FString> CurrentPair : InitialWeaponInventory)
 	{
 		const FSoftClassPath GunClassPath = CurrentPair.Value;
-		if (GunClassPath.TryLoadClass<UObject>() == NULL)
+		if (!GunClassPath.TryLoadClass<UObject>())
 			continue;
 
-		AGun* SpawnedGun = GetWorld()->SpawnActor<AGun>(GunClassPath.TryLoadClass<UObject>(), FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f)));
-		if (IsValid(SpawnedGun) == false)
+		TObjectPtr<AGun> SpawnedGun = GetWorld()->SpawnActor<AGun>(GunClassPath.TryLoadClass<UObject>(), FTransform(FRotator(0.f), FVector(0.f), FVector(1.f)));
+		if (!IsValid(SpawnedGun))
 			continue;
 
 		SpawnedGun->AttachToComponent(MarinePawn->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnedGun->GetGunControlsComponent()->GetAttachToSocketName());
@@ -50,15 +49,16 @@ void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
 	}
 }
 
-void UWeaponInventoryComponent::AddNewWeaponToStorage(AGun* NewGun)
+void UWeaponInventoryComponent::AddNewWeaponToStorage(TObjectPtr<AGun> NewGun)
 {
-	if (IsValid(NewGun) == false) 
+	if (!IsValid(NewGun)) 
 		return;
+
 	int32 WeaponNumber = WeaponsStorage.Num() + 1;
 	WeaponsStorage.Add(WeaponNumber, NewGun);
 }
 
-void UWeaponInventoryComponent::RemoveWeaponFromStorage(AGun* EquipedGun)
+void UWeaponInventoryComponent::RemoveWeaponFromStorage(TObjectPtr<AGun> EquipedGun)
 {
 	int32 KeyForEquipedGun = *WeaponsStorage.FindKey(EquipedGun);
 	WeaponsStorage.Remove(KeyForEquipedGun);
@@ -66,12 +66,12 @@ void UWeaponInventoryComponent::RemoveWeaponFromStorage(AGun* EquipedGun)
 	SortWeapons();
 }
 
-bool UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, class AGun* CurrentWeapon)
+bool UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, TObjectPtr<AGun> CurrentWeapon)
 {
-	if (IsValid(CurrentWeapon) == false)
+	if (!IsValid(CurrentWeapon))
 		return false;
 
-	if (WeaponsStorage.Find(KeyForWeapon) == nullptr) 
+	if (!WeaponsStorage.Find(KeyForWeapon)) 
 		return false;
 	GunFromInventory = *WeaponsStorage.Find(KeyForWeapon);
 	if (GunFromInventory == CurrentWeapon)
@@ -82,18 +82,18 @@ bool UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, class A
 	return true;
 }
 
-AGun* UWeaponInventoryComponent::GetCurrentGunToDraw()
+TObjectPtr<AGun> UWeaponInventoryComponent::GetCurrentGunToDraw()
 {
 	return GunFromInventory;
 }
 
-int32 UWeaponInventoryComponent::GetLastWeaponSlotFromStorage(AGun* ValueToIgnore)
+int32 UWeaponInventoryComponent::GetLastWeaponSlotFromStorage(TObjectPtr<AGun> ValueToIgnore)
 {
 	TArray<int32> SlotsForGunGun;
 	WeaponsStorage.GenerateKeyArray(SlotsForGunGun);
 	for (int32 i = SlotsForGunGun.Num() - 1; i >= 0; i--)
 	{
-		if (WeaponsStorage.Find(SlotsForGunGun[i]) == nullptr)
+		if (!WeaponsStorage.Find(SlotsForGunGun[i]))
 			continue;
 
 		if (*WeaponsStorage.Find(SlotsForGunGun[i]) != ValueToIgnore)
@@ -104,19 +104,19 @@ int32 UWeaponInventoryComponent::GetLastWeaponSlotFromStorage(AGun* ValueToIgnor
 
 void UWeaponInventoryComponent::SortWeapons()
 {
-	TArray<AGun*> Guns;
+	TArray<TObjectPtr<AGun>> Guns;
 	WeaponsStorage.GenerateValueArray(Guns);
 	WeaponsStorage.Empty();
 	for (int32 i = 1; i <= Guns.Num(); i++)
 	{
-		WeaponsStorage.Add(i, Guns[i - 1]);
+		WeaponsStorage.Add(i, Guns[i-1]);
 	}
 }
 
 void UWeaponInventoryComponent::SaveInitialWeaponInventory()
 {
 	InitialWeaponInventory.Empty();
-	for (const TPair<int32, class AGun* > CurrentPair : WeaponsStorage)
+	for (const TPair<int32, TObjectPtr<class AGun> > CurrentPair : WeaponsStorage)
 	{
 		InitialWeaponInventory.Add(CurrentPair.Value->GetGunReloadComponent()->GetMagazineCapacity(), CurrentPair.Value->GetClass()->GetClassPathName().ToString());
 	}

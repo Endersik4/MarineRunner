@@ -35,22 +35,16 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	UFUNCTION(BlueprintCallable)
-	void SetShouldLerpRotation(bool bShould) { bShouldLerpRotation = bShould;}
-
-	UFUNCTION(BlueprintCallable)
-		bool GetIsWallrunning() const { return bIsWallrunning; }
-
+	FORCEINLINE void SetShouldCameraYawRotate(bool bShould) { bRotateYawCameraTowardsWallrun = bShould;}
 	FORCEINLINE void SetCanJumpAfterWallrun(bool bCan) { bCanJumpAfterWallrun = bCan; }
 
 	//Getters
 	FORCEINLINE bool GetCanJump() const { return bCanJumpWhileWallrunning; }
 	FORCEINLINE bool GetCanJumpAfterWallrun() const { return bCanJumpAfterWallrun; }
 	FORCEINLINE FVector GetWallrunDirection() const { return WallrunDirection; }
+	FORCEINLINE bool GetIsWallrunning() const { return bIsWallrunning; }
 
-	bool ShouldAddImpulseAfterWallrun(bool bShould); //Check If Should Add This Impulse. Return true if Pawn is wallrunning, false otherwise
-	void AddImpulseAfterWallrun(float JumpTimeElapsed); //When Player jumps while in wallrunning then Add Impulse to push player away from Obstacle.
-	//JumpTimeElapsed is the elapsed time when the player pressed the Jump button
+	void AddImpulseAfterWallrun(); //When Player jumps while in wallrunning then Add Impulse to push player away from Obstacle.
 
 	void CallResetWallrunningAfterLanding();//When Player is trying to do a wallrun but very close to the floor then Wallrun is disabled
 
@@ -60,14 +54,22 @@ private:
 		float WallrunSpeed = 1.5f;
 	//Impulse added to Stick with Obstacle
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float StickWithObstacleImpulse = 2300.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float JumpFromWallrunImpulse = 780000.f;
+		float StickWithObstacleImpulse = 230000.f;
 	//How much should change the angle of the impact vector
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float AngleOfHitImpact = 85.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
+		float DelayToStartNextWallrun = 0.3f;
+	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
+		float MaxYawDistanceToStopWallrunning = 45.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Jump")
+		float JumpFromWallrunImpulse = 780000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Jump")
+		float CanJumpWhenWallrunStartsTime = 0.1f;
+	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Jump")
 		float CanJumpAfterWallrunTime = 0.3f;
+	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
+		float ObstacleRaycastDistance = 150.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
 		FFloatRange VelocityRangeToStopWallrunming = FFloatRange(-5.f, 400.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
@@ -77,34 +79,33 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")
 		float CameraYawSpeed = 8.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")
-		UCurveFloat* CameraRollRightSideCurve;
+		TObjectPtr<UCurveFloat> CameraRollRightSideCurve;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")
-		UCurveFloat* CameraRollLeftSideCurve;
+		TObjectPtr<UCurveFloat> CameraRollLeftSideCurve;
 	UFUNCTION()
 		void CameraRollTimelineProgress(float CurveValue);
 
 	//Wallrunning
 	bool bIsWallrunning;
-	bool bShouldAddImpulseAfterWallrun;
 	bool bCanJumpWhileWallrunning = true;
 	FVector WallrunDirection;
 
 	float WallrunTimeElapsed = 0.6f; //After the jump, this time must pass to do the wallrun again
 	FVector WallrunningWhereToJump; //ImpactNormal of Obstacle HitResult
 	void SetCanJumpWhileWallrunning();
+	FTimerHandle CanJumpHandle;
 
 	//Yaw camera rotation after run-up begins
-	bool bShouldLerpRotation;
-	float WhereToInterp;
+	bool bRotateYawCameraTowardsWallrun;
+	float RotateYawCameraAngle;
 	void RotateCameraYaw(ESideOfLine CurrentSide, FVector HitNormal);
-	void CameraRotationInterp(float Delta);
+	void CameraRotationTowardsHitNormal(float Delta);
 
 	// Rotate camera roll in direction of the obstacle normal 
+	bool bCameraRollWasRotated = false;
 	ESideOfLine CurrentRotatedCameraRoll;
 	void RotateCameraWhileWallrunning(UCurveFloat* CurveToUse);
 	FTimeline RotateCameraRollTimeline;
-
-	bool bCameraRollWasRotated = false;
 
 	//Wallrunning Functions
 	void Wallrunning(float Delta);
@@ -119,13 +120,11 @@ private:
 	FTimerHandle CanJumpAfterWallrunHandle;
 	void DisableCanJumpAfterWallrun();
 
-
 	FRotator PlayerRotationWallrun;
 	FRotator PlayerRotationWhileWallrun;
 
-	//Other
-	FTimerHandle CanJumpHandle;
-
-	class AMarineCharacter* MarinePawn;
-	APlayerController* PlayerController;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> MarinePawn;
+	UPROPERTY(Transient)
+		TObjectPtr<APlayerController> PlayerController;
 };

@@ -77,17 +77,7 @@ void UCraftingAlbertosWidget::NativeOnInitialized()
 }
 
 #pragma region /////////////////////// ADD DATA TO INVENTORY ///////////////////
-void UCraftingAlbertosWidget::SetRecipesData(TObjectPtr<AMarineCharacter> Player)
-{
-	if (IsValid(Player) == false)
-		return;
-
-	MarinePawn = Player;
-	Player->GetInventoryComponent()->MoveWeaponRecipesToEndQueue();
-	RecipesOfCraftableItems = Player->GetInventoryComponent()->Items_Recipes;
-}
-
-void UCraftingAlbertosWidget::AddItemToInventoryTileView(const TArray<FItemStruct> & InventoryItems)
+void UCraftingAlbertosWidget::AddItemsToInventoryTileView(const TArray<FItemStruct> & InventoryItems)
 {
 	StorageInventoryTileView->ClearListItems();
 	ResourcesInventoryTileView->ClearListItems();

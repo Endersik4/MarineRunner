@@ -1,6 +1,5 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -23,71 +22,16 @@ void UWeaponHandlerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MarinePawn = Cast<AMarineCharacter>(GetOwner());
+	Player = Cast<AMarineCharacter>(GetOwner());
 	
 	FTimerHandle UpdateMouseSensitivitesHandle;
 	GetWorld()->GetTimerManager().SetTimer(UpdateMouseSensitivitesHandle, this, &UWeaponHandlerComponent::LoadSavedSettingsFromGameInstance, 0.05f, false);
 }
 
 #pragma region ////////////////////////////////// GUN //////////////////////////////////
-void UWeaponHandlerComponent::ADSPressed()
-{
-	if (IsValid(Gun) == false) 
-		return;
-
-	if (Gun->GetGunReloadComponent()->GetIsReloading() && Gun->GetGunReloadComponent()->GetReloadOneBullet())
-		Gun->GetGunReloadComponent()->CancelReload();
-
-	if (Gun->GetCanShoot() == false) 
-		return;
-
-	MarinePawn->MakeCrosshire(true);
-	MarinePawn->SetMovementForceDividerWhenInADS(MovementForceDividerWhenInADS);
-
-	if (ADSInSound) 
-		UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
-
-	bIsPlayerADS = true;
-	Gun->AimTheGun(EStatusOfAimedGun::ESAG_ADS);
-
-	if (CurrentScopeIndex >= MouseSensitivityWhenScope.Num())
-		return;
-
-	MarinePawn->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
-}
-
-void UWeaponHandlerComponent::ADSReleased()
-{
-	if (IsValid(Gun) == false || bIsPlayerADS == false) 
-		return;
-
-	MarinePawn->MakeCrosshire();
-	MarinePawn->SetMovementForceDividerWhenInADS(1.f);
-
-	if (ADSOutSound) UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
-	bIsPlayerADS = false;
-
-	Gun->AimTheGun(EStatusOfAimedGun::ESAG_HipFire);
-
-	MarinePawn->ChangeMouseSensitivity(FSettingSavedInJsonFile(), true);
-
-	if (Gun->GetUseScope() == true)
-		CurrentScopeIndex = Gun->GetScopeActor()->Zoom(0.f, true);
-	else
-		CurrentScopeIndex = 0;
-}
-
-void UWeaponHandlerComponent::UpdateWeaponInformationOnHud()
-{
-	if (IsValid(Gun) == false)
-		return;
-	
-	Gun->GetGunControlsComponent()->UpdateWeaponDataInHud(true);
-}
-
 void UWeaponHandlerComponent::Shoot()
 {
-	if (IsValid(Gun) == false) 
+	if (!IsValid(Gun))
 		return;
 
 	Gun->SetShootButtonPressed(true);
@@ -96,7 +40,7 @@ void UWeaponHandlerComponent::Shoot()
 
 void UWeaponHandlerComponent::ReleasedShoot()
 {
-	if (IsValid(Gun) == false) 
+	if (!IsValid(Gun))
 		return;
 
 	Gun->ShootReleased();
@@ -104,21 +48,78 @@ void UWeaponHandlerComponent::ReleasedShoot()
 
 void UWeaponHandlerComponent::Reload()
 {
-	if (IsValid(Gun) == false) 
+	if (!IsValid(Gun))
 		return;
 
 	Gun->GetGunReloadComponent()->PrepareToReload();
 }
 
+void UWeaponHandlerComponent::ADSPressed()
+{
+	if (!IsValid(Gun)) 
+		return;
+
+	if (Gun->GetGunReloadComponent()->GetIsReloading() && Gun->GetGunReloadComponent()->GetReloadOneBullet())
+		Gun->GetGunReloadComponent()->CancelReload();
+
+	if (!Gun->GetCanShoot()) 
+		return;
+
+	Player->MakeCrosshire(true);
+	Player->SetMovementForceDividerWhenInADS(MovementForceDividerWhenInADS);
+
+	if (IsValid(ADSInSound)) 
+		UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
+
+	bIsPlayerADS = true;
+	Gun->AimTheGun(EStatusOfAimedGun::ESAG_ADS);
+
+	if (CurrentScopeIndex >= MouseSensitivityWhenScope.Num())
+		return;
+
+	Player->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
+}
+
+void UWeaponHandlerComponent::ADSReleased()
+{
+	if (!IsValid(Gun)|| !bIsPlayerADS) 
+		return;
+
+	Player->MakeCrosshire();
+	Player->SetMovementForceDividerWhenInADS(1.f);
+
+	if (IsValid(ADSOutSound)) 
+		UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
+
+	bIsPlayerADS = false;
+
+	Gun->AimTheGun(EStatusOfAimedGun::ESAG_HipFire);
+
+	Player->ChangeMouseSensitivity(FSettingSavedInJsonFile(), true);
+
+	if (Gun->GetUseScope())
+		CurrentScopeIndex = Gun->GetScopeActor()->Zoom(0.f, true);
+	else
+		CurrentScopeIndex = 0;
+}
+
+void UWeaponHandlerComponent::UpdateWeaponInformationOnHud()
+{
+	if (!IsValid(Gun))
+		return;
+	
+	Gun->GetGunControlsComponent()->UpdateWeaponDataInHud(true);
+}
+
 void UWeaponHandlerComponent::Zoom(float WheelAxis)
 {
-	if (IsValid(Gun) == false || bIsPlayerADS == false || WheelAxis == 0.f) 
+	if (!IsValid(Gun) || !bIsPlayerADS || WheelAxis == 0.f) 
 		return;
 
-	if (Gun->GetUseScope() == false)
+	if (!Gun->GetUseScope())
 		return;
 
-	if (IsValid(Gun->GetScopeActor()) == false)
+	if (!IsValid(Gun->GetScopeActor()))
 		return;
 
 	CurrentScopeIndex = Gun->GetScopeActor()->Zoom(WheelAxis);
@@ -126,53 +127,51 @@ void UWeaponHandlerComponent::Zoom(float WheelAxis)
 	if (CurrentScopeIndex >= MouseSensitivityWhenScope.Num())
 		return;
 
-	MarinePawn->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
+	Player->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
 }
 #pragma endregion 
 
 #pragma region ////////////////////// EQUIP WEAPON FROM INVENTORY //////////////////////
 void UWeaponHandlerComponent::SelectWeaponFromQuickInventory(int32 HandNumber)
 {
-	if (bCanChangeWeapon == false || bIsPlayerADS == true)
+	if (!bCanChangeWeapon|| bIsPlayerADS)
 		return;
 
+	bool bDrawGunAccordingToHandNumber = Player->GetWeaponInventoryComponent()->GetWeaponFromStorage(HandNumber, Gun);
 
-	bool bDrawGunAccordingToHandNumber = MarinePawn->GetWeaponInventoryComponent()->GetWeaponFromStorage(HandNumber, Gun);
-
-	if (bDrawGunAccordingToHandNumber == false)
+	if (!bDrawGunAccordingToHandNumber)
 		return;
 
 	bCanChangeWeapon = false;
-
 }
 
 void UWeaponHandlerComponent::DrawNewGun()
 {
-	if (IsValid(MarinePawn->GetWeaponInventoryComponent()->GetCurrentGunToDraw()) == false)
+	if (!IsValid(Player->GetWeaponInventoryComponent()->GetCurrentGunToDraw()))
 		return;
 
-	Gun = MarinePawn->GetWeaponInventoryComponent()->GetCurrentGunToDraw();
+	Gun = Player->GetWeaponInventoryComponent()->GetCurrentGunToDraw();
 	Gun->GetGunControlsComponent()->DrawGun();
 }
 
 void UWeaponHandlerComponent::DropGun()
 {
-	if (bCanChangeWeapon == false)
+	if (!bCanChangeWeapon)
 		return;
 
-	if (IsValid(Gun) == false)
+	if (!IsValid(Gun))
 		return;
 
 	Gun->GetGunControlsComponent()->SetDropGun(true);
-	if (MarinePawn->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1)
+	if (Player->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1)
 		Gun->GetGunControlsComponent()->PutAwayGun();
 	else 
-		SelectWeaponFromQuickInventory(MarinePawn->GetWeaponInventoryComponent()->GetLastWeaponSlotFromStorage(Gun));
+		SelectWeaponFromQuickInventory(Player->GetWeaponInventoryComponent()->GetLastWeaponSlotFromStorage(Gun));
 }
 
 void UWeaponHandlerComponent::HideCurrentHoldingGun()
 {
-	if (IsValid(Gun) == false)
+	if (!IsValid(Gun))
 		return;
 
 	Gun->GetGunControlsComponent()->HideGun();
@@ -181,22 +180,25 @@ void UWeaponHandlerComponent::HideCurrentHoldingGun()
 
 void UWeaponHandlerComponent::LoadSavedSettingsFromGameInstance()
 {
-	if (IsValid(MarinePawn) == false)
+	if (!IsValid(Player))
 		return;
 
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	AMarinePlayerController* MarinePlayerController = Cast<AMarinePlayerController>(MarinePawn->GetController());
+	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	TObjectPtr<AMarinePlayerController> MarinePlayerController = Cast<AMarinePlayerController>(Player->GetController());
 
-	if (IsValid(GameInstance) == false || IsValid(MarinePlayerController) == false)
+	if (!IsValid(GameInstance) || !IsValid(MarinePlayerController))
 		return;
 
-	GameInstance->FindSavedValueAccordingToName(MarinePawn->GetMouseSensitivityJSON().FieldName, MarinePawn->GetMouseSensitivityJSON().FieldValue);
+	GameInstance->FindSavedValueAccordingToName(Player->GetMouseSensitivityJSON().FieldName, Player->GetMouseSensitivityJSON().FieldValue);
 	const FSettingSavedInJsonFile& CurrentMouseSensName = MarinePlayerController->GetMouseSensitivity();
-	if (CurrentMouseSensName == MarinePawn->GetMouseSensitivityJSON()) MarinePawn->ChangeMouseSensitivity(MarinePawn->GetMouseSensitivityJSON(), true);
+
+	if (CurrentMouseSensName == Player->GetMouseSensitivityJSON()) 
+		Player->ChangeMouseSensitivity(Player->GetMouseSensitivityJSON(), true);
 
 	for (FSettingSavedInJsonFile& CurrSetting : MouseSensitivityWhenScope)
 	{
 		GameInstance->FindSavedValueAccordingToName(CurrSetting.FieldName, CurrSetting.FieldValue);
-		if (CurrentMouseSensName == CurrSetting) MarinePawn->ChangeMouseSensitivity(CurrSetting);
+		if (CurrentMouseSensName == CurrSetting) 
+			Player->ChangeMouseSensitivity(CurrSetting);
 	}
 }

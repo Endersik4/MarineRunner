@@ -31,7 +31,7 @@ void UInventoryComponent::TransformItemsDataToInventory()
 FItemStruct* UInventoryComponent::GetItemFromInventory(FName ItemRowNameFromDataTable)
 {
 	const FItemStruct* ItemFromDataTable = ItemsDataTable->FindRow<FItemStruct>(ItemRowNameFromDataTable, "");
-	if (ItemFromDataTable == nullptr)
+	if (!ItemFromDataTable)
 		return nullptr;
 
 	return Inventory_Items.FindByKey(ItemFromDataTable->Item_Name);
@@ -45,7 +45,7 @@ FItemStruct* UInventoryComponent::GetItemInformationFromDataTable(FName ItemRowN
 void UInventoryComponent::AddNewItemToInventory(FName ItemRowNameFromDataTable, float AddAmountToItem)
 {
 	const FItemStruct* ItemFromDataTable = ItemsDataTable->FindRow<FItemStruct>(ItemRowNameFromDataTable, "");
-	if (ItemFromDataTable == nullptr)
+	if (!ItemFromDataTable)
 		return;
 
 	FItemStruct ItemWithAmount = *ItemFromDataTable;

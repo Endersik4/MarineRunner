@@ -43,11 +43,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting Albertos Widget Settings")
 		float FillCraftingPercentBarTimerTime = 0.001f;
 
-	void AddItemToInventoryTileView(const TArray<FItemStruct> & InventoryItems);
-	void SetRecipesData(TObjectPtr<class AMarineCharacter> Player);
+	void AddItemsToInventoryTileView(const TArray<FItemStruct> & InventoryItems);
 	void SwitchCurrentCraftingItem(bool bDeleteResources = false);
 
-	void SetAlbertosPawn(TObjectPtr<class AAlbertosPawn> NewAlbertos) { AlbertosPawn = NewAlbertos; }
+	FORCEINLINE void SetAlbertosPawn(TObjectPtr<class AAlbertosPawn> NewAlbertos) { AlbertosPawn = NewAlbertos; }
+	FORCEINLINE void SetPlayer(TObjectPtr<class AMarineCharacter> NewPlayer) { MarinePawn = NewPlayer; }
+	FORCEINLINE void SetRecipesData(const TArray<FItemStruct> & NewRecipes) { RecipesOfCraftableItems = NewRecipes; }
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))

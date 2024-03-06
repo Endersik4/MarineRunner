@@ -97,6 +97,8 @@ void AMarineCharacter::BeginPlay()
 	MarinePlayerController = Cast<AMarinePlayerController>(GetController());
 	PauseMenuComponent->ChangeUIToGameOnly();
 
+	OriginalHealth = Health;
+
 	MakeCrosshire();
 	MakeHudWidget();
 
@@ -117,53 +119,53 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	//Gun
-	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::Shoot);
-	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Released, WeaponHandlerComponent, &UWeaponHandlerComponent::ReleasedShoot);
-	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::Reload);
+	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::Shoot);
+	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Released, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::ReleasedShoot);
+	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::Reload);
 
-	PlayerInputComponent->BindAxis(TEXT("Zoom"), WeaponHandlerComponent, &UWeaponHandlerComponent::Zoom);
+	PlayerInputComponent->BindAxis(TEXT("Zoom"), WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::Zoom);
 
 	PlayerInputComponent->BindAction(TEXT("FirstAidKit"), IE_Pressed, this, &AMarineCharacter::UseFirstAidKit);
 
 	PlayerInputComponent->BindAxis(TEXT("Forward"), this, &AMarineCharacter::Forward);
 	PlayerInputComponent->BindAxis(TEXT("Right"), this, &AMarineCharacter::Right);
 
-	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::ADSPressed);
-	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Released, WeaponHandlerComponent, &UWeaponHandlerComponent::ADSReleased);
-	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::DropGun);
+	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::ADSPressed);
+	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Released, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::ADSReleased);
+	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::DropGun);
 
 	//Weapon Inventory
-	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("First_Weapon"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 1);
-	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Second_Weapon"), IE_Pressed, WeaponHandlerComponent, &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 2);
+	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("First_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 1);
+	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Second_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 2);
 
 	//Take
-	PlayerInputComponent->BindAction(TEXT("Take"), IE_Pressed, this, &AMarineCharacter::KeyEPressed);
-	PlayerInputComponent->BindAction(TEXT("Take"), IE_Released, this, &AMarineCharacter::KeyEReleased);
+	PlayerInputComponent->BindAction(TEXT("Take"), IE_Pressed, this, &AMarineCharacter::TakePressed);
+	PlayerInputComponent->BindAction(TEXT("Take"), IE_Released, this, &AMarineCharacter::TakeReleased);
 
 	//Movement
-	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, JumpComponent, &UJumpComponent::Jump);
-	PlayerInputComponent->BindAction<FCrouchSlideDelegate>(TEXT("Crouch"), IE_Pressed, CroachAndSlideComponent, &UCroachAndSlide::CrouchPressed, false);
-	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, CroachAndSlideComponent, &UCroachAndSlide::CrouchReleased);
+	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, JumpComponent.Get(), &UJumpComponent::Jump);
+	PlayerInputComponent->BindAction<FCrouchSlideDelegate>(TEXT("Crouch"), IE_Pressed, CroachAndSlideComponent.Get(), &UCroachAndSlide::CrouchPressed, false);
+	PlayerInputComponent->BindAction(TEXT("Crouch"), IE_Released, CroachAndSlideComponent.Get(), &UCroachAndSlide::CrouchReleased);
 
-	PlayerInputComponent->BindAction<FCrouchSlideDelegate>(TEXT("Slide"), IE_Pressed, CroachAndSlideComponent, &UCroachAndSlide::CrouchPressed, true);
-	PlayerInputComponent->BindAction(TEXT("Slide"), IE_Released, CroachAndSlideComponent, &UCroachAndSlide::CrouchReleased);
+	PlayerInputComponent->BindAction<FCrouchSlideDelegate>(TEXT("Slide"), IE_Pressed, CroachAndSlideComponent.Get(), &UCroachAndSlide::CrouchPressed, true);
+	PlayerInputComponent->BindAction(TEXT("Slide"), IE_Released, CroachAndSlideComponent.Get(), &UCroachAndSlide::CrouchReleased);
 
 	//Gameplay components
-	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, DashComponent, &UDashComponent::Dash);
-	PlayerInputComponent->BindAction(TEXT("Swing"), IE_Pressed, SwingComponent, &USwingComponent::SwingPressed);
-	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, SlowMotionComponent, &USlowMotionComponent::TurnOnSlowMotion);
+	PlayerInputComponent->BindAction(TEXT("Dash"), IE_Pressed, DashComponent.Get(), &UDashComponent::Dash);
+	PlayerInputComponent->BindAction(TEXT("Swing"), IE_Pressed, SwingComponent.Get(), &USwingComponent::SwingPressed);
+	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, SlowMotionComponent.Get(), &USlowMotionComponent::TurnOnSlowMotion);
 
 	// Menu
-	FInputActionBinding& MainMenuToggle = PlayerInputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, PauseMenuComponent, &UPauseMenuComponent::PauseGame);
+	FInputActionBinding& MainMenuToggle = PlayerInputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, PauseMenuComponent.Get(), &UPauseMenuComponent::PauseGame);
 	MainMenuToggle.bExecuteWhenPaused = true;
 
-	FInputActionBinding& CloseMessageToggle = PlayerInputComponent->BindAction<FCloseMessageDelegate>(TEXT("CloseMessage"), IE_Pressed, MessageHandlerComponent, &UMessageHandlerComponent::DeleteCurrentDisplayedMessage, this);
+	FInputActionBinding& CloseMessageToggle = PlayerInputComponent->BindAction<FCloseMessageDelegate>(TEXT("CloseMessage"), IE_Pressed, MessageHandlerComponent.Get(), &UMessageHandlerComponent::DeleteCurrentDisplayedMessage, this);
 	CloseMessageToggle.bExecuteWhenPaused = true;
 
 	// You Died Bindings
-	FInputActionBinding& YouDiedRestartToggle = PlayerInputComponent->BindAction(TEXT("RestartGameWhenDead"), IE_Pressed, SpawnDeathWidgetComponent, &USpawnDeathWidgetComponent::RestartGameInYouDiedWidget);
+	FInputActionBinding& YouDiedRestartToggle = PlayerInputComponent->BindAction(TEXT("RestartGameWhenDead"), IE_Pressed, SpawnDeathWidgetComponent.Get(), &USpawnDeathWidgetComponent::RestartGameInYouDiedWidget);
 	YouDiedRestartToggle.bExecuteWhenPaused = true;
-	FInputActionBinding& YouDiedQuitToggle = PlayerInputComponent->BindAction(TEXT("QuitGameWhenDead"), IE_Pressed, SpawnDeathWidgetComponent, &USpawnDeathWidgetComponent::QuitGameInYouDiedWidget);
+	FInputActionBinding& YouDiedQuitToggle = PlayerInputComponent->BindAction(TEXT("QuitGameWhenDead"), IE_Pressed, SpawnDeathWidgetComponent.Get(), &USpawnDeathWidgetComponent::QuitGameInYouDiedWidget);
 	YouDiedQuitToggle.bExecuteWhenPaused = true;
 
 	PlayerInputComponent->BindAction(TEXT("CallAlbertos"), IE_Pressed, this, &AMarineCharacter::CallAlbertosPressed);
@@ -171,10 +173,10 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& NewMouseSensitivity, bool bResetMouseSensitivity)
 {
-	if (IsValid(MarinePlayerController) == false)
+	if (!IsValid(MarinePlayerController))
 		return;
 
-	if (bResetMouseSensitivity == true)
+	if (bResetMouseSensitivity)
 	{
 		MarinePlayerController->SetMouseSensitivity(MouseSensitivityJSON);
 		return;
@@ -185,8 +187,8 @@ void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& New
 
 void AMarineCharacter::LoadFieldOfViewFromSettings()
 {
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (IsValid(GameInstance) == false)
+	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!IsValid(GameInstance))
 		return;
 
 	GameInstance->FindSavedValueAccordingToName(FieldOfViewJSON.FieldName, FieldOfViewJSON.FieldValue);
@@ -200,40 +202,33 @@ void AMarineCharacter::Forward(float Axis)
 	// go forward/backward and to fix this i had to rotate RightVector by -90.f
 	FVector Dir = MarinePlayerController->GetRootComponent()->GetRightVector().RotateAngleAxis(DegreeForForwardVector, FVector(0.f, 0.f, 1.f));
 	
-	if (bShouldPlayerGoForward == true)
-	{
+	if (bConstantlyGoForward)
 		Axis = 1.f;
-	}
-	if (GetIsWallrunning() == true)
-	{
+	if (GetIsWallrunning())
 		Dir = WallrunComponent->GetWallrunDirection();
-	}
 
 	Move(Dir, Axis, FName(TEXT("Right")));
 }
+
 void AMarineCharacter::Right(float Axis)
 {
 	Move(MarinePlayerController->GetRootComponent()->GetRightVector(), Axis, FName(TEXT("Forward")));
 }
+
 void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxisName)
 {
-	float Speed = (MovementForce / MovementForceDividerWhenInADS) / (GetInputAxisValue(InputAxisName) != 0.f ? 1.3f : 1);
+	float Speed = (MovementSpeed / MovementForceDividerWhenInADS) / (GetInputAxisValue(InputAxisName) != 0.f ? ForwardAndRightAtTheSameTimeDivider : 1);
 
-	if (GetIsWallrunning() == true)
-	{
-		Speed = (MovementForce / MovementForceDividerWhenInADS) * MovementSpeedMutliplier;
-	}
-	if (GetIsInAir() == true && GetIsWallrunning() == false)
-	{
+	if (GetIsWallrunning())
+		Speed = (MovementSpeed / MovementForceDividerWhenInADS) * MovementSpeedMutliplier;
+
+	if (GetIsInAir() && !GetIsWallrunning() )
 		Speed /= JumpComponent->GetDividerForMovementWhenInAir();
-	}
-
-	Direction.Z = 0.f;
-
-	FVector Force = (Axis * Direction * Speed) + CalculateCounterMovement();
 
 	PlayFootstepsSound();
 
+	Direction.Z = 0.f;
+	FVector Force = (Axis * Direction * Speed) + CalculateCounterMovement();
 	CapsulePawn->AddImpulse(Force);
 }
 FVector AMarineCharacter::CalculateCounterMovement()
@@ -241,46 +236,60 @@ FVector AMarineCharacter::CalculateCounterMovement()
 	FVector Velocity = GetVelocity();
 	Velocity.X *= -1.f;
 	Velocity.Y *= -1.f;
+
 	float CounterForce = CounterMovementForce;
-	if (GetIsInAir() == true && GetIsWallrunning() == false)
-	{
+	if (GetIsInAir() && !GetIsWallrunning())
 		CounterForce = CounterMovementForce / JumpComponent->GetDividerForCounterForceWhenInAir();
-	}
 
 	return FVector(CounterForce * Velocity.X, CounterForce * Velocity.Y, 0);
 }
 #pragma endregion
 
 #pragma region //////////////////////////// FOOTSTEPS SOUND ////////////////////////////
+bool AMarineCharacter::CheckIfCanPlayFootstepsSound()
+{
+	if (!bCanPlayFootstepsSound)
+		return false;
+
+	if (!WallrunComponent->GetIsWallrunning() && GetIsInAir())
+		return false;
+
+	if (CroachAndSlideComponent->GetIsSliding())
+		return false;
+
+	if ((GetVelocity().Length() >= VelocityRangeToDisableFootsteps.GetLowerBoundValue()
+		&& GetVelocity().Length() <= VelocityRangeToDisableFootsteps.GetUpperBoundValue()))
+		return false;
+
+	if (GetInputAxisValue(TEXT("Forward")) == 0.f && GetInputAxisValue(TEXT("Right")) == 0.f && !WallrunComponent->GetIsWallrunning())
+		return false;
+
+	return true;
+}
+
 void AMarineCharacter::PlayFootstepsSound()
 {
-	if (bCanPlayFootstepsSound == false || (GetVelocity().Length() >= 0.f && GetVelocity().Length() <= 150.f))
-		return;
-	if (WallrunComponent->GetIsWallrunning() == false && GetIsInAir() == true)
-		return;
-	if (CroachAndSlideComponent->GetIsSliding() == true)
+	if (!CheckIfCanPlayFootstepsSound())
 		return;
 
-	if ((GetInputAxisValue(TEXT("Forward")) != 0.f || GetInputAxisValue(TEXT("Right")) != 0.f) || WallrunComponent->GetIsWallrunning() == true)
+	float TimeToPlayNextStep = NormalTimeBetweenNextStep;
+	if (WallrunComponent->GetIsWallrunning() && IsValid(FootstepsWallrunSound))
 	{
-		float TimeOfHandle = 0.31f;
-		if (WallrunComponent->GetIsWallrunning() == true && FootstepsWallrunSound)
-		{
-			TimeOfHandle = 0.17f;
-			UGameplayStatics::SpawnSound2D(GetWorld(), FootstepsWallrunSound);
-		}
-		else if (GetIsCrouching() == true && FootstepsCroachSound)
-		{
-			TimeOfHandle = 0.5f;
-			UGameplayStatics::SpawnSoundAttached(FootstepsCroachSound, CapsulePawn);
-		}
-		else if (FootstepsSound) UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);
-
-		UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), 0.5f, this, 1000.f);
-
-		bCanPlayFootstepsSound = false;
-		GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AMarineCharacter::SetCanPlayFootstepsSound, TimeOfHandle, false);
+		TimeToPlayNextStep = WallrunTimeBetweenNextStep;
+		UGameplayStatics::SpawnSound2D(GetWorld(), FootstepsWallrunSound);
 	}
+	else if (GetIsCrouching() && IsValid(FootstepsCroachSound))
+	{
+		TimeToPlayNextStep = CrouchTimeBetweenNextStep;
+		UGameplayStatics::SpawnSoundAttached(FootstepsCroachSound, CapsulePawn);
+	}
+	else if (IsValid(FootstepsSound)) 
+		UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);
+
+	UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), FootstepsSoundLoudnessForEnemy, this, FootstepsSoundMaxRangeForEnemy);
+
+	bCanPlayFootstepsSound = false;
+	GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AMarineCharacter::SetCanPlayFootstepsSound, TimeToPlayNextStep, false);
 }
 
 #pragma endregion 
@@ -289,19 +298,19 @@ void AMarineCharacter::PlayFootstepsSound()
 
 void AMarineCharacter::UseFirstAidKit()
 {
-	if (bCanUseFirstAidKit == false || Health == 100.f)
+	if (!bCanUseFirstAidKit || Health == OriginalHealth)
 		return;
 
 	FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
-	if (FirstAidKitItem == nullptr)
+	if (!FirstAidKitItem)
 		return;
 
 	FirstAidKitItem->Item_Amount--;
 	Health += FirstAidKitHealth;
-	if (Health > 100.f)
-		Health = 100.f;
+	if (Health > OriginalHealth)
+		Health = OriginalHealth;
 
-	if (UseFirstAidKitSound) 
+	if (IsValid(UseFirstAidKitSound)) 
 		UGameplayStatics::PlaySound2D(GetWorld(), UseFirstAidKitSound);
 
 	HudWidget->PlayUseFirstAidKitAnim();
@@ -322,8 +331,8 @@ void AMarineCharacter::UseFirstAidKit()
 }
 #pragma endregion 
 
-#pragma region ///////////////////////////// TAKE/DROP ITEM ////////////////////////////
-void AMarineCharacter::KeyEPressed()
+#pragma region ///////////////////////////// TAKE ////////////////////////////
+void AMarineCharacter::TakePressed()
 {
 	if (WidgetInteractionComponent->IsOverInteractableWidget())
 	{
@@ -333,7 +342,7 @@ void AMarineCharacter::KeyEPressed()
 		TakeAndDropComponent->Take();
 }
 
-void AMarineCharacter::KeyEReleased()
+void AMarineCharacter::TakeReleased()
 {
 	WidgetInteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
 
@@ -345,19 +354,22 @@ void AMarineCharacter::KeyEReleased()
 #pragma region //////////////////////////////// DAMAGE /////////////////////////////////
 void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
-	if (bIsDead == true)
+	if (bIsDead)
 		return;
 
-	if (MarineHitSound) UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, NewHit.ImpactPoint);
+	if (IsValid(MarineHitSound)) 
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, NewHit.ImpactPoint);
 
+	// if NewSphereRadius != 0 then bullet with sphere radial damage was used as damage type
 	if (NewSphereRadius != 0.f && IsValid(BulletActor))
 	{
 		CapsulePawn->AddRadialImpulse(BulletActor->GetActorLocation(), NewSphereRadius, NewImpulseForce, ERadialImpulseFalloff::RIF_Linear, true);
-		Health -= NewDamage / 15;
+		Health -= NewDamage / DividerForRadialDamage;
 	}
-	else Health -= NewDamage;
+	else 
+		Health -= NewDamage;
 
-	if (IsValid(HudWidget) == true)
+	if (IsValid(HudWidget))
 	{
 		HudWidget->SetHealthBarPercent(Health);
 		HudWidget->PlayGotDamageAnim();
@@ -373,18 +385,17 @@ void AMarineCharacter::PlayerDead()
 	Health = 0.f;
 	SpawnDeathWidgetComponent->SpawnDeathWidget(MarinePlayerController);
 
-	UMarineRunnerGameInstance* MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (IsValid(MarineRunnerGameInstance) == true)
-	{
-		MarineRunnerGameInstance->ResetDetectedEnemy();
-	}
+	TObjectPtr<UMarineRunnerGameInstance> MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!IsValid(MarineRunnerGameInstance))
+		return;
+	MarineRunnerGameInstance->ResetDetectedEnemy();
 }
 #pragma endregion 
 
 #pragma region //////////////////////////////// WIDGETS ////////////////////////////////
 void AMarineCharacter::MakeHudWidget()
 {
-	if (HUDClass == nullptr && IsValid(MarinePlayerController) == false)
+	if (!HUDClass || !IsValid(MarinePlayerController))
 		return;
 
 	HudWidget = Cast<UHUDWidget>(CreateWidget(MarinePlayerController, HUDClass));
@@ -398,7 +409,7 @@ void AMarineCharacter::MakeCrosshire(bool bShouldRemoveFromParent)
 {
 	if (IsValid(CrosshairWidget))
 	{
-		if (bShouldRemoveFromParent == true)
+		if (bShouldRemoveFromParent)
 		{
 			CrosshairWidget->RemoveFromParent();
 			CrosshairWidget = nullptr;
@@ -406,7 +417,7 @@ void AMarineCharacter::MakeCrosshire(bool bShouldRemoveFromParent)
 		return;
 	}
 
-	if (CrosshairClass == nullptr && IsValid(MarinePlayerController) == false)
+	if (!CrosshairClass || !IsValid(MarinePlayerController))
 		return;
 
 	CrosshairWidget = CreateWidget(MarinePlayerController, CrosshairClass);
@@ -417,15 +428,15 @@ void AMarineCharacter::UpdateHudWidget()
 {
 	WeaponHandlerComponent->UpdateWeaponInformationOnHud();
 
-	if (IsValid(HudWidget) == false)
+	if (!IsValid(HudWidget))
 		return;
 
 	HudWidget->SetHealthBarPercent(Health);
-	FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
 
+	FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
 	if (FirstAidKitItem)
 	{
-		HudWidget->SetCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount > 99 ? 99 : FirstAidKitItem->Item_Amount);
+		HudWidget->SetCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount > MaxAmountOfFirstAidKitsOnHud ? MaxAmountOfFirstAidKitsOnHud : FirstAidKitItem->Item_Amount);
 	}
 	else
 		HudWidget->SetCurrentNumberOfFirstAidKits(0);
@@ -435,28 +446,30 @@ void AMarineCharacter::UpdateHudWidget()
 #pragma region //////////////////////////////// ALBERTO ////////////////////////////////
 void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool bShouldUpdateCrafting)
 {
-	if (IsValid(AlbertoPawn) == false)
+	if (!IsValid(AlbertoPawn))
 		return;
 	
 	CraftingWidget = Cast<UCraftingAlbertosWidget>(AlbertoPawn->GetCraftingTableWidget());
-	if (IsValid(CraftingWidget) == false) 
+	if (!IsValid(CraftingWidget)) 
 		return;
 
-	if (bShouldUpdateInventory == true)
+	if (bShouldUpdateInventory)
 	{
-		CraftingWidget->AddItemToInventoryTileView(InventoryComponent->Inventory_Items);
+		CraftingWidget->AddItemsToInventoryTileView(InventoryComponent->Inventory_Items);
 	}
 
-	if (bShouldUpdateCrafting == true)
+	if (bShouldUpdateCrafting)
 	{
-		CraftingWidget->SetRecipesData(this);
+		InventoryComponent->MoveWeaponRecipesToEndQueue();
+		CraftingWidget->SetPlayer(this);
+		CraftingWidget->SetRecipesData(InventoryComponent->Items_Recipes);
 		CraftingWidget->SwitchCurrentCraftingItem();
 	}
 }
 
 void AMarineCharacter::CallAlbertosPressed()
 {
-	if (IsValid(AlbertoPawn) == false)
+	if (!IsValid(AlbertoPawn))
 		return;
 
 	AlbertoPawn->GetAlbertosToPlayerComponent()->CallAlbertosToThePlayer(GetActorLocation());
@@ -464,22 +477,11 @@ void AMarineCharacter::CallAlbertosPressed()
 
 #pragma endregion 
 
-#pragma region ////////////////////////// ADDITIONAL FUNCTIONS /////////////////////////
-void AMarineCharacter::MovementStuffThatCannotHappen(bool bShouldCancelGameplayThings)
-{
-	CroachAndSlideComponent->CrouchReleased();
-	JumpComponent->TurnOffJump(bShouldCancelGameplayThings);
-
-	if (!bShouldCancelGameplayThings) return;
-
-	if (WeaponHandlerComponent->GetIsPlayerInAds()) WeaponHandlerComponent->ADSReleased();
-}
-
 // When the player does not move the mouse during the pawn's spawn, the rotation of the RootComponent is not updated and, 
 // because of this, the RootComponent Forward vector may point in the wrong direction
 void AMarineCharacter::ReplaceRootComponentRotation()
 {
-	if (IsValid(MarinePlayerController) == false)
+	if (!IsValid(MarinePlayerController))
 		return;
 
 	FRotator RootCompRot = MarinePlayerController->GetRootComponent()->GetComponentRotation();
@@ -487,20 +489,13 @@ void AMarineCharacter::ReplaceRootComponentRotation()
 	MarinePlayerController->GetRootComponent()->SetWorldRotation(RootCompRot);
 }
 
-bool AMarineCharacter::MakeCheckBox(FVector Size, FVector NewStart, FVector NewEnd, FHitResult& OutHitResult, bool bDebug)
-{
-	if (bDebug) DrawDebugBox(GetWorld(), NewStart, FVector(Size), FColor::Red, true);
-	return GetWorld()->SweepSingleByChannel(OutHitResult, NewStart, NewEnd, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeBox(Size));
-}
-#pragma endregion 
-
 #pragma region //////////// GETTERS //////////////////
 bool AMarineCharacter::GetIsWallrunning() const
 {
 	return WallrunComponent->GetIsWallrunning();
 }
 
-bool AMarineCharacter::GetIsPlayerLerpingToHookLocation() const
+bool AMarineCharacter::GetIsPlayerMovingToHookLocation() const
 {
 	return SwingComponent->GetIsPlayerLerpingToHookPosition();
 }
@@ -535,8 +530,8 @@ bool AMarineCharacter::GetIsInAir() const
 	return JumpComponent->GetIsInAir();
 }
 
-bool AMarineCharacter::GetIsInPullUpMode() const
+bool AMarineCharacter::GetIsPullingUp() const
 {
-	return PullUpComponent->GetIsInPullUpMode();
+	return PullUpComponent->GetIsPullingUp();
 }
 #pragma endregion 

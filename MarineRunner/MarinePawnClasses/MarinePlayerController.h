@@ -40,9 +40,10 @@ private:
 
 	FSettingSavedInJsonFile MouseSensitivity = FSettingSavedInJsonFile("MouseSensitivity", 0.7f);
 
-	bool bShouldDisableCameraRotate(float CurrentLookValue);
+	bool ShouldDisableCameraWallrunRotate(float CurrentLookValue);
 	// if player moves too much mouse while camera is rotating (for wallrun) then disable camera rotating
 	void DisableCameraRotateWhileWallrunning(float CurrentLookValue);
 
-	class AMarineCharacter* MarinePawn;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> MarinePawn;
 };

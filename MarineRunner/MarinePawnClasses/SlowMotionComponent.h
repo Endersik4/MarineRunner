@@ -23,18 +23,16 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+		void OnOwnerDestroyed(AActor* DestroyedActor);
 public:	
 
 	void TurnOnSlowMotion() { SlowMotionPressed(); };
 	FORCEINLINE bool GetIsInSlowMotion() const { return bIsInSlowMotion; }
 	FORCEINLINE float GetCounterForceMultiplierWhenInAir() const {return CounterForceMultiplierWhenInAir;}
 
-	UFUNCTION()
-		void OnOwnerDestroyed(AActor* DestroyedActor);
-
 	void PauseSlowMotionSound(bool bPause);
 private:
-	//Speed of SlowMotion
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float SlowMotionValue = 0.3f;
 	//How long should Slow Motion be on
@@ -42,17 +40,19 @@ private:
 		float SlowMotionTime = 5.f;
 	//Delay of Slow Motion before the next one
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionDelay = 2.f;
+		float SlowMotionDelay = 4.f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float CounterForceMultiplierWhenInAir = 0.7f;
+	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
+		float GlobalPitchModulation = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float StartingChromaticAbberation = 5.f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		FLinearColor ScreenColorWhenInSlowMotion = FLinearColor(FVector4(0.05f, 1.f, 0.24f,1.f));
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* SlowMotionSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* CancelSlowMotionSound;
+	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
+		TObjectPtr<USoundBase> SlowMotionSound;
+	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
+		TObjectPtr<USoundBase> CancelSlowMotionSound;
 
 	bool bCanSlowMotion = true;
 	bool bIsInSlowMotion = false;
@@ -66,8 +66,10 @@ private:
 
 	void SlowMotionEffects();
 
-	void DelayCompleted();
+	void SetCanSlowMotionAgain();
 	
-	class AMarineCharacter* MarinePawn;
-	class UAudioComponent* SlowMotionSoundSpawned;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> MarinePawn;
+	UPROPERTY(Transient)
+		TObjectPtr<class UAudioComponent> SlowMotionSoundSpawned;
 };

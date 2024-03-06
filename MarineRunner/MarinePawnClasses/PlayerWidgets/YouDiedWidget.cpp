@@ -1,6 +1,5 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-
 #include "MarineRunner/MarinePawnClasses/PlayerWidgets/YouDiedWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
@@ -10,7 +9,6 @@
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
-
 
 void UYouDiedWidget::NativeConstruct()
 {
@@ -28,20 +26,34 @@ void UYouDiedWidget::NativeConstruct()
 void UYouDiedWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
+
 	if (ShowWidgetAnim)
 		PlayAnimationForward(ShowWidgetAnim, 1.f, true);
+	if (IsValid(DeathSound)) 
+		UGameplayStatics::SpawnSound2D(GetWorld(), DeathSound);
 
-	UMarineRunnerGameInstance* MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	TObjectPtr<UMarineRunnerGameInstance> MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!IsValid(MarineRunnerGameInstance))
+		return;
 
 	if (MarineRunnerGameInstance->GetCurrentMusicType() == EMT_Combat) 
 		MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_Exploration);
-
-	if (DeathSound) UGameplayStatics::SpawnSound2D(GetWorld(), DeathSound);
 }
 
 void UYouDiedWidget::RestartGameButton_OnClicked()
 {
 	RestartGame();
+}
+
+void UYouDiedWidget::RestartGame()
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+
+	TObjectPtr<AMarineCharacter> Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (!IsValid(Player))
+		return;
+
+	Player->GetSaveLoadPlayerComponent()->RestartGame();
 }
 
 void UYouDiedWidget::RestartGameButton_OnHovered()
@@ -69,21 +81,13 @@ void UYouDiedWidget::QuitButton_OnUnhovered()
 	PlayAnimatonForButton(QuitHoveredAnim, false);
 }
 
-void UYouDiedWidget::RestartGame()
+void UYouDiedWidget::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation>  AnimToPlay, bool bPlayForwardAnim)
 {
-	UGameplayStatics::SetGamePaused(GetWorld(), false);
-
-	AMarineCharacter* Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if (IsValid(Player) == false)
+	if (!AnimToPlay) 
 		return;
 
-	Player->GetSaveLoadPlayerComponent()->RestartGame();
-}
-
-void UYouDiedWidget::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim)
-{
-	if (AnimToPlay == nullptr) return;
-
-	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
-	else PlayAnimationReverse(AnimToPlay);
+	if (bPlayForwardAnim)
+		PlayAnimationForward(AnimToPlay);
+	else 
+		PlayAnimationReverse(AnimToPlay);
 }

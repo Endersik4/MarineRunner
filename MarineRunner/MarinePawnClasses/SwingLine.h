@@ -26,18 +26,19 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void SetHookLocation(FVector NewLocation) { HookLocation = NewLocation; }
-	void SetSpeedLine(float NewSpeed) { LineTime = NewSpeed; }
-	void SetCanTick(bool bCan) { bCanTick = bCan; }
+	void StartMovingToHookLocation(const FVector & NewHookLocation, float NewSwingToHookLocationTime);
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UNiagaraComponent* LineTrail;
+		TObjectPtr<class UNiagaraComponent> SwingLineTrail;
+	UPROPERTY(EditDefaultsOnly, Category = "Swing Line Settings")
+		float LifeSpan = 8.f;
 
-	bool bCanTick;
+	bool bStartMovingToHookLocation;
+	float SwingToHookLocationTime;
+	float SwingToHookLocationTimeElapsed;
 	FVector HookLocation;
-	float LineTime;
-	float LineTimeElapsed;
-	void LineInterp(float Delta);
+	FVector InitialSwingLineLocation;
+	void MoveToHookLocation(float Delta);
 
 };

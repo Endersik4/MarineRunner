@@ -10,9 +10,8 @@ ASwingLine::ASwingLine()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	LineTrail = CreateDefaultSubobject<UNiagaraComponent>(TEXT("LineTrail"));
-	RootComponent = LineTrail;
-
+	SwingLineTrail = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SwingLineTrail"));
+	RootComponent = SwingLineTrail;
 }
 
 // Called when the game starts or when spawned
@@ -20,6 +19,7 @@ void ASwingLine::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SetLifeSpan(LifeSpan);
 }
 
 // Called every frame
@@ -27,19 +27,30 @@ void ASwingLine::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	LineInterp(DeltaTime);
+	MoveToHookLocation(DeltaTime);
 }
 
-void ASwingLine::LineInterp(float Delta)
+void ASwingLine::StartMovingToHookLocation(const FVector& NewHookLocation, float NewSwingToHookLocationTime)
 {
-	if (bCanTick == false) return;
+	bStartMovingToHookLocation = true;
+	HookLocation = NewHookLocation;
+	SwingToHookLocationTime = NewSwingToHookLocationTime;
+	InitialSwingLineLocation = GetActorLocation();
+}
 
-	if (LineTimeElapsed < LineTime)
+void ASwingLine::MoveToHookLocation(float Delta)
+{
+	if (!bStartMovingToHookLocation) 
+		return;
+
+	if (SwingToHookLocationTimeElapsed < SwingToHookLocationTime)
 	{
-		FVector LerpLocation = FMath::Lerp(GetActorLocation(), HookLocation, LineTimeElapsed / LineTime);
-		SetActorLocation(LerpLocation);
+		FVector NewLocaton = FMath::Lerp(InitialSwingLineLocation, HookLocation, SwingToHookLocationTimeElapsed / SwingToHookLocationTime);
+		SetActorLocation(NewLocaton);
 	}
-	else if (LineTimeElapsed > 10.f) Destroy();
-	LineTimeElapsed += Delta / UGameplayStatics::GetGlobalTimeDilation(GetWorld());
+	else
+		bStartMovingToHookLocation = false;
+
+	SwingToHookLocationTimeElapsed += Delta;
 }
 

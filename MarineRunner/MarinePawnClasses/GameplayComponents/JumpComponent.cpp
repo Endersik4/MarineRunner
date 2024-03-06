@@ -43,7 +43,10 @@ bool UJumpComponent::CanJump()
 	if (bObstacleAbovePlayer == true)
 		return false;
 
-	return bIsInAir == false || ((bDelayIsInAir || Player->GetWallrunComponent()->GetCanJumpAfterWallrun()) && bIsJumping == false) || Player->GetWallrunComponent()->ShouldAddImpulseAfterWallrun(true);
+	if (Player->GetWallrunComponent()->GetIsWallrunning())
+		return true;
+
+	return bIsInAir == false || ((bDelayIsInAir || Player->GetWallrunComponent()->GetCanJumpAfterWallrun()) && bIsJumping == false);
 }
 
 void UJumpComponent::Jump()
@@ -54,6 +57,7 @@ void UJumpComponent::Jump()
 	if (CanJump())
 	{
 		Player->GetWallrunComponent()->SetCanJumpAfterWallrun(false);
+		Player->GetWallrunComponent()->AddImpulseAfterWallrun();
 		Player->GetCroachAndSlideComponent()->CrouchReleasedByObject();
 
 		bIsJumping = true;
@@ -93,8 +97,6 @@ void UJumpComponent::JumpTick(float DeltaTime)
 		{
 			JumpTimeElapsed += JumpUpTime;
 		}
-
-		Player->GetWallrunComponent()->AddImpulseAfterWallrun(JumpTimeElapsed);
 
 		JumpTimeElapsed += DeltaTime;
 	}

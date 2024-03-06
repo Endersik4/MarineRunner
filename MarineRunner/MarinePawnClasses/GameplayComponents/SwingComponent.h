@@ -24,9 +24,12 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	FORCEINLINE bool GetIsPlayerMovingToHookPosition() const { return bIsPlayerMovingToHook; }
+	void SwingPressed();
+private:
 	//Impuls before Interp
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
-		float SwingForce = 1200000.f;
+		float SwingImpulse = 1200000.f;
 	//Multiplier that is multiplying X and Y Velocity after Pawn got to Hook
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		float SwingLinearPhysicsMultiplier = 1.5f;
@@ -37,8 +40,10 @@ public:
 		float SwingDelay = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
 		TSubclassOf<class ASwingLine> SwingLineClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
+		TObjectPtr<USoundBase> SwingSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Hook")
-		float MaxHookDistanceToFinishInterp = 500.f;
+		float MaxHookDistanceToFinishMoving = 200.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Raycast")
 		float LengthOfSwingLineRaycast = 4500.f;
@@ -48,35 +53,30 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Effects")
 		float RightSwingLineOffset = 40.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Sounds")
-		USoundBase* SwingSound;
-
-	bool GetIsPlayerLerpingToHookPosition() const { return bIsPlayerLerpingToHookPosition; }
-	void SwingPressed();
-private:
-
 	bool bWasSwingPressed = false;
 	bool bCanPlayerSwing;
 	bool bCanMakeSwingLineCheck = true;
-	bool bIsPlayerLerpingToHookPosition;
+	bool bIsPlayerMovingToHook;
 
 	FVector HookLocation;
 	FVector SwingImpulse;
 	FTimerHandle SwingHandle;
 
-	void StartSwingToHook();
+	void PrepareMoveToHook();
 	void HookLineCheck();
-	void ActivateCurrentHoveredHook(AActor* HookActorFromHit);
+	void ActivateCurrentHoveredHook(TObjectPtr<AActor> HookActorFromHit);
 
-	void SwingInterp(float Delta);
-	void StopSwingInterp();
+	void MovingToHook(float Delta);
+	void StopMovingToHook();
 
 	void SpawnSwingEffects();
 
 	void ClearLastActivatedHook();
 
-	class AHook* CurrentFocusedHook;
-	
-	class AMarineCharacter* MarinePlayer;
-	APlayerController* PlayerController;
+	UPROPERTY(Transient)
+		TObjectPtr<class AHook>CurrentFocusedHook;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> MarinePlayer;
+	UPROPERTY(Transient)
+		TObjectPtr<APlayerController> PlayerController;
 };

@@ -109,7 +109,7 @@ private:
 
 	void ResetVariablesForCameraRecoil();
 
-	bool bFirstBulletWithoutRecoil = true;
+	bool bFirstBulletWithoutRecoil = false;
 	FTimerHandle FirstBulletHandle;
 	void ShouldFirstBulletGoStraight() { bFirstBulletWithoutRecoil = true; }
 

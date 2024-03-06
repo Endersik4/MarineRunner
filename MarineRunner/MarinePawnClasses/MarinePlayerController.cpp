@@ -17,7 +17,7 @@ void AMarinePlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
 
-	if (IsValid(InputComponent) == false)
+	if (!IsValid(InputComponent))
 		return;
 
 	InputComponent->BindAxis(TEXT("LookUp"), this, &AMarinePlayerController::LookUp);
@@ -43,17 +43,21 @@ void AMarinePlayerController::LookRight(float AxisValue)
 	MouseYValue = AxisValue;
 }
 
-bool AMarinePlayerController::bShouldDisableCameraRotate(float CurrentLookValue)
+void AMarinePlayerController::DisableCameraRotateWhileWallrunning(float CurrentLookValue)
 {
-	if (IsValid(MarinePawn) == false)
-	{
-		return false;
-	}
+	if (ShouldDisableCameraWallrunRotate(CurrentLookValue) == false)
+		return;
 
-	if (MarinePawn->GetWallrunComponent()->GetIsWallrunning() == false)
-	{
+	MarinePawn->GetWallrunComponent()->SetShouldCameraYawRotate(false);
+}
+
+bool AMarinePlayerController::ShouldDisableCameraWallrunRotate(float CurrentLookValue)
+{
+	if (!IsValid(MarinePawn))
 		return false;
-	}
+
+	if (!MarinePawn->GetWallrunComponent()->GetIsWallrunning())
+		return false;
 
 	if (CurrentLookValue > MarginForPlayerToMove.GetLowerBoundValue() && CurrentLookValue < MarginForPlayerToMove.GetUpperBoundValue())
 	{
@@ -61,12 +65,3 @@ bool AMarinePlayerController::bShouldDisableCameraRotate(float CurrentLookValue)
 	}
 	return true;
 }
-
-void AMarinePlayerController::DisableCameraRotateWhileWallrunning(float CurrentLookValue)
-{
-	if (bShouldDisableCameraRotate(CurrentLookValue) == false)
-		return;
-
-	MarinePawn->GetWallrunComponent()->SetShouldLerpRotation(false);
-}
-

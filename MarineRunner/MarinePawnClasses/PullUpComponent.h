@@ -27,7 +27,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	FORCEINLINE bool GetIsInPullUpMode() const { return bShouldPullUpLerp; }
+	FORCEINLINE bool GetIsPullingUp() const { return bIsPullingUp; }
 
 private:
 	//How Fast (in seconds) lerp to PullUp location will be done 
@@ -55,7 +55,10 @@ private:
 		float PullupLinesDistance = 100.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
 		float PullupOffset_Z = 220.f;
-
+	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
+		float EdgeDetectionLineStartDistance = 100.f;
+	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
+		float EdgeDetectionLineEndDistance = 200.f;
 
 	FTimerHandle CheckIfShouldPullUpHandle;
 
@@ -71,7 +74,7 @@ private:
 	bool GetEdgeLocationOfTheObject(const FVector& PlayerForwardVector, FVector & EdgeLocation);
 
 	// Moving player to pull up location
-	bool bShouldPullUpLerp;
+	bool bIsPullingUp;
 	float PullupTimeElapsed;
 	FVector PlayerLocation;
 	void MovePlayerToPullUpLocation(float Delta);
@@ -79,5 +82,6 @@ private:
 	// There is a bug where MarinePawn->GetActorForwardVector() is not correct
 	const FVector CalculateForwardVectorForPlayer();
 
-	class AMarineCharacter* MarinePawn;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> MarinePawn;
 };
