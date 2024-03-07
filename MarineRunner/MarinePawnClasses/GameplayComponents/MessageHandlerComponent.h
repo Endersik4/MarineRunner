@@ -23,7 +23,7 @@ protected:
 
 public:	
 
-	FORCEINLINE void SetCurrentDisplayedMessage(class UMessageToReadWidget* DisplayedMessage) { CurrentDisplayedMessage = DisplayedMessage; }
+	FORCEINLINE void SetCurrentDisplayedMessage(TObjectPtr<class UMessageToReadWidget> DisplayedMessage) { CurrentDisplayedMessage = DisplayedMessage; }
 	FORCEINLINE void SetIsMessageDisplayed(bool _bMessageDisplayed) { bIsMessageDisplayed = _bMessageDisplayed; }
 
 	FORCEINLINE bool GetIsMessageDisplayed() const { return bIsMessageDisplayed; }
@@ -33,15 +33,18 @@ public:
 	void SpawnNewRecipeUnlockedWidget();
 	void SpawnNotEnoughSlotsForWeaponWidget();
 
-	UPROPERTY(EditDefaultsOnly, Category = "Messages")
-		TSubclassOf<UUserWidget> NewRecipeUnlockedClassWidget;
-	UPROPERTY(EditDefaultsOnly, Category = "Messages")
-		TSubclassOf<UUserWidget> NotEnoughSlotsForWeaponClassWidget;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* MessagePopUpSound;
+
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
+		TSubclassOf<UUserWidget> NewRecipeUnlockedClassWidget;
+	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
+		TSubclassOf<UUserWidget> NotEnoughSlotsForWeaponClassWidget;
+	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
+		TObjectPtr<USoundBase> MessagePopUpSound;
+
 	bool bIsMessageDisplayed;
-	class UMessageToReadWidget* CurrentDisplayedMessage;
+	UPROPERTY(Transient)
+		TObjectPtr<class UMessageToReadWidget> CurrentDisplayedMessage;
 
 	void SpawnWidget(const TSubclassOf<UUserWidget> & WidgetClassToSpawn);
 };

@@ -12,7 +12,8 @@ void UMessageToReadWidget::NativeOnInitialized()
 	Super::NativeOnInitialized();
 
 	PlayAnimationForward(OpenMessageAnim, 1.f, true);
-	if (OpenMessageSound) UGameplayStatics::PlaySound2D(GetWorld(), OpenMessageSound);
+	if (IsValid(OpenMessageSound)) 
+		UGameplayStatics::PlaySound2D(GetWorld(), OpenMessageSound);
 }
 
 void UMessageToReadWidget::SetMessageInformation(const FText& _MessageTitle, const FText& _MessageText)
@@ -32,5 +33,4 @@ void UMessageToReadWidget::HideMessage()
 	
 	FTimerHandle RemoveFromViewportHandle;
 	GetWorld()->GetTimerManager().SetTimer(RemoveFromViewportHandle, this, &UMessageToReadWidget::RemoveFromParent, OpenMessageAnim->GetEndTime(), false);
-
 }

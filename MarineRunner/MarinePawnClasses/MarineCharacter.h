@@ -66,7 +66,7 @@ public:
 	FORCEINLINE TObjectPtr<class USaveLoadPlayerComponent> GetSaveLoadPlayerComponent() const { return SaveLoadPlayerComponent; }
 	FORCEINLINE TObjectPtr<class UArmsSwayComponent> GetArmsSwayComponent() const { return ArmsSwayComponent; }
 	FORCEINLINE TObjectPtr<class UWallrunComponent> GetWallrunComponent() const { return WallrunComponent; }
-	FORCEINLINE TObjectPtr<class UCroachAndSlide> GetCroachAndSlideComponent() const { return CroachAndSlideComponent; }
+	FORCEINLINE TObjectPtr<class UCroachAndSlide> GetCrouchAndSlideComponent() const { return CroachAndSlideComponent; }
 	FORCEINLINE TObjectPtr<class USlowMotionComponent> GetSlowMotionComponent() const { return SlowMotionComponent; }
 	FORCEINLINE FSettingSavedInJsonFile& GetMouseSensitivityJSON()  { return MouseSensitivityJSON; }
 	FORCEINLINE TObjectPtr<class AAlbertosPawn> GetAlbertosPawn() const { return AlbertoPawn; }

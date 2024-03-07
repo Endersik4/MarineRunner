@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Components/TimelineComponent.h"
-
 #include "JumpComponent.generated.h"
 
 
@@ -30,20 +29,21 @@ public:
 	void TurnOffJump(bool bDelayJumpToo = false);
 
 	FORCEINLINE bool GetIsInAir() const { return bIsInAir; }
-	FORCEINLINE bool GetIsGoingUp() const { return bIsGoingUp; }
+	FORCEINLINE bool GetIsGoingUp() const { return bIsGoingUpOnRamp; }
 	FORCEINLINE bool GetIsOnRamp() const { return bIsOnRamp; }
-	FORCEINLINE bool GetIsJumping() const { return bIsJumping; }
+	FORCEINLINE bool GetIsJumping() const { return bStartApplyingJumpForces; }
 	FORCEINLINE float GetDividerForMovementWhenInAir() const { return DividerForMovementWhenInAir; }
 	FORCEINLINE float GetDividerForCounterForceWhenInAir() const { return DividerForCounterForceWhenInAir; }
 
 private:
-	//InitialJumpForce is lerping to -50.f and then applied to Velocity Z
+	//InitialJumpForce is moving to EndJumpForce and then applied to Velocity Z
 	UPROPERTY(EditAnywhere, Category = "Jump Settings")
 		float InitialJumpForce = 1800.f;
+	UPROPERTY(EditAnywhere, Category = "Jump Settings")
+		float EndJumpForce = -50.f;
 	//Impuls force that is applied to Player in down vector, Thanks to this player is falling faster
 	UPROPERTY(EditAnywhere, Category = "Jump Settings")
-		float JumpDownForce = 15000.f;
-	//How Fast (in seconds) lerp will be done 
+		float JumpDownForce = 150000.f;
 	UPROPERTY(EditAnywhere, Category = "Jump Settings")
 		float JumpUpTime = 0.35f;
 	//Time for Delay Jump
@@ -51,9 +51,11 @@ private:
 		float DelayJumpTime = 0.2f;
 	UPROPERTY(EditAnywhere, Category = "Jump Settings")
 		float DelayIsInAirTime = 0.4f;
-	UPROPERTY(EditAnywhere, Category = "Jump Settings|Sounds")
-		USoundBase* JumpSound;
+	UPROPERTY(EditAnywhere, Category = "Jump Settings")
+		TObjectPtr<USoundBase> JumpSound;
 
+	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
+		float CheckInAirTime = 0.05f;
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 		FVector BoxSizeToCheckIfSomethingIsBelow = FVector(25.f, 25.f, 20.f);
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
@@ -66,27 +68,29 @@ private:
 
 	// The curve that will be applied (set) to the camera relative location when the player hits the ground for the first time.
 	UPROPERTY(EditDefaultsOnly, Category = "On Ground Settings")
-		UCurveFloat* ImpactOnFloorCameraEffectCurve;
-	UPROPERTY(EditDefaultsOnly, Category = "On Ground Settings|Sounds")
-		USoundBase* ImpactOnFloorSound;
+		TObjectPtr<UCurveFloat> ImpactOnFloorCameraEffectCurve;
+	UPROPERTY(EditDefaultsOnly, Category = "On Ground Settings")
+		TObjectPtr<USoundBase> ImpactOnFloorSound;
 	UFUNCTION()
 		void ImpactOnFloorCameraEffectTimelineProgress(float CurveValue);
 
 	//Jumps Variables
-	bool bDownForce;
-	bool bIsJumping;
+	bool bStartApplyingJumpForces;
+	bool bDownForceWasApplied;
 	float JumpTimeElapsed;
 	bool CanJump();
-	void JumpTick(float DeltaTime);
+	void ApplyJumpForces(const float & DeltaTime);
+	void ApplyJumpUPForce(const float& DeltaTime);
 
 	//Delayed jump
 	bool bCanDelayJump;
 	FTimerHandle DelayJumpHandle;
 	void DelayJump();
-	void SetCanDelayJump() { bCanDelayJump = false; };
+	FORCEINLINE void DisableCanDelayJump() { bCanDelayJump = false; };
 
 	//In Air
 	bool bIsInAir;
+	FTimerHandle CheckInAirHandle;
 	void FirstMomentInAir();
 	void CheckIfIsInAir();
 	void FirstTimeOnGround();
@@ -95,16 +99,19 @@ private:
 	void PlayerOnRamp(const FHitResult& GroundHitResult);
 	void DisablePlayerOnRampActions();
 	bool bIsOnRamp;
-	bool bIsGoingUp;
-	FVector PlayerLocationOnRamp;
+	bool bIsGoingUpOnRamp;
+	FVector PreviousPlayerLocationOnRamp;
 
+	// Impact on Floor
 	void LandingEffect();
 	void CreateImpactOnFloorTimeline();
 	FTimeline ImpactOnFloorTimeline;
 
-	//Delay is in Air (can jump though player is not in the air)
+	//Delay is in Air
 	bool bDelayIsInAir;
 	FTimerHandle DelayIsInAirHandle;
-	void SetDelayIsInAir() { bDelayIsInAir = false; };
-	class AMarineCharacter* Player;
+	FORCEINLINE void DisableDelayIsInAir() { bDelayIsInAir = false; };
+
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> Player;
 };

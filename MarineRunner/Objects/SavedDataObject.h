@@ -27,10 +27,9 @@ public:
 
 	void AddCustomSaveData(const int32& SavedCustomDataKey, const FCustomDataSaved& SavedCustomData);
 	void RemoveCustomSaveData(const int32& SavedCustomDataID);
-
-	FORCEINLINE const TMap<int32, FCustomDataSaved> & GetCustomSavedData() const { return CustomSavedData; }
 	int32 CreateUniqueIDForObject() const;
 
+	FORCEINLINE const TMap<int32, FCustomDataSaved> & GetCustomSavedData() const { return CustomSavedData; }
 	FORCEINLINE void SetCustomSavedData(TMap<int32, FCustomDataSaved>& NewSavedData) { CustomSavedData = NewSavedData; }
 
 	void LoadObjectsData();
@@ -38,10 +37,17 @@ public:
 	void UpdateObjectsData();
 	void RestartObjectsData(bool bOnlyDeleteFromTemp = false);
 private:
-	UPROPERTY(EditAnywhere)
+	// All objects that player interacted with SaveCustomDataInterface are stored here, after loading a game 
+	// takes all elements and loads data in given actor or spawns actor with saved data
+	UPROPERTY(EditAnywhere, Category = "Saved Data Settings")
 		TMap<int32, FCustomDataSaved> CustomSavedData;
-	UPROPERTY(EditAnywhere)
+	// The same as CustomSavedData except that if player dies before saving a game then takes elements from list and deleting them from CustomSavedData
+	// its useful for restarting a game e.g player opened the chest but died after so it has to restart the chest
+	UPROPERTY(EditAnywhere, Category = "Saved Data Settings")
 		TMap<int32, FCustomDataSaved> TempCustomSavedData;
-	UPROPERTY(EditAnywhere)
-		FFloatRange RandomDataIDRange = FFloatRange(1.f, 1000.f);
+	UPROPERTY(EditAnywhere, Category = "Saved Data Settings")
+		FFloatRange RandomDataIDRangeForObject = FFloatRange(1.f, 1000.f);
+	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
+		float StartLoadObjectsDataTime = 0.05f;
+
 };

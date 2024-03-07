@@ -21,16 +21,18 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	void SpawnDeathWidget(APlayerController*);
+	void SpawnDeathWidget(TObjectPtr<APlayerController> PlayerController);
 	void RestartGameInYouDiedWidget();
 	void QuitGameInYouDiedWidget();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Spawn Death Widget Settings")
 		float DelayForGamePause = 0.3f;
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	UPROPERTY(EditDefaultsOnly, Category = "Spawn Death Widget Settings")
 		TSubclassOf<class UYouDiedWidget> YouDiedWidgetClass;
 
-	class UYouDiedWidget* YouDiedWidget;
+	UPROPERTY(Transient)
+		TObjectPtr<class UYouDiedWidget> YouDiedWidget;
+
 	FTimerHandle PauseGameHandle;
 	void PauseGameAfterDelay();
 };

@@ -497,7 +497,7 @@ bool AMarineCharacter::GetIsWallrunning() const
 
 bool AMarineCharacter::GetIsPlayerMovingToHookLocation() const
 {
-	return SwingComponent->GetIsPlayerLerpingToHookPosition();
+	return SwingComponent->GetIsPlayerMovingToHookPosition();
 }
 
 bool AMarineCharacter::GetIsInSlowMotion() const

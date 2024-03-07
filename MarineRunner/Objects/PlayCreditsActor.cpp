@@ -6,11 +6,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 
-// Sets default values
 APlayCreditsActor::APlayCreditsActor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	CreditsBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CreditsBox"));
 	RootComponent = CreditsBox;
@@ -26,16 +24,9 @@ void APlayCreditsActor::BeginPlay()
 	CreditsBox->OnComponentBeginOverlap.AddDynamic(this, &APlayCreditsActor::CreditsBoxBeginOverlap);
 }
 
-// Called every frame
-void APlayCreditsActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void APlayCreditsActor::CreditsBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (bCreditsActive == true)
+	if (bCreditsActive)
 		return;
 
 	bCreditsActive = true;
@@ -46,8 +37,8 @@ void APlayCreditsActor::CreditsBoxBeginOverlap(UPrimitiveComponent* OverlappedCo
 
 void APlayCreditsActor::SpawnWidget()
 {
-	UUserWidget* SpawnedWidget = CreateWidget<UUserWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), WidgetClassToSpawnWhenOverlap);
-	if (IsValid(SpawnedWidget) == false)
+	TObjectPtr<UUserWidget> SpawnedWidget = CreateWidget<UUserWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), WidgetClassToSpawnWhenOverlap);
+	if (!IsValid(SpawnedWidget))
 		return;
 
 	SpawnedWidget->AddToViewport();

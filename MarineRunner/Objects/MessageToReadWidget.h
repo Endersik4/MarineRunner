@@ -21,21 +21,19 @@ protected:
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* MessageTitle;
+		TObjectPtr<class UTextBlock> MessageTitle;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class URichTextBlock* MessageText;
-	UPROPERTY(EditAnywhere, Category = "Settings")
-		USoundBase* OpenMessageSound;
+		TObjectPtr<class URichTextBlock> MessageText;
+	UPROPERTY(EditAnywhere, Category = "Message To Read")
+		TObjectPtr<USoundBase> OpenMessageSound;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* OpenMessageAnim = nullptr;
+		TObjectPtr<UWidgetAnimation> OpenMessageAnim = nullptr;
 
 	void SetMessageInformation(const FText & _MessageTitle, const FText & _MessageText);
-
 	void HideMessageAfterTime(float Time);
 private:
 
 	FTimerHandle HideMessageHandle;
 	void HideMessage();
-
 };

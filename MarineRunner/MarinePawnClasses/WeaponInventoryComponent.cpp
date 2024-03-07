@@ -113,7 +113,7 @@ void UWeaponInventoryComponent::SortWeapons()
 	}
 }
 
-void UWeaponInventoryComponent::SaveInitialWeaponInventory()
+void UWeaponInventoryComponent::WeaponStorageToInitialWeaponInventory()
 {
 	InitialWeaponInventory.Empty();
 	for (const TPair<int32, TObjectPtr<class AGun> > CurrentPair : WeaponsStorage)

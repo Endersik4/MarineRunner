@@ -4,11 +4,11 @@
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SwingComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
+#include "MarineRunner/MarinePawnClasses/CroachAndSlide.h"
 #include "MarineRunner/MarinePawnClasses/Hook.h"
 #include "MarineRunner/MarinePawnClasses/SwingLine.h"
 
@@ -23,7 +23,7 @@ void USwingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MarinePlayer = Cast<AMarineCharacter>(GetOwner());
+	Player = Cast<AMarineCharacter>(GetOwner());
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 }
 
@@ -42,16 +42,16 @@ void USwingComponent::HookLineCheck()
 	if (!bCanMakeSwingLineCheck || bIsPlayerMovingToHook) 
 		return;
 
-	FVector LineStart = MarinePlayer->GetCamera()->GetComponentLocation();
-	FVector LineEnd = LineStart + (PlayerController->GetRootComponent()->GetForwardVector() * LengthOfSwingLineRaycast);
+	FVector HookCheckLineStart = Player->GetCamera()->GetComponentLocation();
+	FVector HookCheckLineEnd = HookCheckLineStart + (PlayerController->GetRootComponent()->GetForwardVector() * LengthOfSwingLineRaycast);
 
 	FHitResult HitResults;
-	bool bHookHovered = GetWorld()->LineTraceSingleByChannel(HitResults, LineStart, LineEnd, ECC_GameTraceChannel2) && IsValid(HitResults.GetActor());
+	bool bHookHovered = GetWorld()->LineTraceSingleByChannel(HitResults, HookCheckLineStart, HookCheckLineEnd, ECC_GameTraceChannel2);
+
 	if (bHookHovered)
-	{
 		ActivateCurrentHoveredHook(HitResults.GetActor());
-	}	
-	else ClearLastActivatedHook();
+	else 
+		ClearLastActivatedHook();
 }
 
 void USwingComponent::ActivateCurrentHoveredHook(TObjectPtr<AActor> HookActorFromHit)
@@ -104,7 +104,7 @@ void USwingComponent::SwingPressed()
 
 	SpawnSwingEffects();
 
-	GetWorld()->GetTimerManager().SetTimer(SwingHandle, this, &USwingComponent::PrepareMoveToHook, SwingDelay);
+	GetWorld()->GetTimerManager().SetTimer(StartSwingHandle, this, &USwingComponent::PrepareMoveToHook, SwingDelay);
 }
 
 void USwingComponent::SpawnSwingEffects()
@@ -112,10 +112,10 @@ void USwingComponent::SpawnSwingEffects()
 	if (IsValid(SwingSound)) 
 		UGameplayStatics::SpawnSound2D(GetWorld(), SwingSound);
 
-	FVector SpawnLocation = MarinePlayer->GetCamera()->GetComponentLocation();
-	SpawnLocation += PlayerController->GetRootComponent()->GetForwardVector() * ForwardSwingLineOffset + PlayerController->GetRootComponent()->GetRightVector() * RightSwingLineOffset;
-	ASwingLine* SwingLine = GetWorld()->SpawnActor<ASwingLine>(SwingLineClass, SpawnLocation, FRotator(0, 0, 0));
-
+	FVector SpawnLocation = Player->GetCamera()->GetComponentLocation();
+	SpawnLocation += PlayerController->GetRootComponent()->GetForwardVector() * ForwardSwingLineLocationOffset + PlayerController->GetRootComponent()->GetRightVector() * RightSwingLineLocationOffset;
+	
+	TObjectPtr<ASwingLine> SwingLine = GetWorld()->SpawnActor<ASwingLine>(SwingLineClass, SpawnLocation, FRotator(0, 0, 0));
 	if (!IsValid(SwingLine))
 		return;
 
@@ -127,16 +127,16 @@ void USwingComponent::PrepareMoveToHook()
 	if (!IsValid(CurrentFocusedHook)) 
 		return;
 
-	MarinePlayer->GetPlayerCapsule()->SetPhysicsLinearVelocity(FVector(0));
+	Player->GetPlayerCapsule()->SetPhysicsLinearVelocity(FVector(0));
 	bIsPlayerMovingToHook = true;
 
 	HookLocation = CurrentFocusedHook->GetActorLocation() - CurrentFocusedHook->GetHookLocationOffset();
 
-	FVector DirectionTowardsHook = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(MarinePlayer->GetActorLocation(), HookLocation));
-	SwingImpulse = DirectionTowardsHook * SwingForce;
-	MarinePlayer->GetPlayerCapsule()->AddImpulse(SwingImpulse);
+	FVector DirectionTowardsHook = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(Player->GetActorLocation(), HookLocation));
+	FVector ImpulseTowardsHook = DirectionTowardsHook * SwingImpulse;
+	Player->GetPlayerCapsule()->AddImpulse(ImpulseTowardsHook);
 
-	//MarinePlayer->MovementStuffThatCannotHappen();
+	Player->GetCrouchAndSlideComponent()->CrouchReleased();
 }
 
 //Interp player to location of the Hook
@@ -145,14 +145,14 @@ void USwingComponent::MovingToHook(float Delta)
 	if (!bIsPlayerMovingToHook) 
 		return;
 
-	FVector NewLocation = FMath::VInterpTo(MarinePlayer->GetActorLocation(), HookLocation, Delta, SwingSpeed);
-	MarinePlayer->SetActorLocation(NewLocation);
+	FVector NewLocation = FMath::VInterpTo(Player->GetActorLocation(), HookLocation, Delta, SwingSpeed);
+	Player->SetActorLocation(NewLocation);
 
 	StopMovingToHook();
 }
 void USwingComponent::StopMovingToHook()
 {
-	if (!MarinePlayer->GetCamera()->GetComponentLocation().Equals(HookLocation, MaxHookDistanceToFinishInterp))
+	if (!Player->GetCamera()->GetComponentLocation().Equals(HookLocation, MaxHookDistanceToFinishMoving))
 		return;
 
 	bWasSwingPressed = false;
@@ -160,10 +160,9 @@ void USwingComponent::StopMovingToHook()
 	bCanMakeSwingLineCheck = true;
 	CurrentFocusedHook = nullptr;
 
-	float Multiplier = (SwingLinearPhysicsMultiplier / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
-	FVector Velocity = MarinePlayer->GetPlayerCapsule()->GetPhysicsLinearVelocity() * Multiplier;
-	Velocity.Z = MarinePlayer->GetPlayerCapsule()->GetPhysicsLinearVelocity().Z;
-	MarinePlayer->GetPlayerCapsule()->SetPhysicsLinearVelocity(Velocity);
+	FVector NewVelocity = Player->GetPlayerCapsule()->GetPhysicsLinearVelocity() * (SwingLinearPhysicsMultiplier / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
+	NewVelocity.Z = Player->GetPlayerCapsule()->GetPhysicsLinearVelocity().Z;
+	Player->GetPlayerCapsule()->SetPhysicsLinearVelocity(NewVelocity);
 }
 #pragma endregion 
 

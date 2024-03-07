@@ -22,6 +22,7 @@ void UJumpComponent::BeginPlay()
 
 	Player = Cast<AMarineCharacter>(GetOwner());
 
+	GetWorld()->GetTimerManager().SetTimer(CheckInAirHandle, this, &UJumpComponent::CheckIfIsInAir, CheckInAirTime, true);
 	CreateImpactOnFloorTimeline();
 }
 
@@ -29,107 +30,116 @@ void UJumpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	JumpTick(DeltaTime);
-	CheckIfIsInAir();
+	ApplyJumpForces(DeltaTime);
 	ImpactOnFloorTimeline.TickTimeline(DeltaTime);
 }
 
 #pragma region ////////////////////////////////// JUMP /////////////////////////////////
 bool UJumpComponent::CanJump()
 {
-	FHitResult SomethinhUpResult;
-	bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(SomethinhUpResult, Player->GetRoofLocationSceneComponent()->GetComponentLocation(), Player->GetRoofLocationSceneComponent()->GetComponentLocation(), FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
+	FHitResult SomethingUpResult;
+	bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(SomethingUpResult, Player->GetRoofLocationSceneComponent()->GetComponentLocation(), Player->GetRoofLocationSceneComponent()->GetComponentLocation(), FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
 	
-	if (bObstacleAbovePlayer == true)
+	if (bObstacleAbovePlayer)
 		return false;
 
 	if (Player->GetWallrunComponent()->GetIsWallrunning())
 		return true;
 
-	return bIsInAir == false || ((bDelayIsInAir || Player->GetWallrunComponent()->GetCanJumpAfterWallrun()) && bIsJumping == false);
+	if (bStartApplyingJumpForces)
+		return false;
+
+	if (bIsInAir && !bDelayIsInAir && !Player->GetWallrunComponent()->GetCanJumpAfterWallrun())
+		return false;
+
+	return true;
 }
 
 void UJumpComponent::Jump()
 {
-	if (Player->GetWallrunComponent()->GetCanJump() == false)
+	if (!IsValid(Player))
+		return;
+
+	if (!Player->GetWallrunComponent()->GetCanJump())
 		return;
 
 	if (CanJump())
 	{
 		Player->GetWallrunComponent()->SetCanJumpAfterWallrun(false);
 		Player->GetWallrunComponent()->AddImpulseAfterWallrun();
-		Player->GetCroachAndSlideComponent()->CrouchReleasedByObject();
+		Player->GetCrouchAndSlideComponent()->CrouchReleasedByObject();
 
-		bIsJumping = true;
-		JumpTimeElapsed = 0;
+		bStartApplyingJumpForces = true;
+		JumpTimeElapsed = 0.f;
 
-		if (JumpSound) UGameplayStatics::SpawnSound2D(GetWorld(), JumpSound);
+		if (IsValid(JumpSound)) 
+			UGameplayStatics::SpawnSound2D(GetWorld(), JumpSound);
 	}
 	else
 	{
 		bCanDelayJump = true;
-		GetWorld()->GetTimerManager().SetTimer(DelayJumpHandle, this, &UJumpComponent::SetCanDelayJump, DelayJumpTime, false);
+		GetWorld()->GetTimerManager().SetTimer(DelayJumpHandle, this, &UJumpComponent::DisableCanDelayJump, DelayJumpTime, false);
 	}
 }
 
-void UJumpComponent::JumpTick(float DeltaTime)
+void UJumpComponent::ApplyJumpForces(const float& DeltaTime)
 {
-	if (bIsJumping == false || IsValid(Player) == false)
+	if (!bStartApplyingJumpForces || !IsValid(Player))
 		return;
 
 	if (JumpTimeElapsed < JumpUpTime)
 	{
-		FVector CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
-		FHitResult HitR;
-
-		bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(HitR, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
-		if (bObstacleAbovePlayer == false)
-		{
-			//Jumps Up
-			float NewVelZ = FMath::Lerp(InitialJumpForce, -50.f, JumpTimeElapsed / JumpUpTime);
-
-			FVector LinearVelocity = Player->GetPlayerCapsule()->GetPhysicsLinearVelocity();
-			LinearVelocity.Z = NewVelZ;
-
-			Player->GetPlayerCapsule()->SetPhysicsLinearVelocity(LinearVelocity);
-		}
-		else
-		{
-			JumpTimeElapsed += JumpUpTime;
-		}
-
-		JumpTimeElapsed += DeltaTime;
+		ApplyJumpUPForce(DeltaTime);
 	}
-	else if (bDownForce == false)
+	else if (!bDownForceWasApplied) // for faster falling after jumping
 	{
-		//Down Physics applied when TimeJump is over
-		FVector DownJumpImpulse = (-Player->GetActorUpVector() * JumpDownForce * 10);
+		FVector DownJumpImpulse = (-Player->GetActorUpVector() * JumpDownForce);
 		Player->GetPlayerCapsule()->AddImpulse(DownJumpImpulse);
 
-		bDownForce = true;
+		bDownForceWasApplied = true;
 	}
 	else
 	{
 		bDelayIsInAir = false;
-		bDownForce = false;
-		bIsJumping = false;
+		bDownForceWasApplied = false;
+		bStartApplyingJumpForces = false;
 	}
+}
+
+void UJumpComponent::ApplyJumpUPForce(const float& DeltaTime)
+{
+	JumpTimeElapsed += DeltaTime;
+
+	FVector CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
+	FHitResult ObstacleAboveHitResult;
+	bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(ObstacleAboveHitResult, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
+	if (bObstacleAbovePlayer)
+	{
+		// if player hits soemthing uphead then stop applying jump forces
+		JumpTimeElapsed += JumpUpTime;
+		return;
+	}
+
+	float NewVel_Z = FMath::Lerp(InitialJumpForce, EndJumpForce, JumpTimeElapsed / JumpUpTime);
+	FVector JumpVelocity = Player->GetPlayerCapsule()->GetPhysicsLinearVelocity();
+	JumpVelocity.Z = NewVel_Z;
+	Player->GetPlayerCapsule()->SetPhysicsLinearVelocity(JumpVelocity);
 }
 
 void UJumpComponent::TurnOffJump(bool bDelayJumpToo)
 {
-	bIsJumping = false;
+	bStartApplyingJumpForces = false;
 
-	if (bDelayJumpToo == false) 
+	if (!bDelayJumpToo) 
 		return;
 
-	if (bCanDelayJump) 
-		DelayJump();
+	DelayJump();
 }
 
 void UJumpComponent::DelayJump()
 {
-	if (bCanDelayJump == false) return;
+	if (!bCanDelayJump) 
+		return;
 
 	Jump();
 	bCanDelayJump = false;
@@ -140,13 +150,16 @@ void UJumpComponent::DelayJump()
 #pragma region ////////////////////////////////// AIR //////////////////////////////////
 void UJumpComponent::CheckIfIsInAir()
 {
+	if (!IsValid(Player))
+		return;
+
 	FHitResult GroundHitResult;
 	FVector GroundCheckLocation = Player->GetGroundLocationSceneComponent()->GetComponentLocation();
 	//Check if there is ground under the player, if not, the player is in the air
 	bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GroundCheckLocation, GroundCheckLocation, FQuat::Identity, ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
-	if (bSomethingIsBelowThePlayer == false)
+	if (!bSomethingIsBelowThePlayer)
 	{
-		if (bIsInAir == true)
+		if (bIsInAir)
 			return;
 
 		FirstMomentInAir();
@@ -157,11 +170,10 @@ void UJumpComponent::CheckIfIsInAir()
 
 		PlayerOnRamp(GroundHitResult);
 
-		if (GroundHitResult.GetActor()->ActorHasTag(TEXT("Elevator")))
-		{
+		if (GroundHitResult.GetActor()->ActorHasTag(TEXT("Elevator"))) // cant save while in elevator
 			Player->bIsPlayerInElevator = true;
-		}
-		else Player->bIsPlayerInElevator = false;
+		else 
+			Player->bIsPlayerInElevator = false;
 
 		DelayJump();
 	}
@@ -170,7 +182,7 @@ void UJumpComponent::CheckIfIsInAir()
 void UJumpComponent::FirstMomentInAir()
 {
 	bDelayIsInAir = true;
-	GetWorld()->GetTimerManager().SetTimer(DelayIsInAirHandle, this, &UJumpComponent::SetDelayIsInAir, DelayIsInAirTime, false);
+	GetWorld()->GetTimerManager().SetTimer(DelayIsInAirHandle, this, &UJumpComponent::DisableDelayIsInAir, DelayIsInAirTime, false);
 
 	DisablePlayerOnRampActions();
 
@@ -179,7 +191,7 @@ void UJumpComponent::FirstMomentInAir()
 
 void UJumpComponent::FirstTimeOnGround()
 {
-	if (bIsInAir == false || IsValid(Player) == false)
+	if (!bIsInAir|| !IsValid(Player))
 		return;
 
 	Player->GetWallrunComponent()->CallResetWallrunningAfterLanding();
@@ -187,7 +199,7 @@ void UJumpComponent::FirstTimeOnGround()
 	bIsInAir = false;
 	bDelayIsInAir = false;
 
-	if (ImpactOnFloorSound) 
+	if (IsValid(ImpactOnFloorSound)) 
 		UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, Player->GetPlayerCapsule());
 
 	LandingEffect();
@@ -195,46 +207,48 @@ void UJumpComponent::FirstTimeOnGround()
 
 void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
 {
-	if (GroundHitResult.GetActor()->ActorHasTag("Ramp"))
+	if (!GroundHitResult.GetActor()->ActorHasTag("Ramp"))
 	{
-		if (bIsOnRamp == false)
-		{
-			bIsOnRamp = true;
-
-			if (Player->GetCroachAndSlideComponent()->GetIsSliding() == false)
-			{
-				Player->SetShouldPlayerGoForward(true);
-				Player->GetCroachAndSlideComponent()->CrouchPressed();
-				Player->GetCroachAndSlideComponent()->BeginSlide();
-			}
-		}
-
-		//Check if Pawn is going UP on ramp, if he is then he cant slide
-		if (PlayerLocationOnRamp.Z < Player->GetActorLocation().Z)
-		{
-			bIsGoingUp = true;
-		}
-		else if (bIsGoingUp == true)
-		{
-			bIsOnRamp = false;
-			Player->SetShouldPlayerGoForward(false);
-
-			bIsGoingUp = false;
-		}
-		PlayerLocationOnRamp = Player->GetActorLocation();
+		DisablePlayerOnRampActions();
+		return;
 	}
-	else DisablePlayerOnRampActions();
+
+	if (!bIsOnRamp)
+	{
+		bIsOnRamp = true;
+
+		if (!Player->GetCrouchAndSlideComponent()->GetIsSliding())
+		{
+			Player->SetShouldPlayerGoForward(true);
+			Player->GetCrouchAndSlideComponent()->CrouchPressed();
+			Player->GetCrouchAndSlideComponent()->BeginSlide();
+		}
+	}
+
+	//Check if Pawn is going UP on ramp, if he is then he cant slide
+	if (PreviousPlayerLocationOnRamp.Z < Player->GetActorLocation().Z)
+	{
+		bIsGoingUpOnRamp = true;
+	}
+	else if (bIsGoingUpOnRamp)
+	{
+		bIsOnRamp = false;
+		Player->SetShouldPlayerGoForward(false);
+		
+		bIsGoingUpOnRamp = false;
+	}
+	PreviousPlayerLocationOnRamp = Player->GetActorLocation();
 }
 
 void UJumpComponent::DisablePlayerOnRampActions()
 {
-	if (bIsOnRamp == false)
+	if (!bIsOnRamp)
 		return;
 
 	bIsOnRamp = false;
-	bIsGoingUp = false;
+	bIsGoingUpOnRamp = false;
 	Player->SetShouldPlayerGoForward(false);
-	Player->GetCroachAndSlideComponent()->CrouchReleasedByObject();
+	Player->GetCrouchAndSlideComponent()->CrouchReleasedByObject();
 }
 #pragma endregion
 
@@ -248,7 +262,7 @@ void UJumpComponent::CreateImpactOnFloorTimeline()
 
 void UJumpComponent::LandingEffect()
 {
-	if (ImpactOnFloorCameraEffectCurve == nullptr)
+	if (!IsValid(ImpactOnFloorCameraEffectCurve))
 		return;
 
 	ImpactOnFloorTimeline.PlayFromStart();
@@ -256,9 +270,9 @@ void UJumpComponent::LandingEffect()
 
 void UJumpComponent::ImpactOnFloorCameraEffectTimelineProgress(float CurveValue)
 {
-	FVector NewLocation = Player->GetCamera()->GetRelativeLocation();
-	NewLocation.Z = CurveValue;
-	Player->GetCamera()->SetRelativeLocation(NewLocation);
+	FVector NewCameraLocation = Player->GetCamera()->GetRelativeLocation();
+	NewCameraLocation.Z = CurveValue;
+	Player->GetCamera()->SetRelativeLocation(NewCameraLocation);
 }
 #pragma endregion
 

@@ -21,18 +21,18 @@ void UPauseMenuComponent::BeginPlay()
 	Super::BeginPlay();
 
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	MarinePawn = Cast<AMarineCharacter>(GetOwner());
+	Player = Cast<AMarineCharacter>(GetOwner());
 }
 
 void UPauseMenuComponent::PauseGame()
 {
-	if (CanPauseGame() == false)
+	if (!CanPauseGame())
 		return;
 
 	PlayerController->SetShowMouseCursor(true);
 	bIsInPauseMenu = true;
 	SpawnPauseMenuWidget();
-	MarinePawn->GetSlowMotionComponent()->PauseSlowMotionSound(true);
+	Player->GetSlowMotionComponent()->PauseSlowMotionSound(true);
 
 	UGameplayStatics::SetGamePaused(GetWorld(), true);
 }
@@ -41,17 +41,17 @@ void UPauseMenuComponent::UnPauseGame()
 {
 	bool bRemovePauseMenuWidget = PauseMenuWidget->RemoveCurrentMenuWidgetsFromViewport();
 
-	if (bRemovePauseMenuWidget == false || IsValid(PlayerController) == false)
+	if (!bRemovePauseMenuWidget|| !IsValid(PlayerController))
 		return;
 
-	if (MarinePawn->GetIsMessageDisplayed() == false)
+	if (!Player->GetIsMessageDisplayed())
 	{
 		UGameplayStatics::SetGamePaused(GetWorld(), false);
 		ChangeUIToGameOnly();
 	}
 	bIsInPauseMenu = false;
 
-	MarinePawn->GetSlowMotionComponent()->PauseSlowMotionSound(false);
+	Player->GetSlowMotionComponent()->PauseSlowMotionSound(false);
 
 	PauseMenuWidget->RemoveFromParent();
 	PauseMenuWidget = nullptr;
@@ -59,11 +59,11 @@ void UPauseMenuComponent::UnPauseGame()
 
 void UPauseMenuComponent::SpawnPauseMenuWidget()
 {
-	if (IsValid(PlayerController) == false)
+	if (!IsValid(PlayerController))
 		return;
 
 	PauseMenuWidget = Cast<UPauseMenuWidget>(CreateWidget(PlayerController, PauseMenuWidgetClass));
-	if (IsValid(PauseMenuWidget) == false)
+	if (!IsValid(PauseMenuWidget))
 		return;
 
 	PauseMenuWidget->AddToViewport();
@@ -72,19 +72,19 @@ void UPauseMenuComponent::SpawnPauseMenuWidget()
 
 bool UPauseMenuComponent::CanPauseGame()
 {
-	if (IsValid(MarinePawn) == false)
+	if (!IsValid(Player))
 		return false;
 
-	if (MarinePawn->GetIsDead() == true)
+	if (Player->GetIsDead())
 		return false;
 
-	if (bIsInPauseMenu == true)
+	if (bIsInPauseMenu)
 	{
 		UnPauseGame();
 		return false;
 	}
 
-	if (IsValid(PlayerController) == false)
+	if (!IsValid(PlayerController))
 		return false;
 
 	return true;

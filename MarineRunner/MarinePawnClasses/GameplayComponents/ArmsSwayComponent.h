@@ -24,79 +24,79 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	FORCEINLINE void SetWeaponSwayDivider(float NewSwayDivder) { WeaponSwayDivider = NewSwayDivder; }
-	FORCEINLINE void SetWeaponSwayWhileMovingDivider(float NewSwayWhileMovingDivder) { WeaponSwayWhileMovingDivider = NewSwayWhileMovingDivder; }
-	FORCEINLINE void SetInADS(bool bNewIsnADS) { bInADS = bNewIsnADS; }
+	FORCEINLINE void SetArmsSwayDivider(float NewSwayDivider) { ArmsSwayDivider = NewSwayDivider; }
+	FORCEINLINE void SetArmsSwayWhileMovingDivider(float NewSwayWhileMovingDivder) { ArmsSwayWhileMovingDivider = NewSwayWhileMovingDivder; }
 
 	void ResetArmsLocation();
 
 private:
-	//Rotation Sway Pitch
-//Maximal Pitch rotation of Gun when player looking down
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway")
+		float BackToInitialPositionSpeed = 1.f;
+	//Max Pitch rotation of arms when player looking down
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway")
 		float RotationSwayPitchRangeBack = -2.f;
-	//Maximal Pitch rotation of Gun when player looking up
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
+	//Max Pitch rotation of arms when player looking up
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway")
 		float RotationSwayPitchRangeUp = 2.f;
-	//Speed of Gun that will reach the Range Sway Pitch
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
+	//Arms to Sway pitch rotation speed 
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway")
 		float SpeedOfSwayPitch = 7.f;
 
-	//Rotation Sway Yaw
-	//Maximal Yaw rotation of Gun when player looking left
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
+	//Max Yaw rotation of Arms when player looking left
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway")
 		float RotationSwayYawRangeBack = -2.75f;
-	//Maximal Yaw rotation of Gun when player looking right
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
+	//Maximal Yaw rotation of Arms when player looking right
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway")
 		float RotationSwayYawRangeUp = 2.75f;
-	//Speed of Gun that will reach the Range Sway Yaw
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway")
+	//Arms to Sway yaw rotation speed 
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway")
 		float SpeedOfSwayYaw = 3.f;
 
-	//Location Sway X
-//Maximal X location of Gun when player moving forward (This value is added to RelativeLocationInPawn)
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway While Moving")
+		float MinVelocityToStartArmsSway = 150.f;
+	//Max X location of Arms when player moving forward (This value is added to RelativeLocationInPawn)
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway While Moving")
 		float LocationSwayXRangeBack = -3.f;
-	//Maximal X location of Gun when player moving backward (This value is added to RelativeLocationInPawn)
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
+	//Max X location of Arms when player moving backward (This value is added to RelativeLocationInPawn)
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway While Moving")
 		float LocationSwayXRangeUp = 3.f;
-	//Speed of Gun that will reach the Range Sway X
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
+	//Arms to Sway X location speed 
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway While Moving")
 		float SpeedOfSwayX = 7.f;
 
-	//Location Sway Y
-	//Maximal Y location of Gun when player moving right (This value is added to RelativeLocationInPawn)
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
+	//Max Y location of Arms when player moving right (This value is added to RelativeLocationInPawn)
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway While Moving")
 		float LocationSwayYRangeBack = -2.f;
-	//Maximal Y location of Gun when player moving left (This value is added to RelativeLocationInPawn)
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
+	//Max Y location of Arms when player moving left (This value is added to RelativeLocationInPawn)
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway While Moving")
 		float LocationSwayYRangeUp = 2.f;
-	//Speed of Gun that will reach the Range Sway Y
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
+	//Arms to Sway Y location speed
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway While Moving")
 		float SpeedOfSwayY = 4.f;
 
-	//Speed of Moving Gun while Player is moving
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
+	//Speed of Moving Arms while Player is moving
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway While Moving")
 		float SpeedOfSwayWhileMoving = 550.f;
-	//Multiplier of Calculeted Y by Lemniscate Of Bernoulli, this represents how big Gun is gonna move in Y
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
+	//Multiplier of Calculeted Y by Lemniscate Of Bernoulli, this represents how big Arms is gonna move in Y
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway While Moving")
 		float MultiplierOfLocationYSwayWhileMoving = 0.8f;
-	//Multiplier of Calculeted Z by Lemniscate Of Bernoulli, this represents how big Gun is gonna move in Z
-	UPROPERTY(EditDefaultsOnly, Category = "Animation|Setting Up Gun Sway While Moving")
+	//Multiplier of Calculeted Z by Lemniscate Of Bernoulli, this represents how big Arms is gonna move in Z
+	UPROPERTY(EditDefaultsOnly, Category = "Arms Sway While Moving")
 		float MultiplierOfLocationZSwayWhileMoving = 0.4f;
 
-	float WeaponSwayDivider = 1.f;
-	float WeaponSwayWhileMovingDivider = 1.f;
-	bool bInADS = false;
+	float ArmsSwayDivider = 1.f;
+	float ArmsSwayWhileMovingDivider = 1.f;
 
-	void CalculateGunSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, float Delta);
-	void GunSway(float Delta);
-	FRotator GunRotationSway;
-	FVector RelativeLocationInPawn;
+	FRotator ArmsRotationSway;
+	FVector InitialArmsRelativeLocation;
+	void CalculateArmsSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, const float &Delta);
+	void ArmsSway_MouseMove(float Delta);
 
-	FVector CalculateLOBGunSwayWhileMoving();
-	void GunSwayWhileMoving();
+	FVector CalculateArmsSwayWhileMoving();
+	void ArmsSway_WhileMoving();
 
-	class AMarineCharacter* Player;
-	APlayerController* PlayerController;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> Player;
+	UPROPERTY(Transient)
+		TObjectPtr<APlayerController> PlayerController;
 };

@@ -21,17 +21,14 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-private:
 	virtual void TakeItem(class AMarineCharacter* Character) override;
 	virtual void ItemHover(class AMarineCharacter* Character) override;
 	virtual void ItemUnHover(class AMarineCharacter* Character) override;
+public:	
 
+private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UStaticMeshComponent* MessageStaticMesh;
+		TObjectPtr<class UStaticMeshComponent> MessageStaticMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
 		FText MessageTitle;
@@ -46,9 +43,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Message Settings|Information On Hover")
 		FString MessageDescription;
 	UPROPERTY(EditDefaultsOnly, Category = "Message Settings|Information On Hover")
-		UTexture2D* MessageIcon;
+		TObjectPtr<UTexture2D> MessageIcon;
 
 	FTimerHandle SpawnMessageWidgetHandle;
 	void SpawnMessageWidget();
-	class AMarineCharacter* MarinePlayer;
+
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> Player;
 };

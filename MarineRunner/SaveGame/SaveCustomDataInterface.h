@@ -21,8 +21,10 @@ struct FCustomDataSaved
 	UPROPERTY(EditAnywhere)
 		TEnumAsByte<ESavedDataState> SavedDataState;
 
+	// Pointer to the actor to load/save data from e.g chest on map
 	UPROPERTY(EditAnywhere)
-		AActor* ObjectToSaveData;
+		TObjectPtr<AActor> ObjectToSaveData;
+	// State of saved object, number means something different in each actor e.g in chest 1 means the chest was open, in door 2 means the door was unlocked by pin etc.
 	UPROPERTY(EditAnywhere)
 		int32 ObjectState;
 
@@ -32,6 +34,7 @@ struct FCustomDataSaved
 		FTransform ObjectTransform;
 	UPROPERTY(EditAnywhere)
 		float ValueToSave;
+	// if true then the object added to be saved/loaded in details panel in SavedDataObject e.g Albertos location, after player saves it should load last albertos location
 	UPROPERTY(EditAnywhere)
 		bool bValueNotSavedWhileInGame;
 
@@ -47,7 +50,7 @@ struct FCustomDataSaved
 	}
 
 
-	FCustomDataSaved(const TEnumAsByte<ESavedDataState>& _SavedDataState, AActor* _ObjectToSaveData,
+	FCustomDataSaved(const TEnumAsByte<ESavedDataState>& _SavedDataState, TObjectPtr<AActor> _ObjectToSaveData,
 		const int32& _ObjectState, const float& _ValueToSave = 0, const bool& _ValueNotSavedWhileInGame = false)
 	{
 		SavedDataState = _SavedDataState;
@@ -69,7 +72,7 @@ struct FCustomDataSaved
 	}
 
 	FCustomDataSaved(const TEnumAsByte<ESavedDataState>& _SavedDataState,
-		AActor* _ObjectToSaveData,
+		TObjectPtr<AActor> _ObjectToSaveData,
 		const int32& _ObjectState, TSubclassOf<AActor> _ObjectToSpawnFromClass,
 		const FTransform& _ObjectTransform, const float& _ValueToSave = 0, const bool& _ValueNotSavedWhileInGame = false)
 	{

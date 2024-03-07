@@ -225,13 +225,12 @@ void AGun::AimTheGun(EStatusOfAimedGun NewGunStatus)
 {
 	StatusOfGun = NewGunStatus;
 
-	Player->GetArmsSwayComponent()->SetInADS(StatusOfGun == EStatusOfAimedGun::ESAG_ADS);
 	if (StatusOfGun == EStatusOfAimedGun::ESAG_ADS)
 		Player->GetArmsSwayComponent()->ResetArmsLocation();
 
 	// When in ADS, change weapon sway to other values, or back to original values if player is not in ADS
-	Player->GetArmsSwayComponent()->SetWeaponSwayDivider(StatusOfGun == EStatusOfAimedGun::ESAG_ADS ? WeaponSwayInADSDivider : 1.f);
-	Player->GetArmsSwayComponent()->SetWeaponSwayWhileMovingDivider(StatusOfGun == EStatusOfAimedGun::ESAG_ADS ? WeaponSwayWhileMovingInADSDivider : 1);
+	Player->GetArmsSwayComponent()->SetArmsSwayDivider(StatusOfGun == EStatusOfAimedGun::ESAG_ADS ? WeaponSwayInADSDivider : 1.f);
+	Player->GetArmsSwayComponent()->SetArmsSwayWhileMovingDivider(StatusOfGun == EStatusOfAimedGun::ESAG_ADS ? WeaponSwayWhileMovingInADSDivider : 1);
 	
 	// Player cant change weapon when in ADS
 	Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(!StatusOfGun == EStatusOfAimedGun::ESAG_ADS);

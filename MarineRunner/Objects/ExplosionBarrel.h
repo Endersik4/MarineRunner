@@ -28,47 +28,48 @@ protected:
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UStaticMeshComponent* ExplosionBarrelMesh;
-
+		TObjectPtr<class UStaticMeshComponent> ExplosionBarrelMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		TSubclassOf<AActor> ExplosionBarrelGeometryClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
-		float ExplosionDamage = 1000.f;
+		float StartExplodeTime = 0.05f;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
-		float ExplosionImpulseForce = 3000.f;
+		float ExplosionDamage = 1200.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
-		float ExplosionRadius = 3000.f;
+		float ExplosionImpulseForce = 40000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
+		float ExplosionRadius = 1000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
+		TObjectPtr<USoundBase>  ExplosionSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
+		float MaxDistanceToStartShake = 9000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
+		float CameraShakeScaleMultiplier = 0.3f;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
+		TSubclassOf<UCameraShakeBase> CameraShakeAfterExplosion;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
 		bool bDrawDebugRadialSphere;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
-		TSubclassOf<UCameraShakeBase> CameraShakeAfterExplosion;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Effects")
-		USoundBase* ExplosionSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Effects")
-		UMaterialInstance* ExplosionDecal;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Effects")
-		float ExplosionDecalSize = 2.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Effects")
-		class UParticleSystem* ExplosionParticle;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Effects")
-		float ExplosionParticleSize = 1.f;
-
-	void Explode();
-	void UseInterfaceOnActor(const FHitResult& HitResult);
-	void SpawnEffects();
-
-	void SpawnExplosionBarrelGeometry();
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Decal")
+		TObjectPtr<UMaterialInstance>  ExplosionDecal;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Decal")
+		float ExplosionDecalSize = 4.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Particle")
+		TObjectPtr<class UParticleSystem> ExplosionParticle;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Particle")
+		float ExplosionParticleSize = 3.f;
 
 	bool bExploded;
+	void Explode();
 
-	AActor* SpawnedBarrelGeometry;
+	void UseDamageInterfaceOnActor(const FHitResult& HitResult);
+
+	void SpawnEffects();
+	void SpawnExplosionBarrelGeometry();
+	TObjectPtr<AActor> SpawnedBarrelGeometry;
+
 	int32 CurrentUniqueID = 0;
 	void BarrelExplodedSaveData();
 	void DisableBarrel(bool bDisable = true);

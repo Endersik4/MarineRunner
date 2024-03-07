@@ -8,11 +8,9 @@
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 #include "MarineRunner/Objects/SavedDataObject.h"
 
-// Sets default values
 AEnemySpawner::AEnemySpawner()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	SpawnEnemiesBox = CreateDefaultSubobject<UBoxComponent>(TEXT("SpawnEnemiesBox"));
 	RootComponent = SpawnEnemiesBox;
@@ -29,16 +27,9 @@ void AEnemySpawner::BeginPlay()
 	GetWorld()->GetTimerManager().SetTimer(ActivateEnemySpawnerHandle, this, &AEnemySpawner::EnableSpawnEnemiesBoxBeginOverlap, DelayToActivateEnemySpawner, false);
 }
 
-// Called every frame
-void AEnemySpawner::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void AEnemySpawner::OnSpawnEnemiesBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (bEnemiesSpawned == true)
+	if (bEnemiesSpawned)
 		return;
 
 	SpawnAllEnemiesFromSpawner();
@@ -52,11 +43,11 @@ void AEnemySpawner::SpawnAllEnemiesFromSpawner()
 	{
 		for (const FTransform& CurrentEnemyTransform : CurrentEnemy.EnemiesTransform)
 		{
-			if (CurrentEnemy.EnemyClassToSpawn == nullptr)
+			if (!IsValid(CurrentEnemy.EnemyClassToSpawn))
 				continue;
 
-			AEnemyPawn* SpawnedEnemy = GetWorld()->SpawnActor<AEnemyPawn>(CurrentEnemy.EnemyClassToSpawn, CurrentEnemyTransform);
-			if (IsValid(SpawnedEnemy) == false)
+			TObjectPtr<AEnemyPawn> SpawnedEnemy = GetWorld()->SpawnActor<AEnemyPawn>(CurrentEnemy.EnemyClassToSpawn, CurrentEnemyTransform);
+			if (!IsValid(SpawnedEnemy))
 				continue;
 
 			SpawnedEnemy->SaveEnemySpawnedDataAtRuntime();
@@ -68,9 +59,8 @@ void AEnemySpawner::SpawnAllEnemiesFromSpawner()
 
 void AEnemySpawner::EnemiesSpawnedSaveData()
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
-
-	if (IsValid(SavedDataObject) == false)
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	if (!IsValid(SavedDataObject))
 		return;
 
 	if (CurrentUniqueID == 0) 
@@ -106,8 +96,8 @@ void AEnemySpawner::RestartData(ASavedDataObject* SavedDataObject, const int32 I
 
 void AEnemySpawner::EnableSpawnEnemiesBoxBeginOverlap()
 {
-	if (bEnemiesSpawned == true)
+	if (bEnemiesSpawned)
 		return;
 
-	SpawnEnemiesBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemySpawner::OnSpawnEnemiesBoxBeginOverlap);
+	SpawnEnemiesBox->OnComponentBeginOverlap.AddUniqueDynamic(this, &AEnemySpawner::OnSpawnEnemiesBoxBeginOverlap);
 }

@@ -6,31 +6,29 @@
 
 #include "MarineRunner/MarinePawnClasses/PlayerWidgets/YouDiedWidget.h"
 
-
-// Sets default values for this component's properties
 USpawnDeathWidgetComponent::USpawnDeathWidgetComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
-
 }
 
-
-// Called when the game starts
 void USpawnDeathWidgetComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 }
 
-void USpawnDeathWidgetComponent::SpawnDeathWidget(APlayerController* PlayerController)
+void USpawnDeathWidgetComponent::SpawnDeathWidget(TObjectPtr<APlayerController> PlayerController)
 {
-	if (YouDiedWidgetClass == false || IsValid(PlayerController) == false)
+	if (!IsValid(YouDiedWidgetClass) || !IsValid(PlayerController))
 	{
 		UGameplayStatics::OpenLevel(GetWorld(), FName(*UGameplayStatics::GetCurrentLevelName(GetWorld())));
 		return;
 	}
 
 	YouDiedWidget = Cast<UYouDiedWidget>(CreateWidget(PlayerController, YouDiedWidgetClass));
+	if (!IsValid(YouDiedWidget))
+		return;
+
 	YouDiedWidget->AddToViewport();
 	PlayerController->SetShowMouseCursor(true);
 
@@ -44,7 +42,7 @@ void USpawnDeathWidgetComponent::PauseGameAfterDelay()
 
 void USpawnDeathWidgetComponent::RestartGameInYouDiedWidget()
 {
-	if (IsValid(YouDiedWidget) == false)
+	if (!IsValid(YouDiedWidget))
 		return;
 
 	YouDiedWidget->RestartGameButton_OnClicked();
@@ -52,7 +50,7 @@ void USpawnDeathWidgetComponent::RestartGameInYouDiedWidget()
 
 void USpawnDeathWidgetComponent::QuitGameInYouDiedWidget()
 {
-	if (IsValid(YouDiedWidget) == false)
+	if (!IsValid(YouDiedWidget))
 		return;
 
 	YouDiedWidget->QuitButton_OnClicked();

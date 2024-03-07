@@ -6,7 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "PauseMenuComponent.generated.h"
 
-
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API UPauseMenuComponent : public UActorComponent
 {
@@ -22,10 +21,9 @@ protected:
 
 public:
 
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
 
-	class UPauseMenuWidget* GetPauseMenuWidget() const { return PauseMenuWidget; }
+
+	FORCEINLINE TObjectPtr<class UPauseMenuWidget> GetPauseMenuWidget() const { return PauseMenuWidget; }
 	FORCEINLINE const bool& GetIsInPauseMenu() const { return bIsInPauseMenu; }
 
 	void PauseGame();
@@ -33,12 +31,17 @@ public:
 
 	void ChangeUIToGameOnly();
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu")
+		TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
 
 	bool bIsInPauseMenu;
-	class UPauseMenuWidget* PauseMenuWidget;
 	void SpawnPauseMenuWidget();
 	bool CanPauseGame();
+	UPROPERTY(Transient)
+		TObjectPtr<class UPauseMenuWidget> PauseMenuWidget;
 
-	APlayerController* PlayerController;
-	class AMarineCharacter* MarinePawn;
+	UPROPERTY(Transient)
+		TObjectPtr<APlayerController> PlayerController;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> Player;
 };

@@ -1,6 +1,5 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-
 #include "MarineRunner/Objects/SavedDataObject.h"
 
 ASavedDataObject::ASavedDataObject()
@@ -28,7 +27,7 @@ void ASavedDataObject::RemoveCustomSaveData(const int32& SavedCustomDataID)
 void ASavedDataObject::StartLoadingObjects()
 {
 	FTimerHandle LoadingObjectsDelayHandle;
-	GetWorld()->GetTimerManager().SetTimer(LoadingObjectsDelayHandle, this, &ASavedDataObject::LoadObjectsData, 0.05f, false);
+	GetWorld()->GetTimerManager().SetTimer(LoadingObjectsDelayHandle, this, &ASavedDataObject::LoadObjectsData, StartLoadObjectsDataTime, false);
 }
 
 void ASavedDataObject::LoadObjectsData()
@@ -37,27 +36,27 @@ void ASavedDataObject::LoadObjectsData()
 	{
 		if (Pair.Value.SavedDataState == ESavedDataState::ESDS_SpawnObject)
 		{
-			if (Pair.Value.ObjectToSpawnFromClass == NULL)
+			if (!IsValid(Pair.Value.ObjectToSpawnFromClass))
 				continue;
 
 			ISaveCustomDataInterface* SpawnedItem = GetWorld()->SpawnActor<ISaveCustomDataInterface>(Pair.Value.ObjectToSpawnFromClass, Pair.Value.ObjectTransform);
-			if (SpawnedItem == nullptr)
+			if (!SpawnedItem)
 				continue;
 
 			SpawnedItem->LoadData(Pair.Key, Pair.Value);
 			continue;
 		}
 
-		if (IsValid(Pair.Value.ObjectToSaveData) == false)
+		if (!IsValid(Pair.Value.ObjectToSaveData))
 			continue;
 
 		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
-		if (ActorWithSaveInterface == nullptr)
+		if (!ActorWithSaveInterface)
 			continue;
 
 		ActorWithSaveInterface->LoadData(Pair.Key, Pair.Value);
 
-		if (Pair.Value.bValueNotSavedWhileInGame == true)
+		if (Pair.Value.bValueNotSavedWhileInGame)
 		{
 			TempCustomSavedData.Add(Pair);
 		}
@@ -68,11 +67,11 @@ void ASavedDataObject::UpdateObjectsData()
 {
 	for (const TPair<int32, FCustomDataSaved>& Pair : CustomSavedData)
 	{
-		if (IsValid(Pair.Value.ObjectToSaveData) == false)
+		if (!IsValid(Pair.Value.ObjectToSaveData))
 			continue;
 	
 		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
-		if (ActorWithSaveInterface == nullptr)
+		if (!ActorWithSaveInterface)
 			continue;
 		
 		ActorWithSaveInterface->SaveData(this, Pair.Key, Pair.Value);
@@ -92,16 +91,16 @@ void ASavedDataObject::RestartObjectsData(bool bOnlyDeleteFromTemp)
 			continue;
 		}
 
-		if (IsValid(Pair.Value.ObjectToSaveData) == false)
+		if (!IsValid(Pair.Value.ObjectToSaveData))
 			continue;
 
 		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
-		if (ActorWithSaveInterface == nullptr)
+		if (!ActorWithSaveInterface)
 			continue;
-		if (bOnlyDeleteFromTemp == false)
+		if (!bOnlyDeleteFromTemp)
 			ActorWithSaveInterface->RestartData(this, Pair.Key, Pair.Value);
 
-		if (Pair.Value.bValueNotSavedWhileInGame == false)
+		if (!Pair.Value.bValueNotSavedWhileInGame)
 		{
 			KeysToRemoveFromCustomSavedData.Add(Pair.Key);
 		}
@@ -109,7 +108,7 @@ void ASavedDataObject::RestartObjectsData(bool bOnlyDeleteFromTemp)
 
 	for (const int32& CurrentKeyToRemove : KeysToRemoveFromCustomSavedData)
 	{
-		if (bOnlyDeleteFromTemp == false)
+		if (!bOnlyDeleteFromTemp)
 			CustomSavedData.Remove(CurrentKeyToRemove);
 		TempCustomSavedData.Remove(CurrentKeyToRemove);
 	}
@@ -117,5 +116,5 @@ void ASavedDataObject::RestartObjectsData(bool bOnlyDeleteFromTemp)
 
 int32 ASavedDataObject::CreateUniqueIDForObject() const
 {
-	return CustomSavedData.Num() + (int)FMath::RandRange(RandomDataIDRange.GetLowerBoundValue(), RandomDataIDRange.GetUpperBoundValue());
+	return CustomSavedData.Num() + (int)FMath::RandRange(RandomDataIDRangeForObject.GetLowerBoundValue(), RandomDataIDRangeForObject.GetUpperBoundValue());
 }

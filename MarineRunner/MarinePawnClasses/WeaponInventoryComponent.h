@@ -41,7 +41,7 @@ public:
 	TObjectPtr<AGun> GetCurrentGunToDraw();
 	int32 GetLastWeaponSlotFromStorage(TObjectPtr<class AGun> ValueToIgnore);
 
-	void SaveInitialWeaponInventory();
+	void WeaponStorageToInitialWeaponInventory();
 	void StartTimerForSpawnNewWeapons();
 
 	// int32 - MAgazine Capacity, FString - Path to Class to spawn

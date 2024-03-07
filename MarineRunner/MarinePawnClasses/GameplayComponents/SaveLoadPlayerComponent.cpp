@@ -1,6 +1,5 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
@@ -8,17 +7,17 @@
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/MarinePlayerController.h"
-#include "MarineRunner/Framework/SaveMarineRunner.h"
-#include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/WeaponHandlerComponent.h"
 #include "MarineRunner/MarinePawnClasses/WeaponInventoryComponent.h"
+#include "MarineRunner/Framework/SaveMarineRunner.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
+#include "MarineRunner/Inventory/InventoryComponent.h"
 #include "MarineRunner/Objects/SavedDataObject.h"
 #include "MarineRunner/AlbertosClasses/AlbertosPawn.h"
+#include "MarineRunner/AlbertosClasses/Components/PlayerIsNearAlbertosComponent.h"
 #include "MarineRunner/Widgets/HUDWidget.h"
 #include "MarineRunner/EnemiesClasses/EnemyPawn.h"
 #include "MarineRunner/GunClasses/Gun.h"
-#include "MarineRunner/AlbertosClasses/Components/PlayerIsNearAlbertosComponent.h"
 
 // Sets default values for this component's properties
 USaveLoadPlayerComponent::USaveLoadPlayerComponent()
@@ -41,11 +40,14 @@ void USaveLoadPlayerComponent::BeginPlay()
 
 void USaveLoadPlayerComponent::SpawnNewGameWidget()
 {
-	if (GameInstance->bNewGame == false)
+	if (!GameInstance->bNewGame)
 		return;
 	
 	SpawnPassingWidget(NewGameBeginsWidgetClass);
 	GameInstance->bNewGame = false;
+
+	if (!IsValid(Player))
+		return;
 
 	if (IsValid(Player->GetHudWidget()))
 		Player->GetHudWidget()->NewGameStartedWidgetAnimation();
@@ -53,10 +55,12 @@ void USaveLoadPlayerComponent::SpawnNewGameWidget()
 
 void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString& _WildCard)
 {
-	if (IsValid(Player) == false)
+	if (!IsValid(Player))
 		return;
 
-	USaveMarineRunner* CreatedSaveGame = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+	TObjectPtr<USaveMarineRunner> CreatedSaveGame = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
+	if (!IsValid(CreatedSaveGame))
+		return;
 
 	CreatedSaveGame->PrepareSaveGame(_SaveName);
 	CreatedSaveGame->TransferSavedVariablesToGameInstance(GetWorld(), _WildCard);
@@ -67,12 +71,12 @@ void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString&
 
 	CreatedSaveGame->bShowHealBar = bShowHealBar;
 	CreatedSaveGame->bShowDashBar = bShowDashBar;
-	CreatedSaveGame->bShowSlowMotionBar =bShowSlowMotionBar;
+	CreatedSaveGame->bShowSlowMotionBar = bShowSlowMotionBar;
 
 	CreatedSaveGame->Inventory_ItemsSaved = Player->GetInventoryComponent()->Inventory_Items;
 	CreatedSaveGame->Inventory_RecipesSaved = Player->GetInventoryComponent()->Items_Recipes;
 
-	Player->GetWeaponInventoryComponent()->SaveInitialWeaponInventory();
+	Player->GetWeaponInventoryComponent()->WeaponStorageToInitialWeaponInventory();
 	CreatedSaveGame->WeaponInventory_Saved = Player->GetWeaponInventoryComponent()->InitialWeaponInventory;
 
 	SavedDataObject->RestartObjectsData(true);
@@ -90,14 +94,14 @@ void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString&
 
 void USaveLoadPlayerComponent::LoadGame()
 {
-	if (IsValid(GameInstance) == false || IsValid(Player) == false)
+	if (!IsValid(GameInstance) || !IsValid(Player))
 		return;
 
-	if (GameInstance->bNewGame == true)
+	if (GameInstance->bNewGame)
 		return;
 	
-	USaveMarineRunner* LoadGameInstance = CreateLoadGame();
-	if (IsValid(LoadGameInstance) == false)
+	TObjectPtr<USaveMarineRunner> LoadGameInstance = CreateLoadGame();
+	if (!IsValid(LoadGameInstance))
 		return;
 	
 	GameInstance->ResetDetectedEnemy();
@@ -109,7 +113,7 @@ void USaveLoadPlayerComponent::LoadGame()
 
 	Player->SetActorLocation(LoadGameInstance->SavedPlayerLocation);
 	Player->SetActorRotation(LoadGameInstance->SavedPlayerRotation);
-	if (IsValid(PlayerController) == true)
+	if (IsValid(PlayerController))
 		PlayerController->SetControlRotation(LoadGameInstance->SavedPlayerRotation);
 
 	LoadGameInstance->LoadGame(Player, GameInstance);
@@ -118,7 +122,7 @@ void USaveLoadPlayerComponent::LoadGame()
 
 void USaveLoadPlayerComponent::LoadHudVariables()
 {
-	if (IsValid(Player->GetHudWidget()) == false)
+	if (!IsValid(Player->GetHudWidget()))
 		return;
 
 	Player->GetHudWidget()->ShowGameplayMechanicsBars(bShowHealBar, bShowDashBar, bShowSlowMotionBar);
@@ -133,7 +137,7 @@ void USaveLoadPlayerComponent::ShowGameplayMechanicsOnHud(const EUnlockInHud& Wh
 	else if (WhatToUnlock == EUnlockInHud::EUIN_SlowMoBar)
 		bShowSlowMotionBar = true;
 
-	if (IsValid(Player->GetHudWidget()) == false)
+	if (!IsValid(Player->GetHudWidget()))
 		return;
 
 	Player->GetHudWidget()->ShowGameplayMechanicsBars(WhatToUnlock);
@@ -141,26 +145,31 @@ void USaveLoadPlayerComponent::ShowGameplayMechanicsOnHud(const EUnlockInHud& Wh
 
 void USaveLoadPlayerComponent::RestartGame()
 {
-	if (IsValid(Player) == false)
+	if (!IsValid(Player))
 		return;
 
-	TArray<AActor*> AllGunsOnMap;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AGun::StaticClass(), AllGunsOnMap);
-	for (AActor* CurrentEnemy : AllGunsOnMap)
+	auto DeleteAllActorsOfClass = [](UWorld* World,UClass* ClassToDelete)
 	{
-		CurrentEnemy->Destroy();
-	}
+		TArray<TObjectPtr<AActor>> ActorsToDelete;
+		UGameplayStatics::GetAllActorsOfClass(World, ClassToDelete, ActorsToDelete);
 
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyPawn::StaticClass(), AllGunsOnMap);
-	for (AActor* CurrentEnemy : AllGunsOnMap)
-	{
-		CurrentEnemy->Destroy();
-	}
+		for (TObjectPtr<AActor> CurrentActor : ActorsToDelete)
+		{
+			if (!IsValid(CurrentActor))
+				continue;
+			CurrentActor->Destroy();
+		}
+		ActorsToDelete.Empty();
+	};
+
+	DeleteAllActorsOfClass(GetWorld(), AGun::StaticClass());
+	DeleteAllActorsOfClass(GetWorld(), AEnemyPawn::StaticClass());
 
 	SavedDataObject->RestartObjectsData(); // Restart Objects on map
 
-	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.f);
-	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), 1.f, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
+	const float& DefaultTimeDilation = 1.f;
+	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), DefaultTimeDilation);
+	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), DefaultTimeDilation, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
 
 	UWidgetLayoutLibrary::RemoveAllWidgets(GetWorld());
 	SpawnNewPlayer();
@@ -175,12 +184,12 @@ void USaveLoadPlayerComponent::SpawnNewPlayer()
 {
 	FTransform NewPlayerTransform = FTransform(FRotator(0.f), FVector(0.f));
 
-	USaveMarineRunner* LoadGameInstance = CreateLoadGame();
-	if (IsValid(LoadGameInstance) == true)
+	TObjectPtr<USaveMarineRunner> LoadGameInstance = CreateLoadGame();
+	if (IsValid(LoadGameInstance))
 		NewPlayerTransform = FTransform(LoadGameInstance->SavedPlayerRotation, LoadGameInstance->SavedPlayerLocation);
 
-	AMarineCharacter* SpawnedNewPlayer = GetWorld()->SpawnActorDeferred<AMarineCharacter>(PlayerClass, NewPlayerTransform);
-	if (IsValid(SpawnedNewPlayer) == false)
+	TObjectPtr<AMarineCharacter> SpawnedNewPlayer = GetWorld()->SpawnActorDeferred<AMarineCharacter>(PlayerClass, NewPlayerTransform);
+	if (!IsValid(SpawnedNewPlayer))
 		return;
 
 	SpawnedNewPlayer->SetAlbertosPawn(Player->GetAlbertosPawn());
@@ -193,27 +202,21 @@ void USaveLoadPlayerComponent::SpawnNewPlayer()
 	SpawnedNewPlayer->ReplaceRootComponentRotation();
 	PlayerController->SetMouseSensitivity(Player->GetMouseSensitivityJSON());
 
-	if (IsValid(LoadGameInstance) == true && IsValid(GameInstance) == true)
+	if (IsValid(LoadGameInstance)&& IsValid(GameInstance))
 		GameInstance->LastGameTimePlayTime = LoadGameInstance->LastGameTimePlayTime;
 }
 
-USaveMarineRunner* USaveLoadPlayerComponent::CreateLoadGame()
+TObjectPtr<USaveMarineRunner> USaveLoadPlayerComponent::CreateLoadGame()
 {
 	FString SlotName = GameInstance->SlotSaveGameNameToLoad;
 	SlotName += "/" + SlotName;
-
-	USaveMarineRunner* LoadGameInstance = Cast<USaveMarineRunner>(UGameplayStatics::CreateSaveGameObject(USaveMarineRunner::StaticClass()));
-	if (UGameplayStatics::LoadGameFromSlot(SlotName, 0) == nullptr)
-	{
-		return nullptr;
-	}
 
 	return Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 }
 
 void USaveLoadPlayerComponent::LoadSavedSettingsFromGameInstance()
 {
-	if (IsValid(GameInstance) == false || IsValid(PlayerController) == false)
+	if (!IsValid(GameInstance) || !IsValid(PlayerController))
 		return;
 
 	Player->LoadFieldOfViewFromSettings();
@@ -222,16 +225,17 @@ void USaveLoadPlayerComponent::LoadSavedSettingsFromGameInstance()
 	FSettingSavedInJsonFile MouseSensitivityJson = Player->GetMouseSensitivityJSON();
 
 	GameInstance->FindSavedValueAccordingToName(MouseSensitivityJson.FieldName, MouseSensitivityJson.FieldValue);
-	if (CurrentMouseSensName == MouseSensitivityJson) Player->ChangeMouseSensitivity(MouseSensitivityJson);
+	if (CurrentMouseSensName == MouseSensitivityJson) 
+		Player->ChangeMouseSensitivity(MouseSensitivityJson);
 }
 
 void USaveLoadPlayerComponent::SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn)
 {
-	if (IsValid(PlayerController) == false) 
+	if (!IsValid(PlayerController)) 
 		return;
 
-	UUserWidget* SpawnedWidget = Cast<UUserWidget>(CreateWidget(PlayerController, WidgetClassToSpawn));
-	if (IsValid(SpawnedWidget) == false)
+	TObjectPtr<UUserWidget> SpawnedWidget = Cast<UUserWidget>(CreateWidget(PlayerController, WidgetClassToSpawn));
+	if (!IsValid(SpawnedWidget))
 		return;
 
 	SpawnedWidget->AddToViewport();
@@ -239,8 +243,17 @@ void USaveLoadPlayerComponent::SpawnPassingWidget(const TSubclassOf<class UUserW
 
 bool USaveLoadPlayerComponent::CanPlayerSaveGame()
 {
-	return (Player->GetIsInAir() || Player->GetIsInSlowMotion() || 
-		Player->GetWeaponHandlerComponent()->GetIsPlayerInAds() || 
-		GameInstance->IsPlayerInCombat() || Player->bIsPlayerInElevator || 
-		Player->GetIsCrouching()) ? false : true;
+	if (!IsValid(Player) || !IsValid(GameInstance))
+		return false;
+
+	if (Player->GetIsInAir() || Player->GetIsInSlowMotion())
+		return false;
+
+	if (GameInstance->IsPlayerInCombat() || Player->bIsPlayerInElevator)
+		return false;
+
+	if (Player->GetIsCrouching())
+		return false;
+
+	return true;
 }

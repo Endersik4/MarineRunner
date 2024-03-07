@@ -28,55 +28,53 @@ public:
 	void SwingPressed();
 private:
 	//Impuls before Interp
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Swing")
 		float SwingImpulse = 1200000.f;
 	//Multiplier that is multiplying X and Y Velocity after Pawn got to Hook
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Swing")
 		float SwingLinearPhysicsMultiplier = 1.5f;
 	//Pawn Interp Speed From Current location to Hook Location
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Swing")
 		float SwingSpeed = 10.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Swing")
 		float SwingDelay = 0.2f;
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
-		TSubclassOf<class ASwingLine> SwingLineClass;
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings")
-		TObjectPtr<USoundBase> SwingSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Hook")
+	UPROPERTY(EditDefaultsOnly, Category = "Swing")
 		float MaxHookDistanceToFinishMoving = 200.f;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Raycast")
+	UPROPERTY(EditDefaultsOnly, Category = "Swing")
 		float LengthOfSwingLineRaycast = 4500.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Effects")
-		float ForwardSwingLineOffset = 100.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Swing Settings|Effects")
-		float RightSwingLineOffset = 40.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Swing")
+		TSubclassOf<class ASwingLine> SwingLineClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Swing")
+		float ForwardSwingLineLocationOffset = 100.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Swing")
+		float RightSwingLineLocationOffset = 40.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Swing")
+		TObjectPtr<USoundBase> SwingSound;
 
 	bool bWasSwingPressed = false;
 	bool bCanPlayerSwing;
 	bool bCanMakeSwingLineCheck = true;
-	bool bIsPlayerMovingToHook;
 
-	FVector HookLocation;
-	FVector SwingImpulse;
-	FTimerHandle SwingHandle;
+	FTimerHandle StartSwingHandle;
 
-	void PrepareMoveToHook();
 	void HookLineCheck();
 	void ActivateCurrentHoveredHook(TObjectPtr<AActor> HookActorFromHit);
+	void ClearLastActivatedHook();
 
+	bool bIsPlayerMovingToHook;
+	FVector HookLocation;
+	void PrepareMoveToHook();
 	void MovingToHook(float Delta);
 	void StopMovingToHook();
 
 	void SpawnSwingEffects();
 
-	void ClearLastActivatedHook();
-
 	UPROPERTY(Transient)
 		TObjectPtr<class AHook>CurrentFocusedHook;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> MarinePlayer;
+		TObjectPtr<class AMarineCharacter> Player;
 	UPROPERTY(Transient)
 		TObjectPtr<APlayerController> PlayerController;
 };

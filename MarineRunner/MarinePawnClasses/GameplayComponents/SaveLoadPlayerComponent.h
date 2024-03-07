@@ -33,27 +33,28 @@ public:
 	void SpawnNewGameWidget();
 	void LoadHudVariables();
 
-	FORCEINLINE void SetSavedDataObject(class ASavedDataObject* NewSavedDataObject) { SavedDataObject = NewSavedDataObject; }
-	FORCEINLINE class ASavedDataObject* GetSavedDataObject() {return SavedDataObject;}
+	FORCEINLINE void SetSavedDataObject(TObjectPtr<class ASavedDataObject> NewSavedDataObject) { SavedDataObject = NewSavedDataObject; }
+	FORCEINLINE TObjectPtr<class ASavedDataObject> GetSavedDataObject() {return SavedDataObject;}
 
 	void ShowGameplayMechanicsOnHud(const enum EUnlockInHud& WhatToUnlock);
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass;
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget> CannotSavedNotificationWidgetClass;
-	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-		TSubclassOf<class UUserWidget> NewGameBeginsWidgetClass;
-	UPROPERTY(EditAnywhere, Category = "Saves")
-		class ASavedDataObject* SavedDataObject;
-	UPROPERTY(EditDefaultsOnly, Category = "Player")
-		TSubclassOf<class AMarineCharacter> PlayerClass;
-	UPROPERTY(EditAnywhere, Category = "Loading")
-		float TimeToLoadHudVariables = 0.02f;
 
-	//Saving/Loading Game
+	UPROPERTY(EditAnywhere, Category = "Saves")
+		TObjectPtr<class ASavedDataObject> SavedDataObject;
+	UPROPERTY(EditDefaultsOnly, Category = "Saves")
+		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Saves")
+		TSubclassOf<class UUserWidget> CannotSavedNotificationWidgetClass;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Load")
+		TSubclassOf<class AMarineCharacter> PlayerClass;
+	UPROPERTY(EditAnywhere, Category = "Load")
+		float TimeToLoadHudVariables = 0.02f;
+	UPROPERTY(EditDefaultsOnly, Category = "Load")
+		TSubclassOf<class UUserWidget> NewGameBeginsWidgetClass;
+
 	void SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn);
-	class USaveMarineRunner* CreateLoadGame();
+	TObjectPtr<class USaveMarineRunner> CreateLoadGame();
 
 	void SpawnNewPlayer();
 
@@ -61,9 +62,12 @@ private:
 	bool bShowDashBar;
 	bool bShowSlowMotionBar;
 
-	class AMarineCharacter* Player;
-	class AMarinePlayerController* PlayerController;
-	class UMarineRunnerGameInstance* GameInstance;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> Player;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarinePlayerController> PlayerController;
+	UPROPERTY(Transient)
+		TObjectPtr<class UMarineRunnerGameInstance> GameInstance;
 
 };
 

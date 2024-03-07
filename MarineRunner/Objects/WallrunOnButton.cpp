@@ -7,6 +7,7 @@
 #include "Components/TextRenderComponent.h"
 #include "Curves/CurveVector.h"
 #include "Kismet/GameplayStatics.h"
+
 // Sets default values
 AWallrunOnButton::AWallrunOnButton()
 {
@@ -44,8 +45,8 @@ void AWallrunOnButton::BeginPlay()
 
 	ActivateRotateBoxComponent->OnComponentHit.AddDynamic(this, &AWallrunOnButton::OnActivateRotateBoxHit);
 
-	ActiveDynamicMaterial = UMaterialInstanceDynamic::Create(ActivateMeshComponent->GetMaterial(IndexForMaterialToChange), this);
-	ActivateMeshComponent->SetMaterial(IndexForMaterialToChange, ActiveDynamicMaterial);
+	ActiveDynamicMaterial = UMaterialInstanceDynamic::Create(ActivateMeshComponent->GetMaterial(IndexForActiveMaterialToChange), this);
+	ActivateMeshComponent->SetMaterial(IndexForActiveMaterialToChange, ActiveDynamicMaterial);
 
 	InitialSocketRotation = SocketRotateMeshComponent->GetRelativeRotation();
 }
@@ -55,7 +56,7 @@ void AWallrunOnButton::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (bWasRotated == true)
+	if (bWasRotated)
 	{
 		RotateMeshTimeline.TickTimeline(DeltaTime);
 	}
@@ -63,11 +64,11 @@ void AWallrunOnButton::Tick(float DeltaTime)
 
 void AWallrunOnButton::OnActivateRotateBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& OutHit)
 {
-	if (bWasRotated == true)
+	if (bWasRotated)
 		return;
 
 	if (IsValid(RotateObjectSound))
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), RotateObjectSound, SocketRotateMeshComponent->GetComponentLocation());
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), RotateObjectSound, SocketRotateMeshComponent->GetComponentLocation());
 
 	bWasRotated = true;
 	StartRotateMeshTimeline();
@@ -79,27 +80,27 @@ void AWallrunOnButton::StartRotateMeshTimeline()
 	FOnTimelineVector TimelineProgress;
 	FOnTimelineEventStatic onTimelineFinishedCallback;
 
-	TimelineProgress.BindUFunction(this, FName("OnTimelineCallback"));
-	RotateMeshTimeline.AddInterpVector(RelativeRotationCurve, TimelineProgress);
+	TimelineProgress.BindUFunction(this, FName("RotateSocketTimelineProgress"));
+	RotateMeshTimeline.AddInterpVector(RelativeSocketRotationCurve, TimelineProgress);
 
-	onTimelineFinishedCallback.BindUFunction(this, FName("OnTimelineFinished"));
+	onTimelineFinishedCallback.BindUFunction(this, FName("RotateSocketTimelineFinished"));
 	RotateMeshTimeline.SetTimelineFinishedFunc(onTimelineFinishedCallback);
 	
 	RotateMeshTimeline.PlayFromStart();
 }
 
-void AWallrunOnButton::OnTimelineCallback(FVector NewRotation)
+void AWallrunOnButton::RotateSocketTimelineProgress(FVector NewRotation)
 {
 	FRotator NewRelativeRotation(NewRotation.Y, NewRotation.Z, NewRotation.X);
 	SocketRotateMeshComponent->SetRelativeRotation(NewRelativeRotation);
 }
 
-void AWallrunOnButton::OnTimelineFinished()
+void AWallrunOnButton::RotateSocketTimelineFinished()
 {
 	CurrentResetSecond = FMath::RoundToInt(ResetToInitialRotationTime);
 	ResetCurrentTimeText->SetText(FText::AsNumber(CurrentResetSecond));
 
-	if (bResetingRotation == true)
+	if (bResetingRotation)
 	{
 		bWasRotated = false;
 		bResetingRotation = false;
@@ -108,7 +109,8 @@ void AWallrunOnButton::OnTimelineFinished()
 	}
 
 	GetWorldTimerManager().SetTimer(ResetToInitialRotationHandle, this, &AWallrunOnButton::ResetRotateMeshTimeline, ResetToInitialRotationTime, false);
-	GetWorldTimerManager().SetTimer(DisplayResetTimeHandle, this, &AWallrunOnButton::ResetTimeSeconds, 1.f, true);
+	const float& OneSecond = 1.f;
+	GetWorldTimerManager().SetTimer(DisplayResetTimeHandle, this, &AWallrunOnButton::ResetTimeSeconds, OneSecond, true);
 }
 
 void AWallrunOnButton::ResetRotateMeshTimeline()
@@ -116,7 +118,6 @@ void AWallrunOnButton::ResetRotateMeshTimeline()
 	bResetingRotation = true;
 	RotateMeshTimeline.ReverseFromEnd();
 	ActiveDynamicMaterial->SetVectorParameterValue(FName("Color"), NotActiveMaterialColor);
-
 }
 
 void AWallrunOnButton::ResetTimeSeconds()
@@ -140,10 +141,11 @@ void AWallrunOnButton::SaveData(ASavedDataObject* SavedDataObject, const int32 I
 
 void AWallrunOnButton::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	if (bWasRotated == false)
+	if (!bWasRotated)
 		return;
 
 	ActiveDynamicMaterial->SetVectorParameterValue(FName("Color"), NotActiveMaterialColor);
+
 	bResetingRotation = false;
 	bWasRotated = false;
 	GetWorldTimerManager().ClearTimer(DisplayResetTimeHandle);

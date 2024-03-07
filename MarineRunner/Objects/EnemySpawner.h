@@ -49,13 +49,9 @@ protected:
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UBoxComponent* SpawnEnemiesBox;
+		TObjectPtr<class UBoxComponent> SpawnEnemiesBox;
 
 	UPROPERTY(EditAnywhere, Category = "Enemy spawner settings")
 		TArray<FEnemiesSpawner> EnemiesSpawner;

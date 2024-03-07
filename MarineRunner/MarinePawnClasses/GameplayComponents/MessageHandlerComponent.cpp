@@ -22,12 +22,15 @@ void UMessageHandlerComponent::BeginPlay()
 
 }
 
-void UMessageHandlerComponent::DeleteCurrentDisplayedMessage(class AMarineCharacter* Player)
+void UMessageHandlerComponent::DeleteCurrentDisplayedMessage(AMarineCharacter* Player)
 {
+	if (!IsValid(Player))
+		return;
+
 	if (Player->GetIsInPauseMenu())
 		return;
 
-	if (IsValid(CurrentDisplayedMessage) == false || bIsMessageDisplayed == false)
+	if (!IsValid(CurrentDisplayedMessage) || !bIsMessageDisplayed)
 		return;
 
 	CurrentDisplayedMessage->RemoveFromParent();
@@ -49,11 +52,11 @@ void UMessageHandlerComponent::SpawnNotEnoughSlotsForWeaponWidget()
 
 void UMessageHandlerComponent::SpawnWidget(const TSubclassOf<UUserWidget>& WidgetClassToSpawn)
 {
-	if (WidgetClassToSpawn == nullptr)
+	if (!IsValid(WidgetClassToSpawn))
 		return;
 
-	UUserWidget* NewWidget = CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), WidgetClassToSpawn);
-	if (IsValid(NewWidget) == false)
+	TObjectPtr<UUserWidget> NewWidget = CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), WidgetClassToSpawn);
+	if (!IsValid(NewWidget))
 		return;
 
 	if (MessagePopUpSound)
