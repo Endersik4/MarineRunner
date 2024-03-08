@@ -18,23 +18,26 @@ void UElevatorPanelListEntry::NativeConstruct()
 
 void UElevatorPanelListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
-	EntryFloor = Cast<USelectFloorEntryObject>(ListItemObject);
+	FloorEntryObject = Cast<USelectFloorEntryObject>(ListItemObject);
 
-	SetUpEntry();
+	SetUpElevatorEntry();
 }
 
-void UElevatorPanelListEntry::SetUpEntry()
+void UElevatorPanelListEntry::SetUpElevatorEntry()
 {
-	if (EntryFloor->ElevatorFloor.bAccessible == true)
-	{
-		FString NewText = "-" + FString::FromInt(EntryFloor->ElevatorFloor.Floor) + "-";
-		if (EntryFloor->ElevatorFloor.Floor == EntryFloor->ElevatorPanelWidget->GetCurrentFloor())
-		{
-			NewText = "-curr-";
-		}
-		FloorTextBlock->SetText(FText::FromString(NewText));
+	if (!IsValid(FloorEntryObject))
+		return;
 
-		if (EntryFloor->ElevatorFloor.Floor == EntryFloor->ElevatorPanelWidget->GetCurrentFloor() && EntryFloor->ElevatorPanelWidget->GetDoorOpen() == true)
+	if (FloorEntryObject->ElevatorFloor.bAccessible)
+	{
+		FString NewFloorText = "-" + FString::FromInt(FloorEntryObject->ElevatorFloor.Floor) + "-";
+		if (FloorEntryObject->ElevatorFloor.Floor == FloorEntryObject->ElevatorPanelWidget->GetCurrentFloor())
+		{
+			NewFloorText = "-curr-";
+		}
+		FloorTextBlock->SetText(FText::FromString(NewFloorText));
+
+		if (FloorEntryObject->ElevatorFloor.Floor == FloorEntryObject->ElevatorPanelWidget->GetCurrentFloor() && FloorEntryObject->ElevatorPanelWidget->GetDoorOpen())
 		{
 			DisableElevatorPanelEntry(true);
 		}
@@ -42,27 +45,28 @@ void UElevatorPanelListEntry::SetUpEntry()
 		{
 			DisableElevatorPanelEntry(false);
 		}
-		FloorTextBlock->SetColorAndOpacity(EntryFloor->ElevatorFloor.AccessibleTextColor);
-		SelectFloorButton->SetBackgroundColor(EntryFloor->ElevatorFloor.AccessibleButtonColor);
+
+		FloorTextBlock->SetColorAndOpacity(FloorEntryObject->ElevatorFloor.AccessibleTextColor);
+		SelectFloorButton->SetBackgroundColor(FloorEntryObject->ElevatorFloor.AccessibleButtonColor);
 	}
 	else
 	{
-		FloorTextBlock->SetText(EntryFloor->ElevatorFloor.NotAccessibleText);
-		FloorTextBlock->SetColorAndOpacity(EntryFloor->ElevatorFloor.NotAccessibleTextColor);
-		SelectFloorButton->SetBackgroundColor(EntryFloor->ElevatorFloor.NotAccessibleButtonColor);
+		FloorTextBlock->SetText(FloorEntryObject->ElevatorFloor.NotAccessibleText);
+		FloorTextBlock->SetColorAndOpacity(FloorEntryObject->ElevatorFloor.NotAccessibleTextColor);
+		SelectFloorButton->SetBackgroundColor(FloorEntryObject->ElevatorFloor.NotAccessibleButtonColor);
 		DisableElevatorPanelEntry(true);
 	}
 }
 
 void UElevatorPanelListEntry::OnClickedSelectFloorButton()
 {
-	if (IsValid(EntryFloor) == false)
+	if (!IsValid(FloorEntryObject))
 		return;
 
-	if (IsValid(EntryFloor->ElevatorPanelWidget) == false)
+	if (!IsValid(FloorEntryObject->ElevatorPanelWidget))
 		return;
 
-	EntryFloor->ElevatorPanelWidget->SelectFloor(EntryFloor->ElevatorFloor.Floor);
+	FloorEntryObject->ElevatorPanelWidget->SelectFloor(FloorEntryObject->ElevatorFloor.Floor);
 }
 
 void UElevatorPanelListEntry::DisableElevatorPanelEntry(bool bDisable)
@@ -72,7 +76,7 @@ void UElevatorPanelListEntry::DisableElevatorPanelEntry(bool bDisable)
 
 void UElevatorPanelListEntry::OnHoveredSelectFloorButton()
 {
-	if (HoverSelectFloor == nullptr)
+	if (!HoverSelectFloor)
 		return;
 
 	PlayAnimationForward(HoverSelectFloor);
@@ -80,7 +84,7 @@ void UElevatorPanelListEntry::OnHoveredSelectFloorButton()
 
 void UElevatorPanelListEntry::OnUnhoveredSelectFloorButton()
 {
-	if (HoverSelectFloor == nullptr)
+	if (!HoverSelectFloor)
 		return;
 
 	PlayAnimationReverse(HoverSelectFloor);

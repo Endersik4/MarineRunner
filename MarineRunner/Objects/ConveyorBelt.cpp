@@ -40,36 +40,45 @@ void AConveyorBelt::GenerateInstancedMeshesForConveyorBelt()
 {
 	ConveyorBeltInstancedMesh->ClearInstances();
 
-	float CurrentInstancedMeshOffset = ConveyorBeltMeshOffset;
 	FVector InstancedMeshRelativeLocation;
 	for (int32 i = 0; i != ConveyorBeltMeshAmount; i++)
 	{
-		InstancedMeshRelativeLocation = InstancedMeshDirection * CurrentInstancedMeshOffset * i;
+		InstancedMeshRelativeLocation = InstancedMeshDirection * ConveyorBeltMeshOffset * i;
 		ConveyorBeltInstancedMesh->AddInstance(FTransform(InstancedMeshRelativeLocation));
 	}
 
+	CalculateBoxExtent();
+
+	CalculateBoxRelativeLocation();
+}
+
+void AConveyorBelt::CalculateBoxExtent()
+{
 	FVector NewBoxExtent = MoveActorBoxComponent->GetUnscaledBoxExtent() - MoveActorBoxComponent->GetUnscaledBoxExtent() * InstancedMeshDirection;
 	NewBoxExtent += InstancedMeshDirection * (ConveyorBeltMeshOffset / 2) * (ConveyorBeltMeshAmount);
 	MoveActorBoxComponent->SetBoxExtent(NewBoxExtent);
+}
 
+void AConveyorBelt::CalculateBoxRelativeLocation()
+{
 	FVector NewBoxRelativeLocation = MoveActorBoxComponent->GetRelativeLocation() - (MoveActorBoxComponent->GetRelativeLocation() * InstancedMeshDirection);
-	NewBoxRelativeLocation += InstancedMeshDirection * InstancedMeshRelativeLocation / 2;
+	NewBoxRelativeLocation += InstancedMeshDirection * ((InstancedMeshDirection * ConveyorBeltMeshOffset * (ConveyorBeltMeshAmount - 1)) / 2);
 	MoveActorBoxComponent->SetRelativeLocation(NewBoxRelativeLocation);
 }
 
 void AConveyorBelt::MoveActors(float Delta)
 {
-	if (bConveyorBeltActive == false)
+	if (!bConveyorBeltActive)
 		return;
 	
 	// make sure to not remove actor while array is iterating
-	TArray<AActor*> SaveActorsOnConveyorBelt = ActorsOnConveyorBelt;
-	for (AActor* CurrentActor : SaveActorsOnConveyorBelt)
+	TArray<TObjectPtr<AActor>> SaveActorsOnConveyorBelt = ActorsOnConveyorBelt;
+	for (TObjectPtr<AActor> CurrentActor : SaveActorsOnConveyorBelt)
 	{
 		if (!ensureMsgf(IsValid(CurrentActor), TEXT("Actor To Move in Conveyor Belt is nullptr")))
 			continue;
 
-		if (IsValid(CurrentActor) == false)
+		if (!IsValid(CurrentActor))
 			continue;
 
 		FVector Offset = GetActorForwardVector() * Delta * SpeedOfActorOnConveyorBelt;

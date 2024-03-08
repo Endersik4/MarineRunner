@@ -26,7 +26,7 @@ void UDoorPanelWidget::NativeConstruct()
 #pragma region ///////////// DOOR IS UNLOCKED /////////////
 void UDoorPanelWidget::OnClickedInteractDoorButton()
 {
-	if (ActorWithWidget == nullptr)
+	if (!ActorWithWidget)
 		return;
 
 	ActorWithWidget->ClickedOpenButton(this);
@@ -36,17 +36,15 @@ void UDoorPanelWidget::OnClickedInteractDoorButton()
 
 void UDoorPanelWidget::PlayOpenCloseEffects()
 {
-	if (bCanCloseObject == true)
-	{
-		GetWorld()->GetTimerManager().SetTimer(ChangeDoorStatusHandle, this, &UDoorPanelWidget::ChangeDoorStatus, TimeToChangeDoorStatusText, false);
-	}
+	if (bCanCloseObject)
+		GetWorld()->GetTimerManager().SetTimer(ChangeDoorStatusHandle, this, &UDoorPanelWidget::ChangeDoorStatus, TimeToChangeStatusText, false);
 
 	PlayAnimationForward(OnClickedInteractDoorAnim);
 }
 
 void UDoorPanelWidget::ChangeDoorStatus()
 {
-	if (bDoorOpen == false)
+	if (!bDoorOpen)
 	{
 		bDoorOpen = true;
 		InteractDoorText->SetText(CloseDoorText);
@@ -60,7 +58,7 @@ void UDoorPanelWidget::ChangeDoorStatus()
 
 void UDoorPanelWidget::OnHoveredInteractDoorButton()
 {
-	if (HoverInteractDoorAnim == nullptr)
+	if (!HoverInteractDoorAnim)
 		return;
 
 	PlayAnimationForward(HoverInteractDoorAnim);
@@ -68,14 +66,14 @@ void UDoorPanelWidget::OnHoveredInteractDoorButton()
 
 void UDoorPanelWidget::OnUnhoveredInteractDoorButton()
 {
-	if (HoverInteractDoorAnim == nullptr)
+	if (!HoverInteractDoorAnim)
 		return;
 
 	PlayAnimationReverse(HoverInteractDoorAnim);
 }
 #pragma endregion
 
-void UDoorPanelWidget::ChangeDoorPanelToUsePin(int32 PinCode)
+void UDoorPanelWidget::ChangeToUsePin(int32 PinCode)
 {
 	PinNumbersTileView->ClearListItems();
 
@@ -88,8 +86,8 @@ void UDoorPanelWidget::ChangeDoorPanelToUsePin(int32 PinCode)
 
 	for (const int32& CurrentPinNumberEntry : PinNumberEntries)
 	{
-		UPinNumberEntryObject* CreatedPinEntryObject = NewObject<UPinNumberEntryObject>(PinNumberEntryObjectClass);
-		if (IsValid(CreatedPinEntryObject) == false)
+		TObjectPtr<UPinNumberEntryObject> CreatedPinEntryObject = NewObject<UPinNumberEntryObject>(PinNumberEntryObjectClass);
+		if (!IsValid(CreatedPinEntryObject))
 			return;
 
 		CreatedPinEntryObject->PinNumber = CurrentPinNumberEntry;
@@ -129,7 +127,7 @@ void UDoorPanelWidget::PinIsCorrect(bool bClickedByOwner)
 	PinNumbersTileView->SetVisibility(ESlateVisibility::Hidden);
 	BackgroundPinImage->SetVisibility(ESlateVisibility::Hidden);
 
-	if (bClickedByOwner == false)
+	if (!bClickedByOwner)
 		return;
 
 	ActorWithWidget->PinCorrect();

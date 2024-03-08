@@ -32,7 +32,7 @@ private:
 		void OnCheckpointBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UBoxComponent* CheckpointBox;
+		TObjectPtr<class UBoxComponent> CheckpointBox;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Setting")
 		FString SaveToNameAfterCheckpoint;
@@ -45,7 +45,7 @@ private:
 	void EnableCheckpointAfterDelay();
 
 	int32 CurrentUniqueID = 0;
-	void SaveCheckpoint();
+	void SaveCheckpointWasUsed();
 
 	void DisableCheckpoint(bool bEnable = false);
 };

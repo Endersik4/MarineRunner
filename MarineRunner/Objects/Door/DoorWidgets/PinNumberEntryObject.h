@@ -18,9 +18,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
 		int32 PinNumber;
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		class UDoorPanelWidget* DoorPanelWidget;
+		TObjectPtr<class UDoorPanelWidget> DoorPanelWidget;
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		class UCallElevatorPanel* CallElevatorPanelWidget;
+		TObjectPtr<class UCallElevatorPanel> CallElevatorPanelWidget;
 	
 
 };

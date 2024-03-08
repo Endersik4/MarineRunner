@@ -21,18 +21,17 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sound On Hit Settings")
 		float VelocityLengthErrorTolerance = 25.f;
 	UPROPERTY(EditAnywhere, Category = "Sound On Hit Settings")
-		USoundBase* HitGroundSound;
+		TObjectPtr<USoundBase> HitGroundSound;
 
 	UFUNCTION()
 		void OnHitPlaySound(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
-	UAudioComponent* SpawnedHitGroundSound;
-	AActor* HitActor;
+	bool CanSpawnHitOnGroundSound(TObjectPtr<AActor> HitActor);
+	UPROPERTY(Transient)
+	TObjectPtr<UAudioComponent> SpawnedHitGroundSound;
 };

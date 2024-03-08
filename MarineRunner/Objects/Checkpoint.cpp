@@ -9,17 +9,14 @@
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
 #include "MarineRunner/Objects/SavedDataObject.h"
 
-// Sets default values
 ACheckpoint::ACheckpoint()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	CheckpointBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CheckpointBox"));
 	RootComponent = CheckpointBox;
 	CheckpointBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	CheckpointBox->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
-
 }
 
 // Called when the game starts or when spawned
@@ -40,25 +37,25 @@ void ACheckpoint::EnableCheckpointAfterDelay()
 
 void ACheckpoint::OnCheckpointBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (bDisabledCheckpoint == true)
+	if (bDisabledCheckpoint)
 		return;
 
-	AMarineCharacter* MarinePawn = Cast<AMarineCharacter>(OtherActor);
-	if (IsValid(MarinePawn) == false) 
+	TObjectPtr<AMarineCharacter> MarinePawn = Cast<AMarineCharacter>(OtherActor);
+	if (!IsValid(MarinePawn)) 
 		return;
 
 	bDisabledCheckpoint = true;
-	SaveCheckpoint();
+	SaveCheckpointWasUsed();
 	DisableCheckpoint();
 
 	MarinePawn->GetSaveLoadPlayerComponent()->SaveGame(SaveToNameAfterCheckpoint, SaveNumberWildCard);
 }
 
-void ACheckpoint::SaveCheckpoint()
+void ACheckpoint::SaveCheckpointWasUsed()
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
-	if (IsValid(SavedDataObject) == false)
+	if (!IsValid(SavedDataObject))
 		return;
 
 	if (CurrentUniqueID == 0)

@@ -46,28 +46,23 @@ void ADoor::BeginPlay()
 
 void ADoor::ClickedOpenButton(class UDoorPanelWidget* ClickedWidget)
 {
-	if (bDoorOpen == false)
-	{
+	if (!bDoorOpen)
 		OpenDoor();
-	}
 	else
-	{
 		CloseDoor();
-	}
 
 	if (IsValid(GetOtherPanelWidget(ClickedWidget)))
-	{
 		GetOtherPanelWidget(ClickedWidget)->PlayOpenCloseEffects();
-	}
 }
 
 void ADoor::OpenDoor()
 {
-	if (bDoorOpen == true || OpenDoorAnim == nullptr)
+	if (bDoorOpen || !IsValid(OpenDoorAnim))
 		return;
 
 	DoorSkeletalMesh->PlayAnimation(OpenDoorAnim, false);
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), OpenDoorSound, DoorSkeletalMesh->GetSocketLocation(DoorSoundSocketName));
+	if (IsValid(OpenDoorSound))
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), OpenDoorSound, DoorSkeletalMesh->GetSocketLocation(DoorSoundSocketName));
 
 	bDoorOpen = true;
 
@@ -76,13 +71,15 @@ void ADoor::OpenDoor()
 
 void ADoor::CloseDoor()
 {
-	if (bDoorOpen == false || CloseDoorAnim == nullptr)
+	if (!bDoorOpen || !IsValid(CloseDoorAnim))
 		return;
 
 	GetWorldTimerManager().ClearTimer(CloseAfterInactivityHandle);
 
 	DoorSkeletalMesh->PlayAnimation(CloseDoorAnim, false);
-	UGameplayStatics::PlaySoundAtLocation(GetWorld(), CloseDoorSound, DoorSkeletalMesh->GetSocketLocation(DoorSoundSocketName));
+
+	if (IsValid(CloseDoorSound))
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), CloseDoorSound, DoorSkeletalMesh->GetSocketLocation(DoorSoundSocketName));
 
 	bDoorOpen = false;
 }
@@ -116,30 +113,30 @@ void ADoor::SetUpDoorPanels()
 {
 	DoorPanelWidget = Cast<UDoorPanelWidget>(DoorPanelWidgetComponent->GetUserWidgetObject());
 	
-	if (IsValid(DoorPanelWidget) == true)
+	if (IsValid(DoorPanelWidget))
 	{
-		DoorPanelWidget->SetDoorActor(this);
+		DoorPanelWidget->SetActorToUnlock(this);
 
-		if (bUsePinCode == true)
-			DoorPanelWidget->ChangeDoorPanelToUsePin(PinCode);
+		if (bUsePinCode)
+			DoorPanelWidget->ChangeToUsePin(PinCode);
 	}
 
 	DoorPanelSecondWidget = Cast<UDoorPanelWidget>(DoorPanelSecondWidgetComponent->GetUserWidgetObject());
 
-	if (IsValid(DoorPanelSecondWidget) == true)
+	if (IsValid(DoorPanelSecondWidget))
 	{
-		DoorPanelSecondWidget->SetDoorActor(this);
+		DoorPanelSecondWidget->SetActorToUnlock(this);
 
-		if (bUsePinCode == true)
-			DoorPanelSecondWidget->ChangeDoorPanelToUsePin(PinCode);
+		if (bUsePinCode)
+			DoorPanelSecondWidget->ChangeToUsePin(PinCode);
 	}
 }
 
 void ADoor::PinCorrect()
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
-	if (IsValid(SavedDataObject) == false)
+	if (!IsValid(SavedDataObject))
 		return;
 
 	if (CurrentUniqueID == 0)
@@ -155,9 +152,9 @@ void ADoor::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 	{
 		StopUsingPin();
 
-		if (IsValid(DoorPanelWidget) == true)
+		if (IsValid(DoorPanelWidget))
 			DoorPanelWidget->RestartDoorPanelWidget();
-		if (IsValid(DoorPanelSecondWidget) == true)
+		if (IsValid(DoorPanelSecondWidget))
 			DoorPanelSecondWidget->RestartDoorPanelWidget();
 	}
 }
@@ -170,17 +167,15 @@ void ADoor::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const
 void ADoor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
 	if (SavedCustomData.ObjectState == 1)
-	{
 		SetUpDoorPanels();
-	}
 }
 
 void ADoor::StopUsingPin()
 {
-	if (IsValid(DoorPanelWidget) == false || IsValid(DoorPanelSecondWidget) == false)
-		return;
+	if (IsValid(DoorPanelWidget))
+		DoorPanelWidget->PinIsCorrect(false);
 
-	DoorPanelWidget->PinIsCorrect(false);
-	DoorPanelSecondWidget->PinIsCorrect(false);
+	if (IsValid(DoorPanelSecondWidget))
+		DoorPanelSecondWidget->PinIsCorrect(false);
 }
 

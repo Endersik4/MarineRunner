@@ -38,14 +38,14 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UStaticMeshComponent* DoorVentMesh;
+		TObjectPtr<class UStaticMeshComponent> DoorVentMesh;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings|Hover")
 		FString DoorVentName = "Door Vent";
-	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings")
+	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings|Hover")
 		FString DoorVentDesc = "desc";
-	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings")
-		UTexture2D* DoorVentIcon;
+	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings|Hover")
+		TObjectPtr<UTexture2D> DoorVentIcon;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
 		bool bVentDoorsBasedOnPhysics;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
@@ -54,11 +54,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings", meta = (EditCondition = "!TurnOnPhysicsInsteadOfTimeline", EditConditionHides))
 		bool bAddCurveValuesToVectors = true;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings|Open", meta = (EditCondition = "!TurnOnPhysicsInsteadOfTimeline", EditConditionHides))
-		UCurveVector* DoorVentOpenLocationCurve;
+		TObjectPtr<UCurveVector> DoorVentOpenLocationCurve;
 	// X = Roll, Y = Pitch, Z = Yaw;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings|Open", meta = (EditCondition = "!TurnOnPhysicsInsteadOfTimeline", EditConditionHides))
-		UCurveVector* DoorVentOpenRotationCurve;
-
+		TObjectPtr<UCurveVector> DoorVentOpenRotationCurve;
 
 	UFUNCTION()
 		void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);

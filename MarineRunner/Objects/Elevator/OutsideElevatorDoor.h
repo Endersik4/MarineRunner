@@ -35,8 +35,6 @@ protected:
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	void OpenOutsideElevatorDoor();
 	void CloseOutsideElevatorDoor();
@@ -47,33 +45,34 @@ public:
 	void PinIsCorrect();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class USkeletalMeshComponent* OutsideElevatorDoorsSkeletalMesh;
+		TObjectPtr<class USkeletalMeshComponent> OutsideElevatorDoorsSkeletalMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UStaticMeshComponent* OutsideElevatorPanelMesh;
+		TObjectPtr<class UStaticMeshComponent> OutsideElevatorPanelMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UWidgetComponent* OutsideElevatorPanel;
+		TObjectPtr<class UWidgetComponent> OutsideElevatorPanel;
 
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings")
-		class AElevator* ElevatorToCall;
+		TObjectPtr<class AElevator> ElevatorToCall;
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings")
-		int32 Floor;
+		int32 FloorNumber;
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings")
 		bool bUsePinCode = false;
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings", meta = (EditCondition = "bUsePinCode", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
 		int32 PinCode = 1111;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Animations")
-		UAnimationAsset* OpenElevatorDoorsAnim;
+		TObjectPtr < UAnimationAsset> OpenElevatorDoorsAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Animations")
-		UAnimationAsset* CloseElevatorDoorsAnim;
+		TObjectPtr < UAnimationAsset> CloseElevatorDoorsAnim;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Sounds")
 		FName SoundLocationSocketName;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Sounds")
-		USoundBase* OpenElevatorDoorsSound;
+		TObjectPtr<USoundBase> OpenElevatorDoorsSound;
 
-	class UCallElevatorPanel* ElevatorPanelWidget;
+	UPROPERTY(Transient)
+		TObjectPtr<class UCallElevatorPanel> ElevatorPanelWidget;
 
 	bool bDoorsOpen = false;
-	void PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* SoundToPlay);
+	void PlayElevatorEffects(TObjectPtr < UAnimationAsset> AnimToPlay, TObjectPtr < USoundBase> SoundToPlay);
 
 	void SetUpElevatorPanel();
 

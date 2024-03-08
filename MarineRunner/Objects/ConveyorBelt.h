@@ -35,9 +35,9 @@ private:
 			int32 OtherBodyIndex);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UInstancedStaticMeshComponent* ConveyorBeltInstancedMesh;
+		TObjectPtr<class UInstancedStaticMeshComponent> ConveyorBeltInstancedMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UBoxComponent* MoveActorBoxComponent;
+		TObjectPtr<class UBoxComponent> MoveActorBoxComponent;
 
 	UPROPERTY(EditAnywhere, Category = "Conveyor Belt settings")
 		bool bConveyorBeltActive = true;
@@ -49,8 +49,11 @@ private:
 		float ConveyorBeltMeshOffset = 100.f;
 	UPROPERTY(EditAnywhere, Category = "Conveyor Belt settings|Mesh")
 		FVector InstancedMeshDirection = FVector(1.f, 0.f, 0.f);
+	
+	UPROPERTY(Transient)
+		TArray<TObjectPtr<AActor>> ActorsOnConveyorBelt;
 
-	TArray<AActor*> ActorsOnConveyorBelt;
-
+	void CalculateBoxExtent();
+	void CalculateBoxRelativeLocation();
 	void MoveActors(float Delta);
 };

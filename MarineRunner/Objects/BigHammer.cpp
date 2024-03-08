@@ -43,14 +43,14 @@ void ABigHammer::Tick(float DeltaTime)
 
 void ABigHammer::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (IsValid(OtherActor) == false)
+	if (!IsValid(OtherActor))
 		return;
 
 	IInteractInterface* InteractInterface = Cast<IInteractInterface>(OtherActor);
-	if (InteractInterface == nullptr)
+	if (!InteractInterface)
 		return;
 
-	InteractInterface->ApplyDamage(1000.f, 0.f, SweepResult, nullptr);
+	InteractInterface->ApplyDamage(DamageToApply, ImpulseForceToApply, SweepResult, nullptr);
 }
 
 void ABigHammer::MoveHammerTimelineProgress(float Value)
@@ -77,7 +77,8 @@ void ABigHammer::SetupMoveTimeline()
 
 void ABigHammer::PlayHitSound()
 {
-	if (HitSound) UGameplayStatics::SpawnSoundAttached(HitSound, HammerMesh);
+	if (IsValid(HitSound)) 
+		UGameplayStatics::SpawnSoundAttached(HitSound, HammerMesh);
 }
 
 void ABigHammer::MoveHammerTimelineFinished()

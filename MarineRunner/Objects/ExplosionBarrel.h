@@ -68,7 +68,8 @@ private:
 
 	void SpawnEffects();
 	void SpawnExplosionBarrelGeometry();
-	TObjectPtr<AActor> SpawnedBarrelGeometry;
+	UPROPERTY(Transient)
+		TObjectPtr<AActor> SpawnedBarrelGeometry;
 
 	int32 CurrentUniqueID = 0;
 	void BarrelExplodedSaveData();

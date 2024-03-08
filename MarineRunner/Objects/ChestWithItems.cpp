@@ -3,20 +3,17 @@
 
 #include "MarineRunner/Objects/ChestWithItems.h"
 #include "Components/BoxComponent.h"
-#include "MarineRunner/Inventory/PickupItem.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/Objects/Door/DoorWidgets/DoorPanelWidget.h"
 #include "MarineRunner/Objects/SavedDataObject.h"
+#include "MarineRunner/Inventory/PickupItem.h"
 
-
-// Sets default values
 AChestWithItems::AChestWithItems()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	ChestSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Chest Skeletal Mesh"));
 	ChestSkeletalMesh->SetCollisionProfileName(TEXT("PhysicsActor"));
@@ -34,23 +31,28 @@ void AChestWithItems::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	FrontChestPanelWidget = Cast<UDoorPanelWidget>(FrontPanelWidget->GetUserWidgetObject());
-	if (FrontChestPanelWidget == nullptr) 
-		return;
-
-	if (IsValid(FrontChestPanelWidget) == true)
-	{
-		FrontChestPanelWidget->SetDoorActor(this);
-		FrontChestPanelWidget->SetCanCloseObject(false);
-
-		if (bUsePinCode == true)
-			FrontChestPanelWidget->ChangeDoorPanelToUsePin(PinCode);
-	}
+	SetUpFrontChestPanelWidget();
 }
 
-void AChestWithItems::ClickedOpenButton(UDoorPanelWidget* ClickedWidget)
+void AChestWithItems::SetUpFrontChestPanelWidget()
 {
-	if (bIsChestOpen == true) 
+	if (!IsValid(FrontPanelWidget->GetUserWidgetObject()))
+		return;
+
+	FrontChestPanelWidget = Cast<UDoorPanelWidget>(FrontPanelWidget->GetUserWidgetObject());
+	if (!IsValid(FrontChestPanelWidget))
+		return;
+
+	FrontChestPanelWidget->SetActorToUnlock(this);
+	FrontChestPanelWidget->SetCanCloseObject(false);
+
+	if (bUsePinCode)
+		FrontChestPanelWidget->ChangeToUsePin(PinCode);
+}
+
+void AChestWithItems::ClickedOpenButton(class UDoorPanelWidget* ClickedWidget)
+{
+	if (bIsChestOpen) 
 		return;
 
 	FrontPanelWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -62,19 +64,12 @@ void AChestWithItems::PinCorrect()
 	SaveChestState(1);
 }
 
-// Called every frame
-void AChestWithItems::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void AChestWithItems::OpenChest()
 {
-	if (OpenChestSound) 
-		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), OpenChestSound, ChestSkeletalMesh->GetSocketLocation(FName(TEXT("temSpawnLocation"))));
+	if (IsValid(OpenChestSound)) 
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), OpenChestSound, ChestSkeletalMesh->GetSocketLocation(SocketNameToSpawnItems));
 
-	ChestSkeletalMesh->SetMaterial(3, UpperOpenLockMaterial);
+	ChestSkeletalMesh->SetMaterial(IndexToChangeOpenLockMaterial, UpperOpenLockMaterial);
 	ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 
 	for (const TPair<TSubclassOf<class APickupItem>, FItemRandomSpawnStruct> CurrentPair : ItemsToSpawn)
@@ -82,16 +77,18 @@ void AChestWithItems::OpenChest()
 		for (int i = 0; i != CurrentPair.Value.AmountItems; i++)
 		{
 			float ShouldSpawn = FMath::FRandRange(0.f, 100.f);
-			if (ShouldSpawn > CurrentPair.Value.PercentOfSpawningItem) continue;
-
-			FVector Location = ChestSkeletalMesh->GetSocketLocation(FName(TEXT("ItemSpawnLocation"))) + CurrentPair.Value.OffsetFromSpawnLocation;
-			FRotator Rotation = GetActorRotation();
-
-			APickupItem* SpawnedItem = GetWorld()->SpawnActorDeferred<APickupItem>(CurrentPair.Key, FTransform(Rotation,Location));
-			if (IsValid(SpawnedItem) == false)
+			if (ShouldSpawn > CurrentPair.Value.PercentOfSpawningItem) 
 				continue;
+
+			const FVector & ItemLocation = ChestSkeletalMesh->GetSocketLocation(SocketNameToSpawnItems) + CurrentPair.Value.OffsetFromSpawnLocation;
+			FTransform ItemTransform = FTransform(GetActorRotation(), ItemLocation);
+
+			TObjectPtr<APickupItem> SpawnedItem = GetWorld()->SpawnActorDeferred<APickupItem>(CurrentPair.Key, ItemTransform);
+			if (!IsValid(SpawnedItem))
+				continue;
+
 			SpawnedItem->SaveItemIfSpawnedRunTime();
-			SpawnedItem->FinishSpawning(FTransform(Rotation, Location));
+			SpawnedItem->FinishSpawning(ItemTransform);
 		}
 	}
 
@@ -101,9 +98,9 @@ void AChestWithItems::OpenChest()
 
 void AChestWithItems::SaveChestState(int32 SaveState)
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
-	if (IsValid(SavedDataObject) == false)
+	if (!IsValid(SavedDataObject))
 		return;
 
 	if (CurrentUniqueID == 0)
@@ -123,8 +120,8 @@ void AChestWithItems::LoadData(const int32 IDkey, const FCustomDataSaved& SavedC
 	{
 		bIsChestOpen = true;
 		ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
-		ChestSkeletalMesh->SetPosition(1.3f);
-		ChestSkeletalMesh->SetMaterial(3, UpperOpenLockMaterial);
+		ChestSkeletalMesh->SetPosition(OpenChestAnimation->GetPlayLength());
+		ChestSkeletalMesh->SetMaterial(IndexToChangeOpenLockMaterial, UpperOpenLockMaterial);
 
 		if (IsValid(FrontChestPanelWidget))
 			FrontChestPanelWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -148,13 +145,12 @@ void AChestWithItems::RestartData(ASavedDataObject* SavedDataObject, const int32
 		ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 		ChestSkeletalMesh->SetPosition(0.f);
 		ChestSkeletalMesh->Stop();
-		ChestSkeletalMesh->SetMaterial(3, UpperClosedLockMaterial);
+		ChestSkeletalMesh->SetMaterial(IndexToChangeOpenLockMaterial, UpperClosedLockMaterial);
 	}
 
 	if (SavedCustomData.ObjectState == 1 || SavedCustomData.ObjectState == 4)
 	{
 		if (bUsePinCode == true)
-			FrontChestPanelWidget->ChangeDoorPanelToUsePin(PinCode);
+			FrontChestPanelWidget->ChangeToUsePin(PinCode);
 	}
-
 }

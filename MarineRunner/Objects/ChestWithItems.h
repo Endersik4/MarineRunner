@@ -49,48 +49,49 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	virtual void ClickedOpenButton(class UDoorPanelWidget* ClickedWidget = nullptr) override;
+	virtual void ClickedOpenButton(class UDoorPanelWidget*  ClickedWidget = nullptr) override;
 	virtual void PinCorrect() override;
-	virtual class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) override { return nullptr; }
+	virtual	class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) override { return nullptr; }
 
 	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
 	void OpenChest();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		USkeletalMeshComponent* ChestSkeletalMesh;
+		TObjectPtr<USkeletalMeshComponent> ChestSkeletalMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UWidgetComponent* FrontPanelWidget;
-
-	UPROPERTY(EditAnywhere, Category = "Chest Settings")
-		UMaterialInstance* UpperOpenLockMaterial;
-	UPROPERTY(EditAnywhere, Category = "Chest Settings")
-		UMaterial* UpperClosedLockMaterial;
-	UPROPERTY(EditAnywhere, Category = "Chest Settings")
-		bool bUsePinCode;
-	UPROPERTY(EditAnywhere, Category = "Chest Settings", meta = (EditCondition = "bUsePin", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
-		int32 PinCode = 1111;
+		TObjectPtr<class UWidgetComponent>  FrontPanelWidget;
 
 	UPROPERTY(EditAnywhere, Category = "Spawn Items")
 		TMap<TSubclassOf<class APickupItem>, FItemRandomSpawnStruct> ItemsToSpawn;
+	UPROPERTY(EditAnywhere, Category = "Spawn Items")
+		FName SocketNameToSpawnItems = FName(TEXT("ItemSpawnLocation"));
 
-	UPROPERTY(EditDefaultsOnly, Category = "Animations")
-		UAnimationAsset* OpenChestAnimation;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* OpenChestSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Sounds")
-		USoundBase* WrongCodeSound;
+	UPROPERTY(EditAnywhere, Category = "Chest Settings")
+		int32 IndexToChangeOpenLockMaterial = 3;
+	UPROPERTY(EditAnywhere, Category = "Chest Settings")
+		TObjectPtr<UMaterialInstance>  UpperOpenLockMaterial;
+	UPROPERTY(EditAnywhere, Category = "Chest Settings")
+		TObjectPtr<UMaterial>  UpperClosedLockMaterial;
+	UPROPERTY(EditAnywhere, Category = "Chest Settings|Pin")
+		bool bUsePinCode;
+	UPROPERTY(EditAnywhere, Category = "Chest Settings|Pin", meta = (EditCondition = "bUsePin", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
+		int32 PinCode = 1111;
+	UPROPERTY(EditDefaultsOnly, Category = "Chest Settings")
+		TObjectPtr<UAnimationAsset> OpenChestAnimation;
+	UPROPERTY(EditDefaultsOnly, Category = "Chest Settings")
+		TObjectPtr<USoundBase> OpenChestSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Chest Settings")
+		TObjectPtr<USoundBase> WrongCodeSound;
 
 	bool bIsChestOpen;
-	class UDoorPanelWidget* FrontChestPanelWidget;
+	void SetUpFrontChestPanelWidget();
+	UPROPERTY(Transient)
+		TObjectPtr<class UDoorPanelWidget> FrontChestPanelWidget;
 
 	void SaveChestState(int32 SaveState);
 	int32 CurrentUniqueID = 0;

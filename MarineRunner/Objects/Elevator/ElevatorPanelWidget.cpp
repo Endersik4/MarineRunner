@@ -22,10 +22,10 @@ void UElevatorPanelWidget::FillSelectFloorsListView()
 {
 	SelectFloorsListView->ClearListItems();
 
-	for (const FElevatorFloor& SelectedFloor : ElevatorFloors)
+	for (const FElevatorFloor& SelectedFloor : AllElevatorFloors)
 	{
-		USelectFloorEntryObject* ConstructedFloorEntryObject = NewObject<USelectFloorEntryObject>(SelectedFloorEntryObject);
-		if (IsValid(ConstructedFloorEntryObject) == false)
+		TObjectPtr<USelectFloorEntryObject> ConstructedFloorEntryObject = NewObject<USelectFloorEntryObject>(SelectedFloorEntryObject);
+		if (!IsValid(ConstructedFloorEntryObject))
 			continue;
 
 		ConstructedFloorEntryObject->ElevatorFloor = SelectedFloor;
@@ -37,11 +37,11 @@ void UElevatorPanelWidget::FillSelectFloorsListView()
 
 void UElevatorPanelWidget::SelectFloor(int32 FloorToGo)
 {
-	if (IsValid(ElevatorActor) == false)
+	if (!IsValid(ElevatorActor))
 		return;
 
-	FElevatorFloor* FoundFloor = ElevatorFloors.FindByKey(FloorToGo);
-	if (FoundFloor == nullptr)
+	FElevatorFloor* FoundFloor = AllElevatorFloors.FindByKey(FloorToGo);
+	if (!FoundFloor)
 		return;
 
 	ElevatorActor->PrepareElevatorToMove(FoundFloor->FloorLocation, FoundFloor->Floor);
@@ -74,11 +74,11 @@ void UElevatorPanelWidget::ShowWaitForElevatorText(bool bShow)
 /// <param name="FloorLocationToGo">Compares the Z location of the floor with the current Z location of the ElevatorActor and if it is smaller, down, otherwise up</param>
 void UElevatorPanelWidget::ShowElevatorGoesUpDownImage(bool bShow, FVector FloorLocationToGo)
 {
-	if (IsValid(ElevatorActor) == false)
+	if (!IsValid(ElevatorActor))
 		return;
 
 	// Hide WaitEffect if Elevator Goes Up/Down
-	if (bShow == true)
+	if (bShow)
 	{
 		float& RotateImageAngle = FloorLocationToGo.Z < ElevatorActor->GetActorLocation().Z ? ElevatorGoesDownImageAngle : ElevatorGoesUpImageAngle;
 		ElevatorGoesUpDownImage->SetRenderTransformAngle(RotateImageAngle);

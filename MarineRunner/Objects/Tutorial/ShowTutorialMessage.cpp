@@ -13,11 +13,8 @@
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
 
-
-// Sets default values
 AShowTutorialMessage::AShowTutorialMessage()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	ShowMessageBoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("Show Message Box Comp"));
@@ -36,24 +33,24 @@ void AShowTutorialMessage::BeginPlay()
 
 void AShowTutorialMessage::ShowMessageBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (MessageWidgetClass == nullptr || bCanShowTutorialMessage == false)
+	if (!IsValid(MessageWidgetClass) || !bCanShowTutorialMessage)
 		return;
 
-	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (IsValid(PC) == false)
+	TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(PlayerController))
 		return;
 
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (IsValid(GameInstance))
 	{
-		if (GameInstance->IsPlayerInCombat() == true)
+		if (GameInstance->IsPlayerInCombat())
 			return;
 	}
 	
 	UnlockGameplayMechanicsInHud(OtherActor);
 
-	UMessageToReadWidget* MessageWidget = Cast<UMessageToReadWidget>(CreateWidget(PC, MessageWidgetClass));
-	if (IsValid(MessageWidget) == false)
+	TObjectPtr<UMessageToReadWidget> MessageWidget = Cast<UMessageToReadWidget>(CreateWidget(PlayerController, MessageWidgetClass));
+	if (!IsValid(MessageWidget))
 		return;
 
 	MessageWidget->AddToViewport();
@@ -73,22 +70,22 @@ void AShowTutorialMessage::EnableShowTutorialMessage(bool bEnable)
 
 void AShowTutorialMessage::UnlockGameplayMechanicsInHud(TObjectPtr<AActor> Player)
 {
-	if (bUnlockGameplayMechanicsInHud == false || IsValid(Player) == false)
+	if (!bUnlockGameplayMechanicsInHud || !IsValid(Player))
 		return;
 
 	TObjectPtr<AMarineCharacter> MarinePlayer = Cast<AMarineCharacter>(Player);
-	if (IsValid(MarinePlayer) == false)
+	if (!IsValid(MarinePlayer))
 		return;
-	if (IsValid(MarinePlayer->GetSaveLoadPlayerComponent()) == false)
+	if (!IsValid(MarinePlayer->GetSaveLoadPlayerComponent()))
 		return;
+
 	MarinePlayer->GetSaveLoadPlayerComponent()->ShowGameplayMechanicsOnHud(UnlockInHud);
 }
 
 void AShowTutorialMessage::MessageReadedSaveData()
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
-
-	if (IsValid(SavedDataObject) == false)
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	if (!IsValid(SavedDataObject))
 		return;
 
 	if (CurrentUniqueID == 0)

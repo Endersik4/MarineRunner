@@ -42,7 +42,7 @@ void ADoorVent::Tick(float DeltaTime)
 
 void ADoorVent::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
-	if (bVentDoorsBasedOnPhysics == false && DoorVentMesh->IsSimulatingPhysics() == false)
+	if (!bVentDoorsBasedOnPhysics && !DoorVentMesh->IsSimulatingPhysics())
 		return;
 
 	DoorVentMesh->SetSimulatePhysics(true);
@@ -51,7 +51,7 @@ void ADoorVent::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpul
 
 void ADoorVent::TakeItem(AMarineCharacter* Character)
 {
-	if (IsValid(Character) == false || bIsOpen == true || DoorVentMesh->IsSimulatingPhysics() == true)
+	if (!IsValid(Character) || bIsOpen || DoorVentMesh->IsSimulatingPhysics())
 		return;
 
 	if (TurnOnPhysicsInsteadOfTimeline)
@@ -81,7 +81,7 @@ void ADoorVent::PlayOpenDoorVentLocTimeline()
 
 void ADoorVent::OnOpenDoorVentLocProgress(FVector VectorValue)
 {
-	if (bAddCurveValuesToVectors == true)
+	if (bAddCurveValuesToVectors)
 	{
 		AddActorLocalOffset(VectorValue);
 
@@ -112,13 +112,13 @@ void ADoorVent::OnOpenDoorVentLocFinished()
 
 void ADoorVent::ItemHover(AMarineCharacter* Character)
 {
-	if (bIsOpen == true || DoorVentMesh->IsSimulatingPhysics() == true)
+	if (bIsOpen || DoorVentMesh->IsSimulatingPhysics())
 		return;
 
 	DoorVentMesh->SetRenderCustomDepth(true);
 	bIsHovered = true;
 
-	if (IsValid(Character->GetHudWidget()) == false)
+	if (!IsValid(Character->GetHudWidget()))
 		return;
 
 	Character->GetHudWidget()->SetItemHoverInformations(DoorVentName, DoorVentDesc, DoorVentIcon);
@@ -126,14 +126,14 @@ void ADoorVent::ItemHover(AMarineCharacter* Character)
 
 void ADoorVent::ItemUnHover(AMarineCharacter* Character)
 {
-	if (bIsHovered == false)
+	if (!bIsHovered)
 		return;
 
 	bIsHovered = false;
 
 	DoorVentMesh->SetRenderCustomDepth(false);
 
-	if (IsValid(Character->GetHudWidget()) == false)
+	if (!IsValid(Character->GetHudWidget()))
 		return;
 
 	Character->GetHudWidget()->PlayAppearAnimForItemHover(false);
@@ -150,9 +150,9 @@ void ADoorVent::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomD
 
 void ADoorVent::SaveCurrentStateOfVent(int32 CurrentState, FTransform ActoTransform)
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
-	if (IsValid(SavedDataObject) == false)
+	if (!IsValid(SavedDataObject))
 		return;
 
 	if (CurrentUniqueID == 0)

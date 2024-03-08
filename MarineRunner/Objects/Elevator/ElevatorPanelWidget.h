@@ -20,38 +20,38 @@ protected:
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UImage* BackgroundImage;
+		TObjectPtr<UImage> BackgroundImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UImage* ElevatorGoesUpDownImage;
+		TObjectPtr<UImage> ElevatorGoesUpDownImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* WaitForElevatorTextBlock;
+		TObjectPtr<UTextBlock> WaitForElevatorTextBlock;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* MaintanceTextBlock;
+		TObjectPtr<UTextBlock> MaintanceTextBlock;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* MaintanceModeTextBlock;
+		TObjectPtr<UTextBlock> MaintanceModeTextBlock;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UListView* SelectFloorsListView;
+		TObjectPtr<class UListView> SelectFloorsListView;
 
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* SelectFloorsAppearAnim;
+		TObjectPtr<UWidgetAnimation> SelectFloorsAppearAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* SelectFloorsDisappearAnim;
+		TObjectPtr<UWidgetAnimation> SelectFloorsDisappearAnim;
 
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* WaitTextBlockAppearAnim;
+		TObjectPtr<UWidgetAnimation> WaitTextBlockAppearAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* WaitTextBlockDisappearAnim;
+		TObjectPtr<UWidgetAnimation> WaitTextBlockDisappearAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* WaitTextBlockActiveAnim;
+		TObjectPtr<UWidgetAnimation> WaitTextBlockActiveAnim;
 
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* ElevatorGoesUpDownAppearAnim;
+		TObjectPtr<UWidgetAnimation> ElevatorGoesUpDownAppearAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* ElevatorGoesUpDownDisappearAnim;
+		TObjectPtr<UWidgetAnimation> ElevatorGoesUpDownDisappearAnim;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
 		TSubclassOf<class USelectFloorEntryObject> SelectedFloorEntryObject;
@@ -60,8 +60,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings")
 		float ElevatorGoesDownImageAngle = 180.f;
 
-	FORCEINLINE void SetElevator(class AElevator* NewElevatorActor) { ElevatorActor = NewElevatorActor; }
-	FORCEINLINE void SetElevatorFloors(TArray<FElevatorFloor> & NewFloors) { ElevatorFloors = NewFloors;}
+	FORCEINLINE void SetElevator(TObjectPtr<class AElevator> NewElevatorActor) { ElevatorActor = NewElevatorActor; }
+	FORCEINLINE void SetElevatorFloors(TArray<FElevatorFloor> & NewFloors) { AllElevatorFloors = NewFloors;}
 	bool GetDoorOpen() const;
 	int32 GetCurrentFloor() const;
 
@@ -75,6 +75,6 @@ public:
 
 	void FillSelectFloorsListView();
 private:
-	TArray<FElevatorFloor> ElevatorFloors;
-	class AElevator* ElevatorActor;
+	TArray<FElevatorFloor> AllElevatorFloors;
+	TObjectPtr<class AElevator> ElevatorActor;
 };

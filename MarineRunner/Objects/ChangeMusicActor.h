@@ -26,23 +26,21 @@ protected:
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		TObjectPtr<class UBoxComponent> ChangeMusicBoxComp;
 
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (InlineEditConditionToggle))
 		bool bChangeMusic = true;
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (InlineEditConditionToggle))
 		bool bPlaySound;
-	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bChangeMusic"))
-		USoundBase* MusicToChange;
-	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bPlaySound"))
-		USoundBase* SoundToPlay;
-
-private:
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UBoxComponent* ChangeMusicBoxComp;
+	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bChangeMusic", EditConditionHides))
+		TObjectPtr<USoundBase> MusicToChange;
+	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bPlaySound", EditConditionHides))
+		TObjectPtr<USoundBase> SoundToPlay;
 	UFUNCTION()
-		void ChangeMusicBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		void ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	void DisableChangeMusic(bool bDisable = true);
 	void ChangeBackgroundMusic();

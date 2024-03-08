@@ -18,42 +18,42 @@ protected:
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UImage* BackgroundImage;
+		TObjectPtr<UImage> BackgroundImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* CallElevatorButton;
+		TObjectPtr<class UButton> CallElevatorButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* CallElevatorText;
+		TObjectPtr < UTextBlock> CallElevatorText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* WaitForElevatorText;
+		TObjectPtr < UTextBlock> WaitForElevatorText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* MaintanceTextBlock;
+		TObjectPtr < UTextBlock> MaintanceTextBlock;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* MaintanceModeTextBlock;
+		TObjectPtr < UTextBlock> MaintanceModeTextBlock;
 
 	// If pin is in use
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* BackgroundPinImage;
+		TObjectPtr<class UImage> BackgroundPinImage;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* PinCodeText;
+		TObjectPtr<class UTextBlock> PinCodeText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTileView* PinNumbersTileView;
+		TObjectPtr<class UTileView> PinNumbersTileView;
 
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* HoverCallElevatorAnim;
+		TObjectPtr < UWidgetAnimation> HoverCallElevatorAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* AppearCallElevatorAnim;
+		TObjectPtr < UWidgetAnimation> AppearCallElevatorAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* DisappearCallElevatorAnim;
+		TObjectPtr < UWidgetAnimation> DisappearCallElevatorAnim;
 
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* AppearWaitForElevatorAnim;
+		TObjectPtr < UWidgetAnimation> AppearWaitForElevatorAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* DisappearWaitForElevatorAnim;
+		TObjectPtr < UWidgetAnimation> DisappearWaitForElevatorAnim;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		UWidgetAnimation* ActiveWaitForElevatorAnim;
+		TObjectPtr < UWidgetAnimation> ActiveWaitForElevatorAnim;
 
 	UFUNCTION()
 		void OnClickedCallElevatorButton();
@@ -62,20 +62,28 @@ public:
 	UFUNCTION()
 		void OnUnhoveredCallElevatorButton();
 
-	FORCEINLINE void SetElevator(class AElevator* NewElevatorActor) { ElevatorActor = NewElevatorActor; }
-	FORCEINLINE void SetFloor(int32 NewFloor) { Floor = NewFloor; }
-	FORCEINLINE void SetOutsideElevatorDoor(class AOutsideElevatorDoor* NewOutsideElevatorActor) { OutsideElevatorActor = NewOutsideElevatorActor; }
+	FORCEINLINE void SetElevator(TObjectPtr<class AElevator> NewElevatorActor) { ElevatorActor = NewElevatorActor; }
+	FORCEINLINE void SetFloor(int32 NewFloor) { FloorToMove = NewFloor; }
+	FORCEINLINE void SetOutsideElevatorDoor(TObjectPtr<class AOutsideElevatorDoor> NewOutsideElevatorActor) { OutsideElevatorActor = NewOutsideElevatorActor; }
 
 	bool CanCallElevator() const;
 
 	void CallElevatorAction(const enum ECallElevatorAction ActionToDo);
 
+	void AddNumberToEnteredPin(int32 Number);
+	void ChangeToUsePin(int32 PinCode);
+
+	void PinIsCorrect();
+
+private:
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
-		USoundBase* WrongCodeSound;
+		int32 MaxPinCodeLength = 4;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
 		TArray<int32> PinNumberEntries;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
 		TSubclassOf<class UPinNumberEntryObject> PinNumberEntryObjectClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
+		TObjectPtr<USoundBase> WrongCodeSound;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin|Effects")
 		FText LockedByPinModeText;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin|Effects")
@@ -85,21 +93,17 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin|Effects")
 		FSlateColor UnlockedByPinColorText;
 
-	void AddNumberToEnteredPin(int32 Number);
-	void ChangeDoorPanelToUsePin(int32 PinCode);
-
-	void PinIsCorrect();
-
-private:
-	int32 Floor;
-	class AElevator* ElevatorActor;
-	class AOutsideElevatorDoor* OutsideElevatorActor;
+	int32 FloorToMove;
+	UPROPERTY(Transient)
+		TObjectPtr<class AElevator> ElevatorActor;
+	UPROPERTY(Transient)
+		TObjectPtr<class AOutsideElevatorDoor> OutsideElevatorActor;
 
 	void ShowWaitText(bool bShow = true);
 	void ShowCallElevatorPanel(bool bShow = true);
+	void HidePin(bool bHide);
 
 	int32 CurrentPinCode;
 	FString CurrentlyEnteredPin;
 	FString CurrentlyEnteredPin_Text;
-
 };

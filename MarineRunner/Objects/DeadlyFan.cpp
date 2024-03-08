@@ -17,13 +17,13 @@ ADeadlyFan::ADeadlyFan()
 	RootComponent = DeadlyFanBaseMesh;
 	DeadlyFanBaseMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);
 
-	RotatingMeshAnchor = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RotatingMeshAnchor"));
-	RotatingMeshAnchor->SetupAttachment(RootComponent);
+	SocketMeshToRotate = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SocketMeshToRotate"));
+	SocketMeshToRotate->SetupAttachment(RootComponent);
 
-	RotatingMeshAnchor->SetCollisionResponseToChannel(ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);
+	SocketMeshToRotate->SetCollisionResponseToChannel(ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);
 
 	DeadlyFanMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DeadlyFanMesh"));
-	DeadlyFanMesh->SetupAttachment(RotatingMeshAnchor);
+	DeadlyFanMesh->SetupAttachment(SocketMeshToRotate);
 	DeadlyFanMesh->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
 	DeadlyFanMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel4, ECollisionResponse::ECR_Ignore);
 }
@@ -35,7 +35,7 @@ void ADeadlyFan::BeginPlay()
 	
 	DeadlyFanMesh->OnComponentBeginOverlap.AddDynamic(this, &ADeadlyFan::OnFanMeshBeginOverlap);
 
-	if (FanSound) 
+	if (IsValid(FanSound)) 
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FanSound, GetActorLocation());
 }
 
@@ -49,14 +49,14 @@ void ADeadlyFan::Tick(float DeltaTime)
 
 void ADeadlyFan::OnFanMeshBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (IsValid(OtherActor) == false)
+	if (!IsValid(OtherActor))
 		return;
 
 	IInteractInterface* InteractInterface = Cast<IInteractInterface>(OtherActor);
-	if (InteractInterface == nullptr)
+	if (!InteractInterface)
 		return;
 
-	InteractInterface->ApplyDamage(1000.f, 0.f, SweepResult, nullptr);
+	InteractInterface->ApplyDamage(DamageToApply, ImpulseForceToApply, SweepResult, nullptr);
 }
 
 void ADeadlyFan::RotateFan(float Delta)

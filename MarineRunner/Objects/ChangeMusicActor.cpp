@@ -11,8 +11,7 @@
 // Sets default values
 AChangeMusicActor::AChangeMusicActor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	ChangeMusicBoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("Change Music Box Comp"));
 	RootComponent = ChangeMusicBoxComp;
@@ -25,20 +24,13 @@ void AChangeMusicActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	ChangeMusicBoxComp->OnComponentBeginOverlap.AddDynamic(this, &AChangeMusicActor::ChangeMusicBoxBeginOverlap);
+	ChangeMusicBoxComp->OnComponentBeginOverlap.AddDynamic(this, &AChangeMusicActor::ChangeMusicSoundBoxBeginOverlap);
 	OriginalChangeMusic = bChangeMusic;
 }
 
-// Called every frame
-void AChangeMusicActor::Tick(float DeltaTime)
+void AChangeMusicActor::ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	Super::Tick(DeltaTime);
-
-}
-
-void AChangeMusicActor::ChangeMusicBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (bChangeMusic == true)
+	if (bChangeMusic)
 		ChangeBackgroundMusic();
 	if (bPlaySound && SoundToPlay)
 		UGameplayStatics::PlaySound2D(GetWorld(), SoundToPlay);
@@ -50,8 +42,8 @@ void AChangeMusicActor::ChangeMusicBoxBeginOverlap(UPrimitiveComponent* Overlapp
 
 void AChangeMusicActor::ChangeBackgroundMusic()
 {
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(GetGameInstance());
-	if (IsValid(GameInstance) == false || MusicToChange == nullptr)
+	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(GetGameInstance());
+	if (!IsValid(GameInstance) || !IsValid(MusicToChange))
 		return;
 
 	GameInstance->SetCurrentExplorationMusic(MusicToChange);
@@ -67,9 +59,9 @@ void AChangeMusicActor::DisableChangeMusic(bool bDisable)
 
 void AChangeMusicActor::ChangedMusicSaveData()
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
-	if (IsValid(SavedDataObject) == false)
+	if (!IsValid(SavedDataObject))
 		return;
 
 	if (CurrentUniqueID == 0)

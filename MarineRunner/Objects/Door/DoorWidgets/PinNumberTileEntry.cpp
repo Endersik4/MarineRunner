@@ -20,7 +20,7 @@ void UPinNumberTileEntry::NativeConstruct()
 void UPinNumberTileEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	PinNumberEntryObject = Cast<UPinNumberEntryObject>(ListItemObject);
-	if (IsValid(PinNumberEntryObject) == false)
+	if (!IsValid(PinNumberEntryObject))
 		return;
 
 	PinNumberText->SetText(FText::AsNumber(PinNumberEntryObject->PinNumber));
@@ -28,18 +28,18 @@ void UPinNumberTileEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 void UPinNumberTileEntry::OnClickedPinNumberButton()
 {
-	if (IsValid(PinNumberEntryObject) == false)
+	if (!IsValid(PinNumberEntryObject))
 		return;
 
-	if (IsValid(PinNumberEntryObject->DoorPanelWidget) == true)
+	if (IsValid(PinNumberEntryObject->DoorPanelWidget))
 		PinNumberEntryObject->DoorPanelWidget->AddNumberToEnteredPin(PinNumberEntryObject->PinNumber);
-	else if (IsValid(PinNumberEntryObject->CallElevatorPanelWidget) == true)
+	if (IsValid(PinNumberEntryObject->CallElevatorPanelWidget))
 		PinNumberEntryObject->CallElevatorPanelWidget->AddNumberToEnteredPin(PinNumberEntryObject->PinNumber);
 }
 
 void UPinNumberTileEntry::OnHoveredPinNumberButton()
 {
-	if (HoverPinNumberButton == nullptr)
+	if (!HoverPinNumberButton)
 		return;
 
 	PlayAnimationForward(HoverPinNumberButton);
@@ -47,7 +47,7 @@ void UPinNumberTileEntry::OnHoveredPinNumberButton()
 
 void UPinNumberTileEntry::OnUnhoveredPinNumberButton()
 {
-	if (HoverPinNumberButton == nullptr)
+	if (!HoverPinNumberButton)
 		return;
 
 	PlayAnimationReverse(HoverPinNumberButton);

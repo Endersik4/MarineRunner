@@ -35,56 +35,45 @@ void AOutsideElevatorDoor::BeginPlay()
 	SetUpElevatorPanel();
 }
 
-// Called every frame
-void AOutsideElevatorDoor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-/// <summary>
-/// Opens the door if can
-/// </summary>
 void AOutsideElevatorDoor::OpenOutsideElevatorDoor()
 {
-	if (bDoorsOpen == true)
+	if (bDoorsOpen)
 		return;
 
 	PlayElevatorEffects(OpenElevatorDoorsAnim, OpenElevatorDoorsSound);
 	bDoorsOpen = true;
 }
 
-/// <summary>
-/// Closes the door if can
-/// </summary>
 void AOutsideElevatorDoor::CloseOutsideElevatorDoor()
 {
-	if (bDoorsOpen == false)
+	if (!bDoorsOpen)
 		return;
 
 	PlayElevatorEffects(CloseElevatorDoorsAnim, OpenElevatorDoorsSound);
 	bDoorsOpen = false;
 }
 
-void AOutsideElevatorDoor::PlayElevatorEffects(UAnimationAsset* AnimToPlay, USoundBase* SoundToPlay)
+void AOutsideElevatorDoor::PlayElevatorEffects(TObjectPtr<UAnimationAsset> AnimToPlay, TObjectPtr<USoundBase> SoundToPlay)
 {
-	if (AnimToPlay)
+	if (IsValid(AnimToPlay))
 		OutsideElevatorDoorsSkeletalMesh->PlayAnimation(AnimToPlay, false);
 
-	if (SoundToPlay)
+	if (IsValid(SoundToPlay))
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SoundToPlay, OutsideElevatorDoorsSkeletalMesh->GetSocketLocation(SoundLocationSocketName));
 }
 
 void AOutsideElevatorDoor::SetUpElevatorPanel()
 {
 	ElevatorPanelWidget = Cast<UCallElevatorPanel>(OutsideElevatorPanel->GetUserWidgetObject());
-	if (ElevatorPanelWidget == nullptr) return;
+	if (!ElevatorPanelWidget) 
+		return;
 
-	ElevatorPanelWidget->SetFloor(Floor);
+	ElevatorPanelWidget->SetFloor(FloorNumber);
 	ElevatorPanelWidget->SetElevator(ElevatorToCall);
 	ElevatorPanelWidget->SetOutsideElevatorDoor(this);
 
-	if (bUsePinCode == true)
-		ElevatorPanelWidget->ChangeDoorPanelToUsePin(PinCode);
+	if (bUsePinCode)
+		ElevatorPanelWidget->ChangeToUsePin(PinCode);
 }
 
 bool AOutsideElevatorDoor::CanCallElevator() const
@@ -99,9 +88,9 @@ void AOutsideElevatorDoor::CallElevatorAction(ECallElevatorAction ActionToDo)
 
 void AOutsideElevatorDoor::PinIsCorrect()
 {
-	ASavedDataObject* SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
-	if (IsValid(SavedDataObject) == false)
+	if (!IsValid(SavedDataObject))
 		return;
 
 	if (CurrentUniqueID == 0)
@@ -129,6 +118,6 @@ void AOutsideElevatorDoor::RestartData(ASavedDataObject* SavedDataObject, const 
 	if (SavedCustomData.ObjectState == 1)
 	{
 		if (bUsePinCode == true)
-			ElevatorPanelWidget->ChangeDoorPanelToUsePin(PinCode);
+			ElevatorPanelWidget->ChangeToUsePin(PinCode);
 	}
 }

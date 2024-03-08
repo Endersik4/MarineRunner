@@ -25,7 +25,11 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UBoxComponent* DeadlyBox;
+		TObjectPtr<class UBoxComponent> DeadlyBox;
+	UPROPERTY(EditAnywhere, Category = "DeadlyBox Setup")
+		float DamageToApply = 1000.f;
+	UPROPERTY(EditAnywhere, Category = "DeadlyBox Setup")
+		float ImpulseForceToApply = 0.f;
 
 	UFUNCTION()
 		void KillEverythingBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

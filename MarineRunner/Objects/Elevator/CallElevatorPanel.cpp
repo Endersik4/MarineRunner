@@ -26,17 +26,17 @@ void UCallElevatorPanel::NativeOnInitialized()
 
 void UCallElevatorPanel::OnClickedCallElevatorButton()
 {
-	if (IsValid(ElevatorActor) == false)
+	if (!IsValid(ElevatorActor))
 		return;
 
-	ElevatorActor->GetElevatorPanelWidget()->SelectFloor(Floor);
+	ElevatorActor->GetElevatorPanelWidget()->SelectFloor(FloorToMove);
 
 	CallElevatorAction(ECEA_HideCallAndShowWait);
 }
 
 void UCallElevatorPanel::OnHoveredCallElevatorButton()
 {
-	if (HoverCallElevatorAnim == nullptr)
+	if (!HoverCallElevatorAnim)
 		return;
 
 	PlayAnimationForward(HoverCallElevatorAnim);
@@ -44,7 +44,7 @@ void UCallElevatorPanel::OnHoveredCallElevatorButton()
 
 void UCallElevatorPanel::OnUnhoveredCallElevatorButton()
 {
-	if (HoverCallElevatorAnim == nullptr)
+	if (!HoverCallElevatorAnim)
 		return;
 
 	PlayAnimationReverse(HoverCallElevatorAnim);
@@ -117,43 +117,35 @@ void UCallElevatorPanel::AddNumberToEnteredPin(int32 Number)
 	CurrentlyEnteredPin += FString::FromInt(Number);
 	CurrentlyEnteredPin_Text += "*";
 
+	// if pin is correct then hide pin panel
 	if (FString::FromInt(CurrentPinCode) == CurrentlyEnteredPin)
 	{
 		PinIsCorrect();
-		if (IsValid(OutsideElevatorActor) == false)
-			return;
-		OutsideElevatorActor->PinIsCorrect();
+		if (IsValid(OutsideElevatorActor))
+			OutsideElevatorActor->PinIsCorrect();
 	}
-	else if (CurrentlyEnteredPin.Len() == 4 && WrongCodeSound)
+	else if (CurrentlyEnteredPin.Len() == MaxPinCodeLength) // if not then reset pin play wrong code sound 
 	{
 		CurrentlyEnteredPin = "";
 		CurrentlyEnteredPin_Text = "";
-		UGameplayStatics::PlaySound2D(GetWorld(), WrongCodeSound);
+		if (IsValid(WrongCodeSound))
+			UGameplayStatics::PlaySound2D(GetWorld(), WrongCodeSound);
 	}
 
 	PinCodeText->SetText(FText::FromString(CurrentlyEnteredPin_Text));
 }
 
-void UCallElevatorPanel::ChangeDoorPanelToUsePin(int32 PinCode)
+void UCallElevatorPanel::ChangeToUsePin(int32 PinCode)
 {
 	PinNumbersTileView->ClearListItems();
 
-	CallElevatorButton->SetVisibility(ESlateVisibility::Hidden);
-	CallElevatorText->SetVisibility(ESlateVisibility::Hidden);
-	WaitForElevatorText->SetVisibility(ESlateVisibility::Hidden);
-	
-	MaintanceModeTextBlock->SetText(LockedByPinModeText);
-	MaintanceModeTextBlock->SetColorAndOpacity(LockedByPinColorText);
-
-	PinCodeText->SetVisibility(ESlateVisibility::Visible);
-	PinNumbersTileView->SetVisibility(ESlateVisibility::Visible);
-	BackgroundPinImage->SetVisibility(ESlateVisibility::Visible);
+	HidePin(false);
 
 	for (const int32& CurrentPinNumberEntry : PinNumberEntries)
 	{
-		UPinNumberEntryObject* CreatedPinEntryObject = NewObject<UPinNumberEntryObject>(PinNumberEntryObjectClass);
-		if (IsValid(CreatedPinEntryObject) == false)
-			return;
+		TObjectPtr<UPinNumberEntryObject> CreatedPinEntryObject = NewObject<UPinNumberEntryObject>(PinNumberEntryObjectClass);
+		if (!IsValid(CreatedPinEntryObject))
+			continue;
 
 		CreatedPinEntryObject->PinNumber = CurrentPinNumberEntry;
 		CreatedPinEntryObject->CallElevatorPanelWidget = this;
@@ -169,14 +161,19 @@ void UCallElevatorPanel::ChangeDoorPanelToUsePin(int32 PinCode)
 
 void UCallElevatorPanel::PinIsCorrect()
 {
-	PinCodeText->SetVisibility(ESlateVisibility::Hidden);
-	PinNumbersTileView->SetVisibility(ESlateVisibility::Hidden);
-	BackgroundPinImage->SetVisibility(ESlateVisibility::Hidden);
+	HidePin(true);
+}
 
-	CallElevatorButton->SetVisibility(ESlateVisibility::Visible);
-	CallElevatorText->SetVisibility(ESlateVisibility::Visible);
+void UCallElevatorPanel::HidePin(bool bHide)
+{
+	PinCodeText->SetVisibility(bHide ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
+	PinNumbersTileView->SetVisibility(bHide ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
+	BackgroundPinImage->SetVisibility(bHide ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
+
+	CallElevatorButton->SetVisibility(bHide ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+	CallElevatorText->SetVisibility(bHide ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 	WaitForElevatorText->SetVisibility(ESlateVisibility::Hidden);
 
-	MaintanceModeTextBlock->SetText(UnlockedByPinModeText);
-	MaintanceModeTextBlock->SetColorAndOpacity(UnlockedByPinColorText);
+	MaintanceModeTextBlock->SetText(bHide ? UnlockedByPinModeText : LockedByPinModeText);
+	MaintanceModeTextBlock->SetColorAndOpacity(bHide ? UnlockedByPinColorText : LockedByPinColorText);
 }

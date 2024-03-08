@@ -33,35 +33,35 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class USkeletalMeshComponent* DoorSkeletalMesh;
+		TObjectPtr<class USkeletalMeshComponent> DoorSkeletalMesh;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UWidgetComponent* DoorPanelWidgetComponent;
+		TObjectPtr<class UWidgetComponent> DoorPanelWidgetComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UStaticMeshComponent* DoorPanelMesh;
+		TObjectPtr<class UStaticMeshComponent> DoorPanelMesh;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UWidgetComponent* DoorPanelSecondWidgetComponent;
+		TObjectPtr<class UWidgetComponent> DoorPanelSecondWidgetComponent;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UStaticMeshComponent* DoorPanelSecondMesh;
+		TObjectPtr<class UStaticMeshComponent> DoorPanelSecondMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 		float CloseDoorAfterInactivityTime = 4.f;
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 		bool bUsePinCode = false;
-	UPROPERTY(EditAnywhere, Category = "Chest Settings", meta = (EditCondition = "bUsePinCode", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
+	UPROPERTY(EditAnywhere, Category = "Door Settings", meta = (EditCondition = "bUsePinCode", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
 		int32 PinCode = 1111;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Animations")
-		UAnimationAsset* OpenDoorAnim;
-	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Animations")
-		UAnimationAsset* CloseDoorAnim;
-	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Sounds")
+	UPROPERTY(EditDefaultsOnly, Category = "Door Settings")
 		FName DoorSoundSocketName;
-	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Sounds")
-		USoundBase* OpenDoorSound;
-	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Sounds")
-		USoundBase* CloseDoorSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Open")
+		TObjectPtr < UAnimationAsset> OpenDoorAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Open")
+		TObjectPtr < USoundBase> OpenDoorSound;
+	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Closed")
+		TObjectPtr < UAnimationAsset> CloseDoorAnim;
+	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Closed")
+		TObjectPtr < USoundBase> CloseDoorSound;
 
 	bool bDoorOpen = false;
 
@@ -71,8 +71,10 @@ private:
 	void OpenDoor();
 	void CloseDoor();
 
-	UDoorPanelWidget* DoorPanelWidget;
-	UDoorPanelWidget* DoorPanelSecondWidget;
+	UPROPERTY(Transient)
+		TObjectPtr < UDoorPanelWidget> DoorPanelWidget;
+	UPROPERTY(Transient)
+		TObjectPtr < UDoorPanelWidget> DoorPanelSecondWidget;
 	void SetUpDoorPanels();
 
 	int32 CurrentUniqueID = 0;

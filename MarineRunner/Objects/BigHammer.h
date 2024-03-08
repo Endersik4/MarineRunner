@@ -26,9 +26,9 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UStaticMeshComponent* HammerMesh;
+		TObjectPtr<class UStaticMeshComponent> HammerMesh;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UBoxComponent* HammerBoxComponent;
+		TObjectPtr<class UBoxComponent> HammerBoxComponent;
 	UFUNCTION()
 		void OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
@@ -37,11 +37,15 @@ private:
 		void MoveHammerTimelineFinished();
 
 	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
-		UCurveFloat* CurveZLocation;
+		float DamageToApply = 1000.f;
+	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
+		float ImpulseForceToApply = 0.f;
+	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
+		TObjectPtr<UCurveFloat> CurveZLocation;
 	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
 		float TimeToPlayHitSound = 0.4f;
 	UPROPERTY(EditDefaultsOnly, Category = "Hammer Sounds")
-		USoundBase* HitSound;
+		TObjectPtr<USoundBase> HitSound;
 
 	FTimeline MoveObjectTimeline;
 	void SetupMoveTimeline();
