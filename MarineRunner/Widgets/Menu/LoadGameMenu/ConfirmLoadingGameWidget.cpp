@@ -29,20 +29,20 @@ void UConfirmLoadingGameWidget::NativeOnInitialized()
 
 void UConfirmLoadingGameWidget::AddThisWidgetToCurrentSpawnedMenuWidgets(bool bShouldDeleteExistingOne)
 {
-	AMarineCharacter* MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if (IsValid(MarinePlayer) == false)
+	TObjectPtr<AMarineCharacter> Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (!IsValid(Player))
 		return;
 
-	if (IsValid(MarinePlayer->GetPauseMenuComponent()->GetPauseMenuWidget()) == false)
+	if (!IsValid(Player->GetPauseMenuComponent()->GetPauseMenuWidget()))
 		return;
 
-	if (bShouldDeleteExistingOne == true)
+	if (bShouldDeleteExistingOne)
 	{
-		MarinePlayer->GetPauseMenuComponent()->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Remove(this);
+		Player->GetPauseMenuComponent()->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Remove(this);
 	}
 	else
 	{
-		MarinePlayer->GetPauseMenuComponent()->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Add(this, [this](bool b) { this->BackToLoadGame(b); });
+		Player->GetPauseMenuComponent()->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Add(this, [this](bool b) { this->BackToLoadGame(b); });
 	}
 }
 
@@ -57,21 +57,19 @@ void UConfirmLoadingGameWidget::YesButton_OnClicked()
 {
 	if (ConfirmType == ECT_QuitGame)
 	{
-		if (IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)) == false)
+		if (!IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 			return;
 
 		UKismetSystemLibrary::QuitGame(GetWorld(), UGameplayStatics::GetPlayerController(GetWorld(), 0), EQuitPreference::Quit, true);
 	}
 	else
-	{
 		LoadLastSave();
-	}
 }
 
 void UConfirmLoadingGameWidget::LoadLastSave()
 {
-	UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (IsValid(GameInstance) == false)
+	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!IsValid(GameInstance))
 		return;
 
 	GameInstance->SlotSaveGameNameToLoad = SlotNameToLoad;
@@ -109,12 +107,15 @@ void UConfirmLoadingGameWidget::NoButton_OnUnhovered()
 
 #pragma endregion
 
-void UConfirmLoadingGameWidget::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim)
+void UConfirmLoadingGameWidget::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim)
 {
-	if (AnimToPlay == nullptr) return;
+	if (!AnimToPlay) 
+		return;
 
-	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
-	else PlayAnimationReverse(AnimToPlay);
+	if (bPlayForwardAnim) 
+		PlayAnimationForward(AnimToPlay);
+	else 
+		PlayAnimationReverse(AnimToPlay);
 }
 
 void UConfirmLoadingGameWidget::SetSlotAndLevelName(const FString& SlotName, const FString& LevelName)

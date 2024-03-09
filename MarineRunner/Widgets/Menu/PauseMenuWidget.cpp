@@ -11,9 +11,9 @@
 #include "MarineRunner/Widgets/Menu/SettingsMenuWidget.h"
 #include "LoadGameMenu/LoadGameMenuWidget.h"
 #include "LoadGameMenu/ConfirmLoadingGameWidget.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/MarinePawnClasses/MarineCharacter.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/PauseMenuComponent.h"
-#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/MarinePawnClasses/GameplayComponents/SaveLoadPlayerComponent.h"
 
 void UPauseMenuWidget::NativeConstruct()
@@ -45,7 +45,7 @@ void UPauseMenuWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	MarinePlayer = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 
 	PlayPauseMenuMusic();
 
@@ -62,34 +62,37 @@ void UPauseMenuWidget::NativeDestruct()
 
 void UPauseMenuWidget::PlayPauseMenuMusic()
 {
-	MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (MarineRunnerGameInstance->GetCurrentMusicType() != EMT_Combat)
-	{
-		MusicTypeBeforePause = MarineRunnerGameInstance->GetCurrentMusicType();
-		MarineRunnerGameInstance->ChangeBackgroundMusic(EMT_PauseMusic, true);
-		if (PauseMenuMusic)
-		{
-			CurrentPauseMenuMusic = UGameplayStatics::SpawnSound2D(GetWorld(), PauseMenuMusic);
-			CurrentPauseMenuMusic->FadeIn(1.f);
-		}
-	}
+	GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!IsValid(GameInstance))
+		return;
+
+	if (GameInstance->GetCurrentMusicType() == EMT_Combat)
+		return;
+
+	MusicTypeBeforePause = GameInstance->GetCurrentMusicType();
+	GameInstance->ChangeBackgroundMusic(EMT_PauseMusic, true);
+	if (!IsValid(PauseMenuMusic))
+		return;
+
+	CurrentPauseMenuMusic = UGameplayStatics::SpawnSound2D(GetWorld(), PauseMenuMusic);
+	CurrentPauseMenuMusic->FadeIn(1.f);
 }
 
 void UPauseMenuWidget::StopPauseMenuMusic()
 {
-	if (IsValid(MarineRunnerGameInstance) == true)
+	if (IsValid(GameInstance))
 	{
-		if (MarineRunnerGameInstance->GetCurrentMusicType() == EMT_Combat)
+		if (GameInstance->GetCurrentMusicType() == EMT_Combat)
 			return;
 
-		MarineRunnerGameInstance->ChangeBackgroundMusic(MusicTypeBeforePause, true);
+		GameInstance->ChangeBackgroundMusic(MusicTypeBeforePause, true);
 	}
 
 	if (IsValid(CurrentPauseMenuMusic) == false) 
 		return;
 
 	CurrentPauseMenuMusic->Stop();
-	CurrentPauseMenuMusic->DestroyComponent();
+	CurrentPauseMenuMusic->FadeOut(0.f, 0.f);
 }
 
 void UPauseMenuWidget::FillMenuButtonsAndTextMap()
@@ -104,12 +107,12 @@ void UPauseMenuWidget::FillMenuButtonsAndTextMap()
 #pragma region //////////////// RESUME /////////////////
 void UPauseMenuWidget::OnClickedResumeButton()
 {
-	if (IsValid(MarinePlayer) == false)
+	if (!IsValid(Player))
 		return;
-	if (IsValid(MarinePlayer->GetPauseMenuComponent()) == false)
+	if (!IsValid(Player->GetPauseMenuComponent()))
 		return;
 
-	MarinePlayer->GetPauseMenuComponent()->UnPauseGame();
+	Player->GetPauseMenuComponent()->UnPauseGame();
 }
 
 void UPauseMenuWidget::OnHoveredResumeButton()
@@ -139,7 +142,7 @@ void UPauseMenuWidget::OnClickedLoadGameButton()
 void UPauseMenuWidget::SpawnLoadGameMenuWidget()
 {
 	LoadGameMenuWidget = Cast<ULoadGameMenuWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), LoadGameMenuWidgetClass));
-	if (LoadGameMenuWidget == nullptr) 
+	if (!IsValid(LoadGameMenuWidget)) 
 		return;
 
 	SetEnableAllMenuButtons(false, LoadGameButton);
@@ -152,7 +155,8 @@ void UPauseMenuWidget::SpawnLoadGameMenuWidget()
 
 void UPauseMenuWidget::RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame)
 {
-	if (LoadGameMenuWidget == nullptr) return;
+	if (!IsValid(LoadGameMenuWidget)) 
+		return;
 
 	SetEnableAllMenuButtons(true, LoadGameButton);
 
@@ -161,7 +165,8 @@ void UPauseMenuWidget::RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoa
 	LoadGameMenuWidget = nullptr;
 
 	bWasLoadGameMenuWidgetSpawned = false;
-	if (bUnhoverTextLoadGame == true) OnUnhoveredLoadGameButton();
+	if (bUnhoverTextLoadGame) 
+		OnUnhoveredLoadGameButton();
 }
 
 void UPauseMenuWidget::OnHoveredLoadGameButton()
@@ -178,21 +183,21 @@ void UPauseMenuWidget::OnUnhoveredLoadGameButton()
 #pragma region //////////////// SAVE GAME /////////////////
 void UPauseMenuWidget::OnClickedSaveGameButton()
 {
-	if (IsValid(MarinePlayer) == false)
+	if (!IsValid(Player))
 		return;
 
-	if (MarinePlayer->GetSaveLoadPlayerComponent()->CanPlayerSaveGame() == false)
+	if (!Player->GetSaveLoadPlayerComponent()->CanPlayerSaveGame())
 	{
-		MarinePlayer->GetSaveLoadPlayerComponent()->SpawnCannotSavedWidget();
+		Player->GetSaveLoadPlayerComponent()->SpawnCannotSavedWidget();
 		return;
 	}
 
-	MarinePlayer->GetSaveLoadPlayerComponent()->SaveGame();
+	Player->GetSaveLoadPlayerComponent()->SaveGame();
 
-	if (IsValid(MarinePlayer->GetPauseMenuComponent()) == false)
+	if (!IsValid(Player->GetPauseMenuComponent()))
 		return;
 
-	MarinePlayer->GetPauseMenuComponent()->UnPauseGame();
+	Player->GetPauseMenuComponent()->UnPauseGame();
 }
 
 void UPauseMenuWidget::OnHoveredSaveGameButton()
@@ -223,7 +228,8 @@ void UPauseMenuWidget::OnClickedSettingsButton()
 void UPauseMenuWidget::SpawnSettingsMenuWidget()
 {
 	SettingsMenuWidget = Cast<USettingsMenuWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), SettingsMenuWidgetClass));
-	if (SettingsMenuWidget == nullptr) return;
+	if (!IsValid(SettingsMenuWidget)) 
+		return;
 
 	SetEnableAllMenuButtons(false, SettingsButton);
 	SettingsMenuWidget->AddToViewport();
@@ -235,7 +241,8 @@ void UPauseMenuWidget::SpawnSettingsMenuWidget()
 
 void UPauseMenuWidget::RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSettings)
 {
-	if (SettingsMenuWidget == nullptr) return;
+	if (!IsValid(SettingsMenuWidget)) 
+		return;
 
 	SetEnableAllMenuButtons(true, SettingsButton);
 
@@ -244,7 +251,7 @@ void UPauseMenuWidget::RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSet
 	SettingsMenuWidget = nullptr;
 
 	bWasSettingsMenuWidgetSpawned = false;
-	if (bUnhoverTextSettings == true && SettingsButton->IsHovered() == false) 
+	if (bUnhoverTextSettings && !SettingsButton->IsHovered()) 
 		OnUnhoveredSettingsButton();
 }
 
@@ -263,11 +270,11 @@ void UPauseMenuWidget::OnUnhoveredSettingsButton()
 #pragma region //////////////// QUIT GAME /////////////////
 void UPauseMenuWidget::OnClickedQuitGameButton()
 {
-	if (IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)) == false)
+	if (!IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 		return;
 
-	UConfirmLoadingGameWidget* ConfirmQuitingGameWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
-	if (IsValid(ConfirmQuitingGameWidget) == false)
+	TObjectPtr<UConfirmLoadingGameWidget> ConfirmQuitingGameWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
+	if (!IsValid(ConfirmQuitingGameWidget))
 		return;
 
 	ConfirmQuitingGameWidget->AddToViewport();
@@ -287,9 +294,10 @@ void UPauseMenuWidget::OnUnhoveredQuitGameButton()
 
 bool UPauseMenuWidget::RemoveCurrentMenuWidgetsFromViewport()
 {
-	if (CurrentSpawnedMenuWidgets.Num() == 0) return true;
+	if (CurrentSpawnedMenuWidgets.Num() == 0) 
+		return true;
 
-	TArray<UUserWidget*> SpawnedMenuWidgets;
+	TArray<TObjectPtr<UUserWidget>> SpawnedMenuWidgets;
 	CurrentSpawnedMenuWidgets.GenerateKeyArray(SpawnedMenuWidgets);
 
 	if (CurrentSpawnedMenuWidgets.Contains(SpawnedMenuWidgets.Last()))
@@ -301,20 +309,24 @@ bool UPauseMenuWidget::RemoveCurrentMenuWidgetsFromViewport()
 	return false;
 }
 
-void UPauseMenuWidget::SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore)
+void UPauseMenuWidget::SetEnableAllMenuButtons(bool bEnable, TObjectPtr<UButton> ButtonToIgnore)
 {
-	for (UButton* CurrentMenuButton : AllMenuButtons)
+	for (TObjectPtr<UButton> CurrentMenuButton : AllMenuButtons)
 	{
-		if (ButtonToIgnore == CurrentMenuButton) continue;
+		if (ButtonToIgnore == CurrentMenuButton) 
+			continue;
 
 		CurrentMenuButton->SetIsEnabled(bEnable);
 	}
 }
 
-void UPauseMenuWidget::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim, bool bCanHoverGivenText)
+void UPauseMenuWidget::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim, bool bCanHoverGivenText)
 {
-	if (bCanHoverGivenText || AnimToPlay == nullptr) return;
+	if (bCanHoverGivenText || !AnimToPlay)
+		return;
 
-	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
-	else PlayAnimationReverse(AnimToPlay);
+	if (bPlayForwardAnim)
+		PlayAnimationForward(AnimToPlay);
+	else
+		PlayAnimationReverse(AnimToPlay);
 }

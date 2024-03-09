@@ -20,17 +20,13 @@ void USaveGameMenuListEntry::NativeConstruct()
 	LoadGameButton->OnUnhovered.AddDynamic(this, &USaveGameMenuListEntry::OnUnhoveredLoadGameButton);
 }
 
-void USaveGameMenuListEntry::NativeOnInitialized()
-{
-}
-
 void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
-	ListEntryObject = Cast<ULoadGameMenuEntryObject>(ListItemObject);
+	LoadGameEntryObject = Cast<ULoadGameMenuEntryObject>(ListItemObject);
 
-	SaveNameText->SetText(FText::FromString("-" + ListEntryObject->SavesMenuData.SaveName + "-"));
+	SaveNameText->SetText(FText::FromString("-" + LoadGameEntryObject->SavesMenuData.SaveName + "-"));
 
-	FText Date = FText::FromString(SavedDateText + ListEntryObject->SavesMenuData.SaveDateTime + "-");
+	FText Date = FText::FromString(SavedDateText + LoadGameEntryObject->SavesMenuData.SaveDateTime + "-");
 	SaveDateText->SetText(Date);
 
 	ConvertTotalPlayTimeInSecondsToText();
@@ -40,33 +36,33 @@ void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 void USaveGameMenuListEntry::OnClickedLoadGameButton()
 {
-	if (IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)) == false || IsValid(ListEntryObject) == false)
+	if (!IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)) || !IsValid(LoadGameEntryObject))
 		return;
 
-	if (bShowConfirmLoadingWidget == false)
+	if (bShowConfirmLoadingWidget)
 	{
-		UMarineRunnerGameInstance* GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-		if (IsValid(GameInstance) == false)
-			return;
-
-		GameInstance->SlotSaveGameNameToLoad = ListEntryObject->SavesMenuData.SaveName;
-
-		UGameplayStatics::OpenLevel(GetWorld(), FName(ListEntryObject->SavesMenuData.LevelNameToLoad));
-
+		ShowConfirmLoadingWidget();
 		return;
 	}
 
-	ShowConfirmLoadingWidget();
+	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!IsValid(GameInstance))
+		return;
+	GameInstance->SlotSaveGameNameToLoad = LoadGameEntryObject->SavesMenuData.SaveName;
+
+	UGameplayStatics::OpenLevel(GetWorld(), FName(LoadGameEntryObject->SavesMenuData.LevelNameToLoad));
+
+	return;
 }
 
 void USaveGameMenuListEntry::ShowConfirmLoadingWidget()
 {
-	UConfirmLoadingGameWidget* ConfirmLoadingWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
-	if (IsValid(ConfirmLoadingWidget) == false)
+	TObjectPtr<UConfirmLoadingGameWidget> ConfirmLoadingWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
+	if (!IsValid(ConfirmLoadingWidget))
 		return;
 
 	ConfirmLoadingWidget->AddToViewport();
-	ConfirmLoadingWidget->SetSlotAndLevelName(ListEntryObject->SavesMenuData.SaveName, ListEntryObject->SavesMenuData.LevelNameToLoad);
+	ConfirmLoadingWidget->SetSlotAndLevelName(LoadGameEntryObject->SavesMenuData.SaveName, LoadGameEntryObject->SavesMenuData.LevelNameToLoad);
 	ConfirmLoadingWidget->SetConfirmType(ECT_LoadLastSave);
 }
 
@@ -80,19 +76,22 @@ void USaveGameMenuListEntry::OnUnhoveredLoadGameButton()
 	PlayAnimatonForButton(LoadGameHoverAnim, false);
 }
 
-void USaveGameMenuListEntry::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim)
+void USaveGameMenuListEntry::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim)
 {
-	if (AnimToPlay == nullptr) return;
+	if (!AnimToPlay) 
+		return;
 
-	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
-	else PlayAnimationReverse(AnimToPlay);
+	if (bPlayForwardAnim) 
+		PlayAnimationForward(AnimToPlay);
+	else 
+		PlayAnimationReverse(AnimToPlay);
 }
 
 void USaveGameMenuListEntry::ConvertTotalPlayTimeInSecondsToText()
 {
 	const int SecondsInHour = 3600;
-	int32 Hours = ListEntryObject->SavesMenuData.TotalPlayTimeInSeconds / SecondsInHour;
-	int32 RestMinutes = (ListEntryObject->SavesMenuData.TotalPlayTimeInSeconds - (Hours * SecondsInHour)) / 60.f;
+	int32 Hours = LoadGameEntryObject->SavesMenuData.TotalPlayTimeInSeconds / SecondsInHour;
+	int32 RestMinutes = (LoadGameEntryObject->SavesMenuData.TotalPlayTimeInSeconds - (Hours * SecondsInHour)) / 60.f;
 
 	FString MinutesString = RestMinutes < 10 ? "0" + FString::FromInt(RestMinutes) : FString::FromInt(RestMinutes);
 
@@ -103,8 +102,8 @@ void USaveGameMenuListEntry::ConvertTotalPlayTimeInSecondsToText()
 
 void USaveGameMenuListEntry::SetScreenshotImageFromSave()
 {
-	UTexture2D* ScreenshotFromSaveGame = UKismetRenderingLibrary::ImportFileAsTexture2D(GetWorld(), ListEntryObject->SavesMenuData.ScreenshotPathSave);
-	if (IsValid(ScreenshotFromSaveGame) == false) 
+	TObjectPtr<UTexture2D> ScreenshotFromSaveGame = UKismetRenderingLibrary::ImportFileAsTexture2D(GetWorld(), LoadGameEntryObject->SavesMenuData.ScreenshotPathSave);
+	if (!IsValid(ScreenshotFromSaveGame)) 
 		return;
 
 	ScreenshotSaveImage->SetBrushFromTexture(ScreenshotFromSaveGame);

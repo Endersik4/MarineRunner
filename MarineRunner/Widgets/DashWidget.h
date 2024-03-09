@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -16,11 +16,11 @@ class MARINERUNNER_API UDashWidget : public UUserWidget
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-		class UImage* DashImage;
+		TObjectPtr<class UImage> DashImage;
 
 protected:
 	virtual void NativeConstruct() override;
-	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override; //Tick
+	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
@@ -32,14 +32,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
 		float StartingOffsetCA = 0.7f;
 
+	bool bRemoveDashWidget;
+	void PrepareDashWidget();
+
 	float OriginalPlayerFOV;
 	float OriginalChromaticAbberation;
 	float OriginalOffsetCA;
 	float FadeTimeElapsed;
-	void DashEffects(float Delta);
-	bool bRemoveDashWidget;
+	void DashEffects(const float & Delta);
 
-	void PrepareDashWidget();
-	class AMarineCharacter* MarinePawn;
-	class UCameraComponent* PlayerCamera;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> MarinePawn;
+	UPROPERTY(Transient)
+		TObjectPtr<class UCameraComponent> PlayerCamera;
 };

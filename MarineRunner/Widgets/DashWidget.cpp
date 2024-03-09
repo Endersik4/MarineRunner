@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 
 #include "DashWidget.h"
@@ -22,9 +22,9 @@ void UDashWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 	DashEffects(DeltaTime);
 }
 
-void UDashWidget::DashEffects(float Delta)
+void UDashWidget::DashEffects(const float& Delta)
 {
-	if (IsValid(PlayerCamera) == false)
+	if (!IsValid(PlayerCamera))
 		return;
 
 	if (FadeTimeElapsed <= FadeTime)
@@ -41,12 +41,12 @@ void UDashWidget::DashEffects(float Delta)
 		PlayerCamera->PostProcessSettings.SceneFringeIntensity = NewCA;
 
 		FadeTimeElapsed += Delta;
-		if (FadeTimeElapsed >= FadeTime && bRemoveDashWidget == false)
+		if (FadeTimeElapsed >= FadeTime && !bRemoveDashWidget)
 		{
 			FadeTimeElapsed = FadeTime;
 			bRemoveDashWidget = true;
 
-			if (MarinePawn->GetIsInSlowMotion() == false)
+			if (!MarinePawn->GetIsInSlowMotion())
 				OriginalChromaticAbberation = 0.f;
 		}
 	}
@@ -59,7 +59,7 @@ void UDashWidget::DashEffects(float Delta)
 void UDashWidget::PrepareDashWidget()
 {
 	MarinePawn = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	if (IsValid(MarinePawn) == false)
+	if (!IsValid(MarinePawn))
 		return;
 
 	PlayerCamera = MarinePawn->GetCamera();

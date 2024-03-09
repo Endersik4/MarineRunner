@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
+
 
 #pragma once
 
@@ -18,8 +19,6 @@ class MARINERUNNER_API ULoadGameMenuWidget : public UUserWidget
 	GENERATED_BODY()
 
 protected:
-	virtual void NativeConstruct() override;
-
 	virtual void NativeOnInitialized() override;
 
 public:
@@ -27,16 +26,16 @@ public:
 		void GetTextFilesFromSaves(TArray<FString> & Txt_Files);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* NoSavedDataText;
+		TObjectPtr<class UTextBlock> NoSavedDataText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UListView* SavesListView;
+		TObjectPtr<class UListView> LoadGamesListView;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Load Game Menu")
 		TSubclassOf<class ULoadGameMenuEntryObject> MenuSettingsDataObject;
 
 private:
-	void FillSavesListView();
+	void FillLoadGamesListView();
 
 	// Get all the values from json file and make struct of it (FSaveDataMenuStruct) and add it to array;
 	void FillDeserializedSaveFilesToArray(TArray<FString> & PathsToSaveFiles,TArray<FSaveDataMenuStruct>& ArrayToFill);

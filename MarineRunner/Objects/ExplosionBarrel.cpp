@@ -46,17 +46,20 @@ void AExplosionBarrel::Explode()
 		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 50, FColor::Red, true);
 
 	//Use UseDamageInterfaceOnActor(HitResult) only once on the same actor
-	TArray<AActor*> HitActors;
-	for (int i = 0; i != HitArray.Num(); i++) { HitActors.AddUnique(HitArray[i].GetActor()); }
+	TArray<TObjectPtr<AActor>> ActorsToApplyDamage;
+	for (int i = 0; i != HitArray.Num(); i++)
+	{
+		ActorsToApplyDamage.AddUnique(HitArray[i].GetActor());
+	}
 
 	//Use interface on every actors that was hit by SweepMultiByChannel
 	for (const FHitResult& HitResult : HitArray)
 	{
-		if (HitActors.Find(HitResult.GetActor()) >= 0)
-		{
-			UseDamageInterfaceOnActor(HitResult);
-			HitActors.Remove(HitResult.GetActor());
-		}
+		if (ActorsToApplyDamage.Find(HitResult.GetActor()) == INDEX_NONE)
+			continue;
+
+		UseDamageInterfaceOnActor(HitResult);
+		ActorsToApplyDamage.Remove(HitResult.GetActor());
 	}
 
 	SpawnEffects();
@@ -70,8 +73,7 @@ void AExplosionBarrel::UseDamageInterfaceOnActor(const FHitResult& HitResult)
 	IInteractInterface* Interface = Cast<IInteractInterface>(HitResult.GetActor());
 	if (Interface) //Check if Object has Interface C++ Implementation
 	{
-		float RadialDamage = ExplosionDamage / (FVector::Distance(GetActorLocation(), HitResult.GetActor()->GetActorLocation()));
-		Interface->ApplyDamage(RadialDamage, ExplosionImpulseForce, HitResult, this, ExplosionRadius);
+		Interface->ApplyDamage(ExplosionDamage, ExplosionImpulseForce, HitResult, this, ExplosionRadius);
 	}
 	else if (HitResult.GetActor()->Implements<UInteractInterface>())  //Check if Object has Interface Blueprint Implementation
 	{
@@ -94,6 +96,7 @@ void AExplosionBarrel::SpawnEffects()
 	if (DistanceToPlayer < MaxDistanceToStartShake && DistanceToPlayer != 0)
 	{
 		float CameraShakeScale = (MaxDistanceToStartShake / DistanceToPlayer) * CameraShakeScaleMultiplier;
+		CameraShakeScale = CameraShakeScale > MaxCameraShakeScale ? MaxCameraShakeScale : CameraShakeScale;
 		UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(CameraShakeAfterExplosion, CameraShakeScale);
 	}
 

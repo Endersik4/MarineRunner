@@ -12,18 +12,14 @@
 #include "LoadGameData.h"
 #include "MarineRunner/SaveGame/SaveGameJsonFile.h"
 
-void ULoadGameMenuWidget::NativeConstruct()
-{
-}
-
 void ULoadGameMenuWidget::NativeOnInitialized()
 {
-	FillSavesListView();
+	FillLoadGamesListView();
 }
 
-void ULoadGameMenuWidget::FillSavesListView()
+void ULoadGameMenuWidget::FillLoadGamesListView()
 {
-	SavesListView->ClearListItems();
+	LoadGamesListView->ClearListItems();
 
 	TArray<FString> Txt_Files;
 	GetTextFilesFromSaves(Txt_Files);
@@ -48,10 +44,9 @@ void ULoadGameMenuWidget::FillDeserializedSaveFilesToArray(TArray<FString>& Path
 
 	for (const FString& CurrTxtFilePath : PathsToSaveFiles)
 	{
-
 		TSharedPtr<FJsonObject> JsonObject;
 		bool bWasJsonDeserialize = USaveGameJsonFile::ReadJson(CurrTxtFilePath, JsonObject);
-		if (bWasJsonDeserialize == false)
+		if (!bWasJsonDeserialize)
 			return;
 
 		NewSaveDataMenu.SaveName = JsonObject->GetStringField("SavedDataName");
@@ -70,13 +65,13 @@ void ULoadGameMenuWidget::ConvertArrayToLoadGameMenuEntryList(TArray<FSaveDataMe
 {
 	for (const FSaveDataMenuStruct& CurrentSaveDataMenu : ArrayToConvert)
 	{
-		ULoadGameMenuEntryObject* ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(MenuSettingsDataObject);
+		TObjectPtr<ULoadGameMenuEntryObject> ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(MenuSettingsDataObject);
 
-		if (IsValid(ConstructedItemObject) == false)
+		if (!IsValid(ConstructedItemObject))
 			continue;
 
 		ConstructedItemObject->SavesMenuData = CurrentSaveDataMenu;
 
-		SavesListView->AddItem(ConstructedItemObject);
+		LoadGamesListView->AddItem(ConstructedItemObject);
 	}
 }

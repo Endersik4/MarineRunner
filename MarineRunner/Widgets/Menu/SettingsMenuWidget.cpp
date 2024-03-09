@@ -6,6 +6,7 @@
 #include "Components/Image.h"
 #include "Components/Button.h"
 #include "Components/ListView.h"
+#include "Animation/WidgetAnimation.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/GameUserSettings.h"
@@ -69,7 +70,7 @@ void USettingsMenuWidget::FillMenuButtonsAndTextMap()
 
 void USettingsMenuWidget::StartOnGameSettingsList()
 {
-	PlayAnimation(GameSettingsHoverAnim, TimeToStartAnimationOnInitialized);
+	PlayAnimation(GameSettingsHoverAnim, GameSettingsHoverAnim->GetEndTime());
 	CurrentSelectedSetting = FSettingSelectedStruct(GameSettingsButton, GameSettingsHoverAnim);
 	FillCurrentMenuSettingsListView(GameSettingsList);
 }
@@ -81,8 +82,9 @@ void USettingsMenuWidget::FillCurrentMenuSettingsListView(const TArray<FMenuSett
 	USettingsMenuEntryObject* ObjectThatConnectOtherSettings = nullptr;
 	for (const FMenuSettings& CurrentSetting : DataToFillFrom)
 	{
-		USettingsMenuEntryObject* ConstructedItemObject = NewObject<USettingsMenuEntryObject>(MenuSettingsDataObject);
-		if (IsValid(ConstructedItemObject) == false) continue;
+		TObjectPtr<USettingsMenuEntryObject> ConstructedItemObject = NewObject<USettingsMenuEntryObject>(MenuSettingsDataObject);
+		if (!IsValid(ConstructedItemObject)) 
+			continue;
 
 		ConstructedItemObject->MenuSettingsData = CurrentSetting;
 		ConstructedItemObject->SetGameInstance(MarineGameInstance);
@@ -94,42 +96,44 @@ void USettingsMenuWidget::FillCurrentMenuSettingsListView(const TArray<FMenuSett
 	}
 }
 
-USettingsMenuEntryObject* USettingsMenuWidget::ConnectedSettings(USettingsMenuEntryObject* ConstructedItemObject, USettingsMenuEntryObject* ObjectThatConnectOtherSettings)
+TObjectPtr<USettingsMenuEntryObject> USettingsMenuWidget::ConnectedSettings(TObjectPtr<USettingsMenuEntryObject> ConstructedItemObject, TObjectPtr<USettingsMenuEntryObject> ObjectThatConnectOtherSettings)
 {
-	if (ConstructedItemObject->MenuSettingsData.bIsItObjectThatConnects == true)
+	if (ConstructedItemObject->MenuSettingsData.bIsItObjectThatConnects)
 	{
 		ConstructedItemObject->SettingMenuWidget = this;
 		ObjectThatConnectOtherSettings = ConstructedItemObject;
 		return ObjectThatConnectOtherSettings;
 	}
 
-	if (IsValid(ObjectThatConnectOtherSettings))
+	if (!IsValid(ObjectThatConnectOtherSettings))
+		return ObjectThatConnectOtherSettings;
+
+	if (ObjectThatConnectOtherSettings->MenuSettingsData.bIsItObjectThatConnects && ConstructedItemObject->MenuSettingsData.bIsConnectedToOtherSettings)
 	{
-		if (ObjectThatConnectOtherSettings->MenuSettingsData.bIsItObjectThatConnects == true && ConstructedItemObject->MenuSettingsData.bIsConnectedToOtherSettings == true)
-		{
-			ConstructedItemObject->MenuSettingsData.bEntryWidgetEnabled = ObjectThatConnectOtherSettings->MenuSettingsData.bSettingEnabled;
-		}
-		else if (ConstructedItemObject->MenuSettingsData.bIsConnectedToOtherSettings == false)
-		{
-			ObjectThatConnectOtherSettings = nullptr;
-		}
+		ConstructedItemObject->MenuSettingsData.bEntryWidgetEnabled = ObjectThatConnectOtherSettings->MenuSettingsData.bSettingEnabled;
 	}
+	else if (!ConstructedItemObject->MenuSettingsData.bIsConnectedToOtherSettings)
+		ObjectThatConnectOtherSettings = nullptr;
 
 	return ObjectThatConnectOtherSettings;
 }
 
-void USettingsMenuWidget::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, UButton* HoveredButton, bool bPlayForwardAnim)
+void USettingsMenuWidget::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, TObjectPtr<UButton> HoveredButton, bool bPlayForwardAnim)
 {
-	if (HoveredButton == CurrentSelectedSetting.SelectedButton || AnimToPlay == nullptr) return;
+	if (HoveredButton == CurrentSelectedSetting.SelectedButton || !AnimToPlay) 
+		return;
 
-	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
-	else PlayAnimationReverse(AnimToPlay);
+	if (bPlayForwardAnim) 
+		PlayAnimationForward(AnimToPlay);
+	else 
+		PlayAnimationReverse(AnimToPlay);
 }
 
 #pragma region //////////////// GAME SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedGameSettingsButton()
 {
-	if (GameSettingsButton == CurrentSelectedSetting.SelectedButton) return;
+	if (GameSettingsButton == CurrentSelectedSetting.SelectedButton) 
+		return;
 
 	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
 	CurrentSelectedSetting = FSettingSelectedStruct(GameSettingsButton, GameSettingsHoverAnim);
@@ -151,7 +155,8 @@ void USettingsMenuWidget::OnUnhoveredGameSettingsButton()
 #pragma region //////////////// AUDIO SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedAudioSettingsButton()
 {
-	if (AudioSettingsButton == CurrentSelectedSetting.SelectedButton) return;
+	if (AudioSettingsButton == CurrentSelectedSetting.SelectedButton) 
+		return;
 
 	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
 	CurrentSelectedSetting = FSettingSelectedStruct(AudioSettingsButton, AudioSettingsHoverAnim);
@@ -174,7 +179,8 @@ void USettingsMenuWidget::OnUnhoveredAudioSettingsButton()
 #pragma region //////////////// VIDEO SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedVideoSettingsButton()
 {
-	if (VideoSettingsButton == CurrentSelectedSetting.SelectedButton) return;
+	if (VideoSettingsButton == CurrentSelectedSetting.SelectedButton) 
+		return;
 
 	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
 	CurrentSelectedSetting = FSettingSelectedStruct(VideoSettingsButton, VideoSettingsHoverAnim);
@@ -197,7 +203,8 @@ void USettingsMenuWidget::OnUnhoveredVideoSettingsButton()
 #pragma region //////////////// BINDINGS SETTINGS /////////////////
 void USettingsMenuWidget::OnClickedBindingsSettingsButton()
 {
-	if (BindingsSettingsButton == CurrentSelectedSetting.SelectedButton) return;
+	if (BindingsSettingsButton == CurrentSelectedSetting.SelectedButton) 
+		return;
 
 	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
 	CurrentSelectedSetting = FSettingSelectedStruct(BindingsSettingsButton, BindingsSettingsHoverAnim);
@@ -228,8 +235,9 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 
 	for (UObject* CurrentElement : AllListElements)
 	{
-		USettingsMenuEntryObject* SettingMenuObject = Cast<USettingsMenuEntryObject>(CurrentElement);
-		if (IsValid(SettingMenuObject) == false) continue;
+		TObjectPtr<USettingsMenuEntryObject> SettingMenuObject = Cast<USettingsMenuEntryObject>(CurrentElement);
+		if (!IsValid(SettingMenuObject)) 
+			continue;
 
 		ActiveSettingByType(SettingMenuObject->MenuSettingsData, SettingMenuObject);
 
@@ -242,9 +250,10 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 	LoadSavedSettingsToPlayer();
 }
 
-void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingData, USettingsMenuEntryObject* SettingMenuObject)
+void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingData, TObjectPtr<USettingsMenuEntryObject> SettingMenuObject)
 {
-	if (SubSettingData.bEntryWidgetEnabled == false || SubSettingData.SubSettingType == EST_Category) return;
+	if (!SubSettingData.bEntryWidgetEnabled || SubSettingData.SubSettingType == EST_Category)
+		return;
 
 	if (SubSettingData.SubSettingType == EST_SetFullscreen)
 	{
@@ -272,7 +281,7 @@ void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingDat
 
 void USettingsMenuWidget::ReplaceValueInGameInstanceByName(const FMenuSettings& SubSettingData)
 {
-	if (SubSettingData.bSaveValueToGameInstance == false)
+	if (!SubSettingData.bSaveValueToGameInstance)
 		return;
 
 	if (SubSettingData.SubSettingType == EST_Quality)
@@ -283,28 +292,24 @@ void USettingsMenuWidget::ReplaceValueInGameInstanceByName(const FMenuSettings& 
 	{
 		MarineGameInstance->ReplaceValueInSavedSettingByName(SubSettingData.SliderCurrentValue, SubSettingData.SavedValueName);
 	}
-	else if (SubSettingData.SubSettingType == EST_OnOff)
-	{
-		//JsonObject->SetBoolField(SubSettingData.SavedValueName, SubSettingData.bSettingEnabled);
-	}
 }
 
 void USettingsMenuWidget::SpawnSettingsAcceptedWidget()
 {
-	UUserWidget* SpawnedWidget = CreateWidget(MarinePlayerController, SettingsAppliedWidgetClass);
-	if (IsValid(SpawnedWidget) == true)
-	{
-		SpawnedWidget->AddToViewport();
-	}
+	TObjectPtr<UUserWidget> SpawnedWidget = CreateWidget(MarinePlayerController, SettingsAppliedWidgetClass);
+	if (!IsValid(SpawnedWidget))
+		return;
+
+	SpawnedWidget->AddToViewport();
 }
 
 void USettingsMenuWidget::LoadSavedSettingsToPlayer()
 {
-	if (IsValid(MarinePlayerController) == false)
+	if (!IsValid(MarinePlayerController))
 		return;
 
-	AMarineCharacter* Player = Cast<AMarineCharacter>(MarinePlayerController->GetPawn());
-	if (IsValid(Player) == false)
+	TObjectPtr<AMarineCharacter> Player = Cast<AMarineCharacter>(MarinePlayerController->GetPawn());
+	if (!IsValid(Player))
 		return;
 
 	Player->GetWeaponHandlerComponent()->LoadSavedSettingsFromGameInstance();

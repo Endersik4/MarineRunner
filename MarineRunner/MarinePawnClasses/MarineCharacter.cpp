@@ -314,11 +314,11 @@ void AMarineCharacter::UseFirstAidKit()
 		UGameplayStatics::PlaySound2D(GetWorld(), UseFirstAidKitSound);
 
 	HudWidget->PlayUseFirstAidKitAnim();
-	HudWidget->SetHealthBarPercent(Health);
-	HudWidget->SetCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount);
+	HudWidget->UpdateHealthBarPercent(Health);
+	HudWidget->UpdateCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount);
 
-	ElementBar ProgressHealBar{ DelayAfterUseFirstAidKit };
-	HudWidget->AddElementToProgress(EUseableElement::Heal, ProgressHealBar);
+	EPowerUpLoaded HealthDelay = EPowerUpLoaded(true, DelayAfterUseFirstAidKit, HudWidget->ActiveHealAnim, HudWidget->HealBar);
+	HudWidget->AddNewPowerUpToStartLoading(HealthDelay);
 	HudWidget->PlayButtonAnimation(EATP_PressedButton_Heal);
 
 	UpdateAlbertosInventory();
@@ -371,7 +371,7 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 
 	if (IsValid(HudWidget))
 	{
-		HudWidget->SetHealthBarPercent(Health);
+		HudWidget->UpdateHealthBarPercent(Health);
 		HudWidget->PlayGotDamageAnim();
 	}
 
@@ -431,15 +431,15 @@ void AMarineCharacter::UpdateHudWidget()
 	if (!IsValid(HudWidget))
 		return;
 
-	HudWidget->SetHealthBarPercent(Health);
+	HudWidget->UpdateHealthBarPercent(Health);
 
 	FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
 	if (FirstAidKitItem)
 	{
-		HudWidget->SetCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount > MaxAmountOfFirstAidKitsOnHud ? MaxAmountOfFirstAidKitsOnHud : FirstAidKitItem->Item_Amount);
+		HudWidget->UpdateCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount > MaxAmountOfFirstAidKitsOnHud ? MaxAmountOfFirstAidKitsOnHud : FirstAidKitItem->Item_Amount);
 	}
 	else
-		HudWidget->SetCurrentNumberOfFirstAidKits(0);
+		HudWidget->UpdateCurrentNumberOfFirstAidKits(0);
 }
 #pragma endregion 
 

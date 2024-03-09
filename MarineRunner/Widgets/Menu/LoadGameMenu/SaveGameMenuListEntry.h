@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -9,9 +9,6 @@
 
 #include "SaveGameMenuListEntry.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class MARINERUNNER_API USaveGameMenuListEntry : public UUserWidget, public IUserObjectListEntry
 {
@@ -19,29 +16,27 @@ class MARINERUNNER_API USaveGameMenuListEntry : public UUserWidget, public IUser
 protected:
 	virtual void NativeConstruct() override;
 
-	virtual void NativeOnInitialized() override;
-
 public:
 
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* BackgroundImage;
+		TObjectPtr<class UImage> BackgroundImage;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* ScreenshotSaveImage;
+		TObjectPtr<class UImage> ScreenshotSaveImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* SaveNameText;
+		TObjectPtr<class UTextBlock> SaveNameText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* SaveDateText;
+		TObjectPtr<class UTextBlock> SaveDateText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* TotalTimeText;
+		TObjectPtr<class UTextBlock> TotalTimeText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* LoadGameButton;
+		TObjectPtr<class UButton> LoadGameButton;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* LoadGameHoverAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> LoadGameHoverAnim = nullptr;
 
 	UFUNCTION()
 		void OnClickedLoadGameButton();
@@ -60,9 +55,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
 		FString SavedTotalTimeText = "-TOTAL TIME: ";
 
-	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
+	void PlayAnimatonForButton(TObjectPtr < UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true);
 
-	class ULoadGameMenuEntryObject* ListEntryObject;
+	TObjectPtr<class ULoadGameMenuEntryObject> LoadGameEntryObject;
 	void ShowConfirmLoadingWidget();
 
 	void ConvertTotalPlayTimeInSecondsToText();

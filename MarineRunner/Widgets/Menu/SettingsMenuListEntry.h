@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -9,9 +9,6 @@
 
 #include "SettingsMenuListEntry.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class MARINERUNNER_API USettingsMenuListEntry : public UUserWidget, public IUserObjectListEntry
 {
@@ -27,47 +24,47 @@ public:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UHorizontalBox* HorizontalBoxForSettingsText;
+		TObjectPtr<class UHorizontalBox> HorizontalBoxForSettingsText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* SubSettingNameText;
+		TObjectPtr<class UTextBlock> SubSettingNameText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* CategoryNameText;
+		TObjectPtr<class UTextBlock> CategoryNameText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* SubSettingQualityText;
+		TObjectPtr<class UTextBlock> SubSettingQualityText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* LeftArrowButton;
+		TObjectPtr<class UButton> LeftArrowButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* RightArrowButton;
+		TObjectPtr<class UButton> RightArrowButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UCheckBox* SubSettingOnOffCheckBox;
+		TObjectPtr<class UCheckBox> SubSettingOnOffCheckBox;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* SubSettingOnOffButton;
+		TObjectPtr<class UButton> SubSettingOnOffButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* SliderButton;
+		TObjectPtr<class UButton> SliderButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class USlider* SubSettingSlider;
+		TObjectPtr<class USlider> SubSettingSlider;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* SubSettingSliderValueText;
+		TObjectPtr<class UTextBlock> SubSettingSliderValueText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UButton* KeyMappingButton;
+		TObjectPtr<class UButton> KeyMappingButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UInputKeySelector* KeyMappingInputKeySelector;
+		TObjectPtr<class UInputKeySelector> KeyMappingInputKeySelector;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* LeftArrowHoverAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> LeftArrowHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* RightArrowHoverAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> RightArrowHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* CheckBoxHoverAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> CheckBoxHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* SliderHoverAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> SliderHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* KeyMappingHoverAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> KeyMappingHoverAnim = nullptr;
 
 	UFUNCTION()
 		void OnClickedLeftArrowButton();
@@ -113,34 +110,33 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
 		FLinearColor WhenKeyMapColor;
 
-	FString FunctionNameForCMD;
+	FString FunctionNameToApplyInCMD;
 	void AddValueToFunctionName(float Value);
 	void AddValueToFunctionName(int32 Value);
 	void AddValueToFunctionName(FString Value);
 
-	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
+	void PlayAnimatonForButton(TObjectPtr < UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true);
 	void EnableEntry(bool bEnable);
 
 	// Pointer to Entry Object SettingData
 	FMenuSettings* SubSettingData;
 
 	// Key Mapping
+	bool bIsWaitingForNewKey = false;
 	FInputActionKeyMapping CurrentMappedActionKey;
 	FInputAxisKeyMapping CurrentMappedAxisKey;
 	FString GetKeyActionName();
 	FString GetKeyAxisName();
-	bool bIsWaitingForNewKey = false;
 	FText PreviousKeyText;
 
 	// Hide everything in this widget
 	void HideAllUIElements();
 
 	// Connect to other sub settings
-	TArray<USettingsMenuListEntry*> ConnectedSettingsEntryFromList;
+	TArray<TObjectPtr<USettingsMenuListEntry>> ConnectedSettingsEntryFromList;
 	void FillConnectedSettingsEntryFromList();
 	void EnableAllConnectedSettingsEntry(bool bEnable);
 
-	// Slider
 	void SetSubSettingSliderValueText(float Value);
 
 	void DisplayProperUIElements();
@@ -155,5 +151,6 @@ private:
 	void SubSettingType_SliderValue();
 	void SubSettingType_OnOff();
 
-	class USettingsMenuEntryObject* ListEntryObject;
+	UPROPERTY(Transient)
+		TObjectPtr<class USettingsMenuEntryObject> SettingEntryObject;
 };

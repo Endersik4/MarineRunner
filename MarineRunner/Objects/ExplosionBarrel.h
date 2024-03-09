@@ -50,6 +50,8 @@ private:
 		float CameraShakeScaleMultiplier = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
 		TSubclassOf<UCameraShakeBase> CameraShakeAfterExplosion;
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
+		float MaxCameraShakeScale = 3.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
 		bool bDrawDebugRadialSphere;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Decal")

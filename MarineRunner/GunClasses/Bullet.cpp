@@ -107,6 +107,7 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 		if (DistanceToPlayer < MaxDistanceToStartShake && DistanceToPlayer != 0)
 		{
 			float CameraShakeScale = (MaxDistanceToStartShake / DistanceToPlayer) * CameraShakeScaleMultiplier;
+			CameraShakeScale = CameraShakeScale > MaxCameraShakeScale ? MaxCameraShakeScale : CameraShakeScale;
 			UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(BulletData.CameraShakeAfterBulletHit, CameraShakeScale);
 		}
 	}
@@ -154,7 +155,7 @@ void ABullet::UseDamageInterfaceOnActor(const FHitResult& HitResult)
 	IInteractInterface* DamageInterface = Cast<IInteractInterface>(HitResult.GetActor());
 	if (DamageInterface) // C++ Interface function
 	{
-		DamageInterface->ApplyDamage(BulletData.Damage, BulletData.HitImpulseForce, HitResult, this);
+		DamageInterface->ApplyDamage(BulletData.Damage, BulletData.HitImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
 	}
 	else if (HitResult.GetActor()->Implements<UInteractInterface>()) // Blueprint Interface function
 	{

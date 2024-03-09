@@ -180,16 +180,16 @@ void UGunControlsComponent::UpdateWeaponDataInHud(bool bUpdateStoredAmmoText, bo
 	if (!IsValid(Player->GetHudWidget()))
 		return;
 
-	Player->GetHudWidget()->SetAmmoText(Gun->GetGunReloadComponent()->GetMagazineCapacity());
+	Player->GetHudWidget()->UpdateAmmoInMagazineAmountText(Gun->GetGunReloadComponent()->GetMagazineCapacity());
 
 	if (bUpdateStoredAmmoText)
 	{
 		FItemStruct* AmmoFromInventory = Player->GetInventoryComponent()->GetItemFromInventory(RowNameForAmmunitionItem);
-		Player->GetHudWidget()->SetAmmoText(AmmoFromInventory ? AmmoFromInventory->Item_Amount : 0, true);
+		Player->GetHudWidget()->UpdateStoredAmmoAmountText(AmmoFromInventory ? AmmoFromInventory->Item_Amount : 0);
 	}
 	if (bUpdateWeaponImage)
 	{
-		Player->GetHudWidget()->SetWeaponImage(GunHUDTexture, bAmmoCounterBelowGunHUD);
+		Player->GetHudWidget()->UpdateWeaponImage(GunHUDTexture, bAmmoCounterBelowGunHUD);
 	}
 }
 #pragma endregion

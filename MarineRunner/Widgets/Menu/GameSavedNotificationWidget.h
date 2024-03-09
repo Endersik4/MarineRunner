@@ -20,12 +20,12 @@ protected:
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* BackgroundImage;
+		TObjectPtr<class UImage> BackgroundImage;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UTextBlock* GameSavedText;
+		TObjectPtr<class UTextBlock> GameSavedText;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* GameSavedAppearAnim = nullptr;
+		TObjectPtr<UWidgetAnimation> GameSavedAppearAnim = nullptr;
 
 private:
 	UFUNCTION()

@@ -99,8 +99,8 @@ void UDashComponent::DashEffects()
 	if (!IsValid(MarinePawn))
 		return;
 	
-	ElementBar DashElementBar{ DashCoolDown };
-	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::Dash, DashElementBar);
+	EPowerUpLoaded DashDelay = EPowerUpLoaded(true, DashCoolDown, MarinePawn->GetHudWidget()->ActiveDashAnim, MarinePawn->GetHudWidget()->DashBar);
+	MarinePawn->GetHudWidget()->AddNewPowerUpToStartLoading(DashDelay);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_Dash);
 }
 

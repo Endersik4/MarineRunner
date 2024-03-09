@@ -9,8 +9,8 @@
 
 UENUM(BlueprintType)
 enum EConfirmType {
-	ECT_LoadLastSave,
-	ECT_QuitGame
+	ECT_LoadLastSave, // Player can confirm if want to load level or no
+	ECT_QuitGame // Player can confirm if want to quit the game or no
 };
 class UTextBlock;
 class UButton;
@@ -26,19 +26,19 @@ protected:
 	
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* BackgroundImage;
+		TObjectPtr<class UImage> BackgroundImage;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* ConfirmText;
+		TObjectPtr < UTextBlock> ConfirmText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* YesText;
+		TObjectPtr < UTextBlock> YesText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* NoText;
+		TObjectPtr < UTextBlock> NoText;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* YesButton;
+		TObjectPtr < UButton> YesButton;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* NoButton;
+		TObjectPtr < UButton> NoButton;
 
 	UFUNCTION()
 		void YesButton_OnClicked();
@@ -55,9 +55,9 @@ public:
 		void NoButton_OnUnhovered();
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* YesHoveredAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> YesHoveredAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* NoHoveredAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> NoHoveredAnim = nullptr;
 
 	void SetConfirmType(EConfirmType NewConfirmType) { ConfirmType = NewConfirmType; }
 	void SetSlotAndLevelName(const FString& SlotName, const FString& LevelName);
@@ -65,7 +65,7 @@ private:
 
 	EConfirmType ConfirmType = ECT_LoadLastSave;
 
-	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true);
+	void PlayAnimatonForButton(TObjectPtr < UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true);
 
 	void LoadLastSave();
 	FString SlotNameToLoad;

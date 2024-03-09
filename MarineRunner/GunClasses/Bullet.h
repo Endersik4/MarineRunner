@@ -63,6 +63,8 @@ private:
 		float CameraShakeScaleMultiplier = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Hit|Shake")
 		float MaxDistanceToStartShake = 9000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Hit|Shake")
+		float MaxCameraShakeScale = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
 		TObjectPtr<UMaterialInstance> BulletHoleDecalMaterial;

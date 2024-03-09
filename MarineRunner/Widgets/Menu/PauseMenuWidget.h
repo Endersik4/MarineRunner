@@ -7,11 +7,9 @@
 
 #include "PauseMenuWidget.generated.h"
 
-/**
- * 
- */
 class UTextBlock;
 class UButton;
+class UImage;
 UCLASS()
 class MARINERUNNER_API UPauseMenuWidget : public UUserWidget
 {
@@ -24,51 +22,48 @@ protected:
 
 	virtual void NativeDestruct() override;
 
-public:
-
-
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* BackgroundBlurImage;
+		TObjectPtr<UImage> BackgroundBlurImage;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		class UImage* MarineRunnerTitleImage;
+		TObjectPtr<UImage> MarineRunnerTitleImage;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* ResumeText;
+		TObjectPtr < UTextBlock> ResumeText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* ResumeButton;
+		TObjectPtr < UButton> ResumeButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* LoadGameText;
+		TObjectPtr < UTextBlock> LoadGameText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* LoadGameButton;
+		TObjectPtr < UButton> LoadGameButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* SettingsText;
+		TObjectPtr < UTextBlock> SettingsText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* SettingsButton;
+		TObjectPtr < UButton> SettingsButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* SaveGameText;
+		TObjectPtr < UTextBlock> SaveGameText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* SaveGameButton;
+		TObjectPtr < UButton> SaveGameButton;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UTextBlock* QuitGameText;
+		TObjectPtr < UTextBlock> QuitGameText;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		UButton* QuitGameButton;
+		TObjectPtr < UButton> QuitGameButton;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* ShowPauseWidgetAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> ShowPauseWidgetAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* ResumeHoverAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> ResumeHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* LoadGameHoverAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> LoadGameHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* SettingsHoverAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> SettingsHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* SaveGameHoverAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> SaveGameHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		UWidgetAnimation* QuitGameHoverAnim = nullptr;
+		TObjectPtr < UWidgetAnimation> QuitGameHoverAnim = nullptr;
 
 	UFUNCTION()
 		void OnClickedResumeButton();
@@ -104,46 +99,47 @@ public:
 		void OnHoveredQuitGameButton();
 	UFUNCTION()
 		void OnUnhoveredQuitGameButton();
-
+public:
 	// returns true if there is no more left active menu widgets
 	bool RemoveCurrentMenuWidgetsFromViewport();
-	TMap<UUserWidget*, TFunction<void(bool)>> CurrentSpawnedMenuWidgets;
+	TMap< TObjectPtr<UUserWidget>, TFunction<void(bool)>> CurrentSpawnedMenuWidgets;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu Settings")
 		TSubclassOf<UUserWidget> ConfirmLoadingSaveWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu Settings")
-		USoundBase* PauseMenuMusic;
+		TObjectPtr < USoundBase> PauseMenuMusic;
 	UPROPERTY(EditDefaultsOnly, Category = "Load Game Menu")
 		TSubclassOf<UUserWidget> LoadGameMenuWidgetClass;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Menu")
 		TSubclassOf<UUserWidget> SettingsMenuWidgetClass;
 
-
-	void PlayAnimatonForButton(UWidgetAnimation* AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
+	void PlayAnimatonForButton(TObjectPtr < UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
 
 	enum EMusicType MusicTypeBeforePause;
-	class UAudioComponent* CurrentPauseMenuMusic;
 	void PlayPauseMenuMusic();
 	void StopPauseMenuMusic();
+	UPROPERTY(Transient)
+		TObjectPtr<	class UAudioComponent> CurrentPauseMenuMusic;
 
-	// Load Game Widget
 	bool bWasLoadGameMenuWidgetSpawned;
 	void SpawnLoadGameMenuWidget();
 	void RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame = false);
-	class ULoadGameMenuWidget* LoadGameMenuWidget;
+	UPROPERTY(Transient)
+		TObjectPtr<class ULoadGameMenuWidget> LoadGameMenuWidget;
 
-	// Settings Widget
 	bool bWasSettingsMenuWidgetSpawned;
 	void SpawnSettingsMenuWidget();
 	void RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSettings = false);
-	class USettingsMenuWidget* SettingsMenuWidget;
+	UPROPERTY(Transient)
+		TObjectPtr<class USettingsMenuWidget> SettingsMenuWidget;
 
-	// Enable/Disable Menu Buttons
 	void FillMenuButtonsAndTextMap();
-	TArray<UButton*> AllMenuButtons;
-	void SetEnableAllMenuButtons(bool bEnable, UButton* ButtonToIgnore = nullptr);
+	TArray< TObjectPtr<UButton>> AllMenuButtons;
+	void SetEnableAllMenuButtons(bool bEnable, TObjectPtr<UButton> ButtonToIgnore = nullptr);
 
-	class AMarineCharacter* MarinePlayer;
-	class UMarineRunnerGameInstance* MarineRunnerGameInstance;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> Player;
+	UPROPERTY(Transient)
+		TObjectPtr<class UMarineRunnerGameInstance> GameInstance;
 };

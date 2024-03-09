@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
+
 
 
 #include "MarineRunner/Widgets/Menu/SettingsMenuListEntry.h"
@@ -49,10 +50,10 @@ void USettingsMenuListEntry::NativeOnInitialized()
 #pragma region ///////// PREPARE WIDGET //////////
 void USettingsMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
-	ListEntryObject = Cast<USettingsMenuEntryObject>(ListItemObject);
-	SubSettingData = &ListEntryObject->MenuSettingsData;
+	SettingEntryObject = Cast<USettingsMenuEntryObject>(ListItemObject);
+	SubSettingData = &SettingEntryObject->MenuSettingsData;
 
-	FunctionNameForCMD = SubSettingData->SubSettingFunctionName;
+	FunctionNameToApplyInCMD = SubSettingData->SubSettingFunctionName;
 
 	HideAllUIElements();
 	EnableEntry(SubSettingData->bEntryWidgetEnabled);
@@ -93,10 +94,14 @@ void USettingsMenuListEntry::DisplayProperUIElements()
 	SubSettingNameText->SetText(SubSettingData->SubSettingName);
 	SubSettingNameText->SetVisibility(ESlateVisibility::Visible);
 
-	if (SubSettingData->SubSettingType == EST_OnOff)  SubSettingType_OnOff();
-	else if (SubSettingData->SubSettingType == EST_KeyMapping) SubSettingType_KeyBinding();
-	else if (SubSettingData->SubSettingType == EST_SliderValue) SubSettingType_SliderValue();
-	else SubSettingType_Quality();
+	if (SubSettingData->SubSettingType == EST_OnOff) 
+		SubSettingType_OnOff();
+	else if (SubSettingData->SubSettingType == EST_KeyMapping)
+		SubSettingType_KeyBinding();
+	else if (SubSettingData->SubSettingType == EST_SliderValue) 
+		SubSettingType_SliderValue();
+	else 
+		SubSettingType_Quality();
 }
 #pragma endregion
 
@@ -117,8 +122,10 @@ void USettingsMenuListEntry::SubSettingType_Quality()
 	LeftArrowButton->SetVisibility(ESlateVisibility::Visible);
 	RightArrowButton->SetVisibility(ESlateVisibility::Visible);
 
-	if (SubSettingData->QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
-	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
+	if (SubSettingData->QualityCurrentValue == 0)
+		LeftArrowButton->SetIsEnabled(false);
+	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) 
+		RightArrowButton->SetIsEnabled(false);
 
 	SubSettingQualityText->SetText(FText::FromString(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]));
 
@@ -183,7 +190,9 @@ void USettingsMenuListEntry::OnClickedLeftArrowButton()
 {
 	SubSettingData->QualityCurrentValue--;
 	
-	if (SubSettingData->QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
+	if (SubSettingData->QualityCurrentValue == 0) 
+		LeftArrowButton->SetIsEnabled(false);
+
 	RightArrowButton->SetIsEnabled(true);
 
 	SubSettingQualityText->SetText(FText::FromString(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]));
@@ -207,7 +216,9 @@ void USettingsMenuListEntry::OnClickedRightArrowButton()
 {
 	SubSettingData->QualityCurrentValue++;
 
-	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
+	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) 
+		RightArrowButton->SetIsEnabled(false);
+
 	LeftArrowButton->SetIsEnabled(true);
 
 	SubSettingQualityText->SetText(FText::FromString(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]));
@@ -232,7 +243,7 @@ void USettingsMenuListEntry::OnClickedOnOffButton()
 	SubSettingOnOffCheckBox->SetCheckedState(SubSettingData->bSettingEnabled ? ECheckBoxState::Unchecked : ECheckBoxState::Checked);
 	SubSettingData->bSettingEnabled = SubSettingData->bSettingEnabled ? false : true;
 	
-	if (SubSettingData->bIsItObjectThatConnects == true)
+	if (SubSettingData->bIsItObjectThatConnects)
 	{
 		FillConnectedSettingsEntryFromList();
 		EnableAllConnectedSettingsEntry(SubSettingData->bSettingEnabled);
@@ -253,18 +264,22 @@ void USettingsMenuListEntry::OnUnhoveredOnOffButton()
 
 void USettingsMenuListEntry::FillConnectedSettingsEntryFromList()
 {
-	if (IsValid(ListEntryObject->SettingMenuWidget) == false) return;
+	if (!IsValid(SettingEntryObject->SettingMenuWidget))
+		return;
+
 	ConnectedSettingsEntryFromList.Empty();
 
-	int32 IndexOfThisEntry = ListEntryObject->SettingMenuWidget->SettingsListView->GetIndexForItem(ListEntryObject);
-	TArray<UObject*> Objects = ListEntryObject->SettingMenuWidget->SettingsListView->GetListItems();
+	int32 IndexOfThisEntry = SettingEntryObject->SettingMenuWidget->SettingsListView->GetIndexForItem(SettingEntryObject);
+	TArray<UObject*> Objects = SettingEntryObject->SettingMenuWidget->SettingsListView->GetListItems();
 	for (int i = IndexOfThisEntry+1; i != Objects.Num(); i++)
 	{
-		if (IsValid(Objects[i]) == false) continue;
+		if (!IsValid(Objects[i])) 
+			continue;
 
-		USettingsMenuListEntry* CurrentSettingEntryWidget = Cast<USettingsMenuListEntry>(ListEntryObject->SettingMenuWidget->SettingsListView->GetEntryWidgetFromItem(Objects[i]));
-		if (IsValid(CurrentSettingEntryWidget) == false) continue;
-		if (CurrentSettingEntryWidget->SubSettingData->bIsConnectedToOtherSettings == false)
+		TObjectPtr<USettingsMenuListEntry> CurrentSettingEntryWidget = Cast<USettingsMenuListEntry>(SettingEntryObject->SettingMenuWidget->SettingsListView->GetEntryWidgetFromItem(Objects[i]));
+		if (!IsValid(CurrentSettingEntryWidget)) 
+			continue;
+		if (!CurrentSettingEntryWidget->SubSettingData->bIsConnectedToOtherSettings)
 			break;
 
 		ConnectedSettingsEntryFromList.Add(CurrentSettingEntryWidget);
@@ -273,9 +288,10 @@ void USettingsMenuListEntry::FillConnectedSettingsEntryFromList()
 
 void USettingsMenuListEntry::EnableAllConnectedSettingsEntry(bool bEnable)
 {
-	for (USettingsMenuListEntry* ConnectedEntry : ConnectedSettingsEntryFromList)
+	for (TObjectPtr<USettingsMenuListEntry> ConnectedEntry : ConnectedSettingsEntryFromList)
 	{
-		if (IsValid(ConnectedEntry) == false) continue;
+		if (!IsValid(ConnectedEntry))
+			continue;
 
 		ConnectedEntry->EnableEntry(bEnable);
 	}
@@ -323,7 +339,7 @@ void USettingsMenuListEntry::OnUnhoveredSliderButton()
 #pragma region //////// KEY MAPPING ////////////
 void USettingsMenuListEntry::OnIsSelectingKeyChangedInputKeySelector()
 {
-	if (bIsWaitingForNewKey == true)
+	if (bIsWaitingForNewKey)
 	{
 		SubSettingQualityText->SetText(PreviousKeyText);
 		bIsWaitingForNewKey = false;
@@ -373,13 +389,15 @@ void USettingsMenuListEntry::ReplaceKeyMap(const FInputChord & KeyToReplaceFor)
 
 void USettingsMenuListEntry::OnHoveredKeyMappingButton()
 {
-	if (bIsWaitingForNewKey == true) return;
+	if (bIsWaitingForNewKey) 
+		return;
 
 	PlayAnimatonForButton(KeyMappingHoverAnim);
 }
 void USettingsMenuListEntry::OnUnhoveredKeyMappingButton()
 {
-	if (bIsWaitingForNewKey == true) return;
+	if (bIsWaitingForNewKey) 
+		return;
 
 	PlayAnimatonForButton(KeyMappingHoverAnim, false);
 }
@@ -416,7 +434,7 @@ void USettingsMenuListEntry::AddValueToFunctionName(float Value)
 		return;
 
 	FString ValueToStr = FString::SanitizeFloat(FMath::RoundValuesToGivenDecimalNumbers(Value, 3));
-	ListEntryObject->FunctionNameToApply = FunctionNameForCMD + " " + ValueToStr;
+	SettingEntryObject->FunctionNameToApply = FunctionNameToApplyInCMD + " " + ValueToStr;
 }
 
 void USettingsMenuListEntry::AddValueToFunctionName(int32 Value)
@@ -424,7 +442,7 @@ void USettingsMenuListEntry::AddValueToFunctionName(int32 Value)
 	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
 		return;
 
-	ListEntryObject->FunctionNameToApply = FunctionNameForCMD + " " + FString::FromInt(Value);
+	SettingEntryObject->FunctionNameToApply = FunctionNameToApplyInCMD + " " + FString::FromInt(Value);
 }
 
 void USettingsMenuListEntry::AddValueToFunctionName(FString Value)
@@ -432,15 +450,18 @@ void USettingsMenuListEntry::AddValueToFunctionName(FString Value)
 	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
 		return;
 
-	ListEntryObject->FunctionNameToApply = FunctionNameForCMD + " " + Value;
+	SettingEntryObject->FunctionNameToApply = FunctionNameToApplyInCMD + " " + Value;
 }
 
-void USettingsMenuListEntry::PlayAnimatonForButton(UWidgetAnimation* AnimToPlay,bool bPlayForwardAnim)
+void USettingsMenuListEntry::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay,bool bPlayForwardAnim)
 {
-	if (AnimToPlay == nullptr) return;
+	if (!AnimToPlay)
+		return;
 
-	if (bPlayForwardAnim) PlayAnimationForward(AnimToPlay);
-	else PlayAnimationReverse(AnimToPlay);
+	if (bPlayForwardAnim) 
+		PlayAnimationForward(AnimToPlay);
+	else
+		PlayAnimationReverse(AnimToPlay);
 }
 
 void USettingsMenuListEntry::EnableEntry(bool bEnable)
@@ -455,8 +476,10 @@ void USettingsMenuListEntry::EnableEntry(bool bEnable)
 	LeftArrowButton->SetIsEnabled(bEnable);
 	RightArrowButton->SetIsEnabled(bEnable);
 
-	if (SubSettingData->QualityCurrentValue == 0) LeftArrowButton->SetIsEnabled(false);
-	else if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) RightArrowButton->SetIsEnabled(false);
+	if (SubSettingData->QualityCurrentValue == 0) 
+		LeftArrowButton->SetIsEnabled(false);
+	else if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) 
+		RightArrowButton->SetIsEnabled(false);
 
 	SubSettingOnOffCheckBox->SetIsEnabled(bEnable);
 	SubSettingOnOffButton->SetIsEnabled(bEnable);

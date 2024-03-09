@@ -17,116 +17,145 @@ void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);
 
-	WhichElementShouldProgress(DeltaTime);
+	ProgressPowerUps(DeltaTime);
 }
 
-void UHUDWidget::SetHealthBarPercent(float CurrentHealth)
+void UHUDWidget::UpdateHealthBarPercent(float CurrentHealth)
 {
-	float Health = CurrentHealth / 100.f;
+	const float& HealthToPercent = 100.f;
+	float Health = CurrentHealth / HealthToPercent;
 	HealthBar->SetPercent(Health);
 }
 
-void UHUDWidget::SetCurrentNumberOfFirstAidKits(int32 CurrentAidKitsNumber)
+void UHUDWidget::UpdateCurrentNumberOfFirstAidKits(int32 CurrentAidKitsNumber)
 {
-	FString CurrentNumberString = FString::FromInt(CurrentAidKitsNumber);
+	FString FirstAidKitAmountString = FString::FromInt(CurrentAidKitsNumber);
 	if (CurrentAidKitsNumber < 10)
 	{
-		CurrentNumberString = "0" + FString::FromInt(CurrentAidKitsNumber);
+		FirstAidKitAmountString = "0" + FString::FromInt(CurrentAidKitsNumber);
 	}
-	CurrentNumbersOfFirstAidKit->SetText(FText::FromString(CurrentNumberString));
+	CurrentNumbersOfFirstAidKit->SetText(FText::FromString(FirstAidKitAmountString));
 }
 
 #pragma region //////////////////// WEAPON UI //////////////////////////
-void UHUDWidget::SetAmmoText(int32 Ammo, bool bSetStoredAmmo)
+FText UHUDWidget::AmmoValueToText(const int32& AmmoAmountToText)
 {
 	FString AmmoText = "";
-	if (Ammo > 999)
+	if (AmmoAmountToText > 999)
 		AmmoText = "+999";
 	else
 	{
-		if (Ammo < 10) AmmoText = "00";
-		else if (Ammo < 100) AmmoText = "0";
-		AmmoText += FString::FromInt(Ammo);
+		if (AmmoAmountToText < 10)
+			AmmoText = "00";
+		else if (AmmoAmountToText < 100)
+			AmmoText = "0";
+
+		AmmoText += FString::FromInt(AmmoAmountToText);
 	}
 
-	if (bSetStoredAmmo)
-	{
-		StoredAmmoText->SetText(FText::FromString(AmmoText));
-	}
-	else CurrentAmmoInMagazineText->SetText(FText::FromString(AmmoText));
+	return FText::FromString(AmmoText);
 }
 
-void UHUDWidget::SetWeaponImage(UTexture2D* Texture, bool bAmmoCounterBelowGunHUD)
+void UHUDWidget::UpdateAmmoInMagazineAmountText(const int32& Ammo)
 {
-	if (bAmmoCounterBelowGunHUD == true) WeaponImage->SetDesiredSizeOverride(WeaponImageSizeWhenAmmoBelow);
-	else WeaponImage->SetDesiredSizeOverride(WeaponImageSizeWhenAmmoOnSide);
+	CurrentAmmoInMagazineText->SetText(AmmoValueToText(Ammo));
+}
+
+void UHUDWidget::UpdateStoredAmmoAmountText(const int32& Ammo)
+{
+	StoredAmmoText->SetText(AmmoValueToText(Ammo));
+}
+
+void UHUDWidget::UpdateWeaponImage(TObjectPtr<UTexture2D> Texture, bool bAmmoCounterBelowGunHUD)
+{
+	if (bAmmoCounterBelowGunHUD == true) 
+		WeaponImage->SetDesiredSizeOverride(WeaponImageSizeWhenAmmoBelow);
+	else 
+		WeaponImage->SetDesiredSizeOverride(WeaponImageSizeWhenAmmoOnSide);
 	
 	WeaponImage->SetBrushFromTexture(Texture, true);
 }
 
 void UHUDWidget::ShowWeaponOnHud(bool bShow)
 {
-	if (WeaponAppearAnim == nullptr) return;
+	if (!WeaponAppearAnim) 
+		return;
 
-	if (bShow == true) PlayAnimationForward(WeaponAppearAnim);
-	else PlayAnimationReverse(WeaponAppearAnim);
+	if (bShow) 
+		PlayAnimationForward(WeaponAppearAnim);
+	else 
+		PlayAnimationReverse(WeaponAppearAnim);
 }
 #pragma endregion
 
 #pragma region ////////////// FILL PROGRESS BARS //////////////////
-void UHUDWidget::WhichElementShouldProgress(float Delta)
+void UHUDWidget::AddNewPowerUpToStartLoading(const EPowerUpLoaded& NewPowerUpToAdd)
 {
-	if (bShouldProgress == false || UGameplayStatics::IsGamePaused(GetWorld()) == true) 
-		return;
-
-	ProgressBarForUseableElements(HealBar, EUseableElement::Heal, ActiveHealAnim, Delta);
-	ProgressBarForUseableElements(DashBar, EUseableElement::Dash, ActiveDashAnim, Delta);
-	ProgressBarForUseableElements(SlowMoBar, EUseableElement::SlowMo, ActiveSlowMotionAnim, Delta);
+	PowerUpsToLoad.Remove(NewPowerUpToAdd);
+	PowerUpsToLoad.Add(NewPowerUpToAdd);
 }
 
-void UHUDWidget::ProgressBarForUseableElements(UProgressBar* ProgressBarElement, EUseableElement Element, UWidgetAnimation* AnimToPlayAfterFinish, float Delta)
+void UHUDWidget::ProgressPowerUps(const float & Delta)
 {
-	if (!WhichElementToProgress.Contains(Element)) return;
-
-	if (WhichElementToProgress[Element].ProgressTimeElapsed <= WhichElementToProgress[Element].MaxToZeroTime)
-	{
-		float NewPercent = FMath::Lerp(1.f, 0.f, WhichElementToProgress[Element].ProgressTimeElapsed / WhichElementToProgress[Element].MaxToZeroTime);
-
-		ProgressBarElement->SetPercent(NewPercent);
-		WhichElementToProgress[Element].ProgressTimeElapsed += Delta;
-
+	if (UGameplayStatics::IsGamePaused(GetWorld()) || PowerUpsToLoad.Num() == 0)
 		return;
+
+	for (EPowerUpLoaded& CurrentPowerUp : PowerUpsToLoad)
+	{
+		LoadingPowerUp(CurrentPowerUp, Delta);
+	}
+	for (EPowerUpLoaded& CurrentPowerUp : PowerUpsToDelete)
+	{
+		PowerUpsToLoad.Remove(CurrentPowerUp);
+	}
+
+	if (PowerUpsToDelete.Num() > 0)
+		PowerUpsToDelete.Empty();
+}
+
+void UHUDWidget::LoadingPowerUp(EPowerUpLoaded& PowerUpToLoad, const float & Delta)
+{
+	if (!PowerUpToLoad.bStartPowerUpLoading)
+		return;
+
+	if (PowerUpToLoad.PowerUpFillTimeElapsed <= PowerUpToLoad.TimeToFillPowerUp)
+	{
+		float PowerUpFillValue = FMath::Lerp(1.f, 0.f, PowerUpToLoad.PowerUpFillTimeElapsed / PowerUpToLoad.TimeToFillPowerUp);
+		PowerUpToLoad.PowerUpProgressBarToFill->SetPercent(PowerUpFillValue);
+
+		PowerUpToLoad.PowerUpFillTimeElapsed += Delta;
 	}
 	else
 	{
-		if (PowerUpLoadedSound) UGameplayStatics::SpawnSound2D(GetWorld(), PowerUpLoadedSound);
-		PlayAnimationForward(AnimToPlayAfterFinish);
+		if (IsValid(PowerUpLoadedSound))
+			UGameplayStatics::SpawnSound2D(GetWorld(), PowerUpLoadedSound);
 
-		ProgressBarElement->SetPercent(0.f);
-		WhichElementToProgress.Remove(Element);
-		if (WhichElementToProgress.Num() <= 0) bShouldProgress = false;
+		PlayAnimationForward(PowerUpToLoad.PowerUpAnimToPlayAfterFill);
+
+		PowerUpToLoad.PowerUpFillTimeElapsed = 0.f;
+		PowerUpToLoad.PowerUpProgressBarToFill->SetPercent(0.f);
+		PowerUpToLoad.bStartPowerUpLoading = false;
+
+		PowerUpsToDelete.Add(PowerUpToLoad);
 	}
-}
-
-void UHUDWidget::AddElementToProgress(EUseableElement Element, ElementBar ElementProgressBar)
-{
-	WhichElementToProgress.Add(Element, ElementProgressBar);
-	bShouldProgress = true;
 }
 #pragma endregion
 
 #pragma region ////////////// ANIMATIONS WIDGETS //////////////////
 void UHUDWidget::PlayAppearAnimForItemHover(bool bForwardAnim)
 {
-	if (ItemHoverAppearAnim == nullptr || ItemHoverName->GetText().ToString() == "") return;
+	if (!ItemHoverAppearAnim || ItemHoverName->GetText().ToString() == "") 
+		return;
 
-	if (bForwardAnim) PlayAnimationForward(ItemHoverAppearAnim);
-	else PlayAnimationReverse(ItemHoverAppearAnim);
+	if (bForwardAnim) 
+		PlayAnimationForward(ItemHoverAppearAnim);
+	else 
+		PlayAnimationReverse(ItemHoverAppearAnim);
 }
 
 void UHUDWidget::PlayUseFirstAidKitAnim()
 {
-	if (HealthBar->GetPercent() > 0.2f)
+	if (HealthBar->GetPercent() > MinHPToIndicateLowHP)
 	{
 		PlayAnimationForward(UseFirstAidKitAnim);
 
@@ -138,7 +167,7 @@ void UHUDWidget::PlayUseFirstAidKitAnim()
 
 void UHUDWidget::PlayGotDamageAnim()
 {
-	if (HealthBar->GetPercent() > 0.2f)
+	if (HealthBar->GetPercent() > MinHPToIndicateLowHP)
 	{
 		PlayAnimationForward(GotDamageAnim);
 
@@ -164,7 +193,7 @@ void UHUDWidget::PlayButtonAnimation(EAnimationToPlay AnimToPlay)
 }
 #pragma endregion
 
-void UHUDWidget::SetItemHoverInformations(const FString& ItemName, const FString& ItemDescription, UTexture2D* ItemIcon)
+void UHUDWidget::SetItemHoverInformations(const FString& ItemName, const FString& ItemDescription, TObjectPtr<UTexture2D> ItemIcon)
 {
 	PlayAppearAnimForItemHover();
 

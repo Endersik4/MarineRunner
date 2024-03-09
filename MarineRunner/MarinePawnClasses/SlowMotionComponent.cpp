@@ -83,8 +83,8 @@ void USlowMotionComponent::SlowMotionEffects()
 	if (!IsValid(MarinePawn))
 		return;
 
-	ElementBar SlowMoElementBar{ SlowMotionTime };
-	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::SlowMo, SlowMoElementBar);
+	EPowerUpLoaded SlowMoDelay = EPowerUpLoaded(true, SlowMotionTime, MarinePawn->GetHudWidget()->ActiveSlowMotionAnim, MarinePawn->GetHudWidget()->SlowMoBar);
+	MarinePawn->GetHudWidget()->AddNewPowerUpToStartLoading(SlowMoDelay);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
 
 	MarinePawn->GetCamera()->PostProcessSettings.bOverride_ColorGain = true;
@@ -111,8 +111,8 @@ void USlowMotionComponent::DisableSlowMotion()
 	MarinePawn->GetCamera()->PostProcessSettings.SceneFringeIntensity = 0.f;
 	MarinePawn->GetHudWidget()->SetColorAndOpacity(FLinearColor::White);
 
-	ElementBar SlowMoElementBar{ SlowMotionDelay };
-	MarinePawn->GetHudWidget()->AddElementToProgress(EUseableElement::SlowMo, SlowMoElementBar);
+	EPowerUpLoaded SlowMoDelay = EPowerUpLoaded(true, SlowMotionDelay, MarinePawn->GetHudWidget()->ActiveSlowMotionAnim, MarinePawn->GetHudWidget()->SlowMoBar);
+	MarinePawn->GetHudWidget()->AddNewPowerUpToStartLoading(SlowMoDelay);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
 
 	SlowMotionSoundSpawned = nullptr;

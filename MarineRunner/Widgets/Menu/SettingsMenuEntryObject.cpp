@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
+
 
 
 #include "SettingsMenuEntryObject.h"
@@ -98,16 +99,9 @@ void USettingsMenuEntryObject::SetFullscreenModeSetting()
 
 bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(float& Value)
 {
-	if (IsValid(GameInstance))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("DZIALA game instance"));
-	}
-	else 
-		UE_LOG(LogTemp, Warning, TEXT("nie DZIALA game isntance"));
-
-	if (MenuSettingsData.bSaveValueToGameInstance == false || IsValid(GameInstance) == false)
+	if (!MenuSettingsData.bSaveValueToGameInstance|| !IsValid(GameInstance))
 		return false;
-	UE_LOG(LogTemp, Warning, TEXT("DZIALA"));
+
 	GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, Value);
 
 	return true;
@@ -115,20 +109,22 @@ bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(float& Value)
 
 bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(int32& Value)
 {
-	if (MenuSettingsData.bSaveValueToGameInstance == false || IsValid(GameInstance) == false)
+	if (!MenuSettingsData.bSaveValueToGameInstance || !IsValid(GameInstance))
 		return false;
 
-	//GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, Value);
+	float IntToFloat = (float)Value;
+	GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, IntToFloat);
 
 	return true;
 }
 
 bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(bool& Value)
 {
-	if (MenuSettingsData.bSaveValueToGameInstance == false || IsValid(GameInstance) == false)
+	if (!MenuSettingsData.bSaveValueToGameInstance || !IsValid(GameInstance))
 		return false;
 
-	//GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, Value);
+	float BoolToFloat = (float)Value;
+	GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, BoolToFloat);
 
 	return true;
 }

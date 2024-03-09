@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
 
 
 #include "MarineRunner/SaveGame/SaveGameJsonFile.h"
@@ -14,7 +14,8 @@ bool USaveGameJsonFile::ReadJson(const FString& JsonFilePath, TSharedPtr<FJsonOb
 	{
 		return true;
 	}
-	else return false;
+	else 
+		return false;
 }
 
 void USaveGameJsonFile::WriteJson(const TSharedPtr<FJsonObject>& JsonObject, const FString& JsonFilePath)

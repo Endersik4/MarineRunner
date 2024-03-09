@@ -1,10 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved
+
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "SettingsMenuData.h"
+
 #include "SettingsMenuEntryObject.generated.h"
 
 /**
@@ -23,7 +25,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
 		FMenuSettings MenuSettingsData;
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
-		class USettingsMenuWidget* SettingMenuWidget;
+		TObjectPtr<class USettingsMenuWidget> SettingMenuWidget;
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
 		FString FunctionNameToApply;
 
@@ -34,15 +36,14 @@ private:
 	void SliderValue();
 	void CheckBoxValue();
 
-	// Custom Settings
 	void SetResolutionSetting();
 	void FillSupportedResolutions();
 	void SetFullscreenModeSetting();
-
-	class UMarineRunnerGameInstance* GameInstance;
 
 	bool WasValueLoadedFromJsonFile(float& Value);
 	bool WasValueLoadedFromJsonFile(int32& Value);
 	bool WasValueLoadedFromJsonFile(bool& Value);
 
+	UPROPERTY(Transient)
+		TObjectPtr<class UMarineRunnerGameInstance> GameInstance;
 };
