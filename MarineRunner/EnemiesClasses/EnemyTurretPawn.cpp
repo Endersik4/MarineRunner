@@ -68,8 +68,13 @@ void AEnemyTurretPawn::PlayerWasSeen(bool bWas, AActor* ActorSeen)
 
 void AEnemyTurretPawn::RotateBonesTowardDetectedActor(float Delta)
 {
-	if (!bRotateBones || !IsValid(FocusedActor))
+	if (!bRotateBones)
 		return;
+
+	if (!ensureMsgf(IsValid(FocusedActor), TEXT("Focused Actor is nullptr in EnemyTurretPawn->RotateBonesTowardDetectedActor")))
+	{
+		return;
+	}
 
 	for (const FRotateTurretBone& RotateBone : RotateTurretBones)
 	{

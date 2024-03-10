@@ -38,10 +38,10 @@ void UPlayerIsNearAlbertosComponent::TickComponent(float DeltaTime, ELevelTick T
 #pragma region ///////////////////////// The Player is Located Near Albertos /////////////////////////
 void UPlayerIsNearAlbertosComponent::CheckIfThePlayerIsNear()
 {
-	if (IsValid(AlbertosAI) == false || IsValid(Player) == false || IsValid(AlbertosOwner) == false)
+	if (!IsValid(AlbertosAI) || !IsValid(Player) || !IsValid(AlbertosOwner))
 		return;
 
-	if (bIgnorePlayer == true)
+	if (bIgnorePlayer)
 		return;
 
 	if (FVector::Distance(Player->GetActorLocation(), AlbertosOwner->GetActorLocation()) <= ActiveAlbertosRadius)
@@ -54,7 +54,7 @@ void UPlayerIsNearAlbertosComponent::CheckIfThePlayerIsNear()
 
 void UPlayerIsNearAlbertosComponent::PlayerIsCloseToAlbertos()
 {
-	if (bPlayerIsClose == true)
+	if (bPlayerIsClose)
 		return;
 
 	AlbertosAI->SetCanMove(false);
@@ -68,12 +68,12 @@ void UPlayerIsNearAlbertosComponent::PlayerIsCloseToAlbertos()
 // if item is being crafted then wait till finish and then start wendering 
 void UPlayerIsNearAlbertosComponent::GoBackToWendering()
 {
-	if (bPlayerIsClose == false || AlbertosOwner->GetCraftItemAlbertosComponent()->isCraftedItemValid() == true)
+	if (!bPlayerIsClose || AlbertosOwner->GetCraftItemAlbertosComponent()->isCraftedItemValid())
 		return;
 
 	AlbertosAI->SetCanMove(true);
 
-	if (AlbertosOwner->GetIsCraftingTableWidgetVisible() == true)
+	if (AlbertosOwner->GetIsCraftingTableWidgetVisible())
 		AlbertosOwner->ToggleInventoryVisibility();
 
 	OpenAlbertosDoor(false);
@@ -86,7 +86,7 @@ void UPlayerIsNearAlbertosComponent::OpenAlbertosDoor(bool bOpenDoor)
 	if (bIsFrontDoorOpen == bOpenDoor || !IsValid(AlbertosOwner))
 		return;
 
-	if (bOpenDoor == true)
+	if (bOpenDoor)
 	{
 		if (IsValid(AlbertosOpenAnimationMontage))
 			AlbertosOwner->GetAlbertosSkeletal()->GetAnimInstance()->Montage_Play(AlbertosOpenAnimationMontage);
@@ -114,7 +114,7 @@ void UPlayerIsNearAlbertosComponent::RotateAlbertosTowardsPlayer(float Delta)
 	if (!IsValid(AlbertosOwner)|| !IsValid(Player))
 		return; 
 
-	if (bRotateAlbertosTowardPlayer == false)
+	if (!bRotateAlbertosTowardPlayer)
 		return;
 
 	FRotator RotationTowardsPlayer = AlbertosOwner->GetActorRotation();

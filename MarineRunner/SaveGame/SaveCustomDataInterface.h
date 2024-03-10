@@ -34,9 +34,9 @@ struct FCustomDataSaved
 		FTransform ObjectTransform;
 	UPROPERTY(EditAnywhere)
 		float ValueToSave;
-	// if true then the object added to be saved/loaded in details panel in SavedDataObject e.g Albertos location, after player saves it should load last albertos location
+	// if true then the object was added in details panel in SavedDataObject, its for objects that player cant interact to save it e.g Albertos location, after player saves it should save last albertos location
 	UPROPERTY(EditAnywhere)
-		bool bValueNotSavedWhileInGame;
+		bool bValueSavedFromTheBeginning;
 
 	FCustomDataSaved()
 	{
@@ -46,7 +46,7 @@ struct FCustomDataSaved
 		ObjectToSpawnFromClass = nullptr;
 		ObjectTransform = FTransform();
 		ValueToSave = 0.f;
-		bValueNotSavedWhileInGame = false;
+		bValueSavedFromTheBeginning = false;
 	}
 
 
@@ -57,7 +57,7 @@ struct FCustomDataSaved
 		ObjectToSaveData = _ObjectToSaveData;
 		ObjectState = _ObjectState;
 		ValueToSave = _ValueToSave;
-		bValueNotSavedWhileInGame = _ValueNotSavedWhileInGame;
+		bValueSavedFromTheBeginning = _ValueNotSavedWhileInGame;
 	}
 
 	FCustomDataSaved(const TEnumAsByte<ESavedDataState>& _SavedDataState, TSubclassOf<AActor> _ObjectToSpawnFromClass,
@@ -67,7 +67,7 @@ struct FCustomDataSaved
 		ObjectToSpawnFromClass = _ObjectToSpawnFromClass;
 		ObjectTransform = _ObjectTransform;
 		ValueToSave = _ValueToSave;
-		bValueNotSavedWhileInGame = _ValueNotSavedWhileInGame;
+		bValueSavedFromTheBeginning = _ValueNotSavedWhileInGame;
 
 	}
 
@@ -82,7 +82,7 @@ struct FCustomDataSaved
 		ObjectToSpawnFromClass = _ObjectToSpawnFromClass;
 		ObjectTransform = _ObjectTransform;
 		ValueToSave = _ValueToSave;
-		bValueNotSavedWhileInGame = _ValueNotSavedWhileInGame;
+		bValueSavedFromTheBeginning = _ValueNotSavedWhileInGame;
 	}
 
 	FCustomDataSaved& operator=(const FCustomDataSaved& OtherObject)
@@ -93,7 +93,7 @@ struct FCustomDataSaved
 		ObjectToSpawnFromClass = OtherObject.ObjectToSpawnFromClass;
 		ObjectTransform = OtherObject.ObjectTransform;
 		ValueToSave = OtherObject.ValueToSave;
-		bValueNotSavedWhileInGame = OtherObject.bValueNotSavedWhileInGame;
+		bValueSavedFromTheBeginning = OtherObject.bValueSavedFromTheBeginning;
 		return *this;
 	}
 };

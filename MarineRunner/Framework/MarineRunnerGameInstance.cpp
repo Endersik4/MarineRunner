@@ -110,7 +110,14 @@ void UMarineRunnerGameInstance::SpawnBackgroundMusic(TObjectPtr<USoundBase> Soun
 	if (!IsValid(SoundToSpawn) || !IsValid(GetWorld()))
 		return;
 
-	CurrentPlayingMusic = UGameplayStatics::SpawnSound2D(GetWorld(), SoundToSpawn, 1.f, 1.f, 0.f, nullptr, true);
+	try
+	{
+		CurrentPlayingMusic = UGameplayStatics::SpawnSound2D(GetWorld(), SoundToSpawn, 1.f, 1.f, 0.f, nullptr, true);
+	}
+	catch (...)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Spawn Sound 2D exception MarineRunnerGameInstance->SpawnBackgroundMusic"))
+	}
 
 	if (!IsValid(CurrentPlayingMusic))
 		return;

@@ -79,7 +79,7 @@ void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString&
 	Player->GetWeaponInventoryComponent()->WeaponStorageToInitialWeaponInventory();
 	CreatedSaveGame->WeaponInventory_Saved = Player->GetWeaponInventoryComponent()->InitialWeaponInventory;
 
-	SavedDataObject->RestartObjectsData(true);
+	SavedDataObject->RemoveTempCustomSavedData();
 	SavedDataObject->UpdateObjectsData();
 	CreatedSaveGame->SavedCustomData = SavedDataObject->GetCustomSavedData();
 

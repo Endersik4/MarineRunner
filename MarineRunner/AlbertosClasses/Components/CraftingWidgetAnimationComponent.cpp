@@ -32,7 +32,7 @@ void UCraftingWidgetAnimationComponent::TickComponent(float DeltaTime, ELevelTic
 #pragma region /////////////// CRAFTING WIDGET ANIMATION ///////////////
 void UCraftingWidgetAnimationComponent::CraftingWidgetAnimation(float Delta)
 {
-	if (bIsCraftingWidgetAnimatinPlaying == false)
+	if (!bIsCraftingWidgetAnimatinPlaying)
 		return;
 
 	if (CraftingWidgetAnimationTimeElapsed >= CraftingWidgetAnimationTime)
@@ -54,7 +54,7 @@ void UCraftingWidgetAnimationComponent::CraftingWidgetAnimationEnded()
 	ToggleVisibilityForDissolveBoxes();
 	bIsCraftingWidgetAnimatinPlaying = false;
 
-	if (bWasCraftingWidgetClosed == true)
+	if (bWasCraftingWidgetClosed)
 	{
 		AlbertosOwner->ToggleVisibilityCraftingWidget();
 		bWasCraftingWidgetClosed = false;

@@ -21,6 +21,7 @@ void UCroachAndSlide::BeginPlay()
 
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	SetPlayerVariables();
+
 }
 
 void UCroachAndSlide::OnOwnerDestroyed(AActor* DestroyedActor)
@@ -58,7 +59,6 @@ void UCroachAndSlide::CrouchPressed(bool bSlidePressed)
 	bIsCrouching = true;
 	CurrentMovementForce = CrouchSpeed;
 	Player->SetMovementForce(CurrentMovementForce);
-	OriginalPlayerScale = Player->GetActorScale3D();
 
 	if (bSlidePressed)
 		GetWorld()->GetTimerManager().SetTimer(SlideDelayHandle, this, &UCroachAndSlide::BeginSlide, SlideDelayInSeconds, false);
@@ -288,6 +288,7 @@ void UCroachAndSlide::SetPlayerVariables()
 
 	CurrentMovementForce = Player->GetMovementForce();
 	OriginalMovementForce = CurrentMovementForce;
+	OriginalPlayerScale = Player->GetActorScale3D();
 	Player->GetCamera()->PostProcessSettings.bOverride_VignetteIntensity = true;
 	Player->OnDestroyed.AddUniqueDynamic(this, &UCroachAndSlide::OnOwnerDestroyed);
 }

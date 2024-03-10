@@ -43,9 +43,6 @@ void AEnemyAiController::SightHandle(TObjectPtr<AActor> SensedActor, const FAISt
 	if (!CanSeeTheTarget(SensedActor))
 		return;
 
-	if (SightStimulus.WasSuccessfullySensed() && GetWorld()->GetTimerManager().IsTimerActive(DetectPlayerDelayHandle))
-		return;
-
 	FTimerDelegate DetectPlayerWithDelayDelegate;
 	DetectPlayerWithDelayDelegate.BindUFunction(this, FName("DetectPlayerWithDelay"), SightStimulus.WasSuccessfullySensed(), SensedActor);
 	GetWorld()->GetTimerManager().SetTimer(DetectPlayerDelayHandle, DetectPlayerWithDelayDelegate, SightStimulus.WasSuccessfullySensed() ? DetectPlayerTime : LoseSightOfPlayerTime, false);

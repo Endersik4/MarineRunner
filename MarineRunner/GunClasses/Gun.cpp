@@ -65,6 +65,9 @@ bool AGun::CanShoot()
 	if (!IsValid(BulletData.BulletClass)) 
 		return false;
 
+	if (!GunReloadComponent->CanShootWhileReloading())
+		return false;
+
 	if (!bCanShoot)
 	{
 		bCoyoteShootTime = true;
@@ -72,9 +75,6 @@ bool AGun::CanShoot()
 
 		return false;
 	}
-
-	if (!GunReloadComponent->CanShootWhileReloading())
-		return false;
 
 	if (GunReloadComponent->GetMagazineCapacity() <= 0)
 	{

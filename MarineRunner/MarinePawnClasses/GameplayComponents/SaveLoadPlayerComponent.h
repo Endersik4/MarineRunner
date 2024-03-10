@@ -48,8 +48,6 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Load")
 		TSubclassOf<class AMarineCharacter> PlayerClass;
-	UPROPERTY(EditAnywhere, Category = "Load")
-		float TimeToLoadHudVariables = 0.02f;
 	UPROPERTY(EditDefaultsOnly, Category = "Load")
 		TSubclassOf<class UUserWidget> NewGameBeginsWidgetClass;
 

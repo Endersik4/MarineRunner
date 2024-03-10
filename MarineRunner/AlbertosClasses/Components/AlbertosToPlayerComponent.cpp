@@ -25,15 +25,14 @@ void UAlbertosToPlayerComponent::CallAlbertosToThePlayer(FVector PlayerLoc)
 	if (!IsValid(AlbertosAI) || !IsValid(AlbertosPawn))
 		return;
 
+	if (IsValid(CallAlbertosSound))
+		UGameplayStatics::PlaySound2D(GetWorld(), CallAlbertosSound);
+
 	if (TeleportAlbertosToPlayer(PlayerLoc))
 		return;
 
 	PlayerLoc.Z = AlbertosPawn->GetActorLocation().Z;
 	AlbertosAI->CallAlbertosToThePlayer(PlayerLoc);
-	AlbertosPawn->GetPlayerIsNearComponent()->SetRotateAlbertosTowardPlayer(true);
-
-	if (IsValid(CallAlbertosSound))
-		UGameplayStatics::PlaySound2D(GetWorld(), CallAlbertosSound);
 
 	ChangeMaxSpeedOfFloatingMovement(true);
 }

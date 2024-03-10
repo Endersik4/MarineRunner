@@ -97,8 +97,6 @@ void AMarineCharacter::BeginPlay()
 	MarinePlayerController = Cast<AMarinePlayerController>(GetController());
 	PauseMenuComponent->ChangeUIToGameOnly();
 
-	OriginalHealth = Health;
-
 	MakeCrosshire();
 	MakeHudWidget();
 

@@ -32,11 +32,11 @@ void UCraftItemAlbertosComponent::TickComponent(float DeltaTime, ELevelTick Tick
 #pragma region //////////////// craft item ////////////////
 void UCraftItemAlbertosComponent::CraftPressed(TObjectPtr<class AMarineCharacter> Player, const FItemStruct* ItemToCraft, int32 ItemAmountMultiplier)
 {
-	if (ItemToCraft == nullptr)
+	if (!ItemToCraft)
 		return;
 
 	CraftedItem = SpawnCraftedItem(ItemToCraft);
-	if (IsValid(CraftedItem) == false)
+	if (!IsValid(CraftedItem))
 		return;
 
 	CraftedItem->SetItemAmountMultiplier(ItemAmountMultiplier);
@@ -61,7 +61,7 @@ TObjectPtr<APickupItem> UCraftItemAlbertosComponent::SpawnCraftedItem(const FIte
 	FTransform ItemToCraftTransform = ItemToCraftOffsetTransform(ItemToCraft->InitialCraftLocationOffset, ItemToCraft->InitialCraftRotation, ItemToCraft->InitialCraftScale);
 
 	TObjectPtr<APickupItem> SpawnedItem = GetWorld()->SpawnActor<APickupItem>(ItemToCraft->ItemObject, ItemToCraftTransform);
-	if (IsValid(SpawnedItem) == false)
+	if (!IsValid(SpawnedItem))
 		return nullptr;
 
 	SpawnedItem->SaveItemIfSpawnedRunTime();
@@ -87,7 +87,7 @@ void UCraftItemAlbertosComponent::CraftingFinished()
 {
 	AlbertosPawn->EnableCraftingAnimation(false);
 
-	if (IsValid(CraftedItem) == false)
+	if (!IsValid(CraftedItem))
 		return;
 
 	CraftedItem->GetItemMesh()->SetSimulatePhysics(false);
@@ -135,10 +135,10 @@ void UCraftItemAlbertosComponent::PlayMiddleCraftSound()
 #pragma region /////////////////////// Move Item to Final Position ///////////////////////////
 void UCraftItemAlbertosComponent::MoveCraftedItemToFinalPosition(float Delta)
 {
-	if (bMoveCraftedItemToFinalPosition == false || IsValid(CraftedItem) == false) 
+	if (!bMoveCraftedItemToFinalPosition || !IsValid(CraftedItem)) 
 		return;
 
-	if (CraftedItem->GetActorLocation().Equals(FinalLocationItem, FinalLocationItemTolerance) == false)
+	if (!CraftedItem->GetActorLocation().Equals(FinalLocationItem, FinalLocationItemTolerance))
 	{
 		FVector NewItemLocation = FMath::VInterpTo(CraftedItem->GetActorLocation(), FinalLocationItem, Delta, ItemMoveSpeedAfterCrafting);
 		CraftedItem->SetActorLocation(NewItemLocation);
@@ -157,7 +157,7 @@ void UCraftItemAlbertosComponent::MoveCraftedItemToFinalPosition(float Delta)
 
 void UCraftItemAlbertosComponent::ItemWasMoved()
 {
-	if (bShouldScaleCraftedItem == true)
+	if (bShouldScaleCraftedItem)
 		CraftedItem->SetActorScale3D(TargetScaleOfCraftedItem);
 
 	bMoveCraftedItemToFinalPosition = false;

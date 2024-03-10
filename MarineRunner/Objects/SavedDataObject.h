@@ -35,13 +35,15 @@ public:
 	void LoadObjectsData();
 	void StartLoadingObjects();
 	void UpdateObjectsData();
-	void RestartObjectsData(bool bOnlyDeleteFromTemp = false);
+	void RestartObjectsData();
+	// remove elements from TempCustomSavedData with bValueSaveFromThebeginning == false
+	void RemoveTempCustomSavedData();
 private:
 	// All objects that player interacted with SaveCustomDataInterface are stored here, after loading a game 
 	// takes all elements and loads data in given actor or spawns actor with saved data
 	UPROPERTY(EditAnywhere, Category = "Saved Data Settings")
 		TMap<int32, FCustomDataSaved> CustomSavedData;
-	// The same as CustomSavedData except that if player dies before saving a game then takes elements from list and deleting them from CustomSavedData
+	// The same as CustomSavedData except that if player dies before saving a game then takes elements from list and calls RestartData on elements in list and deletes from CustomSavedData
 	// its useful for restarting a game e.g player opened the chest but died after so it has to restart the chest
 	UPROPERTY(EditAnywhere, Category = "Saved Data Settings")
 		TMap<int32, FCustomDataSaved> TempCustomSavedData;

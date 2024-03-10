@@ -140,6 +140,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
 		float Health = 100.f;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
+		float OriginalHealth = 100.f;
+	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
 		float DividerForRadialDamage = 40.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn")
 		TObjectPtr < USoundBase> MarineHitSound;
@@ -222,7 +224,6 @@ private:
 	void TakeReleased();
 
 	//FirstAidKit
-	float OriginalHealth;
 	bool bCanUseFirstAidKit = true;
 	FTimerHandle UseFirstAidKitHandle;
 	void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }

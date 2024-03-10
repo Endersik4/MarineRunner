@@ -55,11 +55,6 @@ void ASavedDataObject::LoadObjectsData()
 			continue;
 
 		ActorWithSaveInterface->LoadData(Pair.Key, Pair.Value);
-
-		if (Pair.Value.bValueNotSavedWhileInGame)
-		{
-			TempCustomSavedData.Add(Pair);
-		}
 	}
 }
 
@@ -67,18 +62,21 @@ void ASavedDataObject::UpdateObjectsData()
 {
 	for (const TPair<int32, FCustomDataSaved>& Pair : CustomSavedData)
 	{
+		if (!ensureMsgf(IsValid(Pair.Value.ObjectToSaveData), TEXT("Object To update data is nullptr")))
+			continue;
+
 		if (!IsValid(Pair.Value.ObjectToSaveData))
 			continue;
 	
 		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
 		if (!ActorWithSaveInterface)
 			continue;
-		
+
 		ActorWithSaveInterface->SaveData(this, Pair.Key, Pair.Value);
 	}
 }
 
-void ASavedDataObject::RestartObjectsData(bool bOnlyDeleteFromTemp)
+void ASavedDataObject::RestartObjectsData()
 {
 	if (TempCustomSavedData.Num() == 0)
 		return;
@@ -86,10 +84,8 @@ void ASavedDataObject::RestartObjectsData(bool bOnlyDeleteFromTemp)
 	TArray<int32> KeysToRemoveFromCustomSavedData;
 	for (const TPair<int32, FCustomDataSaved>& Pair : TempCustomSavedData)
 	{
-		if (!ensureMsgf(IsValid(Pair.Value.ObjectToSaveData), TEXT("Object To restart data is nullptr")))
-		{
+		if (!Pair.Value.ObjectToSaveData)
 			continue;
-		}
 
 		if (!IsValid(Pair.Value.ObjectToSaveData))
 			continue;
@@ -97,10 +93,10 @@ void ASavedDataObject::RestartObjectsData(bool bOnlyDeleteFromTemp)
 		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
 		if (!ActorWithSaveInterface)
 			continue;
-		if (!bOnlyDeleteFromTemp)
-			ActorWithSaveInterface->RestartData(this, Pair.Key, Pair.Value);
 
-		if (!Pair.Value.bValueNotSavedWhileInGame)
+		ActorWithSaveInterface->RestartData(this, Pair.Key, Pair.Value);
+
+		if (!Pair.Value.bValueSavedFromTheBeginning)
 		{
 			KeysToRemoveFromCustomSavedData.Add(Pair.Key);
 		}
@@ -108,8 +104,27 @@ void ASavedDataObject::RestartObjectsData(bool bOnlyDeleteFromTemp)
 
 	for (const int32& CurrentKeyToRemove : KeysToRemoveFromCustomSavedData)
 	{
-		if (!bOnlyDeleteFromTemp)
-			CustomSavedData.Remove(CurrentKeyToRemove);
+		CustomSavedData.Remove(CurrentKeyToRemove);
+		TempCustomSavedData.Remove(CurrentKeyToRemove);
+	}
+}
+
+void ASavedDataObject::RemoveTempCustomSavedData()
+{
+	if (TempCustomSavedData.Num() == 0)
+		return;
+
+	TArray<int32> KeysToRemoveFromCustomSavedData;
+	for (const TPair<int32, FCustomDataSaved>& Pair : TempCustomSavedData)
+	{
+		if (Pair.Value.bValueSavedFromTheBeginning)
+			continue;
+
+		KeysToRemoveFromCustomSavedData.Add(Pair.Key);
+	}
+
+	for (const int32& CurrentKeyToRemove : KeysToRemoveFromCustomSavedData)
+	{
 		TempCustomSavedData.Remove(CurrentKeyToRemove);
 	}
 }

@@ -18,7 +18,7 @@ void USoundOnHitComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	GetOwner()->OnActorHit.AddDynamic(this, &USoundOnHitComponent::OnHitPlaySound);
+	GetOwner()->OnActorHit.AddUniqueDynamic(this, &USoundOnHitComponent::OnHitPlaySound);
 }
 
 void USoundOnHitComponent::OnHitPlaySound(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
@@ -42,10 +42,7 @@ bool USoundOnHitComponent::CanSpawnHitOnGroundSound(TObjectPtr<AActor> HitActor)
 		return false;
 
 	if (IsValid(SpawnedHitGroundSound))
-	{
-		if (SpawnedHitGroundSound->IsActive())
-			return false;
-	}
+		return false;
 
 	return true;
 }

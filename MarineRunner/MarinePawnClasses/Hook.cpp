@@ -35,8 +35,8 @@ void AHook::BeginPlay()
 	Super::BeginPlay();
 
 	OriginalHookStateScale = HookStateFlipBook->GetComponentScale();
-	HookActiveSphere->OnComponentBeginOverlap.AddDynamic(this, &AHook::OnCheckSphereBeginOverlap);
-	HookActiveSphere->OnComponentEndOverlap.AddDynamic(this, &AHook::OnCheckSphereEndOverlap);
+	HookActiveSphere->OnComponentBeginOverlap.AddUniqueDynamic(this, &AHook::OnCheckSphereBeginOverlap);
+	HookActiveSphere->OnComponentEndOverlap.AddUniqueDynamic(this, &AHook::OnCheckSphereEndOverlap);
 
 	GetWorld()->GetTimerManager().SetTimer(HookVisibleHandle, this, &AHook::HideFlipbookIfItIsNotVisible, CheckIfHookIsVisibleInterval, true);
 }
