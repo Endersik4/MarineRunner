@@ -1,9 +1,9 @@
 ## MarineRunner = Ghostrunner + Cyberpunk 2077 My biggest and most ambitious project. <br/>
 It's an FPS Shooter with speedy movement made in Unreal Engine 5 using C++. <br/>
-I made everything in this game, except for the Music and Sounds. <br/>
-The <a href="https://github.com/Endersik4/MarineRunner/blob/main/ListOfAllFeatures.md"> List of All Features </a> explains nearly every game mechanic briefly. spoiler: it's long. <br/>
+I made everything in this game, except for the Music and Sounds. <br/> <br/>
+The <a href="https://github.com/Endersik4/MarineRunner/blob/main/ListOfAllFeatures.md"> List of All Features </a> explains nearly every game mechanic briefly. spoiler: it's long. <br/> <br/>
 I started this project on January 23, 2023, and finished on February 23, 2024. It took nearly 2000 hours to make. <br/>
-The game is in state to be shipped. <br/>
+The game is in state to be shipped. <br/> <br/>
 I created a demo (30 minutes long) to show everything the game offers. <br/>
 I plan to enter this game into the ZTGK contest in June 2024. <br/>
 Below is Trailer of the demo (1:30 minutes long) and Gameplay of the demo (35 minutes long) <br/>
