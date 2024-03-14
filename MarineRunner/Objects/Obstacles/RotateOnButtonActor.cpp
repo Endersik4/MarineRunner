@@ -117,7 +117,11 @@ void AWallrunOnButton::ResetRotateMeshTimeline()
 {
 	bResetingRotation = true;
 	RotateMeshTimeline.ReverseFromEnd();
+
 	ActiveDynamicMaterial->SetVectorParameterValue(FName("Color"), NotActiveMaterialColor);
+
+	if (IsValid(RotateObjectSound))
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), RotateObjectSound, SocketRotateMeshComponent->GetComponentLocation());
 }
 
 void AWallrunOnButton::ResetTimeSeconds()
