@@ -8,14 +8,14 @@ I created a demo (30 minutes long) to show everything the game offers. <br/>
 I plan to enter this game into the ZTGK contest in June 2024. <br/>
 Below is Trailer of the demo (1:30 minutes long) and Gameplay of the demo (35 minutes long) <br/>
 <h2> Marine Runner Trailer Demo: </h2>
-<a href="https://youtu.be/ABiBhHkvVVs">
+<a href="https://youtu.be/02JhJevPaRo">
 Trailer:
   
 ![ScreenShot00049](https://github.com/Endersik4/MarineRunner/assets/131354098/8730411a-0426-4d17-a805-1af4e1ddef7b) </a>
 <br/><br/>
 
 <h2> Marine Runner Gameplay Demo: </h2>
-<a href="https://youtu.be/ABiBhHkvVVs">
+<a href="https://youtu.be/02JhJevPaRo">
 Gameplay:
   
 ![ScreenShot00049](https://github.com/Endersik4/MarineRunner/assets/131354098/8730411a-0426-4d17-a805-1af4e1ddef7b) </a>
