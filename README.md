@@ -11,7 +11,9 @@ Below is Trailer of the demo (1:30 minutes long) and Gameplay of the demo (35 mi
 <a href="https://youtu.be/02JhJevPaRo">
 Trailer:
   
-![ScreenShot00049](https://github.com/Endersik4/MarineRunner/assets/131354098/8730411a-0426-4d17-a805-1af4e1ddef7b) </a>
+![ScreenShot00049](https://github.com/Endersik4/MarineRunner/assets/131354098/8730411a-0426-4d17-a805-1af4e1ddef7b) 
+
+</a>
 <br/><br/>
 
 <h2> Marine Runner Gameplay Demo: </h2>
