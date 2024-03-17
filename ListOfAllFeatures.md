@@ -641,16 +641,6 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		    <li><strong>Save Progress:</strong> Upon player collision with the Checkpoint, initiates a game save with a specified name (e.g., Autosave).</li>
 		</ul>
 	<h3> - CHEST WITH ITEMS </h3>
-		<ul>
-			<li> When player opens the chest:</li>
-			<ul>
-				<li>Plays open animation and changes given Material to Unlock one</li>
-				<li>Takes ItemRandomSpawnStruct from Array and checks if given item can spawn according to random percent</li>
-				<li>If Random Percent is in given range then spawn an item with given Offset</li>
-				<li><strong>Pin Code Access:</strong> Optionally requires a pin code to open.</li>
-			</ul>
-		</ul>
-	<h3> - CHEST WITH ITEMS </h3>
 	<ul>
 	    <li><strong> When the player interacts with the chest:</strong></li>
 	    <ul>
