@@ -17,7 +17,7 @@ Trailer:
 <br/><br/>
 
 <h2> Marine Runner Gameplay Demo: </h2>
-<a href="https://www.youtube.com/watch?v=ROhMfjWd5IM">
+<a href="https://youtu.be/ROhMfjWd5IM">
 Gameplay:
   
 ![ScreenShot00032](https://github.com/Endersik4/MarineRunner/assets/131354098/f9bc6701-ae9c-451c-934d-42e5cb745555)
