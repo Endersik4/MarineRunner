@@ -17,10 +17,12 @@ Trailer:
 <br/><br/>
 
 <h2> Marine Runner Gameplay Demo: </h2>
-<a href="https://youtu.be/02JhJevPaRo">
+<a href="https://www.youtube.com/watch?v=ROhMfjWd5IM">
 Gameplay:
   
-![ScreenShot00049](https://github.com/Endersik4/MarineRunner/assets/131354098/8730411a-0426-4d17-a805-1af4e1ddef7b) </a>
+![ScreenShot00032](https://github.com/Endersik4/MarineRunner/assets/131354098/f9bc6701-ae9c-451c-934d-42e5cb745555)
+
+</a>
 <br/><br/>
 
 ![endersik-4-screenshot00001 (1)](https://github.com/Endersik4/MarineRunner/assets/131354098/a3a02f78-be24-4474-bc67-d68585a974b6)
