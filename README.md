@@ -6,7 +6,7 @@ I started this project on January 23, 2023, and finished on February 23, 2024. I
 The game is in state to be shipped. <br/> <br/>
 I created a demo (30 minutes long) to show everything the game offers. <br/>
 I plan to enter this game into the ZTGK contest in June 2024. <br/>
-Below is Trailer of the demo (1:30 minutes long) and Gameplay of the demo (35 minutes long) <br/>
+Below is Trailer of the demo (1:20 minutes long) and Gameplay of the demo (30 minutes long) <br/>
 <h2> Marine Runner Trailer Demo: </h2>
 <a href="https://youtu.be/02JhJevPaRo">
 Trailer:
