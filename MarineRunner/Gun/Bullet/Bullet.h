@@ -39,22 +39,21 @@ private:
 		void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> BulletMesh;
-
+		TObjectPtr<class UStaticMeshComponent> BulletMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet")
 		float BulletLifeSpan = 15.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet")
 		float BulletFallingDown = 20.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Trail")
-		TObjectPtr<class UNiagaraSystem> BulletTrailNiagaraParticle;
+		TObjectPtr<class UNiagaraSystem> BulletTrailNiagaraParticle = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
-		TObjectPtr<UParticleSystem> BulletHitParticle;
+		TObjectPtr<UParticleSystem> BulletHitParticle = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
 		FVector BulletHitParticleSize = FVector(1.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
-		TObjectPtr<USoundBase> BulletHitSound;
+		TObjectPtr<USoundBase> BulletHitSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
 		float BulletImpulseMultiplier = 10.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
@@ -67,7 +66,7 @@ private:
 		float MaxCameraShakeScale = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
-		TObjectPtr<UMaterialInstance> BulletHoleDecalMaterial;
+		TObjectPtr<UMaterialInstance> BulletHoleDecalMaterial = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
 		FVector BulletHoleDecalSize = FVector(1.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
@@ -79,20 +78,24 @@ private:
 
 	void SetBulletMovementType();
 
-	FBulletStruct BulletData;
+	UPROPERTY(Transient)
+		FBulletStruct BulletData = FBulletStruct();
 
 	void SphereRadialDamage(const FHitResult& Hit);	
 	void BulletThroughObject(const FHitResult& Hit);
 
 	//Bullet Movement
-	bool bStartBulletMovement;
-	float TrackBulletDistance;
-	FVector BulletLocation;
+	UPROPERTY(Transient)
+		bool bStartBulletMovement = false;
+	UPROPERTY(Transient)
+		float TrackBulletDistance = 0.f;
+	UPROPERTY(Transient)
+		FVector BulletLocation = FVector::Zero();
 	void MovementBullet(float Delta);
 
 	//Bullet Stack in the same actor after another move
 	UPROPERTY(Transient)
-		TObjectPtr<AActor> HitActor;
+		TObjectPtr<AActor> HitActor = nullptr;
 	bool BulletStuckInActor(const FHitResult& Hit);
 
 	//Hit
@@ -105,5 +108,5 @@ private:
 
 	// Bullet Trail
 	UPROPERTY(Transient)
-		TObjectPtr<class UNiagaraComponent> SpawnedBulletTrailNiagara;
+		TObjectPtr<class UNiagaraComponent> SpawnedBulletTrailNiagara = nullptr;
 };

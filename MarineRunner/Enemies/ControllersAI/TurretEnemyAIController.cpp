@@ -19,14 +19,20 @@ void ATurretEnemyAIController::BeginPlay()
 {
 	EnemyPerception->OnTargetPerceptionUpdated.AddUniqueDynamic(this, &ATurretEnemyAIController::HandleTargetPerceptionUpdated);
 
-	TurretPawn = Cast<AEnemyTurretPawn>(GetPawn());
+	if (ensureMsgf(IsValid(GetPawn()), TEXT("Enemy Turret Pawn is nullptr in TurretEnemyAIController")))
+	{
+		TurretPawn = Cast<AEnemyTurretPawn>(GetPawn());
+	}
 }
 
 void ATurretEnemyAIController::HandleTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
 {
+	if (!IsValid(Actor) || !IsValid(TurretPawn))
+		return;
+
 	IInteractInterface* ActorCanTakeDamageInterface = Cast<IInteractInterface>(Actor);
 
-	if (!ActorCanTakeDamageInterface|| !IsValid(TurretPawn))
+	if (!ActorCanTakeDamageInterface)
 		return;
 
 	if (Stimulus.WasSuccessfullySensed())
@@ -48,12 +54,17 @@ void ATurretEnemyAIController::HandleTargetPerceptionUpdated(AActor* Actor, FAIS
 
 void ATurretEnemyAIController::AddEnemyToDetected(bool bWas)
 {
+	if (!IsValid(UGameplayStatics::GetGameInstance(GetWorld())))
+		return;
+
 	TObjectPtr<UMarineRunnerGameInstance> MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (!IsValid(MarineRunnerGameInstance))
 		return;
 
-	if (bWas) MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn());
-	else MarineRunnerGameInstance->RemoveDetectedEnemy(GetPawn());
+	if (bWas) 
+		MarineRunnerGameInstance->AddNewDetectedEnemy(GetPawn());
+	else
+		MarineRunnerGameInstance->RemoveDetectedEnemy(GetPawn());
 }
 
 void ATurretEnemyAIController::StopSeeingActor()

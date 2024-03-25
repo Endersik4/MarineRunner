@@ -22,7 +22,10 @@ void UGunControlsComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Gun = Cast<AGun>(GetOwner());
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Gun is nullptr in GunControlsComponenet!")))
+	{
+		Gun = Cast<AGun>(GetOwner());
+	}
 }
 
 #pragma region ////////////////////////////////// TAKE ////////////////////////////////////////
@@ -35,13 +38,26 @@ void UGunControlsComponent::TakeGun(TObjectPtr<AMarineCharacter> NewPlayer, bool
 	Gun->SetCanShoot(false); //cant shoot until Weapon First Take Anim is finished
 
 	Player = NewPlayer;
-	Player->GetArmsSkeletalMesh()->SetForceRefPose(false);
-	Player->GetWeaponInventoryComponent()->SetGunFromInventory(nullptr);
-	Player->GetWeaponInventoryComponent()->AddNewWeaponToStorage(Gun);
-	Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(false);
-	Player->GetWeaponHandlerComponent()->HideCurrentHoldingGun();
-	Player->GetWeaponHandlerComponent()->SetGun(Gun);
-	Player->GetHudWidget()->ShowWeaponOnHud();
+
+	if (IsValid(Player->GetArmsSkeletalMesh()))
+	{
+		Player->GetArmsSkeletalMesh()->SetForceRefPose(false);
+	}
+	if (IsValid(Player->GetWeaponInventoryComponent()))
+	{
+		Player->GetWeaponInventoryComponent()->SetGunFromInventory(nullptr);
+		Player->GetWeaponInventoryComponent()->AddNewWeaponToStorage(Gun);
+	}
+	if (IsValid(Player->GetWeaponHandlerComponent()))
+	{
+		Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(false);
+		Player->GetWeaponHandlerComponent()->HideCurrentHoldingGun();
+		Player->GetWeaponHandlerComponent()->SetGun(Gun);
+	}
+	if (IsValid(Player->GetHudWidget()))
+	{
+		Player->GetHudWidget()->ShowWeaponOnHud();
+	}
 
 	Gun->PlayGivenWeaponWithArmsAnimation(bWasTaken ? WeaponDrawAnim : WeaponFirstTimeTakeAnim);
 
@@ -67,11 +83,15 @@ void UGunControlsComponent::DrawGun()
 	Gun->SetCanShoot(false);
 	Gun->PlayGivenWeaponWithArmsAnimation(WeaponDrawAnim);
 
-	Player->GetWeaponHandlerComponent()->SetGun(Gun);
-	Player->GetHudWidget()->ShowWeaponOnHud();
+	if (IsValid(Player->GetWeaponHandlerComponent()))
+		Player->GetWeaponHandlerComponent()->SetGun(Gun);
+	if (IsValid(Player->GetHudWidget()))
+		Player->GetHudWidget()->ShowWeaponOnHud();
 
 	if (IsValid(DrawGunSound))
 		UGameplayStatics::PlaySound2D(GetWorld(), DrawGunSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Draw Gun Sound is nullptr in GunControlsComponent"));
 
 	UpdateWeaponDataInHud(true, true);
 
@@ -90,11 +110,15 @@ void UGunControlsComponent::PutAwayGun()
 	Gun->ShootReleased();
 	Gun->CancelShoot();
 
-	Player->GetWeaponHandlerComponent()->SetGun(nullptr);
-	Player->GetHudWidget()->ShowWeaponOnHud(false);
+	if (IsValid(Player->GetWeaponHandlerComponent()))
+		Player->GetWeaponHandlerComponent()->SetGun(nullptr);
+	if (IsValid(Player->GetHudWidget()))
+		Player->GetHudWidget()->ShowWeaponOnHud(false);
 
 	if (IsValid(PutAwayGunSound))
 		UGameplayStatics::PlaySound2D(GetWorld(), PutAwayGunSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Put Away Gun Sound is nullptr in GunControlsComponent"));
 
 	FTimerHandle HideGunHandle;
 	GetWorld()->GetTimerManager().SetTimer(HideGunHandle, this, &UGunControlsComponent::HideGun, WeaponPutAwayAnim.ArmsActionAnim->GetPlayLength(), false);
@@ -102,6 +126,9 @@ void UGunControlsComponent::PutAwayGun()
 
 void UGunControlsComponent::HideGun()
 {
+	if (!IsValid(Player) || !IsValid(Gun))
+		return;
+
 	Gun->SetActorHiddenInGame(true);
 	Gun->SetActorTickEnabled(false);
 	Gun->GetGunSkeletalMesh()->Stop();
@@ -114,7 +141,9 @@ void UGunControlsComponent::HideGun()
 		Player->GetArmsSkeletalMesh()->SetForceRefPose(true);
 	}
 	else
+	{
 		Player->GetWeaponHandlerComponent()->DrawNewGun();
+	}
 
 	DropGun();
 }
@@ -133,9 +162,11 @@ void UGunControlsComponent::DropGun()
 
 	if (IsValid(DropGunSound))
 		UGameplayStatics::PlaySound2D(GetWorld(), DropGunSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("DropGun Sound Sound is nullptr in GunControlsComponent"));
 
-	FVector LocationToSpawnItemGun = Player->GetCameraLocation() + Player->GetCamera()->GetForwardVector() * DistanceToDropGun;
-	FTransform ItemGunTransform = FTransform(FRotator(0.f), LocationToSpawnItemGun);
+	const FVector& LocationToSpawnItemGun = Player->GetCameraLocation() + Player->GetCamera()->GetForwardVector() * DistanceToDropGun;
+	const FTransform& ItemGunTransform = FTransform(FRotator(0.f), LocationToSpawnItemGun);
 	TObjectPtr<APickupItem> SpawnedGunItem = GetWorld()->SpawnActorDeferred<APickupItem>(ItemToSpawnAfterDropGun, ItemGunTransform);
 	if (IsValid(SpawnedGunItem))
 	{
@@ -167,7 +198,9 @@ void UGunControlsComponent::AddAmmoToInventory()
 		AmmunitionFromInventory->Item_Amount += StoredAmmo;
 	}
 	else
+	{
 		Player->GetInventoryComponent()->AddNewItemToInventory(RowNameForAmmunitionItem, StoredAmmo);
+	}
 }
 
 #pragma endregion
@@ -175,7 +208,7 @@ void UGunControlsComponent::AddAmmoToInventory()
 #pragma region ///////////////////////////////// HUD //////////////////////////////////////////
 void UGunControlsComponent::UpdateWeaponDataInHud(bool bUpdateStoredAmmoText, bool bUpdateWeaponImage)
 {
-	if (!IsValid(Player))
+	if (!IsValid(Player) || !IsValid(Gun))
 		return;
 	if (!IsValid(Player->GetHudWidget()))
 		return;

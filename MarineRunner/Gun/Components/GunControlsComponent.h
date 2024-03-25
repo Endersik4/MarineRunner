@@ -38,45 +38,46 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Take gun")
 		FName AttachGunToSocketName = FName(TEXT("Weapon_R"));
 	UPROPERTY(EditDefaultsOnly, Category = "Take gun")
-		struct FWeaponAnimation WeaponFirstTimeTakeAnim;
+		struct FWeaponAnimation WeaponFirstTimeTakeAnim = FWeaponAnimation();
 
 	// If True then ammunition on UI will be below the Gun icon picture
 	// If False then ammunition on UI will be on the left side of the gun icon picture
 	UPROPERTY(EditAnywhere, Category = "Gun Hud")
-		bool bAmmoCounterBelowGunHUD;
+		bool bAmmoCounterBelowGunHUD = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Gun Hud")
-		TObjectPtr<UTexture2D> GunHUDTexture;
+		TObjectPtr<UTexture2D> GunHUDTexture = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Handle Gun")
-		struct FWeaponAnimation WeaponDrawAnim;
+		struct FWeaponAnimation WeaponDrawAnim = FWeaponAnimation();;
 	UPROPERTY(EditDefaultsOnly, Category = "Handle Gun")
-		TObjectPtr<USoundBase> DrawGunSound;
+		TObjectPtr<USoundBase> DrawGunSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Handle Gun")
-		struct FWeaponAnimation WeaponPutAwayAnim;
+		struct FWeaponAnimation WeaponPutAwayAnim = FWeaponAnimation();;
 	UPROPERTY(EditDefaultsOnly, Category = "Handle Gun")
-		TObjectPtr<USoundBase> PutAwayGunSound;
+		TObjectPtr<USoundBase> PutAwayGunSound = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Drop gun")
-		TSubclassOf<class APickupItem> ItemToSpawnAfterDropGun;
+		TSubclassOf<class APickupItem> ItemToSpawnAfterDropGun = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Drop gun")
 		float DistanceToDropGun = 500.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Drop gun")
-		TObjectPtr<USoundBase> DropGunSound;
+		TObjectPtr<USoundBase> DropGunSound = nullptr;
 
 	//The item that is the ammunition for this weapon.
 	UPROPERTY(EditDefaultsOnly, Category = "Stored Ammunition")
-		FName RowNameForAmmunitionItem;
+		FName RowNameForAmmunitionItem = FName();
 	//When a player picks up a weapon for the first time, StoredAmmo will be added to the inventory.
 	UPROPERTY(EditAnywhere, Category = "Stored Ammunition")
 		int32 StoredAmmo = 50;
 
-	bool bDropGun;
+	UPROPERTY(Transient)
+		bool bDropGun = false;
 	void DropGun();
 
 	void AddAmmoToInventory();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AGun> Gun;
+		TObjectPtr<class AGun> Gun = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player;
+		TObjectPtr<class AMarineCharacter> Player = nullptr;
 };

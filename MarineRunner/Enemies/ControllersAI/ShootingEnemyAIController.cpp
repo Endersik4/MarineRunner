@@ -33,9 +33,13 @@ void AShootingEnemyAIController::Tick(float DeltaTime)
 void AShootingEnemyAIController::HandleTargetPerceptionUpdated(AActor* TargetActor, FAIStimulus Stimulus)
 {
 	if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == SightSenseClass)
+	{
 		SightHandle(TargetActor, Stimulus);
+	}
 	else if (UAIPerceptionSystem::GetSenseClassForStimulus(GetWorld(), Stimulus) == HearingSenseClass)
+	{
 		HearingHandle(TargetActor, Stimulus);
+	}
 }
 
 void AShootingEnemyAIController::SightHandle(TObjectPtr<AActor> SensedActor, const FAIStimulus& SightStimulus)
@@ -83,13 +87,16 @@ void AShootingEnemyAIController::DetectPlayerWithDelay(bool bIsDetected, AActor*
 
 	AddEnemyToDetected(bDoEnemySeePlayer);
 
+	if (!IsValid(GetPawn()))
+		return;
+
 	TObjectPtr<class AShootingEnemyPawn > EnemyPawn = Cast<AShootingEnemyPawn>(GetPawn());
 	if (!IsValid(EnemyPawn)) 
 		return;
 	EnemyPawn->SawTheTarget(bDoEnemySeePlayer, DetectedActor, bStartAttackingTheTarget);
 }
 
-bool AShootingEnemyAIController::CanSeeTheTarget(TObjectPtr<AActor> TargetActor)
+const bool AShootingEnemyAIController::CanSeeTheTarget(const TObjectPtr<AActor> TargetActor)
 {
 	if (!IsValid(TargetActor) || !IsValid(GetBlackboardComponent())) 
 		return false;
@@ -102,6 +109,9 @@ bool AShootingEnemyAIController::CanSeeTheTarget(TObjectPtr<AActor> TargetActor)
 
 void AShootingEnemyAIController::AddEnemyToDetected(bool bWas)
 {
+	if (!IsValid(UGameplayStatics::GetGameInstance(GetWorld())))
+		return;
+
 	TObjectPtr<UMarineRunnerGameInstance> MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (!IsValid(MarineRunnerGameInstance))
 		return;
@@ -120,10 +130,14 @@ void AShootingEnemyAIController::SetAIVariables()
 {
 	if (!AIBehaviour) 
 		return;
+
 	RunBehaviorTree(AIBehaviour);
 
 	GetBlackboardComponent()->SetValueAsInt(TEXT("HowManyLocations"), HowManyLocations);
 	GetBlackboardComponent()->SetValueAsInt(TEXT("CurrentLocations"), HowManyLocations);
+
+	if (!ensureMsgf(IsValid(GetPawn()), TEXT("Enemy Pawn is nullptr in ShootingEnemyAIController")))
+		return;
 
 	TObjectPtr<AShootingEnemyPawn > EnemyPawn = Cast<AShootingEnemyPawn>(GetPawn());
 	if (!IsValid(EnemyPawn)) 

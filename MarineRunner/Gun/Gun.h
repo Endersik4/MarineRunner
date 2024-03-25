@@ -61,12 +61,12 @@ public:
 	FORCEINLINE void SetConstantlyShoot(bool bNewConstantlyShoot) { bConstantlyShoot = bNewConstantlyShoot; }
 	FORCEINLINE void SetPlayer(TObjectPtr<class AMarineCharacter> NewPlayer) { Player = NewPlayer; }
 
-	FORCEINLINE bool GetCanShoot() const { return bCanShoot; }
+	FORCEINLINE const bool GetCanShoot() const { return bCanShoot; }
 	FORCEINLINE float GetShootTime() const { return ShootTime; }
 	FORCEINLINE EStatusOfAimedGun GetStatusOfGun() const { return StatusOfGun; }
 
 	FORCEINLINE bool GetUseScope() const { return bUseScope; }
-	FORCEINLINE class AScope* GetScopeActor() const { return ScopeActor; }
+	FORCEINLINE TObjectPtr<class AScope> GetScopeActor() const { return ScopeActor; }
 
 	FORCEINLINE TObjectPtr<USkeletalMeshComponent> GetGunSkeletalMesh() const { return GunSkeletalMesh; }
 	FORCEINLINE TObjectPtr<class UGunControlsComponent> GetGunControlsComponent() const { return GunControlsComponent; }
@@ -79,18 +79,18 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<USkeletalMeshComponent> GunSkeletalMesh;
+		TObjectPtr<USkeletalMeshComponent> GunSkeletalMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UGunRecoilComponent> GunRecoilComponent;
+		TObjectPtr<class UGunRecoilComponent> GunRecoilComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UDropCasingComponent> DropCasingComponent;
+		TObjectPtr<class UDropCasingComponent> DropCasingComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UGunControlsComponent> GunControlsComponent;
+		TObjectPtr<class UGunControlsComponent> GunControlsComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UGunReloadComponent> GunReloadComponent;
+		TObjectPtr<class UGunReloadComponent> GunReloadComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		FBulletStruct BulletData;
+		FBulletStruct BulletData = FBulletStruct();
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Shoot")
 		float ShootTime = 1.f;
@@ -99,33 +99,33 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot")
 		FName AttachShootEffectsSocketName = FName(TEXT("MuzzleFlash"));
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot|Animations")
-		FWeaponAnimation WeaponShootAnim;
+		FWeaponAnimation WeaponShootAnim = FWeaponAnimation();
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot|Animations")
-		FWeaponAnimation WeaponShootWithNoBulletsAnim;
+		FWeaponAnimation WeaponShootWithNoBulletsAnim = FWeaponAnimation();;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot|Animations")
-		FWeaponAnimation WeaponADSShootAnim;
+		FWeaponAnimation WeaponADSShootAnim = FWeaponAnimation();;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot|Animations")
-		FWeaponAnimation WeaponADSShootWithNoBulletsAnim;
+		FWeaponAnimation WeaponADSShootWithNoBulletsAnim = FWeaponAnimation();;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot|Sounds")
-		TObjectPtr<USoundBase> ShootSound;
+		TObjectPtr<USoundBase> ShootSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot|Sounds")
-		TObjectPtr<USoundBase> EmptyMagazineSound;
+		TObjectPtr<USoundBase> EmptyMagazineSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot|Particles")
-		TObjectPtr<UParticleSystem> ShootParticle;
+		TObjectPtr<UParticleSystem> ShootParticle = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot|Particles")
-		float ShootParticleScale;
+		float ShootParticleScale = 1.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		bool bAutomaticGun;
+		bool bAutomaticGun = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		bool bManyBulletsPerShoot;
+		bool bManyBulletsPerShoot = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun", meta = (EditCondition = "bManyBulletsPerShoot", EditConditionHides))
 		int32 BulletsAmountPerShoot = 10;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Scope")
-		bool bUseScope;
+		bool bUseScope = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Scope", meta = (EditCondition = "bUseScope", EditConditionHides))
-		int32 ZoomMaterialIndexOnWeapon;
+		int32 ZoomMaterialIndexOnWeapon = 0;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		float MovementSpeedWhenInADS = 50000.f;
@@ -134,16 +134,19 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		float WeaponSwayWhileMovingInADSDivider = 3.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|ADS|Animations")
-		FWeaponAnimation WeaponADSInAnim;
+		FWeaponAnimation WeaponADSInAnim = FWeaponAnimation();;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|ADS|Animations")
-		FWeaponAnimation WeaponADSOutAnim;
+		FWeaponAnimation WeaponADSOutAnim = FWeaponAnimation();;
 
-	bool bShootButtonPressed;
-	EStatusOfAimedGun StatusOfGun = EStatusOfAimedGun::ESAG_HipFire;
+	UPROPERTY(Transient)
+		bool bShootButtonPressed = false;
+	UPROPERTY(Transient)
+		TEnumAsByte<EStatusOfAimedGun> StatusOfGun = EStatusOfAimedGun::ESAG_HipFire;
 
 	// Shoot
 	FTimerHandle ShootHandle;
-	bool bCanShoot = true;
+	UPROPERTY(Transient)
+		bool bCanShoot = true;
 	bool CanShoot();
 	void ShootFinished();
 
@@ -155,16 +158,20 @@ private:
 	void AddEffectsToShooting();
 
 	// Constantly Shooting 
-	bool bConstantlyShoot;
+	UPROPERTY(Transient)
+		bool bConstantlyShoot = false;
 	FTimerHandle ConstantlyShootHandle;
 
-	bool bCoyoteShootTime;
-	void ShootAfterDelayIfCan() { bCoyoteShootTime = false; }
+	UPROPERTY(Transient)
+		bool bCoyoteShootTime = false;
+	FORCEINLINE void ShootAfterDelayIfCan() { bCoyoteShootTime = false; }
 	FTimerHandle CoyoteShootHandle;
 
 	// Scope
 	void SetUpZoom();
-	TObjectPtr<class AScope> ScopeActor;
+	UPROPERTY(Transient)
+		TObjectPtr<class AScope> ScopeActor = nullptr;
 
-	TObjectPtr<class AMarineCharacter> Player;
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> Player = nullptr;
 };

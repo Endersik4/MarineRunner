@@ -16,7 +16,9 @@ void UEnemyGunComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OwningEnemyInterface = Cast<IEnemyInterface>(GetOwner());
+	if (IsValid(GetOwner()))
+		OwningEnemyInterface = Cast<IEnemyInterface>(GetOwner());
+
 	InitialMagazineCapacity = MagazineCapacity;
 }
 
@@ -52,26 +54,48 @@ bool UEnemyGunComponent::CanShoot()
 
 void UEnemyGunComponent::ShootEffects()
 {
-	if (IsValid(ShootingSound)) 
+	if (!IsValid(OwningEnemyInterface->GetSkeletalMesh()))
+		return;
+
+	if (IsValid(ShootingSound))
 		UGameplayStatics::SpawnSoundAttached(ShootingSound, OwningEnemyInterface->GetSkeletalMesh(), MuzzleFleshSocketNames[CurrentSocketNameIndex]);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Shooting Sound is nullptr in EnemyGunComponent!"));
+
 	if (ShootParticle)
-	{
 		UParticleSystemComponent* SpawnedShootParticle = UGameplayStatics::SpawnEmitterAttached(ShootParticle, OwningEnemyInterface->GetSkeletalMesh(), MuzzleFleshSocketNames[CurrentSocketNameIndex], FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
-	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Spawned Shoot Particle is nullptr in EnemyGunComponent!"));
 }
 
 void UEnemyGunComponent::SpawnManyBullets()
 {
-	if (bManyBulletAtOnce) for (int i = 0; i != HowManyBulletsToSpawn; i++) SpawnBullet();
-	else SpawnBullet();
+	if (bManyBulletAtOnce)
+	{
+		for (int i = 0; i != HowManyBulletsToSpawn; i++)
+		{
+			SpawnBullet();
+		}
+	}
+	else
+	{
+		SpawnBullet();
+	}
 }
 
 void UEnemyGunComponent::SpawnBullet()
 {
-	FRotator BulletRotation = CalculateBulletRotation();
+	if (!OwningEnemyInterface)
+		return;
+	if (!IsValid(OwningEnemyInterface->GetSkeletalMesh()))
+		return;
 
-	FTransform BulletTransform = FTransform(BulletRotation, OwningEnemyInterface->GetSkeletalMesh()->GetSocketLocation(BulletSocketsNames[CurrentSocketNameIndex]));
-	ABullet* SpawnedBullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletData.BulletClass, BulletTransform);
+	const FRotator& BulletRotation = CalculateBulletRotation();
+
+	const FTransform& BulletTransform = FTransform(BulletRotation, OwningEnemyInterface->GetSkeletalMesh()->GetSocketLocation(BulletSocketsNames[CurrentSocketNameIndex]));
+	TObjectPtr<ABullet> SpawnedBullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletData.BulletClass, BulletTransform);
+	if (!IsValid(SpawnedBullet))
+		return;
 
 	FBulletStruct BulletDataForSpawnedBullet = BulletData;
 	BulletDataForSpawnedBullet.Damage = (bManyBulletAtOnce == false ? BulletData.Damage : BulletData.Damage / HowManyBulletsToSpawn);
@@ -79,12 +103,11 @@ void UEnemyGunComponent::SpawnBullet()
 	if (BulletData.bUsePhysicsForMovement)
 	{
 		const FVector& Gravity = FVector(0.f, 0.f, -980.f);
-		float CalculatedImpulse_X = FMath::Abs((OwningEnemyInterface->GetFocusedActor()->GetActorLocation() - BulletTransform.GetLocation() - (Gravity / 2)).X);
+		const float& CalculatedImpulse_X = FMath::Abs((OwningEnemyInterface->GetFocusedActor()->GetActorLocation() - BulletTransform.GetLocation() - (Gravity / 2)).X);
 		BulletDataForSpawnedBullet.Speed = BulletData.Speed * CalculatedImpulse_X;
 	}
 
 	SpawnedBullet->SetBulletData(BulletDataForSpawnedBullet);
-
 	SpawnedBullet->FinishSpawning(BulletTransform);
 
 	CurrentSocketNameIndex++;
@@ -94,11 +117,12 @@ void UEnemyGunComponent::SpawnBullet()
 	}
 }
 
-FVector UEnemyGunComponent::PredictWhereToShoot(bool bIgnoreOffset)
+const FVector UEnemyGunComponent::PredictWhereToShoot(const bool bIgnoreOffset)
 {
-	TObjectPtr<AActor> CurrentFocusedActor = OwningEnemyInterface->GetFocusedActor();
+	const TObjectPtr<AActor> CurrentFocusedActor = OwningEnemyInterface->GetFocusedActor();
 	if (!IsValid(CurrentFocusedActor))
 		return FVector(0.f);
+
 	FVector FocusedActorLocation = CurrentFocusedActor->GetActorLocation();
 
 	if (bIgnoreOffset)
@@ -110,7 +134,7 @@ FVector UEnemyGunComponent::PredictWhereToShoot(bool bIgnoreOffset)
 	return FocusedActorLocation;
 }
 
-FRotator UEnemyGunComponent::CalculateBulletRotation()
+const FRotator UEnemyGunComponent::CalculateBulletRotation()
 {
 	FRotator BulletRotation;
 	if (bFindBulletRotationTowardsTarget)
@@ -131,7 +155,7 @@ FRotator UEnemyGunComponent::CalculateBulletRotation()
 
 void UEnemyGunComponent::AddImpulseDuringShooting()
 {
-	FVector RecoilImpulse = -GetOwner()->GetActorForwardVector() * RecoilImpulseOnEnemy;
+	const FVector& RecoilImpulse = -GetOwner()->GetActorForwardVector() * RecoilImpulseOnEnemy;
 	OwningEnemyInterface->AddImpulseToPhysicsMesh(RecoilImpulse);
 }
 

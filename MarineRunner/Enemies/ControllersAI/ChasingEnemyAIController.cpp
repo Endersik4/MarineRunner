@@ -20,18 +20,22 @@ void AChasingEnemyAIController::BeginPlay()
 
 void AChasingEnemyAIController::CheckDistanceToPlayer()
 {
+	if (!ensureMsgf(IsValid(GetPawn()), TEXT("Punching Enemy Pawn is nullptr in ChasingEnemyAIController!")))
+		return;
+
 	TObjectPtr<APunchingEnemyPawn> EnemyOwner = Cast<APunchingEnemyPawn>(GetPawn());
 	if (!IsValid(EnemyOwner))
 		return;
 
+	if (!IsValid(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)))
+		return;
 	TObjectPtr<APawn> Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	if (!IsValid(Player))
 		return;
 
-	if (FVector::Dist(EnemyOwner->GetActorLocation(), Player->GetActorLocation()) > MaxDistanceToDetectPlayer && !bPlayerDetected)
-	{
+	const float& DistanceToPlayer = FVector::Dist(EnemyOwner->GetActorLocation(), Player->GetActorLocation());
+	if (DistanceToPlayer > MaxDistanceToDetectPlayer && !bPlayerDetected)
 		return;
-	}
 
 	bPlayerDetected = true;
 	MoveToActor(Player, 40.f);

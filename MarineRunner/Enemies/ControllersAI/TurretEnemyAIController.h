@@ -27,16 +27,17 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UAIPerceptionComponent* EnemyPerception;
+		class UAIPerceptionComponent* EnemyPerception = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Turret AI Settings")
 		float StopSeeingTheActorTime = 15.f;
 
 	FTimerHandle StopSeeingTheActorHandle;
 
-	bool bActorWasSeen = false;
+	UPROPERTY(Transient)
+		bool bActorWasSeen = false;
 	void StopSeeingActor();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AEnemyTurretPawn> TurretPawn;
+		TObjectPtr<class AEnemyTurretPawn> TurretPawn = nullptr;
 
 };

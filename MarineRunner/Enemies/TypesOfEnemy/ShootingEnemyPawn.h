@@ -38,7 +38,7 @@ public:
 	// Bone Rotation - Bone will be looking at the player when he is detected.
 	// bLookStraight means whether Bone should look directly at the player's camera or with some margin
 	UFUNCTION(BlueprintCallable)
-		FRotator FocusBoneOnPlayer(FName BoneName, bool bLookStraight);
+		const FRotator FocusBoneOnPlayer(const FName BoneName, const bool bLookStraight);
 
 	void SawTheTarget(bool bSaw, TObjectPtr<AActor> SeenTarget = nullptr, bool bStartAttackingTheTarget = true);
 protected:
@@ -47,7 +47,7 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		TObjectPtr<class UEnemyGunComponent> EnemyGunComponent;
+		TObjectPtr<class UEnemyGunComponent> EnemyGunComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
 		float TimeToStartShooting = 1.f;
@@ -56,24 +56,24 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
 		FFloatRange StartShootingRandomTimeRange = FFloatRange(1.f, 3.f);
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot|Animations")
-		TObjectPtr<UAnimMontage> ShootAnimMontage;
+		TObjectPtr<UAnimMontage> ShootAnimMontage = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot|Animations")
-		TObjectPtr<UAnimMontage> EnableShootAnimMontage;
+		TObjectPtr<UAnimMontage> EnableShootAnimMontage = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot|Animations")
-		TObjectPtr<UAnimMontage> DisableShootAnimMontage;
+		TObjectPtr<UAnimMontage> DisableShootAnimMontage = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot")
 		bool bAlertAboutShoot = false;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot", meta = (EditCondition = "bAlertAboutShoot", EditConditionHides))
-		int32 AlertMaterialIndexToChange;
+		int32 AlertMaterialIndexToChange = 0;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot", meta = (EditCondition = "bAlertAboutShoot", EditConditionHides))
-		FName AlertParameterNameToChange;
+		FName AlertParameterNameToChange = FName();
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot", meta = (EditCondition = "bAlertAboutShoot", EditConditionHides))
-		float BeginParameterChangeAfterShootTime;
+		float BeginParameterChangeAfterShootTime = 0.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot", meta = (EditCondition = "bAlertAboutShoot", EditConditionHides))
-		float FinishAlertParameterChangeTime;
+		float FinishAlertParameterChangeTime = 0.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Alert About Shoot", meta = (EditCondition = "bAlertAboutShoot", EditConditionHides))
-		float EndValueForAlertParameter;
+		float EndValueForAlertParameter = 0.f;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Enemy Run Away")
 		bool bCanEnemyRunAway = true;
@@ -95,19 +95,20 @@ private:
 	void Shoot();
 	void PlayPrepareToShootAnimation(bool bTargetWasDetected);
 
-	// Alert about shoot
-	float AlertTimeElapsed;
-	bool bStartAlert;
+	UPROPERTY(Transient)
+		float AlertTimeElapsed = 0.f;
+	UPROPERTY(Transient)
+		bool bStartAlert = false;
 	void SetUpShootAlert();
 	void ChangeParameterInAlertMaterial(float Delta);
 	void ResetAlertMaterial();
 	UPROPERTY(Transient)
-		TObjectPtr<UMaterialInstanceDynamic>CurrentAlertMaterial;
+		TObjectPtr<UMaterialInstanceDynamic>CurrentAlertMaterial = nullptr;
 
 	//If enemy see the player then he will execute given functions
 	UPROPERTY(Transient)
-		TObjectPtr<AActor> FocusedActor;
-	bool bEnemyDetectedTarget;
+		TObjectPtr<AActor> FocusedActor = nullptr;
+	bool bEnemyDetectedTarget = false;
 
 	void SetEnemyKilledInAIController();
 

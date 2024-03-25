@@ -47,11 +47,13 @@ void AEnemyTurretPawn::Shoot()
 
 	if (IsValid(ShootAnimMontage))
 		TurretSkeletalMesh->GetAnimInstance()->Montage_Play(ShootAnimMontage);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Shoot Anim montage is nullptr in EnemyTurretPawn!"));
 }
 
 void AEnemyTurretPawn::PlayerWasSeen(bool bWas, AActor* ActorSeen)
 {
-	// first time turret saw it
+	// first time turret saw the target
 	if (!bRotateBones && bWas)
 	{
 		GetWorld()->GetTimerManager().SetTimer(StartShootingHandle, this, &AEnemyTurretPawn::Shoot, TimeBetweenShoots, true);
@@ -71,10 +73,8 @@ void AEnemyTurretPawn::RotateBonesTowardDetectedActor(float Delta)
 	if (!bRotateBones)
 		return;
 
-	if (!ensureMsgf(IsValid(FocusedActor), TEXT("Focused Actor is nullptr in EnemyTurretPawn->RotateBonesTowardDetectedActor")))
-	{
+	if (!IsValid(FocusedActor))
 		return;
-	}
 
 	for (const FRotateTurretBone& RotateBone : RotateTurretBones)
 	{

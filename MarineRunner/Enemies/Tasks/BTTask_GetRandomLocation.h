@@ -32,5 +32,5 @@ private:
 	FVector GetRandomLocation();
 
 	UPROPERTY(Transient)
-		TObjectPtr<AActor> OwningActor;
+		TObjectPtr<AActor> OwningActor = nullptr;
 };

@@ -71,24 +71,27 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		TObjectPtr<USkeletalMeshComponent> TurretSkeletalMesh;
+		TObjectPtr<USkeletalMeshComponent> TurretSkeletalMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
-		TObjectPtr<class UEnemyGunComponent> TurretGunComponent;
+		TObjectPtr<class UEnemyGunComponent> TurretGunComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Turret Settings")
-		TArray<FRotateTurretBone> RotateTurretBones;
+		TArray<FRotateTurretBone> RotateTurretBones = { FRotateTurretBone() };
 	UPROPERTY(EditAnywhere, Category = "Turret Settings")
 		float TimeBetweenShoots = 0.1f;
 	UPROPERTY(EditAnywhere, Category = "Turret Settings")
-		TObjectPtr<UAnimMontage> ShootAnimMontage;
+		TObjectPtr<UAnimMontage> ShootAnimMontage = nullptr;
 
 	FTimerHandle StartShootingHandle;
 	void Shoot();
 
-	bool bRotateBones;
-	TObjectPtr<AActor> FocusedActor;
+	UPROPERTY(Transient)
+		bool bRotateBones = false;
+	UPROPERTY(Transient)
+		TObjectPtr<AActor> FocusedActor;
+	UPROPERTY(Transient)
+		FVector FocusedActorLocation = FVector::Zero();
+
 	void LimitAngleAccordingToRange(double& Angle, const FFloatRange& Range);
 	void RotateBonesTowardDetectedActor(float Delta);
-
-	FVector FocusedActorLocation;
 };

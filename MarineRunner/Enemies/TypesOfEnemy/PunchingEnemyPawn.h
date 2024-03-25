@@ -18,7 +18,7 @@ protected:
 	APunchingEnemyPawn();
 
 public:
-	void PlayerDetected(bool bDetected, APawn* DetectedPawn = nullptr);
+	void PlayerDetected(const bool bDetected, APawn* DetectedPawn = nullptr);
 
 private:
 
@@ -39,21 +39,21 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
 		float CanDamageAgainTime = 0.6f;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
-		TObjectPtr<UAnimMontage> PunchAnimMontage;
+		TObjectPtr<UAnimMontage> PunchAnimMontage = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
-		TObjectPtr<USoundBase> PunchSound;
+		TObjectPtr<USoundBase> PunchSound = nullptr;
 
 	FTimerHandle PlayerCloseForHitHandle;
 	void IsPlayerCloseForHit();
 
 	void StartPunchingPlayer();
-	bool bIsPunching;
+	bool bIsPunching = false;
 
-	FVector DamageSphereLocation;
+	FVector DamageSphereLocation = FVector::Zero();
 	void ApplyDamageToPlayer();
 
 	void DamageAnimFinished();
 
 	UPROPERTY(Transient)
-		TObjectPtr<APawn> DetectedPlayer;
+		TObjectPtr<APawn> DetectedPlayer = nullptr;
 };

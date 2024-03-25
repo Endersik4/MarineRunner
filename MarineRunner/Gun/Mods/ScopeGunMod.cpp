@@ -40,7 +40,7 @@ void AScope::SetUpZoomMaterial(TObjectPtr<AGun> Gun)
 	OwningGun = Gun;
 }
 
-int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
+const int32 AScope::Zoom(const float WheelAxis, const bool bShouldRestartScope)
 {
 	if (Scope_FOVValues.Num() < 1) 
 		return 0;
@@ -59,11 +59,15 @@ int32 AScope::Zoom(float WheelAxis, bool bShouldRestartScope)
 	{
 		ChangeScope(CurrentScope - 1);
 	}
-	else 
+	else
+	{
 		return CurrentScope;
+	}
 
-	if (IsValid(ZoomSound)) 
+	if (IsValid(ZoomSound))
 		UGameplayStatics::PlaySound2D(GetWorld(), ZoomSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Zoom Sound is nullptr in ScopeGunMode!"));
 
 	return CurrentScope;
 }
@@ -83,11 +87,15 @@ void AScope::ActiveZoom(bool bShouldActive)
 	{
 		if (ZoomRenderTargetMaterial)
 			OwningGun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomRenderTargetMaterial);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Zoom Render Target Material is nullptr in ScopeGunMode!"));
 	}
 	else
 	{ 
 		if (ZoomNotActiveMaterial)
 			OwningGun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomNotActiveMaterial);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Zoom Not Active Material is nullptr in ScopeGunMode!"));
 	}
 
 	ZoomCamera->SetActive(bShouldActive);

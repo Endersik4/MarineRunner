@@ -14,12 +14,15 @@ void UDropCasingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Gun = Cast<AGun>(GetOwner());
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Gun is nullptr in GunControlsComponenet!")))
+	{
+		Gun = Cast<AGun>(GetOwner());
+	}
 }
 
 void UDropCasingComponent::StartTimerToDropCasing()
 {
-	if (bCasingEjection == false)
+	if (!bCasingEjection)
 		return;
 
 	GetWorld()->GetTimerManager().SetTimer(DropCasingHandle, this, &UDropCasingComponent::DropCasing, SpawnCasingAfterTime, false);
@@ -28,6 +31,8 @@ void UDropCasingComponent::StartTimerToDropCasing()
 void UDropCasingComponent::DropCasing()
 {
 	if (!IsValid(DropBulletClass) || !IsValid(Gun))
+		return;
+	if (!IsValid(Gun->GetGunSkeletalMesh()))
 		return;
 
 	FRotator DropBulletRotation = Gun->GetActorRotation();
@@ -48,5 +53,4 @@ void UDropCasingComponent::DropCasing()
 void UDropCasingComponent::CancelDropCasingTimer()
 {
 	GetWorld()->GetTimerManager().ClearTimer(DropCasingHandle);
-
 }

@@ -33,15 +33,15 @@ private:
 		void DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor, bool bStartAttackingTheTarget = true);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UAIPerceptionComponent> EnemyPerception;
+		TObjectPtr<class UAIPerceptionComponent> EnemyPerception = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		TObjectPtr<class UBehaviorTree> AIBehaviour;
+		TObjectPtr<class UBehaviorTree> AIBehaviour = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		TSubclassOf<class UAISense> SightSenseClass;
+		TSubclassOf<class UAISense> SightSenseClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		TSubclassOf<class UAISense> HearingSenseClass;
+		TSubclassOf<class UAISense> HearingSenseClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		int32 HowManyLocations = 5;
 	//How long does it take to detect the player by enemy
@@ -51,15 +51,16 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
 		float LoseSightOfPlayerTime = 5.f;
 
-	
-
 	void SetAIVariables();
-	bool bDead;
+	UPROPERTY(Transient)
+		bool bDead;
+	UPROPERTY(Transient)
+		bool bDoEnemySeePlayer;
 
-	bool bDoEnemySeePlayer;
-	bool CanSeeTheTarget(TObjectPtr<AActor> TargetActor);
+	const bool CanSeeTheTarget(const TObjectPtr<AActor> TargetActor);
 
 	FTimerHandle DetectPlayerDelayHandle;
+
 	void SightHandle(TObjectPtr<AActor> SensedActor, const struct FAIStimulus& SightStimulus);
 	void HearingHandle(TObjectPtr<AActor> SensedActor, const struct FAIStimulus& HearingStimulus);
 

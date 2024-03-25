@@ -5,7 +5,7 @@
 #include "Components/ProgressBar.h"
 #include "Components/Image.h"
 
-void UEnemyIndicatorWidget::SetCurrentHealthInHealthBar(float NewHealth)
+void UEnemyIndicatorWidget::SetCurrentHealthInHealthBar(const float NewHealth)
 {
 	if (NewHealth < 0.f)
 		return;

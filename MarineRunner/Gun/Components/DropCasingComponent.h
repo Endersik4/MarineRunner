@@ -34,7 +34,7 @@ private:
 		float SpawnCasingAfterTime = 0.05f;
 	//Actor that will spawn on the location from Socket "BulletDrop". Its for casing that is dumped from gun
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection", meta = (EditCondition = "bCasingEjection", EditConditionHides))
-		TSubclassOf<AActor> DropBulletClass;
+		TSubclassOf<AActor> DropBulletClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection", meta = (EditCondition = "bCasingEjection", EditConditionHides))
 		bool bShouldRandomizeRotationOfCasing = true;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Casing Ejection", meta = (EditCondition = "bCasingEjection && bShouldRandomizeRotationOfCasing", EditConditionHides))
@@ -48,5 +48,5 @@ private:
 	FTimerHandle DropCasingHandle;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AGun> Gun;
+		TObjectPtr<class AGun> Gun = nullptr;
 };

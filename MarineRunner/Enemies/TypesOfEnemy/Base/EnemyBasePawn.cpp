@@ -38,10 +38,7 @@ void AEnemyPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	EnemyIndicatorWidgetComponent->SetVisibility(false);
-	EnemyIndicatorWidget = Cast<UEnemyIndicatorWidget>(EnemyIndicatorWidgetComponent->GetUserWidgetObject());
-	if (IsValid(EnemyIndicatorWidget))
-		EnemyIndicatorWidget->SetMaxHealth(Health);
+	SetUpEnemyHealthIndicatorWidgetComponent();
 }
 
 // Called every frame
@@ -58,7 +55,7 @@ void AEnemyPawn::Tick(float DeltaTime)
 #pragma region ///////////////// DAMAGE ///////////////////////
 void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadiusToApplyDamage)
 {
-	FHitBoneType* FoundBoneForExtraDamage = HitBoneTypes.FindByKey(NewHit.BoneName);
+	const FHitBoneType* FoundBoneForExtraDamage = HitBoneTypes.FindByKey(NewHit.BoneName);
 	if (FoundBoneForExtraDamage)
 	{
 		NewDamage *= FoundBoneForExtraDamage->DamageMultiplier;
@@ -119,14 +116,14 @@ void AEnemyPawn::SpawnGunshotWoundDecal(const FHitResult& Hit)
 	if (!IsValid(GunshotWoundDecalMaterial)) 
 		return;
 
-	FVector GunshotWoundSize = FVector(FMath::FRandRange(GunshotWoundRandomSizeRange.GetLowerBoundValue(), GunshotWoundRandomSizeRange.GetUpperBoundValue()));
-	FRotator GunshotWoundRotation = Hit.ImpactNormal.Rotation();
+	const FVector& GunshotWoundSize = FVector(FMath::FRandRange(GunshotWoundRandomSizeRange.GetLowerBoundValue(), GunshotWoundRandomSizeRange.GetUpperBoundValue()));
+	const FRotator& GunshotWoundRotation = Hit.ImpactNormal.Rotation();
 	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAttached(GunshotWoundDecalMaterial, GunshotWoundSize, EnemySkeletalMesh, Hit.BoneName, Hit.Location, GunshotWoundRotation, EAttachLocation::KeepWorldPosition, GunshotWoundDecalLifeSpan);
-	if (IsValid(SpawnedDecal))
-	{
-		SpawnedDecal->SetFadeScreenSize(0.f);
-		SpawnedDecal->DecalSize.X += AdditionalGunshotWoundSize_X;
-	}
+	if (!IsValid(SpawnedDecal))
+		return;
+	
+	SpawnedDecal->SetFadeScreenSize(0.f);
+	SpawnedDecal->DecalSize.X += AdditionalGunshotWoundSize_X;
 }
 
 void AEnemyPawn::PlayFootstepsSound()
@@ -140,13 +137,22 @@ void AEnemyPawn::PlayFootstepsSound()
 
 	float FootstepsTime = TimeBetweenNextStep;
 	
-	if (bIsRunningAway && FootstepsRunningAwaySound)
+	if (bIsRunningAway)
 	{
-		UGameplayStatics::SpawnSoundAttached(FootstepsRunningAwaySound, EnemySkeletalMesh);
+		if (IsValid(FootstepsRunningAwaySound))
+			UGameplayStatics::SpawnSoundAttached(FootstepsRunningAwaySound, EnemySkeletalMesh);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Footsteps Running Away Sound is nullptr in EnemyBasePawn!"));
+
 		FootstepsTime = TimeBetweenNextStepWhileRunningAway;
 	}
-	else if (FootstepsSound)
-		UGameplayStatics::SpawnSoundAttached(FootstepsSound, EnemySkeletalMesh);
+	else
+	{
+		if (IsValid(FootstepsSound))
+			UGameplayStatics::SpawnSoundAttached(FootstepsSound, EnemySkeletalMesh);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Footsteps Sound is nullptr in EnemyBasePawn!"));
+	}
 
 	bCanPlayFootstepsSound = false;
 	GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AEnemyPawn::SetCanPlayFootstepsSound, FootstepsTime, false);
@@ -156,22 +162,32 @@ void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType
 {
 	if (IsValid(EnemyBloodParticle))
 	{
-		FRotator EnemyBloodParticleRotation = Hit.ImpactNormal.Rotation() - EnemyBloodParticleRotationOffset;
+		const FRotator& EnemyBloodParticleRotation = Hit.ImpactNormal.Rotation() - EnemyBloodParticleRotationOffset;
+
 		TObjectPtr<UParticleSystemComponent> SpawnedParticle = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), EnemyBloodParticle, Hit.ImpactPoint, EnemyBloodParticleRotation);
-		SpawnedParticle->SetColorParameter(BloodColorParameterName, BloodColor);
+		if (IsValid(SpawnedParticle))
+			SpawnedParticle->SetColorParameter(BloodColorParameterName, BloodColor);
 	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Enemy Blood Particle is nullptr in EnemyBasePawn!"));
 
 	if (PtrHitBoneType)
 	{
 		if (PtrHitBoneType->bCustomSoundForHitBone == true && PtrHitBoneType->BoneHitSound)
 		{
-			UGameplayStatics::PlaySound2D(GetWorld(), PtrHitBoneType->BoneHitSound);
+			if (IsValid(PtrHitBoneType->BoneHitSound))
+				UGameplayStatics::PlaySound2D(GetWorld(), PtrHitBoneType->BoneHitSound);
+			else
+				UE_LOG(LogTemp, Warning, TEXT("Bone Hit Sound is nullptr in EnemyBasePawn!"));
+
 			return;
 		}
 	}
 
-	if (DefaultBoneHitSound) 
+	if (IsValid(DefaultBoneHitSound)) 
 		UGameplayStatics::PlaySound2D(GetWorld(), DefaultBoneHitSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Default Bone Hit Sound is nullptr in EnemyBasePawn!"));
 }
 
 void AEnemyPawn::SpawnBloodOnObjectDecal(TObjectPtr<const AActor> BulletThatHitEnemy, const FVector& HitLocation)
@@ -180,12 +196,12 @@ void AEnemyPawn::SpawnBloodOnObjectDecal(TObjectPtr<const AActor> BulletThatHitE
 		return;
 
 	FHitResult ObjectToSpawnBloodOnHitResult;
-	bool bObjectHit = GetWorld()->LineTraceSingleByChannel(ObjectToSpawnBloodOnHitResult, HitLocation, HitLocation + BulletThatHitEnemy->GetActorForwardVector() * MaxDistanceToObjectForBlood, ECC_GameTraceChannel5);
+	const bool bObjectHit = GetWorld()->LineTraceSingleByChannel(ObjectToSpawnBloodOnHitResult, HitLocation, HitLocation + BulletThatHitEnemy->GetActorForwardVector() * MaxDistanceToObjectForBlood, ECC_GameTraceChannel5);
 
 	if (!bObjectHit)
 		return;
 
-	FVector DecalSizeAccordingToDistance = FVector(FMath::Clamp(ObjectToSpawnBloodOnHitResult.Distance * BloodDistanceSizeMutliplier, ClampBloodOnObjectSize.GetLowerBoundValue(), ClampBloodOnObjectSize.GetUpperBoundValue()));
+	const FVector& DecalSizeAccordingToDistance = FVector(FMath::Clamp(ObjectToSpawnBloodOnHitResult.Distance * BloodDistanceSizeMutliplier, ClampBloodOnObjectSize.GetLowerBoundValue(), ClampBloodOnObjectSize.GetUpperBoundValue()));
 	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BloodOnObjectDecalMaterial, DecalSizeAccordingToDistance, ObjectToSpawnBloodOnHitResult.Location, (ObjectToSpawnBloodOnHitResult.Normal * -1.f).Rotation());
 
 	if (!IsValid(SpawnedDecal))
@@ -262,3 +278,15 @@ void AEnemyPawn::AddImpulseToPhysicsMesh(const FVector& Impulse)
 	EnemyCapsule->AddImpulse(Impulse);
 }
 
+void AEnemyPawn::SetUpEnemyHealthIndicatorWidgetComponent()
+{
+	EnemyIndicatorWidgetComponent->SetVisibility(false);
+	if (!ensureMsgf(IsValid(EnemyIndicatorWidgetComponent->GetUserWidgetObject()), TEXT("User Widget Object in Enemy Indicator Widget Component is nullptr in EnemyBasePawn")))
+		return;
+
+	EnemyIndicatorWidget = Cast<UEnemyIndicatorWidget>(EnemyIndicatorWidgetComponent->GetUserWidgetObject());
+	if (!IsValid(EnemyIndicatorWidget))
+		return;
+	
+	EnemyIndicatorWidget->SetMaxHealth(Health);
+}

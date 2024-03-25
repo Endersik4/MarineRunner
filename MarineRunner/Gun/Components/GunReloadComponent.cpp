@@ -20,7 +20,12 @@ void UGunReloadComponent::BeginPlay()
 	Super::BeginPlay();
 
 	OriginalMagazineCapacity = MagazineCapacity;
-	Gun = Cast<AGun>(GetOwner());
+
+	if (ensureMsgf(GetOwner(), TEXT("Gun is nullptr in GunReloadComponent!")))
+	{
+		Gun = Cast<AGun>(GetOwner());
+	}
+
 }
 
 #pragma region ////////////////////////////////// RELOAD //////////////////////////////////////
@@ -114,14 +119,15 @@ const FWeaponAnimation& UGunReloadComponent::ReloadAnimAccordingToSituation()
 
 void UGunReloadComponent::ReloadMagazine(FItemStruct* AmmoFromInventory)
 {
-	if (bReloadOneBullet == true)
+	if (bReloadOneBullet)
 	{
 		MagazineCapacity++;
 		AmmoFromInventory->Item_Amount--;
+
 		return;
 	}
 
-	int32 RestAmmo = OriginalMagazineCapacity - MagazineCapacity;
+	const int32& RestAmmo = OriginalMagazineCapacity - MagazineCapacity;
 	if (AmmoFromInventory->Item_Amount < RestAmmo)
 	{
 		MagazineCapacity += AmmoFromInventory->Item_Amount;
@@ -160,7 +166,9 @@ bool UGunReloadComponent::CanShootWhileReloading()
 		return true;
 	}
 	else if (bIsReloading)
+	{
 		return false;
+	}
 
 	return true;
 }

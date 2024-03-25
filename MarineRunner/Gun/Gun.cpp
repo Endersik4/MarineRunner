@@ -38,13 +38,16 @@ void AGun::BeginPlay()
 
 void AGun::SetUpZoom()
 {
-	if (bUseScope == false)
+	if (!bUseScope)
 		return;
 
-	TArray<AActor*> AllChildActors;
+	TArray<TObjectPtr<AActor>> AllChildActors;
 	GetAllChildActors(AllChildActors);
-	for (AActor* CurrentChildActor : AllChildActors)
+	for (TObjectPtr<AActor> CurrentChildActor : AllChildActors)
 	{
+		if (!IsValid(CurrentChildActor))
+			continue;
+
 		if (!CurrentChildActor->ActorHasTag("Scope"))
 			continue;
 
@@ -78,8 +81,11 @@ bool AGun::CanShoot()
 
 	if (GunReloadComponent->GetMagazineCapacity() <= 0)
 	{
-		if (IsValid(EmptyMagazineSound)) 
+		if (IsValid(EmptyMagazineSound))
 			UGameplayStatics::PlaySound2D(GetWorld(), EmptyMagazineSound);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Empty Magazine Sound is nullptr in Gun!"));
+
 		ShootReleased();
 
 		return false;
@@ -106,7 +112,7 @@ void AGun::SetCanShootAgain()
 
 void AGun::Shoot()
 {
-	if (CanShoot() == false) 
+	if (!CanShoot()) 
 		return;
 
 	if (bAutomaticGun)
@@ -119,14 +125,17 @@ void AGun::Shoot()
 		for (int32 i = 0; i != BulletsAmountPerShoot; i++) 
 			SpawnBullet();
 	}
-	else 
+	else
+	{
 		SpawnBullet();
+	}
 
 	GunReloadComponent->SetMagazineCapacity(GunReloadComponent->GetMagazineCapacity() - 1);
 	GunControlsComponent->UpdateWeaponDataInHud();
 
 	bCanShoot = false;
 	GunRecoilComponent->ShootPressed();
+
 	GetWorldTimerManager().SetTimer(ShootHandle, this, &AGun::ShootFinished, ShootTime, false);
 }
 
@@ -157,12 +166,14 @@ void AGun::CancelShoot()
 #pragma region ////////////////////////////////// BULLET //////////////////////////////////////
 void AGun::SpawnBullet()
 {
-	FVector BulletLocation = GunSkeletalMesh->GetSocketLocation(TEXT("Bullet"));
-	FRotator BulletRotation = GetActorRotation() + GunRecoilComponent->RandomBulletRotation();
+	if (!IsValid(BulletData.BulletClass))
+		return;
 
-	FTransform BulletTransform = FTransform(BulletRotation, BulletLocation);
+	const FVector& BulletLocation = GunSkeletalMesh->GetSocketLocation(TEXT("Bullet"));
+	const FRotator& BulletRotation = GetActorRotation() + GunRecoilComponent->RandomBulletRotation();
+
+	const FTransform& BulletTransform = FTransform(BulletRotation, BulletLocation);
 	TObjectPtr<ABullet> SpawnedBullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletData.BulletClass, BulletTransform);
-
 	if (!IsValid(SpawnedBullet))
 		return;
 
@@ -183,8 +194,15 @@ void AGun::AddEffectsToShooting()
 		UGameplayStatics::SpawnSoundAttached(ShootSound, GunSkeletalMesh, AttachShootEffectsSocketName);
 		UAISense_Hearing::ReportNoiseEvent(GetWorld(), GunSkeletalMesh->GetComponentLocation(), 1.f, this);
 	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Shoot Sound is nullptr in Gun!"));
+	}
+
 	if (ShootParticle) 
 		UGameplayStatics::SpawnEmitterAttached(ShootParticle, GunSkeletalMesh, AttachShootEffectsSocketName, FVector(0, 0, 0), FRotator(0, 0, 0), FVector(ShootParticleScale));
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Shoot Particle is nullptr in Gun!"));
 
 	PlayGunShootAnimation();
 
@@ -201,7 +219,9 @@ void AGun::PlayGunShootAnimation()
 		PlayGivenWeaponWithArmsAnimation(WeaponADSShootAnim);
 	}
 	else
+	{
 		PlayGivenWeaponWithArmsAnimation(WeaponShootAnim);
+	}
 }
 
 bool AGun::NoBulletsShootAnim()
@@ -214,7 +234,9 @@ bool AGun::NoBulletsShootAnim()
 		PlayGivenWeaponWithArmsAnimation(WeaponADSShootWithNoBulletsAnim);
 	}
 	else
+	{
 		PlayGivenWeaponWithArmsAnimation(WeaponShootWithNoBulletsAnim);
+	}
 
 	return true;
 }
@@ -235,15 +257,17 @@ void AGun::AimTheGun(EStatusOfAimedGun NewGunStatus)
 	// Player cant change weapon when in ADS
 	Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(!StatusOfGun == EStatusOfAimedGun::ESAG_ADS);
 
-	if (bUseScope == true)
+	if (bUseScope)
 		ScopeActor->ActiveZoom(StatusOfGun == EStatusOfAimedGun::ESAG_ADS);
 
 	if (StatusOfGun == EStatusOfAimedGun::ESAG_ADS)
 	{
 		PlayGivenWeaponWithArmsAnimation(WeaponADSInAnim);
 	}
-	else 
+	else
+	{
 		PlayGivenWeaponWithArmsAnimation(WeaponADSOutAnim);
+	}
 
 }
 #pragma endregion

@@ -34,12 +34,12 @@ public:
 	UFUNCTION()
 		void CurveCameraRecoilTimelineProgress(float NewCameraYawRotation);
 
-	FRotator RandomBulletRotation();
+	const FRotator RandomBulletRotation();
 	void ShootPressed();
 	void ShootReleased();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UTimelineComponent> CameraRecoilTimeline;
+		TObjectPtr<class UTimelineComponent> CameraRecoilTimeline = nullptr;
 
 	//This number will be subdivided with Recoil values
 	UPROPERTY(EditAnywhere, Category = "ADS Recoil")
@@ -49,14 +49,14 @@ private:
 		float DividerOfBulletRecoilWhileADS = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Recoil")
-		TSubclassOf<class UCameraShakeBase> RecoilCameraShake;
+		TSubclassOf<class UCameraShakeBase> RecoilCameraShake = nullptr;
 	//Use curve for Camera Recoil or use random Pitch and Yaw numbers for camera Recoil
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Recoil")
-		TEnumAsByte<ERecoilType> RecoilType;
+		TEnumAsByte<ERecoilType> RecoilType = ERecoilType::ERT_RandomValue;
 
 	//Curve that is responisble for Yaw Camera Recoil (left, right)
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Recoil", meta = (EditCondition = "RecoilType == ERecoilType::ERT_CurveRecoil", EditConditionHides))
-		TObjectPtr<UCurveFloat> YawCameraRecoilCurve;
+		TObjectPtr<UCurveFloat> YawCameraRecoilCurve = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Recoil", meta = (EditCondition = "RecoilType == ERecoilType::ERT_CurveRecoil", EditConditionHides))
 		float FirstBulletWithoutRecoilTime = 0.3f;
 	//Distance that Camera is going to rotate in pitch when shooting full magazine. 
@@ -82,7 +82,7 @@ private:
 	//The curve responsible for how quickly the screen reaches RandomCameraRecoilPitch and RandomCameraRecoilYaw and returns to its rotation. 
 	//It was added for smoothness. Curve Value is multiply by Camera Recoils values, to add smoothness use 0-1 values 
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Recoil", meta = (EditCondition = "RecoilType == ERecoilType::ERT_RandomValue", EditConditionHides))
-		TObjectPtr<UCurveFloat> RandomCameraRecoil_SmoothCurve;
+		TObjectPtr<UCurveFloat> RandomCameraRecoil_SmoothCurve = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Recoil")
 		FFloatRange RandomBulletRecoilPitch = FFloatRange(-5, 5);
@@ -92,30 +92,37 @@ private:
 	void SetTimelineAccordingToRecoilType();
 	void PlayRecoil();
 
-	bool bCanStartCameraRecoil = true;
-
-	bool bRotateCameraToPitchDistance;
+	UPROPERTY(Transient)
+		bool bCanStartCameraRecoil = true;
+	UPROPERTY(Transient)
+		bool bRotateCameraToPitchDistance = false;
 	// move the camera to PitchDistanceFromStart in time. The time is calculated by multiplying the original magazine capacity by the shooting time.
 	void RotatePlayerCameraToPitchDistance(float Delta);
 
-	float RandomYawOffset_CurveRecoil;
-	FRotator TargetPlayerCameraRotation;
-	bool bRotatePlayerCameraToTargetRotation;
+	UPROPERTY(Transient)
+		float RandomYawOffset_CurveRecoil = 0.f;
+	UPROPERTY(Transient)
+		FRotator TargetPlayerCameraRotation = FRotator::ZeroRotator;
+	UPROPERTY(Transient)
+		bool bRotatePlayerCameraToTargetRotation = false;
 	void BackPlayerCameraToInitialRotation();
 	void CameraInterpBackToInitialPosition(float Delta);
 
-	float RandomCameraRecoilYaw;
-	float RandomCameraRecoilPitch;
+	UPROPERTY(Transient)
+		float RandomCameraRecoilYaw = 0.f;
+	UPROPERTY(Transient)
+		float RandomCameraRecoilPitch = 0.f;
 
 	void ResetVariablesForCameraRecoil();
 
-	bool bFirstBulletWithoutRecoil = false;
+	UPROPERTY(Transient)
+		bool bFirstBulletWithoutRecoil = false;
 	FTimerHandle FirstBulletHandle;
-	void ShouldFirstBulletGoStraight() { bFirstBulletWithoutRecoil = true; }
+	FORCEINLINE void ShouldFirstBulletGoStraight() { bFirstBulletWithoutRecoil = true; }
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AGun> Gun;
+		TObjectPtr<class AGun> Gun = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarinePlayerController> PlayerController;
+		TObjectPtr<class AMarinePlayerController> PlayerController = nullptr;
 
 };

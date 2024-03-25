@@ -9,10 +9,9 @@ void UEnemyBaseAnimInstance::NativeBeginPlay()
 	Super::NativeBeginPlay();
 
 	PawnOwner = TryGetPawnOwner();
-	if (IsValid(PawnOwner))
-	{
-		PreviousLocation = PawnOwner->GetActorLocation();
-	}
+	if (!IsValid(PawnOwner))
+		return;
+	PreviousLocation = PawnOwner->GetActorLocation();
 }
 
 void UEnemyBaseAnimInstance::NativeUpdateAnimation(float DeltaTime)
@@ -21,6 +20,7 @@ void UEnemyBaseAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	if (DeltaTime == 0.f || !IsValid(PawnOwner))
 		return;
+
 	CurrentVelocity = ((PawnOwner->GetActorLocation() - PreviousLocation) / DeltaTime).Length();
 	PreviousLocation = PawnOwner->GetActorLocation();
 	

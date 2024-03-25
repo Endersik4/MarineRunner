@@ -14,9 +14,7 @@ EBTNodeResult::Type UBTTask_SettingCurrentLocation::ExecuteTask(UBehaviorTreeCom
 {
 	TObjectPtr<UBlackboardComponent> BlackBoardComp = OwnerComp.GetBlackboardComponent();
 	if (!IsValid(BlackBoardComp))
-	{
 		return EBTNodeResult::Failed;
-	}
 
 	int32 CurrentLocations = BlackBoardComp->GetValueAsInt(TEXT("CurrentLocations"));
  	if (CurrentLocations <= 0)

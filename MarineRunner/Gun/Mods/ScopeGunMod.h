@@ -23,30 +23,31 @@ public:
 	FORCEINLINE void SetZoomMaterialIndexOnWeapon(int32 NewIndex) { ZoomMaterialIndexOnWeapon = NewIndex; }
 	void SetUpZoomMaterial(TObjectPtr<class AGun> Gun);
 
-	int32 Zoom(float WheelAxis, bool bShouldRestartScope = false);
+	const int32 Zoom(const float WheelAxis, const bool bShouldRestartScope = false);
 	void ActiveZoom(bool bShouldActive);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class USceneCaptureComponent2D> ZoomCamera;
+		TObjectPtr<class USceneCaptureComponent2D> ZoomCamera = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		UMaterial* ZoomNotActiveMaterial;
+		TObjectPtr<UMaterial> ZoomNotActiveMaterial = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		UMaterial* ZoomRenderTargetMaterial;
+		TObjectPtr<UMaterial> ZoomRenderTargetMaterial = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
 		TArray<float> Scope_FOVValues = { 16.f, 10.f, 5.f, 1.f };
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		TObjectPtr<USoundBase> ZoomSound;
+		TObjectPtr<USoundBase> ZoomSound = nullptr;
 
-	int32 CurrentScope = 0;
+	UPROPERTY(Transient)
+		int32 CurrentScope = 0;
 	void ChangeScope(int32 CurrentScopeIndex);
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AGun> OwningGun;
-
-	int32 ZoomMaterialIndexOnWeapon;
+		TObjectPtr<class AGun> OwningGun = nullptr;
+	UPROPERTY(Transient)
+		int32 ZoomMaterialIndexOnWeapon;
 
 	UPROPERTY(Transient)
-		TObjectPtr<UMaterialInstanceDynamic> DynamicScopeMaterial;
+		TObjectPtr<UMaterialInstanceDynamic> DynamicScopeMaterial = nullptr;
 };

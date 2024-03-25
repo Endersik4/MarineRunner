@@ -51,6 +51,7 @@ public:
 	}
 };
 
+UENUM()
 enum EMusicType {
 	EMT_Exploration,
 	EMT_PauseMusic,
@@ -70,7 +71,7 @@ public:
 
 	// Get all files with wildcard from SaveGames dir, for example: "ManualSave" will give number of all files with word "ManualSave" in file name
 	UFUNCTION(BlueprintImplementableEvent)
-		int32 GetAllFilesWithName(const FString& WildCard);
+		const int32 GetAllFilesWithName(const FString& WildCard);
 
 	UFUNCTION(BlueprintCallable)
 		void SaveCustomSavedSettingsToConfig();
@@ -81,17 +82,18 @@ public:
 
 	void SetSaveNumberAccordingToNumOfFiles(const FString& WildCard = "*ManualSave*");
 
-	void AddNewDetectedEnemy(TObjectPtr<AActor> NewEnemy);
-	void RemoveDetectedEnemy(TObjectPtr<AActor> NewEnemy);
+	void AddNewDetectedEnemy(const TObjectPtr<AActor> NewEnemy);
+	void RemoveDetectedEnemy(const TObjectPtr<AActor> NewEnemy);
 	void ResetDetectedEnemy();
-	FORCEINLINE bool IsPlayerInCombat() const { return DetectedPlayerEnemies.Num() > 0; }
+	FORCEINLINE const bool IsPlayerInCombat() const { return DetectedPlayerEnemies.Num() > 0; }
 
 	void ChangeBackgroundMusic(EMusicType MusicType, bool bIgnoreFadeOut = false);
 	FORCEINLINE EMusicType GetCurrentMusicType() const { return CurrentMusicType; }
 	FORCEINLINE void SetCurrentExplorationMusic(TObjectPtr<USoundBase> MusicToSet) { CurrentExplorationMusic = MusicToSet; }
 	FORCEINLINE TObjectPtr<USoundBase> GetCurrentExplorationMusic() const { return CurrentExplorationMusic; }
 
-	bool bNewGame = false;
+	UPROPERTY(Transient)
+		bool bNewGame = false;
 
 	UPROPERTY(EditAnywhere, Category = "Saving Game")
 		FString CustomSavedSettingsConfigPath = "MarineRunner/Config/Settings.json";
@@ -112,28 +114,29 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Dynamic Music")
 		float OldMusicFadeOut = 2.f;
 	UPROPERTY(EditAnywhere, Category = "Dynamic Music")
-		TObjectPtr<USoundBase> MainMenuMusic;
+		TObjectPtr<USoundBase> MainMenuMusic = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Dynamic Music")
-		TObjectPtr<USoundBase> CombatMusic;
+		TObjectPtr<USoundBase> CombatMusic = nullptr;
 
 	UPROPERTY(Transient)
-		TObjectPtr<USoundBase> CurrentExplorationMusic;
+		TObjectPtr<USoundBase> CurrentExplorationMusic = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<UAudioComponent> CurrentPlayingMusic;
+		TObjectPtr<UAudioComponent> CurrentPlayingMusic = nullptr;
 
-
-	bool bWasJsonDeserialized;
-	TSharedPtr<FJsonObject> SavedDataJsonFile;
+	UPROPERTY(Transient)
+		bool bWasJsonDeserialized = false;
+	TSharedPtr<FJsonObject> SavedDataJsonFile = nullptr;
 	void LoadCustomSavedSettingsFromConfig();
 
 	// Enemies that see the player
 	UPROPERTY(Transient)
-		TArray<TObjectPtr<AActor>> DetectedPlayerEnemies;
-	bool bIsDetectedByEnemies = false;
+		TArray<TObjectPtr<AActor>> DetectedPlayerEnemies = {nullptr};
+	UPROPERTY(Transient)
+		bool bIsDetectedByEnemies = false;
 
-	// Background music
+	UPROPERTY(Transient)
+		TEnumAsByte<EMusicType> CurrentMusicType = EMusicType::EMT_Exploration;
 	FTimerHandle BackgroundMusicHandle;
-	EMusicType CurrentMusicType;
 	void SpawnBackgroundMusic(TObjectPtr<USoundBase> SoundToSpawn);
 	void ChangeMusicAfterFadeOut();
 };

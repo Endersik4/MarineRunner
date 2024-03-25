@@ -23,9 +23,9 @@ void UMarineRunnerGameInstance::SetSaveNumberAccordingToNumOfFiles(const FString
 
 void UMarineRunnerGameInstance::LoadCustomSavedSettingsFromConfig()
 {
-	FString ConfigPath = FPaths::GeneratedConfigDir() + CustomSavedSettingsConfigPath;
+	const FString& ConfigPath = FPaths::GeneratedConfigDir() + CustomSavedSettingsConfigPath;
 	bWasJsonDeserialized = USaveGameJsonFile::ReadJson(ConfigPath, SavedDataJsonFile);
-	if (bWasJsonDeserialized == false)
+	if (!bWasJsonDeserialized)
 		return;
 
 	for (FSettingSavedInJsonFile& CurrentSavedSetting : CustomSavedSettings)
@@ -53,7 +53,7 @@ void UMarineRunnerGameInstance::SaveCustomSavedSettingsToConfig()
 void UMarineRunnerGameInstance::FindSavedValueAccordingToName(const FString& SavedSettingName, float& Value)
 {
 	FSettingSavedInJsonFile NewStruct = FSettingSavedInJsonFile(SavedSettingName, 0.f);
-	int32 FoundItemIndex = NewStruct.GetItemIndexInGivenArray(CustomSavedSettings);
+	const int32& FoundItemIndex = NewStruct.GetItemIndexInGivenArray(CustomSavedSettings);
 
 	if (FoundItemIndex == INDEX_NONE)
 		return;
@@ -64,7 +64,7 @@ void UMarineRunnerGameInstance::FindSavedValueAccordingToName(const FString& Sav
 void UMarineRunnerGameInstance::ReplaceValueInSavedSettingByName(float NewValue, const FString& SavedSettingName)
 {
 	FSettingSavedInJsonFile NewStruct = FSettingSavedInJsonFile(SavedSettingName, NewValue);
-	int32 FoundItemIndex = NewStruct.GetItemIndexInGivenArray(CustomSavedSettings);
+	const int32& FoundItemIndex = NewStruct.GetItemIndexInGivenArray(CustomSavedSettings);
 
 	if (FoundItemIndex == INDEX_NONE)
 		return;

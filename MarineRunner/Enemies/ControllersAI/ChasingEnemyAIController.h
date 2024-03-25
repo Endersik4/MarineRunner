@@ -27,5 +27,6 @@ private:
 	FTimerHandle DistanceCheckHandle;
 	void CheckDistanceToPlayer();
 
-	bool bPlayerDetected;
+	UPROPERTY(Transient)
+		bool bPlayerDetected = false;
 };

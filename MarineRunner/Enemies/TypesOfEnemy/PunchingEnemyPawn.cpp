@@ -11,7 +11,7 @@ APunchingEnemyPawn::APunchingEnemyPawn()
 {
 }
 
-void APunchingEnemyPawn::PlayerDetected(bool bDetected, APawn* DetectedPawn)
+void APunchingEnemyPawn::PlayerDetected(const bool bDetected, APawn* DetectedPawn)
 {
 	DetectedPlayer = DetectedPawn;
 
@@ -27,12 +27,13 @@ void APunchingEnemyPawn::IsPlayerCloseForHit()
 		return;
 
 	FHitResult PlayerCloseHitResult;
-	FVector HitPlayerRaycastStart = EnemySkeletalMesh->GetSocketLocation(PlayerCloseRaycastSocketNameLocation);
-	FVector HitPlayerRaycastEnd = HitPlayerRaycastStart + UKismetMathLibrary::GetForwardVector(EnemySkeletalMesh->GetSocketRotation(PlayerCloseRaycastSocketNameLocation)) * MaxPlayerCloseRaycastDistance;
+	const FVector& HitPlayerRaycastStart = EnemySkeletalMesh->GetSocketLocation(PlayerCloseRaycastSocketNameLocation);
+	const FVector& HitPlayerRaycastEnd = HitPlayerRaycastStart + UKismetMathLibrary::GetForwardVector(EnemySkeletalMesh->GetSocketRotation(PlayerCloseRaycastSocketNameLocation)) * MaxPlayerCloseRaycastDistance;
 	bool bPlayerIsClose = GetWorld()->LineTraceSingleByChannel(PlayerCloseHitResult, HitPlayerRaycastStart, HitPlayerRaycastEnd, ECC_GameTraceChannel3);
 	
 	if (!bPlayerIsClose)
 		return;
+
 	DamageSphereLocation = HitPlayerRaycastEnd;
 	StartPunchingPlayer();
 }
@@ -42,6 +43,8 @@ void APunchingEnemyPawn::StartPunchingPlayer()
 	bIsPunching = true;
 	if (IsValid(PunchAnimMontage))
 		EnemySkeletalMesh->GetAnimInstance()->Montage_Play(PunchAnimMontage);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Punch Anim Montage is nullptr in PunchingEnemyPawn!"));
 
 	FTimerHandle ApplyDamageHandle;
 	GetWorld()->GetTimerManager().SetTimer(ApplyDamageHandle, this, &APunchingEnemyPawn::ApplyDamageToPlayer, ApplyDamageTime, false);
@@ -54,15 +57,17 @@ void APunchingEnemyPawn::ApplyDamageToPlayer()
 {
 	if (PunchSound)
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), PunchSound, EnemySkeletalMesh->GetSocketLocation(PlayerCloseRaycastSocketNameLocation));
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Punch Sound is nullptr in PunchingEnemyPawn!"));
 
 	FHitResult DamagePlayerResult;
 	
 	bool bPlayerTakenDamage = GetWorld()->SweepSingleByChannel(DamagePlayerResult, DamageSphereLocation, DamageSphereLocation, FQuat::Identity, ECC_GameTraceChannel3, FCollisionShape::MakeSphere(DamageSphereRadius));
-	if (bPlayerTakenDamage == false)
+	if (!bPlayerTakenDamage)
 		return;
 
 	IInteractInterface* ActorWithDamageInterface = Cast<IInteractInterface>(DamagePlayerResult.GetActor());
-	if (ActorWithDamageInterface == nullptr)
+	if (!ActorWithDamageInterface)
 		return;
 
 	if (ActorWithDamageInterface == this)

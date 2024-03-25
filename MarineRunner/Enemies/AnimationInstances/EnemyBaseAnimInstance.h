@@ -20,18 +20,20 @@ protected:
 
 public:
 	UPROPERTY(BlueprintReadOnly)
-		float CurrentRotatedActorAngle;
+		float CurrentRotatedActorAngle = 0.f;
 	UPROPERTY(BlueprintReadOnly)
-		float CurrentSpeed;
+		float CurrentSpeed = 0.f;
 
 private:
 	// divides current velocity 
 	UPROPERTY(EditDefaultsOnly)
 		float SpeedDivider = 3.5f;
 
-	float CurrentVelocity;
-	FVector PreviousLocation;
+	UPROPERTY(Transient)
+		float CurrentVelocity = 0.f;
+	UPROPERTY(Transient)
+		FVector PreviousLocation = FVector::Zero();
 
 	UPROPERTY(Transient)
-		TObjectPtr<APawn> PawnOwner;
+		TObjectPtr<APawn> PawnOwner = nullptr;
 };

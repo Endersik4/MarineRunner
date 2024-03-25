@@ -21,10 +21,10 @@ void AShootingEnemyPawn::BeginPlay()
 
 void AShootingEnemyPawn::Tick(float DeltaTime)
 {
+	Super::Tick(DeltaTime);
+
 	if (bIsDead)
 		return;
-
-	Super::Tick(DeltaTime);
 
 	if (bEnemyDetectedTarget)
 		FocusBonesOnPlayerWhenPlayerDetected();
@@ -87,7 +87,7 @@ void AShootingEnemyPawn::ShouldRunAway()
 	SetShouldRunningAwayInAnimBP();
 }
 #pragma region ////////////// ENEMY SEE PLAYER //////////////
-void AShootingEnemyPawn::SawTheTarget(bool bSaw, TObjectPtr<AActor> SeenTarget, bool bStartAttackingTheTarget)
+void AShootingEnemyPawn::SawTheTarget(const bool bSaw, const TObjectPtr<AActor> SeenTarget, const bool bStartAttackingTheTarget)
 {
 	if (bSaw == bEnemyDetectedTarget)
 		return;
@@ -118,9 +118,19 @@ void AShootingEnemyPawn::PlayPrepareToShootAnimation(bool bTargetWasDetected)
 		return;
 
 	if (bTargetWasDetected)
-		EnemySkeletalMesh->GetAnimInstance()->Montage_Play(EnableShootAnimMontage);
+	{
+		if (IsValid(EnableShootAnimMontage))
+			EnemySkeletalMesh->GetAnimInstance()->Montage_Play(EnableShootAnimMontage);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Enable Shoot Anim Montage is nullptr in Shooting Enemy Pawn!"));
+	}
 	else
-		EnemySkeletalMesh->GetAnimInstance()->Montage_Play(DisableShootAnimMontage);
+	{
+		if (IsValid(DisableShootAnimMontage))
+			EnemySkeletalMesh->GetAnimInstance()->Montage_Play(DisableShootAnimMontage);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Disable Shoot Anim Montage is nullptr in Shooting Enemy Pawn!"));
+	}
 }
 
 void AShootingEnemyPawn::StartShooting()
@@ -143,12 +153,14 @@ void AShootingEnemyPawn::Shoot()
 
 	if (IsValid(ShootAnimMontage))
 		EnemySkeletalMesh->GetAnimInstance()->Montage_Play(ShootAnimMontage);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Shoot Anim Montage is nullptr in Shooting Enemy Pawn!"));
 }
 
-FRotator AShootingEnemyPawn::FocusBoneOnPlayer(FName BoneName, bool bLookStraight)
+const FRotator AShootingEnemyPawn::FocusBoneOnPlayer(const FName BoneName, const bool bLookStraight)
 {
 	FRotator BoneRotation = FRotator(0.f);
-	FRotator FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName),
+	const FRotator& FoundRotation = UKismetMathLibrary::FindLookAtRotation(EnemySkeletalMesh->GetSocketLocation(BoneName),
 		EnemyGunComponent->PredictWhereToShoot(bLookStraight));
 	BoneRotation.Roll = FoundRotation.Pitch * -1.f;
 	BoneRotation.Yaw = FoundRotation.Yaw - GetActorRotation().Yaw;
@@ -163,7 +175,13 @@ void AShootingEnemyPawn::SetUpShootAlert()
 	if (!bAlertAboutShoot)
 		return;
 
+	if (!IsValid(EnemySkeletalMesh->GetMaterial(AlertMaterialIndexToChange)))
+		return;
+
 	CurrentAlertMaterial = UMaterialInstanceDynamic::Create(EnemySkeletalMesh->GetMaterial(AlertMaterialIndexToChange), this);
+	if (!IsValid(CurrentAlertMaterial))
+		return;
+
 	EnemySkeletalMesh->SetMaterial(AlertMaterialIndexToChange, CurrentAlertMaterial);
 }
 
@@ -198,6 +216,9 @@ void AShootingEnemyPawn::ResetAlertMaterial()
 
 void AShootingEnemyPawn::SetEnemyKilledInAIController()
 {
+	if (!ensureMsgf(IsValid(GetController()), TEXT("Enemy Controller is nullptr in Shooting Enemy Pawn")))
+		return;
+
 	TObjectPtr<AShootingEnemyAIController> EnemyAIController = Cast<AShootingEnemyAIController>(GetController());
 	if (!IsValid(EnemyAIController))
 		return;
