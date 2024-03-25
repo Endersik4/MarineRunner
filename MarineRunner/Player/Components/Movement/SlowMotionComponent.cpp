@@ -19,13 +19,10 @@ void USlowMotionComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	if (!IsValid(MarinePawn))
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Player is nullptr in Slow Motion Component!")))
 	{
-		UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN SLOW MOTIOn COMPONENT!"));
-		return;
+		MarinePawn = Cast<AMarineCharacter>(GetOwner());
 	}
-
 	MarinePawn->OnDestroyed.AddDynamic(this, &USlowMotionComponent::OnOwnerDestroyed);
 }
 
@@ -66,8 +63,11 @@ void USlowMotionComponent::SuddentDisabledSlowMotion()
 
 	if (IsValid(SlowMotionSoundSpawned))
 		SlowMotionSoundSpawned->Stop();
+
 	if (CancelSlowMotionSound)
 		UGameplayStatics::PlaySound2D(GetWorld(), CancelSlowMotionSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Cancel Slow Motion Sound is nullptr in SlowMotionComponent!"));
 
 	GetWorld()->GetTimerManager().ClearTimer(SlowMotionTimeHandle);
 	DisableSlowMotion();
@@ -75,15 +75,17 @@ void USlowMotionComponent::SuddentDisabledSlowMotion()
 
 void USlowMotionComponent::SlowMotionEffects()
 {
-	if (SlowMotionSound) 
+	if (IsValid(SlowMotionSound)) 
 		SlowMotionSoundSpawned = UGameplayStatics::SpawnSound2D(GetWorld(), SlowMotionSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Slow Motion Sound is nullptr in SlowMotionComponent!"));
 
 	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), GlobalPitchModulation, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
 
 	if (!IsValid(MarinePawn))
 		return;
 
-	EPowerUpLoaded SlowMoDelay = EPowerUpLoaded(true, SlowMotionTime, MarinePawn->GetHudWidget()->ActiveSlowMotionAnim, MarinePawn->GetHudWidget()->SlowMoBar);
+	FPowerUpLoaded SlowMoDelay = FPowerUpLoaded(true, SlowMotionTime, MarinePawn->GetHudWidget()->ActiveSlowMotionAnim, MarinePawn->GetHudWidget()->SlowMoBar);
 	MarinePawn->GetHudWidget()->AddNewPowerUpToStartLoading(SlowMoDelay);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
 
@@ -102,7 +104,7 @@ void USlowMotionComponent::SlowMotionEffects()
 void USlowMotionComponent::DisableSlowMotion()
 {
 	bIsInSlowMotion = false;
-	const float NormalTimeSpeed = 1.f;
+	const float& NormalTimeSpeed = 1.f;
 	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), NormalTimeSpeed, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), NormalTimeSpeed);
 
@@ -111,7 +113,7 @@ void USlowMotionComponent::DisableSlowMotion()
 	MarinePawn->GetCamera()->PostProcessSettings.SceneFringeIntensity = 0.f;
 	MarinePawn->GetHudWidget()->SetColorAndOpacity(FLinearColor::White);
 
-	EPowerUpLoaded SlowMoDelay = EPowerUpLoaded(true, SlowMotionDelay, MarinePawn->GetHudWidget()->ActiveSlowMotionAnim, MarinePawn->GetHudWidget()->SlowMoBar);
+	FPowerUpLoaded SlowMoDelay = FPowerUpLoaded(true, SlowMotionDelay, MarinePawn->GetHudWidget()->ActiveSlowMotionAnim, MarinePawn->GetHudWidget()->SlowMoBar);
 	MarinePawn->GetHudWidget()->AddNewPowerUpToStartLoading(SlowMoDelay);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
 

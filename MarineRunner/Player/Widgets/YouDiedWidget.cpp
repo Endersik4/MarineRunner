@@ -29,8 +29,11 @@ void UYouDiedWidget::NativeOnInitialized()
 
 	if (ShowWidgetAnim)
 		PlayAnimationForward(ShowWidgetAnim, 1.f, true);
-	if (IsValid(DeathSound)) 
+
+	if (IsValid(DeathSound))
 		UGameplayStatics::SpawnSound2D(GetWorld(), DeathSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Death Sound is nullptr in YouDiedWidget!"));
 
 	TObjectPtr<UMarineRunnerGameInstance> MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (!IsValid(MarineRunnerGameInstance))
@@ -49,6 +52,8 @@ void UYouDiedWidget::RestartGame()
 {
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
 
+	if (!IsValid(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)))
+		return;
 	TObjectPtr<AMarineCharacter> Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (!IsValid(Player))
 		return;

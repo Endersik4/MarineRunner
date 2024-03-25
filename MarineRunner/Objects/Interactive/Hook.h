@@ -31,11 +31,11 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class USphereComponent> HookActiveSphere;
+		TObjectPtr<class USphereComponent> HookActiveSphere = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> HookMesh;
+		TObjectPtr<class UStaticMeshComponent> HookMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UPaperFlipbookComponent> HookStateFlipBook;
+		TObjectPtr<class UPaperFlipbookComponent> HookStateFlipBook = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings")
 		float HookCooldownTime = 1.5f;
@@ -54,9 +54,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings|Flipbook")
 		FVector MinHookFlipbookScale = FVector(0.1f);
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings|Flipbook")
-		TObjectPtr<class UPaperFlipbook> HookIdleFlipBook;
+		TObjectPtr<class UPaperFlipbook> HookIdleFlipBook = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Hook Settings|Flipbook")
-		TObjectPtr<class UPaperFlipbook> HookActivateFlipBook;
+		TObjectPtr<class UPaperFlipbook> HookActivateFlipBook = nullptr;
 
 	UFUNCTION()
 		void OnCheckSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -66,17 +66,22 @@ private:
 	void DelayForGrabbingTheHook();
 	FTimerHandle HookPressedHandle;
 
-	bool bHookActive = false;
-	bool bPlayerInRange;
-	bool bCanGrabTheHook = true;
+	UPROPERTY(Transient)
+		bool bHookActive = false;
+	UPROPERTY(Transient)
+		bool bPlayerInRange = false;
+	UPROPERTY(Transient)
+		bool bCanGrabTheHook = true;
 
 	FTimerHandle HookVisibleHandle;
 
 	// change hook state flipbook scale according to player distance, closer == smaller
 	UPROPERTY(Transient)
-		TObjectPtr<AActor> PlayerInRange;
+		TObjectPtr<AActor> PlayerInRange = nullptr;
 
-	FVector OriginalHookStateScale;
+	UPROPERTY(Transient)
+		FVector OriginalHookStateScale = FVector::Zero();
+
 	void ChangeHookFlipbookScale(float Delta);
 	void HookFlipbookLookAtThePlayer(float Delta);
 	void HideFlipbookIfItIsNotVisible();

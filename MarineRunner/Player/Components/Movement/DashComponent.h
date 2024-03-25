@@ -35,16 +35,20 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Dash")
 		float OffsetFromObstacle = 100.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
-		TSubclassOf<class UDashWidget> DashWidgetClass;
+		TSubclassOf<class UDashWidget> DashWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
-		TObjectPtr<USoundBase> DashSound;
+		TObjectPtr<USoundBase> DashSound = nullptr;
 
 	bool CanPlayerPerformDash() const;
-	bool bCanDash = true;
-	bool bIsPerformingDash;
+	UPROPERTY(Transient)
+		bool bCanDash = true;
+	UPROPERTY(Transient)
+		bool bIsPerformingDash = false;
 
-	FVector InitialPlayerPosition;
-	FVector DashLocation;
+	UPROPERTY(Transient)
+		FVector InitialPlayerPosition = FVector::Zero();
+	UPROPERTY(Transient)
+		FVector DashLocation = FVector::Zero();
 
 	/// <summary>
 	/// Calculates closer hit result from two raycast, one from head location, the second from ground location
@@ -55,8 +59,10 @@ private:
 	FVector CalculateEndDashPosition();
 	const FVector CalculateDashDirection();
 
-	float DashTimeElapsed = 0.f;
-	float CalculatedDashTime;
+	UPROPERTY(Transient)
+		float DashTimeElapsed = 0.f;
+	UPROPERTY(Transient)
+		float CalculatedDashTime = 0.f;
 	void MoveToDashLocation(float Delta);
 
 	void TurnOffDash();
@@ -66,5 +72,5 @@ private:
 	FORCEINLINE void EndDashCooldown() { bCanDash = true; }
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> MarinePawn;
+		TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
 };

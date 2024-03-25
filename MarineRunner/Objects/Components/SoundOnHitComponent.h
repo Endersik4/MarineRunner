@@ -26,12 +26,12 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sound On Hit Settings")
 		float VelocityLengthErrorTolerance = 25.f;
 	UPROPERTY(EditAnywhere, Category = "Sound On Hit Settings")
-		TObjectPtr<USoundBase> HitGroundSound;
+		TObjectPtr<USoundBase> HitGroundSound = nullptr;
 
 	UFUNCTION()
 		void OnHitPlaySound(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
 	bool CanSpawnHitOnGroundSound(TObjectPtr<AActor> HitActor);
 	UPROPERTY(Transient)
-	TObjectPtr<UAudioComponent> SpawnedHitGroundSound;
+		TObjectPtr<UAudioComponent> SpawnedHitGroundSound = nullptr;
 };

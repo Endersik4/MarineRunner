@@ -38,26 +38,26 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> DoorVentMesh;
+		TObjectPtr<class UStaticMeshComponent> DoorVentMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings|Hover")
 		FString DoorVentName = "Door Vent";
 	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings|Hover")
 		FString DoorVentDesc = "desc";
 	UPROPERTY(EditDefaultsOnly, Category = "Door Vent Settings|Hover")
-		TObjectPtr<UTexture2D> DoorVentIcon;
+		TObjectPtr<UTexture2D> DoorVentIcon = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
-		bool bVentDoorsBasedOnPhysics;
+		bool bVentDoorsBasedOnPhysics = false;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings")
 		bool TurnOnPhysicsInsteadOfTimeline = false;
 	// Add Curve values as local offset to actor or set curve values e.g SetActorRotation() 
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings", meta = (EditCondition = "!TurnOnPhysicsInsteadOfTimeline", EditConditionHides))
 		bool bAddCurveValuesToVectors = true;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings|Open", meta = (EditCondition = "!TurnOnPhysicsInsteadOfTimeline", EditConditionHides))
-		TObjectPtr<UCurveVector> DoorVentOpenLocationCurve;
+		TObjectPtr<UCurveVector> DoorVentOpenLocationCurve = nullptr;
 	// X = Roll, Y = Pitch, Z = Yaw;
 	UPROPERTY(EditAnywhere, Category = "Door Vent Settings|Open", meta = (EditCondition = "!TurnOnPhysicsInsteadOfTimeline", EditConditionHides))
-		TObjectPtr<UCurveVector> DoorVentOpenRotationCurve;
+		TObjectPtr<UCurveVector> DoorVentOpenRotationCurve = nullptr;
 
 	UFUNCTION()
 		void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
@@ -69,12 +69,16 @@ private:
 
 	FRotator GetRotationFromDoorVentOpenCurve();
 	
-	FTimeline OpenDoorVentLocTimeline;
+	UPROPERTY(Transient)
+		FTimeline OpenDoorVentLocTimeline;
 	void PlayOpenDoorVentLocTimeline();
 
-	bool bIsOpen = false;
-	bool bIsHovered = false;
+	UPROPERTY(Transient)
+		bool bIsOpen = false;
+	UPROPERTY(Transient)
+		bool bIsHovered = false;
 
 	void SaveCurrentStateOfVent(int32 CurrentState, FTransform ActoTransform);
-	int32 CurrentUniqueID = 0;
+	UPROPERTY(Transient)
+		int32 CurrentUniqueID = 0;
 };

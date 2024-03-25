@@ -26,8 +26,10 @@ public:
 	FORCEINLINE void SetMouseSensitivity(const FSettingSavedInJsonFile &NewMouseSensitivity) { MouseSensitivity = NewMouseSensitivity; }
 	FORCEINLINE const FSettingSavedInJsonFile &GetMouseSensitivity() const { return MouseSensitivity; }
 
-	float MouseXValue;
-	float MouseYValue;
+	UPROPERTY(Transient)
+		float MouseXValue = 0.f;
+	UPROPERTY(Transient)
+		float MouseYValue = 0.f;
 
 	UFUNCTION()
 		void HandleOnPossessedPawnChanged(APawn* _NewPawn, APawn* _OldPawn);

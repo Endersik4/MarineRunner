@@ -65,9 +65,6 @@ void ASavedDataObject::UpdateObjectsData()
 		if (!ensureMsgf(IsValid(Pair.Value.ObjectToSaveData), TEXT("Object To update data is nullptr")))
 			continue;
 
-		if (!IsValid(Pair.Value.ObjectToSaveData))
-			continue;
-	
 		ISaveCustomDataInterface* ActorWithSaveInterface = Cast<ISaveCustomDataInterface>(Pair.Value.ObjectToSaveData);
 		if (!ActorWithSaveInterface)
 			continue;

@@ -21,16 +21,16 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> BackgroundImage;
+		TObjectPtr<class UImage> BackgroundImage = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> RestartGameText;
+		TObjectPtr<class UTextBlock> RestartGameText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> QuitGameText;
+		TObjectPtr<class UTextBlock> QuitGameText = nullptr;
 	
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UButton> RestartGameButton;
+		TObjectPtr<UButton> RestartGameButton = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UButton> QuitGameButton;
+		TObjectPtr<UButton> QuitGameButton = nullptr;
 
 	UFUNCTION()
 		void RestartGameButton_OnClicked();
@@ -55,7 +55,7 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Death")
-		TObjectPtr<USoundBase> DeathSound;
+		TObjectPtr<USoundBase> DeathSound = nullptr;
 
 	void PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true);
 	void RestartGame();

@@ -138,8 +138,15 @@ void AElevator::StartMovingElevator()
 	ElevatorPanelWidget->ShowWaitForElevatorText(false);
 	ElevatorPanelWidget->ShowElevatorGoesUpDownImage(true, FloorLocationToGo);
 
-	SpawnedAmbientElevatorSound = UGameplayStatics::SpawnSoundAttached(AmbientElevatorSound, ElevatorMesh);
-	SpawnedAmbientElevatorSound->FadeIn(2.f);
+	if (IsValid(AmbientElevatorSound))
+	{
+		SpawnedAmbientElevatorSound = UGameplayStatics::SpawnSoundAttached(AmbientElevatorSound, ElevatorMesh);
+
+		if (IsValid(SpawnedAmbientElevatorSound))
+			SpawnedAmbientElevatorSound->FadeIn(2.f);
+	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Spawned Ambient Elevator Sound is nullptr in Elevator!"));
 
 	bCanMoveToFloorLocation = true;
 }
@@ -151,7 +158,7 @@ void AElevator::ElevatorIsMoving(float Delta)
 
 	if (MoveElevatorTimeElapsed <= TimeToMoveOnFloor)
 	{
-		FVector NewLocation = FMath::Lerp(StartLocation, FloorLocationToGo, MoveElevatorTimeElapsed / TimeToMoveOnFloor);
+		const FVector& NewLocation = FMath::Lerp(StartLocation, FloorLocationToGo, MoveElevatorTimeElapsed / TimeToMoveOnFloor);
 		SetActorLocation(NewLocation);
 
 		MoveElevatorTimeElapsed += Delta;
@@ -256,9 +263,13 @@ void AElevator::PlayElevatorEffects(TObjectPtr < UAnimationAsset> AnimToPlay, TO
 {
 	if (IsValid(AnimToPlay))
 		ElevatorDoorsSkeletalMesh->PlayAnimation(AnimToPlay, false);
+	else 
+		UE_LOG(LogTemp, Warning, TEXT("Elevator Animation is nullptr in Elevator!"));
 
 	if (IsValid(SoundToPlay))
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SoundToPlay, ElevatorDoorsSkeletalMesh->GetSocketLocation(DoorSoundSocketName));
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Elevator Sound is nullptr in Elevator!"));
 }
 
 void AElevator::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)

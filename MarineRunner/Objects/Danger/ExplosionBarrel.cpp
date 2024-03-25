@@ -42,8 +42,10 @@ void AExplosionBarrel::Explode()
 	TArray<FHitResult> HitArray;
 	GetWorld()->SweepMultiByChannel(HitArray, GetActorLocation(), GetActorLocation(), FQuat::Identity, ECC_GameTraceChannel3, FCollisionShape::MakeSphere(ExplosionRadius));
 
-	if (bDrawDebugRadialSphere) 
-		DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 50, FColor::Red, true);
+	#ifdef WITH_EDITOR
+		if (bDrawDebugRadialSphere)
+			DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 50, FColor::Red, true);
+	#endif //!WITH_EDITOR
 
 	//Use UseDamageInterfaceOnActor(HitResult) only once on the same actor
 	TArray<TObjectPtr<AActor>> ActorsToApplyDamage;
@@ -80,35 +82,60 @@ void AExplosionBarrel::UseDamageInterfaceOnActor(const FHitResult& HitResult)
 		IInteractInterface::Execute_BreakObject(HitResult.GetActor(), ExplosionImpulseForce, HitResult, this, ExplosionRadius);
 	}
 	else if (HitResult.GetComponent()->IsSimulatingPhysics())
+	{
 		HitResult.GetComponent()->AddRadialImpulse(GetActorLocation(), ExplosionRadius, ExplosionImpulseForce, ERadialImpulseFalloff::RIF_Linear);
-
+	}
 }
 
 void AExplosionBarrel::SpawnEffects()
 {
-	if (IsValid(ExplosionSound)) 
+	if (IsValid(ExplosionSound))
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), ExplosionSound, GetActorLocation());
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Explosion Sound is nullptr in ExplosionBarrel!"));
 
 	if (ExplosionParticle)
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionParticle, GetActorLocation(), FRotator(0.f), FVector(ExplosionParticleSize));
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Explosion Particle is nullptr in ExplosionBarrel!"));
 
-	float DistanceToPlayer = FVector::Distance(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation(), GetActorLocation());
+	const TObjectPtr<APawn> Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (!IsValid(Player))
+		return;
+
+	const float& DistanceToPlayer = FVector::Distance(Player->GetActorLocation(), GetActorLocation());
 	if (DistanceToPlayer < MaxDistanceToStartShake && DistanceToPlayer != 0)
 	{
 		float CameraShakeScale = (MaxDistanceToStartShake / DistanceToPlayer) * CameraShakeScaleMultiplier;
 		CameraShakeScale = CameraShakeScale > MaxCameraShakeScale ? MaxCameraShakeScale : CameraShakeScale;
-		UGameplayStatics::GetPlayerController(GetWorld(), 0)->PlayerCameraManager->StartCameraShake(CameraShakeAfterExplosion, CameraShakeScale);
+
+		const TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+		if (IsValid(PlayerController))
+		{
+			PlayerController->PlayerCameraManager->StartCameraShake(CameraShakeAfterExplosion, CameraShakeScale);
+		}
 	}
 
-	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ExplosionDecal, FVector(ExplosionDecalSize), GetActorLocation(), FRotator(0.f));
-	if (IsValid(SpawnedDecal))
+	if (!IsValid(ExplosionDecal))
 	{
-		SpawnedDecal->SetFadeScreenSize(0.f);
+		UE_LOG(LogTemp, Warning, TEXT("Explosion Decal is nullptr in ExplosionBarrel!"));
+		return;
 	}
+
+	FRotator DecalRotation = ExplosionBarrelMesh->GetComponentRotation();
+	DecalRotation.Pitch -= 90.f;
+	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ExplosionDecal, ExplosionDecalSize, ExplosionBarrelMesh->GetComponentLocation(), DecalRotation);
+	if (!IsValid(SpawnedDecal))
+		return;
+	
+	SpawnedDecal->SetFadeScreenSize(0.f);
 }
 
 void AExplosionBarrel::SpawnExplosionBarrelGeometry()
 {
+	if (!IsValid(ExplosionBarrelGeometryClass))
+		return;
+
 	SpawnedBarrelGeometry = GetWorld()->SpawnActor<AActor>(ExplosionBarrelGeometryClass, GetActorLocation(), GetActorRotation());
 }
 

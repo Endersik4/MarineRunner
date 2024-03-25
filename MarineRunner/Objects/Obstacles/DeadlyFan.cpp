@@ -32,8 +32,10 @@ void ADeadlyFan::BeginPlay()
 	
 	DeadlyFanMesh->OnComponentBeginOverlap.AddDynamic(this, &ADeadlyFan::OnFanMeshBeginOverlap);
 
-	if (IsValid(FanSound)) 
+	if (IsValid(FanSound))
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FanSound, GetActorLocation());
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Fan Sound is nullptr in DeadlyFan!"));
 }
 
 // Called every frame

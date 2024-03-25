@@ -29,6 +29,9 @@ void UCallElevatorPanel::OnClickedCallElevatorButton()
 	if (!IsValid(ElevatorActor))
 		return;
 
+	if (!IsValid(ElevatorActor->GetElevatorPanelWidget()))
+		return;
+
 	ElevatorActor->GetElevatorPanelWidget()->SelectFloor(FloorToMove);
 
 	CallElevatorAction(ECEA_HideCallAndShowWait);
@@ -121,6 +124,7 @@ void UCallElevatorPanel::AddNumberToEnteredPin(int32 Number)
 	if (FString::FromInt(CurrentPinCode) == CurrentlyEnteredPin)
 	{
 		PinIsCorrect();
+
 		if (IsValid(OutsideElevatorActor))
 			OutsideElevatorActor->PinIsCorrect();
 	}
@@ -128,8 +132,11 @@ void UCallElevatorPanel::AddNumberToEnteredPin(int32 Number)
 	{
 		CurrentlyEnteredPin = "";
 		CurrentlyEnteredPin_Text = "";
+
 		if (IsValid(WrongCodeSound))
 			UGameplayStatics::PlaySound2D(GetWorld(), WrongCodeSound);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Wrong Code Sound is nullptr in CallEleavtorPanelWidget!"));
 	}
 
 	PinCodeText->SetText(FText::FromString(CurrentlyEnteredPin_Text));
@@ -143,6 +150,9 @@ void UCallElevatorPanel::ChangeToUsePin(int32 PinCode)
 
 	for (const int32& CurrentPinNumberEntry : PinNumberEntries)
 	{
+		if (!IsValid(PinNumberEntryObjectClass))
+			continue;
+
 		TObjectPtr<UPinNumberEntryObject> CreatedPinEntryObject = NewObject<UPinNumberEntryObject>(PinNumberEntryObjectClass);
 		if (!IsValid(CreatedPinEntryObject))
 			continue;

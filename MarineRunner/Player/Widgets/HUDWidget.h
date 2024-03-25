@@ -16,17 +16,20 @@ enum EAnimationToPlay
 	EATP_PressedButton_SlowMo,
 };
 
-struct EPowerUpLoaded
+USTRUCT(BlueprintType)
+struct FPowerUpLoaded
 {
-	bool bStartPowerUpLoading;
-	float TimeToFillPowerUp;
+	GENERATED_USTRUCT_BODY();
+
+	bool bStartPowerUpLoading = false;
+	float TimeToFillPowerUp = 0.f;
 	float PowerUpFillTimeElapsed = 0.f;
 	UPROPERTY(Transient)
 		TObjectPtr<UWidgetAnimation> PowerUpAnimToPlayAfterFill;
 	UPROPERTY(Transient)
 		TObjectPtr<UProgressBar> PowerUpProgressBarToFill;
 
-	EPowerUpLoaded() 
+	FPowerUpLoaded() 
 	{
 		bStartPowerUpLoading = false;
 		TimeToFillPowerUp = 0.f;
@@ -35,7 +38,7 @@ struct EPowerUpLoaded
 		PowerUpProgressBarToFill = nullptr;
 	}
 
-	EPowerUpLoaded(bool _bStartPowerUpLoading, float _TimeToFillPowerUp, TObjectPtr<UWidgetAnimation> _PowerUpAnimToPlayAfterFill, TObjectPtr<UProgressBar> _PowerUpProgressBarToFill)
+	FPowerUpLoaded(bool _bStartPowerUpLoading, float _TimeToFillPowerUp, TObjectPtr<UWidgetAnimation> _PowerUpAnimToPlayAfterFill, TObjectPtr<UProgressBar> _PowerUpProgressBarToFill)
 	{
 		bStartPowerUpLoading = _bStartPowerUpLoading;
 		TimeToFillPowerUp = _TimeToFillPowerUp;
@@ -43,7 +46,7 @@ struct EPowerUpLoaded
 		PowerUpProgressBarToFill = _PowerUpProgressBarToFill;
 	}
 
-	bool operator==(const EPowerUpLoaded& _PowerUp)
+	bool operator==(const FPowerUpLoaded& _PowerUp)
 	{
 		return PowerUpProgressBarToFill == _PowerUp.PowerUpProgressBarToFill;
 	}
@@ -81,35 +84,35 @@ public:
 
 	void ShowWeaponOnHud(bool bShow = true);
 
-	void AddNewPowerUpToStartLoading(const EPowerUpLoaded & NewPowerUpToAdd);
+	void AddNewPowerUpToStartLoading(const FPowerUpLoaded & NewPowerUpToAdd);
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void NewGameStartedWidgetAnimation();
 
-	void ShowGameplayMechanicsBars(bool bUnlockHeal, bool bUnlockDash, bool bUnlockSlowMo);
+	void ShowGameplayMechanicsBars(const bool bUnlockHeal, const bool bUnlockDash, const bool bUnlockSlowMo);
 	void ShowGameplayMechanicsBars(const EUnlockInHud& WhatToUnlock);
 
 #pragma region ///////////// USE FIRST AID KIT UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UImage> UseFirstAidKidImage;
+		TObjectPtr<UImage> UseFirstAidKidImage = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> UseFirstAidKitAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> UseFirstAidKitLessHPAnim = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UProgressBar> HealthBar;
+		TObjectPtr<UProgressBar> HealthBar = nullptr;
 #pragma endregion
 
 #pragma region ///////////// HEAL UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UProgressBar> HealBar;
+		TObjectPtr<UProgressBar> HealBar = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UProgressBar> Button_HealBar;
+		TObjectPtr<UProgressBar> Button_HealBar = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> KeyText_Heal;
+		TObjectPtr<UTextBlock> KeyText_Heal = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> CurrentNumbersOfFirstAidKit;
+		TObjectPtr<UTextBlock> CurrentNumbersOfFirstAidKit = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> PressedHealButtonAnim = nullptr;
@@ -119,11 +122,11 @@ public:
 
 #pragma region ///////////// DASH UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UProgressBar> DashBar;
+		TObjectPtr<UProgressBar> DashBar = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UProgressBar> Button_DashBar;
+		TObjectPtr<UProgressBar> Button_DashBar = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> KeyText_Dash;
+		TObjectPtr<UTextBlock> KeyText_Dash = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> PressedDashButtonAnim = nullptr;
@@ -133,11 +136,11 @@ public:
 
 #pragma region ///////////// SLOW MOTION UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UProgressBar> SlowMoBar;
+		TObjectPtr<UProgressBar> SlowMoBar = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UProgressBar> Button_SlowMoBar;
+		TObjectPtr<UProgressBar> Button_SlowMoBar = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> KeyText_SlowMo;
+		TObjectPtr<UTextBlock> KeyText_SlowMo = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> PressedSlowMotionButtonAnim = nullptr;
@@ -156,24 +159,24 @@ public:
 
 #pragma region ///////////// WEAPON UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UImage> WeaponImage;
+		TObjectPtr<UImage> WeaponImage = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> WeaponAppearAnim = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> CurrentAmmoInMagazineText;
+		TObjectPtr<UTextBlock> CurrentAmmoInMagazineText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> StoredAmmoText;
+		TObjectPtr<UTextBlock> StoredAmmoText = nullptr;
 #pragma endregion
 
 #pragma region ///////////// ITEM HOVER UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UImage> ItemHoverBackgroundImage;
+		TObjectPtr<UImage> ItemHoverBackgroundImage = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> ItemHoverName;
+		TObjectPtr<UTextBlock> ItemHoverName = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> ItemHoverDescription;
+		TObjectPtr<UTextBlock> ItemHoverDescription = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UImage> ItemHoverImage;
+		TObjectPtr<UImage> ItemHoverImage = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> ItemHoverAppearAnim = nullptr;
 #pragma endregion
@@ -193,7 +196,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
 		float MinHPToIndicateLowHP = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
-		TObjectPtr<USoundBase> PowerUpLoadedSound;
+		TObjectPtr<USoundBase> PowerUpLoadedSound = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		FVector2D WeaponImageSizeWhenAmmoBelow = FVector2D(460.f, 260.f);
@@ -202,8 +205,11 @@ private:
 
 	FText AmmoValueToText(const int32& AmmoAmountToText);
 
-	TArray<EPowerUpLoaded> PowerUpsToLoad;
-	TArray<EPowerUpLoaded> PowerUpsToDelete;
+	UPROPERTY(Transient)
+		TArray<FPowerUpLoaded> PowerUpsToLoad;
+	UPROPERTY(Transient)
+		TArray<FPowerUpLoaded> PowerUpsToDelete;
+
 	void ProgressPowerUps(const float & Delta);
-	void LoadingPowerUp(EPowerUpLoaded & PowerUpToLoad, const float & Delta);
+	void LoadingPowerUp(FPowerUpLoaded & PowerUpToLoad, const float & Delta);
 };

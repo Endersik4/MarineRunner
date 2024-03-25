@@ -24,36 +24,36 @@ public:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UHorizontalBox> HorizontalBoxForSettingsText;
+		TObjectPtr<class UHorizontalBox> HorizontalBoxForSettingsText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> SubSettingNameText;
+		TObjectPtr<class UTextBlock> SubSettingNameText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> CategoryNameText;
+		TObjectPtr<class UTextBlock> CategoryNameText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> SubSettingQualityText;
+		TObjectPtr<class UTextBlock> SubSettingQualityText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> LeftArrowButton;
+		TObjectPtr<class UButton> LeftArrowButton = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> RightArrowButton;
+		TObjectPtr<class UButton> RightArrowButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UCheckBox> SubSettingOnOffCheckBox;
+		TObjectPtr<class UCheckBox> SubSettingOnOffCheckBox = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> SubSettingOnOffButton;
+		TObjectPtr<class UButton> SubSettingOnOffButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> SliderButton;
+		TObjectPtr<class UButton> SliderButton = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class USlider> SubSettingSlider;
+		TObjectPtr<class USlider> SubSettingSlider = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> SubSettingSliderValueText;
+		TObjectPtr<class UTextBlock> SubSettingSliderValueText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> KeyMappingButton;
+		TObjectPtr<class UButton> KeyMappingButton = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UInputKeySelector> KeyMappingInputKeySelector;
+		TObjectPtr<class UInputKeySelector> KeyMappingInputKeySelector = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr < UWidgetAnimation> LeftArrowHoverAnim = nullptr;
@@ -106,11 +106,12 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
-		FLinearColor CategoryTextColor;
+		FLinearColor CategoryTextColor = FLinearColor::Blue;
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
-		FLinearColor WhenKeyMapColor;
+		FLinearColor WhenKeyMapColor = FLinearColor::Blue;
 
-	FString FunctionNameToApplyInCMD;
+	UPROPERTY(Transient)
+		FString FunctionNameToApplyInCMD = FString("");
 	void AddValueToFunctionName(float Value);
 	void AddValueToFunctionName(int32 Value);
 	void AddValueToFunctionName(FString Value);
@@ -119,21 +120,26 @@ private:
 	void EnableEntry(bool bEnable);
 
 	// Pointer to Entry Object SettingData
-	FMenuSettings* SubSettingData;
+	FMenuSettings* SubSettingData = nullptr;
 
 	// Key Mapping
-	bool bIsWaitingForNewKey = false;
-	FInputActionKeyMapping CurrentMappedActionKey;
-	FInputAxisKeyMapping CurrentMappedAxisKey;
-	FString GetKeyActionName();
-	FString GetKeyAxisName();
-	FText PreviousKeyText;
+	UPROPERTY(Transient)
+		bool bIsWaitingForNewKey = false;
+	UPROPERTY(Transient)
+		FInputActionKeyMapping CurrentMappedActionKey = FInputActionKeyMapping();
+	UPROPERTY(Transient)
+		FInputAxisKeyMapping CurrentMappedAxisKey = FInputAxisKeyMapping();
+	const FString GetKeyActionName();
+	const FString GetKeyAxisName();
+	UPROPERTY(Transient)
+		FText PreviousKeyText = FText();
 
 	// Hide everything in this widget
 	void HideAllUIElements();
 
 	// Connect to other sub settings
-	TArray<TObjectPtr<USettingsMenuListEntry>> ConnectedSettingsEntryFromList;
+	UPROPERTY(Transient)
+		TArray<TObjectPtr<USettingsMenuListEntry>> ConnectedSettingsEntryFromList = { nullptr };
 	void FillConnectedSettingsEntryFromList();
 	void EnableAllConnectedSettingsEntry(bool bEnable);
 
@@ -152,5 +158,5 @@ private:
 	void SubSettingType_OnOff();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class USettingsMenuEntryObject> SettingEntryObject;
+		TObjectPtr<class USettingsMenuEntryObject> SettingEntryObject = nullptr;
 };

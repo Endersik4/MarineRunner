@@ -26,19 +26,19 @@ protected:
 	
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> BackgroundImage;
+		TObjectPtr<class UImage> BackgroundImage = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UTextBlock> ConfirmText;
+		TObjectPtr < UTextBlock> ConfirmText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UTextBlock> YesText;
+		TObjectPtr < UTextBlock> YesText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UTextBlock> NoText;
+		TObjectPtr < UTextBlock> NoText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UButton> YesButton;
+		TObjectPtr < UButton> YesButton = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UButton> NoButton;
+		TObjectPtr < UButton> NoButton = nullptr;
 
 	UFUNCTION()
 		void YesButton_OnClicked();
@@ -68,8 +68,10 @@ private:
 	void PlayAnimatonForButton(TObjectPtr < UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true);
 
 	void LoadLastSave();
-	FString SlotNameToLoad;
-	FString LevelNameToLoad;
+	UPROPERTY(Transient)
+		FString SlotNameToLoad = FString("");
+	UPROPERTY(Transient)
+		FString LevelNameToLoad = FString("");
 
 	void AddThisWidgetToCurrentSpawnedMenuWidgets(bool bShouldDeleteExistingOne);
 	void BackToLoadGame(bool bShouldBack = true);

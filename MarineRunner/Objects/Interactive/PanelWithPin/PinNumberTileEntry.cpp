@@ -19,6 +19,9 @@ void UPinNumberTileEntry::NativeConstruct()
 
 void UPinNumberTileEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
+	if (!IsValid(ListItemObject))
+		return;
+
 	PinNumberEntryObject = Cast<UPinNumberEntryObject>(ListItemObject);
 	if (!IsValid(PinNumberEntryObject))
 		return;
@@ -33,6 +36,7 @@ void UPinNumberTileEntry::OnClickedPinNumberButton()
 
 	if (IsValid(PinNumberEntryObject->DoorPanelWidget))
 		PinNumberEntryObject->DoorPanelWidget->AddNumberToEnteredPin(PinNumberEntryObject->PinNumber);
+
 	if (IsValid(PinNumberEntryObject->CallElevatorPanelWidget))
 		PinNumberEntryObject->CallElevatorPanelWidget->AddNumberToEnteredPin(PinNumberEntryObject->PinNumber);
 }

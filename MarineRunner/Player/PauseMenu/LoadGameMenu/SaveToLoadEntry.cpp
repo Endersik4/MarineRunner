@@ -22,11 +22,16 @@ void USaveGameMenuListEntry::NativeConstruct()
 
 void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
+	if (IsValid(ListItemObject))
+		return;
+
 	LoadGameEntryObject = Cast<ULoadGameMenuEntryObject>(ListItemObject);
+	if (IsValid(LoadGameEntryObject))
+		return;
 
 	SaveNameText->SetText(FText::FromString("-" + LoadGameEntryObject->SavesMenuData.SaveName + "-"));
 
-	FText Date = FText::FromString(SavedDateText + LoadGameEntryObject->SavesMenuData.SaveDateTime + "-");
+	const FText& Date = FText::FromString(SavedDateText + LoadGameEntryObject->SavesMenuData.SaveDateTime + "-");
 	SaveDateText->SetText(Date);
 
 	ConvertTotalPlayTimeInSecondsToText();
@@ -36,7 +41,7 @@ void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 
 void USaveGameMenuListEntry::OnClickedLoadGameButton()
 {
-	if (!IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)) || !IsValid(LoadGameEntryObject))
+	if (!IsValid(LoadGameEntryObject))
 		return;
 
 	if (bShowConfirmLoadingWidget)
@@ -57,6 +62,9 @@ void USaveGameMenuListEntry::OnClickedLoadGameButton()
 
 void USaveGameMenuListEntry::ShowConfirmLoadingWidget()
 {
+	if (!IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+		return;
+
 	TObjectPtr<UConfirmLoadingGameWidget> ConfirmLoadingWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
 	if (!IsValid(ConfirmLoadingWidget))
 		return;
@@ -90,12 +98,12 @@ void USaveGameMenuListEntry::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> 
 void USaveGameMenuListEntry::ConvertTotalPlayTimeInSecondsToText()
 {
 	const int SecondsInHour = 3600;
-	int32 Hours = LoadGameEntryObject->SavesMenuData.TotalPlayTimeInSeconds / SecondsInHour;
-	int32 RestMinutes = (LoadGameEntryObject->SavesMenuData.TotalPlayTimeInSeconds - (Hours * SecondsInHour)) / 60.f;
+	const int32& Hours = LoadGameEntryObject->SavesMenuData.TotalPlayTimeInSeconds / SecondsInHour;
+	const int32& RestMinutes = (LoadGameEntryObject->SavesMenuData.TotalPlayTimeInSeconds - (Hours * SecondsInHour)) / 60.f;
 
-	FString MinutesString = RestMinutes < 10 ? "0" + FString::FromInt(RestMinutes) : FString::FromInt(RestMinutes);
+	const FString& MinutesString = RestMinutes < 10 ? "0" + FString::FromInt(RestMinutes) : FString::FromInt(RestMinutes);
 
-	FText TotalTime = FText::FromString(SavedTotalTimeText + FString::FromInt(Hours) + "H " + MinutesString + "MIN" + "-");
+	const FText& TotalTime = FText::FromString(SavedTotalTimeText + FString::FromInt(Hours) + "H " + MinutesString + "MIN" + "-");
 
 	TotalTimeText->SetText(TotalTime);
 }

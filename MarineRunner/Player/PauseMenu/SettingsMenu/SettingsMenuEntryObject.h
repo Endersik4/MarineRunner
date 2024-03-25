@@ -23,11 +23,11 @@ public:
 	USettingsMenuEntryObject();
 
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
-		FMenuSettings MenuSettingsData;
+		FMenuSettings MenuSettingsData = FMenuSettings();
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
-		TObjectPtr<class USettingsMenuWidget> SettingMenuWidget;
+		TObjectPtr<class USettingsMenuWidget> SettingMenuWidget = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
-		FString FunctionNameToApply;
+		FString FunctionNameToApply = FString("");
 
 	void SetVariablesToCurrent();
 	FORCEINLINE void SetGameInstance(class UMarineRunnerGameInstance* NewGameInstance) { GameInstance = NewGameInstance; }
@@ -45,5 +45,5 @@ private:
 	bool WasValueLoadedFromJsonFile(bool& Value);
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UMarineRunnerGameInstance> GameInstance;
+		TObjectPtr<class UMarineRunnerGameInstance> GameInstance = nullptr;
 };

@@ -44,18 +44,21 @@ private:
 		float LengthOfSwingLineRaycast = 4500.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		TSubclassOf<class ASwingLine> SwingLineClass;
+		TSubclassOf<class ASwingLine> SwingLineClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
 		float ForwardSwingLineLocationOffset = 100.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
 		float RightSwingLineLocationOffset = 40.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		TObjectPtr<USoundBase> SwingSound;
+		TObjectPtr<USoundBase> SwingSound = nullptr;
 
-	bool bWasSwingPressed = false;
-	bool bCanPlayerSwing;
-	bool bCanMakeSwingLineCheck = true;
+	UPROPERTY(Transient)
+		bool bWasSwingPressed = false;
+	UPROPERTY(Transient)
+		bool bCanPlayerSwing = false;
+	UPROPERTY(Transient)
+		bool bCanMakeSwingLineCheck = true;
 
 	FTimerHandle StartSwingHandle;
 
@@ -63,8 +66,10 @@ private:
 	void ActivateCurrentHoveredHook(TObjectPtr<AActor> HookActorFromHit);
 	void ClearLastActivatedHook();
 
-	bool bIsPlayerMovingToHook;
-	FVector HookLocation;
+	UPROPERTY(Transient)
+		bool bIsPlayerMovingToHook = false;
+	UPROPERTY(Transient)
+		FVector HookLocation;
 	void PrepareMoveToHook();
 	void MovingToHook(float Delta);
 	void StopMovingToHook();
@@ -72,9 +77,9 @@ private:
 	void SpawnSwingEffects();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AHook>CurrentFocusedHook;
+		TObjectPtr<class AHook>CurrentFocusedHook = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player;
+		TObjectPtr<class AMarineCharacter> Player = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<APlayerController> PlayerController;
+		TObjectPtr<APlayerController> PlayerController = nullptr;
 };

@@ -29,6 +29,9 @@ void UWeaponInventoryComponent::StartTimerForSpawnNewWeapons()
 
 void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
 {
+	if (!IsValid(GetOwner()))
+		return;
+
 	TObjectPtr<AMarineCharacter> MarinePawn = Cast<AMarineCharacter>(GetOwner());
 
 	if (!IsValid(MarinePawn) || InitialWeaponInventory.Num() == 0)
@@ -54,13 +57,13 @@ void UWeaponInventoryComponent::AddNewWeaponToStorage(TObjectPtr<AGun> NewGun)
 	if (!IsValid(NewGun)) 
 		return;
 
-	int32 WeaponNumber = WeaponsStorage.Num() + 1;
+	const int32& WeaponNumber = WeaponsStorage.Num() + 1;
 	WeaponsStorage.Add(WeaponNumber, NewGun);
 }
 
 void UWeaponInventoryComponent::RemoveWeaponFromStorage(TObjectPtr<AGun> EquipedGun)
 {
-	int32 KeyForEquipedGun = *WeaponsStorage.FindKey(EquipedGun);
+	const int32& KeyForEquipedGun = *WeaponsStorage.FindKey(EquipedGun);
 	WeaponsStorage.Remove(KeyForEquipedGun);
 	
 	SortWeapons();

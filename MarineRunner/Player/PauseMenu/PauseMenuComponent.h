@@ -21,8 +21,6 @@ protected:
 
 public:
 
-
-
 	FORCEINLINE TObjectPtr<class UPauseMenuWidget> GetPauseMenuWidget() const { return PauseMenuWidget; }
 	FORCEINLINE const bool& GetIsInPauseMenu() const { return bIsInPauseMenu; }
 
@@ -32,16 +30,17 @@ public:
 	void ChangeUIToGameOnly();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu")
-		TSubclassOf<class UUserWidget> PauseMenuWidgetClass;
+		TSubclassOf<class UUserWidget> PauseMenuWidgetClass = nullptr;
 
-	bool bIsInPauseMenu;
+	UPROPERTY(Transient)
+		bool bIsInPauseMenu = false;
 	void SpawnPauseMenuWidget();
 	bool CanPauseGame();
 	UPROPERTY(Transient)
-		TObjectPtr<class UPauseMenuWidget> PauseMenuWidget;
+		TObjectPtr<class UPauseMenuWidget> PauseMenuWidget = nullptr;
 
 	UPROPERTY(Transient)
-		TObjectPtr<APlayerController> PlayerController;
+		TObjectPtr<APlayerController> PlayerController = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player;
+		TObjectPtr<class AMarineCharacter> Player = nullptr;
 };

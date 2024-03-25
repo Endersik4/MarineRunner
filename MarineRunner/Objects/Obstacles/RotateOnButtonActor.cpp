@@ -45,8 +45,7 @@ void AWallrunOnButton::BeginPlay()
 
 	ActivateRotateBoxComponent->OnComponentHit.AddDynamic(this, &AWallrunOnButton::OnActivateRotateBoxHit);
 
-	ActiveDynamicMaterial = UMaterialInstanceDynamic::Create(ActivateMeshComponent->GetMaterial(IndexForActiveMaterialToChange), this);
-	ActivateMeshComponent->SetMaterial(IndexForActiveMaterialToChange, ActiveDynamicMaterial);
+	SetUpActiveMaterial();
 
 	InitialSocketRotation = SocketRotateMeshComponent->GetRelativeRotation();
 }
@@ -69,6 +68,8 @@ void AWallrunOnButton::OnActivateRotateBoxHit(UPrimitiveComponent* HitComp, AAct
 
 	if (IsValid(RotateObjectSound))
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), RotateObjectSound, SocketRotateMeshComponent->GetComponentLocation());
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Rotate OBject Sound is nullptr in RotateOnButtonActor"));
 
 	bWasRotated = true;
 	StartRotateMeshTimeline();
@@ -91,7 +92,7 @@ void AWallrunOnButton::StartRotateMeshTimeline()
 
 void AWallrunOnButton::RotateSocketTimelineProgress(FVector NewRotation)
 {
-	FRotator NewRelativeRotation(NewRotation.Y, NewRotation.Z, NewRotation.X);
+	const FRotator NewRelativeRotation(NewRotation.Y, NewRotation.Z, NewRotation.X);
 	SocketRotateMeshComponent->SetRelativeRotation(NewRelativeRotation);
 }
 
@@ -122,6 +123,8 @@ void AWallrunOnButton::ResetRotateMeshTimeline()
 
 	if (IsValid(RotateObjectSound))
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), RotateObjectSound, SocketRotateMeshComponent->GetComponentLocation());
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Rotate OBject Sound is nullptr in RotateOnButtonActor"));
 }
 
 void AWallrunOnButton::ResetTimeSeconds()
@@ -160,4 +163,16 @@ void AWallrunOnButton::RestartData(ASavedDataObject* SavedDataObject, const int3
 	RotateMeshTimeline.Stop();
 
 	SocketRotateMeshComponent->SetRelativeRotation(InitialSocketRotation);
+}
+
+void AWallrunOnButton::SetUpActiveMaterial()
+{
+	if (!IsValid(ActivateMeshComponent->GetMaterial(IndexForActiveMaterialToChange)))
+		return;
+	ActiveDynamicMaterial = UMaterialInstanceDynamic::Create(ActivateMeshComponent->GetMaterial(IndexForActiveMaterialToChange), this);
+
+	if (IsValid(ActiveDynamicMaterial))
+		return;
+
+	ActivateMeshComponent->SetMaterial(IndexForActiveMaterialToChange, ActiveDynamicMaterial);
 }

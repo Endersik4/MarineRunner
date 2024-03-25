@@ -19,11 +19,14 @@ void UWallrunComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-
-	if (!IsValid(MarinePawn)) 
-		UE_LOG(LogTemp, Error, TEXT("MARINE PAWN IS NOT SET IN WALLRUN COMPONENT!"));
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Player is nullptr in Wallrun Component!")))
+	{
+		MarinePawn = Cast<AMarineCharacter>(GetOwner());
+	}
+	if (ensureMsgf(IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)), TEXT("Player Controller is nullptr in Wallrun Component!")))
+	{
+		PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	}
 }
 
 void UWallrunComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -73,7 +76,7 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 	}
 
 	//added Impulse to Stick with Obstacle
-	FVector Impulse = (-HitNormal) * StickWithObstacleImpulse;
+	const FVector& Impulse = (-HitNormal) * StickWithObstacleImpulse;
 	MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
 }
 
@@ -92,7 +95,7 @@ void UWallrunComponent::BeginWallrun(ESideOfLine CurrentSide, FVector HitNormal)
 
 	RotateCameraYaw(CurrentSide, HitNormal);
 
-	float YawMovementImpulse = HitNormal.Rotation().Yaw + (AngleOfHitImpact * (CurrentSide == Left ? -1 : 1));
+	const float& YawMovementImpulse = HitNormal.Rotation().Yaw + (AngleOfHitImpact * (CurrentSide == Left ? -1 : 1));
 	WallrunDirection = FRotator(0, YawMovementImpulse, 0).Vector();
 
 	bIsWallrunning = true;
@@ -104,17 +107,17 @@ void UWallrunComponent::BeginWallrun(ESideOfLine CurrentSide, FVector HitNormal)
 bool UWallrunComponent::IsPawnNextToObstacle(FVector& HitNormal, ESideOfLine& OutCurrentSide, ESideOfLine WhichSideToLook)
 {
 	FHitResult ObstacleHitResult;
-	FVector EndDirection = (WhichSideToLook == ESideOfLine::Right ? 1.f : -1.f) * (MarinePawn->GetRootComponent()->GetRightVector() * ObstacleRaycastDistance);
+	const FVector& EndDirection = (WhichSideToLook == ESideOfLine::Right ? 1.f : -1.f) * (MarinePawn->GetRootComponent()->GetRightVector() * ObstacleRaycastDistance);
 
-	FVector StartLowerRaycastLocation = MarinePawn->GetActorLocation();
-	FVector EndLowerRaycastLocation = StartLowerRaycastLocation + EndDirection;
-	bool bLowerRaycast = GetWorld()->LineTraceSingleByChannel(ObstacleHitResult, StartLowerRaycastLocation, EndLowerRaycastLocation, ECC_GameTraceChannel4);
+	const FVector& StartLowerRaycastLocation = MarinePawn->GetActorLocation();
+	const FVector& EndLowerRaycastLocation = StartLowerRaycastLocation + EndDirection;
+	const bool& bLowerRaycast = GetWorld()->LineTraceSingleByChannel(ObstacleHitResult, StartLowerRaycastLocation, EndLowerRaycastLocation, ECC_GameTraceChannel4);
 	if (!bLowerRaycast)
 		return false;
 
-	FVector StartUpperRaycastLocation = MarinePawn->GetRoofLocationSceneComponent()->GetComponentLocation();
-	FVector EndUpperRaycastLocation = StartUpperRaycastLocation + EndDirection;
-	bool bUpperRaycast = GetWorld()->LineTraceSingleByChannel(ObstacleHitResult, StartUpperRaycastLocation, EndUpperRaycastLocation, ECC_GameTraceChannel4);
+	const FVector& StartUpperRaycastLocation = MarinePawn->GetRoofLocationSceneComponent()->GetComponentLocation();
+	const FVector& EndUpperRaycastLocation = StartUpperRaycastLocation + EndDirection;
+	const bool& bUpperRaycast = GetWorld()->LineTraceSingleByChannel(ObstacleHitResult, StartUpperRaycastLocation, EndUpperRaycastLocation, ECC_GameTraceChannel4);
 	if (!bUpperRaycast)
 		return false;
 
@@ -174,7 +177,7 @@ bool UWallrunComponent::CanDoWallrun(float Delta)
 		return false;
 
 	//if player looks far away from the wall while wallrunning it then stop wallruning
-	float DistanceBetweenYaws = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PlayerRotationWallrun, PlayerRotationWhileWallrun).Yaw);
+	const float& DistanceBetweenYaws = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PlayerRotationWallrun, PlayerRotationWhileWallrun).Yaw);
 	if (bIsWallrunning && DistanceBetweenYaws > MaxYawDistanceToStopWallrunning)
 	{
 		ResetWallrunning();
@@ -211,11 +214,12 @@ void UWallrunComponent::CameraRotationTowardsHitNormal(float Delta)
 {
 	if (!bRotateYawCameraTowardsWallrun || !IsValid(PlayerController))
 		return;
-	FRotator CurrentRotation = PlayerController->GetControlRotation();
+
+	const FRotator& CurrentRotation = PlayerController->GetControlRotation();
 	FRotator TargetRotation = CurrentRotation;
 	TargetRotation.Yaw = RotateYawCameraAngle;
 
-	FRotator NewRotation = UKismetMathLibrary::RInterpTo(CurrentRotation, TargetRotation, Delta, CameraYawSpeed);
+	const FRotator& NewRotation = UKismetMathLibrary::RInterpTo(CurrentRotation, TargetRotation, Delta, CameraYawSpeed);
 	PlayerController->SetControlRotation(NewRotation);
 }
 

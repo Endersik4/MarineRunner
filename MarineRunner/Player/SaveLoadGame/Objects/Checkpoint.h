@@ -35,16 +35,18 @@ private:
 		TObjectPtr<class UBoxComponent> CheckpointBox;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Setting")
-		FString SaveToNameAfterCheckpoint;
+		FString SaveToNameAfterCheckpoint = FString("autosave_");
 	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Setting")
-		FString SaveNumberWildCard;
+		FString SaveNumberWildCard = FString("*autosave*");
 	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Setting")
 		float EnableCheckpointAtStartTime = 0.1f;
 
-	bool bDisabledCheckpoint;
+	UPROPERTY(Transient)
+		bool bDisabledCheckpoint = false;
 	void EnableCheckpointAfterDelay();
 
-	int32 CurrentUniqueID = 0;
+	UPROPERTY(Transient)
+		int32 CurrentUniqueID = 0;
 	void SaveCheckpointWasUsed();
 
 	void DisableCheckpoint(bool bEnable = false);

@@ -23,17 +23,13 @@ void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 void UHUDWidget::UpdateHealthBarPercent(float CurrentHealth)
 {
 	const float& HealthToPercent = 100.f;
-	float Health = CurrentHealth / HealthToPercent;
+	const float& Health = CurrentHealth / HealthToPercent;
 	HealthBar->SetPercent(Health);
 }
 
 void UHUDWidget::UpdateCurrentNumberOfFirstAidKits(int32 CurrentAidKitsNumber)
 {
-	FString FirstAidKitAmountString = FString::FromInt(CurrentAidKitsNumber);
-	if (CurrentAidKitsNumber < 10)
-	{
-		FirstAidKitAmountString = "0" + FString::FromInt(CurrentAidKitsNumber);
-	}
+	const FString& FirstAidKitAmountString = CurrentAidKitsNumber < 10 ? "0" + FString::FromInt(CurrentAidKitsNumber) : FString::FromInt(CurrentAidKitsNumber);
 	CurrentNumbersOfFirstAidKit->SetText(FText::FromString(FirstAidKitAmountString));
 }
 
@@ -42,7 +38,9 @@ FText UHUDWidget::AmmoValueToText(const int32& AmmoAmountToText)
 {
 	FString AmmoText = "";
 	if (AmmoAmountToText > 999)
+	{
 		AmmoText = "+999";
+	}
 	else
 	{
 		if (AmmoAmountToText < 10)
@@ -68,7 +66,7 @@ void UHUDWidget::UpdateStoredAmmoAmountText(const int32& Ammo)
 
 void UHUDWidget::UpdateWeaponImage(TObjectPtr<UTexture2D> Texture, bool bAmmoCounterBelowGunHUD)
 {
-	if (bAmmoCounterBelowGunHUD == true) 
+	if (bAmmoCounterBelowGunHUD) 
 		WeaponImage->SetDesiredSizeOverride(WeaponImageSizeWhenAmmoBelow);
 	else 
 		WeaponImage->SetDesiredSizeOverride(WeaponImageSizeWhenAmmoOnSide);
@@ -89,7 +87,7 @@ void UHUDWidget::ShowWeaponOnHud(bool bShow)
 #pragma endregion
 
 #pragma region ////////////// FILL PROGRESS BARS //////////////////
-void UHUDWidget::AddNewPowerUpToStartLoading(const EPowerUpLoaded& NewPowerUpToAdd)
+void UHUDWidget::AddNewPowerUpToStartLoading(const FPowerUpLoaded& NewPowerUpToAdd)
 {
 	PowerUpsToLoad.Remove(NewPowerUpToAdd);
 	PowerUpsToLoad.Add(NewPowerUpToAdd);
@@ -100,11 +98,11 @@ void UHUDWidget::ProgressPowerUps(const float & Delta)
 	if (UGameplayStatics::IsGamePaused(GetWorld()) || PowerUpsToLoad.Num() == 0)
 		return;
 
-	for (EPowerUpLoaded& CurrentPowerUp : PowerUpsToLoad)
+	for (FPowerUpLoaded& CurrentPowerUp : PowerUpsToLoad)
 	{
 		LoadingPowerUp(CurrentPowerUp, Delta);
 	}
-	for (EPowerUpLoaded& CurrentPowerUp : PowerUpsToDelete)
+	for (FPowerUpLoaded& CurrentPowerUp : PowerUpsToDelete)
 	{
 		PowerUpsToLoad.Remove(CurrentPowerUp);
 	}
@@ -113,14 +111,14 @@ void UHUDWidget::ProgressPowerUps(const float & Delta)
 		PowerUpsToDelete.Empty();
 }
 
-void UHUDWidget::LoadingPowerUp(EPowerUpLoaded& PowerUpToLoad, const float & Delta)
+void UHUDWidget::LoadingPowerUp(FPowerUpLoaded& PowerUpToLoad, const float & Delta)
 {
 	if (!PowerUpToLoad.bStartPowerUpLoading)
 		return;
 
 	if (PowerUpToLoad.PowerUpFillTimeElapsed <= PowerUpToLoad.TimeToFillPowerUp)
 	{
-		float PowerUpFillValue = FMath::Lerp(1.f, 0.f, PowerUpToLoad.PowerUpFillTimeElapsed / PowerUpToLoad.TimeToFillPowerUp);
+		const float& PowerUpFillValue = FMath::Lerp(1.f, 0.f, PowerUpToLoad.PowerUpFillTimeElapsed / PowerUpToLoad.TimeToFillPowerUp);
 		PowerUpToLoad.PowerUpProgressBarToFill->SetPercent(PowerUpFillValue);
 
 		PowerUpToLoad.PowerUpFillTimeElapsed += Delta;
@@ -129,6 +127,8 @@ void UHUDWidget::LoadingPowerUp(EPowerUpLoaded& PowerUpToLoad, const float & Del
 	{
 		if (IsValid(PowerUpLoadedSound))
 			UGameplayStatics::SpawnSound2D(GetWorld(), PowerUpLoadedSound);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Power Up Loaded Sound is nullptr in HUDWidget!"));
 
 		PlayAnimationForward(PowerUpToLoad.PowerUpAnimToPlayAfterFill);
 
@@ -158,11 +158,11 @@ void UHUDWidget::PlayUseFirstAidKitAnim()
 	if (HealthBar->GetPercent() > MinHPToIndicateLowHP)
 	{
 		PlayAnimationForward(UseFirstAidKitAnim);
-
 	}
 	else
+	{
 		PlayAnimationForward(UseFirstAidKitLessHPAnim);
-	
+	}
 }
 
 void UHUDWidget::PlayGotDamageAnim()
@@ -173,7 +173,9 @@ void UHUDWidget::PlayGotDamageAnim()
 
 	}
 	else
+	{
 		PlayAnimationForward(GotDamageLessHPAnim);
+	}
 }
 
 void UHUDWidget::PlayButtonAnimation(EAnimationToPlay AnimToPlay)
@@ -202,7 +204,7 @@ void UHUDWidget::SetItemHoverInformations(const FString& ItemName, const FString
 	ItemHoverImage->SetBrushFromTexture(ItemIcon);
 }
 
-void UHUDWidget::ShowGameplayMechanicsBars(bool bUnlockHeal, bool bUnlockDash, bool bUnlockSlowMo)
+void UHUDWidget::ShowGameplayMechanicsBars(const bool bUnlockHeal, const bool bUnlockDash, const bool bUnlockSlowMo)
 {
 	if (bUnlockHeal)
 		PlayAnimationForward(ShowHealBarAnim);

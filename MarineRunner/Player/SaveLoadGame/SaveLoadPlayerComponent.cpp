@@ -29,10 +29,19 @@ void USaveLoadPlayerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Player = Cast<AMarineCharacter>(GetOwner());
-	PlayerController = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-	GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Player is nullptr in Save Load Player Component!")))
+	{
+		Player = Cast<AMarineCharacter>(GetOwner());
+	}
+	if (ensureMsgf(IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)), TEXT("Player Controller is nullptr in Save Load Player Component!")))
+	{
+		PlayerController = Cast<AMarinePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	}
+	if (ensureMsgf(IsValid(UGameplayStatics::GetGameInstance(GetWorld())), TEXT("Game Instance is nullptr in Save Load Player Component!")))
+	{
+		GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	}
+	
 	LoadSavedSettingsFromGameInstance();
 
 	LoadGame();
@@ -40,6 +49,9 @@ void USaveLoadPlayerComponent::BeginPlay()
 
 void USaveLoadPlayerComponent::SpawnNewGameWidget()
 {
+	if (!IsValid(GameInstance))
+		return;
+
 	if (!GameInstance->bNewGame)
 		return;
 	
@@ -202,21 +214,19 @@ void USaveLoadPlayerComponent::SpawnNewPlayer()
 	SpawnedNewPlayer->ReplaceRootComponentRotation();
 	PlayerController->SetMouseSensitivity(Player->GetMouseSensitivityJSON());
 
-	if (IsValid(LoadGameInstance)&& IsValid(GameInstance))
+	if (IsValid(LoadGameInstance) && IsValid(GameInstance))
 		GameInstance->LastGameTimePlayTime = LoadGameInstance->LastGameTimePlayTime;
 }
 
 TObjectPtr<USaveMarineRunner> USaveLoadPlayerComponent::CreateLoadGame()
 {
-	FString SlotName = GameInstance->SlotSaveGameNameToLoad;
-	SlotName += "/" + SlotName;
-
+	const FString& SlotName = GameInstance->SlotSaveGameNameToLoad + "/" + GameInstance->SlotSaveGameNameToLoad;
 	return Cast<USaveMarineRunner>(UGameplayStatics::LoadGameFromSlot(SlotName, 0));
 }
 
 void USaveLoadPlayerComponent::LoadSavedSettingsFromGameInstance()
 {
-	if (!IsValid(GameInstance) || !IsValid(PlayerController))
+	if (!IsValid(GameInstance) || !IsValid(PlayerController) || !IsValid(Player))
 		return;
 
 	Player->LoadFieldOfViewFromSettings();
@@ -231,7 +241,7 @@ void USaveLoadPlayerComponent::LoadSavedSettingsFromGameInstance()
 
 void USaveLoadPlayerComponent::SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn)
 {
-	if (!IsValid(PlayerController)) 
+	if (!IsValid(PlayerController) || !IsValid(WidgetClassToSpawn)) 
 		return;
 
 	TObjectPtr<UUserWidget> SpawnedWidget = Cast<UUserWidget>(CreateWidget(PlayerController, WidgetClassToSpawn));

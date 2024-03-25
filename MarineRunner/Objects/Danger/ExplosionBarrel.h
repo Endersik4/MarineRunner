@@ -30,9 +30,9 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> ExplosionBarrelMesh;
+		TObjectPtr<class UStaticMeshComponent> ExplosionBarrelMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TSubclassOf<AActor> ExplosionBarrelGeometryClass;
+		TSubclassOf<AActor> ExplosionBarrelGeometryClass = nullptr;;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
 		float StartExplodeTime = 0.05f;
@@ -43,27 +43,28 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
 		float ExplosionRadius = 1000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
-		TObjectPtr<USoundBase>  ExplosionSound;
+		TObjectPtr<USoundBase>  ExplosionSound = nullptr;;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
 		float MaxDistanceToStartShake = 9000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
 		float CameraShakeScaleMultiplier = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
-		TSubclassOf<UCameraShakeBase> CameraShakeAfterExplosion;
+		TSubclassOf<UCameraShakeBase> CameraShakeAfterExplosion = nullptr;;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
 		float MaxCameraShakeScale = 3.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
-		bool bDrawDebugRadialSphere;
+		bool bDrawDebugRadialSphere = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Decal")
-		TObjectPtr<UMaterialInstance>  ExplosionDecal;
+		TObjectPtr<UMaterialInstance>  ExplosionDecal = nullptr;;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Decal")
-		float ExplosionDecalSize = 4.f;
+		FVector ExplosionDecalSize = FVector(4.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Particle")
-		TObjectPtr<class UParticleSystem> ExplosionParticle;
+		TObjectPtr<class UParticleSystem> ExplosionParticle = nullptr;;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Particle")
 		float ExplosionParticleSize = 3.f;
 
-	bool bExploded;
+	UPROPERTY(Transient)
+		bool bExploded = false;
 	void Explode();
 
 	void UseDamageInterfaceOnActor(const FHitResult& HitResult);
@@ -73,7 +74,9 @@ private:
 	UPROPERTY(Transient)
 		TObjectPtr<AActor> SpawnedBarrelGeometry;
 
-	int32 CurrentUniqueID = 0;
+	UPROPERTY(Transient)
+		int32 CurrentUniqueID = 0;
+
 	void BarrelExplodedSaveData();
 	void DisableBarrel(bool bDisable = true);
 

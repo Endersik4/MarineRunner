@@ -19,5 +19,5 @@ class MARINERUNNER_API ULoadGameMenuEntryObject : public UObject
 	
 public:
 	UPROPERTY(EditAnywhere)
-		FSaveDataMenuStruct SavesMenuData;
+		FSaveDataMenuStruct SavesMenuData = FSaveDataMenuStruct();
 };

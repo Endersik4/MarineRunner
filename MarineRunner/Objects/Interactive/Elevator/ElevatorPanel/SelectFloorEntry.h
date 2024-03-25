@@ -24,10 +24,10 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> SelectFloorButton;
+		TObjectPtr<class UButton> SelectFloorButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> FloorTextBlock;
+		TObjectPtr<class UTextBlock> FloorTextBlock = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> HoverSelectFloor = nullptr;
@@ -42,8 +42,11 @@ public:
 private:
 	void DisableElevatorPanelEntry(bool bDisable = true);
 
+	void FloorIsAccessible();
+
 	UPROPERTY(Transient)
-		TObjectPtr<class USelectFloorEntryObject> FloorEntryObject;
+		TObjectPtr<class USelectFloorEntryObject> FloorEntryObject = nullptr;
+
 	void SetUpElevatorEntry();
 };
 

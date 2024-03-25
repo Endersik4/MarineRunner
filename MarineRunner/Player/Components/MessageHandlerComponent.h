@@ -36,15 +36,16 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
-		TSubclassOf<UUserWidget> NewRecipeUnlockedClassWidget;
+		TSubclassOf<UUserWidget> NewRecipeUnlockedClassWidget = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
-		TSubclassOf<UUserWidget> NotEnoughSlotsForWeaponClassWidget;
+		TSubclassOf<UUserWidget> NotEnoughSlotsForWeaponClassWidget = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
-		TObjectPtr<USoundBase> MessagePopUpSound;
+		TObjectPtr<USoundBase> MessagePopUpSound = nullptr;
 
-	bool bIsMessageDisplayed;
 	UPROPERTY(Transient)
-		TObjectPtr<class UMessageToReadWidget> CurrentDisplayedMessage;
+		bool bIsMessageDisplayed = false;
+	UPROPERTY(Transient)
+		TObjectPtr<class UMessageToReadWidget> CurrentDisplayedMessage = nullptr;
 
 	void SpawnWidget(const TSubclassOf<UUserWidget> & WidgetClassToSpawn);
 };

@@ -24,6 +24,9 @@ void UElevatorPanelWidget::FillSelectFloorsListView()
 
 	for (const FElevatorFloor& SelectedFloor : AllElevatorFloors)
 	{
+		if (!IsValid(SelectedFloorEntryObject))
+			continue;
+
 		TObjectPtr<USelectFloorEntryObject> ConstructedFloorEntryObject = NewObject<USelectFloorEntryObject>(SelectedFloorEntryObject);
 		if (!IsValid(ConstructedFloorEntryObject))
 			continue;
@@ -40,7 +43,7 @@ void UElevatorPanelWidget::SelectFloor(int32 FloorToGo)
 	if (!IsValid(ElevatorActor))
 		return;
 
-	FElevatorFloor* FoundFloor = AllElevatorFloors.FindByKey(FloorToGo);
+	const FElevatorFloor* FoundFloor = AllElevatorFloors.FindByKey(FloorToGo);
 	if (!FoundFloor)
 		return;
 

@@ -39,15 +39,14 @@ void ULoadGameMenuWidget::FillLoadGamesListView()
 
 void ULoadGameMenuWidget::FillDeserializedSaveFilesToArray(TArray<FString>& PathsToSaveFiles, TArray<FSaveDataMenuStruct>& ArrayToFill)
 {
-	FSaveDataMenuStruct NewSaveDataMenu;
-
 	for (const FString& CurrTxtFilePath : PathsToSaveFiles)
 	{
 		TSharedPtr<FJsonObject> JsonObject;
-		bool bWasJsonDeserialize = USaveGameJsonFile::ReadJson(CurrTxtFilePath, JsonObject);
+		const bool bWasJsonDeserialize = USaveGameJsonFile::ReadJson(CurrTxtFilePath, JsonObject);
 		if (!bWasJsonDeserialize)
 			return;
 
+		FSaveDataMenuStruct NewSaveDataMenu;
 		NewSaveDataMenu.SaveName = JsonObject->GetStringField("SavedDataName");
 		NewSaveDataMenu.SaveNumber = JsonObject->GetIntegerField("SavedDataNumber");
 		NewSaveDataMenu.ScreenshotPathSave = JsonObject->GetStringField("PathToThumbnail");

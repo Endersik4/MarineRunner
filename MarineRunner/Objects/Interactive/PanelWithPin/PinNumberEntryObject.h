@@ -16,11 +16,11 @@ class MARINERUNNER_API UPinNumberEntryObject : public UObject
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		int32 PinNumber;
+		int32 PinNumber = 0;
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		TObjectPtr<class UDoorPanelWidget> DoorPanelWidget;
+		TObjectPtr<class UDoorPanelWidget> DoorPanelWidget = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		TObjectPtr<class UCallElevatorPanel> CallElevatorPanelWidget;
+		TObjectPtr<class UCallElevatorPanel> CallElevatorPanelWidget = nullptr;
 	
 
 };

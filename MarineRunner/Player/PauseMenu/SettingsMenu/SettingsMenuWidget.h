@@ -11,16 +11,16 @@
 class UTextBlock;
 class UButton;
 
-struct FSettingSelectedStruct {
+struct FSettingSelected {
 	TObjectPtr<UButton> SelectedButton;
 	TObjectPtr < UWidgetAnimation> AnimationToPlay;
 
-	FSettingSelectedStruct() {
+	FSettingSelected() {
 		SelectedButton = nullptr;
 		AnimationToPlay = nullptr;
 	}
 
-	FSettingSelectedStruct(TObjectPtr < UButton> NewSelectedButton, TObjectPtr < UWidgetAnimation> NewAnimationToPlay)
+	FSettingSelected(TObjectPtr < UButton> NewSelectedButton, TObjectPtr < UWidgetAnimation> NewAnimationToPlay)
 	{
 		SelectedButton = NewSelectedButton;
 		AnimationToPlay = NewAnimationToPlay;
@@ -40,39 +40,39 @@ protected:
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TSubclassOf<class USettingsMenuEntryObject> MenuSettingsDataObject;
+		TSubclassOf<class USettingsMenuEntryObject> MenuSettingsDataObject = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UListView> SettingsListView;
+		TObjectPtr<class UListView> SettingsListView = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UTextBlock> GameSettingsText;
+		TObjectPtr < UTextBlock> GameSettingsText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UButton> GameSettingsButton;
+		TObjectPtr < UButton> GameSettingsButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UTextBlock> AudioSettingsText;
+		TObjectPtr < UTextBlock> AudioSettingsText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UButton> AudioSettingsButton;
+		TObjectPtr < UButton> AudioSettingsButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UTextBlock> VideoSettingsText;
+		TObjectPtr < UTextBlock> VideoSettingsText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UButton> VideoSettingsButton;
+		TObjectPtr < UButton> VideoSettingsButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UTextBlock> BindingsSettingsText;
+		TObjectPtr < UTextBlock> BindingsSettingsText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UButton> BindingsSettingsButton;
+		TObjectPtr < UButton> BindingsSettingsButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UTextBlock> AcceptSettingsText;
+		TObjectPtr < UTextBlock> AcceptSettingsText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UButton> AcceptSettingsButton;
+		TObjectPtr < UButton> AcceptSettingsButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UTextBlock> DefaultsSettingsText;
+		TObjectPtr < UTextBlock> DefaultsSettingsText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr < UButton> DefaultsSettingsButton;
+		TObjectPtr < UButton> DefaultsSettingsButton = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr < UWidgetAnimation> GameSettingsHoverAnim = nullptr;
@@ -131,21 +131,21 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
-		TArray<FMenuSettings> GameSettingsList;
+		TArray<FMenuSettings> GameSettingsList = {FMenuSettings()};
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
-		TArray<FMenuSettings> AudioSettingsList;
+		TArray<FMenuSettings> AudioSettingsList = { FMenuSettings() };
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
-		TArray<FMenuSettings> VideoSettingsList;
+		TArray<FMenuSettings> VideoSettingsList = { FMenuSettings() };
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
-		TArray<FMenuSettings> BindingsSettingsList;
+		TArray<FMenuSettings> BindingsSettingsList = { FMenuSettings() };
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Data")
-		TSubclassOf<UUserWidget> SettingsAppliedWidgetClass;
+		TSubclassOf<UUserWidget> SettingsAppliedWidgetClass = nullptr;
 
 	void PlayAnimatonForButton(TObjectPtr < UWidgetAnimation> AnimToPlay, TObjectPtr < UButton> HoveredButton, bool bPlayForwardAnim = true);
 
 	void FillCurrentMenuSettingsListView(const TArray<FMenuSettings> & DataToFillFrom);
 
-	FSettingSelectedStruct CurrentSelectedSetting;
+	FSettingSelected CurrentSelectedSetting;
 
 	void StartOnGameSettingsList();
 	
@@ -156,14 +156,15 @@ private:
 
 	// Enable/Disable Menu Buttons
 	void FillMenuButtonsAndTextMap();
-	TMap< TObjectPtr<UButton>, TObjectPtr<UTextBlock>> MenuButtonsAndText;
+	UPROPERTY(Transient)
+		TMap< TObjectPtr<UButton>, TObjectPtr<UTextBlock>> MenuButtonsAndText = { {nullptr, nullptr} };
 
 	void LoadSavedSettingsToPlayer();
 
 	void SpawnSettingsAcceptedWidget();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class APlayerController> MarinePlayerController;
+		TObjectPtr<class APlayerController> MarinePlayerController = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class UMarineRunnerGameInstance> MarineGameInstance;
+		TObjectPtr<class UMarineRunnerGameInstance> MarineGameInstance = nullptr;
 };

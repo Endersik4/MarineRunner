@@ -21,7 +21,6 @@ void UCroachAndSlide::BeginPlay()
 
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	SetPlayerVariables();
-
 }
 
 void UCroachAndSlide::OnOwnerDestroyed(AActor* DestroyedActor)
@@ -75,10 +74,10 @@ void UCroachAndSlide::ChangingCrouchState(float Delta)
 
 	if (CrouchPressedTimeElapsed <= TimeToChangeCrouchState)
 	{
-		float NewVignetteIntensity = FMath::Lerp(CurrentVignetteIntensity, Target_VignetteIntensity, CrouchPressedTimeElapsed / TimeToChangeCrouchState);
+		const float& NewVignetteIntensity = FMath::Lerp(CurrentVignetteIntensity, Target_VignetteIntensity, CrouchPressedTimeElapsed / TimeToChangeCrouchState);
 		Player->GetCamera()->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
 
-		float NewScaleZ = FMath::Lerp(CurrentActorScale_Z, Target_ScaleZ, CrouchPressedTimeElapsed / TimeToChangeCrouchState);
+		const float& NewScaleZ = FMath::Lerp(CurrentActorScale_Z, Target_ScaleZ, CrouchPressedTimeElapsed / TimeToChangeCrouchState);
 		Player->SetActorScale3D(FVector(OriginalPlayerScale.X, OriginalPlayerScale.Y, NewScaleZ));
 
 		CrouchPressedTimeElapsed += Delta;
@@ -112,7 +111,7 @@ bool UCroachAndSlide::CanPlayerStand()
 		return false;
 
 	FHitResult ObstacleAboveResult;
-	FVector CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
+	const FVector& CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
 	if (GetWorld()->SweepSingleByChannel(ObstacleAboveResult, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECC_GameTraceChannel6, FCollisionShape::MakeBox(CheckBoxSizeToStandUpAfterCrouch)))
 	{
 		GetWorld()->GetTimerManager().SetTimer(CheckCrouchReleasedHandle, this, &UCroachAndSlide::CrouchReleased, CrouchReleasedTimeCheck, false);
@@ -236,7 +235,7 @@ bool UCroachAndSlide::ShouldStopSliding()
 	if (!IsValid(Player))
 		return false;
 
-	bool bPlayerIsntMoving = Player->GetInputAxisValue(TEXT("Forward")) != 1.f && Player->GetShouldPlayerGoForward() == false && Player->GetInputAxisValue(TEXT("Right")) == 0;
+	const bool bPlayerIsntMoving = Player->GetInputAxisValue(TEXT("Forward")) != 1.f && Player->GetShouldPlayerGoForward() == false && Player->GetInputAxisValue(TEXT("Right")) == 0;
 	return CurrentMovementForce <= CrouchSpeed || bPlayerIsntMoving;
 }
 
@@ -281,6 +280,9 @@ void UCroachAndSlide::TurnOffSlideSound()
 
 void UCroachAndSlide::SetPlayerVariables()
 {
+	if (!ensureMsgf(IsValid(GetOwner()), TEXT("Player is nullptr in Jump Component!")))
+		return;
+
 	Player = Cast<AMarineCharacter>(GetOwner());
 
 	if (!IsValid(Player))
@@ -289,6 +291,7 @@ void UCroachAndSlide::SetPlayerVariables()
 	CurrentMovementForce = Player->GetMovementForce();
 	OriginalMovementForce = CurrentMovementForce;
 	OriginalPlayerScale = Player->GetActorScale3D();
+
 	Player->GetCamera()->PostProcessSettings.bOverride_VignetteIntensity = true;
 	Player->OnDestroyed.AddUniqueDynamic(this, &UCroachAndSlide::OnOwnerDestroyed);
 }

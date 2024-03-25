@@ -24,13 +24,14 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "MainMenu")
-		TSubclassOf<class UMainMenuWidget> MainMenuWidgetClass;
+		TSubclassOf<class UMainMenuWidget> MainMenuWidgetClass = nullptr;
 
 	void BackToPreviousMenu();
 
-	bool bIsInMainMenu;
+	UPROPERTY(Transient)
+		bool bIsInMainMenu = false;
 	void SpawnMainMenuWidget();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UMainMenuWidget> MainMenuWidget;
+		TObjectPtr<class UMainMenuWidget> MainMenuWidget = nullptr;
 };

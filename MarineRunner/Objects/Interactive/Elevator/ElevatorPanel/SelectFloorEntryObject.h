@@ -17,9 +17,9 @@ class MARINERUNNER_API USelectFloorEntryObject : public UObject
 	
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		FElevatorFloor ElevatorFloor;
+		FElevatorFloor ElevatorFloor = FElevatorFloor();
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		TObjectPtr<class UElevatorPanelWidget> ElevatorPanelWidget;
+		TObjectPtr<class UElevatorPanelWidget> ElevatorPanelWidget = nullptr;
 
 	bool operator==(const USelectFloorEntryObject& OtherElevatorPanel);
 	bool operator==(const int32 FloorToGo);

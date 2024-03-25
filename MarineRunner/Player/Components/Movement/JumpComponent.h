@@ -52,7 +52,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Jump Settings")
 		float DelayIsInAirTime = 0.4f;
 	UPROPERTY(EditAnywhere, Category = "Jump Settings")
-		TObjectPtr<USoundBase> JumpSound;
+		TObjectPtr<USoundBase> JumpSound = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 		float CheckInAirTime = 0.05f;
@@ -68,28 +68,33 @@ private:
 
 	// The curve that will be applied (set) to the camera relative location when the player hits the ground for the first time.
 	UPROPERTY(EditDefaultsOnly, Category = "On Ground Settings")
-		TObjectPtr<UCurveFloat> ImpactOnFloorCameraEffectCurve;
+		TObjectPtr<UCurveFloat> ImpactOnFloorCameraEffectCurve = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "On Ground Settings")
-		TObjectPtr<USoundBase> ImpactOnFloorSound;
+		TObjectPtr<USoundBase> ImpactOnFloorSound = nullptr;
 	UFUNCTION()
 		void ImpactOnFloorCameraEffectTimelineProgress(float CurveValue);
 
 	//Jumps Variables
-	bool bStartApplyingJumpForces;
-	bool bDownForceWasApplied;
-	float JumpTimeElapsed;
+	UPROPERTY(Transient)
+		bool bStartApplyingJumpForces = false;
+	UPROPERTY(Transient)
+		bool bDownForceWasApplied = false;
+	UPROPERTY(Transient)
+		float JumpTimeElapsed = 0.f;
 	bool CanJump();
 	void ApplyJumpForces(const float & DeltaTime);
 	void ApplyJumpUPForce(const float& DeltaTime);
 
 	//Delayed jump
-	bool bCanDelayJump;
+	UPROPERTY(Transient)
+		bool bCanDelayJump = false;
 	FTimerHandle DelayJumpHandle;
 	void DelayJump();
 	FORCEINLINE void DisableCanDelayJump() { bCanDelayJump = false; };
 
 	//In Air
-	bool bIsInAir;
+	UPROPERTY(Transient)
+		bool bIsInAir = false;
 	FTimerHandle CheckInAirHandle;
 	void FirstMomentInAir();
 	void CheckIfIsInAir();
@@ -98,9 +103,12 @@ private:
 	// Ramp
 	void PlayerOnRamp(const FHitResult& GroundHitResult);
 	void DisablePlayerOnRampActions();
-	bool bIsOnRamp;
-	bool bIsGoingUpOnRamp;
-	FVector PreviousPlayerLocationOnRamp;
+	UPROPERTY(Transient)
+		bool bIsOnRamp = false;
+	UPROPERTY(Transient)
+		bool bIsGoingUpOnRamp = false;
+	UPROPERTY(Transient)
+		FVector PreviousPlayerLocationOnRamp = FVector::Zero();
 
 	// Impact on Floor
 	void LandingEffect();
@@ -108,10 +116,11 @@ private:
 	FTimeline ImpactOnFloorTimeline;
 
 	//Delay is in Air
-	bool bDelayIsInAir;
+	UPROPERTY(Transient)
+		bool bDelayIsInAir = false;
 	FTimerHandle DelayIsInAirHandle;
 	FORCEINLINE void DisableDelayIsInAir() { bDelayIsInAir = false; };
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player;
+		TObjectPtr<class AMarineCharacter> Player = nullptr;
 };

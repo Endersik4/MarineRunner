@@ -23,8 +23,17 @@ void USoundOnHitComponent::BeginPlay()
 
 void USoundOnHitComponent::OnHitPlaySound(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit)
 {
+	if (!IsValid(GetOwner()))
+		return;
+
 	if (!CanSpawnHitOnGroundSound(OtherActor))
 		return;
+
+	if (!IsValid(HitGroundSound))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit Ground SOund is nullpter in SoundOnHitComponent in Actor %s!"), *GetOwner()->GetActorLabel());
+		return;
+	}
 
 	SpawnedHitGroundSound = UGameplayStatics::SpawnSoundAtLocation(GetWorld(), HitGroundSound, GetOwner()->GetActorLocation());
 }

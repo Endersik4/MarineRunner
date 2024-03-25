@@ -95,7 +95,11 @@ void AMarineCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MarinePlayerController = Cast<AMarinePlayerController>(GetController());
+	if (ensureMsgf(IsValid(GetController()), TEXT("Player Controller is nullptr in MarinePlayer!")))
+	{
+		MarinePlayerController = Cast<AMarinePlayerController>(GetController());
+	}
+
 	PauseMenuComponent->ChangeUIToGameOnly();
 
 	MakeCrosshire();
@@ -186,6 +190,9 @@ void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& New
 
 void AMarineCharacter::LoadFieldOfViewFromSettings()
 {
+	if (!IsValid(UGameplayStatics::GetGameInstance(GetWorld())))
+		return;
+
 	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (!IsValid(GameInstance))
 		return;
@@ -197,6 +204,9 @@ void AMarineCharacter::LoadFieldOfViewFromSettings()
 #pragma region //////////////////////////////// MOVEMENT ///////////////////////////////
 void AMarineCharacter::Forward(float Axis)
 {
+	if (!IsValid(MarinePlayerController))
+		return;
+
 	// There is a bug where ForwardVector is not correct and had to use Controller->RootComponent but this way have other bug, when player looks up or down then he cant 
 	// go forward/backward and to fix this i had to rotate RightVector by -90.f
 	FVector Dir = MarinePlayerController->GetRootComponent()->GetRightVector().RotateAngleAxis(DegreeForForwardVector, FVector(0.f, 0.f, 1.f));
@@ -211,6 +221,9 @@ void AMarineCharacter::Forward(float Axis)
 
 void AMarineCharacter::Right(float Axis)
 {
+	if (!IsValid(MarinePlayerController))
+		return;
+
 	Move(MarinePlayerController->GetRootComponent()->GetRightVector(), Axis, FName(TEXT("Forward")));
 }
 
@@ -227,20 +240,18 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 	PlayFootstepsSound();
 
 	Direction.Z = 0.f;
-	FVector Force = (Axis * Direction * Speed) + CalculateCounterMovement();
+	const FVector& Force = (Axis * Direction * Speed) + CalculateCounterMovement();
 	CapsulePawn->AddImpulse(Force);
 }
 FVector AMarineCharacter::CalculateCounterMovement()
 {
-	FVector Velocity = GetVelocity();
-	Velocity.X *= -1.f;
-	Velocity.Y *= -1.f;
+	const FVector& CounterVelocity = GetVelocity() * FVector(-1.f, -1.f, 0.f);
 
 	float CounterForce = CounterMovementForce;
 	if (GetIsInAir() && !GetIsWallrunning())
 		CounterForce = CounterMovementForce / JumpComponent->GetDividerForCounterForceWhenInAir();
 
-	return FVector(CounterForce * Velocity.X, CounterForce * Velocity.Y, 0);
+	return FVector(CounterForce * CounterVelocity.X, CounterForce * CounterVelocity.Y, 0);
 }
 #pragma endregion
 
@@ -272,18 +283,31 @@ void AMarineCharacter::PlayFootstepsSound()
 		return;
 
 	float TimeToPlayNextStep = NormalTimeBetweenNextStep;
-	if (WallrunComponent->GetIsWallrunning() && IsValid(FootstepsWallrunSound))
+	if (WallrunComponent->GetIsWallrunning())
 	{
 		TimeToPlayNextStep = WallrunTimeBetweenNextStep;
-		UGameplayStatics::SpawnSound2D(GetWorld(), FootstepsWallrunSound);
+
+		if (IsValid(FootstepsWallrunSound))
+			UGameplayStatics::SpawnSoundAttached(FootstepsWallrunSound, CapsulePawn);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Footsteps Wallrun Sound is nullptr in MarinePlayer!"));
 	}
-	else if (GetIsCrouching() && IsValid(FootstepsCroachSound))
+	else if (GetIsCrouching())
 	{
 		TimeToPlayNextStep = CrouchTimeBetweenNextStep;
-		UGameplayStatics::SpawnSoundAttached(FootstepsCroachSound, CapsulePawn);
+
+		if (IsValid(FootstepsCrouchSound))
+			UGameplayStatics::SpawnSoundAttached(FootstepsCrouchSound, CapsulePawn);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Footsteps Crouch Sound is nullptr in MarinePlayer!"));
 	}
-	else if (IsValid(FootstepsSound)) 
-		UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);
+	else
+	{
+		if (IsValid(FootstepsSound))
+			UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Footsteps Sound is nullptr in MarinePlayer!"));
+	}
 
 	UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), FootstepsSoundLoudnessForEnemy, this, FootstepsSoundMaxRangeForEnemy);
 
@@ -311,14 +335,19 @@ void AMarineCharacter::UseFirstAidKit()
 
 	if (IsValid(UseFirstAidKitSound)) 
 		UGameplayStatics::PlaySound2D(GetWorld(), UseFirstAidKitSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Use First Aid Kit Sound is nullptr in MarinePlayer!"));
 
-	HudWidget->PlayUseFirstAidKitAnim();
-	HudWidget->UpdateHealthBarPercent(Health);
-	HudWidget->UpdateCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount);
+	if (IsValid(HudWidget))
+	{
+		HudWidget->PlayUseFirstAidKitAnim();
+		HudWidget->UpdateHealthBarPercent(Health);
+		HudWidget->UpdateCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount);
 
-	EPowerUpLoaded HealthDelay = EPowerUpLoaded(true, DelayAfterUseFirstAidKit, HudWidget->ActiveHealAnim, HudWidget->HealBar);
-	HudWidget->AddNewPowerUpToStartLoading(HealthDelay);
-	HudWidget->PlayButtonAnimation(EATP_PressedButton_Heal);
+		FPowerUpLoaded HealthDelay = FPowerUpLoaded(true, DelayAfterUseFirstAidKit, HudWidget->ActiveHealAnim, HudWidget->HealBar);
+		HudWidget->AddNewPowerUpToStartLoading(HealthDelay);
+		HudWidget->PlayButtonAnimation(EATP_PressedButton_Heal);
+	}
 
 	UpdateAlbertosInventory();
 
@@ -337,8 +366,10 @@ void AMarineCharacter::TakePressed()
 	{
 		WidgetInteractionComponent->PressPointerKey(EKeys::LeftMouseButton);
 	}
-	else if (IsValid(TakeAndDropComponent)) 
+	else if (IsValid(TakeAndDropComponent))
+	{
 		TakeAndDropComponent->Take();
+	}
 }
 
 void AMarineCharacter::TakeReleased()
@@ -358,6 +389,8 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 
 	if (IsValid(MarineHitSound)) 
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), MarineHitSound, NewHit.ImpactPoint);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Marine Hit Sound is nullptr in MarinePlayer!"));
 
 	// if NewSphereRadius != 0 then bullet with sphere radial damage was used as damage type
 	if (NewSphereRadius != 0.f && IsValid(BulletActor))
@@ -366,7 +399,9 @@ void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const
 		Health -= NewDamage / DividerForRadialDamage;
 	}
 	else 
+	{
 		Health -= NewDamage;
+	}
 
 	if (IsValid(HudWidget))
 	{
@@ -384,9 +419,13 @@ void AMarineCharacter::PlayerDead()
 	Health = 0.f;
 	SpawnDeathWidgetComponent->SpawnDeathWidget(MarinePlayerController);
 
+	if (!IsValid(UGameplayStatics::GetGameInstance(GetWorld())))
+		return;
+
 	TObjectPtr<UMarineRunnerGameInstance> MarineRunnerGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (!IsValid(MarineRunnerGameInstance))
 		return;
+
 	MarineRunnerGameInstance->ResetDetectedEnemy();
 }
 #pragma endregion 
@@ -398,6 +437,9 @@ void AMarineCharacter::MakeHudWidget()
 		return;
 
 	HudWidget = Cast<UHUDWidget>(CreateWidget(MarinePlayerController, HUDClass));
+
+	if (!HudWidget)
+		return;
 	HudWidget->AddToViewport();
 
 	SaveLoadPlayerComponent->SpawnNewGameWidget();
@@ -420,6 +462,10 @@ void AMarineCharacter::MakeCrosshire(bool bShouldRemoveFromParent)
 		return;
 
 	CrosshairWidget = CreateWidget(MarinePlayerController, CrosshairClass);
+
+	if (!CrosshairWidget)
+		return;
+
 	CrosshairWidget->AddToViewport();
 }
 
@@ -438,7 +484,9 @@ void AMarineCharacter::UpdateHudWidget()
 		HudWidget->UpdateCurrentNumberOfFirstAidKits(FirstAidKitItem->Item_Amount > MaxAmountOfFirstAidKitsOnHud ? MaxAmountOfFirstAidKitsOnHud : FirstAidKitItem->Item_Amount);
 	}
 	else
+	{
 		HudWidget->UpdateCurrentNumberOfFirstAidKits(0);
+	}
 }
 #pragma endregion 
 
@@ -469,6 +517,9 @@ void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool
 void AMarineCharacter::CallAlbertosPressed()
 {
 	if (!IsValid(AlbertoPawn))
+		return;
+	
+	if (!IsValid(AlbertoPawn->GetAlbertosToPlayerComponent()))
 		return;
 
 	AlbertoPawn->GetAlbertosToPlayerComponent()->CallAlbertosToThePlayer(GetActorLocation());

@@ -20,9 +20,19 @@ void UArmsSwayComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Player = Cast<AMarineCharacter>(GetOwner());
-	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	InitialArmsRelativeLocation = Player->GetArmsSkeletalMesh()->GetRelativeLocation();
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Player is nullptr in Arms Sway Component!")))
+	{
+		Player = Cast<AMarineCharacter>(GetOwner());
+	}
+	if (ensureMsgf(IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)), TEXT("Player Controller is nullptr in Arms Sway Component!")))
+	{
+		PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	}
+
+	if (IsValid(Player))
+	{
+		InitialArmsRelativeLocation = Player->GetArmsSkeletalMesh()->GetRelativeLocation();
+	}
 }
 
 
@@ -49,17 +59,17 @@ void UArmsSwayComponent::ArmsSway_MouseMove(float Delta)
 	//If Player doing nothing then arms goes back to its original position
 	if ((Player->GetInputAxisValue("Forward") == 0 && Player->GetInputAxisValue("Right") == 0))
 	{
-		FVector BackToOriginalPositionLocation = FMath::VInterpTo(Player->GetArmsSkeletalMesh()->GetRelativeLocation(), InitialArmsRelativeLocation, Delta, BackToInitialPositionSpeed);
+		const FVector& BackToOriginalPositionLocation = FMath::VInterpTo(Player->GetArmsSkeletalMesh()->GetRelativeLocation(), InitialArmsRelativeLocation, Delta, BackToInitialPositionSpeed);
 		Player->GetArmsSkeletalMesh()->SetRelativeLocation(BackToOriginalPositionLocation);
 	}
 }
 void UArmsSwayComponent::CalculateArmsSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, const float& Delta)
 {
 	//Preparing variables
-	float LookUp = PlayerController->GetInputAxisValue("LookUp");
-	float LookRight = PlayerController->GetInputAxisValue("LookRight");
-	float Forward = Player->GetInputAxisValue("Forward");
-	float Right = Player->GetInputAxisValue("Right");
+	const float& LookUp = PlayerController->GetInputAxisValue("LookUp");
+	const float& LookRight = PlayerController->GetInputAxisValue("LookRight");
+	const float& Forward = Player->GetInputAxisValue("Forward");
+	const float& Right = Player->GetInputAxisValue("Right");
 
 	//Rotation Sway when The Player moves the mouse
 	float RotationSwayUP = FMath::FInterpTo(ArmsRotationSway.Pitch, UKismetMathLibrary::MapRangeClamped(LookUp, -1, 1, RotationSwayPitchRangeBack, RotationSwayPitchRangeUp), Delta, SpeedOfSwayPitch);
@@ -97,13 +107,13 @@ void UArmsSwayComponent::ArmsSway_WhileMoving()
 	if (Player->GetVelocity().Length() < MinVelocityToStartArmsSway)
 		return;
 
-	FVector CalculatedGunSway = CalculateArmsSwayWhileMoving();
+	const FVector& CalculatedGunSway = CalculateArmsSwayWhileMoving();
 	Player->GetArmsSkeletalMesh()->SetRelativeLocation(CalculatedGunSway);
 }
 
 FVector UArmsSwayComponent::CalculateArmsSwayWhileMoving()
 {
-	float SpeedOfLemniscate = GetWorld()->GetTimeSeconds() * SpeedOfSwayWhileMoving;
+	const float& SpeedOfLemniscate = GetWorld()->GetTimeSeconds() * SpeedOfSwayWhileMoving;
 
 	// Lemniscate of Bernoulli equation
 	float Ang = 2 / (9.f - FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate * 2)));

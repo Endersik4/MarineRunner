@@ -22,7 +22,10 @@ void UWeaponHandlerComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Player = Cast<AMarineCharacter>(GetOwner());
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Player is nullptr in Weapon Handler Component!")))
+	{
+		Player = Cast<AMarineCharacter>(GetOwner());
+	}
 	
 	FTimerHandle UpdateMouseSensitivitesHandle;
 	GetWorld()->GetTimerManager().SetTimer(UpdateMouseSensitivitesHandle, this, &UWeaponHandlerComponent::LoadSavedSettingsFromGameInstance, 0.05f, false);
@@ -68,8 +71,10 @@ void UWeaponHandlerComponent::ADSPressed()
 	Player->MakeCrosshire(true);
 	Player->SetMovementForceDividerWhenInADS(MovementForceDividerWhenInADS);
 
-	if (IsValid(ADSInSound)) 
+	if (IsValid(ADSInSound))
 		UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("ADS In Sound is nullptr in Weapon Handler Component!"));
 
 	bIsPlayerADS = true;
 	Gun->AimTheGun(EStatusOfAimedGun::ESAG_ADS);
@@ -90,6 +95,8 @@ void UWeaponHandlerComponent::ADSReleased()
 
 	if (IsValid(ADSOutSound)) 
 		UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("ADS Out Sound is nullptr in Weapon Handler Component!"));
 
 	bIsPlayerADS = false;
 
@@ -137,7 +144,7 @@ void UWeaponHandlerComponent::SelectWeaponFromQuickInventory(int32 HandNumber)
 	if (!bCanChangeWeapon|| bIsPlayerADS)
 		return;
 
-	bool bDrawGunAccordingToHandNumber = Player->GetWeaponInventoryComponent()->GetWeaponFromStorage(HandNumber, Gun);
+	const bool bDrawGunAccordingToHandNumber = Player->GetWeaponInventoryComponent()->GetWeaponFromStorage(HandNumber, Gun);
 
 	if (!bDrawGunAccordingToHandNumber)
 		return;

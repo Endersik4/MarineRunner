@@ -20,8 +20,14 @@ void UPauseMenuComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	Player = Cast<AMarineCharacter>(GetOwner());
+	if (ensureMsgf(UGameplayStatics::GetPlayerController(GetWorld(), 0), TEXT("Player Controller is nullptr in PauseMenuComponent!")))
+	{
+		PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	}
+	if (ensureMsgf(GetOwner(), TEXT("Player is nullptr in PauseMenuComponent!")))
+	{
+		Player = Cast<AMarineCharacter>(GetOwner());
+	}
 }
 
 void UPauseMenuComponent::PauseGame()
@@ -39,7 +45,7 @@ void UPauseMenuComponent::PauseGame()
 
 void UPauseMenuComponent::UnPauseGame()
 {
-	bool bRemovePauseMenuWidget = PauseMenuWidget->RemoveCurrentMenuWidgetsFromViewport();
+	const bool bRemovePauseMenuWidget = PauseMenuWidget->BackToPreviousMenu();
 
 	if (!bRemovePauseMenuWidget|| !IsValid(PlayerController))
 		return;
@@ -59,7 +65,7 @@ void UPauseMenuComponent::UnPauseGame()
 
 void UPauseMenuComponent::SpawnPauseMenuWidget()
 {
-	if (!IsValid(PlayerController))
+	if (!IsValid(PlayerController) || !IsValid(PauseMenuWidgetClass))
 		return;
 
 	PauseMenuWidget = Cast<UPauseMenuWidget>(CreateWidget(PlayerController, PauseMenuWidgetClass));
@@ -92,6 +98,9 @@ bool UPauseMenuComponent::CanPauseGame()
 
 void UPauseMenuComponent::ChangeUIToGameOnly()
 {
+	if (!IsValid(PlayerController))
+		return;
+
 	PlayerController->SetShowMouseCursor(false);
 	UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
 }

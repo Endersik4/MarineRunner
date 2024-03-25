@@ -63,6 +63,8 @@ void ADoor::OpenDoor()
 	DoorSkeletalMesh->PlayAnimation(OpenDoorAnim, false);
 	if (IsValid(OpenDoorSound))
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), OpenDoorSound, DoorSkeletalMesh->GetSocketLocation(DoorSoundSocketName));
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Open Door Sound is nullptr in Door!"));
 
 	bDoorOpen = true;
 
@@ -80,6 +82,8 @@ void ADoor::CloseDoor()
 
 	if (IsValid(CloseDoorSound))
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), CloseDoorSound, DoorSkeletalMesh->GetSocketLocation(DoorSoundSocketName));
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Close Door Sound is nullptr in Door!"));
 
 	bDoorOpen = false;
 }

@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "MarineRunner/Gun/Gun.h"
+
 #include "GunReloadComponent.generated.h"
 
 UENUM(BlueprintType)
@@ -14,19 +16,18 @@ enum EReloadType
 	ERT_BeginEndReload UMETA(DisplayName = "Begin End Reload"),
 	ERT_Reload UMETA(DisplayName = "Reload"),
 };
-
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API UGunReloadComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	UGunReloadComponent();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	void PrepareToReload();
 	void CancelReload();
 	bool CanShootWhileReloading();
@@ -41,9 +42,9 @@ public:
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Reload")
-		bool bReloadOneBullet = false;
+	bool bReloadOneBullet = false;
 	UPROPERTY(EditAnywhere, Category = "Reload")
-		int32 MagazineCapacity = 10;
+	int32 MagazineCapacity = 10;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Reload")
 		FWeaponAnimation WeaponReloadAnim = FWeaponAnimation();
@@ -67,9 +68,9 @@ private:
 	FTimerHandle ReloadHandle;
 	bool CanReload();
 	void Reload();
-	void ReloadMagazine(FItemStruct* AmmoFromInventory);
+	void ReloadMagazine(struct FItemStruct* AmmoFromInventory);
 	const FWeaponAnimation& ReloadAnimAccordingToSituation();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AGun> Gun = nullptr;
+	TObjectPtr<class AGun> Gun = nullptr;
 };

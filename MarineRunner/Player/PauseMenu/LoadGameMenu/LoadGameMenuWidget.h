@@ -26,13 +26,13 @@ public:
 		void GetTextFilesFromSaves(TArray<FString> & Txt_Files);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> NoSavedDataText;
+		TObjectPtr<class UTextBlock> NoSavedDataText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UListView> LoadGamesListView;
+		TObjectPtr<class UListView> LoadGamesListView = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Load Game Menu")
-		TSubclassOf<class ULoadGameMenuEntryObject> MenuSettingsDataObject;
+		TSubclassOf<class ULoadGameMenuEntryObject> MenuSettingsDataObject = nullptr;
 
 private:
 	void FillLoadGamesListView();

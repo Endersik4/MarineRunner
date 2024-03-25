@@ -53,9 +53,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
 		int32 MaxAmountOfItems = 2;
 
-	TMap < int32, TObjectPtr<class AGun> > WeaponsStorage;
 	UPROPERTY(Transient)
-		TObjectPtr<class AGun> GunFromInventory;
+		TMap < int32, TObjectPtr<class AGun> > WeaponsStorage;
+	UPROPERTY(Transient)
+		TObjectPtr<class AGun> GunFromInventory = nullptr;
 
 	void SpawnWeaponsFromInventory();
 	void SortWeapons();

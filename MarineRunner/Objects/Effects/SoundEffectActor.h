@@ -29,16 +29,16 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> ChangeMusicBoxComp;
+		TObjectPtr<class UBoxComponent> ChangeMusicBoxComp = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (InlineEditConditionToggle))
 		bool bChangeMusic = true;
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (InlineEditConditionToggle))
-		bool bPlaySound;
+		bool bPlaySound = false;
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bChangeMusic", EditConditionHides))
-		TObjectPtr<USoundBase> MusicToChange;
+		TObjectPtr<USoundBase> MusicToChange = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bPlaySound", EditConditionHides))
-		TObjectPtr<USoundBase> SoundToPlay;
+		TObjectPtr<USoundBase> SoundToPlay = nullptr;
 	UFUNCTION()
 		void ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -47,6 +47,8 @@ private:
 
 	void ChangedMusicSaveData();
 
-	bool OriginalChangeMusic;
-	int32 CurrentUniqueID = 0;
+	UPROPERTY(Transient)
+		bool OriginalChangeMusic = false;
+	UPROPERTY(Transient)
+		int32 CurrentUniqueID = 0;
 };

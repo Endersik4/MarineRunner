@@ -79,30 +79,37 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")
 		float CameraYawSpeed = 8.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")
-		TObjectPtr<UCurveFloat> CameraRollRightSideCurve;
+		TObjectPtr<UCurveFloat> CameraRollRightSideCurve = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")
-		TObjectPtr<UCurveFloat> CameraRollLeftSideCurve;
+		TObjectPtr<UCurveFloat> CameraRollLeftSideCurve = nullptr;
 	UFUNCTION()
 		void CameraRollTimelineProgress(float CurveValue);
 
-	//Wallrunning
-	bool bIsWallrunning;
+	UPROPERTY(Transient)
+	bool bIsWallrunning = false;
+	UPROPERTY(Transient)
 	bool bCanJumpWhileWallrunning = true;
-	FVector WallrunDirection;
+	UPROPERTY(Transient)
+	FVector WallrunDirection = FVector::Zero();
 
+	UPROPERTY(Transient)
 	float WallrunTimeElapsed = 0.6f; //After the jump, this time must pass to do the wallrun again
-	FVector WallrunningWhereToJump; //ImpactNormal of Obstacle HitResult
+	UPROPERTY(Transient)
+	FVector WallrunningWhereToJump = FVector::Zero(); //ImpactNormal of Obstacle HitResult
 	void SetCanJumpWhileWallrunning();
 	FTimerHandle CanJumpHandle;
 
 	//Yaw camera rotation after run-up begins
-	bool bRotateYawCameraTowardsWallrun;
-	float RotateYawCameraAngle;
+	UPROPERTY(Transient)
+		bool bRotateYawCameraTowardsWallrun = false;
+	UPROPERTY(Transient)
+		float RotateYawCameraAngle = 0.f;
 	void RotateCameraYaw(ESideOfLine CurrentSide, FVector HitNormal);
 	void CameraRotationTowardsHitNormal(float Delta);
 
 	// Rotate camera roll in direction of the obstacle normal 
-	bool bCameraRollWasRotated = false;
+	UPROPERTY(Transient)
+		bool bCameraRollWasRotated = false;
 	ESideOfLine CurrentRotatedCameraRoll;
 	void RotateCameraWhileWallrunning(UCurveFloat* CurveToUse);
 	FTimeline RotateCameraRollTimeline;
@@ -116,15 +123,18 @@ private:
 	bool CanDoWallrun(float Delta);
 
 	// coyote time after wallrun
-	bool bCanJumpAfterWallrun;
+	UPROPERTY(Transient)
+		bool bCanJumpAfterWallrun = false;
 	FTimerHandle CanJumpAfterWallrunHandle;
 	void DisableCanJumpAfterWallrun();
 
-	FRotator PlayerRotationWallrun;
-	FRotator PlayerRotationWhileWallrun;
+	UPROPERTY(Transient)
+		FRotator PlayerRotationWallrun = FRotator::ZeroRotator;
+	UPROPERTY(Transient)
+		FRotator PlayerRotationWhileWallrun = FRotator::ZeroRotator;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> MarinePawn;
+		TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<APlayerController> PlayerController;
+		TObjectPtr<APlayerController> PlayerController = nullptr;
 };

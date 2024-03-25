@@ -32,31 +32,31 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> BaseMeshComponent;
+		TObjectPtr<class UStaticMeshComponent> BaseMeshComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> SocketRotateMeshComponent;
+		TObjectPtr<class UStaticMeshComponent> SocketRotateMeshComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> MeshToRotateComponent;
+		TObjectPtr<class UStaticMeshComponent> MeshToRotateComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> ActivateRotateBoxComponent;
+		TObjectPtr<class UBoxComponent> ActivateRotateBoxComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> ActivateMeshComponent;
+		TObjectPtr<class UStaticMeshComponent> ActivateMeshComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UTextRenderComponent> ResetCurrentTimeText;
+		TObjectPtr<class UTextRenderComponent> ResetCurrentTimeText = nullptr;
 
 	// X = roll, Y = Pitch, Z = Yaw
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
-		TObjectPtr<class UCurveVector> RelativeSocketRotationCurve;
+		TObjectPtr<class UCurveVector> RelativeSocketRotationCurve = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
 		float ResetToInitialRotationTime = 6.f;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
 		int32 IndexForActiveMaterialToChange = 0;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
-		FLinearColor NotActiveMaterialColor;
+		FLinearColor NotActiveMaterialColor = FLinearColor::Red;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
-		FLinearColor ActiveMaterialColor;
+		FLinearColor ActiveMaterialColor = FLinearColor::Green;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
-		TObjectPtr<USoundBase> RotateObjectSound;
+		TObjectPtr<USoundBase> RotateObjectSound = nullptr;
 
 	UFUNCTION()
 		void RotateSocketTimelineProgress(FVector NewRotation);
@@ -66,19 +66,26 @@ private:
 	UFUNCTION()
 		void OnActivateRotateBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& OutHit);
 
-	FRotator InitialSocketRotation;
-	bool bWasRotated = false;
-	bool bResetingRotation;
+	UPROPERTY(Transient)
+		FRotator InitialSocketRotation;
+	UPROPERTY(Transient)
+		bool bWasRotated = false;
+	UPROPERTY(Transient)
+		bool bResetingRotation = false;
 
-	int32 CurrentResetSecond = 0;
+	UPROPERTY(Transient)
+		int32 CurrentResetSecond = 0;
 	FTimerHandle ResetToInitialRotationHandle;
 	FTimerHandle DisplayResetTimeHandle;
 	void ResetRotateMeshTimeline();
 	void ResetTimeSeconds();
 
 	void StartRotateMeshTimeline();
-	FTimeline RotateMeshTimeline;
+	UPROPERTY(Transient)
+		FTimeline RotateMeshTimeline;
+
+	void SetUpActiveMaterial();
 
 	UPROPERTY(Transient)
-		TObjectPtr<UMaterialInstanceDynamic> ActiveDynamicMaterial;
+		TObjectPtr<UMaterialInstanceDynamic> ActiveDynamicMaterial = nullptr;
 };

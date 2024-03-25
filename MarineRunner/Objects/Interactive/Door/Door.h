@@ -33,17 +33,17 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class USkeletalMeshComponent> DoorSkeletalMesh;
+		TObjectPtr<class USkeletalMeshComponent> DoorSkeletalMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UWidgetComponent> DoorPanelWidgetComponent;
+		TObjectPtr<class UWidgetComponent> DoorPanelWidgetComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> DoorPanelMesh;
+		TObjectPtr<class UStaticMeshComponent> DoorPanelMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UWidgetComponent> DoorPanelSecondWidgetComponent;
+		TObjectPtr<class UWidgetComponent> DoorPanelSecondWidgetComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> DoorPanelSecondMesh;
+		TObjectPtr<class UStaticMeshComponent> DoorPanelSecondMesh = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Door Settings")
 		float CloseDoorAfterInactivityTime = 4.f;
@@ -53,17 +53,18 @@ private:
 		int32 PinCode = 1111;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Door Settings")
-		FName DoorSoundSocketName;
+		FName DoorSoundSocketName = FName();
 	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Open")
-		TObjectPtr < UAnimationAsset> OpenDoorAnim;
+		TObjectPtr < UAnimationAsset> OpenDoorAnim = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Open")
-		TObjectPtr < USoundBase> OpenDoorSound;
+		TObjectPtr < USoundBase> OpenDoorSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Closed")
-		TObjectPtr < UAnimationAsset> CloseDoorAnim;
+		TObjectPtr < UAnimationAsset> CloseDoorAnim = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Settings|Closed")
-		TObjectPtr < USoundBase> CloseDoorSound;
+		TObjectPtr < USoundBase> CloseDoorSound = nullptr;
 
-	bool bDoorOpen = false;
+	UPROPERTY(Transient)
+		bool bDoorOpen = false;
 
 	FTimerHandle CloseAfterInactivityHandle;
 	void CloseDoorsAfterInactivity();
@@ -72,11 +73,12 @@ private:
 	void CloseDoor();
 
 	UPROPERTY(Transient)
-		TObjectPtr < UDoorPanelWidget> DoorPanelWidget;
+		TObjectPtr < UDoorPanelWidget> DoorPanelWidget = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr < UDoorPanelWidget> DoorPanelSecondWidget;
+		TObjectPtr < UDoorPanelWidget> DoorPanelSecondWidget = nullptr;
 	void SetUpDoorPanels();
 
-	int32 CurrentUniqueID = 0;
+	UPROPERTY(Transient)
+		int32 CurrentUniqueID = 0;
 	void StopUsingPin();
 };

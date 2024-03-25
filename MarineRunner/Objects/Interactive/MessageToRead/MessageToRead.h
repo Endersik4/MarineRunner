@@ -28,26 +28,26 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> MessageStaticMesh;
+		TObjectPtr<class UStaticMeshComponent> MessageStaticMesh = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
-		FText MessageTitle;
+		FText MessageTitle = FText();
 	UPROPERTY(EditAnywhere, Category = "Message Settings", meta = (MultiLine = "true"))
-		FText MessageText;
+		FText MessageText = FText();
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
 		float OpenMessageDelay = 0.f;
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
-		TSubclassOf<class UMessageToReadWidget> MessageWidgetClass;
+		TSubclassOf<class UMessageToReadWidget> MessageWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Message Settings|Information On Hover")
-		FString MessageName;
+		FString MessageName = FString("default message name");
 	UPROPERTY(EditDefaultsOnly, Category = "Message Settings|Information On Hover")
-		FString MessageDescription;
+		FString MessageDescription = FString("default message description");
 	UPROPERTY(EditDefaultsOnly, Category = "Message Settings|Information On Hover")
-		TObjectPtr<UTexture2D> MessageIcon;
+		TObjectPtr<UTexture2D> MessageIcon = nullptr;
 
 	FTimerHandle SpawnMessageWidgetHandle;
 	void SpawnMessageWidget();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player;
+		TObjectPtr<class AMarineCharacter> Player = nullptr;
 };

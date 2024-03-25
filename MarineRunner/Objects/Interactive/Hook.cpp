@@ -107,15 +107,15 @@ void AHook::DelayForGrabbingTheHook()
 
 void AHook::ChangeHookFlipbookScale(float Delta)
 {
-	if (!bHookActive|| !IsValid(PlayerInRange))
+	if (!bHookActive || !IsValid(PlayerInRange))
 		return;
 
-	if (FVector::Distance(PlayerInRange->GetActorLocation(), HookStateFlipBook->GetComponentLocation()) > StartChangingScaleDistance
-		|| FVector::Distance(PlayerInRange->GetActorLocation(), HookStateFlipBook->GetComponentLocation()) < EndChangingScaleDistance)
+	const float& DistanceToPlayer = FVector::Distance(PlayerInRange->GetActorLocation(), HookStateFlipBook->GetComponentLocation());
+	if (DistanceToPlayer > StartChangingScaleDistance || DistanceToPlayer < EndChangingScaleDistance)
 		return;
 
-	float Alpha = FVector::Distance(PlayerInRange->GetActorLocation(), HookStateFlipBook->GetComponentLocation()) / FMath::Abs(StartChangingScaleDistance - EndChangingScaleDistance);
-	FVector NewScale = FMath::Lerp(MinHookFlipbookScale, OriginalHookStateScale, Alpha);
+	const float& Alpha = FVector::Distance(PlayerInRange->GetActorLocation(), HookStateFlipBook->GetComponentLocation()) / FMath::Abs(StartChangingScaleDistance - EndChangingScaleDistance);
+	const FVector& NewScale = FMath::Lerp(MinHookFlipbookScale, OriginalHookStateScale, Alpha);
 	HookStateFlipBook->SetWorldScale3D(NewScale);
 }
 
@@ -137,7 +137,7 @@ void AHook::HideFlipbookIfItIsNotVisible()
 		return;
 
 	FHitResult HitResult;
-	bool bIsSomethingBlockingView = GetWorld()->LineTraceSingleByChannel(HitResult, HookStateFlipBook->GetComponentLocation(), PlayerInRange->GetActorLocation(), ECC_Visibility);
+	const bool bIsSomethingBlockingView = GetWorld()->LineTraceSingleByChannel(HitResult, HookStateFlipBook->GetComponentLocation(), PlayerInRange->GetActorLocation(), ECC_Visibility);
 	
 	if (!bIsSomethingBlockingView && !HookStateFlipBook->IsVisible())
 	{

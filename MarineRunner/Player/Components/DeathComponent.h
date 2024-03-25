@@ -28,10 +28,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Spawn Death Widget Settings")
 		float DelayForGamePause = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Spawn Death Widget Settings")
-		TSubclassOf<class UYouDiedWidget> YouDiedWidgetClass;
+		TSubclassOf<class UYouDiedWidget> YouDiedWidgetClass = nullptr;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UYouDiedWidget> YouDiedWidget;
+		TObjectPtr<class UYouDiedWidget> YouDiedWidget = nullptr;
 
 	FTimerHandle PauseGameHandle;
 	void PauseGameAfterDelay();

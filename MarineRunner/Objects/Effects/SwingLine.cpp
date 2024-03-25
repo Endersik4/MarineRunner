@@ -45,11 +45,13 @@ void ASwingLine::MoveToHookLocation(float Delta)
 
 	if (SwingToHookLocationTimeElapsed < SwingToHookLocationTime)
 	{
-		FVector NewLocaton = FMath::Lerp(InitialSwingLineLocation, HookLocation, SwingToHookLocationTimeElapsed / SwingToHookLocationTime);
+		const FVector& NewLocaton = FMath::Lerp(InitialSwingLineLocation, HookLocation, SwingToHookLocationTimeElapsed / SwingToHookLocationTime);
 		SetActorLocation(NewLocaton);
 	}
 	else
+	{
 		bStartMovingToHookLocation = false;
+	}
 
 	SwingToHookLocationTimeElapsed += Delta;
 }

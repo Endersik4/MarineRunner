@@ -34,7 +34,8 @@ private:
 	UFUNCTION()
 		void CreditsBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	bool bCreditsActive = false;
+	UPROPERTY(Transient)
+		bool bCreditsActive = false;
 
 	void SpawnWidget();
 

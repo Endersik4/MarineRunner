@@ -15,7 +15,9 @@ bool USaveGameJsonFile::ReadJson(const FString& JsonFilePath, TSharedPtr<FJsonOb
 		return true;
 	}
 	else 
+	{
 		return false;
+	}
 }
 
 void USaveGameJsonFile::WriteJson(const TSharedPtr<FJsonObject>& JsonObject, const FString& JsonFilePath)

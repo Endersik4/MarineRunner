@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "MarineRunner/Gun/Gun.h"
+
 #include "GunControlsComponent.generated.h"
 
 // Handles all gun controls: Take, Put Away, Draw, Drop, Hud
@@ -38,7 +40,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Take gun")
 		FName AttachGunToSocketName = FName(TEXT("Weapon_R"));
 	UPROPERTY(EditDefaultsOnly, Category = "Take gun")
-		struct FWeaponAnimation WeaponFirstTimeTakeAnim = FWeaponAnimation();
+		FWeaponAnimation WeaponFirstTimeTakeAnim = FWeaponAnimation();
 
 	// If True then ammunition on UI will be below the Gun icon picture
 	// If False then ammunition on UI will be on the left side of the gun icon picture
@@ -48,11 +50,11 @@ private:
 		TObjectPtr<UTexture2D> GunHUDTexture = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Handle Gun")
-		struct FWeaponAnimation WeaponDrawAnim = FWeaponAnimation();;
+		FWeaponAnimation WeaponDrawAnim = FWeaponAnimation();
 	UPROPERTY(EditDefaultsOnly, Category = "Handle Gun")
 		TObjectPtr<USoundBase> DrawGunSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Handle Gun")
-		struct FWeaponAnimation WeaponPutAwayAnim = FWeaponAnimation();;
+		FWeaponAnimation WeaponPutAwayAnim = FWeaponAnimation();
 	UPROPERTY(EditDefaultsOnly, Category = "Handle Gun")
 		TObjectPtr<USoundBase> PutAwayGunSound = nullptr;
 

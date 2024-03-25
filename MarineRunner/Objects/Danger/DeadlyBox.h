@@ -25,7 +25,7 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> DeadlyBox;
+		TObjectPtr<class UBoxComponent> DeadlyBox = nullptr;
 	UPROPERTY(EditAnywhere, Category = "DeadlyBox Setup")
 		float DamageToApply = 1000.f;
 	UPROPERTY(EditAnywhere, Category = "DeadlyBox Setup")

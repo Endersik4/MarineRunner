@@ -18,17 +18,17 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> InteractDoorButton;
+		TObjectPtr<class UButton> InteractDoorButton = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> InteractDoorText;
+		TObjectPtr<class UTextBlock> InteractDoorText = nullptr;
 
 	// If pin is in use
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> BackgroundPinImage;
+		TObjectPtr<class UImage> BackgroundPinImage = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> PinCodeText;
+		TObjectPtr<class UTextBlock> PinCodeText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTileView> PinNumbersTileView;
+		TObjectPtr<class UTileView> PinNumbersTileView = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> OnClickedInteractDoorAnim = nullptr;
@@ -43,17 +43,17 @@ public:
 		void OnUnhoveredInteractDoorButton();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings")
-		FText OpenDoorText;
+		FText OpenDoorText = FText();
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings")
-		FText CloseDoorText;
+		FText CloseDoorText = FText();
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings")
 		float TimeToChangeStatusText = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
-		TObjectPtr < USoundBase> WrongCodeSound;
+		TObjectPtr < USoundBase> WrongCodeSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
-		TArray<int32> PinNumberEntries;
+		TArray<int32> PinNumberEntries = {0};
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
-		TSubclassOf<class UPinNumberEntryObject> PinNumberEntryObjectClass;
+		TSubclassOf<class UPinNumberEntryObject> PinNumberEntryObjectClass = nullptr;
 
 	FORCEINLINE void SetActorToUnlock(class IUsePinToEnterInterface* NewActorWithWidget) { ActorWithWidget = NewActorWithWidget; }
 	FORCEINLINE void SetCanCloseObject(bool bCan) { bCanCloseObject = bCan; }
@@ -67,16 +67,21 @@ public:
 
 private:
 
-	bool bDoorOpen = false;
-	bool bCanCloseObject = true;
+	UPROPERTY(Transient)
+		bool bDoorOpen = false;
+	UPROPERTY(Transient)
+		bool bCanCloseObject = true;
 
 	FTimerHandle ChangeDoorStatusHandle;
 	void ChangeDoorStatus();
 
-	class IUsePinToEnterInterface* ActorWithWidget;
+	class IUsePinToEnterInterface* ActorWithWidget = nullptr;
 
-	int32 CurrentPinCode;
-	FString CurrentlyEnteredPin;
-	FString CurrentlyEnteredPin_Text;
+	UPROPERTY(Transient)
+		int32 CurrentPinCode = 0;
+	UPROPERTY(Transient)
+		FString CurrentlyEnteredPin = FString("----");
+	UPROPERTY(Transient)
+		FString CurrentlyEnteredPin_Text = FString("----");
 
 };

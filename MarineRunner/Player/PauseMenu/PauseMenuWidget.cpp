@@ -45,7 +45,14 @@ void UPauseMenuWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (ensureMsgf(IsValid(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)), TEXT("Player is nullptr in PauseMenuWidget!")))
+	{
+		Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	}
+	if (ensureMsgf(IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)), TEXT("Player Controller is nullptr in PauseMenuWidget!")))
+	{
+		PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	}
 
 	PlayPauseMenuMusic();
 
@@ -62,6 +69,9 @@ void UPauseMenuWidget::NativeDestruct()
 
 void UPauseMenuWidget::PlayPauseMenuMusic()
 {
+	if (!IsValid(UGameplayStatics::GetGameInstance(GetWorld())))
+		return;
+
 	GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (!IsValid(GameInstance))
 		return;
@@ -88,7 +98,7 @@ void UPauseMenuWidget::StopPauseMenuMusic()
 		GameInstance->ChangeBackgroundMusic(MusicTypeBeforePause, true);
 	}
 
-	if (IsValid(CurrentPauseMenuMusic) == false) 
+	if (!IsValid(CurrentPauseMenuMusic)) 
 		return;
 
 	CurrentPauseMenuMusic->Stop();
@@ -141,15 +151,18 @@ void UPauseMenuWidget::OnClickedLoadGameButton()
 
 void UPauseMenuWidget::SpawnLoadGameMenuWidget()
 {
-	LoadGameMenuWidget = Cast<ULoadGameMenuWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), LoadGameMenuWidgetClass));
+	if (!IsValid(PlayerController))
+		return;
+
+	LoadGameMenuWidget = Cast<ULoadGameMenuWidget>(CreateWidget(PlayerController, LoadGameMenuWidgetClass));
 	if (!IsValid(LoadGameMenuWidget)) 
 		return;
 
 	SetEnableAllMenuButtons(false, LoadGameButton);
 	LoadGameMenuWidget->AddToViewport();
 
-	CurrentSpawnedMenuWidgets.Add(LoadGameMenuWidget, [this](bool b) { this->RemoveLoadGameMenuWidgetFromViewport(b); });
-
+	CurrentSpawnedMenuWidgets.Add(FVisiblePauseMenu(LoadGameMenuWidget, [this](bool b) { this->RemoveLoadGameMenuWidgetFromViewport(b); }));
+	
 	bWasLoadGameMenuWidgetSpawned = true;
 }
 
@@ -161,7 +174,8 @@ void UPauseMenuWidget::RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoa
 	SetEnableAllMenuButtons(true, LoadGameButton);
 
 	LoadGameMenuWidget->RemoveFromParent();
-	CurrentSpawnedMenuWidgets.Remove(LoadGameMenuWidget);
+	CurrentSpawnedMenuWidgets.Pop();
+
 	LoadGameMenuWidget = nullptr;
 
 	bWasLoadGameMenuWidgetSpawned = false;
@@ -227,14 +241,17 @@ void UPauseMenuWidget::OnClickedSettingsButton()
 
 void UPauseMenuWidget::SpawnSettingsMenuWidget()
 {
-	SettingsMenuWidget = Cast<USettingsMenuWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), SettingsMenuWidgetClass));
+	if (!IsValid(PlayerController))
+		return;
+
+	SettingsMenuWidget = Cast<USettingsMenuWidget>(CreateWidget(PlayerController, SettingsMenuWidgetClass));
 	if (!IsValid(SettingsMenuWidget)) 
 		return;
 
 	SetEnableAllMenuButtons(false, SettingsButton);
 	SettingsMenuWidget->AddToViewport();
 
-	CurrentSpawnedMenuWidgets.Add(SettingsMenuWidget, [this](bool b) { this->RemoveSettingsMenuWidgetFromViewport(b); });
+	CurrentSpawnedMenuWidgets.Add(FVisiblePauseMenu(SettingsMenuWidget, [this](bool b) { this->RemoveSettingsMenuWidgetFromViewport(b); }));
 
 	bWasSettingsMenuWidgetSpawned = true;
 }
@@ -247,7 +264,8 @@ void UPauseMenuWidget::RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSet
 	SetEnableAllMenuButtons(true, SettingsButton);
 
 	SettingsMenuWidget->RemoveFromParent();
-	CurrentSpawnedMenuWidgets.Remove(SettingsMenuWidget);
+	CurrentSpawnedMenuWidgets.Pop();
+
 	SettingsMenuWidget = nullptr;
 
 	bWasSettingsMenuWidgetSpawned = false;
@@ -270,10 +288,10 @@ void UPauseMenuWidget::OnUnhoveredSettingsButton()
 #pragma region //////////////// QUIT GAME /////////////////
 void UPauseMenuWidget::OnClickedQuitGameButton()
 {
-	if (!IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+	if (!IsValid(PlayerController))
 		return;
 
-	TObjectPtr<UConfirmLoadingGameWidget> ConfirmQuitingGameWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
+	TObjectPtr<UConfirmLoadingGameWidget> ConfirmQuitingGameWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(PlayerController, ConfirmLoadingSaveWidgetClass));
 	if (!IsValid(ConfirmQuitingGameWidget))
 		return;
 
@@ -292,20 +310,13 @@ void UPauseMenuWidget::OnUnhoveredQuitGameButton()
 }
 #pragma endregion 
 
-bool UPauseMenuWidget::RemoveCurrentMenuWidgetsFromViewport()
+bool UPauseMenuWidget::BackToPreviousMenu()
 {
 	if (CurrentSpawnedMenuWidgets.Num() == 0) 
 		return true;
 
-	TArray<TObjectPtr<UUserWidget>> SpawnedMenuWidgets;
-	CurrentSpawnedMenuWidgets.GenerateKeyArray(SpawnedMenuWidgets);
+	(CurrentSpawnedMenuWidgets.Last().FunctionToHideWidget)(true);
 
-	if (CurrentSpawnedMenuWidgets.Contains(SpawnedMenuWidgets.Last()))
-	{
-		TFunction<void(bool)>* DeleteWidgetFunction = CurrentSpawnedMenuWidgets.Find(SpawnedMenuWidgets.Last());
-		(*DeleteWidgetFunction)(true);
-		CurrentSpawnedMenuWidgets.Remove(SpawnedMenuWidgets.Last());
-	}
 	return false;
 }
 

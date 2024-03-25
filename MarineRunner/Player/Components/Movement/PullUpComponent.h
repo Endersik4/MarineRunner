@@ -62,7 +62,8 @@ private:
 
 	FTimerHandle CheckIfShouldPullUpHandle;
 
-	FVector PullupLocationZ;
+	UPROPERTY(Transient)
+		FVector PullupLocationZ = FVector::Zero();
 
 	bool DetectEdge(const FVector& PlayerForwardVector);
 	void StartPullUpOnEdge();
@@ -74,14 +75,17 @@ private:
 	bool GetEdgeLocationOfTheObject(const FVector& PlayerForwardVector, FVector & EdgeLocation);
 
 	// Moving player to pull up location
-	bool bIsPullingUp;
-	float PullupTimeElapsed;
-	FVector PlayerLocation;
+	UPROPERTY(Transient)
+		bool bIsPullingUp = false;
+	UPROPERTY(Transient)
+		float PullupTimeElapsed = 0.f;
+	UPROPERTY(Transient)
+		FVector PlayerLocation = FVector::Zero();
 	void MovePlayerToPullUpLocation(float Delta);
 
 	// There is a bug where MarinePawn->GetActorForwardVector() is not correct
 	const FVector CalculateForwardVectorForPlayer();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> MarinePawn;
+		TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
 };

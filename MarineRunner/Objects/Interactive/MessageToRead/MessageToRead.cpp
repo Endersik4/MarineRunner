@@ -35,6 +35,9 @@ void AMessageToRead::BeginPlay()
 
 void AMessageToRead::TakeItem(AMarineCharacter* Character)
 {
+	if (!IsValid(Character))
+		return;
+
 	if (Character->GetIsInSlowMotion())
 		return;
 
@@ -45,6 +48,9 @@ void AMessageToRead::TakeItem(AMarineCharacter* Character)
 
 void AMessageToRead::ItemHover(AMarineCharacter* Character)
 {
+	if (!IsValid(Character))
+		return;
+
 	if (!IsValid(Character->GetHudWidget())) 
 		return;
 
@@ -54,6 +60,9 @@ void AMessageToRead::ItemHover(AMarineCharacter* Character)
 
 void AMessageToRead::ItemUnHover(AMarineCharacter* Character)
 {
+	if (!IsValid(Character))
+		return;
+
 	if (!IsValid(Character->GetHudWidget()))
 		return;
 

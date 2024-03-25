@@ -20,7 +20,10 @@ void UJumpComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Player = Cast<AMarineCharacter>(GetOwner());
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Player is nullptr in Jump Component!")))
+	{
+		Player = Cast<AMarineCharacter>(GetOwner());
+	}
 
 	GetWorld()->GetTimerManager().SetTimer(CheckInAirHandle, this, &UJumpComponent::CheckIfIsInAir, CheckInAirTime, true);
 	CreateImpactOnFloorTimeline();
@@ -38,7 +41,7 @@ void UJumpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 bool UJumpComponent::CanJump()
 {
 	FHitResult SomethingUpResult;
-	bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(SomethingUpResult, Player->GetRoofLocationSceneComponent()->GetComponentLocation(), Player->GetRoofLocationSceneComponent()->GetComponentLocation(), FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
+	const bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(SomethingUpResult, Player->GetRoofLocationSceneComponent()->GetComponentLocation(), Player->GetRoofLocationSceneComponent()->GetComponentLocation(), FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
 	
 	if (bObstacleAbovePlayer)
 		return false;
@@ -72,8 +75,10 @@ void UJumpComponent::Jump()
 		bStartApplyingJumpForces = true;
 		JumpTimeElapsed = 0.f;
 
-		if (IsValid(JumpSound)) 
+		if (IsValid(JumpSound))
 			UGameplayStatics::SpawnSound2D(GetWorld(), JumpSound);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Jump Sound is nullptr in Jump Cpmponent!"));
 	}
 	else
 	{
@@ -93,7 +98,7 @@ void UJumpComponent::ApplyJumpForces(const float& DeltaTime)
 	}
 	else if (!bDownForceWasApplied) // for faster falling after jumping
 	{
-		FVector DownJumpImpulse = (-Player->GetActorUpVector() * JumpDownForce);
+		const FVector& DownJumpImpulse = (-Player->GetActorUpVector() * JumpDownForce);
 		Player->GetPlayerCapsule()->AddImpulse(DownJumpImpulse);
 
 		bDownForceWasApplied = true;
@@ -110,9 +115,9 @@ void UJumpComponent::ApplyJumpUPForce(const float& DeltaTime)
 {
 	JumpTimeElapsed += DeltaTime;
 
-	FVector CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
+	const FVector& CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
 	FHitResult ObstacleAboveHitResult;
-	bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(ObstacleAboveHitResult, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
+	const bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(ObstacleAboveHitResult, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
 	if (bObstacleAbovePlayer)
 	{
 		// if player hits soemthing uphead then stop applying jump forces
@@ -120,7 +125,7 @@ void UJumpComponent::ApplyJumpUPForce(const float& DeltaTime)
 		return;
 	}
 
-	float NewVel_Z = FMath::Lerp(InitialJumpForce, EndJumpForce, JumpTimeElapsed / JumpUpTime);
+	const float& NewVel_Z = FMath::Lerp(InitialJumpForce, EndJumpForce, JumpTimeElapsed / JumpUpTime);
 	FVector JumpVelocity = Player->GetPlayerCapsule()->GetPhysicsLinearVelocity();
 	JumpVelocity.Z = NewVel_Z;
 	Player->GetPlayerCapsule()->SetPhysicsLinearVelocity(JumpVelocity);
@@ -154,9 +159,9 @@ void UJumpComponent::CheckIfIsInAir()
 		return;
 
 	FHitResult GroundHitResult;
-	FVector GroundCheckLocation = Player->GetGroundLocationSceneComponent()->GetComponentLocation();
+	const FVector& GroundCheckLocation = Player->GetGroundLocationSceneComponent()->GetComponentLocation();
 	//Check if there is ground under the player, if not, the player is in the air
-	bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GroundCheckLocation, GroundCheckLocation, FQuat::Identity, ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
+	const bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GroundCheckLocation, GroundCheckLocation, FQuat::Identity, ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
 	if (!bSomethingIsBelowThePlayer)
 	{
 		if (bIsInAir)
@@ -201,6 +206,8 @@ void UJumpComponent::FirstTimeOnGround()
 
 	if (IsValid(ImpactOnFloorSound)) 
 		UGameplayStatics::SpawnSoundAttached(ImpactOnFloorSound, Player->GetPlayerCapsule());
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Impact On Floor Sound is nullptr in Jump Cpmponent!"));
 
 	LandingEffect();
 }

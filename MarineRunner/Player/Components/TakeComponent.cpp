@@ -19,8 +19,11 @@ void UTakeAndDrop::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MarinePawn = Cast<AMarineCharacter>(GetOwner());
-	MarinePawn->OnDestroyed.AddDynamic(this, &UTakeAndDrop::OnOwnerDestroyed);
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Player is nullptr in Take Component!")))
+	{
+		MarinePawn = Cast<AMarineCharacter>(GetOwner());
+		MarinePawn->OnDestroyed.AddDynamic(this, &UTakeAndDrop::OnOwnerDestroyed);
+	}
 }
 
 void UTakeAndDrop::OnOwnerDestroyed(AActor* DestroyedActor)
@@ -37,11 +40,14 @@ void UTakeAndDrop::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 
 bool UTakeAndDrop::RaycastForHoverItems()
 {
-	FVector Start = MarinePawn->GetCamera()->GetComponentLocation();
-	FVector End = Start + (UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetRootComponent()->GetForwardVector() * TakeDistance);
+	if (!IsValid(MarinePawn))
+		return false;
+
+	const FVector& Start = MarinePawn->GetCamera()->GetComponentLocation();
+	const FVector& End = Start + (UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetRootComponent()->GetForwardVector() * TakeDistance);
 
 	FHitResult CurrentItemHit;
-	bool bWasHit = GetWorld()->SweepSingleByChannel(CurrentItemHit, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeBox(CollisionBoxSize));
+	const bool bWasHit = GetWorld()->SweepSingleByChannel(CurrentItemHit, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeBox(CollisionBoxSize));
 
 	HoverHitItem(bWasHit, CurrentItemHit);
 

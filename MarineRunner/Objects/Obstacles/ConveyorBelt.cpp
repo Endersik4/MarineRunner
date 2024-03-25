@@ -40,10 +40,9 @@ void AConveyorBelt::GenerateInstancedMeshesForConveyorBelt()
 {
 	ConveyorBeltInstancedMesh->ClearInstances();
 
-	FVector InstancedMeshRelativeLocation;
 	for (int32 i = 0; i != ConveyorBeltMeshAmount; i++)
 	{
-		InstancedMeshRelativeLocation = InstancedMeshDirection * ConveyorBeltMeshOffset * i;
+		const FVector& InstancedMeshRelativeLocation = InstancedMeshDirection * ConveyorBeltMeshOffset * i;
 		ConveyorBeltInstancedMesh->AddInstance(FTransform(InstancedMeshRelativeLocation));
 	}
 
@@ -81,7 +80,7 @@ void AConveyorBelt::MoveActors(float Delta)
 		if (!IsValid(CurrentActor))
 			continue;
 
-		FVector Offset = GetActorForwardVector() * Delta * SpeedOfActorOnConveyorBelt;
+		const FVector& Offset = GetActorForwardVector() * Delta * SpeedOfActorOnConveyorBelt;
 		CurrentActor->AddActorWorldOffset(Offset);
 	}
 }

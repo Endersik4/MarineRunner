@@ -47,14 +47,14 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> ItemMesh;
+		TObjectPtr<class UStaticMeshComponent> ItemMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class USoundOnHitComponent> SoundOnHitComponent;
+		TObjectPtr<class USoundOnHitComponent> SoundOnHitComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
-		FName ItemRowName;
+		FName ItemRowName = FName("null");
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings|Sounds")
-		TObjectPtr<USoundBase> PickUpSound;
+		TObjectPtr<USoundBase> PickUpSound = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings|Craft")
 		FName DisolveScalarParameterName = FName(TEXT("Dissolve"));
@@ -68,22 +68,28 @@ private:
 	void AddCraftRecipeIfCraftable(TObjectPtr<class AMarineCharacter> Player, FItemStruct* ItemDataFromDataTable);
 	void SpawnWeaponForPlayer(TObjectPtr<class AMarineCharacter>, FItemStruct* ItemDataFromDataTable);
 
-	int32 AmountMultiplier = 1;
-
-	bool bWasOnceTaken;
-	int32 CurrentMagazineCapacity;
+	UPROPERTY(Transient)
+		int32 AmountMultiplier = 1;
+	UPROPERTY(Transient)
+		bool bWasOnceTaken = false;
+	UPROPERTY(Transient)
+		int32 CurrentMagazineCapacity = 0;
 
 	//Dissolve Material
-	bool bShouldDissolve;
-	float DissolveTimeElapsed;
-	float TimeToCraftAnItem = 4.f;
+	UPROPERTY(Transient)
+		bool bShouldDissolve = false;
+	UPROPERTY(Transient)
+		float DissolveTimeElapsed = 0.f;
+	UPROPERTY(Transient)
+		float TimeToCraftAnItem = 4.f;
 	void Dissolve(float Delta);
 	UPROPERTY(Transient)
-		TObjectPtr<UMaterialInstanceDynamic> DissolveDynamicMaterial;
+		TObjectPtr<UMaterialInstanceDynamic> DissolveDynamicMaterial = nullptr;
 
 	void SaveItemWasTaken();
 	void SaveItem(TObjectPtr<class ASavedDataObject> SavedDataObject,const FCustomDataSaved& DataToSave);
 	void DisableItem(bool bDisable = true);
 
-	int32 CurrentUniqueID = 0;
+	UPROPERTY(Transient)
+		int32 CurrentUniqueID = 0;
 };

@@ -5,7 +5,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "Camera/CameraComponent.h"
 
-#include "MarineRunner/Gun/Gun.h"
 #include "MarineRunner/Gun/Components/GunReloadComponent.h"
 #include "MarineRunner/Objects/Interactive/PickableItem.h"
 #include "MarineRunner/Player/MarinePlayer.h"

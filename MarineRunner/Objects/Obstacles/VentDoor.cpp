@@ -114,6 +114,8 @@ void ADoorVent::ItemHover(AMarineCharacter* Character)
 	DoorVentMesh->SetRenderCustomDepth(true);
 	bIsHovered = true;
 
+	if (!IsValid(Character))
+		return;
 	if (!IsValid(Character->GetHudWidget()))
 		return;
 
@@ -129,6 +131,8 @@ void ADoorVent::ItemUnHover(AMarineCharacter* Character)
 
 	DoorVentMesh->SetRenderCustomDepth(false);
 
+	if (!IsValid(Character))
+		return;
 	if (!IsValid(Character->GetHudWidget()))
 		return;
 

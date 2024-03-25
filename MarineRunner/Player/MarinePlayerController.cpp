@@ -8,7 +8,11 @@
 void AMarinePlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	MarinePawn = Cast<AMarineCharacter>(GetPawn());
+
+	if (ensureMsgf(IsValid(GetPawn()), TEXT("MarinePawn is nullptr in MarinePlayerController!")))
+	{
+		MarinePawn = Cast<AMarineCharacter>(GetPawn());
+	}
 
 	OnPossessedPawnChanged.AddDynamic(this, &AMarinePlayerController::HandleOnPossessedPawnChanged);
 }
@@ -26,6 +30,9 @@ void AMarinePlayerController::SetupInputComponent()
 
 void AMarinePlayerController::HandleOnPossessedPawnChanged(APawn* _NewPawn, APawn* _OldPawn)
 {
+	if (!IsValid(_NewPawn))
+		return;
+
 	MarinePawn = Cast<AMarineCharacter>(_NewPawn);
 }
 

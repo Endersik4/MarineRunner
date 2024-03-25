@@ -31,24 +31,25 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> ShowMessageBoxComp;
+		TObjectPtr<class UBoxComponent> ShowMessageBoxComp = nullptr;
 	UFUNCTION()
 		void ShowMessageBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
-		FText MessageTitle;
+		FText MessageTitle = FText();
 	UPROPERTY(EditAnywhere, Category = "Message Settings", meta = (MultiLine = "true"))
-		FText MessageText;
+		FText MessageText = FText();
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
 		float HideMessageAfterTime = 15.f;
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
-		TSubclassOf<class UMessageToReadWidget> MessageWidgetClass;
+		TSubclassOf<class UMessageToReadWidget> MessageWidgetClass = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
 		bool bUnlockGameplayMechanicsInHud = false;
 	UPROPERTY(EditAnywhere, Category = "Message Settings", meta = (EditCondition = "bUnlockGameplayMechanicsInHud", EditConditionHides))
 		TEnumAsByte<enum EUnlockInHud> UnlockInHud;
 
-	bool bCanShowTutorialMessage = true;
+	UPROPERTY(Transient)
+		bool bCanShowTutorialMessage = true;
 	FTimerHandle SpawnMessageWidgetHandle;
 
 	void EnableShowTutorialMessage(bool bDisable);
@@ -56,5 +57,6 @@ private:
 	void UnlockGameplayMechanicsInHud(TObjectPtr<AActor> Player);
 
 	void MessageReadedSaveData();
-	int32 CurrentUniqueID = 0;
+	UPROPERTY(Transient)
+		int32 CurrentUniqueID = 0;
 };

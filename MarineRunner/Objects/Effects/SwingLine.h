@@ -30,15 +30,21 @@ public:
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UNiagaraComponent> SwingLineTrail;
+		TObjectPtr<class UNiagaraComponent> SwingLineTrail = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Line Settings")
 		float LifeSpan = 8.f;
 
-	bool bStartMovingToHookLocation;
-	float SwingToHookLocationTime;
-	float SwingToHookLocationTimeElapsed;
-	FVector HookLocation;
-	FVector InitialSwingLineLocation;
+	UPROPERTY(Transient)
+		bool bStartMovingToHookLocation = false;
+	UPROPERTY(Transient)
+		float SwingToHookLocationTime = 0.f;
+	UPROPERTY(Transient)
+		float SwingToHookLocationTimeElapsed = 0.f;
+	UPROPERTY(Transient)
+		FVector HookLocation = FVector::Zero();
+	UPROPERTY(Transient)
+		FVector InitialSwingLineLocation = FVector::Zero();
+
 	void MoveToHookLocation(float Delta);
 
 };

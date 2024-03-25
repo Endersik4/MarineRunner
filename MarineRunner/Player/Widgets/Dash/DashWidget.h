@@ -16,7 +16,7 @@ class MARINERUNNER_API UDashWidget : public UUserWidget
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> DashImage;
+		TObjectPtr<class UImage> DashImage = nullptr;
 
 protected:
 	virtual void NativeConstruct() override;
@@ -32,17 +32,22 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Fading Image")
 		float StartingOffsetCA = 0.7f;
 
-	bool bRemoveDashWidget;
+	UPROPERTY(Transient)
+		bool bRemoveDashWidget = false;
 	void PrepareDashWidget();
 
-	float OriginalPlayerFOV;
-	float OriginalChromaticAbberation;
-	float OriginalOffsetCA;
-	float FadeTimeElapsed;
+	UPROPERTY(Transient)
+		float OriginalPlayerFOV = 0.f;
+	UPROPERTY(Transient)
+		float OriginalChromaticAbberation = 0.f;
+	UPROPERTY(Transient)
+		float OriginalOffsetCA = 0.f;
+	UPROPERTY(Transient)
+		float FadeTimeElapsed = 0.f;
 	void DashEffects(const float & Delta);
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> MarinePawn;
+		TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class UCameraComponent> PlayerCamera;
+		TObjectPtr<class UCameraComponent> PlayerCamera = nullptr;
 };

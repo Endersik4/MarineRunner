@@ -12,8 +12,11 @@ void UMessageToReadWidget::NativeOnInitialized()
 	Super::NativeOnInitialized();
 
 	PlayAnimationForward(OpenMessageAnim, 1.f, true);
-	if (IsValid(OpenMessageSound)) 
+
+	if (IsValid(OpenMessageSound))
 		UGameplayStatics::PlaySound2D(GetWorld(), OpenMessageSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Open Message Sound is nullptr in MessageToReadWidget!"));
 }
 
 void UMessageToReadWidget::SetMessageInformation(const FText& _MessageTitle, const FText& _MessageText)

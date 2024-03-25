@@ -37,7 +37,14 @@ void APlayCreditsActor::CreditsBoxBeginOverlap(UPrimitiveComponent* OverlappedCo
 
 void APlayCreditsActor::SpawnWidget()
 {
-	TObjectPtr<UUserWidget> SpawnedWidget = CreateWidget<UUserWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), WidgetClassToSpawnWhenOverlap);
+	if (!IsValid(WidgetClassToSpawnWhenOverlap))
+		return;
+
+	const TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(PlayerController))
+		return;
+
+	TObjectPtr<UUserWidget> SpawnedWidget = CreateWidget<UUserWidget>(PlayerController, WidgetClassToSpawnWhenOverlap);
 	if (!IsValid(SpawnedWidget))
 		return;
 

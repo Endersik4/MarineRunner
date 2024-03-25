@@ -62,9 +62,9 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<USkeletalMeshComponent> ChestSkeletalMesh;
+		TObjectPtr<USkeletalMeshComponent> ChestSkeletalMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UWidgetComponent>  FrontPanelWidget;
+		TObjectPtr<class UWidgetComponent> FrontPanelWidget = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Spawn Items")
 		TMap<TSubclassOf<class APickupItem>, FItemRandomSpawnStruct> ItemsToSpawn;
@@ -74,26 +74,28 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Chest Settings")
 		int32 IndexToChangeOpenLockMaterial = 3;
 	UPROPERTY(EditAnywhere, Category = "Chest Settings")
-		TObjectPtr<UMaterialInstance>  UpperOpenLockMaterial;
+		TObjectPtr<UMaterialInstance>  UpperOpenLockMaterial = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Chest Settings")
-		TObjectPtr<UMaterial>  UpperClosedLockMaterial;
+		TObjectPtr<UMaterial>  UpperClosedLockMaterial = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Chest Settings|Pin")
-		bool bUsePinCode;
+		bool bUsePinCode = false;
 	UPROPERTY(EditAnywhere, Category = "Chest Settings|Pin", meta = (EditCondition = "bUsePin", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
 		int32 PinCode = 1111;
 	UPROPERTY(EditDefaultsOnly, Category = "Chest Settings")
-		TObjectPtr<UAnimationAsset> OpenChestAnimation;
+		TObjectPtr<UAnimationAsset> OpenChestAnimation = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Chest Settings")
-		TObjectPtr<USoundBase> OpenChestSound;
+		TObjectPtr<USoundBase> OpenChestSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Chest Settings")
-		TObjectPtr<USoundBase> WrongCodeSound;
+		TObjectPtr<USoundBase> WrongCodeSound = nullptr;
 
-	bool bIsChestOpen;
+	UPROPERTY(Transient)
+		bool bIsChestOpen = false;
 	void SetUpFrontChestPanelWidget();
 	UPROPERTY(Transient)
-		TObjectPtr<class UDoorPanelWidget> FrontChestPanelWidget;
+		TObjectPtr<class UDoorPanelWidget> FrontChestPanelWidget = nullptr;;
 
 	void SaveChestState(int32 SaveState);
-	int32 CurrentUniqueID = 0;
+	UPROPERTY(Transient)
+		int32 CurrentUniqueID = 0;
 
 };

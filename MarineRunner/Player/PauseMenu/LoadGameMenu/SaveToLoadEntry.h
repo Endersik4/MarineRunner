@@ -21,19 +21,19 @@ public:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> BackgroundImage;
+		TObjectPtr<class UImage> BackgroundImage = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> ScreenshotSaveImage;
+		TObjectPtr<class UImage> ScreenshotSaveImage = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> SaveNameText;
+		TObjectPtr<class UTextBlock> SaveNameText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> SaveDateText;
+		TObjectPtr<class UTextBlock> SaveDateText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> TotalTimeText;
+		TObjectPtr<class UTextBlock> TotalTimeText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> LoadGameButton;
+		TObjectPtr<class UButton> LoadGameButton = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr < UWidgetAnimation> LoadGameHoverAnim = nullptr;
@@ -49,7 +49,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
 		bool bShowConfirmLoadingWidget = true;
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings", meta = (EditCondition = "bShowConfirmLoadingWidget"))
-		TSubclassOf<UUserWidget> ConfirmLoadingSaveWidgetClass;
+		TSubclassOf<UUserWidget> ConfirmLoadingSaveWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
 		FString SavedDateText = "-SAVED: ";
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
@@ -57,7 +57,8 @@ private:
 
 	void PlayAnimatonForButton(TObjectPtr < UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true);
 
-	TObjectPtr<class ULoadGameMenuEntryObject> LoadGameEntryObject;
+	UPROPERTY(Transient)
+		TObjectPtr<class ULoadGameMenuEntryObject> LoadGameEntryObject = nullptr;
 	void ShowConfirmLoadingWidget();
 
 	void ConvertTotalPlayTimeInSecondsToText();

@@ -61,19 +61,21 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Gun|Ads")
 		float MovementForceDividerWhenInADS = 1.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Gun|Ads")
-		TObjectPtr<USoundBase> ADSInSound;
+		TObjectPtr<USoundBase> ADSInSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Gun|Ads")
-		TObjectPtr<USoundBase> ADSOutSound;
-
-	//Gun
-	int32 CurrentScopeIndex;
-	UPROPERTY(Transient)
-		TObjectPtr<class AGun> Gun;
-
-	bool bIsPlayerADS;
-
-	bool bCanChangeWeapon = true;
+		TObjectPtr<USoundBase> ADSOutSound = nullptr;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player;	
+		int32 CurrentScopeIndex = 0;
+	UPROPERTY(Transient)
+		TObjectPtr<class AGun> Gun = nullptr;
+
+	UPROPERTY(Transient)
+		bool bIsPlayerADS = false;
+
+	UPROPERTY(Transient)
+		bool bCanChangeWeapon = true;
+
+	UPROPERTY(Transient)
+		TObjectPtr<class AMarineCharacter> Player = nullptr;
 };

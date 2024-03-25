@@ -53,9 +53,9 @@ void ABigHammer::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 
 void ABigHammer::MoveHammerTimelineProgress(float Value)
 {
-	FVector ActorLocation = GetActorLocation();
-	ActorLocation.Z = Value;
-	SetActorLocation(ActorLocation);
+	FVector NewActorLocation = GetActorLocation();
+	NewActorLocation.Z = Value;
+	SetActorLocation(NewActorLocation);
 }
 
 void ABigHammer::SetupMoveTimeline()
@@ -75,8 +75,10 @@ void ABigHammer::SetupMoveTimeline()
 
 void ABigHammer::PlayHitSound()
 {
-	if (IsValid(HitSound)) 
+	if (IsValid(HitSound))
 		UGameplayStatics::SpawnSoundAttached(HitSound, HammerMesh);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Hit Sound is nullptr in DeadlyMovableBox!"));
 }
 
 void ABigHammer::MoveHammerTimelineFinished()

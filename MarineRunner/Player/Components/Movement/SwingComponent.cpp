@@ -23,8 +23,14 @@ void USwingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Player = Cast<AMarineCharacter>(GetOwner());
-	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Player is nullptr in Swing Component!")))
+	{
+		Player = Cast<AMarineCharacter>(GetOwner());
+	}
+	if (ensureMsgf(IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)), TEXT("Player Controller is nullptr in Swing Component!")))
+	{
+		PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	}
 }
 
 // Called every frame
@@ -42,11 +48,11 @@ void USwingComponent::HookLineCheck()
 	if (!bCanMakeSwingLineCheck || bIsPlayerMovingToHook) 
 		return;
 
-	FVector HookCheckLineStart = Player->GetCamera()->GetComponentLocation();
-	FVector HookCheckLineEnd = HookCheckLineStart + (PlayerController->GetRootComponent()->GetForwardVector() * LengthOfSwingLineRaycast);
+	const FVector& HookCheckLineStart = Player->GetCamera()->GetComponentLocation();
+	const FVector& HookCheckLineEnd = HookCheckLineStart + (PlayerController->GetRootComponent()->GetForwardVector() * LengthOfSwingLineRaycast);
 
 	FHitResult HitResults;
-	bool bHookHovered = GetWorld()->LineTraceSingleByChannel(HitResults, HookCheckLineStart, HookCheckLineEnd, ECC_GameTraceChannel2);
+	const bool& bHookHovered = GetWorld()->LineTraceSingleByChannel(HitResults, HookCheckLineStart, HookCheckLineEnd, ECC_GameTraceChannel2);
 
 	if (bHookHovered)
 		ActivateCurrentHoveredHook(HitResults.GetActor());
@@ -109,8 +115,10 @@ void USwingComponent::SwingPressed()
 
 void USwingComponent::SpawnSwingEffects()
 {
-	if (IsValid(SwingSound)) 
+	if (IsValid(SwingSound))
 		UGameplayStatics::SpawnSound2D(GetWorld(), SwingSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Swing Sound is nullptr in Swing Component!"));
 
 	FVector SpawnLocation = Player->GetCamera()->GetComponentLocation();
 	SpawnLocation += PlayerController->GetRootComponent()->GetForwardVector() * ForwardSwingLineLocationOffset + PlayerController->GetRootComponent()->GetRightVector() * RightSwingLineLocationOffset;
@@ -132,8 +140,8 @@ void USwingComponent::PrepareMoveToHook()
 
 	HookLocation = CurrentFocusedHook->GetActorLocation() - CurrentFocusedHook->GetHookLocationOffset();
 
-	FVector DirectionTowardsHook = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(Player->GetActorLocation(), HookLocation));
-	FVector ImpulseTowardsHook = DirectionTowardsHook * SwingImpulse;
+	const FVector& DirectionTowardsHook = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(Player->GetActorLocation(), HookLocation));
+	const FVector& ImpulseTowardsHook = DirectionTowardsHook * SwingImpulse;
 	Player->GetPlayerCapsule()->AddImpulse(ImpulseTowardsHook);
 
 	Player->GetCrouchAndSlideComponent()->CrouchReleased();
@@ -145,7 +153,7 @@ void USwingComponent::MovingToHook(float Delta)
 	if (!bIsPlayerMovingToHook) 
 		return;
 
-	FVector NewLocation = FMath::VInterpTo(Player->GetActorLocation(), HookLocation, Delta, SwingSpeed);
+	const FVector& NewLocation = FMath::VInterpTo(Player->GetActorLocation(), HookLocation, Delta, SwingSpeed);
 	Player->SetActorLocation(NewLocation);
 
 	StopMovingToHook();

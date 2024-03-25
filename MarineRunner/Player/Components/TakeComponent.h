@@ -46,7 +46,7 @@ private:
 	void HoverHitItem(const bool& bWasHit, const FHitResult& ItemHit);
 	void DisableLastHoveredItem();
 
-	class ITakeInterface* TakeInterface;
+	class ITakeInterface* TakeInterface = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> MarinePawn;
+		TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
 };

@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "MarineRunner/Player/Inventory/InventoryComponent.h"
-
+#include "MarineRunner/Player/SaveLoadGame/SaveCustomDataInterface.h"
 #include "SaveMarineRunner.generated.h"
 
 /**
@@ -21,18 +21,18 @@ public:
 	USaveMarineRunner();
 
 	UPROPERTY(EditAnywhere)
-		float CurrentHealthSaved;
+		float CurrentHealthSaved = 0.f;
 	UPROPERTY(EditAnywhere)
-		bool bShowHealBar;
+		bool bShowHealBar = false;
 	UPROPERTY(EditAnywhere)
-		bool bShowDashBar;
+		bool bShowDashBar = false;
 	UPROPERTY(EditAnywhere)
-		bool bShowSlowMotionBar;
+		bool bShowSlowMotionBar = false;
 
 	UPROPERTY(EditAnywhere)
-		FVector SavedPlayerLocation;
+		FVector SavedPlayerLocation = FVector::Zero();
 	UPROPERTY(EditAnywhere)
-		FRotator SavedPlayerRotation;
+		FRotator SavedPlayerRotation = FRotator::ZeroRotator;
 
 	UPROPERTY(EditAnywhere)
 		TArray<FItemStruct> Inventory_ItemsSaved;
@@ -52,11 +52,14 @@ public:
 		TMap<int32, FCustomDataSaved> SavedCustomData;
 
 	UPROPERTY(EditAnywhere)
-		TObjectPtr<USoundBase> SavedExplorationMusic;
+		TObjectPtr<USoundBase> SavedExplorationMusic = nullptr;
 
 	void PrepareSaveGame(const FString& NewSaveName = "ManualSave_", bool bAddSaveNumber = true);
-	FString OriginalSaveName;
-	bool bAddSaveNumber;
+
+	UPROPERTY(Transient)
+		FString OriginalSaveName = FString();
+	UPROPERTY(Transient)
+		bool bAddSaveNumber = false;
 
 	void TransferSavedVariablesToGameInstance(TObjectPtr<UWorld> CurrentWorld, const FString& _WildCard);
 

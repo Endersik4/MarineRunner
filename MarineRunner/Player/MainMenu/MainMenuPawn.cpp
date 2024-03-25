@@ -48,5 +48,5 @@ void AMainMenuPawn::BackToPreviousMenu()
 	if (!bIsInMainMenu || !IsValid(MainMenuWidget))
 		return;
 
-	MainMenuWidget->RemoveCurrentMenuWidgetsFromViewport();
+	MainMenuWidget->BackToPreviousMenu();
 }

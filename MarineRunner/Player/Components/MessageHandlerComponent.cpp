@@ -35,9 +35,14 @@ void UMessageHandlerComponent::DeleteCurrentDisplayedMessage(AMarineCharacter* P
 
 	CurrentDisplayedMessage->RemoveFromParent();
 	bIsMessageDisplayed = false;
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetShowMouseCursor(false);
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
-	UWidgetBlueprintLibrary::SetInputMode_GameOnly(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	const TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(PlayerController))
+		return;
+
+	PlayerController->SetShowMouseCursor(false);
+	UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
 }
 
 void UMessageHandlerComponent::SpawnNewRecipeUnlockedWidget()
@@ -61,6 +66,8 @@ void UMessageHandlerComponent::SpawnWidget(const TSubclassOf<UUserWidget>& Widge
 
 	if (MessagePopUpSound)
 		UGameplayStatics::PlaySound2D(GetWorld(), MessagePopUpSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Message Pop up sound is nullptr in Message Handler component!"));
 
 	NewWidget->AddToViewport();
 }

@@ -29,6 +29,9 @@ void UConfirmLoadingGameWidget::NativeOnInitialized()
 
 void UConfirmLoadingGameWidget::AddThisWidgetToCurrentSpawnedMenuWidgets(bool bShouldDeleteExistingOne)
 {
+	if (!IsValid(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)))
+		return;
+
 	TObjectPtr<AMarineCharacter> Player = Cast<AMarineCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	if (!IsValid(Player))
 		return;
@@ -38,18 +41,21 @@ void UConfirmLoadingGameWidget::AddThisWidgetToCurrentSpawnedMenuWidgets(bool bS
 
 	if (bShouldDeleteExistingOne)
 	{
-		Player->GetPauseMenuComponent()->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Remove(this);
+		Player->GetPauseMenuComponent()->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Pop();
 	}
 	else
 	{
-		Player->GetPauseMenuComponent()->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Add(this, [this](bool b) { this->BackToLoadGame(b); });
+		Player->GetPauseMenuComponent()->GetPauseMenuWidget()->CurrentSpawnedMenuWidgets.Add(FVisiblePauseMenu(this, [this](bool b) { this->BackToLoadGame(b); }));
 	}
 }
 
 void UConfirmLoadingGameWidget::BackToLoadGame(bool bShouldBack)
 {
-	if (bShouldBack) 
+	if (bShouldBack)
+	{
+		AddThisWidgetToCurrentSpawnedMenuWidgets(true);
 		RemoveFromParent();
+	}
 }
 
 #pragma region //////////// YES BUTTON ////////////////
@@ -63,11 +69,16 @@ void UConfirmLoadingGameWidget::YesButton_OnClicked()
 		UKismetSystemLibrary::QuitGame(GetWorld(), UGameplayStatics::GetPlayerController(GetWorld(), 0), EQuitPreference::Quit, true);
 	}
 	else
+	{
 		LoadLastSave();
+	}
 }
 
 void UConfirmLoadingGameWidget::LoadLastSave()
 {
+	if (!IsValid(UGameplayStatics::GetGameInstance(GetWorld())))
+		return;
+
 	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (!IsValid(GameInstance))
 		return;

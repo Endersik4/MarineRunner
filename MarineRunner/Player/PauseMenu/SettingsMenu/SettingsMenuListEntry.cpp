@@ -49,7 +49,13 @@ void USettingsMenuListEntry::NativeOnInitialized()
 #pragma region ///////// PREPARE WIDGET //////////
 void USettingsMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
+	if (!IsValid(ListItemObject))
+		return;
+
 	SettingEntryObject = Cast<USettingsMenuEntryObject>(ListItemObject);
+	if (!IsValid(SettingEntryObject))
+		return;
+
 	SubSettingData = &SettingEntryObject->MenuSettingsData;
 
 	FunctionNameToApplyInCMD = SubSettingData->SubSettingFunctionName;
@@ -94,13 +100,21 @@ void USettingsMenuListEntry::DisplayProperUIElements()
 	SubSettingNameText->SetVisibility(ESlateVisibility::Visible);
 
 	if (SubSettingData->SubSettingType == EST_OnOff) 
+	{
 		SubSettingType_OnOff();
+	}
 	else if (SubSettingData->SubSettingType == EST_KeyMapping)
+	{
 		SubSettingType_KeyBinding();
+	}
 	else if (SubSettingData->SubSettingType == EST_SliderValue) 
+	{
 		SubSettingType_SliderValue();
+	}
 	else 
+	{
 		SubSettingType_Quality();
+	}
 }
 #pragma endregion
 
@@ -122,9 +136,13 @@ void USettingsMenuListEntry::SubSettingType_Quality()
 	RightArrowButton->SetVisibility(ESlateVisibility::Visible);
 
 	if (SubSettingData->QualityCurrentValue == 0)
+	{
 		LeftArrowButton->SetIsEnabled(false);
+	}
 	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) 
+	{
 		RightArrowButton->SetIsEnabled(false);
+	}
 
 	SubSettingQualityText->SetText(FText::FromString(SubSettingData->QualityTypes[SubSettingData->QualityCurrentValue]));
 
@@ -177,8 +195,14 @@ void USettingsMenuListEntry::SubSettingType_OnOff()
 	SubSettingOnOffCheckBox->SetVisibility(ESlateVisibility::Visible);
 	SubSettingOnOffButton->SetVisibility(ESlateVisibility::Visible);
 
-	if (SubSettingData->bSettingEnabled) SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Checked);
-	else SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
+	if (SubSettingData->bSettingEnabled) 
+	{
+		SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Checked);
+	}
+	else
+	{
+		SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Unchecked);
+	}
 
 	AddValueToFunctionName(SubSettingData->bSettingEnabled ? 1 : 0);
 }
@@ -268,14 +292,14 @@ void USettingsMenuListEntry::FillConnectedSettingsEntryFromList()
 
 	ConnectedSettingsEntryFromList.Empty();
 
-	int32 IndexOfThisEntry = SettingEntryObject->SettingMenuWidget->SettingsListView->GetIndexForItem(SettingEntryObject);
+	const int32& IndexOfThisEntry = SettingEntryObject->SettingMenuWidget->SettingsListView->GetIndexForItem(SettingEntryObject);
 	TArray<UObject*> Objects = SettingEntryObject->SettingMenuWidget->SettingsListView->GetListItems();
 	for (int i = IndexOfThisEntry+1; i != Objects.Num(); i++)
 	{
 		if (!IsValid(Objects[i])) 
 			continue;
 
-		TObjectPtr<USettingsMenuListEntry> CurrentSettingEntryWidget = Cast<USettingsMenuListEntry>(SettingEntryObject->SettingMenuWidget->SettingsListView->GetEntryWidgetFromItem(Objects[i]));
+		const TObjectPtr<USettingsMenuListEntry> CurrentSettingEntryWidget = Cast<USettingsMenuListEntry>(SettingEntryObject->SettingMenuWidget->SettingsListView->GetEntryWidgetFromItem(Objects[i]));
 		if (!IsValid(CurrentSettingEntryWidget)) 
 			continue;
 		if (!CurrentSettingEntryWidget->SubSettingData->bIsConnectedToOtherSettings)
@@ -357,7 +381,7 @@ void USettingsMenuListEntry::OnKeySelectedInputKeySelector(FInputChord SelectedK
 {
 	ReplaceKeyMap(SelectedKey);
 
-	FText KeyMap = FText::FromString("-" + UKismetInputLibrary::Key_GetDisplayName(SelectedKey.Key, false).ToString() + "-");
+	const FText& KeyMap = FText::FromString("-" + UKismetInputLibrary::Key_GetDisplayName(SelectedKey.Key, false).ToString() + "-");
 	SubSettingQualityText->SetText(KeyMap);
 
 	bIsWaitingForNewKey = false;
@@ -401,7 +425,7 @@ void USettingsMenuListEntry::OnUnhoveredKeyMappingButton()
 	PlayAnimatonForButton(KeyMappingHoverAnim, false);
 }
 
-FString USettingsMenuListEntry::GetKeyActionName()
+const FString USettingsMenuListEntry::GetKeyActionName()
 {
 	TArray<FInputActionKeyMapping> KeyActionMappings;
 	UInputSettings::GetInputSettings()->GetActionMappingByName(SubSettingData->KeyMappingName, KeyActionMappings);
@@ -409,11 +433,11 @@ FString USettingsMenuListEntry::GetKeyActionName()
 		return "";
 
 	CurrentMappedActionKey = KeyActionMappings[SubSettingData->IndexOfKey];
-	FString CurrentMappedKeyName = "-" + UKismetInputLibrary::Key_GetDisplayName(KeyActionMappings[SubSettingData->IndexOfKey].Key, false).ToString() + "-";
+	const FString& CurrentMappedKeyName = "-" + UKismetInputLibrary::Key_GetDisplayName(KeyActionMappings[SubSettingData->IndexOfKey].Key, false).ToString() + "-";
 	return CurrentMappedKeyName;
 }
 
-FString USettingsMenuListEntry::GetKeyAxisName()
+const FString USettingsMenuListEntry::GetKeyAxisName()
 {
 	TArray<FInputAxisKeyMapping> KeyAxisMappings;
 	UInputSettings::GetInputSettings()->GetAxisMappingByName(SubSettingData->KeyMappingName, KeyAxisMappings);
@@ -421,7 +445,7 @@ FString USettingsMenuListEntry::GetKeyAxisName()
 		return "-empty-";
 
 	CurrentMappedAxisKey = KeyAxisMappings[SubSettingData->IndexOfKey];
-	FString CurrentMappedKeyName = "-" + UKismetInputLibrary::Key_GetDisplayName(KeyAxisMappings[SubSettingData->IndexOfKey].Key, false).ToString() + "-";
+	const FString& CurrentMappedKeyName = "-" + UKismetInputLibrary::Key_GetDisplayName(KeyAxisMappings[SubSettingData->IndexOfKey].Key, false).ToString() + "-";
 	return CurrentMappedKeyName;
 }
 
@@ -432,7 +456,7 @@ void USettingsMenuListEntry::AddValueToFunctionName(float Value)
 	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
 		return;
 
-	FString ValueToStr = FString::SanitizeFloat(FMath::RoundValuesToGivenDecimalNumbers(Value, 3));
+	const FString& ValueToStr = FString::SanitizeFloat(FMath::RoundValuesToGivenDecimalNumbers(Value, 3));
 	SettingEntryObject->FunctionNameToApply = FunctionNameToApplyInCMD + " " + ValueToStr;
 }
 
@@ -476,9 +500,13 @@ void USettingsMenuListEntry::EnableEntry(bool bEnable)
 	RightArrowButton->SetIsEnabled(bEnable);
 
 	if (SubSettingData->QualityCurrentValue == 0) 
+	{
 		LeftArrowButton->SetIsEnabled(false);
+	}
 	else if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) 
+	{
 		RightArrowButton->SetIsEnabled(false);
+	}
 
 	SubSettingOnOffCheckBox->SetIsEnabled(bEnable);
 	SubSettingOnOffButton->SetIsEnabled(bEnable);

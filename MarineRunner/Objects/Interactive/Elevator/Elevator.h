@@ -39,14 +39,14 @@ public:
 
 private: 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> ElevatorMesh;
+		TObjectPtr<class UStaticMeshComponent> ElevatorMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class USkeletalMeshComponent> ElevatorDoorsSkeletalMesh;
+		TObjectPtr<class USkeletalMeshComponent> ElevatorDoorsSkeletalMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UWidgetComponent> ElevatorPanel;
+		TObjectPtr<class UWidgetComponent> ElevatorPanel = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
-		TArray<FElevatorFloor> ElevatorFloors;
+	TArray<FElevatorFloor> ElevatorFloors = {FElevatorFloor()};
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
 		int32 CurrentFloor = 1;
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
@@ -57,17 +57,17 @@ private:
 		float CanUseElevatorAgainDelay = 4.f;
 	// int32 - floor numer of outside elevator
 	UPROPERTY(EditAnywhere, Category = "Elevator Settings")
-		TMap<int32, TObjectPtr<class AOutsideElevatorDoor>> OutsideElevatorDoors;
+		TMap<int32, TObjectPtr<class AOutsideElevatorDoor>> OutsideElevatorDoors = { {0, nullptr} };
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Animations")
-		TObjectPtr < UAnimationAsset> OpenElevatorDoorsAnim;
+		TObjectPtr < UAnimationAsset> OpenElevatorDoorsAnim = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Animations")
-		TObjectPtr<UAnimationAsset> CloseElevatorDoorsAnim;
+		TObjectPtr<UAnimationAsset> CloseElevatorDoorsAnim = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Sounds")
-		FName DoorSoundSocketName;
+		FName DoorSoundSocketName = FName(TEXT("DoorSoundLocation"));
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Sounds")
-		TObjectPtr<USoundBase> OpenElevatorDoorsSound;
+		TObjectPtr<USoundBase> OpenElevatorDoorsSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Elevator Settings|Sounds")
-		TObjectPtr<USoundBase> AmbientElevatorSound;
+		TObjectPtr<USoundBase> AmbientElevatorSound = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Elevator Moves at the begin play")
 		bool bMoveElevatorAfterTime = false;
@@ -76,10 +76,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Elevator Moves at the begin play", meta = (EditCondition = "bMoveElevatorAfterTime", EditConditionHides))
 		float MoveToFloorTimeInCutscene = 1.f;
 	UPROPERTY(EditAnywhere, Category = "Elevator Moves at the begin play", meta = (EditCondition = "bMoveElevatorAfterTime", EditConditionHides))
-		FElevatorFloor FloorToMoveWhileCutscene;
+		FElevatorFloor FloorToMoveWhileCutscene = FElevatorFloor();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UElevatorPanelWidget> ElevatorPanelWidget;
+		TObjectPtr<class UElevatorPanelWidget> ElevatorPanelWidget = nullptr;
 
 	void CanUseElevatorAgain();
 
@@ -88,14 +88,19 @@ private:
 	void StartMovingElevator();
 
 	// Moving Elevator
-	bool bCanMoveToFloorLocation;
-	float MoveElevatorTimeElapsed;
-	FVector StartLocation;
-	FVector FloorLocationToGo;
+	UPROPERTY(Transient)
+		bool bCanMoveToFloorLocation = false;
+	UPROPERTY(Transient)
+		float MoveElevatorTimeElapsed = 0.f;
+	UPROPERTY(Transient)
+		FVector StartLocation = FVector::Zero();
+	UPROPERTY(Transient)
+		FVector FloorLocationToGo = FVector::Zero();
 	void ElevatorIsMoving(float Delta);
 	void MovedToNewFloor();
 
-	bool bDoorOpen = false;
+	UPROPERTY(Transient)
+		bool bDoorOpen = false;
 
 	void PlayElevatorEffects(TObjectPtr < UAnimationAsset> AnimToPlay, TObjectPtr < USoundBase> SoundToPlay);
 	void CloseElevatorDoors();
@@ -111,14 +116,15 @@ private:
 	void OpenOutsideElevatorDoors();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AOutsideElevatorDoor> CurrentOutsideElevatorDoor;
+		TObjectPtr<class AOutsideElevatorDoor> CurrentOutsideElevatorDoor = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AOutsideElevatorDoor> BeforeCurrentOutsideElevatorDoor;
+		TObjectPtr<class AOutsideElevatorDoor> BeforeCurrentOutsideElevatorDoor = nullptr;
 
 	// Save/Load elevator
 	void SaveElevatorState(int32 SaveState);
-	int32 CurrentUniqueID = 0;
+	UPROPERTY(Transient)
+		int32 CurrentUniqueID = 0;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UAudioComponent> SpawnedAmbientElevatorSound;
+		TObjectPtr<class UAudioComponent> SpawnedAmbientElevatorSound = nullptr;
 };	

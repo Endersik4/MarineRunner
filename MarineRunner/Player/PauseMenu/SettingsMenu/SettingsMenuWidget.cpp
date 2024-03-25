@@ -52,8 +52,14 @@ void USettingsMenuWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	MarinePlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	MarineGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (ensureMsgf(UGameplayStatics::GetPlayerController(GetWorld(), 0), TEXT("Player Controller is nullptr in PauseMenuComponent!")))
+	{
+		MarinePlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	}
+	if (ensureMsgf(UGameplayStatics::GetGameInstance(GetWorld()), TEXT("Game Instance is nullptr in SettingsMenuWidget!")))
+	{
+		MarineGameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	}
 
 	FillMenuButtonsAndTextMap();
 
@@ -71,7 +77,7 @@ void USettingsMenuWidget::FillMenuButtonsAndTextMap()
 void USettingsMenuWidget::StartOnGameSettingsList()
 {
 	PlayAnimation(GameSettingsHoverAnim, GameSettingsHoverAnim->GetEndTime());
-	CurrentSelectedSetting = FSettingSelectedStruct(GameSettingsButton, GameSettingsHoverAnim);
+	CurrentSelectedSetting = FSettingSelected(GameSettingsButton, GameSettingsHoverAnim);
 	FillCurrentMenuSettingsListView(GameSettingsList);
 }
 
@@ -102,6 +108,7 @@ TObjectPtr<USettingsMenuEntryObject> USettingsMenuWidget::ConnectedSettings(TObj
 	{
 		ConstructedItemObject->SettingMenuWidget = this;
 		ObjectThatConnectOtherSettings = ConstructedItemObject;
+
 		return ObjectThatConnectOtherSettings;
 	}
 
@@ -113,7 +120,9 @@ TObjectPtr<USettingsMenuEntryObject> USettingsMenuWidget::ConnectedSettings(TObj
 		ConstructedItemObject->MenuSettingsData.bEntryWidgetEnabled = ObjectThatConnectOtherSettings->MenuSettingsData.bSettingEnabled;
 	}
 	else if (!ConstructedItemObject->MenuSettingsData.bIsConnectedToOtherSettings)
+	{
 		ObjectThatConnectOtherSettings = nullptr;
+	}
 
 	return ObjectThatConnectOtherSettings;
 }
@@ -136,7 +145,7 @@ void USettingsMenuWidget::OnClickedGameSettingsButton()
 		return;
 
 	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
-	CurrentSelectedSetting = FSettingSelectedStruct(GameSettingsButton, GameSettingsHoverAnim);
+	CurrentSelectedSetting = FSettingSelected(GameSettingsButton, GameSettingsHoverAnim);
 
 	FillCurrentMenuSettingsListView(GameSettingsList);
 }
@@ -159,7 +168,7 @@ void USettingsMenuWidget::OnClickedAudioSettingsButton()
 		return;
 
 	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
-	CurrentSelectedSetting = FSettingSelectedStruct(AudioSettingsButton, AudioSettingsHoverAnim);
+	CurrentSelectedSetting = FSettingSelected(AudioSettingsButton, AudioSettingsHoverAnim);
 
 	FillCurrentMenuSettingsListView(AudioSettingsList);
 }
@@ -183,7 +192,7 @@ void USettingsMenuWidget::OnClickedVideoSettingsButton()
 		return;
 
 	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
-	CurrentSelectedSetting = FSettingSelectedStruct(VideoSettingsButton, VideoSettingsHoverAnim);
+	CurrentSelectedSetting = FSettingSelected(VideoSettingsButton, VideoSettingsHoverAnim);
 
 	FillCurrentMenuSettingsListView(VideoSettingsList);
 }
@@ -207,7 +216,7 @@ void USettingsMenuWidget::OnClickedBindingsSettingsButton()
 		return;
 
 	PlayAnimatonForButton(CurrentSelectedSetting.AnimationToPlay, nullptr, false);
-	CurrentSelectedSetting = FSettingSelectedStruct(BindingsSettingsButton, BindingsSettingsHoverAnim);
+	CurrentSelectedSetting = FSettingSelected(BindingsSettingsButton, BindingsSettingsHoverAnim);
 
 	FillCurrentMenuSettingsListView(BindingsSettingsList);
 }
@@ -231,11 +240,9 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 {
 	SpawnSettingsAcceptedWidget();
 
-	TArray<UObject*> AllListElements = SettingsListView->GetListItems();
-
-	for (UObject* CurrentElement : AllListElements)
+	for (UObject* CurrentElement : SettingsListView->GetListItems())
 	{
-		TObjectPtr<USettingsMenuEntryObject> SettingMenuObject = Cast<USettingsMenuEntryObject>(CurrentElement);
+		const TObjectPtr<USettingsMenuEntryObject> SettingMenuObject = Cast<USettingsMenuEntryObject>(CurrentElement);
 		if (!IsValid(SettingMenuObject)) 
 			continue;
 
@@ -296,6 +303,9 @@ void USettingsMenuWidget::ReplaceValueInGameInstanceByName(const FMenuSettings& 
 
 void USettingsMenuWidget::SpawnSettingsAcceptedWidget()
 {
+	if (!IsValid(SettingsAppliedWidgetClass))
+		return;
+
 	TObjectPtr<UUserWidget> SpawnedWidget = CreateWidget(MarinePlayerController, SettingsAppliedWidgetClass);
 	if (!IsValid(SpawnedWidget))
 		return;

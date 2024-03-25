@@ -66,22 +66,24 @@ void AChestWithItems::PinCorrect()
 
 void AChestWithItems::OpenChest()
 {
-	if (IsValid(OpenChestSound)) 
+	if (IsValid(OpenChestSound))
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), OpenChestSound, ChestSkeletalMesh->GetSocketLocation(SocketNameToSpawnItems));
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Open Chest Sound is nullptr in ChestWithItems!"));
 
 	ChestSkeletalMesh->SetMaterial(IndexToChangeOpenLockMaterial, UpperOpenLockMaterial);
 	ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 
-	for (const TPair<TSubclassOf<class APickupItem>, FItemRandomSpawnStruct> CurrentPair : ItemsToSpawn)
+	for (const TPair<TSubclassOf<class APickupItem>, FItemRandomSpawnStruct>& CurrentPair : ItemsToSpawn)
 	{
 		for (int i = 0; i != CurrentPair.Value.AmountItems; i++)
 		{
-			float ShouldSpawn = FMath::FRandRange(0.f, 100.f);
+			const float& ShouldSpawn = FMath::FRandRange(0.f, 100.f);
 			if (ShouldSpawn > CurrentPair.Value.PercentOfSpawningItem) 
 				continue;
 
 			const FVector & ItemLocation = ChestSkeletalMesh->GetSocketLocation(SocketNameToSpawnItems) + CurrentPair.Value.OffsetFromSpawnLocation;
-			FTransform ItemTransform = FTransform(GetActorRotation(), ItemLocation);
+			const FTransform& ItemTransform = FTransform(GetActorRotation(), ItemLocation);
 
 			TObjectPtr<APickupItem> SpawnedItem = GetWorld()->SpawnActorDeferred<APickupItem>(CurrentPair.Key, ItemTransform);
 			if (!IsValid(SpawnedItem))
@@ -135,13 +137,20 @@ void AChestWithItems::SaveData(ASavedDataObject* SavedDataObject, const int32 ID
 
 void AChestWithItems::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
+
+
 	if (SavedCustomData.ObjectState == 2 || SavedCustomData.ObjectState == 4)
 	{
 		bIsChestOpen = false;
-		FrontChestPanelWidget->SetVisibility(ESlateVisibility::Visible);
+
+		if (IsValid(FrontChestPanelWidget))
+		{
+			FrontChestPanelWidget->SetVisibility(ESlateVisibility::Visible);
+			FrontChestPanelWidget->RestartDoorPanelWidget();
+		}
+
 		FrontPanelWidget->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
-		FrontChestPanelWidget->RestartDoorPanelWidget();
 		ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 		ChestSkeletalMesh->SetPosition(0.f);
 		ChestSkeletalMesh->Stop();
@@ -150,7 +159,7 @@ void AChestWithItems::RestartData(ASavedDataObject* SavedDataObject, const int32
 
 	if (SavedCustomData.ObjectState == 1 || SavedCustomData.ObjectState == 4)
 	{
-		if (bUsePinCode == true)
+		if (bUsePinCode == true && IsValid(FrontChestPanelWidget))
 			FrontChestPanelWidget->ChangeToUsePin(PinCode);
 	}
 }

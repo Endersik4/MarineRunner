@@ -108,14 +108,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadWrite)
 		TMap<FName, int32> RowNameForStartingItems;
 	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadWrite)
-		TObjectPtr<UDataTable> ItemsDataTable;
+		TObjectPtr<UDataTable> ItemsDataTable = nullptr;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 		TArray<FItemStruct> Inventory_Items;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 		TArray<FItemStruct> Items_Recipes;
-
 
 	FItemStruct* GetItemFromInventory(FName ItemRowNameFromDataTable);
 	FItemStruct* GetItemInformationFromDataTable(FName ItemRowNameFromDataTable);

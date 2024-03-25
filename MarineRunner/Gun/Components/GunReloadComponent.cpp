@@ -3,7 +3,6 @@
 
 #include "MarineRunner/Gun/Components/GunReloadComponent.h"
 
-#include "MarineRunner/Gun/Gun.h"
 #include "MarineRunner/Gun/Components/GunControlsComponent.h"
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Components/WeaponHandlerComponent.h"

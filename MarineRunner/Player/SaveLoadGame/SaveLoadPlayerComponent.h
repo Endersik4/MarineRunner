@@ -40,32 +40,35 @@ public:
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Saves")
-		TObjectPtr<class ASavedDataObject> SavedDataObject;
+		TObjectPtr<class ASavedDataObject> SavedDataObject = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Saves")
-		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass;
+		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Saves")
-		TSubclassOf<class UUserWidget> CannotSavedNotificationWidgetClass;
+		TSubclassOf<class UUserWidget> CannotSavedNotificationWidgetClass = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Load")
-		TSubclassOf<class AMarineCharacter> PlayerClass;
+		TSubclassOf<class AMarineCharacter> PlayerClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Load")
-		TSubclassOf<class UUserWidget> NewGameBeginsWidgetClass;
+		TSubclassOf<class UUserWidget> NewGameBeginsWidgetClass = nullptr;
 
 	void SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn);
 	TObjectPtr<class USaveMarineRunner> CreateLoadGame();
 
 	void SpawnNewPlayer();
 
-	bool bShowHealBar;
-	bool bShowDashBar;
-	bool bShowSlowMotionBar;
+	UPROPERTY(Transient)
+		bool bShowHealBar = false;
+	UPROPERTY(Transient)
+		bool bShowDashBar = false;
+	UPROPERTY(Transient)
+		bool bShowSlowMotionBar = false;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player;
+		TObjectPtr<class AMarineCharacter> Player = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarinePlayerController> PlayerController;
+		TObjectPtr<class AMarinePlayerController> PlayerController = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class UMarineRunnerGameInstance> GameInstance;
+		TObjectPtr<class UMarineRunnerGameInstance> GameInstance = nullptr;
 
 };
 

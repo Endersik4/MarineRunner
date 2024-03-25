@@ -6,9 +6,24 @@
 #include "Blueprint/UserWidget.h"
 #include "MainMenuWidget.generated.h"
 
-
 class UTextBlock;
 class UButton;
+struct FVisibleMainMenu
+{
+	TObjectPtr<UUserWidget> VisibleWidget = nullptr;
+	TFunction<void(bool)> FunctionToHideWidget = nullptr;
+
+	FVisibleMainMenu(TObjectPtr<UUserWidget> _VisibleWidget, TFunction<void(bool)> _FunctionToHideWidget)
+	{
+		VisibleWidget = _VisibleWidget;
+		FunctionToHideWidget = _FunctionToHideWidget;
+	}
+
+	bool operator==(const TObjectPtr<UUserWidget>& CompareToVisibleWidget)
+	{
+		return VisibleWidget == CompareToVisibleWidget;
+	}
+};
 UCLASS()
 class MARINERUNNER_API UMainMenuWidget : public UUserWidget
 {
@@ -21,12 +36,12 @@ protected:
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> MarineRunnerTitleImage;
+		TObjectPtr<class UImage> MarineRunnerTitleImage = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> ContinueText;
+		TObjectPtr<UTextBlock> ContinueText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UButton> ContinueButton;
+		TObjectPtr<UButton> ContinueButton = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> ContinueHoverAnim = nullptr;
 	UFUNCTION()
@@ -37,9 +52,9 @@ public:
 		void OnUnhoveredContinueButton();
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> NewGameText;
+		TObjectPtr<UTextBlock> NewGameText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UButton> NewGameButton;
+		TObjectPtr<UButton> NewGameButton = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> NewGameHoverAnim = nullptr;
 	UFUNCTION()
@@ -50,9 +65,9 @@ public:
 		void OnUnhoveredNewGameButton();
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> LoadGameText;
+		TObjectPtr<UTextBlock> LoadGameText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UButton> LoadGameButton;
+		TObjectPtr<UButton> LoadGameButton = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> LoadGameHoverAnim = nullptr;
 	UFUNCTION()
@@ -63,9 +78,9 @@ public:
 		void OnUnhoveredLoadGameButton();
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> SettingsText;
+		TObjectPtr<UTextBlock> SettingsText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UButton> SettingsButton;
+		TObjectPtr<UButton> SettingsButton = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> SettingsHoverAnim = nullptr;
 	UFUNCTION()
@@ -76,9 +91,9 @@ public:
 		void OnUnhoveredSettingsButton();
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UTextBlock> QuitGameText;
+		TObjectPtr<UTextBlock> QuitGameText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UButton> QuitGameButton;
+		TObjectPtr<UButton> QuitGameButton = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> QuitGameHoverAnim = nullptr;
 	UFUNCTION()
@@ -103,47 +118,51 @@ public:
 		void GetJsonFilesFromSaveFolder(TArray<FString>& Json_FilesPath);
 
 	// returns true if there is no more left active menu widgets
-	bool RemoveCurrentMenuWidgetsFromViewport();
-	TMap< TObjectPtr<UUserWidget>, TFunction<void(bool)>> CurrentSpawnedMenuWidgets;
+	bool BackToPreviousMenu();
+	TArray<FVisibleMainMenu> CurrentSpawnedMenuWidgets;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Main Menu Settings")
 		FName NewGameLevelName = "L_GameInformationMap";
 	UPROPERTY(EditDefaultsOnly, Category = "Main Menu Settings")
-		TObjectPtr<USoundBase> PauseMenuMusic;
+		TObjectPtr<USoundBase> PauseMenuMusic = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Main Menu Settings")
-		TSubclassOf<class ULoadGameMenuWidget> LoadGameMenuWidgetClass;
+		TSubclassOf<class ULoadGameMenuWidget> LoadGameMenuWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Main Menu Settings")
-		TSubclassOf<class USettingsMenuWidget> SettingsMenuWidgetClass;
+		TSubclassOf<class USettingsMenuWidget> SettingsMenuWidgetClass = nullptr;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UAudioComponent> CurrentPauseMenuMusic;
+		TObjectPtr<class UAudioComponent> CurrentPauseMenuMusic = nullptr;
 
 	void MainMenuMusic();
 	// If there are no saves then hide continue button
 	void HideContinueButton();
 
 	// Load Game Widget
-	bool bWasLoadGameMenuWidgetSpawned;
+	UPROPERTY(Transient)
+		bool bWasLoadGameMenuWidgetSpawned = false;
 	void SpawnLoadGameMenuWidget();
 	void RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame = false);
 	UPROPERTY(Transient)
-		TObjectPtr<class ULoadGameMenuWidget> LoadGameMenuWidget;
+		TObjectPtr<class ULoadGameMenuWidget> LoadGameMenuWidget = nullptr;
 
 	// Settings Widget
-	bool bWasSettingsMenuWidgetSpawned;
+	UPROPERTY(Transient)
+		bool bWasSettingsMenuWidgetSpawned = false;
 	void SpawnSettingsMenuWidget();
 	void RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSettings = false);
 	UPROPERTY(Transient)
-		TObjectPtr<class USettingsMenuWidget> SettingsMenuWidget;
+		TObjectPtr<class USettingsMenuWidget> SettingsMenuWidget = nullptr;
 
 	// Enable/Disable Menu Buttons
 	void AddAllMenuButtonsToArray();
-	TArray<TObjectPtr<UButton>> AllMenuButtons;
+	UPROPERTY(Transient)
+		TArray<TObjectPtr<UButton>> AllMenuButtons = { nullptr };
 	void SetEnableAllMenuButtons(bool bEnable, TObjectPtr<UButton> ButtonToIgnore = nullptr);
 
 	// Continue Game
-	TArray<FString> Json_SaveFilesPath;
+	UPROPERTY(Transient)
+		TArray<FString> Json_SaveFilesPath;
 	struct FSaveDataMenuStruct GetLastSavedSaveGame();
 
 	// Fade out when starting/loading game
@@ -154,8 +173,8 @@ private:
 
 	void PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
 	UPROPERTY(Transient)
-		TObjectPtr<class UMarineRunnerGameInstance> MarineRunnerGameInstance;
+		TObjectPtr<class UMarineRunnerGameInstance> MarineRunnerGameInstance = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<APlayerController> PlayerController;
+		TObjectPtr<APlayerController> PlayerController = nullptr;
 
 };

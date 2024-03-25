@@ -72,7 +72,7 @@ void USettingsMenuEntryObject::SetResolutionSetting()
 
 	FillSupportedResolutions();
 
-	FIntPoint CurrentResolution = UGameUserSettings::GetGameUserSettings()->GetScreenResolution();
+	const FIntPoint& CurrentResolution = UGameUserSettings::GetGameUserSettings()->GetScreenResolution();
 	MenuSettingsData.QualityCurrentValue = MenuSettingsData.SupportedResolutionsList.Find(CurrentResolution);
 	if (MenuSettingsData.QualityCurrentValue == INDEX_NONE) MenuSettingsData.QualityCurrentValue = 0;
 }
@@ -84,7 +84,7 @@ void USettingsMenuEntryObject::FillSupportedResolutions()
 	MenuSettingsData.QualityTypes.Empty();
 	for (const FIntPoint& CurrResolution : MenuSettingsData.SupportedResolutionsList)
 	{
-		const FString NewResolution = FString::FromInt(CurrResolution.X) + "x" + FString::FromInt(CurrResolution.Y);
+		const FString& NewResolution = FString::FromInt(CurrResolution.X) + "x" + FString::FromInt(CurrResolution.Y);
 		MenuSettingsData.QualityTypes.Add(NewResolution);
 	}
 }

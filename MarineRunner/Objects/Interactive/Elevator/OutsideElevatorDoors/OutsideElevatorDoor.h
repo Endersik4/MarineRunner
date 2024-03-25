@@ -45,36 +45,38 @@ public:
 	void PinIsCorrect();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class USkeletalMeshComponent> OutsideElevatorDoorsSkeletalMesh;
+		TObjectPtr<class USkeletalMeshComponent> OutsideElevatorDoorsSkeletalMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> OutsideElevatorPanelMesh;
+		TObjectPtr<class UStaticMeshComponent> OutsideElevatorPanelMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UWidgetComponent> OutsideElevatorPanel;
+		TObjectPtr<class UWidgetComponent> OutsideElevatorPanel = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings")
-		TObjectPtr<class AElevator> ElevatorToCall;
+		TObjectPtr<class AElevator> ElevatorToCall = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings")
-		int32 FloorNumber;
+		int32 FloorNumber = 0;
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings")
 		bool bUsePinCode = false;
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings", meta = (EditCondition = "bUsePinCode", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
 		int32 PinCode = 1111;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Animations")
-		TObjectPtr < UAnimationAsset> OpenElevatorDoorsAnim;
+		TObjectPtr < UAnimationAsset> OpenElevatorDoorsAnim = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Animations")
-		TObjectPtr < UAnimationAsset> CloseElevatorDoorsAnim;
+		TObjectPtr < UAnimationAsset> CloseElevatorDoorsAnim = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Sounds")
-		FName SoundLocationSocketName;
+		FName SoundLocationSocketName = FName(TEXT("SoundLocationSocket"));
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Sounds")
-		TObjectPtr<USoundBase> OpenElevatorDoorsSound;
+		TObjectPtr<USoundBase> OpenElevatorDoorsSound = nullptr;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UCallElevatorPanel> ElevatorPanelWidget;
+		TObjectPtr<class UCallElevatorPanel> ElevatorPanelWidget = nullptr;
 
-	bool bDoorsOpen = false;
+	UPROPERTY(Transient)
+		bool bDoorsOpen = false;
 	void PlayElevatorEffects(TObjectPtr < UAnimationAsset> AnimToPlay, TObjectPtr < USoundBase> SoundToPlay);
 
 	void SetUpElevatorPanel();
 
-	int32 CurrentUniqueID = 0;
+	UPROPERTY(Transient)
+		int32 CurrentUniqueID = 0;
 };

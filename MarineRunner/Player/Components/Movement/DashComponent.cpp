@@ -17,7 +17,10 @@ void UDashComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	MarinePawn = Cast<AMarineCharacter>(GetOwner());
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Player is nullptr in Jump Component!")))
+	{
+		MarinePawn = Cast<AMarineCharacter>(GetOwner());
+	}
 }
 
 void UDashComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -44,24 +47,24 @@ void UDashComponent::Dash()
 FVector UDashComponent::CalculateEndDashPosition()
 {
 	FHitResult HitResult;
-	bool bHit = GetCloserHitResult(HitResult);
+	const bool bHit = GetCloserHitResult(HitResult);
 
 	// If object that was hit is closer then DashDistance then calculate time for new distance
 	CalculatedDashTime = bHit ? (HitResult.Distance * DashTime) / DashDistance : DashTime;
 
-	FVector EndRaycastLocation = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
+	const FVector& EndRaycastLocation = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
 	return (bHit ? HitResult.Location : EndRaycastLocation) - CalculateDashDirection() * OffsetFromObstacle;
 }
 
 bool UDashComponent::GetCloserHitResult(FHitResult& OutHitResult)
 {
-	FVector EndRaycastLowerLoc = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
-	FVector EndRaycastHigherLoc = MarinePawn->GetCameraLocation() + (CalculateDashDirection() * DashDistance);
+	const FVector& EndRaycastLowerLoc = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
+	const FVector& EndRaycastHigherLoc = MarinePawn->GetCameraLocation() + (CalculateDashDirection() * DashDistance);
 
 	// if there is obstacle on the way then set actor location to Hit Location with offset
 	FHitResult HitResultLower, HitResultHigher;
-	bool bHitLower = GetWorld()->LineTraceSingleByChannel(HitResultLower, InitialPlayerPosition, EndRaycastLowerLoc, ECC_GameTraceChannel7);
-	bool bHitHigher = GetWorld()->LineTraceSingleByChannel(HitResultHigher, MarinePawn->GetCameraLocation(), EndRaycastHigherLoc, ECC_GameTraceChannel7);
+	const bool bHitLower = GetWorld()->LineTraceSingleByChannel(HitResultLower, InitialPlayerPosition, EndRaycastLowerLoc, ECC_GameTraceChannel7);
+	const bool bHitHigher = GetWorld()->LineTraceSingleByChannel(HitResultHigher, MarinePawn->GetCameraLocation(), EndRaycastHigherLoc, ECC_GameTraceChannel7);
 
 	// Returns HitResult that was closer to the player 
 	if (bHitLower || bHitHigher)
@@ -89,8 +92,13 @@ const FVector UDashComponent::CalculateDashDirection()
 
 void UDashComponent::DashEffects()
 {
-	if (IsValid(DashSound)) 
+	if (IsValid(DashSound))
 		UGameplayStatics::SpawnSound2D(GetWorld(), DashSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Dash Sound is nullptr in Dash Component!"));
+
+	if (!IsValid(DashWidgetClass))
+		return;
 
 	TObjectPtr<UDashWidget> DashWidget = Cast<UDashWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(),0), DashWidgetClass));
 	if (IsValid(DashWidget))
@@ -99,7 +107,7 @@ void UDashComponent::DashEffects()
 	if (!IsValid(MarinePawn))
 		return;
 	
-	EPowerUpLoaded DashDelay = EPowerUpLoaded(true, DashCoolDown, MarinePawn->GetHudWidget()->ActiveDashAnim, MarinePawn->GetHudWidget()->DashBar);
+	FPowerUpLoaded DashDelay = FPowerUpLoaded(true, DashCoolDown, MarinePawn->GetHudWidget()->ActiveDashAnim, MarinePawn->GetHudWidget()->DashBar);
 	MarinePawn->GetHudWidget()->AddNewPowerUpToStartLoading(DashDelay);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_Dash);
 }
@@ -111,11 +119,13 @@ void UDashComponent::MoveToDashLocation(float Delta)
 
 	if (DashTimeElapsed <= CalculatedDashTime)
 	{
-		FVector NewLoc = FMath::Lerp(InitialPlayerPosition, DashLocation, DashTimeElapsed / CalculatedDashTime);
+		const FVector& NewLoc = FMath::Lerp(InitialPlayerPosition, DashLocation, DashTimeElapsed / CalculatedDashTime);
 		MarinePawn->SetActorLocation(NewLoc);
 	}
 	else
+	{
 		TurnOffDash();
+	}
 
 	DashTimeElapsed += (Delta / UGameplayStatics::GetGlobalTimeDilation(GetWorld())); // When in slowmotion the speed of dash is the same
 }

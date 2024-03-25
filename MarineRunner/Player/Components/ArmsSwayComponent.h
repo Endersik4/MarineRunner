@@ -87,8 +87,10 @@ private:
 	float ArmsSwayDivider = 1.f;
 	float ArmsSwayWhileMovingDivider = 1.f;
 
-	FRotator ArmsRotationSway;
-	FVector InitialArmsRelativeLocation;
+	UPROPERTY(Transient)
+		FRotator ArmsRotationSway = FRotator::ZeroRotator;
+	UPROPERTY(Transient)
+		FVector InitialArmsRelativeLocation = FVector::Zero();
 	void CalculateArmsSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, const float &Delta);
 	void ArmsSway_MouseMove(float Delta);
 
@@ -96,7 +98,7 @@ private:
 	void ArmsSway_WhileMoving();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player;
+		TObjectPtr<class AMarineCharacter> Player = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<APlayerController> PlayerController;
+		TObjectPtr<APlayerController> PlayerController = nullptr;
 };

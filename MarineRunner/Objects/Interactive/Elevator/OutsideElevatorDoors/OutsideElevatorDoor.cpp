@@ -57,15 +57,22 @@ void AOutsideElevatorDoor::PlayElevatorEffects(TObjectPtr<UAnimationAsset> AnimT
 {
 	if (IsValid(AnimToPlay))
 		OutsideElevatorDoorsSkeletalMesh->PlayAnimation(AnimToPlay, false);
-
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Outside Elevator Animation is nullptr in OutsideElevatorDoor!"));
+		
 	if (IsValid(SoundToPlay))
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SoundToPlay, OutsideElevatorDoorsSkeletalMesh->GetSocketLocation(SoundLocationSocketName));
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Outside Elevator Sound is nullptr in OutsideElevatorDoor!"));
 }
 
 void AOutsideElevatorDoor::SetUpElevatorPanel()
 {
+	if (!IsValid(OutsideElevatorPanel->GetUserWidgetObject()))
+		return;
+
 	ElevatorPanelWidget = Cast<UCallElevatorPanel>(OutsideElevatorPanel->GetUserWidgetObject());
-	if (!ElevatorPanelWidget) 
+	if (!IsValid(ElevatorPanelWidget)) 
 		return;
 
 	ElevatorPanelWidget->SetFloor(FloorNumber);

@@ -50,12 +50,14 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		FLinearColor ScreenColorWhenInSlowMotion = FLinearColor(FVector4(0.05f, 1.f, 0.24f,1.f));
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		TObjectPtr<USoundBase> SlowMotionSound;
+		TObjectPtr<USoundBase> SlowMotionSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		TObjectPtr<USoundBase> CancelSlowMotionSound;
+		TObjectPtr<USoundBase> CancelSlowMotionSound = nullptr;
 
-	bool bCanSlowMotion = true;
-	bool bIsInSlowMotion = false;
+	UPROPERTY(Transient)
+		bool bCanSlowMotion = true;
+	UPROPERTY(Transient)
+		bool bIsInSlowMotion = false;
 	FTimerHandle SlowMotionDelayHandle;
 	FTimerHandle SlowMotionTimeHandle;
 	void SettingUpSlowMotion();
@@ -69,7 +71,7 @@ private:
 	void SetCanSlowMotionAgain();
 	
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> MarinePawn;
+		TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class UAudioComponent> SlowMotionSoundSpawned;
+		TObjectPtr<class UAudioComponent> SlowMotionSoundSpawned = nullptr;
 };

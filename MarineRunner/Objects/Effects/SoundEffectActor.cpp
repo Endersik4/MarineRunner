@@ -32,8 +32,14 @@ void AChangeMusicActor::ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* Ove
 {
 	if (bChangeMusic)
 		ChangeBackgroundMusic();
-	if (bPlaySound && SoundToPlay)
-		UGameplayStatics::PlaySound2D(GetWorld(), SoundToPlay);
+
+	if (bPlaySound)
+	{
+		if (IsValid(SoundToPlay))
+			UGameplayStatics::PlaySound2D(GetWorld(), SoundToPlay);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Sound TO Play is nullptr in SoundEffectActor!"));
+	}
 
 	DisableChangeMusic();
 
@@ -42,6 +48,9 @@ void AChangeMusicActor::ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* Ove
 
 void AChangeMusicActor::ChangeBackgroundMusic()
 {
+	if (!IsValid(GetGameInstance()))
+		return;
+
 	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(GetGameInstance());
 	if (!IsValid(GameInstance) || !IsValid(MusicToChange))
 		return;

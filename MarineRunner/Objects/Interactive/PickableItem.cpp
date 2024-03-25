@@ -48,6 +48,9 @@ void APickupItem::Tick(float DeltaTime)
 #pragma region ///////////// TAKE ITEM ////////////////
 void APickupItem::TakeItem(AMarineCharacter* Player)
 {
+	if (!IsValid(Player))
+		return;
+
 	TObjectPtr<UInventoryComponent> Inventory = Player->GetInventoryComponent();
 	if (!IsValid(Inventory)) 
 		return;
@@ -77,8 +80,10 @@ void APickupItem::TakeItem(AMarineCharacter* Player)
 	Player->UpdateHudWidget();
 	Player->GetHudWidget()->PlayAppearAnimForItemHover(false);
 	
-	if (PickUpSound)	
+	if (IsValid(PickUpSound))
 		UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Pick up sound is nullptr in PickableItem!"));
 
 	AddCraftRecipeIfCraftable(Player, ItemInformationFromDataTable);
 
@@ -122,7 +127,7 @@ void APickupItem::SpawnWeaponForPlayer(TObjectPtr<class AMarineCharacter> Player
 	if (!ItemDataFromDataTable->bIsItWeapon || !ItemDataFromDataTable->WeaponClass)
 		return;
 
-	FTransform WeaponTransform = FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f));
+	const FTransform& WeaponTransform = FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f));
 	TObjectPtr<AGun> SpawnedGun = GetWorld()->SpawnActor<AGun>(ItemDataFromDataTable->WeaponClass, WeaponTransform);
 	if (!IsValid(SpawnedGun))
 		return;
@@ -135,6 +140,9 @@ void APickupItem::SpawnWeaponForPlayer(TObjectPtr<class AMarineCharacter> Player
 #pragma region ///////// ITEM HOVERED/UNHOVERED //////////
 void APickupItem::ItemHover(AMarineCharacter* Player)
 {
+	if (!IsValid(Player))
+		return;
+
 	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
 	if (!ItemInformationFromDataTable)
 		return;
@@ -148,6 +156,9 @@ void APickupItem::ItemHover(AMarineCharacter* Player)
 
 void APickupItem::ItemUnHover(AMarineCharacter* Player)
 {
+	if (!IsValid(Player))
+		return;
+
 	if (!IsValid(Player->GetHudWidget()))
 		return;
 
@@ -179,7 +190,7 @@ void APickupItem::Dissolve(float Delta)
 
 	if (DissolveTimeElapsed <= TimeToCraftAnItem)
 	{
-		float NewDissolveValue = FMath::Lerp(DissolveStartValue, DissolveEndValue, DissolveTimeElapsed / TimeToCraftAnItem);
+		const float& NewDissolveValue = FMath::Lerp(DissolveStartValue, DissolveEndValue, DissolveTimeElapsed / TimeToCraftAnItem);
 
 		DissolveDynamicMaterial->SetScalarParameterValue(DisolveScalarParameterName, NewDissolveValue);
 		DissolveTimeElapsed += Delta;

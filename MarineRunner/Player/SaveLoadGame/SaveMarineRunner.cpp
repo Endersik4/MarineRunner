@@ -28,6 +28,9 @@ FString USaveMarineRunner::GetSaveGameName()
 #pragma region ///////// SAVING ////////////
 void USaveMarineRunner::TransferSavedVariablesToGameInstance(TObjectPtr<UWorld> CurrentWorld, const FString& _WildCard)
 {
+	if (!IsValid(UGameplayStatics::GetGameInstance(CurrentWorld)))
+		return;
+
 	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(CurrentWorld));
 	if (!IsValid(GameInstance))
 		return;
@@ -47,11 +50,12 @@ void USaveMarineRunner::TransferSavedVariablesToGameInstance(TObjectPtr<UWorld> 
 
 FString USaveMarineRunner::TakeSaveScreenshot(TObjectPtr<APlayerController> PlayerController)
 {
-	if (!IsValid(PlayerController)) return "0";
+	if (!IsValid(PlayerController))
+		return "0";
 
-	FString ScreenshotName = GetSaveGameName() +".jpg";
-	FString SaveGamesDir = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + ScreenshotName;
-	FString TakeScreenShotCommand = "HighResShot 320x180 filename=\"" + SaveGamesDir + "\"";
+	const FString& ScreenshotName = GetSaveGameName() +".jpg";
+	const FString& SaveGamesDir = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + ScreenshotName;
+	const FString& TakeScreenShotCommand = "HighResShot 320x180 filename=\"" + SaveGamesDir + "\"";
 
 	PlayerController->ConsoleCommand(TakeScreenShotCommand);
 	return SaveGamesDir;
@@ -71,7 +75,7 @@ void USaveMarineRunner::MakeJsonFileWithSaveInfo(TObjectPtr<APlayerController> P
 	const FString& PathToScreenshot = TakeSaveScreenshot(PlayerController);
 	const FString& SaveDateText = ConvertCurrentDateToText();
 
-	FString FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".json";
+	const FString& FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".json";
 
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
 	JsonObject->SetStringField("SavedDataName", GetSaveGameName());

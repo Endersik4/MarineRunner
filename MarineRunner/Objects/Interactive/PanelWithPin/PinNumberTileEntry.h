@@ -24,10 +24,10 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> PinNumberButton;
+		TObjectPtr<class UButton> PinNumberButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> PinNumberText;
+		TObjectPtr<class UTextBlock> PinNumberText = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 		TObjectPtr<UWidgetAnimation> HoverPinNumberButton = nullptr;
@@ -42,5 +42,5 @@ public:
 private:
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UPinNumberEntryObject> PinNumberEntryObject;
+		TObjectPtr<class UPinNumberEntryObject> PinNumberEntryObject = nullptr;
 };
