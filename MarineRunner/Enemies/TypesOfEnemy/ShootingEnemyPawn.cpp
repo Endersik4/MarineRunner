@@ -61,7 +61,7 @@ bool AShootingEnemyPawn::EnemyRunAway()
 	if (Health > MaxEnemyHealthForRunAway || !bCanEnemyRunAway)
 		return false;
 
-	float RandomPercent = FMath::FRandRange(0.f, 100.f);
+	int32 RandomPercent = FMath::RandRange(0, 100);
 	if (PercentForEnemyRunaway > RandomPercent)
 	{
 		ShouldRunAway();

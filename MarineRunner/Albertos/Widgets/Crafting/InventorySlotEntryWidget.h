@@ -23,29 +23,33 @@ protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> ItemButton;
+		TObjectPtr<class UButton> ItemButton = nullptr;
 	UFUNCTION()
 		void ItemButtonHovered();
 	UFUNCTION()
 		void ItemButtonUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> ItemHoveredAnim;
+		TObjectPtr<UWidgetAnimation> ItemHoveredAnim = nullptr;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> DisabledItemHoveredAnim;
+		TObjectPtr<UWidgetAnimation> DisabledItemHoveredAnim = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> ItemImage;
+		TObjectPtr<class UImage> ItemImage = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> ItemAmountTextBlock;
+		TObjectPtr<class UTextBlock> ItemAmountTextBlock = nullptr;
 
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> DisableItemAnim;
+		TObjectPtr<UWidgetAnimation> DisableItemAnim = nullptr;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Storage List Entry")
-		FString TextWhenItemAmountIsMoreThen999 = "+999";
+		int32 MaxAmountToDisplay = 999;
+	UPROPERTY(EditDefaultsOnly, Category = "Storage List Entry")
+		FString ExceededMaxAmountToDisplayText = "+999";
 
-	bool bNotEnoughResources = false;
+	UPROPERTY(Transient)
+		bool bNotEnoughResources = false;
+
 	void ItemDataToUI(TObjectPtr<class UCraftedItemDataObject> ItemDataObject);
 };

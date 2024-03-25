@@ -15,12 +15,18 @@ void UInventorySlotEntryWidget::NativeConstruct()
 
 void UInventorySlotEntryWidget::NativeOnInitialized()
 {
+	if (!IsValid(ItemButton))
+		return;
+
 	ItemButton->OnHovered.AddDynamic(this, &UInventorySlotEntryWidget::ItemButtonHovered);
 	ItemButton->OnUnhovered.AddDynamic(this, &UInventorySlotEntryWidget::ItemButtonUnhovered);
 }
 
 void UInventorySlotEntryWidget::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
+	if (!IsValid(ListItemObject))
+		return;
+
 	TObjectPtr<UCraftedItemDataObject> ItemDataObject = Cast<UCraftedItemDataObject>(ListItemObject);
 	if (!IsValid(ItemDataObject))
 		return;
@@ -32,14 +38,7 @@ void UInventorySlotEntryWidget::ItemDataToUI(TObjectPtr<UCraftedItemDataObject> 
 {
 	ItemImage->SetBrushFromTexture(ItemDataObject->ItemData.Item_StorageIcon);
 
-	FString ItemAmountValueString = "";
-	if (ItemDataObject->ItemData.Item_Amount > 999)
-	{
-		ItemAmountValueString = TextWhenItemAmountIsMoreThen999;
-	}
-	else
-		ItemAmountValueString = FString::FromInt(ItemDataObject->ItemData.Item_Amount);
-
+	const FString& ItemAmountValueString = ItemDataObject->ItemData.Item_Amount > MaxAmountToDisplay ? ExceededMaxAmountToDisplayText : FString::FromInt(ItemDataObject->ItemData.Item_Amount);
 	ItemAmountTextBlock->SetText(FText::FromString(ItemAmountValueString));
 
 	bNotEnoughResources = ItemDataObject->bIsItEnoughToCraft;

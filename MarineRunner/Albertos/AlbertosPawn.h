@@ -71,50 +71,54 @@ public:
 		TObjectPtr<UChildActorComponent> DissolveBox_Right;
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> AlbertosBoxComponent;
+		TObjectPtr<class UBoxComponent> AlbertosBoxComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<USkeletalMeshComponent> AlbertosSkeletalMesh;
+		TObjectPtr<USkeletalMeshComponent> AlbertosSkeletalMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UWidgetComponent> CraftingTableWidget;
+		TObjectPtr<class UWidgetComponent> CraftingTableWidget = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> HologramMeshEffect;
+		TObjectPtr<class UStaticMeshComponent> HologramMeshEffect = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UFloatingPawnMovement> AlbertosFloatingMovement;
+		TObjectPtr<class UFloatingPawnMovement> AlbertosFloatingMovement = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UCraftItemAlbertosComponent> CraftItemAlbertosComponent;
+		TObjectPtr<class UCraftItemAlbertosComponent> CraftItemAlbertosComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UCraftingWidgetAnimationComponent> CraftingWidgetAnimationComponent;
+		TObjectPtr<class UCraftingWidgetAnimationComponent> CraftingWidgetAnimationComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UPlayerIsNearAlbertosComponent> PlayerIsNearAlbertosComponent;
+		TObjectPtr<class UPlayerIsNearAlbertosComponent> PlayerIsNearAlbertosComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UAlbertosToPlayerComponent> AlbertosToPlayerComponent;
+		TObjectPtr<class UAlbertosToPlayerComponent> AlbertosToPlayerComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
 		FFloatRange TimeRangeToPlayRandomSounds = FFloatRange(4.f, 10.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
-		TObjectPtr<USoundBase> RandomAlbertoSounds;
+		TObjectPtr<USoundBase> RandomAlbertoSounds = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
-		TObjectPtr<USoundBase> AppearCraftingSound;
+		TObjectPtr<USoundBase> AppearCraftingSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Crafting Animations")
-		TObjectPtr<UAnimMontage> AlbertosCraftingAnimation;
+		TObjectPtr<UAnimMontage> AlbertosCraftingAnimation = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Crafting Animations")
 		float CraftingAnimationBlendOut = 0.5f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Hover")
 		int32 AlbertosHoverMaterialIndex = 3;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Hover")
-		TObjectPtr<UMaterialInstance> OnAlbertosHoverMaterial;
+		TObjectPtr<UMaterialInstance> OnAlbertosHoverMaterial = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Hover")
-		TObjectPtr<UMaterialInstance> OnAlbertosUnHoverMaterial;
+		TObjectPtr<UMaterialInstance> OnAlbertosUnHoverMaterial = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Hover")
-		TObjectPtr<USoundBase> HoverSound;
+		TObjectPtr<USoundBase> HoverSound = nullptr;
 
-	bool bIsHovered = false;
+	UPROPERTY(Transient)
+		bool bIsHovered = false;
+
+	void SetAlbertosPawnInCraftingWidget();
 
 	// Random Sounds
 	FTimerHandle RandomSoundHandle;
 	void SetUpRandomSoundTimer();
 	void PlayRandomAlbertoSound();
 
-	int32 CurrentUniqueID = 0;
+	UPROPERTY(Transient)
+		int32 CurrentUniqueID = 0;
 };

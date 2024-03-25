@@ -16,6 +16,9 @@ UBTTask_AlbertosNextLocation::UBTTask_AlbertosNextLocation()
 
 EBTNodeResult::Type UBTTask_AlbertosNextLocation::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
+	if (!OwnerComp.GetBlackboardComponent())
+		return EBTNodeResult::Failed;
+
 	TObjectPtr<UBlackboardComponent> BlackBoardComp = OwnerComp.GetBlackboardComponent();
 	if (!BlackBoardComp) 
 		return EBTNodeResult::Failed;
@@ -34,9 +37,10 @@ EBTNodeResult::Type UBTTask_AlbertosNextLocation::ExecuteTask(UBehaviorTreeCompo
 	return EBTNodeResult::Type();
 }
 
-FVector UBTTask_AlbertosNextLocation::CalculateNextLocationNearThePlayer()
+const FVector UBTTask_AlbertosNextLocation::CalculateNextLocationNearThePlayer()
 {
-	if (!IsValid(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)))
+	TObjectPtr<APawn> Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (!IsValid(Player))
 		return FVector(0.f);
 
 	FNavLocation RandomNavLocation;
@@ -44,7 +48,7 @@ FVector UBTTask_AlbertosNextLocation::CalculateNextLocationNearThePlayer()
 	if (!IsValid(NavSystem))
 		return FVector(0.f);
 
-	NavSystem->GetRandomReachablePointInRadius(UGameplayStatics::GetPlayerPawn(GetWorld(),0)->GetActorLocation(), RadiusToPickFromPlayerLocation, RandomNavLocation);
+	NavSystem->GetRandomReachablePointInRadius(Player->GetActorLocation(), RadiusToPickFromPlayerLocation, RandomNavLocation);
 
 	return RandomNavLocation.Location;
 }

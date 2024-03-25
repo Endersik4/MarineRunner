@@ -65,9 +65,7 @@ void AAlbertosPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TObjectPtr<UCraftingAlbertosWidget> CraftingWidget = Cast<UCraftingAlbertosWidget>(GetCraftingTableWidget());
-	if (IsValid(CraftingWidget)) 
-		CraftingWidget->SetAlbertosPawn(this);
+	SetAlbertosPawnInCraftingWidget();
 
 	SetUpRandomSoundTimer();
 }
@@ -95,29 +93,37 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character)
 
 	ToggleInventoryVisibility();
 
-	if (CraftingTableWidget->IsVisible())
-	{
-		PlayerIsNearAlbertosComponent->SetRotateAlbertosTowardPlayer(true);
-		Character->UpdateAlbertosInventory(true, true);
-	}
+	if (!CraftingTableWidget->IsVisible())
+		return;
+
+	PlayerIsNearAlbertosComponent->SetRotateAlbertosTowardPlayer(true);
+	Character->UpdateAlbertosInventory(true, true);
 }
 
 void AAlbertosPawn::ItemHover(AMarineCharacter* Character)
 {
-	if (!IsValid(OnAlbertosHoverMaterial) || bIsHovered || CraftingWidgetAnimationComponent->GetIsCraftingWidgetAnimationPlaying())
+	if (!IsValid(AlbertosSkeletalMesh) || !IsValid(OnAlbertosHoverMaterial))
+		return;
+
+	if (bIsHovered || CraftingWidgetAnimationComponent->GetIsCraftingWidgetAnimationPlaying())
 		return;
 
 	AlbertosSkeletalMesh->SetMaterial(AlbertosHoverMaterialIndex, OnAlbertosHoverMaterial);
 
-	if (IsValid(HoverSound)) 
+	if (IsValid(HoverSound))
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), HoverSound, GetActorLocation());
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Hover Sound in AlbertosPawn is nullptr!"));
 
 	bIsHovered = true;
 }
 
 void AAlbertosPawn::ItemUnHover(AMarineCharacter* Character)
 {
-	if (!IsValid(OnAlbertosUnHoverMaterial)|| !bIsHovered)
+	if (!IsValid(AlbertosSkeletalMesh) || !IsValid(OnAlbertosUnHoverMaterial))
+		return;
+
+	if (!bIsHovered)
 		return;
 
 	AlbertosSkeletalMesh->SetMaterial(AlbertosHoverMaterialIndex, OnAlbertosUnHoverMaterial);
@@ -126,25 +132,30 @@ void AAlbertosPawn::ItemUnHover(AMarineCharacter* Character)
 
 void AAlbertosPawn::ToggleInventoryVisibility()
 {
+	if (!IsValid(CraftingTableWidget))
+		return;
+
+	if (IsValid(AppearCraftingSound))
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AppearCraftingSound, CraftingTableWidget->GetComponentLocation());
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Appear Crafting Sound in AlbertosPawn is nullptr!"));
+
 	if (!CraftingTableWidget->IsVisible())
 	{
-		if (IsValid(AppearCraftingSound))
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AppearCraftingSound, CraftingTableWidget->GetComponentLocation());
-
 		ToggleVisibilityCraftingWidget();
 		CraftingWidgetAnimationComponent->PrepareCraftingWidgetAnimation(true);
 	}
 	else
 	{
-		if (IsValid(AppearCraftingSound))
-			UGameplayStatics::PlaySoundAtLocation(GetWorld(), AppearCraftingSound, CraftingTableWidget->GetComponentLocation());
-
 		CraftingWidgetAnimationComponent->PrepareCraftingWidgetAnimation(false);
 	}
 }
 
 void AAlbertosPawn::ToggleVisibilityCraftingWidget()
 {
+	if (!IsValid(CraftingTableWidget) || !IsValid(HologramMeshEffect))
+		return;
+
 	CraftingTableWidget->ToggleVisibility();
 	HologramMeshEffect->ToggleVisibility();
 }
@@ -152,13 +163,23 @@ void AAlbertosPawn::ToggleVisibilityCraftingWidget()
 
 void AAlbertosPawn::EnableCraftingAnimation(bool bEnableCraftingAnim)
 {
+	if (!IsValid(AlbertosSkeletalMesh))
+		return;
+
 	if (bEnableCraftingAnim)
 	{
 		if (IsValid(AlbertosCraftingAnimation))
 			AlbertosSkeletalMesh->GetAnimInstance()->Montage_Play(AlbertosCraftingAnimation);
+		else 
+			UE_LOG(LogTemp, Warning, TEXT("Montage Play - Albertos Crafting Animation in AlbertosPawn is nullptr!"));
 	}
 	else
-		AlbertosSkeletalMesh->GetAnimInstance()->Montage_Stop(CraftingAnimationBlendOut, AlbertosCraftingAnimation);
+	{
+		if (IsValid(AlbertosCraftingAnimation))
+			AlbertosSkeletalMesh->GetAnimInstance()->Montage_Stop(CraftingAnimationBlendOut, AlbertosCraftingAnimation);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Montage Stop - Albertos Crafting Animation in AlbertosPawn is nullptr!"));
+	}
 
 }
 
@@ -200,6 +221,8 @@ void AAlbertosPawn::PlayRandomAlbertoSound()
 {
 	if (IsValid(RandomAlbertoSounds)) 
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), RandomAlbertoSounds, GetActorLocation());
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Random Alberto Sounds in AlbertosPawn is nullptr!"));
 
 	SetUpRandomSoundTimer();
 }
@@ -230,4 +253,16 @@ float AAlbertosPawn::GetFloatingMovementMaxSpeed() const
 void AAlbertosPawn::SetFloatingMovementMaxSpeed(const float& NewSpeed)
 {
 	AlbertosFloatingMovement->MaxSpeed = NewSpeed;
+}
+
+void AAlbertosPawn::SetAlbertosPawnInCraftingWidget()
+{
+	if (!IsValid(GetCraftingTableWidget()))
+		return;
+
+	TObjectPtr<UCraftingAlbertosWidget> CraftingWidget = Cast<UCraftingAlbertosWidget>(GetCraftingTableWidget());
+	if (!IsValid(CraftingWidget))
+		return;
+
+	CraftingWidget->SetAlbertosPawn(this);
 }

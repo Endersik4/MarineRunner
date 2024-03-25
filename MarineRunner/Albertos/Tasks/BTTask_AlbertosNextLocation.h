@@ -27,6 +27,6 @@ public:
 	UPROPERTY(EditAnywhere)
 		float RadiusToPickFromPlayerLocation = 2000.f;
 private:
-	FVector CalculateNextLocationNearThePlayer();
+	const FVector CalculateNextLocationNearThePlayer();
 	
 };

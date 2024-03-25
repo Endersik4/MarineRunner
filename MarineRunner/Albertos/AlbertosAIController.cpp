@@ -14,15 +14,15 @@ void AAlbertosAIController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AlbertosOwner = Cast<AAlbertosPawn>(GetPawn());;
+	if (ensureMsgf(IsValid(GetPawn()), TEXT("Albertos Pawn is nullptr in Albertos AI Controller")))
+	{
+		AlbertosOwner = Cast<AAlbertosPawn>(GetPawn());
+	}
 
-	if (!AIBehaviour)
-		return;
-	RunBehaviorTree(AIBehaviour);
-	SetCanMove(true);
+	SetUpAIBehaviour();
 }
 
-void AAlbertosAIController::CallAlbertosToThePlayer(FVector PlayerLoc)
+void AAlbertosAIController::CallAlbertosToThePlayer(const FVector & PlayerLoc)
 {
 	GetBlackboardComponent()->SetValueAsVector(FName(TEXT("PlayerLocation")), PlayerLoc);
 	StopMovement();
@@ -34,11 +34,26 @@ void AAlbertosAIController::OnMoveCompleted(FAIRequestID RequestID, const FPathF
 	if (!bIsMovingTowardsPlayer|| !IsValid(AlbertosOwner)) 
 		return;
 
+	if (!IsValid(AlbertosOwner->GetAlbertosToPlayerComponent()))
+		return;
+
 	AlbertosOwner->GetAlbertosToPlayerComponent()->ChangeMaxSpeedOfFloatingMovement(false);
 	bIsMovingTowardsPlayer = false;
 }
 
+void AAlbertosAIController::SetUpAIBehaviour()
+{
+	if (!AIBehaviour)
+		return;
+
+	RunBehaviorTree(AIBehaviour);
+	SetCanMove(true);
+}
+
 void AAlbertosAIController::SetCanMove(bool bCan)
 {
+	if (!IsValid(GetBlackboardComponent()))
+		return;
+
 	GetBlackboardComponent()->SetValueAsBool(FName(TEXT("bCanMove")), bCan);
 }

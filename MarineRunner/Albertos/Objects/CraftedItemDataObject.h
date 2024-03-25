@@ -17,7 +17,7 @@ class MARINERUNNER_API UCraftedItemDataObject : public UObject
 	
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FItemStruct ItemData;
+		FItemStruct ItemData = FItemStruct();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool bIsItEnoughToCraft = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

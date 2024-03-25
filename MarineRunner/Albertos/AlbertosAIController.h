@@ -23,14 +23,17 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SetCanMove(bool bCan);
 
-	void CallAlbertosToThePlayer(FVector PlayerLoc);
+	void CallAlbertosToThePlayer(const FVector & PlayerLoc);
 private:
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBehaviorTree> AIBehaviour;
+		TObjectPtr<class UBehaviorTree> AIBehaviour = nullptr;
 	
-	bool bIsMovingTowardsPlayer;
 	UPROPERTY(Transient)
-		TObjectPtr<class AAlbertosPawn> AlbertosOwner;
+		bool bIsMovingTowardsPlayer = false;
+	UPROPERTY(Transient)
+		TObjectPtr<class AAlbertosPawn> AlbertosOwner = nullptr;
+
+	void SetUpAIBehaviour();
 };

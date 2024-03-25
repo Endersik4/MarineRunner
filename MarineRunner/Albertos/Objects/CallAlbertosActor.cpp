@@ -9,9 +9,7 @@
 // Sets default values
 ACallAlbertosActor::ACallAlbertosActor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
 
 	CallAlbertosBoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CallAlbertosBoxComp"));
 	RootComponent = CallAlbertosBoxComp;
@@ -28,22 +26,15 @@ void ACallAlbertosActor::BeginPlay()
 	CallAlbertosBoxComp->OnComponentBeginOverlap.AddDynamic(this, &ACallAlbertosActor::CallAlbertosBoxBeginOverlap);
 }
 
-// Called every frame
-void ACallAlbertosActor::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
 void ACallAlbertosActor::CallAlbertosBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (bWasCalled == true)
+	if (bWasCalled || !IsValid(OtherActor))
 		return;
 
 	TObjectPtr<AMarineCharacter> Player = Cast<AMarineCharacter>(OtherActor);
-	if (IsValid(Player) == false)
+	if (!IsValid(Player))
 		return;
-	if (IsValid(Player->GetAlbertosPawn()) == false)
+	if (!IsValid(Player->GetAlbertosPawn()))
 		return;
 
 	Player->GetAlbertosPawn()->SetActorLocation(TeleportAlbertosLocation);

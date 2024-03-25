@@ -34,17 +34,25 @@ private:
 		FVector DissolveBoxesOffsetForAnim = FVector(0.f, 2130.f, 0.f);
 
 	// Animation for opening/closing crafting table widget
-	bool bIsCraftingWidgetAnimatinPlaying;
-	bool bWasCraftingWidgetClosed;
-	float CraftingWidgetAnimationTimeElapsed;
-	FVector DissolveBox_Left_StartLoc;
-	FVector DissolveBox_Left_EndLoc;
-	FVector DissolveBox_Right_StartLoc;
-	FVector DissolveBox_Right_EndLoc;
+
+	UPROPERTY(Transient)
+		bool bIsCraftingWidgetAnimatinPlaying = false;
+	UPROPERTY(Transient)
+		bool bWasCraftingWidgetClosed = false;
+	UPROPERTY(Transient)
+		float CraftingWidgetAnimationTimeElapsed = 0.f;
+	UPROPERTY(Transient)
+		FVector DissolveBoxStartLoc_L = FVector::Zero();
+	UPROPERTY(Transient)
+		FVector DissolveBoxEndLoc_L = FVector::Zero();
+	UPROPERTY(Transient)
+		FVector DissolveBoxStartLoc_R = FVector::Zero();
+	UPROPERTY(Transient)
+		FVector DissolveBoxEndLoc_R = FVector::Zero();
 	void CraftingWidgetAnimationEnded();
 	void ToggleVisibilityForDissolveBoxes();
 	void CraftingWidgetAnimation(float Delta);
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AAlbertosPawn> AlbertosOwner;
+		TObjectPtr<class AAlbertosPawn> AlbertosOwner = nullptr;
 };

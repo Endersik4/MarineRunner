@@ -29,6 +29,8 @@ void ABullet::BeginPlay()
 
 	OnActorHit.AddUniqueDynamic(this, &ABullet::OnHit);
 
+	SetLifeSpan(BulletLifeSpan);
+
 	SetBulletMovementType();
 
 	if (IsValid(BulletTrailNiagaraParticle))
@@ -147,6 +149,8 @@ void ABullet::SphereRadialDamage(const FHitResult& Hit)
 	}
 
 	SpawnEffectsWhenHit(Hit);
+	if (IsValid(SpawnedBulletTrailNiagara))
+		SpawnedBulletTrailNiagara->DestroyComponent();
 	Destroy();
 }
 
@@ -190,6 +194,8 @@ void ABullet::BulletThroughObject(const FHitResult& Hit)
 	if (!BulletData.bCanBulletGoThroughObjects 
 		|| BulletData.MaxObjectsForBulletToGoThrough <= 0 || UGameplayStatics::GetSurfaceType(Hit) != EPhysicalSurface::SurfaceType2)
 	{
+		if (IsValid(SpawnedBulletTrailNiagara))
+			SpawnedBulletTrailNiagara->DestroyComponent();
 		Destroy();
 		return;
 	}

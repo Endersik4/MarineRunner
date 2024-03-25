@@ -19,7 +19,10 @@ void UCraftItemAlbertosComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AlbertosPawn = Cast<AAlbertosPawn>(GetOwner());
+	if (ensureMsgf(IsValid(GetOwner()), TEXT("Albertos Pawn is nullptr in CraftItemAlbertosComponent!")))
+	{
+		AlbertosPawn = Cast<AAlbertosPawn>(GetOwner());
+	}
 }
 
 void UCraftItemAlbertosComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -32,7 +35,10 @@ void UCraftItemAlbertosComponent::TickComponent(float DeltaTime, ELevelTick Tick
 #pragma region //////////////// craft item ////////////////
 void UCraftItemAlbertosComponent::CraftPressed(TObjectPtr<class AMarineCharacter> Player, const FItemStruct* ItemToCraft, int32 ItemAmountMultiplier)
 {
-	if (!ItemToCraft)
+	if (!IsValid(AlbertosPawn))
+		return;
+
+	if (!ItemToCraft || !IsValid(Player))
 		return;
 
 	CraftedItem = SpawnCraftedItem(ItemToCraft);
@@ -53,12 +59,14 @@ void UCraftItemAlbertosComponent::CraftPressed(TObjectPtr<class AMarineCharacter
 	CraftedItem->SetDissolveMaterial(Player, ItemToCraft->Item_TimeCraft, OverlayCraftingMaterial);
 
 	StartPlayingCraftSound(ItemToCraft->Item_TimeCraft);
-
 }
 
 TObjectPtr<APickupItem> UCraftItemAlbertosComponent::SpawnCraftedItem(const FItemStruct* ItemToCraft)
 {
-	FTransform ItemToCraftTransform = ItemToCraftOffsetTransform(ItemToCraft->InitialCraftLocationOffset, ItemToCraft->InitialCraftRotation, ItemToCraft->InitialCraftScale);
+	if (!IsValid(ItemToCraft->ItemObject))
+		return nullptr;
+
+	const FTransform& ItemToCraftTransform = ItemToCraftOffsetTransform(ItemToCraft->InitialCraftLocationOffset, ItemToCraft->InitialCraftRotation, ItemToCraft->InitialCraftScale);
 
 	TObjectPtr<APickupItem> SpawnedItem = GetWorld()->SpawnActor<APickupItem>(ItemToCraft->ItemObject, ItemToCraftTransform);
 	if (!IsValid(SpawnedItem))
@@ -78,32 +86,48 @@ FTransform UCraftItemAlbertosComponent::ItemToCraftOffsetTransform(const FVector
 	SpawnLocation += AlbertosPawn->GetActorRightVector() * OffsetVector.Y;
 	SpawnLocation += AlbertosPawn->GetActorUpVector() * OffsetVector.Z;
 
-	FRotator SpawnRotation = AlbertosPawn->GetActorRotation() + OffsetRotator;
+	const FRotator& SpawnRotation = AlbertosPawn->GetActorRotation() + OffsetRotator;
 
 	return FTransform(SpawnRotation, SpawnLocation, ItemInitialScale);
 }
 
 void UCraftItemAlbertosComponent::CraftingFinished()
 {
-	AlbertosPawn->EnableCraftingAnimation(false);
+	if (!IsValid(AlbertosPawn))
+		return;
 
+	AlbertosPawn->EnableCraftingAnimation(false);
+	if (!IsValid(AlbertosPawn->GetAlbertosSkeletal()))
+		return;
+	
 	if (!IsValid(CraftedItem))
+		return;
+	if (!IsValid(CraftedItem->GetItemMesh()))
 		return;
 
 	CraftedItem->GetItemMesh()->SetSimulatePhysics(false);
 
 	bMoveCraftedItemToFinalPosition = true;
-	FinalLocationItem = CraftedItem->GetActorLocation() + AlbertosPawn->GetActorForwardVector() * FVector::Distance(AlbertosPawn->GetAlbertosSkeletal()->GetSocketLocation(FinalItemLocationSocketName), CraftedItem->GetActorLocation());
+	FinalCraftedItemLocation = CraftedItem->GetActorLocation() + AlbertosPawn->GetActorForwardVector() * FVector::Distance(AlbertosPawn->GetAlbertosSkeletal()->GetSocketLocation(FinalItemLocationSocketName), CraftedItem->GetActorLocation());
 }
 #pragma endregion
 
 #pragma region ///////// crafting sounds //////////////
 
-void UCraftItemAlbertosComponent::StartPlayingCraftSound(const float & TimeToCraftAnItem)
+void UCraftItemAlbertosComponent::StartPlayingCraftSound(const float& TimeToCraftAnItem)
 {
+	if (!IsValid(AlbertosPawn))
+		return;
+	if (!IsValid(AlbertosPawn->GetAlbertosSkeletal()))
+		return;
+
 	MiddleCraftSoundCounter = CalculateHowManyMiddleCraftSoundHaveToPlay(TimeToCraftAnItem);
 
-	UGameplayStatics::SpawnSoundAttached(Craft_Start_Sound, AlbertosPawn->GetAlbertosSkeletal(), ItemSpawnLocationSocketName);
+	if (IsValid(Craft_Start_Sound))
+		UGameplayStatics::SpawnSoundAttached(Craft_Start_Sound, AlbertosPawn->GetAlbertosSkeletal(), ItemSpawnLocationSocketName);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Craft Start Sound is nullptr in CraftItemAlbertosComponent!"));
+
 	FTimerHandle CraftStartHandle;
 	GetWorld()->GetTimerManager().SetTimer(CraftStartHandle, this, &UCraftItemAlbertosComponent::PlayMiddleCraftSound, Craft_Start_Sound->GetDuration(), false);
 }
@@ -118,13 +142,26 @@ int32 UCraftItemAlbertosComponent::CalculateHowManyMiddleCraftSoundHaveToPlay(co
 
 void UCraftItemAlbertosComponent::PlayMiddleCraftSound()
 {
+	if (!IsValid(AlbertosPawn))
+		return;
+	if (!IsValid(AlbertosPawn->GetAlbertosSkeletal()))
+		return;
+
 	if (MiddleCraftSoundCounter <= 0)
 	{
-		UGameplayStatics::SpawnSoundAttached(Craft_End_Sound, AlbertosPawn->GetAlbertosSkeletal(), ItemSpawnLocationSocketName);
+		if (IsValid(Craft_End_Sound))
+			UGameplayStatics::SpawnSoundAttached(Craft_End_Sound, AlbertosPawn->GetAlbertosSkeletal(), ItemSpawnLocationSocketName);
+		else
+			UE_LOG(LogTemp, Warning, TEXT("Craft End Sound is nullptr in CraftItemAlbertosComponent!"));
+
 		return;
 	}
 
-	UGameplayStatics::SpawnSoundAttached(Craft_Middle_Sound, AlbertosPawn->GetAlbertosSkeletal(), ItemSpawnLocationSocketName);
+	if (IsValid(Craft_End_Sound))
+		UGameplayStatics::SpawnSoundAttached(Craft_Middle_Sound, AlbertosPawn->GetAlbertosSkeletal(), ItemSpawnLocationSocketName);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Craft Middle Sound is nullptr in CraftItemAlbertosComponent!"));
+
 	MiddleCraftSoundCounter--;
 
 	FTimerHandle CraftMiddleHandle;
@@ -138,15 +175,15 @@ void UCraftItemAlbertosComponent::MoveCraftedItemToFinalPosition(float Delta)
 	if (!bMoveCraftedItemToFinalPosition || !IsValid(CraftedItem)) 
 		return;
 
-	if (!CraftedItem->GetActorLocation().Equals(FinalLocationItem, FinalLocationItemTolerance))
+	if (!CraftedItem->GetActorLocation().Equals(FinalCraftedItemLocation, FinalLocationItemTolerance))
 	{
-		FVector NewItemLocation = FMath::VInterpTo(CraftedItem->GetActorLocation(), FinalLocationItem, Delta, ItemMoveSpeedAfterCrafting);
+		const FVector& NewItemLocation = FMath::VInterpTo(CraftedItem->GetActorLocation(), FinalCraftedItemLocation, Delta, ItemMoveSpeedAfterCrafting);
 		CraftedItem->SetActorLocation(NewItemLocation);
 
-		if (bShouldScaleCraftedItem == false) 
+		if (!bShouldScaleCraftedItem) 
 			return;
 
-		FVector NewItemScale = FMath::VInterpTo(CraftedItem->GetActorScale3D(), TargetScaleOfCraftedItem, Delta, ItemScaleSpeedAfterCrafting);
+		const FVector& NewItemScale = FMath::VInterpTo(CraftedItem->GetActorScale3D(), TargetScaleOfCraftedItem, Delta, ItemScaleSpeedAfterCrafting);
 		CraftedItem->SetActorScale3D(NewItemScale);
 
 		return;
@@ -157,6 +194,11 @@ void UCraftItemAlbertosComponent::MoveCraftedItemToFinalPosition(float Delta)
 
 void UCraftItemAlbertosComponent::ItemWasMoved()
 {
+	if (!IsValid(CraftedItem))
+		return;
+	if (!IsValid(CraftedItem->GetItemMesh()))
+		return;
+
 	if (bShouldScaleCraftedItem)
 		CraftedItem->SetActorScale3D(TargetScaleOfCraftedItem);
 
@@ -171,7 +213,7 @@ void UCraftItemAlbertosComponent::ItemWasMoved()
 }
 #pragma endregion
 
-const bool UCraftItemAlbertosComponent::isCraftedItemValid() const
+const bool UCraftItemAlbertosComponent::IsCraftedItemValid() const
 {
 	return IsValid(CraftedItem);
 }

@@ -23,7 +23,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void OpenAlbertosDoor(bool bOpenDoor);
+	void OpenAlbertosDoor(const bool bOpenDoor);
 
 	FORCEINLINE void SetPlayerPawn(TObjectPtr<APawn> NewPlayerPawn) { Player = NewPlayerPawn; }
 	FORCEINLINE void SetRotateAlbertosTowardPlayer(bool bRotate) { bRotateAlbertosTowardPlayer = bRotate; }
@@ -31,8 +31,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Setting up Player Is Near")
 		bool bIgnorePlayer = false;
+	// if player is further then MaxPlayerDistanceToActiveAlbertos, Albertos goes back to wendering, otherwise = stops and rotates toward player
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Player Is Near", meta = (EditCondition = "!bIgnorePlayer"))
-		float ActiveAlbertosRadius = 1000.f;
+		float MaxPlayerDistanceToActiveAlbertos = 1000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Player Is Near", meta = (EditCondition = "!bIgnorePlayer"))
 		float TimeToCheckIfPlayerIsNear = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Player Is Near", meta = (EditCondition = "!bIgnorePlayer"))
@@ -41,24 +42,27 @@ private:
 		float ToleranceToRotateAlbertos = 2.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
-		TObjectPtr<UAnimMontage> AlbertosOpenAnimationMontage;
+		TObjectPtr<UAnimMontage> AlbertosOpenAnimationMontage = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
-		TObjectPtr<UAnimMontage> AlbertosCloseAnimationMontage;
+		TObjectPtr<UAnimMontage> AlbertosCloseAnimationMontage = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
 		FName OpenDoorSoundSocketName = FName(TEXT("Wysuwak"));
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
-		TObjectPtr<USoundBase> OpenDoorSound;
+		TObjectPtr<USoundBase> OpenDoorSound = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Setting up Media Player")
-		TObjectPtr<class UMediaPlayer> AlbertosMediaPlayer;
+		TObjectPtr<class UMediaPlayer> AlbertosMediaPlayer = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Setting up Media Player")
-		TObjectPtr<class UMediaSource> AlbertosMediaSource;
+		TObjectPtr<class UMediaSource> AlbertosMediaSource = nullptr;
 
-	bool bIsFrontDoorOpen;
+	UPROPERTY(Transient)
+		bool bIsFrontDoorOpen = false;
 
 	// When Players is near Albertos
-	bool bPlayerIsClose;
-	bool bRotateAlbertosTowardPlayer;
+	UPROPERTY(Transient)
+		bool bPlayerIsClose = false;
+	UPROPERTY(Transient)
+		bool bRotateAlbertosTowardPlayer = false;
 	FTimerHandle PlayerIsNearHandle;
 	void CheckIfThePlayerIsNear();
 	void GoBackToWendering();
@@ -66,9 +70,11 @@ private:
 	void RotateAlbertosTowardsPlayer(float Delta);
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AAlbertosPawn> AlbertosOwner;
+		TObjectPtr<class AAlbertosPawn> AlbertosOwner = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AAlbertosAIController> AlbertosAI;
+		TObjectPtr<class AAlbertosAIController> AlbertosAIController = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<APawn> Player;
+		TObjectPtr<APawn> Player = nullptr;
+
+	void SetUpAlbertosAndPlayerVariables();
 };

@@ -21,7 +21,7 @@ protected:
 public:	
 
 	void CallAlbertosToThePlayer(FVector PlayerLoc);
-	void ChangeMaxSpeedOfFloatingMovement(bool bTowardsPlayer = true);
+	void ChangeMaxSpeedOfFloatingMovement(const bool bTowardsPlayer = true);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Call Albertos To Player")
@@ -32,21 +32,22 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Call Albertos To Player")
 		float TeleportToPlayerRadius = 3000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Call Albertos To Player")
-		TObjectPtr<USoundBase>CallAlbertosSound;
+		TObjectPtr<USoundBase>CallAlbertosSound = nullptr;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AAlbertosPawn> AlbertosPawn;
+		TObjectPtr<class AAlbertosPawn> AlbertosPawn = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AAlbertosAIController> AlbertosAI;
+		TObjectPtr<class AAlbertosAIController> AlbertosAIController = nullptr;
 
-	float OriginalMoveSpeed;
+	UPROPERTY(Transient)
+		float OriginalMoveSpeed = 0.f;
 
 	/// <summary>
 	/// Check if the distance to the player is greater than MaxDistanceToPlayer, if so, teleport Alberto near the player.
 	/// </summary>
 	/// <returns>True - if albertos is further from the player then MaxDistanceToPlayer <br/>
 	/// False - otherwise</returns>
-	bool TeleportAlbertosToPlayer(FVector& PlayerLoc);
+	bool TeleportAlbertosToPlayer(const FVector& PlayerLoc);
 
 	void SetInitialAlbertosVariables();
 };
