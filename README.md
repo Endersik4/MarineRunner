@@ -5,20 +5,26 @@ The <a href="https://github.com/Endersik4/MarineRunner/blob/main/ListOfAllFeatur
 I started this project on January 23, 2023, and finished on February 23, 2024. It took nearly 2000 hours to make. <br/>
 The game is in state to be shipped. <br/> <br/>
 I created a demo (30 minutes long) to show everything the game offers. <br/>
-I plan to enter this game into the ZTGK contest in June 2024. <br/>
-Below is Trailer of the demo (1:30 minutes long) and Gameplay of the demo (35 minutes long) <br/>
+I plan to enter this game into the ZTGK contest in June 2024. <br/><br/>
+
+You can download game here: <a href="https://drive.google.com/file/d/1QndfmMVLnoy2k3Kfxq-69BLwmLpTkBmw/view?usp=sharing"> MarineRunner</a><br/>
+Below is Trailer of the demo (1:20 minutes long) and Gameplay of the demo (30 minutes long) <br/>
 <h2> Marine Runner Trailer Demo: </h2>
-<a href="https://youtu.be/ABiBhHkvVVs">
+<a href="https://youtu.be/02JhJevPaRo">
 Trailer:
   
-![ScreenShot00049](https://github.com/Endersik4/MarineRunner/assets/131354098/8730411a-0426-4d17-a805-1af4e1ddef7b) </a>
+![ScreenShot00049](https://github.com/Endersik4/MarineRunner/assets/131354098/8730411a-0426-4d17-a805-1af4e1ddef7b) 
+
+</a>
 <br/><br/>
 
 <h2> Marine Runner Gameplay Demo: </h2>
-<a href="https://youtu.be/ABiBhHkvVVs">
+<a href="https://youtu.be/ROhMfjWd5IM">
 Gameplay:
   
-![ScreenShot00049](https://github.com/Endersik4/MarineRunner/assets/131354098/8730411a-0426-4d17-a805-1af4e1ddef7b) </a>
+![ScreenShot00032](https://github.com/Endersik4/MarineRunner/assets/131354098/f9bc6701-ae9c-451c-934d-42e5cb745555)
+
+</a>
 <br/><br/>
 
 ![endersik-4-screenshot00001 (1)](https://github.com/Endersik4/MarineRunner/assets/131354098/a3a02f78-be24-4474-bc67-d68585a974b6)
