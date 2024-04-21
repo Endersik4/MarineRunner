@@ -57,7 +57,7 @@ void UGunReloadComponent::PrepareToReload()
 	if (bReloadOneBullet)
 		CurrentReloadType = GetCurrentReloadTypeAccordingToSituation();
 
-	Gun->GetPlayer()->GetWeaponHandlerComponent()->ADSReleased();
+	Gun->GetPlayer()->GetWeaponHandlerComponent()->ReleasedSecondaryAction();
 
 	const FWeaponAnimation& ReloadAnimToPlay = ReloadAnimAccordingToSituation();
 	Gun->PlayGivenWeaponWithArmsAnimation(ReloadAnimAccordingToSituation());

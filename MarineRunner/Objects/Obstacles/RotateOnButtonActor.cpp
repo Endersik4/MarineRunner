@@ -171,7 +171,7 @@ void AWallrunOnButton::SetUpActiveMaterial()
 		return;
 	ActiveDynamicMaterial = UMaterialInstanceDynamic::Create(ActivateMeshComponent->GetMaterial(IndexForActiveMaterialToChange), this);
 
-	if (IsValid(ActiveDynamicMaterial))
+	if (!IsValid(ActiveDynamicMaterial))
 		return;
 
 	ActivateMeshComponent->SetMaterial(IndexForActiveMaterialToChange, ActiveDynamicMaterial);

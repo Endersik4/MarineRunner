@@ -10,8 +10,7 @@
 #include "MarineRunner/Player/Inventory/WeaponInventoryComponent.h"
 #include "MarineRunner/Player/Widgets/HUDWidget.h"
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
-#include "MarineRunner/Gun/Gun.h"
-#include "MarineRunner/Gun/Components/GunControlsComponent.h"
+#include "MarineRunner/Player/Interfaces/WeaponInterface.h"
 #include "MarineRunner/Objects/Components/SoundOnHitComponent.h"
 
 APickupItem::APickupItem()
@@ -124,16 +123,15 @@ void APickupItem::AddCraftRecipeIfCraftable(TObjectPtr<class AMarineCharacter> P
 
 void APickupItem::SpawnWeaponForPlayer(TObjectPtr<class AMarineCharacter> Player, FItemStruct* ItemDataFromDataTable)
 {
-	if (!ItemDataFromDataTable->bIsItWeapon || !ItemDataFromDataTable->WeaponClass)
+	if (!ItemDataFromDataTable->bIsItWeapon || !ItemDataFromDataTable->WeaponClass.TryLoadClass<UObject>())
 		return;
 
 	const FTransform& WeaponTransform = FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f));
-	TObjectPtr<AGun> SpawnedGun = GetWorld()->SpawnActor<AGun>(ItemDataFromDataTable->WeaponClass, WeaponTransform);
-	if (!IsValid(SpawnedGun))
+	IWeaponInterface* SpawnedWeapon = GetWorld()->SpawnActor<IWeaponInterface>(ItemDataFromDataTable->WeaponClass.TryLoadClass<UObject>(), WeaponTransform);
+	if (!SpawnedWeapon)
 		return;
-	
-	SpawnedGun->AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnedGun->GetGunControlsComponent()->GetAttachToSocketName());
-	SpawnedGun->GetGunControlsComponent()->TakeGun(Player, bWasOnceTaken, CurrentMagazineCapacity);
+
+	SpawnedWeapon->TakeWeapon(Player, bWasOnceTaken, CurrentMagazineCapacity);
 }
 #pragma endregion
 

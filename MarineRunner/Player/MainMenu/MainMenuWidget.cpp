@@ -65,7 +65,7 @@ void UMainMenuWidget::MainMenuMusic()
 	{
 		CurrentPauseMenuMusic = UGameplayStatics::SpawnSound2D(GetWorld(), PauseMenuMusic);
 		if (IsValid(CurrentPauseMenuMusic))
-			CurrentPauseMenuMusic->FadeIn(1.f);
+			CurrentPauseMenuMusic->FadeIn(5.f);
 	}
 }
 

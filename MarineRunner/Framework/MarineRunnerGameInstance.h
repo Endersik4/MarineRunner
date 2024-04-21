@@ -130,7 +130,7 @@ private:
 
 	// Enemies that see the player
 	UPROPERTY(Transient)
-		TArray<TObjectPtr<AActor>> DetectedPlayerEnemies = {nullptr};
+		TArray<TObjectPtr<AActor>> DetectedPlayerEnemies;
 	UPROPERTY(Transient)
 		bool bIsDetectedByEnemies = false;
 

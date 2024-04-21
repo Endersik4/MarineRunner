@@ -63,12 +63,12 @@ void UCraftItemAlbertosComponent::CraftPressed(TObjectPtr<class AMarineCharacter
 
 TObjectPtr<APickupItem> UCraftItemAlbertosComponent::SpawnCraftedItem(const FItemStruct* ItemToCraft)
 {
-	if (!IsValid(ItemToCraft->ItemObject))
+	if (!ItemToCraft->ItemObject.TryLoadClass<UObject>())
 		return nullptr;
 
 	const FTransform& ItemToCraftTransform = ItemToCraftOffsetTransform(ItemToCraft->InitialCraftLocationOffset, ItemToCraft->InitialCraftRotation, ItemToCraft->InitialCraftScale);
 
-	TObjectPtr<APickupItem> SpawnedItem = GetWorld()->SpawnActor<APickupItem>(ItemToCraft->ItemObject, ItemToCraftTransform);
+	TObjectPtr<APickupItem> SpawnedItem = GetWorld()->SpawnActor<APickupItem>(ItemToCraft->ItemObject.TryLoadClass<UObject>(), ItemToCraftTransform);
 	if (!IsValid(SpawnedItem))
 		return nullptr;
 

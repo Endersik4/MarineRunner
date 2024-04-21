@@ -3,9 +3,7 @@
 #include "WeaponInventoryComponent.h"
 
 #include "MarineRunner/Player/MarinePlayer.h"
-#include "MarineRunner/Gun/Gun.h"
-#include "MarineRunner/Gun/Components/GunControlsComponent.h"
-#include "MarineRunner/Gun/Components/GunReloadComponent.h"
+#include "MarineRunner/Player/Interfaces/WeaponInterface.h"
 
 // Sets default values for this component's properties
 UWeaponInventoryComponent::UWeaponInventoryComponent()
@@ -24,44 +22,43 @@ void UWeaponInventoryComponent::BeginPlay()
 void UWeaponInventoryComponent::StartTimerForSpawnNewWeapons()
 {
 	FTimerHandle SpawnWeaponsFromInventoryHandle;
-	GetWorld()->GetTimerManager().SetTimer(SpawnWeaponsFromInventoryHandle, this, &UWeaponInventoryComponent::SpawnWeaponsFromInventory, 0.02f, false);
+	GetWorld()->GetTimerManager().SetTimer(SpawnWeaponsFromInventoryHandle, this, &UWeaponInventoryComponent::LoadWeapons, 0.02f, false);
 }
 
-void UWeaponInventoryComponent::SpawnWeaponsFromInventory()
+void UWeaponInventoryComponent::LoadWeapons()
 {
 	if (!IsValid(GetOwner()))
 		return;
 
 	TObjectPtr<AMarineCharacter> MarinePawn = Cast<AMarineCharacter>(GetOwner());
 
-	if (!IsValid(MarinePawn) || InitialWeaponInventory.Num() == 0)
+	if (!IsValid(MarinePawn) || WeaponsToLoadToInventory.Num() == 0)
 		return;
 
-	for (const TPair<int32, FString> CurrentPair : InitialWeaponInventory)
+	for (const TPair<int32, FString> CurrentPair : WeaponsToLoadToInventory)
 	{
 		const FSoftClassPath GunClassPath = CurrentPair.Value;
 		if (!GunClassPath.TryLoadClass<UObject>())
 			continue;
 
-		TObjectPtr<AGun> SpawnedGun = GetWorld()->SpawnActor<AGun>(GunClassPath.TryLoadClass<UObject>(), FTransform(FRotator(0.f), FVector(0.f), FVector(1.f)));
-		if (!IsValid(SpawnedGun))
+		IWeaponInterface* SpawnedWeapon = GetWorld()->SpawnActor<IWeaponInterface>(GunClassPath.TryLoadClass<UObject>(), FTransform(FRotator(0.f), FVector(0.f), FVector(1.f)));
+		if (!SpawnedWeapon)
 			continue;
 
-		SpawnedGun->AttachToComponent(MarinePawn->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SpawnedGun->GetGunControlsComponent()->GetAttachToSocketName());
-		SpawnedGun->GetGunControlsComponent()->TakeGun(MarinePawn, true, CurrentPair.Key);
+		SpawnedWeapon->TakeWeapon(MarinePawn, true, CurrentPair.Key);
 	}
 }
 
-void UWeaponInventoryComponent::AddNewWeaponToStorage(TObjectPtr<AGun> NewGun)
+void UWeaponInventoryComponent::AddNewWeaponToStorage(IWeaponInterface* NewGun)
 {
-	if (!IsValid(NewGun)) 
+	if (!NewGun)
 		return;
 
 	const int32& WeaponNumber = WeaponsStorage.Num() + 1;
 	WeaponsStorage.Add(WeaponNumber, NewGun);
 }
 
-void UWeaponInventoryComponent::RemoveWeaponFromStorage(TObjectPtr<AGun> EquipedGun)
+void UWeaponInventoryComponent::RemoveWeaponFromStorage(IWeaponInterface* EquipedGun)
 {
 	const int32& KeyForEquipedGun = *WeaponsStorage.FindKey(EquipedGun);
 	WeaponsStorage.Remove(KeyForEquipedGun);
@@ -69,63 +66,63 @@ void UWeaponInventoryComponent::RemoveWeaponFromStorage(TObjectPtr<AGun> Equiped
 	SortWeapons();
 }
 
-bool UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, TObjectPtr<AGun> CurrentWeapon)
+bool UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, IWeaponInterface* CurrentWeapon)
 {
-	if (!IsValid(CurrentWeapon))
+	if (!CurrentWeapon)
 		return false;
 
 	if (!WeaponsStorage.Find(KeyForWeapon)) 
 		return false;
-	GunFromInventory = *WeaponsStorage.Find(KeyForWeapon);
-	if (GunFromInventory == CurrentWeapon)
+	WeaponFromSlot = *WeaponsStorage.Find(KeyForWeapon);
+	if (WeaponFromSlot == CurrentWeapon)
 		return false;
 
-	CurrentWeapon->GetGunControlsComponent()->PutAwayGun();
-
+	CurrentWeapon->PutAwayWeapon();
 	return true;
 }
 
-TObjectPtr<AGun> UWeaponInventoryComponent::GetCurrentGunToDraw()
+IWeaponInterface* UWeaponInventoryComponent::GetCurrentWeaponToDraw()
 {
-	return GunFromInventory;
+	return WeaponFromSlot;
 }
 
-int32 UWeaponInventoryComponent::GetLastWeaponSlotFromStorage(TObjectPtr<AGun> ValueToIgnore)
+int32 UWeaponInventoryComponent::GetLastWeaponSlotFromStorage(IWeaponInterface* ValueToIgnore)
 {
-	TArray<int32> SlotsForGunGun;
-	WeaponsStorage.GenerateKeyArray(SlotsForGunGun);
-	for (int32 i = SlotsForGunGun.Num() - 1; i >= 0; i--)
+	TArray<int32> AllWeaponInventorySlots;
+	WeaponsStorage.GenerateKeyArray(AllWeaponInventorySlots);
+	for (int32 i = AllWeaponInventorySlots.Num() - 1; i >= 0; i--)
 	{
-		if (!WeaponsStorage.Find(SlotsForGunGun[i]))
+		if (!WeaponsStorage.Find(AllWeaponInventorySlots[i]))
 			continue;
 
-		if (*WeaponsStorage.Find(SlotsForGunGun[i]) != ValueToIgnore)
-			return SlotsForGunGun[i];
+		if (*WeaponsStorage.Find(AllWeaponInventorySlots[i]) != ValueToIgnore)
+			return AllWeaponInventorySlots[i];
 	}
 	return 0;
 }
 
+
 void UWeaponInventoryComponent::SortWeapons()
 {
-	TArray<TObjectPtr<AGun>> Guns;
-	WeaponsStorage.GenerateValueArray(Guns);
+	TArray<IWeaponInterface* > Weapons;
+	WeaponsStorage.GenerateValueArray(Weapons);
 	WeaponsStorage.Empty();
-	for (int32 i = 1; i <= Guns.Num(); i++)
+	for (int32 i = 1; i <= Weapons.Num(); i++)
 	{
-		WeaponsStorage.Add(i, Guns[i-1]);
+		WeaponsStorage.Add(i, Weapons[i-1]);
 	}
 }
 
 void UWeaponInventoryComponent::WeaponStorageToInitialWeaponInventory()
 {
-	InitialWeaponInventory.Empty();
-	for (const TPair<int32, TObjectPtr<class AGun> > CurrentPair : WeaponsStorage)
+	WeaponsToLoadToInventory.Empty();
+	for (const TPair<int32, IWeaponInterface* > CurrentPair : WeaponsStorage)
 	{
-		InitialWeaponInventory.Add(CurrentPair.Value->GetGunReloadComponent()->GetMagazineCapacity(), CurrentPair.Value->GetClass()->GetClassPathName().ToString());
+		WeaponsToLoadToInventory.Add(CurrentPair.Value->GetIntValueToSave(), CurrentPair.Value->GetPathToWeaponClass());
 	}
 }
 
 bool UWeaponInventoryComponent::CanPlayerTakeWeaponToInventory() const
 {
-	return WeaponsStorage.Num() < MaxAmountOfItems;
+	return WeaponsStorage.Num() < MaxAmountOfWeapons;
 }

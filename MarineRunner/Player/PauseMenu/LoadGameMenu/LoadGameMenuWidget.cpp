@@ -25,7 +25,7 @@ void ULoadGameMenuWidget::FillLoadGamesListView()
 
 	if (Txt_Files.Num() <= 0)
 		return;
-
+	
 	NoSavedDataText->SetVisibility(ESlateVisibility::Hidden);
 
 	TArray<FSaveDataMenuStruct> DeserlializedSaves;
@@ -44,7 +44,7 @@ void ULoadGameMenuWidget::FillDeserializedSaveFilesToArray(TArray<FString>& Path
 		TSharedPtr<FJsonObject> JsonObject;
 		const bool bWasJsonDeserialize = USaveGameJsonFile::ReadJson(CurrTxtFilePath, JsonObject);
 		if (!bWasJsonDeserialize)
-			return;
+			continue;
 
 		FSaveDataMenuStruct NewSaveDataMenu;
 		NewSaveDataMenu.SaveName = JsonObject->GetStringField("SavedDataName");
@@ -69,6 +69,7 @@ void ULoadGameMenuWidget::ConvertArrayToLoadGameMenuEntryList(TArray<FSaveDataMe
 			continue;
 
 		ConstructedItemObject->SavesMenuData = CurrentSaveDataMenu;
+		UE_LOG(LogTemp, Warning, TEXT("DALEJ  %s"), *CurrentSaveDataMenu.SaveName);
 
 		LoadGamesListView->AddItem(ConstructedItemObject);
 	}

@@ -31,7 +31,7 @@ void USoundOnHitComponent::OnHitPlaySound(AActor* SelfActor, AActor* OtherActor,
 
 	if (!IsValid(HitGroundSound))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit Ground SOund is nullpter in SoundOnHitComponent in Actor %s!"), *GetOwner()->GetActorLabel());
+		//UE_LOG(LogTemp, Warning, TEXT("Hit Ground SOund is nullpter in SoundOnHitComponent in Actor %s!"), *GetOwner()->GetActorLabel());
 		return;
 	}
 

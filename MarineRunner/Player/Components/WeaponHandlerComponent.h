@@ -26,30 +26,32 @@ protected:
 
 public:	
 
-	FORCEINLINE TObjectPtr<class AGun> GetGun() const { return Gun; }
 	FORCEINLINE bool GetIsPlayerInAds() const { return bIsPlayerADS; }
+	FORCEINLINE const TArray<FSettingSavedInJsonFile> & GetMouseSensitivityWhenScope() const { return MouseSensitivityWhenScope; }
 
-	FORCEINLINE void SetGun(TObjectPtr<class AGun> NewGun) { Gun = NewGun; }
+	FORCEINLINE void SetWeapon(class IWeaponInterface* NewGun) { CurrentWeapon = NewGun; }
 	FORCEINLINE void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
+	FORCEINLINE void SetIsPlayerInAds(bool bIs) { bIsPlayerADS = bIs; }
 
-	void Shoot();
-	void ReleasedShoot();
-	void Reload();
-	void Zoom(float WheelAxis);
+	void PrimaryAction();
+	void ReleasedPrimaryAction();
 
-	void ADSPressed();
-	void ADSReleased();
+	void ActionFromKey_One();
+	void TertiaryAction(float WheelAxis);
+
+	void SecondaryAction();
+	void ReleasedSecondaryAction();
 
 	void UpdateWeaponInformationOnHud();
 
 	void SelectWeaponFromQuickInventory(int32 HandNumber);
-	void HideCurrentHoldingGun();
-	void DrawNewGun();
-	void DropGun();
+	void HideCurrentHoldingWeapon();
+	void DrawNewEquipedWeapon();
+	void DropCurrentHoldingWeapon();
 
 	void LoadSavedSettingsFromGameInstance();
 private:
-	UPROPERTY(EditAnywhere, Category = "Gun")
+	UPROPERTY(EditAnywhere, Category = "Weapon")
 		TArray<FSettingSavedInJsonFile> MouseSensitivityWhenScope = 
 	{
 		FSettingSavedInJsonFile("MouseSensitivityADS", 0.4f),
@@ -58,17 +60,8 @@ private:
 		FSettingSavedInJsonFile("MouseSensitivity8x", 0.05f),
 	};
 
-	UPROPERTY(EditDefaultsOnly, Category = "Gun|Ads")
-		float MovementForceDividerWhenInADS = 1.5f;
-	UPROPERTY(EditDefaultsOnly, Category = "Gun|Ads")
-		TObjectPtr<USoundBase> ADSInSound = nullptr;
-	UPROPERTY(EditDefaultsOnly, Category = "Gun|Ads")
-		TObjectPtr<USoundBase> ADSOutSound = nullptr;
-
-	UPROPERTY(Transient)
-		int32 CurrentScopeIndex = 0;
-	UPROPERTY(Transient)
-		TObjectPtr<class AGun> Gun = nullptr;
+	//UPROPERTY(Transient)
+		class IWeaponInterface* CurrentWeapon = nullptr;
 
 	UPROPERTY(Transient)
 		bool bIsPlayerADS = false;

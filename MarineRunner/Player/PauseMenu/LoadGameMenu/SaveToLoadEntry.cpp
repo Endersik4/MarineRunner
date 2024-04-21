@@ -22,11 +22,11 @@ void USaveGameMenuListEntry::NativeConstruct()
 
 void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
-	if (IsValid(ListItemObject))
+	if (!IsValid(ListItemObject))
 		return;
 
 	LoadGameEntryObject = Cast<ULoadGameMenuEntryObject>(ListItemObject);
-	if (IsValid(LoadGameEntryObject))
+	if (!IsValid(LoadGameEntryObject))
 		return;
 
 	SaveNameText->SetText(FText::FromString("-" + LoadGameEntryObject->SavesMenuData.SaveName + "-"));

@@ -30,6 +30,7 @@ public:
 
 	void UpdateWeaponDataInHud(bool bUpdateStoredAmmoText = false, bool bUpdateWeaponImage = false);
 
+	// if set to true then when Put Away function is called then after animation, weapon will drop
 	FORCEINLINE void SetDropGun(bool bDrop) { bDropGun = bDrop; }
 
 	FORCEINLINE const FName & GetAttachToSocketName() const { return AttachGunToSocketName; }

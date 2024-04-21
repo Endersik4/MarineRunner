@@ -284,3 +284,132 @@ void AGun::PlayGivenWeaponWithArmsAnimation(const FWeaponAnimation& AnimToPlay) 
 		Player->GetArmsSkeletalMesh()->PlayAnimation(AnimToPlay.ArmsActionAnim, false);
 	}
 }
+
+#pragma region ///// Weapon Interface Functions ///////
+
+void AGun::DrawWeapon()
+{
+	GunControlsComponent->DrawGun();
+}
+
+void AGun::TakeWeapon(AMarineCharacter* PlayerTemp, bool bWasOnceTaken, int32 CurrentMagazineCapacityToLoad)
+{
+	AttachToComponent(PlayerTemp->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, GunControlsComponent->GetAttachToSocketName());
+	GunControlsComponent->TakeGun(PlayerTemp, bWasOnceTaken, CurrentMagazineCapacityToLoad);
+}
+
+void AGun::PutAwayWeapon()
+{
+	GunControlsComponent->PutAwayGun();
+}
+
+void AGun::SetDropWeapon(bool bDrop)
+{
+	GunControlsComponent->SetDropGun(bDrop);
+}
+
+void AGun::HideWeapon()
+{
+	GunControlsComponent->HideGun();
+}
+
+void AGun::PrimaryAction()
+{
+	SetShootButtonPressed(true);
+	Shoot();
+}
+
+void AGun::ReleasedPrimaryAction()
+{
+	ShootReleased();
+}
+
+void AGun::SecondaryAction()
+{
+	if (GunReloadComponent->GetIsReloading() && GunReloadComponent->GetReloadOneBullet())
+		GunReloadComponent->CancelReload();
+
+	if (!GetCanShoot())
+		return;
+
+	Player->MakeCrosshire(true);
+	Player->SetMovementForceDividerWhenInADS(MovementForceDividerWhenInADS);
+
+	if (IsValid(ADSInSound))
+		UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("ADS In Sound is nullptr in Gun!"));
+
+	Player->GetWeaponHandlerComponent()->SetIsPlayerInAds(true);
+	AimTheGun(EStatusOfAimedGun::ESAG_ADS);
+
+	if (CurrentScopeIndex >= Player->GetWeaponHandlerComponent()->GetMouseSensitivityWhenScope().Num())
+		return;
+
+	Player->ChangeMouseSensitivity(Player->GetWeaponHandlerComponent()->GetMouseSensitivityWhenScope()[CurrentScopeIndex]);
+}
+
+void AGun::ReleasedSecondaryAction()
+{
+	if (!Player->GetWeaponHandlerComponent()->GetIsPlayerInAds())
+		return;
+
+	Player->MakeCrosshire();
+	Player->SetMovementForceDividerWhenInADS(1.f);
+
+	if (IsValid(ADSOutSound))
+		UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
+	else
+		UE_LOG(LogTemp, Warning, TEXT("ADS Out Sound is nullptr in gun!"));
+
+	Player->GetWeaponHandlerComponent()->SetIsPlayerInAds(false);
+
+	AimTheGun(EStatusOfAimedGun::ESAG_HipFire);
+
+	Player->ChangeMouseSensitivity(FSettingSavedInJsonFile(), true);
+
+	if (GetUseScope())
+		CurrentScopeIndex = GetScopeActor()->Zoom(0.f, true);
+	else
+		CurrentScopeIndex = 0;
+}
+
+void AGun::TertiaryAction(float Value)
+{
+	if (!Player->GetWeaponHandlerComponent()->GetIsPlayerInAds() || Value == 0.f)
+		return;
+
+	if (!GetUseScope())
+		return;
+
+	if (!IsValid(GetScopeActor()))
+		return;
+
+	CurrentScopeIndex = GetScopeActor()->Zoom(Value);
+
+	if (CurrentScopeIndex >= Player->GetWeaponHandlerComponent()->GetMouseSensitivityWhenScope().Num())
+		return;
+
+	Player->ChangeMouseSensitivity(Player->GetWeaponHandlerComponent()->GetMouseSensitivityWhenScope()[CurrentScopeIndex]);
+}
+
+void AGun::ActionFromKey_One()
+{
+	GunReloadComponent->PrepareToReload();
+}
+
+void AGun::UpdateWeaponHudInformation()
+{
+	GunControlsComponent->UpdateWeaponDataInHud(true);
+}
+
+FString AGun::GetPathToWeaponClass()
+{
+	return GetClass()->GetClassPathName().ToString();
+}
+
+int32 AGun::GetIntValueToSave()
+{
+	return GunReloadComponent->GetMagazineCapacity();
+}
+#pragma endregion

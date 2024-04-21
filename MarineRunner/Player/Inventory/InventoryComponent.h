@@ -29,11 +29,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		bool bIsItWeapon = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition="bIsItWeapon", EditConditionHides))
-		TSubclassOf<class AGun> WeaponClass;
+		FSoftClassPath WeaponClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
 		bool bIsItCraftable = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
-		TSubclassOf<class APickupItem> ItemObject;
+		FSoftClassPath ItemObject;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
 		float Item_TimeCraft;
 	// When item was spawned in Location of ItemCraftSocket then add this offset to location

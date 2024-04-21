@@ -47,10 +47,10 @@ void AShowTutorialMessage::ShowMessageBoxBeginOverlap(UPrimitiveComponent* Overl
 		if (GameInstance->IsPlayerInCombat())
 			return;
 	}
-	
+
 	UnlockGameplayMechanicsInHud(OtherActor);
 
-	if (IsValid(MessageWidgetClass))
+	if (!IsValid(MessageWidgetClass))
 		return;
 
 	TObjectPtr<UMessageToReadWidget> MessageWidget = Cast<UMessageToReadWidget>(CreateWidget(PlayerController, MessageWidgetClass));

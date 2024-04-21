@@ -6,10 +6,7 @@
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Inventory/WeaponInventoryComponent.h"
 #include "MarineRunner/Player/MarinePlayerController.h"
-#include "MarineRunner/Gun/Gun.h"
-#include "MarineRunner/Gun/Mods/ScopeGunMod.h"
-#include "MarineRunner/Gun/Components/GunControlsComponent.h"
-#include "MarineRunner/Gun/Components/GunReloadComponent.h"
+#include "MarineRunner/Player/Interfaces/WeaponInterface.h"
 
 // Sets default values for this component's properties
 UWeaponHandlerComponent::UWeaponHandlerComponent()
@@ -32,109 +29,60 @@ void UWeaponHandlerComponent::BeginPlay()
 }
 
 #pragma region ////////////////////////////////// GUN //////////////////////////////////
-void UWeaponHandlerComponent::Shoot()
+void UWeaponHandlerComponent::PrimaryAction()
 {
-	if (!IsValid(Gun))
+	if (!CurrentWeapon)
 		return;
 
-	Gun->SetShootButtonPressed(true);
-	Gun->Shoot();
+	CurrentWeapon->PrimaryAction();
 }
 
-void UWeaponHandlerComponent::ReleasedShoot()
+void UWeaponHandlerComponent::ReleasedPrimaryAction()
 {
-	if (!IsValid(Gun))
+	if (!CurrentWeapon)
 		return;
 
-	Gun->ShootReleased();
+	CurrentWeapon->ReleasedPrimaryAction();
 }
 
-void UWeaponHandlerComponent::Reload()
+void UWeaponHandlerComponent::ActionFromKey_One()
 {
-	if (!IsValid(Gun))
+	if (!CurrentWeapon)
 		return;
 
-	Gun->GetGunReloadComponent()->PrepareToReload();
+	CurrentWeapon->ActionFromKey_One();
 }
 
-void UWeaponHandlerComponent::ADSPressed()
+void UWeaponHandlerComponent::SecondaryAction()
 {
-	if (!IsValid(Gun)) 
+	if (!CurrentWeapon)
 		return;
 
-	if (Gun->GetGunReloadComponent()->GetIsReloading() && Gun->GetGunReloadComponent()->GetReloadOneBullet())
-		Gun->GetGunReloadComponent()->CancelReload();
-
-	if (!Gun->GetCanShoot()) 
-		return;
-
-	Player->MakeCrosshire(true);
-	Player->SetMovementForceDividerWhenInADS(MovementForceDividerWhenInADS);
-
-	if (IsValid(ADSInSound))
-		UGameplayStatics::SpawnSound2D(GetWorld(), ADSInSound);
-	else
-		UE_LOG(LogTemp, Warning, TEXT("ADS In Sound is nullptr in Weapon Handler Component!"));
-
-	bIsPlayerADS = true;
-	Gun->AimTheGun(EStatusOfAimedGun::ESAG_ADS);
-
-	if (CurrentScopeIndex >= MouseSensitivityWhenScope.Num())
-		return;
-
-	Player->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
+	CurrentWeapon->SecondaryAction();
 }
 
-void UWeaponHandlerComponent::ADSReleased()
+void UWeaponHandlerComponent::ReleasedSecondaryAction()
 {
-	if (!IsValid(Gun)|| !bIsPlayerADS) 
+	if (!CurrentWeapon)
 		return;
 
-	Player->MakeCrosshire();
-	Player->SetMovementForceDividerWhenInADS(1.f);
-
-	if (IsValid(ADSOutSound)) 
-		UGameplayStatics::SpawnSound2D(GetWorld(), ADSOutSound);
-	else
-		UE_LOG(LogTemp, Warning, TEXT("ADS Out Sound is nullptr in Weapon Handler Component!"));
-
-	bIsPlayerADS = false;
-
-	Gun->AimTheGun(EStatusOfAimedGun::ESAG_HipFire);
-
-	Player->ChangeMouseSensitivity(FSettingSavedInJsonFile(), true);
-
-	if (Gun->GetUseScope())
-		CurrentScopeIndex = Gun->GetScopeActor()->Zoom(0.f, true);
-	else
-		CurrentScopeIndex = 0;
+	CurrentWeapon->ReleasedSecondaryAction();
 }
 
 void UWeaponHandlerComponent::UpdateWeaponInformationOnHud()
 {
-	if (!IsValid(Gun))
+	if (!CurrentWeapon)
 		return;
-	
-	Gun->GetGunControlsComponent()->UpdateWeaponDataInHud(true);
+
+	CurrentWeapon->UpdateWeaponHudInformation();
 }
 
-void UWeaponHandlerComponent::Zoom(float WheelAxis)
+void UWeaponHandlerComponent::TertiaryAction(float WheelAxis)
 {
-	if (!IsValid(Gun) || !bIsPlayerADS || WheelAxis == 0.f) 
+	if (!CurrentWeapon)
 		return;
 
-	if (!Gun->GetUseScope())
-		return;
-
-	if (!IsValid(Gun->GetScopeActor()))
-		return;
-
-	CurrentScopeIndex = Gun->GetScopeActor()->Zoom(WheelAxis);
-
-	if (CurrentScopeIndex >= MouseSensitivityWhenScope.Num())
-		return;
-
-	Player->ChangeMouseSensitivity(MouseSensitivityWhenScope[CurrentScopeIndex]);
+	CurrentWeapon->TertiaryAction(WheelAxis);
 }
 #pragma endregion 
 
@@ -144,44 +92,44 @@ void UWeaponHandlerComponent::SelectWeaponFromQuickInventory(int32 HandNumber)
 	if (!bCanChangeWeapon|| bIsPlayerADS)
 		return;
 
-	const bool bDrawGunAccordingToHandNumber = Player->GetWeaponInventoryComponent()->GetWeaponFromStorage(HandNumber, Gun);
+	const bool bDrawWeaponAccordingToHandNumber = Player->GetWeaponInventoryComponent()->GetWeaponFromStorage(HandNumber, CurrentWeapon);
 
-	if (!bDrawGunAccordingToHandNumber)
+	if (!bDrawWeaponAccordingToHandNumber)
 		return;
 
 	bCanChangeWeapon = false;
 }
 
-void UWeaponHandlerComponent::DrawNewGun()
+void UWeaponHandlerComponent::DrawNewEquipedWeapon()
 {
-	if (!IsValid(Player->GetWeaponInventoryComponent()->GetCurrentGunToDraw()))
+	if (!Player->GetWeaponInventoryComponent()->GetCurrentWeaponToDraw())
 		return;
 
-	Gun = Player->GetWeaponInventoryComponent()->GetCurrentGunToDraw();
-	Gun->GetGunControlsComponent()->DrawGun();
+	CurrentWeapon = Player->GetWeaponInventoryComponent()->GetCurrentWeaponToDraw();
+	CurrentWeapon->DrawWeapon();
 }
 
-void UWeaponHandlerComponent::DropGun()
+void UWeaponHandlerComponent::DropCurrentHoldingWeapon()
 {
 	if (!bCanChangeWeapon)
 		return;
 
-	if (!IsValid(Gun))
+	if (!CurrentWeapon)
 		return;
 
-	Gun->GetGunControlsComponent()->SetDropGun(true);
+	CurrentWeapon->SetDropWeapon(true);
 	if (Player->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1)
-		Gun->GetGunControlsComponent()->PutAwayGun();
+		CurrentWeapon->PutAwayWeapon();
 	else 
-		SelectWeaponFromQuickInventory(Player->GetWeaponInventoryComponent()->GetLastWeaponSlotFromStorage(Gun));
+		SelectWeaponFromQuickInventory(Player->GetWeaponInventoryComponent()->GetLastWeaponSlotFromStorage(CurrentWeapon));
 }
 
-void UWeaponHandlerComponent::HideCurrentHoldingGun()
+void UWeaponHandlerComponent::HideCurrentHoldingWeapon()
 {
-	if (!IsValid(Gun))
+	if (!CurrentWeapon)
 		return;
 
-	Gun->GetGunControlsComponent()->HideGun();
+	CurrentWeapon->HideWeapon();
 }
 #pragma endregion 
 

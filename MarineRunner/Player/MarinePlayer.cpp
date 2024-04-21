@@ -121,25 +121,27 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	//Gun
-	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::Shoot);
-	PlayerInputComponent->BindAction(TEXT("Shoot"), IE_Released, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::ReleasedShoot);
-	PlayerInputComponent->BindAction(TEXT("Reload"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::Reload);
+	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::PrimaryAction);
+	PlayerInputComponent->BindAction(TEXT("PrimaryAction"), IE_Released, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::ReleasedPrimaryAction);
 
-	PlayerInputComponent->BindAxis(TEXT("Zoom"), WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::Zoom);
+	PlayerInputComponent->BindAction(TEXT("SecondaryAction"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SecondaryAction);
+	PlayerInputComponent->BindAction(TEXT("SecondaryAction"), IE_Released, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::ReleasedSecondaryAction);
+	
+	PlayerInputComponent->BindAxis(TEXT("TertiaryAction"), WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::TertiaryAction);
+
+	PlayerInputComponent->BindAction(TEXT("ActionFromKey_One"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::ActionFromKey_One);
+
+	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::DropCurrentHoldingWeapon);
+
+	//Weapon Inventory
+	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("First_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 1);
+	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Second_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 2);
+
 
 	PlayerInputComponent->BindAction(TEXT("FirstAidKit"), IE_Pressed, this, &AMarineCharacter::UseFirstAidKit);
 
 	PlayerInputComponent->BindAxis(TEXT("Forward"), this, &AMarineCharacter::Forward);
 	PlayerInputComponent->BindAxis(TEXT("Right"), this, &AMarineCharacter::Right);
-
-	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::ADSPressed);
-	PlayerInputComponent->BindAction(TEXT("ADS"), IE_Released, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::ADSReleased);
-	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::DropGun);
-
-	//Weapon Inventory
-	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("First_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 1);
-	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Second_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 2);
 
 	//Take
 	PlayerInputComponent->BindAction(TEXT("Take"), IE_Pressed, this, &AMarineCharacter::TakePressed);
@@ -288,7 +290,7 @@ void AMarineCharacter::PlayFootstepsSound()
 		TimeToPlayNextStep = WallrunTimeBetweenNextStep;
 
 		if (IsValid(FootstepsWallrunSound))
-			UGameplayStatics::SpawnSoundAttached(FootstepsWallrunSound, CapsulePawn);
+			UGameplayStatics::PlaySound2D(GetWorld(), FootstepsWallrunSound);
 		else
 			UE_LOG(LogTemp, Warning, TEXT("Footsteps Wallrun Sound is nullptr in MarinePlayer!"));
 	}
@@ -297,14 +299,14 @@ void AMarineCharacter::PlayFootstepsSound()
 		TimeToPlayNextStep = CrouchTimeBetweenNextStep;
 
 		if (IsValid(FootstepsCrouchSound))
-			UGameplayStatics::SpawnSoundAttached(FootstepsCrouchSound, CapsulePawn);
+			UGameplayStatics::SpawnSoundAttached(FootstepsCrouchSound, GroundLocationSceneComponent);
 		else
 			UE_LOG(LogTemp, Warning, TEXT("Footsteps Crouch Sound is nullptr in MarinePlayer!"));
 	}
 	else
 	{
 		if (IsValid(FootstepsSound))
-			UGameplayStatics::SpawnSoundAttached(FootstepsSound, CapsulePawn);
+			UGameplayStatics::SpawnSoundAttached(FootstepsSound, GroundLocationSceneComponent);
 		else
 			UE_LOG(LogTemp, Warning, TEXT("Footsteps Sound is nullptr in MarinePlayer!"));
 	}

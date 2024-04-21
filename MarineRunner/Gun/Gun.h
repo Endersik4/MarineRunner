@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MarineRunner/Gun/Bullet/BulletData.h"
+#include "MarineRunner/Player/Interfaces/WeaponInterface.h"
 #include "Gun.generated.h"
 
 UENUM(BlueprintType)
@@ -36,7 +37,7 @@ struct FWeaponAnimation
 };
 
 UCLASS()
-class MARINERUNNER_API AGun : public AActor
+class MARINERUNNER_API AGun : public AActor, public IWeaponInterface
 {
 	GENERATED_BODY()
 	
@@ -48,6 +49,20 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void DrawWeapon() override;
+	virtual void TakeWeapon(class AMarineCharacter* Player, bool bWasOnceTaken, int32 CurrentMagazineCapacityToLoad)override;
+	virtual void PutAwayWeapon() override;
+	virtual void SetDropWeapon(bool bDrop) override;
+	virtual void HideWeapon() override;
+	virtual void PrimaryAction() override;
+	virtual void ReleasedPrimaryAction() override;
+	virtual void SecondaryAction() override;
+	virtual void ReleasedSecondaryAction() override;
+	virtual void TertiaryAction(float Value) override;
+	virtual void ActionFromKey_One() override;
+	virtual void UpdateWeaponHudInformation() override;
+	virtual FString GetPathToWeaponClass() override;
+	virtual int32 GetIntValueToSave() override;
 public:	
 
 	void Shoot();
@@ -133,6 +148,12 @@ private:
 		float WeaponSwayInADSDivider = 3.5f;
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|ADS")
 		float WeaponSwayWhileMovingInADSDivider = 3.5f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|ADS")
+		float MovementForceDividerWhenInADS = 1.5f;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|ADS|Sounds")
+		TObjectPtr<USoundBase> ADSInSound = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|ADS|Sounds")
+		TObjectPtr<USoundBase> ADSOutSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|ADS|Animations")
 		FWeaponAnimation WeaponADSInAnim = FWeaponAnimation();;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|ADS|Animations")
@@ -169,6 +190,8 @@ private:
 
 	// Scope
 	void SetUpZoom();
+	UPROPERTY(Transient)
+		int32 CurrentScopeIndex = 0;
 	UPROPERTY(Transient)
 		TObjectPtr<class AScope> ScopeActor = nullptr;
 
