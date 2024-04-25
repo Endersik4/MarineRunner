@@ -45,13 +45,13 @@ void UGunControlsComponent::TakeGun(TObjectPtr<AMarineCharacter> NewPlayer, bool
 	if (IsValid(Player->GetWeaponInventoryComponent()))
 	{
 		Player->GetWeaponInventoryComponent()->SetWeaponFromInventory(nullptr);
-		Player->GetWeaponInventoryComponent()->AddNewWeaponToStorage(Gun);
+		//Player->GetWeaponInventoryComponent()->AddNewWeaponToStorage(Gun);
 	}
 	if (IsValid(Player->GetWeaponHandlerComponent()))
 	{
 		Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(false);
 		Player->GetWeaponHandlerComponent()->HideCurrentHoldingWeapon();
-		Player->GetWeaponHandlerComponent()->SetWeapon(Gun);
+		//Player->GetWeaponHandlerComponent()->SetWeapon(Gun);
 	}
 	if (IsValid(Player->GetHudWidget()))
 	{
@@ -83,7 +83,7 @@ void UGunControlsComponent::DrawGun()
 	Gun->PlayGivenWeaponWithArmsAnimation(WeaponDrawAnim);
 
 	if (IsValid(Player->GetWeaponHandlerComponent()))
-		Player->GetWeaponHandlerComponent()->SetWeapon(Gun);
+		//Player->GetWeaponHandlerComponent()->SetWeapon(Gun);
 	if (IsValid(Player->GetHudWidget()))
 		Player->GetHudWidget()->ShowWeaponOnHud();
 
@@ -157,7 +157,7 @@ void UGunControlsComponent::DropGun()
 	if (!IsValid(ItemToSpawnAfterDropGun))
 		return;
 
-	Player->GetWeaponInventoryComponent()->RemoveWeaponFromStorage(Gun);
+	//Player->GetWeaponInventoryComponent()->RemoveWeaponFromStorage(Gun);
 
 	if (IsValid(DropGunSound))
 		UGameplayStatics::PlaySound2D(GetWorld(), DropGunSound);

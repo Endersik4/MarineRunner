@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "MarineRunner/Gun/Bullet/BulletData.h"
+#include "MarineRunner/Weapon/WeaponBase.h"
 #include "MarineRunner/Player/Interfaces/WeaponInterface.h"
 #include "Gun.generated.h"
 
@@ -13,27 +14,6 @@ enum EStatusOfAimedGun
 {
 	ESAG_ADS UMETA(DisplayName = "ADS"),
 	ESAG_HipFire UMETA(DisplayName = "Hip-Fire"),
-};
-
-USTRUCT(BlueprintType)
-struct FWeaponAnimation
-{
-	GENERATED_USTRUCT_BODY();
-
-	UPROPERTY(EditAnywhere)
-		UAnimationAsset* WeaponActionAnim;
-	UPROPERTY(EditAnywhere)
-		UAnimationAsset* ArmsActionAnim;
-
-	FWeaponAnimation()
-	{
-		WeaponActionAnim = nullptr;
-		ArmsActionAnim = nullptr;
-	}
-
-	FORCEINLINE bool IsWeaponAnimationValid() const {
-		return WeaponActionAnim && ArmsActionAnim;
-	}
 };
 
 UCLASS()

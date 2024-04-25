@@ -6,7 +6,7 @@
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Inventory/WeaponInventoryComponent.h"
 #include "MarineRunner/Player/MarinePlayerController.h"
-#include "MarineRunner/Player/Interfaces/WeaponInterface.h"
+#include "MarineRunner/Weapon/WeaponBase.h"
 
 // Sets default values for this component's properties
 UWeaponHandlerComponent::UWeaponHandlerComponent()
@@ -31,7 +31,7 @@ void UWeaponHandlerComponent::BeginPlay()
 #pragma region ////////////////////////////////// GUN //////////////////////////////////
 void UWeaponHandlerComponent::PrimaryAction()
 {
-	if (!CurrentWeapon)
+	if (!IsValid(CurrentWeapon))
 		return;
 
 	CurrentWeapon->PrimaryAction();
@@ -39,7 +39,7 @@ void UWeaponHandlerComponent::PrimaryAction()
 
 void UWeaponHandlerComponent::ReleasedPrimaryAction()
 {
-	if (!CurrentWeapon)
+	if (!IsValid(CurrentWeapon))
 		return;
 
 	CurrentWeapon->ReleasedPrimaryAction();
@@ -47,7 +47,7 @@ void UWeaponHandlerComponent::ReleasedPrimaryAction()
 
 void UWeaponHandlerComponent::ActionFromKey_One()
 {
-	if (!CurrentWeapon)
+	if (!IsValid(CurrentWeapon))
 		return;
 
 	CurrentWeapon->ActionFromKey_One();
@@ -55,7 +55,7 @@ void UWeaponHandlerComponent::ActionFromKey_One()
 
 void UWeaponHandlerComponent::SecondaryAction()
 {
-	if (!CurrentWeapon)
+	if (!IsValid(CurrentWeapon))
 		return;
 
 	CurrentWeapon->SecondaryAction();
@@ -63,7 +63,7 @@ void UWeaponHandlerComponent::SecondaryAction()
 
 void UWeaponHandlerComponent::ReleasedSecondaryAction()
 {
-	if (!CurrentWeapon)
+	if (!IsValid(CurrentWeapon))
 		return;
 
 	CurrentWeapon->ReleasedSecondaryAction();
@@ -71,7 +71,7 @@ void UWeaponHandlerComponent::ReleasedSecondaryAction()
 
 void UWeaponHandlerComponent::UpdateWeaponInformationOnHud()
 {
-	if (!CurrentWeapon)
+	if (!IsValid(CurrentWeapon))
 		return;
 
 	CurrentWeapon->UpdateWeaponHudInformation();
@@ -79,7 +79,7 @@ void UWeaponHandlerComponent::UpdateWeaponInformationOnHud()
 
 void UWeaponHandlerComponent::TertiaryAction(float WheelAxis)
 {
-	if (!CurrentWeapon)
+	if (!IsValid(CurrentWeapon))
 		return;
 
 	CurrentWeapon->TertiaryAction(WheelAxis);
@@ -89,7 +89,7 @@ void UWeaponHandlerComponent::TertiaryAction(float WheelAxis)
 #pragma region ////////////////////// EQUIP WEAPON FROM INVENTORY //////////////////////
 void UWeaponHandlerComponent::SelectWeaponFromQuickInventory(int32 HandNumber)
 {
-	if (!bCanChangeWeapon|| bIsPlayerADS)
+	if (!bCanChangeWeapon || bIsPlayerADS)
 		return;
 
 	const bool bDrawWeaponAccordingToHandNumber = Player->GetWeaponInventoryComponent()->GetWeaponFromStorage(HandNumber, CurrentWeapon);
@@ -114,7 +114,7 @@ void UWeaponHandlerComponent::DropCurrentHoldingWeapon()
 	if (!bCanChangeWeapon)
 		return;
 
-	if (!CurrentWeapon)
+	if (!IsValid(CurrentWeapon))
 		return;
 
 	CurrentWeapon->SetDropWeapon(true);
@@ -126,7 +126,7 @@ void UWeaponHandlerComponent::DropCurrentHoldingWeapon()
 
 void UWeaponHandlerComponent::HideCurrentHoldingWeapon()
 {
-	if (!CurrentWeapon)
+	if (!IsValid(CurrentWeapon))
 		return;
 
 	CurrentWeapon->HideWeapon();

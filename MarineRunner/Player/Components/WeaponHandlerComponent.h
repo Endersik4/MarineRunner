@@ -8,7 +8,7 @@
 
 #include "WeaponHandlerComponent.generated.h"
 
-
+class AWeaponBase;
 DECLARE_DELEGATE_OneParam(FSelectWeaponDelegate, int32);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -29,7 +29,7 @@ public:
 	FORCEINLINE bool GetIsPlayerInAds() const { return bIsPlayerADS; }
 	FORCEINLINE const TArray<FSettingSavedInJsonFile> & GetMouseSensitivityWhenScope() const { return MouseSensitivityWhenScope; }
 
-	FORCEINLINE void SetWeapon(class IWeaponInterface* NewGun) { CurrentWeapon = NewGun; }
+	FORCEINLINE void SetWeapon(TObjectPtr<AWeaponBase> NewGun) { CurrentWeapon = NewGun; }
 	FORCEINLINE void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
 	FORCEINLINE void SetIsPlayerInAds(bool bIs) { bIsPlayerADS = bIs; }
 
@@ -60,8 +60,8 @@ private:
 		FSettingSavedInJsonFile("MouseSensitivity8x", 0.05f),
 	};
 
-	//UPROPERTY(Transient)
-		class IWeaponInterface* CurrentWeapon = nullptr;
+	UPROPERTY(Transient)
+		TObjectPtr<AWeaponBase> CurrentWeapon = nullptr;
 
 	UPROPERTY(Transient)
 		bool bIsPlayerADS = false;

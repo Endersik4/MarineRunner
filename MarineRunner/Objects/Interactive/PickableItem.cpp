@@ -10,7 +10,7 @@
 #include "MarineRunner/Player/Inventory/WeaponInventoryComponent.h"
 #include "MarineRunner/Player/Widgets/HUDWidget.h"
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
-#include "MarineRunner/Player/Interfaces/WeaponInterface.h"
+#include "MarineRunner/Weapon/WeaponBase.h"
 #include "MarineRunner/Objects/Components/SoundOnHitComponent.h"
 
 APickupItem::APickupItem()
@@ -127,11 +127,11 @@ void APickupItem::SpawnWeaponForPlayer(TObjectPtr<class AMarineCharacter> Player
 		return;
 
 	const FTransform& WeaponTransform = FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f));
-	IWeaponInterface* SpawnedWeapon = GetWorld()->SpawnActor<IWeaponInterface>(ItemDataFromDataTable->WeaponClass.TryLoadClass<UObject>(), WeaponTransform);
+	TObjectPtr<AWeaponBase> SpawnedWeapon = GetWorld()->SpawnActor<AWeaponBase>(ItemDataFromDataTable->WeaponClass.TryLoadClass<UObject>(), WeaponTransform);
 	if (!SpawnedWeapon)
 		return;
 
-	SpawnedWeapon->TakeWeapon(Player, bWasOnceTaken, CurrentMagazineCapacity);
+	SpawnedWeapon->PickUpWeaponItem(Player, bWasOnceTaken, CurrentMagazineCapacity);
 }
 #pragma endregion
 

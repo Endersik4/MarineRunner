@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "WeaponInventoryComponent.generated.h"
 
+class AWeaponBase;
+
 /// <summary>
 /// A Component that will storage weapons in order that was taken.
 /// Max amount of items can be customizable
@@ -27,19 +29,19 @@ public:
 
 	bool CanPlayerTakeWeaponToInventory() const;
 	FORCEINLINE int32 GetCurrentAmountOfWeapons() const { return WeaponsStorage.Num(); }
-	FORCEINLINE void SetWeaponFromInventory(class IWeaponInterface* NewWeapon) { WeaponFromSlot = NewWeapon; }
+	FORCEINLINE void SetWeaponFromInventory(TObjectPtr<AWeaponBase> NewWeapon) { WeaponFromSlot = NewWeapon; }
 
-	void AddNewWeaponToStorage(class IWeaponInterface* NewGun);
+	void AddNewWeaponToStorage(TObjectPtr<AWeaponBase> NewGun);
 
 	//Removing weapon from Storage and sorting the rest of weapons
-	void RemoveWeaponFromStorage(class IWeaponInterface* EquipedGun);
+	void RemoveWeaponFromStorage(TObjectPtr<AWeaponBase> EquipedGun);
 
 	//Get Weapon from Storage. If There is no KeyForWeapon as key in WeaponStorage then return CurrentWeapon equiped by Player. If found then Put away old weapon
 	//@return true if new gun was found, false when player tried draw the same weapon
-	bool GetWeaponFromStorage(int32 KeyForWeapon, class IWeaponInterface* CurrentWeapon);
+	bool GetWeaponFromStorage(int32 KeyForWeapon, TObjectPtr<AWeaponBase> CurrentWeapon);
 
-	class IWeaponInterface* GetCurrentWeaponToDraw();
-	int32 GetLastWeaponSlotFromStorage(class IWeaponInterface* ValueToIgnore);
+	TObjectPtr<AWeaponBase> GetCurrentWeaponToDraw();
+	int32 GetLastWeaponSlotFromStorage(TObjectPtr<AWeaponBase> ValueToIgnore);
 
 	// Copy Current Equiped Weapons to Weapons To Load To Inventory, its for saving 
 	void WeaponStorageToInitialWeaponInventory();
@@ -55,11 +57,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
 		int32 MaxAmountOfWeapons = 2;
 
-	//UPROPERTY(Transient)
 	// inventory for current equiped weapons 
-		TMap < int32, class IWeaponInterface* > WeaponsStorage;
-	//UPROPERTY(Transient)
-		class IWeaponInterface* WeaponFromSlot = nullptr;
+	UPROPERTY(Transient)
+		TMap < int32, TObjectPtr<AWeaponBase> > WeaponsStorage;
+	UPROPERTY(Transient)
+		TObjectPtr<AWeaponBase> WeaponFromSlot = nullptr;
 
 	void LoadWeapons();
 

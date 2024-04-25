@@ -3,7 +3,7 @@
 #include "WeaponInventoryComponent.h"
 
 #include "MarineRunner/Player/MarinePlayer.h"
-#include "MarineRunner/Player/Interfaces/WeaponInterface.h"
+#include "MarineRunner/Weapon/WeaponBase.h"
 
 // Sets default values for this component's properties
 UWeaponInventoryComponent::UWeaponInventoryComponent()
@@ -41,24 +41,24 @@ void UWeaponInventoryComponent::LoadWeapons()
 		if (!GunClassPath.TryLoadClass<UObject>())
 			continue;
 
-		IWeaponInterface* SpawnedWeapon = GetWorld()->SpawnActor<IWeaponInterface>(GunClassPath.TryLoadClass<UObject>(), FTransform(FRotator(0.f), FVector(0.f), FVector(1.f)));
+		TObjectPtr<AWeaponBase> SpawnedWeapon = GetWorld()->SpawnActor<AWeaponBase>(GunClassPath.TryLoadClass<UObject>(), FTransform(FRotator(0.f), FVector(0.f), FVector(1.f)));
 		if (!SpawnedWeapon)
 			continue;
 
-		SpawnedWeapon->TakeWeapon(MarinePawn, true, CurrentPair.Key);
+		SpawnedWeapon->PickUpWeaponItem(MarinePawn, true, CurrentPair.Key);
 	}
 }
 
-void UWeaponInventoryComponent::AddNewWeaponToStorage(IWeaponInterface* NewGun)
+void UWeaponInventoryComponent::AddNewWeaponToStorage(TObjectPtr<AWeaponBase> NewGun)
 {
-	if (!NewGun)
+	if (!IsValid(NewGun))
 		return;
 
 	const int32& WeaponNumber = WeaponsStorage.Num() + 1;
 	WeaponsStorage.Add(WeaponNumber, NewGun);
 }
 
-void UWeaponInventoryComponent::RemoveWeaponFromStorage(IWeaponInterface* EquipedGun)
+void UWeaponInventoryComponent::RemoveWeaponFromStorage(TObjectPtr<AWeaponBase> EquipedGun)
 {
 	const int32& KeyForEquipedGun = *WeaponsStorage.FindKey(EquipedGun);
 	WeaponsStorage.Remove(KeyForEquipedGun);
@@ -66,9 +66,9 @@ void UWeaponInventoryComponent::RemoveWeaponFromStorage(IWeaponInterface* Equipe
 	SortWeapons();
 }
 
-bool UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, IWeaponInterface* CurrentWeapon)
+bool UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, TObjectPtr<AWeaponBase> CurrentWeapon)
 {
-	if (!CurrentWeapon)
+	if (!IsValid(CurrentWeapon))
 		return false;
 
 	if (!WeaponsStorage.Find(KeyForWeapon)) 
@@ -81,12 +81,12 @@ bool UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, IWeapon
 	return true;
 }
 
-IWeaponInterface* UWeaponInventoryComponent::GetCurrentWeaponToDraw()
+TObjectPtr<AWeaponBase> UWeaponInventoryComponent::GetCurrentWeaponToDraw()
 {
 	return WeaponFromSlot;
 }
 
-int32 UWeaponInventoryComponent::GetLastWeaponSlotFromStorage(IWeaponInterface* ValueToIgnore)
+int32 UWeaponInventoryComponent::GetLastWeaponSlotFromStorage(TObjectPtr<AWeaponBase> ValueToIgnore)
 {
 	TArray<int32> AllWeaponInventorySlots;
 	WeaponsStorage.GenerateKeyArray(AllWeaponInventorySlots);
@@ -104,7 +104,7 @@ int32 UWeaponInventoryComponent::GetLastWeaponSlotFromStorage(IWeaponInterface* 
 
 void UWeaponInventoryComponent::SortWeapons()
 {
-	TArray<IWeaponInterface* > Weapons;
+	TArray<TObjectPtr<AWeaponBase> > Weapons;
 	WeaponsStorage.GenerateValueArray(Weapons);
 	WeaponsStorage.Empty();
 	for (int32 i = 1; i <= Weapons.Num(); i++)
@@ -116,7 +116,7 @@ void UWeaponInventoryComponent::SortWeapons()
 void UWeaponInventoryComponent::WeaponStorageToInitialWeaponInventory()
 {
 	WeaponsToLoadToInventory.Empty();
-	for (const TPair<int32, IWeaponInterface* > CurrentPair : WeaponsStorage)
+	for (const TPair<int32, TObjectPtr<AWeaponBase> > CurrentPair : WeaponsStorage)
 	{
 		WeaponsToLoadToInventory.Add(CurrentPair.Value->GetIntValueToSave(), CurrentPair.Value->GetPathToWeaponClass());
 	}
