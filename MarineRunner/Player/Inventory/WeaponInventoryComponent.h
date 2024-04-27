@@ -47,24 +47,27 @@ public:
 	void WeaponStorageToInitialWeaponInventory();
 	void StartTimerForSpawnNewWeapons();
 
-	// int32 - MAgazine Capacity, FString - Path to Class to spawn
+	// int32 - MAgazine Capacity, FSoftClassPath - Path to Class to spawn
 	// Weapons Inventory to Load to the WeaponsStorage
 	UPROPERTY(EditAnywhere, Category = "Weapon Inventory Settings Settings")
-		TMap<int32, FString> WeaponsToLoadToInventory;
+		TMap<int32, FSoftClassPath> WeaponsToLoadToInventory;
 
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
 		int32 MaxAmountOfWeapons = 2;
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
+		float TimeToSpawnWeaponsFromInventory = 0.02f;
 
 	// inventory for current equiped weapons 
 	UPROPERTY(Transient)
 		TMap < int32, TObjectPtr<AWeaponBase> > WeaponsStorage;
+	// Current equiped weapon
 	UPROPERTY(Transient)
 		TObjectPtr<AWeaponBase> WeaponFromSlot = nullptr;
 
 	void LoadWeapons();
 
-	// Sort Weapons Storage in ascending order
+	// When a weapon is removed from the inventory, the SortWeapons() function corrects the order of the weapons, e.g. the weapon from slot 1 was removed, and then the weapon from slot 2 was moved to slot 1.
 	void SortWeapons();
 };

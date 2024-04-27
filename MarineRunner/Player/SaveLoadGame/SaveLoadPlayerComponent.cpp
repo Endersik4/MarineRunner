@@ -17,7 +17,7 @@
 #include "MarineRunner/Albertos/AlbertosPawn.h"
 #include "MarineRunner/Albertos/Components/PlayerIsNearAlbertosComponent.h"
 #include "MarineRunner/Enemies/TypesOfEnemy/Base/EnemyBasePawn.h"
-#include "MarineRunner/Gun/Gun.h"
+#include "MarineRunner/Weapon/Gun/Gun.h"
 
 // Sets default values for this component's properties
 USaveLoadPlayerComponent::USaveLoadPlayerComponent()

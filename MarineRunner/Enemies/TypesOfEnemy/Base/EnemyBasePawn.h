@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "MarineRunner/Interfaces/DamageInterface.h"
-#include "MarineRunner/Gun/Bullet/BulletData.h"
+#include "MarineRunner/Weapon/Gun/Bullet/BulletData.h"
 #include "MarineRunner/Enemies/Interfaces/EnemyGunInterface.h"
 #include "MarineRunner/Player/SaveLoadGame/SaveCustomDataInterface.h"
 

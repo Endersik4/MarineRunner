@@ -1,8 +1,8 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-#include "MarineRunner/Gun/Components/DropCasingComponent.h"
+#include "DropCasingComponent.h"
 
-#include "MarineRunner/Gun/Gun.h"
+#include "MarineRunner/Weapon/Gun/Gun.h"
 
 UDropCasingComponent::UDropCasingComponent()
 {
@@ -32,7 +32,7 @@ void UDropCasingComponent::DropCasing()
 {
 	if (!IsValid(DropBulletClass) || !IsValid(Gun))
 		return;
-	if (!IsValid(Gun->GetGunSkeletalMesh()))
+	if (!IsValid(Gun->GetWeaponSkeletalMesh()))
 		return;
 
 	FRotator DropBulletRotation = Gun->GetActorRotation();
@@ -43,7 +43,7 @@ void UDropCasingComponent::DropCasing()
 		DropBulletRotation.Yaw += FMath::FRandRange(RandomCasingRotation_Yaw.GetLowerBoundValue(), RandomCasingRotation_Yaw.GetUpperBoundValue());
 	}
 
-	TObjectPtr<AActor> DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, Gun->GetGunSkeletalMesh()->GetSocketLocation(SocketNameLocationToSpawnCasing), DropBulletRotation);
+	TObjectPtr<AActor> DropBullet = GetWorld()->SpawnActor<AActor>(DropBulletClass, Gun->GetWeaponSkeletalMesh()->GetSocketLocation(SocketNameLocationToSpawnCasing), DropBulletRotation);
 	if (!IsValid(DropBullet))
 		return;
 

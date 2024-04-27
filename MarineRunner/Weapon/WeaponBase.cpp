@@ -4,6 +4,7 @@
 #include "MarineRunner/Weapon/WeaponBase.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Camera/CameraComponent.h"
 
 #include "MarineRunner/Player/MarinePlayer.h"
@@ -158,26 +159,26 @@ void AWeaponBase::DropWeapon()
 
 	const FVector& LocationToSpawnWeaponItem = Player->GetCameraLocation() + Player->GetCamera()->GetForwardVector() * DistanceToDropWeapon;
 	const FTransform& WeaponItemTransform = FTransform(FRotator(0.f), LocationToSpawnWeaponItem);
-	TObjectPtr<APickupItem> SpawnedWeaponItem = GetWorld()->SpawnActorDeferred<APickupItem>(ItemToSpawnAfterDrop, WeaponItemTransform);
+	SpawnedDroppedWeaponItem = GetWorld()->SpawnActorDeferred<APickupItem>(ItemToSpawnAfterDrop, WeaponItemTransform);
 
-	if (IsValid(SpawnedWeaponItem))
+	if (IsValid(SpawnedDroppedWeaponItem))
 	{
-		SpawnedWeaponItem->SetCurrentMagazineCapacity(0);
-		SpawnedWeaponItem->SetItemWasOnceTaken(true);
-		SpawnedWeaponItem->SaveItemIfSpawnedRunTime();
-		SpawnedWeaponItem->FinishSpawning(WeaponItemTransform);
+		SpawnedDroppedWeaponItem->SetSavedValue(0);
+		SpawnedDroppedWeaponItem->SetItemWasOnceTaken(true);
+		SpawnedDroppedWeaponItem->SaveItemIfSpawnedRunTime();
+		SpawnedDroppedWeaponItem->FinishSpawning(WeaponItemTransform);
 	}
 
-	FItemStruct* WeaponInformation = Player->GetInventoryComponent()->GetItemInformationFromDataTable(SpawnedWeaponItem->GetItemRowName());
+	FItemStruct* WeaponInformation = Player->GetInventoryComponent()->GetItemInformationFromDataTable(SpawnedDroppedWeaponItem->GetItemRowName());
 	if (WeaponInformation)
 		Player->GetInventoryComponent()->Inventory_Items.Remove(*WeaponInformation);
 
 	Player->UpdateAlbertosInventory(true);
-	Destroy();
 }
 
 void AWeaponBase::PrimaryAction()
 {
+	
 }
 
 void AWeaponBase::ReleasedPrimaryAction()
@@ -200,7 +201,7 @@ void AWeaponBase::ActionFromKey_One()
 {
 }
 
-void AWeaponBase::UpdateWeaponHudInformation()
+void AWeaponBase::UpdateWeaponHudInformation(bool bUpdateStoredAmmoText, bool bUpdateWeaponImage)
 {
 }
 

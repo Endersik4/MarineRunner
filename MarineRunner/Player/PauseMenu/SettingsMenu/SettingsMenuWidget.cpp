@@ -322,7 +322,7 @@ void USettingsMenuWidget::LoadSavedSettingsToPlayer()
 	if (!IsValid(Player))
 		return;
 
-	Player->GetWeaponHandlerComponent()->LoadSavedSettingsFromGameInstance();
+	Player->GetWeaponHandlerComponent()->LoadSavedMouseSensitivities();
 	Player->LoadFieldOfViewFromSettings();
 }
 

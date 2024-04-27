@@ -33,7 +33,7 @@ protected:
 
 	virtual void ActionFromKey_One() override;
 
-	virtual void UpdateWeaponHudInformation() override;
+	virtual void UpdateWeaponHudInformation(bool bUpdateStoredAmmoText = false, bool bUpdateWeaponImage = false) override;
 	virtual int32 GetIntValueToSave() override;
 
 public:	

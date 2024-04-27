@@ -3,10 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "MarineRunner/Gun/Bullet/BulletData.h"
+#include "MarineRunner/Weapon/Gun/Bullet/BulletData.h"
 #include "MarineRunner/Weapon/WeaponBase.h"
-#include "MarineRunner/Player/Interfaces/WeaponInterface.h"
 #include "Gun.generated.h"
 
 UENUM(BlueprintType)
@@ -17,7 +15,7 @@ enum EStatusOfAimedGun
 };
 
 UCLASS()
-class MARINERUNNER_API AGun : public AActor, public IWeaponInterface
+class MARINERUNNER_API AGun : public AWeaponBase
 {
 	GENERATED_BODY()
 	
@@ -29,63 +27,61 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void PickUpWeaponItem(class AMarineCharacter* PlayerWhoTook, bool bWasOnceItemTaken, int32 ValueToLoad) override;
+
 	virtual void DrawWeapon() override;
-	virtual void TakeWeapon(class AMarineCharacter* Player, bool bWasOnceTaken, int32 CurrentMagazineCapacityToLoad)override;
 	virtual void PutAwayWeapon() override;
-	virtual void SetDropWeapon(bool bDrop) override;
 	virtual void HideWeapon() override;
+	virtual void DropWeapon() override;
+
+	// Start Shooting
 	virtual void PrimaryAction() override;
+	// Stop Shooting
 	virtual void ReleasedPrimaryAction() override;
+	// Begin Ads
 	virtual void SecondaryAction() override;
+	// End Ads
 	virtual void ReleasedSecondaryAction() override;
+	// Zoom (if possible)
 	virtual void TertiaryAction(float Value) override;
+	// Reload
 	virtual void ActionFromKey_One() override;
-	virtual void UpdateWeaponHudInformation() override;
-	virtual FString GetPathToWeaponClass() override;
+	// Get Current Magazine Capacity
 	virtual int32 GetIntValueToSave() override;
 public:	
+	virtual void UpdateWeaponHudInformation(bool bUpdateStoredAmmoText = false, bool bUpdateWeaponImage = false) override;
+	struct FItemStruct* GetAmmunitionFromInventory() const;
 
-	void Shoot();
 	void ShootReleased();
-	void SetCanShootAgain();
-
-	void CancelShoot();
 
 	FORCEINLINE void SetCanShoot(bool bCan) { bCanShoot = bCan; }
-	FORCEINLINE void SetShootButtonPressed(bool bPressed) { bShootButtonPressed = bPressed; }
 	FORCEINLINE void SetConstantlyShoot(bool bNewConstantlyShoot) { bConstantlyShoot = bNewConstantlyShoot; }
-	FORCEINLINE void SetPlayer(TObjectPtr<class AMarineCharacter> NewPlayer) { Player = NewPlayer; }
 
 	FORCEINLINE const bool GetCanShoot() const { return bCanShoot; }
 	FORCEINLINE float GetShootTime() const { return ShootTime; }
 	FORCEINLINE EStatusOfAimedGun GetStatusOfGun() const { return StatusOfGun; }
 
-	FORCEINLINE bool GetUseScope() const { return bUseScope; }
-	FORCEINLINE TObjectPtr<class AScope> GetScopeActor() const { return ScopeActor; }
-
-	FORCEINLINE TObjectPtr<USkeletalMeshComponent> GetGunSkeletalMesh() const { return GunSkeletalMesh; }
-	FORCEINLINE TObjectPtr<class UGunControlsComponent> GetGunControlsComponent() const { return GunControlsComponent; }
 	FORCEINLINE TObjectPtr<class UGunReloadComponent> GetGunReloadComponent() const { return GunReloadComponent; }
 	FORCEINLINE TObjectPtr<class AMarineCharacter> GetPlayer() const { return Player; }
 
 	void AimTheGun(EStatusOfAimedGun NewGundStatus);
-
-	void PlayGivenWeaponWithArmsAnimation(const FWeaponAnimation& AnimToPlay) const;
-
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<USkeletalMeshComponent> GunSkeletalMesh = nullptr;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		TObjectPtr<class UGunRecoilComponent> GunRecoilComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		TObjectPtr<class UDropCasingComponent> DropCasingComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UGunControlsComponent> GunControlsComponent = nullptr;
-	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 		TObjectPtr<class UGunReloadComponent> GunReloadComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
 		FBulletStruct BulletData = FBulletStruct();
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		bool bAutomaticGun = false;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
+		bool bManyBulletsPerShoot = false;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun", meta = (EditCondition = "bManyBulletsPerShoot", EditConditionHides))
+		int32 BulletsAmountPerShoot = 10;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Shoot")
 		float ShootTime = 1.f;
@@ -110,12 +106,19 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Shoot|Particles")
 		float ShootParticleScale = 1.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		bool bAutomaticGun = false;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun")
-		bool bManyBulletsPerShoot = false;
-	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun", meta = (EditCondition = "bManyBulletsPerShoot", EditConditionHides))
-		int32 BulletsAmountPerShoot = 10;
+	//The item that is the ammunition for this weapon.
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Ammo")
+		FName RowNameForAmmunitionItem = FName();
+	//When a player picks up a weapon for the first time, StoredAmmo will be added to the inventory.
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Ammo")
+		int32 StoredAmmo = 50;
+
+	// If True then ammunition on UI will be below the Gun icon picture
+	// If False then ammunition on UI will be on the left side of the gun icon picture
+	UPROPERTY(EditAnywhere, Category = "Setting Up Gun|Hud")
+		bool bAmmoCounterBelowGunHUD = false;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Hud")
+		TObjectPtr<UTexture2D> GunHUDTexture = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Gun|Scope")
 		bool bUseScope = false;
@@ -149,9 +152,14 @@ private:
 	UPROPERTY(Transient)
 		bool bCanShoot = true;
 	bool CanShoot();
+	void Shoot();
 	void ShootFinished();
+	void SetCanShootAgain();
+	void CancelShoot();
 
 	void SpawnBullet();
+
+	void AddStoredAmmoToInventory();
 
 	// Gun Effects
 	void PlayGunShootAnimation();
@@ -174,7 +182,4 @@ private:
 		int32 CurrentScopeIndex = 0;
 	UPROPERTY(Transient)
 		TObjectPtr<class AScope> ScopeActor = nullptr;
-
-	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player = nullptr;
 };

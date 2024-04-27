@@ -1,11 +1,11 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-#include "MarineRunner/Gun/Mods/ScopeGunMod.h"
+#include "MarineRunner/Weapon/Gun/Mods/ScopeGunMod.h"
 #include "Components/SceneCaptureComponent2D.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/TextureRenderTarget2D.h"
 
-#include "MarineRunner/Gun/Gun.h"
+#include "MarineRunner/Weapon/Gun/Gun.h"
 
 // Sets default values
 AScope::AScope()
@@ -34,7 +34,7 @@ void AScope::SetUpZoomMaterial(TObjectPtr<AGun> Gun)
 	if (!IsValid(Gun))
 		return;
 
-	if (!Gun->GetGunSkeletalMesh()->GetMaterial(ZoomMaterialIndexOnWeapon))
+	if (!Gun->GetWeaponSkeletalMesh()->GetMaterial(ZoomMaterialIndexOnWeapon))
 		return;
 
 	OwningGun = Gun;
@@ -86,14 +86,14 @@ void AScope::ActiveZoom(bool bShouldActive)
 	if (bShouldActive)
 	{
 		if (ZoomRenderTargetMaterial)
-			OwningGun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomRenderTargetMaterial);
+			OwningGun->GetWeaponSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomRenderTargetMaterial);
 		else
 			UE_LOG(LogTemp, Warning, TEXT("Zoom Render Target Material is nullptr in ScopeGunMode!"));
 	}
 	else
 	{ 
 		if (ZoomNotActiveMaterial)
-			OwningGun->GetGunSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomNotActiveMaterial);
+			OwningGun->GetWeaponSkeletalMesh()->SetMaterial(ZoomMaterialIndexOnWeapon, ZoomNotActiveMaterial);
 		else
 			UE_LOG(LogTemp, Warning, TEXT("Zoom Not Active Material is nullptr in ScopeGunMode!"));
 	}

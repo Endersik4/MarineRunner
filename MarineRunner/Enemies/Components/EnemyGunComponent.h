@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "MarineRunner/Gun/Bullet/BulletData.h"
+#include "MarineRunner/Weapon/Gun/Bullet/BulletData.h"
 
 #include "EnemyGunComponent.generated.h"
 

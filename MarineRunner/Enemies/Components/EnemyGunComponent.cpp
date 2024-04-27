@@ -4,7 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "MarineRunner/Gun/Bullet/Bullet.h"
+#include "MarineRunner/Weapon/Gun/Bullet/Bullet.h"
 #include "MarineRunner/Enemies/Interfaces/EnemyGunInterface.h"
 
 UEnemyGunComponent::UEnemyGunComponent()

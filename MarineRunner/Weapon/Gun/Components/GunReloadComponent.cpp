@@ -1,9 +1,8 @@
 // Copyright Adam Bartela.All Rights Reserved
 
 
-#include "MarineRunner/Gun/Components/GunReloadComponent.h"
+#include "MarineRunner/Weapon/Gun/Components/GunReloadComponent.h"
 
-#include "MarineRunner/Gun/Components/GunControlsComponent.h"
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Components/WeaponHandlerComponent.h"
 #include "MarineRunner/Player/Inventory/InventoryComponent.h"
@@ -33,9 +32,9 @@ bool UGunReloadComponent::CanReload()
 	if (bIsReloading || GetWorld()->GetTimerManager().IsTimerActive(ReloadHandle))
 		return false;
 
-	if (!Gun->GetGunControlsComponent()->GetAmmunitionFromInventory() || MagazineCapacity == OriginalMagazineCapacity)
+	if (!Gun->GetAmmunitionFromInventory() || MagazineCapacity == OriginalMagazineCapacity)
 		return false;
-	if (Gun->GetGunControlsComponent()->GetAmmunitionFromInventory()->Item_Amount <= 0)
+	if (Gun->GetAmmunitionFromInventory()->Item_Amount <= 0)
 		return false;
 
 	if (!Gun->GetCanShoot())
@@ -67,7 +66,7 @@ void UGunReloadComponent::PrepareToReload()
 
 void UGunReloadComponent::Reload()
 {
-	FItemStruct* AmmoFromInventory = Gun->GetGunControlsComponent()->GetAmmunitionFromInventory();
+	FItemStruct* AmmoFromInventory = Gun->GetAmmunitionFromInventory();
 	if (!AmmoFromInventory)
 		return;
 
@@ -76,7 +75,7 @@ void UGunReloadComponent::Reload()
 		Gun->GetPlayer()->GetInventoryComponent()->DeleteItemFromInventory(*AmmoFromInventory);
 
 	Gun->SetCanShoot(true);
-	Gun->GetGunControlsComponent()->UpdateWeaponDataInHud(true);
+	Gun->UpdateWeaponHudInformation(true);
 
 	Gun->GetPlayer()->UpdateAlbertosInventory();
 
@@ -141,7 +140,7 @@ void UGunReloadComponent::ReloadMagazine(FItemStruct* AmmoFromInventory)
 
 EReloadType UGunReloadComponent::GetCurrentReloadTypeAccordingToSituation()
 {
-	if (CurrentReloadType == ERT_EndReload && (MagazineCapacity == OriginalMagazineCapacity - 1 || Gun->GetGunControlsComponent()->GetAmmunitionFromInventory()->Item_Amount <= 1))
+	if (CurrentReloadType == ERT_EndReload && (MagazineCapacity == OriginalMagazineCapacity - 1 || Gun->GetAmmunitionFromInventory()->Item_Amount <= 1))
 	{
 		return ERT_BeginEndReload;
 	}
@@ -149,7 +148,7 @@ EReloadType UGunReloadComponent::GetCurrentReloadTypeAccordingToSituation()
 	{
 		return ERT_BeginReload;
 	}
-	if ((CurrentReloadType == ERT_Reload || CurrentReloadType == ERT_BeginReload) && (MagazineCapacity == OriginalMagazineCapacity - 1 || Gun->GetGunControlsComponent()->GetAmmunitionFromInventory()->Item_Amount <= 1))
+	if ((CurrentReloadType == ERT_Reload || CurrentReloadType == ERT_BeginReload) && (MagazineCapacity == OriginalMagazineCapacity - 1 || Gun->GetAmmunitionFromInventory()->Item_Amount <= 1))
 	{
 		return ERT_EndReload;
 	}

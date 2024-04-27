@@ -39,7 +39,7 @@ public:
 	UPROPERTY(EditAnywhere)
 		TArray<FItemStruct> Inventory_RecipesSaved;
 	UPROPERTY(EditAnywhere)
-		TMap<int32, FString> WeaponInventory_Saved;
+		TMap<int32, FSoftClassPath> WeaponInventory_Saved;
 
 	UPROPERTY(EditAnywhere)
 		int32 SaveNumber = 0;

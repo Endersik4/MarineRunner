@@ -100,7 +100,6 @@ void USaveMarineRunner::LoadGame(TObjectPtr<AMarineCharacter> MarinePawn, TObjec
 	MarinePawn->GetInventoryComponent()->Items_Recipes = Inventory_RecipesSaved;
 
 	MarinePawn->GetWeaponInventoryComponent()->WeaponsToLoadToInventory = WeaponInventory_Saved;
-	MarinePawn->GetWeaponInventoryComponent()->StartTimerForSpawnNewWeapons();
 
 	if (!IsValid(GameInstance)) 
 		return;

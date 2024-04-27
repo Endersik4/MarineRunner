@@ -8,13 +8,11 @@
 #include "MarineRunner/Player/MarinePlayerController.h"
 #include "MarineRunner/Weapon/WeaponBase.h"
 
-// Sets default values for this component's properties
 UWeaponHandlerComponent::UWeaponHandlerComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
-// Called when the game starts
 void UWeaponHandlerComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -25,10 +23,10 @@ void UWeaponHandlerComponent::BeginPlay()
 	}
 	
 	FTimerHandle UpdateMouseSensitivitesHandle;
-	GetWorld()->GetTimerManager().SetTimer(UpdateMouseSensitivitesHandle, this, &UWeaponHandlerComponent::LoadSavedSettingsFromGameInstance, 0.05f, false);
+	GetWorld()->GetTimerManager().SetTimer(UpdateMouseSensitivitesHandle, this, &UWeaponHandlerComponent::LoadSavedMouseSensitivities, TimeToLoadMouseSensitivity, false);
 }
 
-#pragma region ////////////////////////////////// GUN //////////////////////////////////
+#pragma region ////////////////////////////////// WEAPON HANDLING //////////////////////////////////
 void UWeaponHandlerComponent::PrimaryAction()
 {
 	if (!IsValid(CurrentWeapon))
@@ -118,6 +116,7 @@ void UWeaponHandlerComponent::DropCurrentHoldingWeapon()
 		return;
 
 	CurrentWeapon->SetDropWeapon(true);
+
 	if (Player->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1)
 		CurrentWeapon->PutAwayWeapon();
 	else 
@@ -133,7 +132,7 @@ void UWeaponHandlerComponent::HideCurrentHoldingWeapon()
 }
 #pragma endregion 
 
-void UWeaponHandlerComponent::LoadSavedSettingsFromGameInstance()
+void UWeaponHandlerComponent::LoadSavedMouseSensitivities()
 {
 	if (!IsValid(Player))
 		return;
@@ -144,15 +143,20 @@ void UWeaponHandlerComponent::LoadSavedSettingsFromGameInstance()
 	if (!IsValid(GameInstance) || !IsValid(MarinePlayerController))
 		return;
 
+	// updates player's default mouse sensitivity
 	GameInstance->FindSavedValueAccordingToName(Player->GetMouseSensitivityJSON().FieldName, Player->GetMouseSensitivityJSON().FieldValue);
+	
 	const FSettingSavedInJsonFile& CurrentMouseSensName = MarinePlayerController->GetMouseSensitivity();
 
+	// If current mouse sensitivity name is the same as player's default then update mouse sensitivity value
 	if (CurrentMouseSensName == Player->GetMouseSensitivityJSON()) 
 		Player->ChangeMouseSensitivity(Player->GetMouseSensitivityJSON(), true);
 
 	for (FSettingSavedInJsonFile& CurrSetting : MouseSensitivityWhenScope)
 	{
+		// updates remaining mouse sensitivities
 		GameInstance->FindSavedValueAccordingToName(CurrSetting.FieldName, CurrSetting.FieldValue);
+
 		if (CurrentMouseSensName == CurrSetting) 
 			Player->ChangeMouseSensitivity(CurrSetting);
 	}

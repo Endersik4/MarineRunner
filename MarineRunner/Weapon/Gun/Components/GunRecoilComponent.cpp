@@ -1,13 +1,13 @@
 // Copyright Adam Bartela.All Rights Reserved
 
 
-#include "MarineRunner/Gun/Components/GunRecoilComponent.h"
+#include "GunRecoilComponent.h"
 #include "Components/TimelineComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 
-#include "MarineRunner/Gun/Gun.h"
-#include "MarineRunner/Gun/Components/GunReloadComponent.h"
+#include "MarineRunner/Weapon/Gun/Gun.h"
+#include "GunReloadComponent.h"
 #include "MarineRunner/Player/MarinePlayerController.h"
 
 UGunRecoilComponent::UGunRecoilComponent()

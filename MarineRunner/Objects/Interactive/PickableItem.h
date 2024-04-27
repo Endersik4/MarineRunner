@@ -41,7 +41,7 @@ public:
 
 	FORCEINLINE void SetItemAmountMultiplier(int32 NewAmountMultiplier) { AmountMultiplier = NewAmountMultiplier; }
 	FORCEINLINE void SetItemWasOnceTaken(bool bNewWasOnceTaken) { bWasOnceTaken = bNewWasOnceTaken; }
-	FORCEINLINE void SetCurrentMagazineCapacity(int32 NewCurrentMagazineCapacity) { CurrentMagazineCapacity = NewCurrentMagazineCapacity; }
+	FORCEINLINE void SetSavedValue(int32 NewCurrentMagazineCapacity) { CurrentMagazineCapacity = NewCurrentMagazineCapacity; }
 
 	void SaveItemIfSpawnedRunTime();
 

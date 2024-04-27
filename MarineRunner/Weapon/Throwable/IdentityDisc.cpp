@@ -42,6 +42,8 @@ void AIdentityDisc::HideWeapon()
 void AIdentityDisc::DropWeapon()
 {
 	Super::DropWeapon();
+
+	Destroy();
 }
 
 void AIdentityDisc::PrimaryAction()
@@ -91,7 +93,7 @@ void AIdentityDisc::ActionFromKey_One()
 
 }
 
-void AIdentityDisc::UpdateWeaponHudInformation()
+void AIdentityDisc::UpdateWeaponHudInformation(bool bUpdateStoredAmmoText, bool bUpdateWeaponImage)
 {
 	Super::UpdateWeaponHudInformation();
 

@@ -33,12 +33,16 @@ public:
 	FORCEINLINE void SetCanChangeWeapon(bool bCan) { bCanChangeWeapon = bCan; }
 	FORCEINLINE void SetIsPlayerInAds(bool bIs) { bIsPlayerADS = bIs; }
 
+	// e.g LMB = Shoot (Gun)
 	void PrimaryAction();
 	void ReleasedPrimaryAction();
 
+	// e.g R = Reload (Gun)
 	void ActionFromKey_One();
+	// e.g Mouse Scroll = Zoom (Gun)
 	void TertiaryAction(float WheelAxis);
 
+	// e.g RMB = ADS 
 	void SecondaryAction();
 	void ReleasedSecondaryAction();
 
@@ -49,9 +53,9 @@ public:
 	void DrawNewEquipedWeapon();
 	void DropCurrentHoldingWeapon();
 
-	void LoadSavedSettingsFromGameInstance();
+	void LoadSavedMouseSensitivities();
 private:
-	UPROPERTY(EditAnywhere, Category = "Weapon")
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 		TArray<FSettingSavedInJsonFile> MouseSensitivityWhenScope = 
 	{
 		FSettingSavedInJsonFile("MouseSensitivityADS", 0.4f),
@@ -59,6 +63,8 @@ private:
 		FSettingSavedInJsonFile("MouseSensitivity4x", 0.1f),
 		FSettingSavedInJsonFile("MouseSensitivity8x", 0.05f),
 	};
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+		float TimeToLoadMouseSensitivity = 0.05f;
 
 	UPROPERTY(Transient)
 		TObjectPtr<AWeaponBase> CurrentWeapon = nullptr;

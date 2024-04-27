@@ -5,24 +5,24 @@
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Weapon/WeaponBase.h"
 
-// Sets default values for this component's properties
 UWeaponInventoryComponent::UWeaponInventoryComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
 
 }
 
-// Called when the game starts
 void UWeaponInventoryComponent::BeginPlay()
 {
 	Super::BeginPlay();
+
+	StartTimerForSpawnNewWeapons();
 	
 }
 
 void UWeaponInventoryComponent::StartTimerForSpawnNewWeapons()
 {
 	FTimerHandle SpawnWeaponsFromInventoryHandle;
-	GetWorld()->GetTimerManager().SetTimer(SpawnWeaponsFromInventoryHandle, this, &UWeaponInventoryComponent::LoadWeapons, 0.02f, false);
+	GetWorld()->GetTimerManager().SetTimer(SpawnWeaponsFromInventoryHandle, this, &UWeaponInventoryComponent::LoadWeapons, TimeToSpawnWeaponsFromInventory, false);
 }
 
 void UWeaponInventoryComponent::LoadWeapons()
@@ -35,13 +35,12 @@ void UWeaponInventoryComponent::LoadWeapons()
 	if (!IsValid(MarinePawn) || WeaponsToLoadToInventory.Num() == 0)
 		return;
 
-	for (const TPair<int32, FString> CurrentPair : WeaponsToLoadToInventory)
+	for (const TPair<int32, FSoftClassPath> CurrentPair : WeaponsToLoadToInventory)
 	{
-		const FSoftClassPath GunClassPath = CurrentPair.Value;
-		if (!GunClassPath.TryLoadClass<UObject>())
+		if (!CurrentPair.Value.TryLoadClass<UObject>())
 			continue;
 
-		TObjectPtr<AWeaponBase> SpawnedWeapon = GetWorld()->SpawnActor<AWeaponBase>(GunClassPath.TryLoadClass<UObject>(), FTransform(FRotator(0.f), FVector(0.f), FVector(1.f)));
+		TObjectPtr<AWeaponBase> SpawnedWeapon = GetWorld()->SpawnActor<AWeaponBase>(CurrentPair.Value.TryLoadClass<UObject>(), FTransform(FRotator(0.f), FVector(0.f), FVector(1.f)));
 		if (!SpawnedWeapon)
 			continue;
 
@@ -100,7 +99,6 @@ int32 UWeaponInventoryComponent::GetLastWeaponSlotFromStorage(TObjectPtr<AWeapon
 	}
 	return 0;
 }
-
 
 void UWeaponInventoryComponent::SortWeapons()
 {
