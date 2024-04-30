@@ -40,7 +40,7 @@ void ADeadlyBox::KillEverythingBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	if (!IsValid(OtherActor))
 		return;
 
-	IInteractInterface* InteractInterface = Cast<IInteractInterface>(OtherActor);
+	IDamageInterface* InteractInterface = Cast<IDamageInterface>(OtherActor);
 	if (!InteractInterface)
 		return;
 

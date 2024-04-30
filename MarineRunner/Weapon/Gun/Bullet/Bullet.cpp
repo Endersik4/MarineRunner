@@ -166,14 +166,14 @@ void ABullet::SphereRadialDamage(const FHitResult& Hit)
 
 void ABullet::UseDamageInterfaceOnActor(const FHitResult& HitResult)
 {
-	IInteractInterface* DamageInterface = Cast<IInteractInterface>(HitResult.GetActor());
+	IDamageInterface* DamageInterface = Cast<IDamageInterface>(HitResult.GetActor());
 	if (DamageInterface) // C++ Interface function
 	{
 		DamageInterface->ApplyDamage(BulletData.Damage, BulletData.HitImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
 	}
-	else if (HitResult.GetActor()->Implements<UInteractInterface>()) // Blueprint Interface function
+	else if (HitResult.GetActor()->Implements<UDamageInterface>()) // Blueprint Interface function
 	{
-		IInteractInterface::Execute_BreakObject(HitResult.GetActor(), BulletData.HitImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
+		IDamageInterface::Execute_BreakObject(HitResult.GetActor(), BulletData.HitImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
 	}
 	else
 	{

@@ -72,14 +72,14 @@ void AExplosionBarrel::Explode()
 
 void AExplosionBarrel::UseDamageInterfaceOnActor(const FHitResult& HitResult)
 {
-	IInteractInterface* Interface = Cast<IInteractInterface>(HitResult.GetActor());
+	IDamageInterface* Interface = Cast<IDamageInterface>(HitResult.GetActor());
 	if (Interface) //Check if Object has Interface C++ Implementation
 	{
 		Interface->ApplyDamage(ExplosionDamage, ExplosionImpulseForce, HitResult, this, ExplosionRadius);
 	}
-	else if (HitResult.GetActor()->Implements<UInteractInterface>())  //Check if Object has Interface Blueprint Implementation
+	else if (HitResult.GetActor()->Implements<UDamageInterface>())  //Check if Object has Interface Blueprint Implementation
 	{
-		IInteractInterface::Execute_BreakObject(HitResult.GetActor(), ExplosionImpulseForce, HitResult, this, ExplosionRadius);
+		IDamageInterface::Execute_BreakObject(HitResult.GetActor(), ExplosionImpulseForce, HitResult, this, ExplosionRadius);
 	}
 	else if (HitResult.GetComponent()->IsSimulatingPhysics())
 	{

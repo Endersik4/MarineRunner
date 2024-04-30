@@ -66,7 +66,7 @@ void APunchingEnemyPawn::ApplyDamageToPlayer()
 	if (!bPlayerTakenDamage)
 		return;
 
-	IInteractInterface* ActorWithDamageInterface = Cast<IInteractInterface>(DamagePlayerResult.GetActor());
+	IDamageInterface* ActorWithDamageInterface = Cast<IDamageInterface>(DamagePlayerResult.GetActor());
 	if (!ActorWithDamageInterface)
 		return;
 

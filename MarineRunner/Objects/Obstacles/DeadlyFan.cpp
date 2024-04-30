@@ -51,7 +51,7 @@ void ADeadlyFan::OnFanMeshBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
 	if (!IsValid(OtherActor))
 		return;
 
-	IInteractInterface* InteractInterface = Cast<IInteractInterface>(OtherActor);
+	IDamageInterface* InteractInterface = Cast<IDamageInterface>(OtherActor);
 	if (!InteractInterface)
 		return;
 

@@ -10,7 +10,7 @@
 
 #include "SettingsMenu/SettingsMenuWidget.h"
 #include "LoadGameMenu/LoadGameMenuWidget.h"
-#include "LoadGameMenu/ConfirmLoadingGameWidget.h"
+#include "MarineRunner/Player/PauseMenu/ConfirmOptionWidget.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/PauseMenu/PauseMenuComponent.h"
@@ -291,12 +291,20 @@ void UPauseMenuWidget::OnClickedQuitGameButton()
 	if (!IsValid(PlayerController))
 		return;
 
-	TObjectPtr<UConfirmLoadingGameWidget> ConfirmQuitingGameWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(PlayerController, ConfirmLoadingSaveWidgetClass));
+	TObjectPtr<UConfirmOptionWidget> ConfirmQuitingGameWidget = Cast<UConfirmOptionWidget>(CreateWidget(PlayerController, ConfirmOptionWidgetClass));
 	if (!IsValid(ConfirmQuitingGameWidget))
 		return;
 
 	ConfirmQuitingGameWidget->AddToViewport();
-	ConfirmQuitingGameWidget->SetConfirmType(ECT_QuitGame);
+	ConfirmQuitingGameWidget->ConfirmFunction = [this]() {this->QuitGame(); };
+}
+
+void UPauseMenuWidget::QuitGame()
+{
+	if (!PlayerController)
+		return;
+
+	UKismetSystemLibrary::QuitGame(GetWorld(), PlayerController, EQuitPreference::Quit, true);
 }
 
 void UPauseMenuWidget::OnHoveredQuitGameButton()

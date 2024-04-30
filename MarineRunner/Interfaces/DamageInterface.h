@@ -8,7 +8,7 @@
 
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
-class UInteractInterface : public UInterface
+class UDamageInterface : public UInterface
 {
 	GENERATED_BODY()
 };
@@ -16,7 +16,7 @@ class UInteractInterface : public UInterface
 /**
  * 
  */
-class MARINERUNNER_API IInteractInterface
+class MARINERUNNER_API IDamageInterface
 {
 	GENERATED_BODY()
 

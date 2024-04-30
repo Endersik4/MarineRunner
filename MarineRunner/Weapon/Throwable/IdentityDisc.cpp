@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 
 #include "MarineRunner/Player/MarinePlayer.h"
+#include "MarineRunner/Interfaces/DamageInterface.h"
 
 AIdentityDisc::AIdentityDisc()
 {
@@ -16,7 +17,15 @@ AIdentityDisc::AIdentityDisc()
 void AIdentityDisc::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	WeaponSkeletalMesh->OnComponentBeginOverlap.AddDynamic(this, &AIdentityDisc::OnBeginOverlap);
+}
+
+void AIdentityDisc::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	DiscMovement(DeltaTime);
 }
 
 void AIdentityDisc::PickUpWeaponItem(AMarineCharacter* PlayerWhoTook, bool bWasOnceItemTaken, int32 ValueToLoad)
@@ -57,10 +66,48 @@ void AIdentityDisc::PrimaryAction()
 
 void AIdentityDisc::ThrowDisc()
 {
+	FHitResult HitResult;
+	StartDiscThrowLocation = GetActorLocation();
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, StartDiscThrowLocation, StartDiscThrowLocation + (Player->GetCamera()->GetForwardVector() * MaxThrowDistance), ECC_Visibility);
+	if (!bHit)
+		return;
+
 	DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
-	WeaponSkeletalMesh->SetCollisionProfileName(FName("PhysicsActor"));
-	WeaponSkeletalMesh->SetSimulatePhysics(true);
-	WeaponSkeletalMesh->AddImpulse(Player->GetCamera()->GetForwardVector() * 5000.f);
+	EndDiscThrowLocation = HitResult.ImpactPoint;
+	bStartTimer = true;
+
+	DrawDebugBox(GetWorld(), StartDiscThrowLocation, FVector(10.f), FColor::Red, true);
+	DrawDebugBox(GetWorld(), EndDiscThrowLocation, FVector(10.f), FColor::Green, true);
+}
+
+void AIdentityDisc::DiscMovement(float Delta)
+{
+	if (!bStartTimer)
+		return;
+
+	FVector NewLocation = FMath::VInterpConstantTo(GetActorLocation(), EndDiscThrowLocation, Delta, DiscSpeed);
+	FVector NewScale = FMath::VInterpConstantTo(GetActorScale3D(), FVector(TargetScale), Delta,DiscSpeed);
+	
+	SetActorLocation(NewLocation);
+	SetActorScale3D(NewScale);
+
+	if (GetActorLocation().Equals(EndDiscThrowLocation, 50.f))
+	{
+		SetActorScale3D(FVector(TargetScale));
+		bStartTimer = false;
+	}
+}
+
+void AIdentityDisc::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (!IsValid(OtherActor))
+		return;
+
+	IDamageInterface* DamageInterface = Cast<IDamageInterface>(OtherActor);
+	if (!DamageInterface)
+		return;
+
+	DamageInterface->ApplyDamage(10000.f, 0.f, SweepResult, this);
 }
 
 void AIdentityDisc::ReleasedPrimaryAction()
@@ -72,6 +119,11 @@ void AIdentityDisc::ReleasedPrimaryAction()
 void AIdentityDisc::SecondaryAction()
 {
 	Super::SecondaryAction();
+
+	SetActorScale3D(FVector(0.1f));
+	bStartTimer = false;
+
+	AttachToComponent(Player->GetArmsSkeletalMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, SocketNameToAttachWeapon);
 
 }
 
@@ -102,11 +154,5 @@ void AIdentityDisc::UpdateWeaponHudInformation(bool bUpdateStoredAmmoText, bool 
 int32 AIdentityDisc::GetIntValueToSave()
 {
 	return int32();
-}
-
-void AIdentityDisc::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 

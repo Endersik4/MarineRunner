@@ -44,7 +44,7 @@ void ABigHammer::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	if (!IsValid(OtherActor))
 		return;
 
-	IInteractInterface* InteractInterface = Cast<IInteractInterface>(OtherActor);
+	IDamageInterface* InteractInterface = Cast<IDamageInterface>(OtherActor);
 	if (!InteractInterface)
 		return;
 

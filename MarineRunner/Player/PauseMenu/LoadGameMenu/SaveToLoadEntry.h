@@ -49,17 +49,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
 		bool bShowConfirmLoadingWidget = true;
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings", meta = (EditCondition = "bShowConfirmLoadingWidget"))
-		TSubclassOf<UUserWidget> ConfirmLoadingSaveWidgetClass = nullptr;
+		TSubclassOf<class UConfirmOptionWidget> ConfirmOptionWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
 		FString SavedDateText = "-SAVED: ";
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
 		FString SavedTotalTimeText = "-TOTAL TIME: ";
 
-	void PlayAnimatonForButton(TObjectPtr < UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true);
-
 	UPROPERTY(Transient)
 		TObjectPtr<class ULoadGameMenuEntryObject> LoadGameEntryObject = nullptr;
 	void ShowConfirmLoadingWidget();
+
+	void LoadSave();
 
 	void ConvertTotalPlayTimeInSecondsToText();
 	void SetScreenshotImageFromSave();

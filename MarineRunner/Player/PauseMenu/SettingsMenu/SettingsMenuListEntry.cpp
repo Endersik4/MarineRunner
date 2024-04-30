@@ -42,10 +42,6 @@ void USettingsMenuListEntry::NativeConstruct()
 	KeyMappingButton->OnUnhovered.AddDynamic(this, &USettingsMenuListEntry::OnUnhoveredKeyMappingButton);
 }
 
-void USettingsMenuListEntry::NativeOnInitialized()
-{
-}
-
 #pragma region ///////// PREPARE WIDGET //////////
 void USettingsMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {

@@ -30,7 +30,7 @@ void ATurretEnemyAIController::HandleTargetPerceptionUpdated(AActor* Actor, FAIS
 	if (!IsValid(Actor) || !IsValid(TurretPawn))
 		return;
 
-	IInteractInterface* ActorCanTakeDamageInterface = Cast<IInteractInterface>(Actor);
+	IDamageInterface* ActorCanTakeDamageInterface = Cast<IDamageInterface>(Actor);
 
 	if (!ActorCanTakeDamageInterface)
 		return;

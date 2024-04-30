@@ -240,7 +240,7 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 {
 	SpawnSettingsAcceptedWidget();
 
-	for (UObject* CurrentElement : SettingsListView->GetListItems())
+	for (TObjectPtr<UObject> CurrentElement : SettingsListView->GetListItems())
 	{
 		const TObjectPtr<USettingsMenuEntryObject> SettingMenuObject = Cast<USettingsMenuEntryObject>(CurrentElement);
 		if (!IsValid(SettingMenuObject)) 

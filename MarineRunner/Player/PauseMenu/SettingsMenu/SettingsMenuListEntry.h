@@ -17,8 +17,6 @@ class MARINERUNNER_API USettingsMenuListEntry : public UUserWidget, public IUser
 protected:
 	virtual void NativeConstruct() override;
 
-	virtual void NativeOnInitialized() override;
-
 public:
 
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);

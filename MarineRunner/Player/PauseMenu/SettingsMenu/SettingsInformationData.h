@@ -51,9 +51,9 @@ struct FMenuSettings
 		FString SubSettingFunctionName = "sg.TextureQuality";
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SettingApplyType == ESettingApplyType::ESAT_Sounds", EditConditionHides))
-		USoundClass* SoundClassToChangeVolume;
+		TObjectPtr<USoundClass> SoundClassToChangeVolume = nullptr;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings", meta = (EditCondition = "SettingApplyType == ESettingApplyType::ESAT_Sounds", EditConditionHides))
-		USoundMix* SoundMixClassToChangeVolume;
+		TObjectPtr<USoundMix> SoundMixClassToChangeVolume = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Menu Settings")
 		TEnumAsByte<ESettingsType> SubSettingType = EST_Quality;

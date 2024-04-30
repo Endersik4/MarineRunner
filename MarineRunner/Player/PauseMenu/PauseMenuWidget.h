@@ -124,13 +124,13 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu Settings")
-		TSubclassOf<UUserWidget> ConfirmLoadingSaveWidgetClass = nullptr;
+		TSubclassOf<class UConfirmOptionWidget> ConfirmOptionWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu Settings")
 		TObjectPtr < USoundBase> PauseMenuMusic = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Load Game Menu")
-		TSubclassOf<UUserWidget> LoadGameMenuWidgetClass = nullptr;
+		TSubclassOf<class ULoadGameMenuWidget> LoadGameMenuWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Menu")
-		TSubclassOf<UUserWidget> SettingsMenuWidgetClass = nullptr;
+		TSubclassOf<class USettingsMenuWidget> SettingsMenuWidgetClass = nullptr;
 
 	void PlayAnimatonForButton(TObjectPtr < UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);
 
@@ -158,6 +158,8 @@ private:
 	UPROPERTY(Transient)
 		TArray< TObjectPtr<UButton>> AllMenuButtons;
 	void SetEnableAllMenuButtons(bool bEnable, TObjectPtr<UButton> ButtonToIgnore = nullptr);
+
+	void QuitGame();
 
 	UPROPERTY(Transient)
 		TObjectPtr<class AMarineCharacter> Player = nullptr;

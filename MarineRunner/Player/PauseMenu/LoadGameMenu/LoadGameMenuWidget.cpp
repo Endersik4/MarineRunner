@@ -4,33 +4,39 @@
 #include "LoadGameMenuWidget.h"
 #include "Components/ListView.h"
 #include "Components/TextBlock.h"
-#include "Kismet/GameplayStatics.h"
+#include "Components/Button.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "Kismet/BlueprintFunctionLibrary.h"
+#include "HAL/FileManagerGeneric.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "SaveToLoadEntryObject.h"
 #include "MarineRunner/Player/SaveLoadGame/JsonFileActions.h"
+#include "MarineRunner/Player/PauseMenu/ConfirmOptionWidget.h"
+
 
 void ULoadGameMenuWidget::NativeOnInitialized()
 {
-	FillLoadGamesListView();
+	FillAllSavesToLoadGameListView();
+
+	DeleteAllSavesButton->OnClicked.AddDynamic(this, &ULoadGameMenuWidget::DeleteAllSaves_OnClicked);
+	DeleteAllSavesButton->OnHovered.AddDynamic(this, &ULoadGameMenuWidget::DeleteAllSaves_OnHovered);
+	DeleteAllSavesButton->OnUnhovered.AddDynamic(this, &ULoadGameMenuWidget::DeleteAllSaves_OnUnhovered);
 }
 
-void ULoadGameMenuWidget::FillLoadGamesListView()
+void ULoadGameMenuWidget::FillAllSavesToLoadGameListView()
 {
-	LoadGamesListView->ClearListItems();
+	SavedGameSavesListView->ClearListItems();
 
-	TArray<FString> Txt_Files;
-	GetTextFilesFromSaves(Txt_Files);
+	TArray<FString> JsonFilesOfAllSavedSaves;
+	FFileManagerGeneric::Get().FindFilesRecursive(JsonFilesOfAllSavedSaves, *(UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/"), *FString("*.json"), true, false);
 
-	if (Txt_Files.Num() <= 0)
+	if (JsonFilesOfAllSavedSaves.Num() <= 0)
 		return;
 	
-	NoSavedDataText->SetVisibility(ESlateVisibility::Hidden);
+	SavesVisible();
 
 	TArray<FSaveDataMenuStruct> DeserlializedSaves;
-
-	FillDeserializedSaveFilesToArray(Txt_Files, DeserlializedSaves);
+	FillDeserializedSaveFilesToArray(JsonFilesOfAllSavedSaves, DeserlializedSaves);
 
 	DeserlializedSaves.Sort([](const FSaveDataMenuStruct& a, const FSaveDataMenuStruct& b) { return a.SavedDateValue > b.SavedDateValue; });
 
@@ -63,14 +69,53 @@ void ULoadGameMenuWidget::ConvertArrayToLoadGameMenuEntryList(TArray<FSaveDataMe
 {
 	for (const FSaveDataMenuStruct& CurrentSaveDataMenu : ArrayToConvert)
 	{
-		TObjectPtr<ULoadGameMenuEntryObject> ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(MenuSettingsDataObject);
+		TObjectPtr<ULoadGameMenuEntryObject> ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(SavedGameSaveEntry);
 
 		if (!IsValid(ConstructedItemObject))
 			continue;
 
 		ConstructedItemObject->SavesMenuData = CurrentSaveDataMenu;
-		UE_LOG(LogTemp, Warning, TEXT("DALEJ  %s"), *CurrentSaveDataMenu.SaveName);
 
-		LoadGamesListView->AddItem(ConstructedItemObject);
+		SavedGameSavesListView->AddItem(ConstructedItemObject);
 	}
+}
+
+void ULoadGameMenuWidget::DeleteAllSaves_OnClicked()
+{
+	TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(PlayerController))
+		return;
+
+	TObjectPtr<UConfirmOptionWidget> ConfirmLoadingWidget = Cast<UConfirmOptionWidget>(CreateWidget(PlayerController, ConfirmDeletingSavesWidgetClass));
+	if (!IsValid(ConfirmLoadingWidget))
+		return;
+
+	ConfirmLoadingWidget->AddToViewport();
+	ConfirmLoadingWidget->ConfirmFunction = [this]() {this->DeleteAllSaves(); };
+}
+
+void ULoadGameMenuWidget::DeleteAllSaves()
+{
+	SavesVisible(true);
+
+	FFileManagerGeneric::Get().DeleteDirectory(*(UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/"), true, true);
+}
+
+void ULoadGameMenuWidget::DeleteAllSaves_OnHovered()
+{
+	PlayAnimationForward(DeleteAllSavesHoveredAnim);
+}
+
+void ULoadGameMenuWidget::DeleteAllSaves_OnUnhovered()
+{
+	PlayAnimationReverse(DeleteAllSavesHoveredAnim);
+}
+
+void ULoadGameMenuWidget::SavesVisible(bool bHide)
+{
+	NoSavedDataText->SetVisibility(bHide ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+
+	SavedGameSavesListView->SetVisibility(bHide ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
+	DeleteAllSavesButton->SetVisibility(bHide ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
+	DeleteAllSavesText->SetVisibility(bHide ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
 }

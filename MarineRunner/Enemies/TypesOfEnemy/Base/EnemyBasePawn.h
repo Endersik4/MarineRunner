@@ -52,7 +52,7 @@ struct FHitBoneType {
 };
 
 UCLASS()
-class MARINERUNNER_API AEnemyPawn : public APawn, public IInteractInterface, public IEnemyInterface, public ISaveCustomDataInterface
+class MARINERUNNER_API AEnemyPawn : public APawn, public IDamageInterface, public IEnemyInterface, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 
@@ -64,7 +64,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	//Function From IInteractInterface
+	//Function From IDamageInterface
 	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
 
 	// ISaveCustomDataInterface

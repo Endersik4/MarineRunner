@@ -3,4 +3,4 @@
 
 #include "MarineRunner/Interfaces/DamageInterface.h"
 
-// Add default functionality here for any IInteractInterface functions that are not pure virtual.
+// Add default functionality here for any IDamageInterface functions that are not pure virtual.

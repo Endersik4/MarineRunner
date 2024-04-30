@@ -10,7 +10,7 @@
 #include "ExplosionBarrel.generated.h"
 
 UCLASS()
-class MARINERUNNER_API AExplosionBarrel : public AActor, public IInteractInterface, public ISaveCustomDataInterface
+class MARINERUNNER_API AExplosionBarrel : public AActor, public IDamageInterface, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
 	

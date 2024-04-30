@@ -9,7 +9,7 @@
 #include "Kismet/KismetRenderingLibrary.h"
 
 #include "MarineRunner/Player/SaveLoadGame/SaveMarineRunner.h"
-#include "ConfirmLoadingGameWidget.h"
+#include "MarineRunner/Player/PauseMenu/ConfirmOptionWidget.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "SaveToLoadEntryObject.h"
 
@@ -50,49 +50,43 @@ void USaveGameMenuListEntry::OnClickedLoadGameButton()
 		return;
 	}
 
-	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
-	if (!IsValid(GameInstance))
-		return;
-	GameInstance->SlotSaveGameNameToLoad = LoadGameEntryObject->SavesMenuData.SaveName;
-
-	UGameplayStatics::OpenLevel(GetWorld(), FName(LoadGameEntryObject->SavesMenuData.LevelNameToLoad));
+	LoadSave();
 
 	return;
 }
 
 void USaveGameMenuListEntry::ShowConfirmLoadingWidget()
 {
-	if (!IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+	TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(PlayerController))
 		return;
 
-	TObjectPtr<UConfirmLoadingGameWidget> ConfirmLoadingWidget = Cast<UConfirmLoadingGameWidget>(CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), ConfirmLoadingSaveWidgetClass));
+	TObjectPtr<UConfirmOptionWidget> ConfirmLoadingWidget = Cast<UConfirmOptionWidget>(CreateWidget(PlayerController, ConfirmOptionWidgetClass));
 	if (!IsValid(ConfirmLoadingWidget))
 		return;
 
 	ConfirmLoadingWidget->AddToViewport();
-	ConfirmLoadingWidget->SetSlotAndLevelName(LoadGameEntryObject->SavesMenuData.SaveName, LoadGameEntryObject->SavesMenuData.LevelNameToLoad);
-	ConfirmLoadingWidget->SetConfirmType(ECT_LoadLastSave);
+	ConfirmLoadingWidget->ConfirmFunction = [this]() {this->LoadSave(); };
+}
+
+void USaveGameMenuListEntry::LoadSave()
+{
+	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!IsValid(GameInstance))
+		return;
+	GameInstance->SlotSaveGameNameToLoad = LoadGameEntryObject->SavesMenuData.SaveName;
+
+	UGameplayStatics::OpenLevel(GetWorld(), FName(LoadGameEntryObject->SavesMenuData.LevelNameToLoad));
 }
 
 void USaveGameMenuListEntry::OnHoveredLoadGameButton()
 {
-	PlayAnimatonForButton(LoadGameHoverAnim);
+	PlayAnimationForward(LoadGameHoverAnim);
 }
 
 void USaveGameMenuListEntry::OnUnhoveredLoadGameButton()
 {
-	PlayAnimatonForButton(LoadGameHoverAnim, false);
-}
-
-void USaveGameMenuListEntry::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim)
-{
-	if (!AnimToPlay) 
-		return;
-
-	if (bPlayForwardAnim) 
-		PlayAnimationForward(AnimToPlay);
-	else 
-		PlayAnimationReverse(AnimToPlay);
+	PlayAnimationReverse(LoadGameHoverAnim);
 }
 
 void USaveGameMenuListEntry::ConvertTotalPlayTimeInSecondsToText()

@@ -13,7 +13,7 @@
 /// Add Physics material to player so the player cant bounce too much on obstacles
 /// </summary>
 UCLASS()
-class MARINERUNNER_API AMarineCharacter : public APawn, public IInteractInterface
+class MARINERUNNER_API AMarineCharacter : public APawn, public IDamageInterface
 {
 	GENERATED_BODY()
 

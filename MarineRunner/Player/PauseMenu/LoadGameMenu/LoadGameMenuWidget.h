@@ -22,24 +22,41 @@ protected:
 	virtual void NativeOnInitialized() override;
 
 public:
-	UFUNCTION(BlueprintImplementableEvent)
-		void GetTextFilesFromSaves(TArray<FString> & Txt_Files);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		TObjectPtr<class UTextBlock> NoSavedDataText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UListView> LoadGamesListView = nullptr;
+		TObjectPtr<class UListView> SavedGameSavesListView = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		TObjectPtr<class UButton> DeleteAllSavesButton = nullptr;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+		TObjectPtr<class UTextBlock> DeleteAllSavesText = nullptr;
+
+	UFUNCTION()
+		void DeleteAllSaves_OnClicked();
+	UFUNCTION()
+		void DeleteAllSaves_OnHovered();
+	UFUNCTION()
+		void DeleteAllSaves_OnUnhovered();
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		TObjectPtr < UWidgetAnimation> DeleteAllSavesHoveredAnim = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Load Game Menu")
-		TSubclassOf<class ULoadGameMenuEntryObject> MenuSettingsDataObject = nullptr;
-
+		TSubclassOf<class ULoadGameMenuEntryObject> SavedGameSaveEntry = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Load Game Menu")
+		TSubclassOf<class UConfirmOptionWidget> ConfirmDeletingSavesWidgetClass = nullptr;
 private:
-	void FillLoadGamesListView();
+	void FillAllSavesToLoadGameListView();
 
 	// Get all the values from json file and make struct of it (FSaveDataMenuStruct) and add it to array;
 	void FillDeserializedSaveFilesToArray(TArray<FString> & PathsToSaveFiles,TArray<FSaveDataMenuStruct>& ArrayToFill);
 
 	// Creates LoadGameMenuEntryObject from Array adds to the list
 	void ConvertArrayToLoadGameMenuEntryList(TArray<FSaveDataMenuStruct>& ArrayToConvert);
+
+	void DeleteAllSaves();
+	void SavesVisible(bool bHide = false);
 };

@@ -40,6 +40,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	UFUNCTION()
+		void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Disc Settings")
 	float FullPowerDamage = 10000.f;
@@ -49,6 +51,12 @@ private:
 	float TimeToFullyRecharge = 10.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Disc Settings")
 	float TimeToThrowDisc = 0.3f;
+	UPROPERTY(EditDefaultsOnly, Category = "Disc Settings")
+	float DiscSpeed = 10.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Disc Settings")
+	float MaxThrowDistance = 8000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Disc Settings")
+	float TargetScale = 0.25f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Disc Settings|Animation")
 	FWeaponAnimation ThrowDiscAnim;
@@ -60,4 +68,8 @@ private:
 	FWeaponAnimation CatchDiscAnim_End;
 
 	void ThrowDisc();
+	bool bStartTimer = false;
+	FVector StartDiscThrowLocation = FVector(0.f);
+	FVector EndDiscThrowLocation = FVector(0.f);
+	void DiscMovement(float Delta);
 };
