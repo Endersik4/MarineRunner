@@ -79,9 +79,6 @@ void AHook::ActivateHook(bool bActive)
 
 void AHook::ChangeToIdleAnim()
 {
-	if (GetWorld()->GetTimerManager().IsTimerActive(HookPressedHandle))
-		return;
-	
 	HookStateFlipBook->PlayFromStart();
 	HookStateFlipBook->SetLooping(true);
 	HookStateFlipBook->SetFlipbook(HookIdleFlipBook);

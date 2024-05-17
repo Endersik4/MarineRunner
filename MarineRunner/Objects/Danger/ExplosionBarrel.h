@@ -36,15 +36,15 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
 		float StartExplodeTime = 0.05f;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
+	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel")
 		float ExplosionDamage = 1200.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
+	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel")
 		float ExplosionImpulseForce = 40000.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
+	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel")
 		float ExplosionRadius = 1000.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
+	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel")
 		TObjectPtr<USoundBase>  ExplosionSound = nullptr;;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
+	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel|Camera Shake")
 		float MaxDistanceToStartShake = 9000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
 		float CameraShakeScaleMultiplier = 0.3f;
@@ -52,15 +52,15 @@ private:
 		TSubclassOf<UCameraShakeBase> CameraShakeAfterExplosion = nullptr;;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
 		float MaxCameraShakeScale = 3.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
+	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel")
 		bool bDrawDebugRadialSphere = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Decal")
 		TObjectPtr<UMaterialInstance>  ExplosionDecal = nullptr;;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Decal")
+	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel|Explosion Decal")
 		FVector ExplosionDecalSize = FVector(4.f);
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Particle")
+	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel|Explosion Particle")
 		TObjectPtr<class UParticleSystem> ExplosionParticle = nullptr;;
-	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Particle")
+	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel|Explosion Particle")
 		float ExplosionParticleSize = 3.f;
 
 	UPROPERTY(Transient)

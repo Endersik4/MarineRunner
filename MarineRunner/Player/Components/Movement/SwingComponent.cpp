@@ -45,7 +45,7 @@ void USwingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 #pragma region ///////////////////////////////// SWING /////////////////////////////////
 void USwingComponent::HookLineCheck()
 {
-	if (!bCanMakeSwingLineCheck || bIsPlayerMovingToHook) 
+	if (!bCanMakeSwingLineCheck || bIsPlayerMovingToHook)
 		return;
 
 	const FVector& HookCheckLineStart = Player->GetCamera()->GetComponentLocation();
@@ -55,9 +55,13 @@ void USwingComponent::HookLineCheck()
 	const bool& bHookHovered = GetWorld()->LineTraceSingleByChannel(HitResults, HookCheckLineStart, HookCheckLineEnd, ECC_GameTraceChannel2);
 
 	if (bHookHovered)
+	{
 		ActivateCurrentHoveredHook(HitResults.GetActor());
-	else 
+	}
+	else
+	{
 		ClearLastActivatedHook();
+	}
 }
 
 void USwingComponent::ActivateCurrentHoveredHook(TObjectPtr<AActor> HookActorFromHit)
@@ -83,7 +87,7 @@ void USwingComponent::ActivateCurrentHoveredHook(TObjectPtr<AActor> HookActorFro
 
 void USwingComponent::ClearLastActivatedHook()
 {
-	if (!IsValid(CurrentFocusedHook)|| bWasSwingPressed)
+	if (!IsValid(CurrentFocusedHook) || bWasSwingPressed)
 		return;
 
 	CurrentFocusedHook->ChangeToIdleAnim();
@@ -166,7 +170,6 @@ void USwingComponent::StopMovingToHook()
 	bWasSwingPressed = false;
 	bIsPlayerMovingToHook = false;
 	bCanMakeSwingLineCheck = true;
-	CurrentFocusedHook = nullptr;
 
 	FVector NewVelocity = Player->GetPlayerCapsule()->GetPhysicsLinearVelocity() * (SwingLinearPhysicsMultiplier / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
 	NewVelocity.Z = Player->GetPlayerCapsule()->GetPhysicsLinearVelocity().Z;

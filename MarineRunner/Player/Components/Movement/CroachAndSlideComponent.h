@@ -55,10 +55,10 @@ private:
 	//Initial Velocity of Sliding is added to Walking Distance from MarineCharacter
 	//and then we have Initial Velocity of Sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float InitialVelocityOfSliding = 190000.f;
+		float InitialVelocityOfSliding = 100000.f;
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float SlideSpeed = 255000.f;
+		float SlideSpeed = 165000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 		float MaxSlideForce = 100000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
@@ -67,7 +67,9 @@ private:
 		TObjectPtr<USoundBase> SlideSound = nullptr;
 	//How fast Pawn will gain speed on ramp when sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
-		float RampForce = 25000.f;
+		float RampSlideDownForce = 25000.f;
+	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
+		float RampSlideUpForce = 150000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 		TSubclassOf<UCameraShakeBase> RampCameraShake = nullptr;
 

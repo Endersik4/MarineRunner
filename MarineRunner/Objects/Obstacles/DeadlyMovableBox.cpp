@@ -12,8 +12,11 @@ ABigHammer::ABigHammer()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	RootSceneComponent = CreateDefaultSubobject<USceneComponent>("Root Scene Component");
+	RootComponent = RootSceneComponent;
+
 	HammerMesh = CreateDefaultSubobject<UStaticMeshComponent>("HammerMesh");
-	RootComponent = HammerMesh;
+	HammerMesh->SetupAttachment(RootSceneComponent);
 
 	HammerBoxComponent = CreateDefaultSubobject<UBoxComponent>("HammerBoxComponent");
 	HammerBoxComponent->SetupAttachment(HammerMesh);
@@ -53,9 +56,7 @@ void ABigHammer::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 
 void ABigHammer::MoveHammerTimelineProgress(float Value)
 {
-	FVector NewActorLocation = GetActorLocation();
-	NewActorLocation.Z = Value;
-	SetActorLocation(NewActorLocation);
+	HammerMesh->SetRelativeLocation(DirectorToApplyCurve * Value);
 }
 
 void ABigHammer::SetupMoveTimeline()

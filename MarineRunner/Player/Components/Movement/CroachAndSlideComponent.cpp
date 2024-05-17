@@ -96,12 +96,11 @@ void UCroachAndSlide::CrouchReleased()
 	if (!IsValid(Player))
 		return;
 
-	if (Player->GetJumpComponent()->GetIsOnRamp() || !bIsCrouching)
-		return;
+	//if (Player->GetJumpComponent()->GetIsOnRamp() || !bIsCrouching)
+	//	return;
 
 	if (!CanPlayerStand())
 		return;
-
 	StopCrouching();
 }
 
@@ -212,14 +211,14 @@ void UCroachAndSlide::SlideOnRamp(const float& Delta)
 
 	if (Player->GetJumpComponent()->GetIsGoingUp())
 	{
-		CurrentMovementForce -= RampForce * Delta;
+		CurrentMovementForce -= RampSlideUpForce * Delta;
 		Player->SetShouldPlayerGoForward(false);
 
 		return;
 	}
 
 	// if current movement force is bigger then max force then do not add more force 
-	CurrentMovementForce += (CurrentMovementForce < MaxSlideForce) ? RampForce * Delta : 0;
+	CurrentMovementForce += (CurrentMovementForce < MaxSlideForce) ? RampSlideDownForce * Delta : 0;
 	Player->SetShouldPlayerGoForward(true);
 
 	if (!bRampCameraShakeStarted && IsValid(PlayerController))

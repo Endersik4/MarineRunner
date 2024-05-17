@@ -38,7 +38,7 @@ public:
 private:
 	//InitialJumpForce is moving to EndJumpForce and then applied to Velocity Z
 	UPROPERTY(EditAnywhere, Category = "Jump Settings")
-		float InitialJumpForce = 1800.f;
+		float InitialJumpForce = 2000.f;
 	UPROPERTY(EditAnywhere, Category = "Jump Settings")
 		float EndJumpForce = -50.f;
 	//Impuls force that is applied to Player in down vector, Thanks to this player is falling faster
@@ -55,7 +55,7 @@ private:
 		TObjectPtr<USoundBase> JumpSound = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
-		float CheckInAirTime = 0.05f;
+		float CheckInAirTime = 0.01f;
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 		FVector BoxSizeToCheckIfSomethingIsBelow = FVector(25.f, 25.f, 20.f);
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")

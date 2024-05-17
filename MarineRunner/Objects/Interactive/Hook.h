@@ -75,7 +75,6 @@ private:
 
 	FTimerHandle HookVisibleHandle;
 
-	// change hook state flipbook scale according to player distance, closer == smaller
 	UPROPERTY(Transient)
 		TObjectPtr<AActor> PlayerInRange = nullptr;
 

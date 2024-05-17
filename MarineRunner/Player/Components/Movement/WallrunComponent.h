@@ -52,9 +52,9 @@ private:
 	//Speed of Pawn while performing wallrun
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float WallrunSpeed = 1.5f;
-	//Impulse added to Stick with Obstacle
+	//Force added to Stick with Obstacle
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float StickWithObstacleImpulse = 230000.f;
+		float StickWithObstacleImpulse = 18200000.f;
 	//How much should change the angle of the impact vector
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float AngleOfHitImpact = 85.f;
@@ -74,6 +74,8 @@ private:
 		FFloatRange VelocityRangeToStopWallrunming = FFloatRange(-5.f, 400.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
 		float MinVelocityToPerformWallrun = 120.f;
+
+		float ttest;
 
 	//Interp Speed of Changing the Yaw Camera
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")

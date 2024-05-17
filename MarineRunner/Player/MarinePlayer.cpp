@@ -231,15 +231,18 @@ void AMarineCharacter::Right(float Axis)
 
 void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxisName)
 {
+	PlayFootstepsSound();
+
+	if (GetIsWallrunning())
+		return;
+
 	float Speed = (MovementSpeed / MovementForceDividerWhenInADS) / (GetInputAxisValue(InputAxisName) != 0.f ? ForwardAndRightAtTheSameTimeDivider : 1);
 
 	if (GetIsWallrunning())
 		Speed = (MovementSpeed / MovementForceDividerWhenInADS) * MovementSpeedMutliplier;
 
 	if (GetIsInAir() && !GetIsWallrunning() )
-		Speed /= JumpComponent->GetDividerForMovementWhenInAir();
-
-	PlayFootstepsSound();
+		Speed /= (JumpComponent->GetDividerForMovementWhenInAir());
 
 	Direction.Z = 0.f;
 	const FVector& Force = (Axis * Direction * Speed) + CalculateCounterMovement();
@@ -251,7 +254,10 @@ FVector AMarineCharacter::CalculateCounterMovement()
 
 	float CounterForce = CounterMovementForce;
 	if (GetIsInAir() && !GetIsWallrunning())
-		CounterForce = CounterMovementForce / JumpComponent->GetDividerForCounterForceWhenInAir();
+	{
+		float test = GetVelocity().Length() > 1250.f ? GetVelocity().Length() / 1250.f : 1.f;
+		CounterForce = CounterMovementForce / (JumpComponent->GetDividerForCounterForceWhenInAir() * test);
+	}
 
 	return FVector(CounterForce * CounterVelocity.X, CounterForce * CounterVelocity.Y, 0);
 }

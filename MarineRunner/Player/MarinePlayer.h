@@ -142,7 +142,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
 		float OriginalHealth = 100.f;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
-		float DividerForRadialDamage = 40.f;
+		float DividerForRadialDamage = 2.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn")
 		TObjectPtr < USoundBase> MarineHitSound = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")

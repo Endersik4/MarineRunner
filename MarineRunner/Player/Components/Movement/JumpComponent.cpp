@@ -78,7 +78,7 @@ void UJumpComponent::Jump()
 		if (IsValid(JumpSound))
 			UGameplayStatics::SpawnSound2D(GetWorld(), JumpSound);
 		else
-			UE_LOG(LogTemp, Warning, TEXT("Jump Sound is nullptr in Jump Cpmponent!"));
+			UE_LOG(LogTemp, Warning, TEXT("Jump Sound is nullptr in Jump Component!"));
 	}
 	else
 	{
@@ -224,23 +224,29 @@ void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
 	{
 		bIsOnRamp = true;
 
-		if (!Player->GetCrouchAndSlideComponent()->GetIsSliding())
+		Player->SetShouldPlayerGoForward(true);
+		Player->GetCrouchAndSlideComponent()->CrouchPressed();
+		Player->GetCrouchAndSlideComponent()->BeginSlide();
+
+		/*if (!Player->GetCrouchAndSlideComponent()->GetIsSliding())
 		{
-			Player->SetShouldPlayerGoForward(true);
-			Player->GetCrouchAndSlideComponent()->CrouchPressed();
-			Player->GetCrouchAndSlideComponent()->BeginSlide();
-		}
+
+		}*/
 	}
 
 	//Check if Pawn is going UP on ramp, if he is then he cant slide
 	if (PreviousPlayerLocationOnRamp.Z < Player->GetActorLocation().Z)
 	{
 		bIsGoingUpOnRamp = true;
+		UE_LOG(LogTemp, Warning, TEXT("GOING UP"));
+
 	}
 	else if (bIsGoingUpOnRamp)
 	{
-		bIsOnRamp = false;
-		Player->SetShouldPlayerGoForward(false);
+		UE_LOG(LogTemp, Warning, TEXT("GOING DOWN"));
+
+		//bIsOnRamp = false;
+		//Player->SetShouldPlayerGoForward(false);
 		
 		bIsGoingUpOnRamp = false;
 	}
@@ -249,11 +255,14 @@ void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
 
 void UJumpComponent::DisablePlayerOnRampActions()
 {
-	if (!bIsOnRamp)
-		return;
-
 	bIsOnRamp = false;
 	bIsGoingUpOnRamp = false;
+	return;
+	if (!bIsOnRamp)
+		return;
+	UE_LOG(LogTemp, Error, TEXT("STOPPED CROUCH"));
+
+
 	Player->SetShouldPlayerGoForward(false);
 	Player->GetCrouchAndSlideComponent()->CrouchReleasedByObject();
 }

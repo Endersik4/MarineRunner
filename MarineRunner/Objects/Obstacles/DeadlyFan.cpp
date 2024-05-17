@@ -3,6 +3,7 @@
 
 #include "MarineRunner/Objects/Obstacles/DeadlyFan.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/Interfaces/DamageInterface.h"
@@ -33,7 +34,7 @@ void ADeadlyFan::BeginPlay()
 	DeadlyFanMesh->OnComponentBeginOverlap.AddDynamic(this, &ADeadlyFan::OnFanMeshBeginOverlap);
 
 	if (IsValid(FanSound))
-		UGameplayStatics::PlaySoundAtLocation(GetWorld(), FanSound, GetActorLocation());
+		SpawnedFanSound = UGameplayStatics::SpawnSoundAtLocation(GetWorld(), FanSound, GetActorLocation());
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Fan Sound is nullptr in DeadlyFan!"));
 }

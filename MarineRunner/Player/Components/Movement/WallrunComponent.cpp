@@ -55,7 +55,7 @@ void UWallrunComponent::Wallrunning(float Delta)
 	}
 	else if (bIsWallrunning)
 	{
-		ResetWallrunning(); //If There is no obstacle around then Wallrun should be disabled
+		ResetWallrunning(); //If There is no obstacle around then disable Wallrun
 		MarinePawn->GetPlayerCapsule()->AddImpulse(WallrunningWhereToJump * JumpFromWallrunImpulse);
 	}
 }
@@ -66,8 +66,13 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 	if (!bIsWallrunning && !(MarinePawn->GetInputAxisValue("Forward") > 0.5f))
 		return;
 
+	//added Impulse to Stick with Obstacle
+	const FVector& Impulse = (-HitNormal) * StickWithObstacleImpulse;
+	MarinePawn->GetPlayerCapsule()->AddForce(Impulse);
+
 	BeginWallrun(CurrentSide, HitNormal);
 	WallrunningWhereToJump = HitNormal;
+	MarinePawn->GetPlayerCapsule()->SetPhysicsLinearVelocity(WallrunDirection * ttest);
 
 	if (MarinePawn->GetVelocity().Length() > VelocityRangeToStopWallrunming.GetLowerBoundValue() && MarinePawn->GetVelocity().Length() < VelocityRangeToStopWallrunming.GetUpperBoundValue())
 	{
@@ -75,9 +80,7 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 		return;
 	}
 
-	//added Impulse to Stick with Obstacle
-	const FVector& Impulse = (-HitNormal) * StickWithObstacleImpulse;
-	MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
+	//MarinePawn->GetPlayerCapsule()->SetPhysicsLinearVelocity(WallrunDirection * 2000);
 }
 
 void UWallrunComponent::BeginWallrun(ESideOfLine CurrentSide, FVector HitNormal)
@@ -85,10 +88,11 @@ void UWallrunComponent::BeginWallrun(ESideOfLine CurrentSide, FVector HitNormal)
 	if (bIsWallrunning)
 		return;
 
+	ttest = FMath::Clamp(MarinePawn->GetVelocity().Length(), 1700.f, 2300.f);
 	WallrunTimeElapsed = DelayToStartNextWallrun;
 
 	MarinePawn->SetShouldPlayerGoForward(true);
-	MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
+	//MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
 
 	CurrentRotatedCameraRoll = CurrentSide;
 	RotateCameraWhileWallrunning(CurrentSide == Right ? CameraRollRightSideCurve : CameraRollLeftSideCurve);//Rotating the camera in Roll, Definition of this function is in Blueprint of MarineCharacter
@@ -97,6 +101,9 @@ void UWallrunComponent::BeginWallrun(ESideOfLine CurrentSide, FVector HitNormal)
 
 	const float& YawMovementImpulse = HitNormal.Rotation().Yaw + (AngleOfHitImpact * (CurrentSide == Left ? -1 : 1));
 	WallrunDirection = FRotator(0, YawMovementImpulse, 0).Vector();
+
+	//const FVector& Impulse = WallrunDirection * 600000.f;
+	//MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
 
 	bIsWallrunning = true;
 

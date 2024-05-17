@@ -26,6 +26,8 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
+		TObjectPtr<USceneComponent> RootSceneComponent = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		TObjectPtr<class UStaticMeshComponent> HammerMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 		TObjectPtr<class UBoxComponent> HammerBoxComponent = nullptr;
@@ -40,6 +42,8 @@ private:
 		float DamageToApply = 1000.f;
 	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
 		float ImpulseForceToApply = 0.f;
+	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
+		FVector DirectorToApplyCurve = FVector(0.f, 0.f, 1.f);
 	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
 		TObjectPtr<UCurveFloat> CurveZLocation = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Hammer Setup")

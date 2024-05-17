@@ -40,6 +40,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Fan Setup")
 		TObjectPtr<USoundBase> FanSound = nullptr;
 
+	UPROPERTY(Transient)
+	TObjectPtr<class  UAudioComponent> SpawnedFanSound;
+
 	UFUNCTION()
 		void OnFanMeshBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
