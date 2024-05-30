@@ -66,7 +66,7 @@ public:
 	int32 GetCurrentFloor() const;
 
 	UFUNCTION()
-		void ShowSelectFloorPanel(bool NewIsElevatorInMove);
+		void ShowSelectFloorPanel(bool bShow);
 
 	void SelectFloor(int32 FloorToGo);
 

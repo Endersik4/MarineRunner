@@ -3,9 +3,12 @@
 
 #include "MarineRunner/Albertos/Objects/CallAlbertosActor.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Albertos/AlbertosPawn.h"
+#include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
+
 // Sets default values
 ACallAlbertosActor::ACallAlbertosActor()
 {
@@ -40,5 +43,36 @@ void ACallAlbertosActor::CallAlbertosBoxBeginOverlap(UPrimitiveComponent* Overla
 	Player->GetAlbertosPawn()->SetActorLocation(TeleportAlbertosLocation);
 
 	bWasCalled = true;
+
+	SaveCurrentCallState();
 }
 
+void ACallAlbertosActor::SaveCurrentCallState()
+{
+	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
+
+	if (!IsValid(SavedDataObject))
+		return;
+
+	if (CurrentUniqueID == 0)
+		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
+
+	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
+}
+
+void ACallAlbertosActor::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	CurrentUniqueID = IDkey;
+	if (SavedCustomData.ObjectState == 1)
+		bWasCalled = true;
+}
+
+void ACallAlbertosActor::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	;
+}
+
+void ACallAlbertosActor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
+{
+	bWasCalled = false;
+}

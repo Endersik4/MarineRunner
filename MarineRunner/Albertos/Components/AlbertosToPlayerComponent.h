@@ -45,9 +45,7 @@ private:
 	/// <summary>
 	/// Check if the distance to the player is greater than MaxDistanceToPlayer, if so, teleport Alberto near the player.
 	/// </summary>
-	/// <returns>True - if albertos is further from the player then MaxDistanceToPlayer <br/>
-	/// False - otherwise</returns>
-	bool TeleportAlbertosToPlayer(const FVector& PlayerLoc);
+	void TeleportAlbertosToPlayer(const FVector& PlayerLoc);
 
 	void SetInitialAlbertosVariables();
 };

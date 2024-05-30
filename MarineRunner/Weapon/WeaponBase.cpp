@@ -88,7 +88,7 @@ void AWeaponBase::DrawWeapon()
 	if (IsValid(DrawWeapon_Sound))
 		UGameplayStatics::PlaySound2D(GetWorld(), DrawWeapon_Sound);
 	else
-		UE_LOG(LogTemp, Warning, TEXT("Draw Weapon Sound is nullptr in Weapon %s"), *GetActorLabel());
+		UE_LOG(LogTemp, Warning, TEXT("Draw Weapon Sound is nullptr in Weapon"));
 
 	Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(true);
 
@@ -112,7 +112,7 @@ void AWeaponBase::PutAwayWeapon()
 	if (IsValid(PutAwayWeapon_Sound))
 		UGameplayStatics::PlaySound2D(GetWorld(), PutAwayWeapon_Sound);
 	else
-		UE_LOG(LogTemp, Warning, TEXT("PutAwayWeapon_Sound is nullptr in Weapon %s"), *GetActorLabel());
+		UE_LOG(LogTemp, Warning, TEXT("PutAwayWeapon_Sound is nullptr in Weapon"));
 
 	FTimerHandle HideWeaponHandle;
 	GetWorld()->GetTimerManager().SetTimer(HideWeaponHandle, this, &AWeaponBase::HideWeapon, PutAwayWeapon_Anim.ArmsActionAnim->GetPlayLength(), false);
@@ -155,7 +155,7 @@ void AWeaponBase::DropWeapon()
 	if (IsValid(DropWeaponSound))
 		UGameplayStatics::PlaySound2D(GetWorld(), DropWeaponSound);
 	else
-		UE_LOG(LogTemp, Warning, TEXT("DropWeaponSound is nullptr in Weapon%s"), *GetActorLabel());
+		UE_LOG(LogTemp, Warning, TEXT("DropWeaponSound is nullptr in Weapon"));
 
 	const FVector& LocationToSpawnWeaponItem = Player->GetCameraLocation() + Player->GetCamera()->GetForwardVector() * DistanceToDropWeapon;
 	const FTransform& WeaponItemTransform = FTransform(FRotator(0.f), LocationToSpawnWeaponItem);

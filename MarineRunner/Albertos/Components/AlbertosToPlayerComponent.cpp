@@ -3,6 +3,7 @@
 #include "MarineRunner/Albertos/Components/AlbertosToPlayerComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavigationSystem.h"
+#include "NavigationPath.h"
 
 #include "MarineRunner/Albertos/AlbertosPawn.h"
 #include "MarineRunner/Albertos/AlbertosAIController.h"
@@ -30,8 +31,7 @@ void UAlbertosToPlayerComponent::CallAlbertosToThePlayer(FVector PlayerLoc)
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Call Albertos Sound is nullptr in AlbertosToPlayer Component"));
 
-	if (TeleportAlbertosToPlayer(PlayerLoc))
-		return;
+	TeleportAlbertosToPlayer(PlayerLoc);
 
 	PlayerLoc.Z = AlbertosPawn->GetActorLocation().Z;
 	AlbertosAIController->CallAlbertosToThePlayer(PlayerLoc);
@@ -40,23 +40,26 @@ void UAlbertosToPlayerComponent::CallAlbertosToThePlayer(FVector PlayerLoc)
 }
 
 // if player is further away from TeleportToPlayerRadius then teleport albertos to location near player
-bool UAlbertosToPlayerComponent::TeleportAlbertosToPlayer(const FVector& PlayerLoc)
+void UAlbertosToPlayerComponent::TeleportAlbertosToPlayer(const FVector& PlayerLoc)
 {
-	const float& DistanceToPlayer = FVector::Distance(PlayerLoc, AlbertosPawn->GetActorLocation());
-	if (DistanceToPlayer < MaxDistanceToPlayer)
-		return false;
+	float pathlen;
+	const ENavigationQueryResult::Type bFoundLoc2 = UNavigationSystemV1::GetCurrent(GetWorld())->GetPathLength(PlayerLoc, AlbertosPawn->GetActorLocation(), pathlen);
+	if (bFoundLoc2 != ENavigationQueryResult::Fail)
+	{
+		const float& DistanceToPlayer = FVector::Distance(PlayerLoc, AlbertosPawn->GetActorLocation());
+		if (DistanceToPlayer < MaxDistanceToPlayer)
+			return;
 
-	if (!IsValid(UNavigationSystemV1::GetCurrent(GetWorld())))
-		return false;
+		if (!IsValid(UNavigationSystemV1::GetCurrent(GetWorld())))
+			return;
+	}
 
 	FNavLocation RandomTeleportLocation;
 	const bool& bFoundLoc = UNavigationSystemV1::GetCurrent(GetWorld())->GetRandomReachablePointInRadius(PlayerLoc, TeleportToPlayerRadius, RandomTeleportLocation);
 	if (!bFoundLoc)
-		return false;
+		return;
 
 	AlbertosPawn->SetActorLocation(RandomTeleportLocation.Location);
-
-	return true;
 }
 
 void UAlbertosToPlayerComponent::ChangeMaxSpeedOfFloatingMovement(const bool bTowardsPlayer)

@@ -136,6 +136,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	//Weapon Inventory
 	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("First_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 1);
 	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Second_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 2);
+	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Third_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 3);
 
 
 	PlayerInputComponent->BindAction(TEXT("FirstAidKit"), IE_Pressed, this, &AMarineCharacter::UseFirstAidKit);
@@ -237,6 +238,8 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 		return;
 
 	float Speed = (MovementSpeed / MovementForceDividerWhenInADS) / (GetInputAxisValue(InputAxisName) != 0.f ? ForwardAndRightAtTheSameTimeDivider : 1);
+	if (GetIsInSlowMotion())
+		Speed /= UGameplayStatics::GetGlobalTimeDilation(GetWorld());
 
 	if (GetIsWallrunning())
 		Speed = (MovementSpeed / MovementForceDividerWhenInADS) * MovementSpeedMutliplier;
@@ -255,8 +258,8 @@ FVector AMarineCharacter::CalculateCounterMovement()
 	float CounterForce = CounterMovementForce;
 	if (GetIsInAir() && !GetIsWallrunning())
 	{
-		float test = GetVelocity().Length() > 1250.f ? GetVelocity().Length() / 1250.f : 1.f;
-		CounterForce = CounterMovementForce / (JumpComponent->GetDividerForCounterForceWhenInAir() * test);
+		float CounterMovementAccordingToSpeed = GetVelocity().Length() > MaxVelocityForStaticCounterMovement ? GetVelocity().Length() / MaxVelocityForStaticCounterMovement : 1.f;
+		CounterForce = CounterMovementForce / (JumpComponent->GetDividerForCounterForceWhenInAir() * CounterMovementAccordingToSpeed);
 	}
 
 	return FVector(CounterForce * CounterVelocity.X, CounterForce * CounterVelocity.Y, 0);

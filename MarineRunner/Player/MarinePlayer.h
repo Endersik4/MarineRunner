@@ -171,6 +171,9 @@ private:
 	// When player wants to move forward and right then the forward speed is added to right speed and the player moves faster, this divider prevents this
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Movement")
 		float ForwardAndRightAtTheSameTimeDivider = 1.3f;
+	// if Velocity is higher then MaxVelocityForStaticCounterMovement, The higher the velocity, the lower the force counteracting the movement (when in air)
+	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Movement")
+		float MaxVelocityForStaticCounterMovement = 1250.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Widgets")
 		TSubclassOf<class UUserWidget> CrosshairClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Widgets")

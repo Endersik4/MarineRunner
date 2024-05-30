@@ -32,7 +32,10 @@ void AHook::BeginPlay()
 {
 	Super::BeginPlay();
 
+	PlayerInRangeWhenGameStarted();
+
 	OriginalHookStateScale = HookStateFlipBook->GetComponentScale();
+
 	HookActiveSphere->OnComponentBeginOverlap.AddUniqueDynamic(this, &AHook::OnCheckSphereBeginOverlap);
 	HookActiveSphere->OnComponentEndOverlap.AddUniqueDynamic(this, &AHook::OnCheckSphereEndOverlap);
 
@@ -149,4 +152,17 @@ void AHook::HideFlipbookIfItIsNotVisible()
 void AHook::ResetHookStateFlipbookScale()
 {
 	HookStateFlipBook->SetWorldScale3D(OriginalHookStateScale);
+}
+
+void AHook::PlayerInRangeWhenGameStarted()
+{
+	HookActiveSphere->UpdateOverlaps();
+
+	TArray<AActor*> Actors;
+	GetOverlappingActors(Actors);
+	if (Actors.Num() == 0)
+		return;
+
+	ActivateHook(true);
+	PlayerInRange = Actors[0];
 }

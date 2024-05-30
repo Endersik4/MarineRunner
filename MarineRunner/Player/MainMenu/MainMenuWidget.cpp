@@ -161,8 +161,11 @@ void UMainMenuWidget::OnClickedLoadGameButton()
 {
 	if (!bWasLoadGameMenuWidgetSpawned)
 		SpawnLoadGameMenuWidget();
-	else 
+	else
+	{
+		HideContinueButton(); // checking whether saves have been deleted
 		RemoveLoadGameMenuWidgetFromViewport();
+	}
 }
 
 void UMainMenuWidget::SpawnLoadGameMenuWidget()

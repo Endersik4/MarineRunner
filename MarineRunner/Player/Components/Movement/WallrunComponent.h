@@ -62,6 +62,8 @@ private:
 		float DelayToStartNextWallrun = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float MaxYawDistanceToStopWallrunning = 45.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
+		FFloatRange WallrunVelocityRange = FFloatRange(1700.f, 2300.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Jump")
 		float JumpFromWallrunImpulse = 780000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Jump")
@@ -75,7 +77,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
 		float MinVelocityToPerformWallrun = 120.f;
 
-		float ttest;
+		float WallrunVelocity;
 
 	//Interp Speed of Changing the Yaw Camera
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")

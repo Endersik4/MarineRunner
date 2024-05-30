@@ -72,15 +72,13 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 
 	BeginWallrun(CurrentSide, HitNormal);
 	WallrunningWhereToJump = HitNormal;
-	MarinePawn->GetPlayerCapsule()->SetPhysicsLinearVelocity(WallrunDirection * ttest);
+	MarinePawn->GetPlayerCapsule()->SetPhysicsLinearVelocity(WallrunDirection * WallrunVelocity);
 
 	if (MarinePawn->GetVelocity().Length() > VelocityRangeToStopWallrunming.GetLowerBoundValue() && MarinePawn->GetVelocity().Length() < VelocityRangeToStopWallrunming.GetUpperBoundValue())
 	{
 		ResetWallrunning();
 		return;
 	}
-
-	//MarinePawn->GetPlayerCapsule()->SetPhysicsLinearVelocity(WallrunDirection * 2000);
 }
 
 void UWallrunComponent::BeginWallrun(ESideOfLine CurrentSide, FVector HitNormal)
@@ -88,7 +86,7 @@ void UWallrunComponent::BeginWallrun(ESideOfLine CurrentSide, FVector HitNormal)
 	if (bIsWallrunning)
 		return;
 
-	ttest = FMath::Clamp(MarinePawn->GetVelocity().Length(), 1700.f, 2300.f);
+	WallrunVelocity = FMath::Clamp(MarinePawn->GetVelocity().Length(), WallrunVelocityRange.GetLowerBoundValue(), WallrunVelocityRange.GetUpperBoundValue());
 	WallrunTimeElapsed = DelayToStartNextWallrun;
 
 	MarinePawn->SetShouldPlayerGoForward(true);
@@ -101,9 +99,6 @@ void UWallrunComponent::BeginWallrun(ESideOfLine CurrentSide, FVector HitNormal)
 
 	const float& YawMovementImpulse = HitNormal.Rotation().Yaw + (AngleOfHitImpact * (CurrentSide == Left ? -1 : 1));
 	WallrunDirection = FRotator(0, YawMovementImpulse, 0).Vector();
-
-	//const FVector& Impulse = WallrunDirection * 600000.f;
-	//MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
 
 	bIsWallrunning = true;
 
@@ -141,7 +136,7 @@ void UWallrunComponent::ResetWallrunning()
 	bRotateYawCameraTowardsWallrun = false;
 
 	MarinePawn->SetShouldPlayerGoForward(false);
-	MarinePawn->SetMovementSpeedMutliplier(1.f);
+	//MarinePawn->SetMovementSpeedMutliplier(1.f);
 
 	RotateCameraWhileWallrunning(CurrentRotatedCameraRoll == Right ? CameraRollRightSideCurve : CameraRollLeftSideCurve);
 

@@ -206,7 +206,8 @@ void USaveLoadPlayerComponent::SpawnNewPlayer()
 
 	SpawnedNewPlayer->SetAlbertosPawn(Player->GetAlbertosPawn());
 	SpawnedNewPlayer->GetSaveLoadPlayerComponent()->SetSavedDataObject(Player->GetSaveLoadPlayerComponent()->GetSavedDataObject());
-	Player->GetAlbertosPawn()->GetPlayerIsNearComponent()->SetPlayerPawn(SpawnedNewPlayer);
+	if (IsValid(Player->GetAlbertosPawn()))
+		Player->GetAlbertosPawn()->GetPlayerIsNearComponent()->SetPlayerPawn(SpawnedNewPlayer);
 
 	SpawnedNewPlayer->FinishSpawning(NewPlayerTransform);
 

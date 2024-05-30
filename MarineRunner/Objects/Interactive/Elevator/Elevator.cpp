@@ -7,6 +7,7 @@
 #include "Components/WidgetComponent.h"
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/ListView.h"
 
 #include "ElevatorPanel/ElevatorPanelWidget.h"
 #include "OutsideElevatorDoors/OutsideElevatorDoor.h"
@@ -63,7 +64,8 @@ void AElevator::MoveElevatorAfterTime()
 	if (!IsPlayerTooFarAwayToDoCutscene())
 		return;
 
-	ElevatorPanelWidget->SetVisibility(ESlateVisibility::Hidden);
+	//ElevatorPanelWidget->ShowSelectFloorPanel(false);
+	ElevatorPanelWidget->SelectFloorsListView->SetVisibility(ESlateVisibility::Hidden);
 
 	FTimerHandle MoveToFloorHandle;
 	FTimerDelegate MoveToFloorDelegate = FTimerDelegate::CreateUObject(this, &AElevator::PrepareElevatorToMove, FloorToMoveWhileCutscene.FloorLocation, FloorToMoveWhileCutscene.Floor);
@@ -216,7 +218,7 @@ void AElevator::CanUseElevatorAgain()
 {
 	ElevatorPanelWidget->ShowWaitForElevatorText(false);
 	ElevatorPanelWidget->ShowSelectFloorPanel(true);
-
+	
 	GetWorldTimerManager().SetTimer(CloseDoorAfterInactivityHandle, this, &AElevator::CloseElevatorDoors, TimeToCloseDoorsAfterInactivity, false);
 
 	if (IsValid(BeforeCurrentOutsideElevatorDoor))

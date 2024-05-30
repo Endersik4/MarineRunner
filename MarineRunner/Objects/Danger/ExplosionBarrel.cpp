@@ -79,6 +79,7 @@ void AExplosionBarrel::UseDamageInterfaceOnActor(const FHitResult& HitResult)
 	}
 	else if (HitResult.GetActor()->Implements<UDamageInterface>())  //Check if Object has Interface Blueprint Implementation
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Damage %s"), *HitResult.GetActor()->GetActorLabel());
 		IDamageInterface::Execute_BreakObject(HitResult.GetActor(), ExplosionImpulseForce, HitResult, this, ExplosionRadius);
 	}
 	else if (HitResult.GetComponent()->IsSimulatingPhysics())
@@ -124,10 +125,10 @@ void AExplosionBarrel::SpawnEffects()
 
 	FRotator DecalRotation = ExplosionBarrelMesh->GetComponentRotation();
 	DecalRotation.Pitch -= 90.f;
-	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ExplosionDecal, ExplosionDecalSize, ExplosionBarrelMesh->GetComponentLocation(), DecalRotation);
+	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ExplosionDecal, DecalRotation.Vector() * ExplosionDecalSize, ExplosionBarrelMesh->GetComponentLocation(), DecalRotation);
 	if (!IsValid(SpawnedDecal))
 		return;
-	
+	//SpawnedDecal->SetRelativeScale3D(DecalRotation.Vector().Normalize() * ExplosionDecalSize);
 	SpawnedDecal->SetFadeScreenSize(0.f);
 }
 

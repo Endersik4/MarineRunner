@@ -86,4 +86,6 @@ private:
 	void HideFlipbookIfItIsNotVisible();
 	void ResetHookStateFlipbookScale();
 
+	// when the game started then check if Hook is overlapping the player, if it is then activate hook
+	void PlayerInRangeWhenGameStarted();
 };

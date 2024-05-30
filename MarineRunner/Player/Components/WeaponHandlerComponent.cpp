@@ -72,7 +72,7 @@ void UWeaponHandlerComponent::UpdateWeaponInformationOnHud()
 	if (!IsValid(CurrentWeapon))
 		return;
 
-	CurrentWeapon->UpdateWeaponHudInformation();
+	CurrentWeapon->UpdateWeaponHudInformation(true, true);
 }
 
 void UWeaponHandlerComponent::TertiaryAction(float WheelAxis)

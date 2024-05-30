@@ -55,7 +55,7 @@ private:
 		TObjectPtr<USoundBase> JumpSound = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
-		float CheckInAirTime = 0.01f;
+		float CheckInAirTime = 0.0001f;
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 		FVector BoxSizeToCheckIfSomethingIsBelow = FVector(25.f, 25.f, 20.f);
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
