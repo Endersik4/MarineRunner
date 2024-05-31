@@ -121,6 +121,10 @@ public:
 	bool BackToPreviousMenu();
 	TArray<FVisibleMainMenu> CurrentSpawnedMenuWidgets;
 
+	UFUNCTION(BlueprintCallable)
+		void StartNewGame();
+
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Main Menu Settings")
 		FName NewGameLevelName = "L_GameInformationMap";
@@ -168,7 +172,6 @@ private:
 	// Fade out when starting/loading game
 	FTimerHandle StartGameHandle;
 	void ContinueGame();
-	void StartNewGame();
 	void MainMenuFadeOut();
 
 	void PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true, bool bCanHoverGivenText = false);

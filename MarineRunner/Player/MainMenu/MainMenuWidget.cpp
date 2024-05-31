@@ -133,7 +133,7 @@ void UMainMenuWidget::OnClickedNewGameButton()
 {
 	MainMenuFadeOut();
 
-	GetWorld()->GetTimerManager().SetTimer(StartGameHandle, this, &UMainMenuWidget::StartNewGame, StartGameWidgetAnim->GetEndTime(), false);
+	//GetWorld()->GetTimerManager().SetTimer(StartGameHandle, this, &UMainMenuWidget::StartNewGame, StartGameWidgetAnim->GetEndTime(), false);
 }
 
 void UMainMenuWidget::StartNewGame()

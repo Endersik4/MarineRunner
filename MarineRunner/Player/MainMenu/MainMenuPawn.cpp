@@ -38,7 +38,7 @@ void AMainMenuPawn::SpawnMainMenuWidget()
 		return;
 
 	MainMenuWidget->AddToViewport();
-	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerController, MainMenuWidget);
+	UWidgetBlueprintLibrary::SetInputMode_UIOnlyEx(PlayerController, MainMenuWidget);
 
 	bIsInMainMenu = true;
 }

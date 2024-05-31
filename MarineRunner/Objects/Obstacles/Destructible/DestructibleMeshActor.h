@@ -46,7 +46,18 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings|Effects")
 		TObjectPtr<USoundBase> DestructionHitSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings|Effects")
+		TObjectPtr<USoundBase> BreakSound = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings|Effects")
+		float CanPlayBreakSoundTime = 0.05f;
+	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings|Effects")
 		TObjectPtr<UParticleSystem> DestructionHitParticle = nullptr;
+
+	UFUNCTION()
+		void OnChaosBreakEvent(const FChaosBreakEvent& BreakEvent);
+
+	UPROPERTY(Transient)
+		bool bCanPlayBreakSound = true;
+	FORCEINLINE void PlayAgainBreakSound() {bCanPlayBreakSound = true;}
 
 	UPROPERTY(Transient)
 		TObjectPtr<class ASpawnDestructibleActor> AssignedDestructibleActor = nullptr;

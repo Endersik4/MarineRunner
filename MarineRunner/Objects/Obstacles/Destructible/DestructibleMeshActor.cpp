@@ -32,6 +32,8 @@ void ADestructibleMeshActor::BeginPlay()
 	Super::BeginPlay();
 
 	SetLifeSpan(LifeSpan);
+
+	DestructableMeshComponent->OnChaosBreakEvent.AddDynamic(this, &ADestructibleMeshActor::OnChaosBreakEvent);
 }
 
 // Called every frame
@@ -39,6 +41,18 @@ void ADestructibleMeshActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ADestructibleMeshActor::OnChaosBreakEvent(const FChaosBreakEvent& BreakEvent)
+{
+	if (!bCanPlayBreakSound)
+		return;
+
+	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), BreakSound, BreakEvent.Location);
+	bCanPlayBreakSound = false;
+	
+	FTimerHandle BreakSoundHandle;
+	GetWorld()->GetTimerManager().SetTimer(BreakSoundHandle, this, &ADestructibleMeshActor::PlayAgainBreakSound, CanPlayBreakSoundTime, false);
 }
 
 void ADestructibleMeshActor::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)

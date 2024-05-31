@@ -24,6 +24,8 @@ void ACheckpoint::BeginPlay()
 {
 	Super::BeginPlay();
 
+	CheckpointBox->OnComponentBeginOverlap.AddDynamic(this, &ACheckpoint::OnCheckpointBoxBeginOverlap);
+
 	DisableCheckpoint();
 	EnableCheckpointAfterDelay();
 }
