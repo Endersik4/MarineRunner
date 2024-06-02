@@ -8,6 +8,8 @@
 
 #include "DestructibleMeshActor.generated.h"
 
+struct FChaosPhysicsCollisionInfo;
+
 UCLASS()
 class MARINERUNNER_API ADestructibleMeshActor : public AActor, public IDamageInterface
 {

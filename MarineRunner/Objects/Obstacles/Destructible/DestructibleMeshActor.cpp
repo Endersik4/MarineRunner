@@ -25,6 +25,8 @@ ADestructibleMeshActor::ADestructibleMeshActor()
 	EasilyBrokenMeshDamageData.BreakDamagePropagationFactor = 0.f;
 	EasilyBrokenMeshDamageData.ShockDamagePropagationFactor = 5.f;
 	DestructableMeshComponent->DamagePropagationData = EasilyBrokenMeshDamageData;
+
+	DestructableMeshComponent->SetNotifyBreaks(true);
 }
 
 void ADestructibleMeshActor::BeginPlay()
@@ -34,6 +36,7 @@ void ADestructibleMeshActor::BeginPlay()
 	SetLifeSpan(LifeSpan);
 
 	DestructableMeshComponent->OnChaosBreakEvent.AddDynamic(this, &ADestructibleMeshActor::OnChaosBreakEvent);
+	//DestructableMeshComponent->OnChaosPhysicsCollision.AddDynamic(this, &ADestructibleMeshActor::OnChaosPhysicsCollision);
 }
 
 // Called every frame
