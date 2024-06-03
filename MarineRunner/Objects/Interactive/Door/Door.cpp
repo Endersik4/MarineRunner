@@ -160,6 +160,7 @@ void ADoor::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 			DoorPanelWidget->RestartDoorPanelWidget();
 		if (IsValid(DoorPanelSecondWidget))
 			DoorPanelSecondWidget->RestartDoorPanelWidget();
+
 	}
 }
 
@@ -170,8 +171,24 @@ void ADoor::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const
 
 void ADoor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	if (SavedCustomData.ObjectState == 1)
-		SetUpDoorPanels();
+	if (SavedCustomData.ObjectState != 1)
+		return;
+
+	SetUpDoorPanels();
+
+	if (bDoorOpen)
+	{
+		GetWorldTimerManager().ClearTimer(CloseAfterInactivityHandle);
+
+		DoorSkeletalMesh->PlayAnimation(CloseDoorAnim, false);
+
+		if (IsValid(DoorPanelWidget))
+			DoorPanelWidget->ChangeDoorStatus();
+		if (IsValid(DoorPanelSecondWidget))
+			DoorPanelSecondWidget->ChangeDoorStatus();
+
+		bDoorOpen = false;
+	}
 }
 
 void ADoor::StopUsingPin()

@@ -3,6 +3,7 @@
 
 #include "MarineRunner/Enemies/ControllersAI/ChasingEnemyAIController.h"
 #include "Kismet/GameplayStatics.h"
+#include "NavigationSystem.h"
 
 #include "MarineRunner/Enemies/TypesOfEnemy/PunchingEnemyPawn.h"
 

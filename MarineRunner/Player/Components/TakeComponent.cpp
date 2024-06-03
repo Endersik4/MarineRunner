@@ -80,7 +80,7 @@ bool UTakeAndDrop::WhetherRaycastOnTheSameItem(const FHitResult& CurrentItemHit)
 {
 	if (IsValid(LastHitResult.GetActor()))
 	{
-		if (LastHitResult.GetActor() == CurrentItemHit.GetActor()) 
+		if (LastHitResult.GetActor() == CurrentItemHit.GetActor())
 			return false;
 	}
 
@@ -91,7 +91,7 @@ void UTakeAndDrop::HoverHitItem(const bool& bWasHit, const FHitResult& CurrentIt
 {
 	if (bWasHit)
 	{
-		if (!WhetherRaycastOnTheSameItem(CurrentItemHit)) 
+		if (!WhetherRaycastOnTheSameItem(CurrentItemHit))
 			return;
 
 		DisableLastHoveredItem();
@@ -100,7 +100,7 @@ void UTakeAndDrop::HoverHitItem(const bool& bWasHit, const FHitResult& CurrentIt
 		ITakeInterface* HoverInterface = Cast<ITakeInterface>(CurrentItemHit.GetActor());
 		if (!HoverInterface)
 			return;
-		
+
 		HoverInterface->ItemHover(MarinePawn);
 	}
 	else if (IsValid(LastHitResult.GetActor()))
@@ -112,12 +112,12 @@ void UTakeAndDrop::HoverHitItem(const bool& bWasHit, const FHitResult& CurrentIt
 
 void UTakeAndDrop::DisableLastHoveredItem()
 {
-	if (!IsValid(LastHitResult.GetActor())) 
+	if (!IsValid(LastHitResult.GetActor()))
 		return;
 
 	ITakeInterface* HoverInterface = Cast<ITakeInterface>(LastHitResult.GetActor());
 	if (!HoverInterface)
 		return;
-	
+
 	HoverInterface->ItemUnHover(MarinePawn);
 }

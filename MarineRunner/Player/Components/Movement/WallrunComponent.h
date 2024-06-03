@@ -49,9 +49,8 @@ public:
 	void CallResetWallrunningAfterLanding();//When Player is trying to do a wallrun but very close to the floor then Wallrun is disabled
 
 private:
-	//Speed of Pawn while performing wallrun
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float WallrunSpeed = 1.5f;
+	FFloatRange WallrunVelocityRange = FFloatRange(2000.f, 2500.f);
 	//Force added to Stick with Obstacle
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float StickWithObstacleImpulse = 18200000.f;
@@ -62,8 +61,6 @@ private:
 		float DelayToStartNextWallrun = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 		float MaxYawDistanceToStopWallrunning = 45.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		FFloatRange WallrunVelocityRange = FFloatRange(1700.f, 2300.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Jump")
 		float JumpFromWallrunImpulse = 780000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Jump")
@@ -76,8 +73,6 @@ private:
 		FFloatRange VelocityRangeToStopWallrunming = FFloatRange(-5.f, 400.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
 		float MinVelocityToPerformWallrun = 120.f;
-
-		float WallrunVelocity;
 
 	//Interp Speed of Changing the Yaw Camera
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")
@@ -97,9 +92,11 @@ private:
 	FVector WallrunDirection = FVector::Zero();
 
 	UPROPERTY(Transient)
-	float WallrunTimeElapsed = 0.6f; //After the jump, this time must pass to do the wallrun again
+		float WallrunVelocity = 0.f;
 	UPROPERTY(Transient)
-	FVector WallrunningWhereToJump = FVector::Zero(); //ImpactNormal of Obstacle HitResult
+		float WallrunTimeElapsed = 0.6f; //After the jump, this time must pass to do the wallrun again
+	UPROPERTY(Transient)
+		FVector WallrunningWhereToJump = FVector::Zero(); //ImpactNormal of Obstacle HitResult
 	void SetCanJumpWhileWallrunning();
 	FTimerHandle CanJumpHandle;
 

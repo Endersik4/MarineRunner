@@ -175,9 +175,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Movement")
 		float MaxVelocityForStaticCounterMovement = 1250.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Widgets")
-		TSubclassOf<class UUserWidget> CrosshairClass = nullptr;
+		TSubclassOf<class UCrosshairWidget> CrosshairWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Widgets")
-		TSubclassOf<class UUserWidget> HUDClass = nullptr;
+		TSubclassOf<class UHUDWidget> HUDClass = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
 		FFloatRange VelocityRangeToDisableFootsteps = FFloatRange(0.f, 150.f);
@@ -242,7 +242,7 @@ private:
 	//Widgets
 	void MakeHudWidget();
 	UPROPERTY(Transient)
-		TObjectPtr<UUserWidget> CrosshairWidget = nullptr;
+		TObjectPtr<class UCrosshairWidget> SpawnedCrosshairWidget = nullptr;
 	UPROPERTY(Transient)
 		TObjectPtr<class UHUDWidget> HudWidget = nullptr;
 	UPROPERTY(Transient)

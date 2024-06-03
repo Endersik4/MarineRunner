@@ -101,8 +101,6 @@ void AHook::ChangeToPlayerInRangeAnim()
 void AHook::DelayForGrabbingTheHook()
 {
 	bCanGrabTheHook = true;
-
-	ChangeToIdleAnim();
 }
 
 void AHook::ChangeHookFlipbookScale(float Delta)

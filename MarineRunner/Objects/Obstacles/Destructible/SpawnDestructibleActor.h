@@ -29,7 +29,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-
 	void DestructibleMeshActorGotHit();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")

@@ -42,21 +42,24 @@ void UAlbertosToPlayerComponent::CallAlbertosToThePlayer(FVector PlayerLoc)
 // if player is further away from TeleportToPlayerRadius then teleport albertos to location near player
 void UAlbertosToPlayerComponent::TeleportAlbertosToPlayer(const FVector& PlayerLoc)
 {
-	float pathlen;
-	const ENavigationQueryResult::Type bFoundLoc2 = UNavigationSystemV1::GetCurrent(GetWorld())->GetPathLength(PlayerLoc, AlbertosPawn->GetActorLocation(), pathlen);
-	if (bFoundLoc2 != ENavigationQueryResult::Fail)
+	TObjectPtr<UNavigationSystemV1> CurrentNavigationSystem = UNavigationSystemV1::GetCurrent(GetWorld());
+
+	if (!IsValid(CurrentNavigationSystem))
+		return;
+
+	// if albertos can go to the player then check if the distance
+	float PlayerToAlbertosPathLength = 0.f;
+	const ENavigationQueryResult::Type bFoundPathFromPlayerToAlbertos = CurrentNavigationSystem->GetPathLength(PlayerLoc, AlbertosPawn->GetActorLocation(), PlayerToAlbertosPathLength);
+	if (bFoundPathFromPlayerToAlbertos != ENavigationQueryResult::Fail)
 	{
 		const float& DistanceToPlayer = FVector::Distance(PlayerLoc, AlbertosPawn->GetActorLocation());
 		if (DistanceToPlayer < MaxDistanceToPlayer)
 			return;
-
-		if (!IsValid(UNavigationSystemV1::GetCurrent(GetWorld())))
-			return;
 	}
 
 	FNavLocation RandomTeleportLocation;
-	const bool& bFoundLoc = UNavigationSystemV1::GetCurrent(GetWorld())->GetRandomReachablePointInRadius(PlayerLoc, TeleportToPlayerRadius, RandomTeleportLocation);
-	if (!bFoundLoc)
+	const bool& bCanReachRandomPoint = CurrentNavigationSystem->GetRandomReachablePointInRadius(PlayerLoc, TeleportToPlayerRadius, RandomTeleportLocation);
+	if (!bCanReachRandomPoint)
 		return;
 
 	AlbertosPawn->SetActorLocation(RandomTeleportLocation.Location);

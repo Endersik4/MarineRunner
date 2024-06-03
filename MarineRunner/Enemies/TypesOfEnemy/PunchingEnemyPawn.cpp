@@ -14,7 +14,7 @@ APunchingEnemyPawn::APunchingEnemyPawn()
 void APunchingEnemyPawn::PlayerDetected(const bool bDetected, APawn* DetectedPawn)
 {
 	DetectedPlayer = DetectedPawn;
-
+	
 	if (bDetected)
 		GetWorld()->GetTimerManager().SetTimer(PlayerCloseForHitHandle, this, &APunchingEnemyPawn::IsPlayerCloseForHit, PlayerCloseRaycastInterval, true);
 	else
@@ -29,9 +29,13 @@ void APunchingEnemyPawn::IsPlayerCloseForHit()
 	FHitResult PlayerCloseHitResult;
 	const FVector& HitPlayerRaycastStart = EnemySkeletalMesh->GetSocketLocation(PlayerCloseRaycastSocketNameLocation);
 	const FVector& HitPlayerRaycastEnd = HitPlayerRaycastStart + UKismetMathLibrary::GetForwardVector(EnemySkeletalMesh->GetSocketRotation(PlayerCloseRaycastSocketNameLocation)) * MaxPlayerCloseRaycastDistance;
-	bool bPlayerIsClose = GetWorld()->LineTraceSingleByChannel(PlayerCloseHitResult, HitPlayerRaycastStart, HitPlayerRaycastEnd, ECC_GameTraceChannel3);
+	bool bPlayerIsClose = GetWorld()->LineTraceSingleByChannel(PlayerCloseHitResult, HitPlayerRaycastStart, HitPlayerRaycastEnd, ECC_Pawn);
 	
 	if (!bPlayerIsClose)
+		return;
+
+	IDamageInterface* ActorWithDamageInterface = Cast<IDamageInterface>(PlayerCloseHitResult.GetActor());
+	if (!ActorWithDamageInterface)
 		return;
 
 	DamageSphereLocation = HitPlayerRaycastEnd;

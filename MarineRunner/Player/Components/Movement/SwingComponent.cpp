@@ -46,7 +46,10 @@ void USwingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 void USwingComponent::HookLineCheck()
 {
 	if (!bCanMakeSwingLineCheck || bIsPlayerMovingToHook)
+	{
+
 		return;
+	}
 
 	const FVector& HookCheckLineStart = Player->GetCamera()->GetComponentLocation();
 	const FVector& HookCheckLineEnd = HookCheckLineStart + (PlayerController->GetRootComponent()->GetForwardVector() * LengthOfSwingLineRaycast);
@@ -68,7 +71,10 @@ void USwingComponent::ActivateCurrentHoveredHook(TObjectPtr<AActor> HookActorFro
 {
 	TObjectPtr<AHook> HoveredHook = Cast<AHook>(HookActorFromHit);
 	if (!IsValid(HoveredHook))
+	{
+		ClearLastActivatedHook();
 		return;
+	}
 
 	if (HoveredHook == CurrentFocusedHook)
 		return;
@@ -100,6 +106,9 @@ void USwingComponent::ClearLastActivatedHook()
 void USwingComponent::SwingPressed()
 {
 	if (!IsValid(CurrentFocusedHook))
+		return;
+
+	if (!CurrentFocusedHook->GetCanGrabHook())
 		return;
 
 	if (!bCanPlayerSwing)

@@ -13,6 +13,14 @@ void UHUDWidget::NativeConstruct()
 
 }
 
+void UHUDWidget::NativeOnInitialized()
+{
+	if (HealthBar->GetPercent() < MinHPToIndicateLowHP)
+	{
+		PlayAnimationForward(UseFirstAidKitLessHPAnim);
+	}
+}
+
 void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);

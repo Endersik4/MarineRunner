@@ -90,7 +90,7 @@ private:
 		TObjectPtr<class UAlbertosToPlayerComponent> AlbertosToPlayerComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
-		FFloatRange TimeRangeToPlayRandomSounds = FFloatRange(4.f, 10.f);
+		FFloatRange TimeRangeToPlayRandomSounds = FFloatRange(2.f, 7.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
 		TObjectPtr<USoundBase> RandomAlbertoSounds = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")

@@ -68,7 +68,7 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 
 	//added Impulse to Stick with Obstacle
 	const FVector& Impulse = (-HitNormal) * StickWithObstacleImpulse;
-	MarinePawn->GetPlayerCapsule()->AddForce(Impulse);
+	MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
 
 	BeginWallrun(CurrentSide, HitNormal);
 	WallrunningWhereToJump = HitNormal;

@@ -67,6 +67,7 @@ class MARINERUNNER_API UHUDWidget : public UUserWidget
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 
 	virtual void NativeTick(const FGeometry& MyGeometry, float DeltaTime) override;
 

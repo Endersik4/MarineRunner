@@ -109,6 +109,7 @@ void AAlbertosPawn::ItemHover(AMarineCharacter* Character)
 		return;
 
 	AlbertosSkeletalMesh->SetMaterial(AlbertosHoverMaterialIndex, OnAlbertosHoverMaterial);
+	//AlbertosSkeletalMesh->bRenderCustomDepth = true; 
 
 	if (IsValid(HoverSound))
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), HoverSound, GetActorLocation());
@@ -127,6 +128,8 @@ void AAlbertosPawn::ItemUnHover(AMarineCharacter* Character)
 		return;
 
 	AlbertosSkeletalMesh->SetMaterial(AlbertosHoverMaterialIndex, OnAlbertosUnHoverMaterial);
+	//AlbertosSkeletalMesh->bRenderCustomDepth = false; 
+
 	bIsHovered = false;
 }
 
@@ -142,11 +145,15 @@ void AAlbertosPawn::ToggleInventoryVisibility()
 
 	if (!CraftingTableWidget->IsVisible())
 	{
+		AlbertosSkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Ignore);
+
 		ToggleVisibilityCraftingWidget();
 		CraftingWidgetAnimationComponent->PrepareCraftingWidgetAnimation(true);
 	}
 	else
 	{
+		AlbertosSkeletalMesh->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel1, ECollisionResponse::ECR_Block);
+
 		CraftingWidgetAnimationComponent->PrepareCraftingWidgetAnimation(false);
 	}
 }

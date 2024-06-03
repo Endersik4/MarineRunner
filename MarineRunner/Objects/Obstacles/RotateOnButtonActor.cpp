@@ -155,6 +155,7 @@ void AWallrunOnButton::RestartData(ASavedDataObject* SavedDataObject, const int3
 
 	bResetingRotation = false;
 	bWasRotated = false;
+	
 	GetWorldTimerManager().ClearTimer(DisplayResetTimeHandle);
 	GetWorldTimerManager().ClearTimer(ResetToInitialRotationHandle);
 
@@ -176,3 +177,4 @@ void AWallrunOnButton::SetUpActiveMaterial()
 
 	ActivateMeshComponent->SetMaterial(IndexForActiveMaterialToChange, ActiveDynamicMaterial);
 }
+

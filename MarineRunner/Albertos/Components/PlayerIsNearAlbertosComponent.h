@@ -33,9 +33,9 @@ private:
 		bool bIgnorePlayer = false;
 	// if player is further then MaxPlayerDistanceToActiveAlbertos, Albertos goes back to wendering, otherwise = stops and rotates toward player
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Player Is Near", meta = (EditCondition = "!bIgnorePlayer"))
-		float MaxPlayerDistanceToActiveAlbertos = 1000.f;
+		float MaxPlayerDistanceToActiveAlbertos = 600.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Player Is Near", meta = (EditCondition = "!bIgnorePlayer"))
-		float TimeToCheckIfPlayerIsNear = 0.5f;
+		float TimeToCheckIfPlayerIsNear = 0.1f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Player Is Near", meta = (EditCondition = "!bIgnorePlayer"))
 		float SpeedToRotateTowardsPlayer = 8.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Player Is Near", meta = (EditCondition = "!bIgnorePlayer"))

@@ -4,9 +4,9 @@
 #include "MarineRunner/Objects/Obstacles/Destructible/SpawnDestructibleActor.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "DestructibleMeshActor.h"
 
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
+#include "DestructibleMeshActor.h"
 
 ASpawnDestructibleActor::ASpawnDestructibleActor()
 {
@@ -69,7 +69,7 @@ void ASpawnDestructibleActor::AddActorToSavedDataObject()
 
 	if (CurrentUniqueID == 0)
 		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
-
+	
 	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
 }
 

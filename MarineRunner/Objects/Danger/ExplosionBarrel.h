@@ -71,6 +71,7 @@ private:
 
 	void SpawnEffects();
 	void SpawnExplosionBarrelGeometry();
+	void SpawnExplosionDecal();
 	UPROPERTY(Transient)
 		TObjectPtr<AActor> SpawnedBarrelGeometry;
 

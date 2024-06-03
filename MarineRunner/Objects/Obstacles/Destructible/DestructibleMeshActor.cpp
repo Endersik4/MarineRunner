@@ -36,7 +36,6 @@ void ADestructibleMeshActor::BeginPlay()
 	SetLifeSpan(LifeSpan);
 
 	DestructableMeshComponent->OnChaosBreakEvent.AddDynamic(this, &ADestructibleMeshActor::OnChaosBreakEvent);
-	//DestructableMeshComponent->OnChaosPhysicsCollision.AddDynamic(this, &ADestructibleMeshActor::OnChaosPhysicsCollision);
 }
 
 // Called every frame
@@ -53,6 +52,8 @@ void ADestructibleMeshActor::OnChaosBreakEvent(const FChaosBreakEvent& BreakEven
 
 	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), BreakSound, BreakEvent.Location);
 	bCanPlayBreakSound = false;
+
+	DisableAssignedDestructibleActor();
 	
 	FTimerHandle BreakSoundHandle;
 	GetWorld()->GetTimerManager().SetTimer(BreakSoundHandle, this, &ADestructibleMeshActor::PlayAgainBreakSound, CanPlayBreakSoundTime, false);
@@ -60,10 +61,7 @@ void ADestructibleMeshActor::OnChaosBreakEvent(const FChaosBreakEvent& BreakEven
 
 void ADestructibleMeshActor::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
 {
-	if (IsValid(AssignedDestructibleActor))
-		AssignedDestructibleActor->DestructibleMeshActorGotHit();
-
-	DestructableMeshComponent->SetHiddenInGame(false);
+	DisableAssignedDestructibleActor();
 
 	DestructableMeshComponent->ApplyExternalStrain(NewHit.Item, NewHit.ImpactPoint, ExternalStrainRadius, 0, 1.f, ExternalStrainStrength);
 	DestructableMeshComponent->ApplyInternalStrain(NewHit.Item, NewHit.ImpactPoint, InternalStrainRadius, 0, 1.f, InternalStrainStrength);
@@ -85,5 +83,16 @@ void ADestructibleMeshActor::ApplyDamage(float NewDamage, float NewImpulseForce,
 		else
 			UE_LOG(LogTemp, Warning, TEXT("Destruction Hit Sound is nullptr in Destructible Mesh Actor!!"));
 	}
+}
+
+void ADestructibleMeshActor::DisableAssignedDestructibleActor()
+{
+	if (!IsValid(AssignedDestructibleActor) || bVisible)
+		return;
+
+	AssignedDestructibleActor->DestructibleMeshActorGotHit();
+	bVisible = true;
+	DestructableMeshComponent->SetHiddenInGame(false);
+
 }
 

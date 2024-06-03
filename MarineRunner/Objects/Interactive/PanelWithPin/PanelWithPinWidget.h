@@ -65,6 +65,8 @@ public:
 	void PinIsCorrect(bool bClickedByOwner = false);
 	void RestartDoorPanelWidget();
 
+	void ChangeDoorStatus();
+
 private:
 
 	UPROPERTY(Transient)
@@ -73,7 +75,6 @@ private:
 		bool bCanCloseObject = true;
 
 	FTimerHandle ChangeDoorStatusHandle;
-	void ChangeDoorStatus();
 
 	class IUsePinToEnterInterface* ActorWithWidget = nullptr;
 

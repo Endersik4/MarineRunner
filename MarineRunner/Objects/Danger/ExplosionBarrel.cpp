@@ -116,18 +116,26 @@ void AExplosionBarrel::SpawnEffects()
 		}
 	}
 
+	SpawnExplosionDecal();
+}
+
+void AExplosionBarrel::SpawnExplosionDecal()
+{
 	if (!IsValid(ExplosionDecal))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Explosion Decal is nullptr in ExplosionBarrel!"));
 		return;
 	}
 
-	FRotator DecalRotation = ExplosionBarrelMesh->GetComponentRotation();
-	DecalRotation.Pitch -= 90.f;
-	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ExplosionDecal, DecalRotation.Vector() * ExplosionDecalSize, ExplosionBarrelMesh->GetComponentLocation(), DecalRotation);
+	FHitResult HitResult;
+	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), GetActorLocation() + FVector(0.f, 0.f, -300.f), ECC_WorldStatic);
+	if (!bHit)
+		return;
+
+	TObjectPtr<UDecalComponent>	SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ExplosionDecal, ExplosionDecalSize, HitResult.Location, FRotator(-90.f, 0.f, 0.f));
 	if (!IsValid(SpawnedDecal))
 		return;
-	//SpawnedDecal->SetRelativeScale3D(DecalRotation.Vector().Normalize() * ExplosionDecalSize);
+
 	SpawnedDecal->SetFadeScreenSize(0.f);
 }
 

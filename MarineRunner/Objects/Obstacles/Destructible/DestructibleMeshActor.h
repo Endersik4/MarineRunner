@@ -57,6 +57,9 @@ private:
 	UFUNCTION()
 		void OnChaosBreakEvent(const FChaosBreakEvent& BreakEvent);
 
+	void DisableAssignedDestructibleActor();
+	UPROPERTY(Transient)
+		bool bVisible = false;
 	UPROPERTY(Transient)
 		bool bCanPlayBreakSound = true;
 	FORCEINLINE void PlayAgainBreakSound() {bCanPlayBreakSound = true;}

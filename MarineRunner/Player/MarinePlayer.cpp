@@ -31,6 +31,7 @@
 #include "MarineRunner/Player/Inventory/InventoryComponent.h"
 #include "MarineRunner/Player/PauseMenu/PauseMenuComponent.h"
 #include "MarineRunner/Player/Widgets/HUDWidget.h"
+#include "MarineRunner/Player/Widgets/CrosshairWidget.h"
 
 #include "MarineRunner/Albertos/AlbertosPawn.h"
 #include "MarineRunner/Albertos/Components/AlbertosToPlayerComponent.h"
@@ -459,25 +460,25 @@ void AMarineCharacter::MakeHudWidget()
 
 void AMarineCharacter::MakeCrosshire(bool bShouldRemoveFromParent)
 {
-	if (IsValid(CrosshairWidget))
+	if (IsValid(SpawnedCrosshairWidget))
 	{
 		if (bShouldRemoveFromParent)
 		{
-			CrosshairWidget->RemoveFromParent();
-			CrosshairWidget = nullptr;
+			SpawnedCrosshairWidget->RemoveFromParent();
+			SpawnedCrosshairWidget = nullptr;
 		}
 		return;
 	}
 
-	if (!CrosshairClass || !IsValid(MarinePlayerController))
+	if (!CrosshairWidgetClass || !IsValid(MarinePlayerController))
 		return;
 
-	CrosshairWidget = CreateWidget(MarinePlayerController, CrosshairClass);
+	SpawnedCrosshairWidget = Cast<UCrosshairWidget>(CreateWidget(MarinePlayerController, CrosshairWidgetClass));
 
-	if (!CrosshairWidget)
+	if (!IsValid(SpawnedCrosshairWidget))
 		return;
 
-	CrosshairWidget->AddToViewport();
+	SpawnedCrosshairWidget->AddToViewport();
 }
 
 void AMarineCharacter::UpdateHudWidget()
