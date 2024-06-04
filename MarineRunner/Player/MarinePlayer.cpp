@@ -37,6 +37,8 @@
 #include "MarineRunner/Albertos/Components/AlbertosToPlayerComponent.h"
 #include "MarineRunner/Albertos/Widgets/Crafting/CraftingAlbertosWidget.h"
 
+#include "MarineRunner/Weapon/WeaponBase.h"
+
 // Sets default values
 AMarineCharacter::AMarineCharacter()
 {
@@ -115,6 +117,7 @@ void AMarineCharacter::BeginPlay()
 void AMarineCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 
 // Called to bind functionality to input
@@ -185,7 +188,7 @@ void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& New
 
 	if (bResetMouseSensitivity)
 	{
-		MarinePlayerController->SetMouseSensitivity(MouseSensitivityJSON);
+		MarinePlayerController->SetMouseSensitivity(OriginalMouseSensitivityJSON);
 		return;
 	}
 
@@ -238,15 +241,17 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 	if (GetIsWallrunning())
 		return;
 
-	float Speed = (MovementSpeed / MovementForceDividerWhenInADS) / (GetInputAxisValue(InputAxisName) != 0.f ? ForwardAndRightAtTheSameTimeDivider : 1);
+	float TempMovementSpeed = MovementSpeed;
 	if (GetIsInSlowMotion())
-		Speed /= UGameplayStatics::GetGlobalTimeDilation(GetWorld());
+		TempMovementSpeed = SlowMotionComponent->GetMovementSpeedInSlowMotion();
+
+	float Speed = (TempMovementSpeed / MovementForceDividerWhenInADS) / (GetInputAxisValue(InputAxisName) != 0.f ? ForwardAndRightAtTheSameTimeDivider : 1);
 
 	if (GetIsWallrunning())
 		Speed = (MovementSpeed / MovementForceDividerWhenInADS) * MovementSpeedMutliplier;
 
 	if (GetIsInAir() && !GetIsWallrunning() )
-		Speed /= (JumpComponent->GetDividerForMovementWhenInAir());
+		Speed /= (JumpComponent->GetDividerForMovementWhenInAir() / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
 
 	Direction.Z = 0.f;
 	const FVector& Force = (Axis * Direction * Speed) + CalculateCounterMovement();
@@ -257,10 +262,16 @@ FVector AMarineCharacter::CalculateCounterMovement()
 	const FVector& CounterVelocity = GetVelocity() * FVector(-1.f, -1.f, 0.f);
 
 	float CounterForce = CounterMovementForce;
+	if (GetIsInSlowMotion())
+		CounterForce = SlowMotionComponent->GetCounterForceInSlowMotion();
+
 	if (GetIsInAir() && !GetIsWallrunning())
 	{
 		float CounterMovementAccordingToSpeed = GetVelocity().Length() > MaxVelocityForStaticCounterMovement ? GetVelocity().Length() / MaxVelocityForStaticCounterMovement : 1.f;
-		CounterForce = CounterMovementForce / (JumpComponent->GetDividerForCounterForceWhenInAir() * CounterMovementAccordingToSpeed);
+		CounterForce = CounterForce / (JumpComponent->GetDividerForCounterForceWhenInAir() * CounterMovementAccordingToSpeed);
+	
+		if (GetIsInSlowMotion())
+			CounterForce *= SlowMotionComponent->GetCounterForceMultiplierWhenInAir();
 	}
 
 	return FVector(CounterForce * CounterVelocity.X, CounterForce * CounterVelocity.Y, 0);
@@ -324,6 +335,7 @@ void AMarineCharacter::PlayFootstepsSound()
 	UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), FootstepsSoundLoudnessForEnemy, this, FootstepsSoundMaxRangeForEnemy);
 
 	bCanPlayFootstepsSound = false;
+	TimeToPlayNextStep *= UGameplayStatics::GetGlobalTimeDilation(GetWorld());
 	GetWorldTimerManager().SetTimer(FootstepsHandle, this, &AMarineCharacter::SetCanPlayFootstepsSound, TimeToPlayNextStep, false);
 }
 

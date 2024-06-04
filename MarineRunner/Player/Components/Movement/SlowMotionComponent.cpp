@@ -85,9 +85,10 @@ void USlowMotionComponent::SlowMotionEffects()
 	if (!IsValid(MarinePawn))
 		return;
 
-	FPowerUpLoaded SlowMoDelay = FPowerUpLoaded(true, SlowMotionTime, MarinePawn->GetHudWidget()->ActiveSlowMotionAnim, MarinePawn->GetHudWidget()->SlowMoBar);
+	FPowerUpLoaded SlowMoDelay = FPowerUpLoaded(true, SlowMotionTime*SlowMotionValue, MarinePawn->GetHudWidget()->ActiveSlowMotionAnim, MarinePawn->GetHudWidget()->SlowMoBar);
 	MarinePawn->GetHudWidget()->AddNewPowerUpToStartLoading(SlowMoDelay);
 	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
+	MarinePawn->GetHudWidget()->SetDeltaDivider(1.f / SlowMotionValue);
 
 	MarinePawn->GetCamera()->PostProcessSettings.bOverride_ColorGain = true;
 	MarinePawn->GetCamera()->PostProcessSettings.ColorGain = ScreenColorWhenInSlowMotion;
@@ -107,6 +108,7 @@ void USlowMotionComponent::DisableSlowMotion()
 	const float& NormalTimeSpeed = 1.f;
 	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), NormalTimeSpeed, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), NormalTimeSpeed);
+	MarinePawn->GetHudWidget()->SetDeltaDivider(NormalTimeSpeed);
 
 	MarinePawn->GetCamera()->PostProcessSettings.bOverride_ColorGain = false;
 	MarinePawn->GetCamera()->PostProcessSettings.ChromaticAberrationStartOffset = 1.f;

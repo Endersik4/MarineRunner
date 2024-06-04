@@ -25,7 +25,7 @@ void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);
 
-	ProgressPowerUps(DeltaTime);
+	ProgressPowerUps(DeltaTime / DeltaDivider);
 }
 
 void UHUDWidget::UpdateHealthBarPercent(float CurrentHealth)

@@ -93,6 +93,8 @@ public:
 	void ShowGameplayMechanicsBars(const bool bUnlockHeal, const bool bUnlockDash, const bool bUnlockSlowMo);
 	void ShowGameplayMechanicsBars(const EUnlockInHud& WhatToUnlock);
 
+	FORCEINLINE void SetDeltaDivider(float NewDeltaDivider) { DeltaDivider = NewDeltaDivider; }
+
 #pragma region ///////////// USE FIRST AID KIT UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 		TObjectPtr<UImage> UseFirstAidKidImage = nullptr;
@@ -206,6 +208,8 @@ private:
 
 	FText AmmoValueToText(const int32& AmmoAmountToText);
 
+	UPROPERTY(Transient)
+		float DeltaDivider = 1.f;
 	UPROPERTY(Transient)
 		TArray<FPowerUpLoaded> PowerUpsToLoad;
 	UPROPERTY(Transient)

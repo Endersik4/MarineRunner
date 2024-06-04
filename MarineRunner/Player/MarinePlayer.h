@@ -67,7 +67,7 @@ public:
 	FORCEINLINE TObjectPtr<class UWallrunComponent> GetWallrunComponent() const { return WallrunComponent; }
 	FORCEINLINE TObjectPtr<class UCroachAndSlide> GetCrouchAndSlideComponent() const { return CroachAndSlideComponent; }
 	FORCEINLINE TObjectPtr<class USlowMotionComponent> GetSlowMotionComponent() const { return SlowMotionComponent; }
-	FORCEINLINE FSettingSavedInJsonFile& GetMouseSensitivityJSON()  { return MouseSensitivityJSON; }
+	FORCEINLINE FSettingSavedInJsonFile& GetMouseSensitivityJSON()  { return OriginalMouseSensitivityJSON; }
 	FORCEINLINE TObjectPtr<class AAlbertosPawn> GetAlbertosPawn() const { return AlbertoPawn; }
 
 	FORCEINLINE void SetHealth(float NewHealth) { Health = NewHealth; }
@@ -160,7 +160,7 @@ private:
 		TObjectPtr < USoundBase> UseFirstAidKitSound = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
-		FSettingSavedInJsonFile MouseSensitivityJSON = FSettingSavedInJsonFile("MouseSensitivity", 0.7f);
+		FSettingSavedInJsonFile OriginalMouseSensitivityJSON = FSettingSavedInJsonFile("MouseSensitivity", 0.7f);
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
 		FSettingSavedInJsonFile FieldOfViewJSON = FSettingSavedInJsonFile("FieldOfView", 90.f);
 
@@ -247,5 +247,4 @@ private:
 		TObjectPtr<class UHUDWidget> HudWidget = nullptr;
 	UPROPERTY(Transient)
 		TObjectPtr<class AMarinePlayerController> MarinePlayerController = nullptr;
-
 };

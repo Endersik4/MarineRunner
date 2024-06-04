@@ -30,6 +30,8 @@ public:
 	void TurnOnSlowMotion() { SlowMotionPressed(); };
 	FORCEINLINE bool GetIsInSlowMotion() const { return bIsInSlowMotion; }
 	FORCEINLINE float GetCounterForceMultiplierWhenInAir() const {return CounterForceMultiplierWhenInAir;}
+	FORCEINLINE float GetMovementSpeedInSlowMotion() const {return MovementSpeedInSlowMotion;}
+	FORCEINLINE float GetCounterForceInSlowMotion() const {return CounterForceInSlowMotion;}
 
 	void PauseSlowMotionSound(bool bPause);
 private:
@@ -42,8 +44,6 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float SlowMotionDelay = 4.f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float CounterForceMultiplierWhenInAir = 0.7f;
-	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float GlobalPitchModulation = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		float StartingChromaticAbberation = 5.f;
@@ -53,6 +53,12 @@ private:
 		TObjectPtr<USoundBase> SlowMotionSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 		TObjectPtr<USoundBase> CancelSlowMotionSound = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings|Movement")
+		float CounterForceMultiplierWhenInAir = 2.0f;
+	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings|Movement")
+		float MovementSpeedInSlowMotion = 350000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings|Movement")
+		float CounterForceInSlowMotion = 45.f;
 
 	UPROPERTY(Transient)
 		bool bCanSlowMotion = true;
