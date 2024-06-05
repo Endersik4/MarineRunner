@@ -13,7 +13,6 @@
 #include "MarineRunner/Player/SaveLoadGame/JsonFileActions.h"
 #include "MarineRunner/Player/PauseMenu/ConfirmOptionWidget.h"
 
-
 void ULoadGameMenuWidget::NativeOnInitialized()
 {
 	FillAllSavesToLoadGameListView();

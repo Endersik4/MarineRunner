@@ -49,7 +49,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Load")
 		TSubclassOf<class AMarineCharacter> PlayerClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Load")
-		TSubclassOf<class UUserWidget> NewGameBeginsWidgetClass = nullptr;
+		TSubclassOf<class UUserWidget> GameLoadedWidgetClass = nullptr;
 
 	void SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn);
 	TObjectPtr<class USaveMarineRunner> CreateLoadGame();

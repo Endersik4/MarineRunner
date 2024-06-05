@@ -2,7 +2,6 @@
 
 
 #include "MarineRunner/Player/PauseMenu/ConfirmOptionWidget.h"
-
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"

@@ -54,7 +54,7 @@ private:
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
 		float PullupLinesDistance = 100.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
-		float PullupOffset_Z = 220.f;
+		float PullupOffset_Z = 240.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
 		float EdgeDetectionLineStartDistance = 100.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")

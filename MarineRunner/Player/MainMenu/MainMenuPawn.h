@@ -22,16 +22,29 @@ public:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	FORCEINLINE void SetCanPressAnyKeyToContinue(bool bCan) { bCanPressAnyKeyToContinue = bCan; }
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "MainMenu")
-		TSubclassOf<class UMainMenuWidget> MainMenuWidgetClass = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Main Menu")
+	TSubclassOf<class UMainMenuWidget> MainMenuWidgetClass = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Main Menu")
+	TSubclassOf<class USelectDifficultyWidget> SelectDifficultyWidgetClass = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Main Menu")
+	float SpawnDifficultyWidgetTime = 2.f;
 
 	void BackToPreviousMenu();
 
 	UPROPERTY(Transient)
-		bool bIsInMainMenu = false;
+	bool bIsInMainMenu = false;
 	void SpawnMainMenuWidget();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UMainMenuWidget> MainMenuWidget = nullptr;
+	bool bCanPressAnyKeyToContinue = false;
+	void ContinueToSelectDifficulty();
+	void SpawnDifficultyWidget();
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UMainMenuWidget> SpawnedMainMenuWidget = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<APlayerController> PlayerController = nullptr;
 };

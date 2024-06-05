@@ -37,8 +37,6 @@
 #include "MarineRunner/Albertos/Components/AlbertosToPlayerComponent.h"
 #include "MarineRunner/Albertos/Widgets/Crafting/CraftingAlbertosWidget.h"
 
-#include "MarineRunner/Weapon/WeaponBase.h"
-
 // Sets default values
 AMarineCharacter::AMarineCharacter()
 {

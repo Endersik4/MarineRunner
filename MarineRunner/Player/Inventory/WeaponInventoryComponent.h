@@ -55,7 +55,7 @@ public:
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
-		int32 MaxAmountOfWeapons = 2;
+		int32 MaxAmountOfWeapons = 3;
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
 		float TimeToSpawnWeaponsFromInventory = 0.02f;
 

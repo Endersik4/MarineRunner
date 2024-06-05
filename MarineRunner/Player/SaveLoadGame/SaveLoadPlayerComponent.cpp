@@ -52,10 +52,11 @@ void USaveLoadPlayerComponent::SpawnNewGameWidget()
 	if (!IsValid(GameInstance))
 		return;
 
+	SpawnPassingWidget(GameLoadedWidgetClass);
+
 	if (!GameInstance->bNewGame)
 		return;
 	
-	SpawnPassingWidget(NewGameBeginsWidgetClass);
 	GameInstance->bNewGame = false;
 
 	if (!IsValid(Player))
