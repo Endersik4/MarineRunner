@@ -5,12 +5,15 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/IUserObjectListEntry.h"
-#include "SaveInformationData.h"
+#include "LoadSaveInformationData.h"
 
-#include "SaveToLoadEntry.generated.h"
+#include "LoadSaveEntry.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class MARINERUNNER_API USaveGameMenuListEntry : public UUserWidget, public IUserObjectListEntry
+class MARINERUNNER_API ULoadSaveEntry : public UUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 protected:
@@ -21,42 +24,42 @@ public:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> BackgroundImage = nullptr;
+	TObjectPtr<class UImage> BackgroundImage = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> ScreenshotSaveImage = nullptr;
+	TObjectPtr<class UImage> ScreenshotSaveImage = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> SaveNameText = nullptr;
+	TObjectPtr<class UTextBlock> SaveNameText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> SaveDateText = nullptr;
+	TObjectPtr<class UTextBlock> SaveDateText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> TotalTimeText = nullptr;
+	TObjectPtr<class UTextBlock> TotalTimeText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> LoadGameButton = nullptr;
+	TObjectPtr<class UButton> LoadGameButton = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr < UWidgetAnimation> LoadGameHoverAnim = nullptr;
+	TObjectPtr < UWidgetAnimation> LoadGameHoverAnim = nullptr;
 
 	UFUNCTION()
-		void OnClickedLoadGameButton();
+	void OnClickedLoadGameButton();
 	UFUNCTION()
-		void OnHoveredLoadGameButton();
+	void OnHoveredLoadGameButton();
 	UFUNCTION()
-		void OnUnhoveredLoadGameButton();
+	void OnUnhoveredLoadGameButton();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
-		bool bShowConfirmLoadingWidget = true;
+	bool bShowConfirmLoadingWidget = true;
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings", meta = (EditCondition = "bShowConfirmLoadingWidget"))
-		TSubclassOf<class UConfirmOptionWidget> ConfirmOptionWidgetClass = nullptr;
+	TSubclassOf<class UConfirmOptionWidget> ConfirmOptionWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
-		FString SavedDateText = "-SAVED: ";
+	FString SavedDateText = "-SAVED: ";
 	UPROPERTY(EditDefaultsOnly, Category = "Saved Data Settings")
-		FString SavedTotalTimeText = "-TOTAL TIME: ";
+	FString SavedTotalTimeText = "-TOTAL TIME: ";
 
 	UPROPERTY(Transient)
-		TObjectPtr<class ULoadGameMenuEntryObject> LoadGameEntryObject = nullptr;
+	TObjectPtr<class ULoadSaveEntryObject> LoadGameEntryObject = nullptr;
 	void ShowConfirmLoadingWidget();
 
 	void LoadSave();

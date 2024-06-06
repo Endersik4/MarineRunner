@@ -12,9 +12,9 @@ struct FWeaponAnimation
 	GENERATED_USTRUCT_BODY();
 
 	UPROPERTY(EditAnywhere)
-		TObjectPtr<UAnimationAsset> WeaponActionAnim;
+	TObjectPtr<UAnimationAsset> WeaponActionAnim;
 	UPROPERTY(EditAnywhere)
-		TObjectPtr<UAnimationAsset> ArmsActionAnim;
+	TObjectPtr<UAnimationAsset> ArmsActionAnim;
 
 	FWeaponAnimation()
 	{
@@ -31,8 +31,8 @@ UCLASS()
 class MARINERUNNER_API AWeaponBase : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AWeaponBase();
 
@@ -42,7 +42,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Overridable native event for preparing weapon for the player that picked up weapon item. 
 	virtual void PickUpWeaponItem(class AMarineCharacter* PlayerWhoTook, bool bWasOnceItemTaken, int32 ValueToLoad);
 
@@ -79,34 +79,34 @@ public:
 
 protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class USkeletalMeshComponent> WeaponSkeletalMesh = nullptr;
+	TObjectPtr<class USkeletalMeshComponent> WeaponSkeletalMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings")
-		FName SocketNameToAttachWeapon = FName(TEXT("Weapon_R"));
+	FName SocketNameToAttachWeapon = FName(TEXT("Weapon_R"));
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings|Draw")
-		FWeaponAnimation FirstTimePickedUpWeapon_Anim = FWeaponAnimation();
+	FWeaponAnimation FirstTimePickedUpWeapon_Anim = FWeaponAnimation();
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings|Draw")
-		FWeaponAnimation DrawWeapon_Anim = FWeaponAnimation();
+	FWeaponAnimation DrawWeapon_Anim = FWeaponAnimation();
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings|Draw")
-		TObjectPtr<USoundBase> DrawWeapon_Sound = nullptr;
+	TObjectPtr<USoundBase> DrawWeapon_Sound = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings|Put Away")
-		FWeaponAnimation PutAwayWeapon_Anim = FWeaponAnimation();
+	FWeaponAnimation PutAwayWeapon_Anim = FWeaponAnimation();
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings|Put Away")
-		TObjectPtr<USoundBase> PutAwayWeapon_Sound = nullptr;
+	TObjectPtr<USoundBase> PutAwayWeapon_Sound = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings|Drop Weapon")
-		TSubclassOf<class APickupItem> ItemToSpawnAfterDrop = nullptr;
+	TSubclassOf<class APickupItem> ItemToSpawnAfterDrop = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings|Drop Weapon")
-		float DistanceToDropWeapon = 500.f;
+	float DistanceToDropWeapon = 500.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings|Drop Weapon")
-		TObjectPtr<USoundBase> DropWeaponSound = nullptr;
-	
+	TObjectPtr<USoundBase> DropWeaponSound = nullptr;
+
 	bool bDropWeaponAfterPutAway;
 	UPROPERTY(Transient)
-		TObjectPtr<APickupItem> SpawnedDroppedWeaponItem;
+	TObjectPtr<APickupItem> SpawnedDroppedWeaponItem;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player;
+	TObjectPtr<class AMarineCharacter> Player;
 };

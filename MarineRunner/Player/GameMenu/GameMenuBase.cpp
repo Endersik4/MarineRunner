@@ -1,6 +1,8 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-#include "MenuBase.h"
+
+#include "MarineRunner/Player/GameMenu/GameMenuBase.h"
+
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
 #include "Components/Button.h"
@@ -8,27 +10,27 @@
 
 #include "SettingsMenu/SettingsMenuWidget.h"
 #include "LoadGameMenu/LoadGameMenuWidget.h"
-#include "MarineRunner/Player/PauseMenu/ConfirmOptionWidget.h"
+#include "ConfirmOptionWidget.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
-void UMenuBase::NativeConstruct()
+void UGameMenuBase::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	LoadGameButton->OnClicked.AddDynamic(this, &UMenuBase::OnClickedLoadGameButton);
-	LoadGameButton->OnHovered.AddDynamic(this, &UMenuBase::OnHoveredLoadGameButton);
-	LoadGameButton->OnUnhovered.AddDynamic(this, &UMenuBase::OnUnhoveredLoadGameButton);
+	LoadGameButton->OnClicked.AddDynamic(this, &UGameMenuBase::OnClickedLoadGameButton);
+	LoadGameButton->OnHovered.AddDynamic(this, &UGameMenuBase::OnHoveredLoadGameButton);
+	LoadGameButton->OnUnhovered.AddDynamic(this, &UGameMenuBase::OnUnhoveredLoadGameButton);
 
-	SettingsButton->OnClicked.AddDynamic(this, &UMenuBase::OnClickedSettingsButton);
-	SettingsButton->OnHovered.AddDynamic(this, &UMenuBase::OnHoveredSettingsButton);
-	SettingsButton->OnUnhovered.AddDynamic(this, &UMenuBase::OnUnhoveredSettingsButton);
+	SettingsButton->OnClicked.AddDynamic(this, &UGameMenuBase::OnClickedSettingsButton);
+	SettingsButton->OnHovered.AddDynamic(this, &UGameMenuBase::OnHoveredSettingsButton);
+	SettingsButton->OnUnhovered.AddDynamic(this, &UGameMenuBase::OnUnhoveredSettingsButton);
 
-	QuitGameButton->OnClicked.AddDynamic(this, &UMenuBase::OnClickedQuitGameButton);
-	QuitGameButton->OnHovered.AddDynamic(this, &UMenuBase::OnHoveredQuitGameButton);
-	QuitGameButton->OnUnhovered.AddDynamic(this, &UMenuBase::OnUnhoveredQuitGameButton);
+	QuitGameButton->OnClicked.AddDynamic(this, &UGameMenuBase::OnClickedQuitGameButton);
+	QuitGameButton->OnHovered.AddDynamic(this, &UGameMenuBase::OnHoveredQuitGameButton);
+	QuitGameButton->OnUnhovered.AddDynamic(this, &UGameMenuBase::OnUnhoveredQuitGameButton);
 }
 
-void UMenuBase::NativeOnInitialized()
+void UGameMenuBase::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
@@ -46,7 +48,7 @@ void UMenuBase::NativeOnInitialized()
 	AddAllMenuButtonsToArray();
 }
 
-void UMenuBase::AddAllMenuButtonsToArray()
+void UGameMenuBase::AddAllMenuButtonsToArray()
 {
 	AllMenuButtons.Add(LoadGameButton);
 	AllMenuButtons.Add(SettingsButton);
@@ -54,12 +56,12 @@ void UMenuBase::AddAllMenuButtonsToArray()
 }
 
 #pragma region //////////////// LOAD GAME /////////////////
-void UMenuBase::OnClickedLoadGameButton()
+void UGameMenuBase::OnClickedLoadGameButton()
 {
 	;
 }
 
-void UMenuBase::SpawnLoadGameMenuWidget()
+void UGameMenuBase::SpawnLoadGameMenuWidget()
 {
 	if (!IsValid(PlayerController))
 		return;
@@ -70,13 +72,15 @@ void UMenuBase::SpawnLoadGameMenuWidget()
 
 	EnableAllMenuButtons(false, LoadGameButton);
 	LoadGameMenuWidget->AddToViewport();
+	LoadGameMenuWidget->SetCurrentSpawnedMenu(this);
+	LoadGameMenuWidget->FillAllSavesToLoadGameListView();
 
 	CurrentSpawnedMenuWidgets.Add(FVisiblePauseMenu(LoadGameMenuWidget, [this](bool b) { this->RemoveLoadGameMenuWidgetFromViewport(b); }));
 
 	bWasLoadGameMenuWidgetSpawned = true;
 }
 
-void UMenuBase::RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame)
+void UGameMenuBase::RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame)
 {
 	if (!IsValid(LoadGameMenuWidget))
 		return;
@@ -93,19 +97,19 @@ void UMenuBase::RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame)
 		OnUnhoveredLoadGameButton();
 }
 
-void UMenuBase::OnHoveredLoadGameButton()
+void UGameMenuBase::OnHoveredLoadGameButton()
 {
 	PlayAnimatonForButton(LoadGameHoverAnim, true, bWasLoadGameMenuWidgetSpawned);
 }
 
-void UMenuBase::OnUnhoveredLoadGameButton()
+void UGameMenuBase::OnUnhoveredLoadGameButton()
 {
 	PlayAnimatonForButton(LoadGameHoverAnim, false, bWasLoadGameMenuWidgetSpawned);
 }
 #pragma endregion 
 
 #pragma region //////////////// SETTINGS /////////////////
-void UMenuBase::OnClickedSettingsButton()
+void UGameMenuBase::OnClickedSettingsButton()
 {
 	if (bWasSettingsMenuWidgetSpawned)
 	{
@@ -117,7 +121,7 @@ void UMenuBase::OnClickedSettingsButton()
 	}
 }
 
-void UMenuBase::SpawnSettingsMenuWidget()
+void UGameMenuBase::SpawnSettingsMenuWidget()
 {
 	if (!IsValid(PlayerController))
 		return;
@@ -134,7 +138,7 @@ void UMenuBase::SpawnSettingsMenuWidget()
 	bWasSettingsMenuWidgetSpawned = true;
 }
 
-void UMenuBase::RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSettings)
+void UGameMenuBase::RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSettings)
 {
 	if (!IsValid(SettingsMenuWidget))
 		return;
@@ -151,12 +155,12 @@ void UMenuBase::RemoveSettingsMenuWidgetFromViewport(bool bUnhoverTextSettings)
 		OnUnhoveredSettingsButton();
 }
 
-void UMenuBase::OnHoveredSettingsButton()
+void UGameMenuBase::OnHoveredSettingsButton()
 {
 	PlayAnimatonForButton(SettingsHoverAnim, true, bWasSettingsMenuWidgetSpawned);
 }
 
-void UMenuBase::OnUnhoveredSettingsButton()
+void UGameMenuBase::OnUnhoveredSettingsButton()
 {
 	PlayAnimatonForButton(SettingsHoverAnim, false, bWasSettingsMenuWidgetSpawned);
 }
@@ -164,23 +168,23 @@ void UMenuBase::OnUnhoveredSettingsButton()
 #pragma endregion 
 
 #pragma region //////////////// QUIT GAME /////////////////
-void UMenuBase::OnClickedQuitGameButton()
+void UGameMenuBase::OnClickedQuitGameButton()
 {
 	;
 }
 
-void UMenuBase::OnHoveredQuitGameButton()
+void UGameMenuBase::OnHoveredQuitGameButton()
 {
 	PlayAnimatonForButton(QuitGameHoverAnim);
 }
 
-void UMenuBase::OnUnhoveredQuitGameButton()
+void UGameMenuBase::OnUnhoveredQuitGameButton()
 {
 	PlayAnimatonForButton(QuitGameHoverAnim, false);
 }
 #pragma endregion 
 
-bool UMenuBase::BackToPreviousMenu()
+bool UGameMenuBase::BackToPreviousMenu()
 {
 	if (CurrentSpawnedMenuWidgets.Num() == 0)
 		return true;
@@ -190,7 +194,7 @@ bool UMenuBase::BackToPreviousMenu()
 	return false;
 }
 
-void UMenuBase::EnableAllMenuButtons(bool bEnable, TObjectPtr<UButton> ButtonToIgnore)
+void UGameMenuBase::EnableAllMenuButtons(bool bEnable, TObjectPtr<UButton> ButtonToIgnore)
 {
 	for (TObjectPtr<UButton> CurrentMenuButton : AllMenuButtons)
 	{
@@ -201,7 +205,7 @@ void UMenuBase::EnableAllMenuButtons(bool bEnable, TObjectPtr<UButton> ButtonToI
 	}
 }
 
-void UMenuBase::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim, bool bCanHoverGivenText)
+void UGameMenuBase::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim, bool bCanHoverGivenText)
 {
 	if (bCanHoverGivenText || !AnimToPlay)
 		return;

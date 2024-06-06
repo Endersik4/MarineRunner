@@ -1,7 +1,8 @@
 // Copyright Adam Bartela.All Rights Reserved
 
 
-#include "SettingsMenuListEntry.h"
+#include "MarineRunner/Player/GameMenu/SettingsMenu/SettingMenuListEntry.h"
+
 #include "Components/CheckBox.h"
 #include "Components/Slider.h"
 #include "Components/Button.h"
@@ -18,37 +19,37 @@
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "SettingsMenuWidget.h"
 
-void USettingsMenuListEntry::NativeConstruct()
+void USettingMenuListEntry::NativeConstruct()
 {
-	LeftArrowButton->OnClicked.AddDynamic(this, &USettingsMenuListEntry::OnClickedLeftArrowButton);
-	LeftArrowButton->OnHovered.AddDynamic(this, &USettingsMenuListEntry::OnHoveredLeftArrowButton);
-	LeftArrowButton->OnUnhovered.AddDynamic(this, &USettingsMenuListEntry::OnUnhoveredLeftArrowButton);
+	LeftArrowButton->OnClicked.AddDynamic(this, &USettingMenuListEntry::OnClickedLeftArrowButton);
+	LeftArrowButton->OnHovered.AddDynamic(this, &USettingMenuListEntry::OnHoveredLeftArrowButton);
+	LeftArrowButton->OnUnhovered.AddDynamic(this, &USettingMenuListEntry::OnUnhoveredLeftArrowButton);
 
-	RightArrowButton->OnClicked.AddDynamic(this, &USettingsMenuListEntry::OnClickedRightArrowButton);
-	RightArrowButton->OnHovered.AddDynamic(this, &USettingsMenuListEntry::OnHoveredRightArrowButton);
-	RightArrowButton->OnUnhovered.AddDynamic(this, &USettingsMenuListEntry::OnUnhoveredRightArrowButton);
+	RightArrowButton->OnClicked.AddDynamic(this, &USettingMenuListEntry::OnClickedRightArrowButton);
+	RightArrowButton->OnHovered.AddDynamic(this, &USettingMenuListEntry::OnHoveredRightArrowButton);
+	RightArrowButton->OnUnhovered.AddDynamic(this, &USettingMenuListEntry::OnUnhoveredRightArrowButton);
 
-	SubSettingOnOffButton->OnClicked.AddDynamic(this, &USettingsMenuListEntry::OnClickedOnOffButton);
-	SubSettingOnOffButton->OnHovered.AddDynamic(this, &USettingsMenuListEntry::OnHoveredOnOffButton);
-	SubSettingOnOffButton->OnUnhovered.AddDynamic(this, &USettingsMenuListEntry::OnUnhoveredOnOffButton);
+	SubSettingOnOffButton->OnClicked.AddDynamic(this, &USettingMenuListEntry::OnClickedOnOffButton);
+	SubSettingOnOffButton->OnHovered.AddDynamic(this, &USettingMenuListEntry::OnHoveredOnOffButton);
+	SubSettingOnOffButton->OnUnhovered.AddDynamic(this, &USettingMenuListEntry::OnUnhoveredOnOffButton);
 
-	SubSettingSlider->OnValueChanged.AddDynamic(this, &USettingsMenuListEntry::OnValueChangedSlider);
-	SliderButton->OnHovered.AddDynamic(this, &USettingsMenuListEntry::OnHoveredSliderButton);
-	SliderButton->OnUnhovered.AddDynamic(this, &USettingsMenuListEntry::OnUnhoveredSliderButton);
+	SubSettingSlider->OnValueChanged.AddDynamic(this, &USettingMenuListEntry::OnValueChangedSlider);
+	SliderButton->OnHovered.AddDynamic(this, &USettingMenuListEntry::OnHoveredSliderButton);
+	SliderButton->OnUnhovered.AddDynamic(this, &USettingMenuListEntry::OnUnhoveredSliderButton);
 
-	KeyMappingInputKeySelector->OnKeySelected.AddDynamic(this, &USettingsMenuListEntry::OnKeySelectedInputKeySelector);
-	KeyMappingInputKeySelector->OnIsSelectingKeyChanged.AddDynamic(this, &USettingsMenuListEntry::OnIsSelectingKeyChangedInputKeySelector);
-	KeyMappingButton->OnHovered.AddDynamic(this, &USettingsMenuListEntry::OnHoveredKeyMappingButton);
-	KeyMappingButton->OnUnhovered.AddDynamic(this, &USettingsMenuListEntry::OnUnhoveredKeyMappingButton);
+	KeyMappingInputKeySelector->OnKeySelected.AddDynamic(this, &USettingMenuListEntry::OnKeySelectedInputKeySelector);
+	KeyMappingInputKeySelector->OnIsSelectingKeyChanged.AddDynamic(this, &USettingMenuListEntry::OnIsSelectingKeyChangedInputKeySelector);
+	KeyMappingButton->OnHovered.AddDynamic(this, &USettingMenuListEntry::OnHoveredKeyMappingButton);
+	KeyMappingButton->OnUnhovered.AddDynamic(this, &USettingMenuListEntry::OnUnhoveredKeyMappingButton);
 }
 
 #pragma region ///////// PREPARE WIDGET //////////
-void USettingsMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
+void USettingMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	if (!IsValid(ListItemObject))
 		return;
 
-	SettingEntryObject = Cast<USettingsMenuEntryObject>(ListItemObject);
+	SettingEntryObject = Cast<USettingMenuEntryObject>(ListItemObject);
 	if (!IsValid(SettingEntryObject))
 		return;
 
@@ -62,7 +63,7 @@ void USettingsMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 	DisplayProperUIElements();
 }
 
-void USettingsMenuListEntry::HideAllUIElements()
+void USettingMenuListEntry::HideAllUIElements()
 {
 	HorizontalBoxForSettingsText->SetVisibility(ESlateVisibility::Hidden);
 	CategoryNameText->SetVisibility(ESlateVisibility::Hidden);
@@ -84,7 +85,7 @@ void USettingsMenuListEntry::HideAllUIElements()
 	SubSettingSliderValueText->SetVisibility(ESlateVisibility::Hidden);
 }
 
-void USettingsMenuListEntry::DisplayProperUIElements()
+void USettingMenuListEntry::DisplayProperUIElements()
 {
 	if (SubSettingData->SubSettingType == EST_Category)
 	{
@@ -95,7 +96,7 @@ void USettingsMenuListEntry::DisplayProperUIElements()
 	SubSettingNameText->SetText(SubSettingData->SubSettingName);
 	SubSettingNameText->SetVisibility(ESlateVisibility::Visible);
 
-	if (SubSettingData->SubSettingType == EST_OnOff) 
+	if (SubSettingData->SubSettingType == EST_OnOff)
 	{
 		SubSettingType_OnOff();
 	}
@@ -103,11 +104,11 @@ void USettingsMenuListEntry::DisplayProperUIElements()
 	{
 		SubSettingType_KeyBinding();
 	}
-	else if (SubSettingData->SubSettingType == EST_SliderValue) 
+	else if (SubSettingData->SubSettingType == EST_SliderValue)
 	{
 		SubSettingType_SliderValue();
 	}
-	else 
+	else
 	{
 		SubSettingType_Quality();
 	}
@@ -115,7 +116,7 @@ void USettingsMenuListEntry::DisplayProperUIElements()
 #pragma endregion
 
 #pragma region ////////////// SUBSETTING TYPE ////////////////
-void USettingsMenuListEntry::SubSettingType_Category()
+void USettingMenuListEntry::SubSettingType_Category()
 {
 	CategoryNameText->SetText(SubSettingData->SubSettingName);
 	CategoryNameText->SetColorAndOpacity(CategoryTextColor);
@@ -124,7 +125,7 @@ void USettingsMenuListEntry::SubSettingType_Category()
 	HorizontalBoxForSettingsText->SetVisibility(ESlateVisibility::Visible);
 }
 
-void USettingsMenuListEntry::SubSettingType_Quality()
+void USettingMenuListEntry::SubSettingType_Quality()
 {
 	SubSettingQualityText->SetVisibility(ESlateVisibility::Visible);
 
@@ -135,7 +136,7 @@ void USettingsMenuListEntry::SubSettingType_Quality()
 	{
 		LeftArrowButton->SetIsEnabled(false);
 	}
-	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) 
+	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1)
 	{
 		RightArrowButton->SetIsEnabled(false);
 	}
@@ -145,7 +146,7 @@ void USettingsMenuListEntry::SubSettingType_Quality()
 	AddValueToFunctionName(SubSettingData->QualityCurrentValue);
 }
 
-void USettingsMenuListEntry::SubSettingType_KeyBinding()
+void USettingMenuListEntry::SubSettingType_KeyBinding()
 {
 	SetProperKeyOnKeyMapText();
 
@@ -154,7 +155,7 @@ void USettingsMenuListEntry::SubSettingType_KeyBinding()
 	SubSettingQualityText->SetVisibility(ESlateVisibility::Visible);
 }
 
-void USettingsMenuListEntry::SetProperKeyOnKeyMapText()
+void USettingMenuListEntry::SetProperKeyOnKeyMapText()
 {
 	FText KeyMap = FText::FromString("-empty-");
 
@@ -171,7 +172,7 @@ void USettingsMenuListEntry::SetProperKeyOnKeyMapText()
 	SubSettingQualityText->SetText(KeyMap);
 }
 
-void USettingsMenuListEntry::SubSettingType_SliderValue()
+void USettingMenuListEntry::SubSettingType_SliderValue()
 {
 	SubSettingSlider->SetVisibility(ESlateVisibility::Visible);
 	SliderButton->SetVisibility(ESlateVisibility::Visible);
@@ -186,12 +187,12 @@ void USettingsMenuListEntry::SubSettingType_SliderValue()
 	AddValueToFunctionName(SubSettingData->SliderCurrentValue);
 }
 
-void USettingsMenuListEntry::SubSettingType_OnOff()
+void USettingMenuListEntry::SubSettingType_OnOff()
 {
 	SubSettingOnOffCheckBox->SetVisibility(ESlateVisibility::Visible);
 	SubSettingOnOffButton->SetVisibility(ESlateVisibility::Visible);
 
-	if (SubSettingData->bSettingEnabled) 
+	if (SubSettingData->bSettingEnabled)
 	{
 		SubSettingOnOffCheckBox->SetCheckedState(ECheckBoxState::Checked);
 	}
@@ -205,11 +206,11 @@ void USettingsMenuListEntry::SubSettingType_OnOff()
 #pragma endregion
 
 #pragma region ///////// LEFT ARROW ////////////
-void USettingsMenuListEntry::OnClickedLeftArrowButton()
+void USettingMenuListEntry::OnClickedLeftArrowButton()
 {
 	SubSettingData->QualityCurrentValue--;
-	
-	if (SubSettingData->QualityCurrentValue == 0) 
+
+	if (SubSettingData->QualityCurrentValue == 0)
 		LeftArrowButton->SetIsEnabled(false);
 
 	RightArrowButton->SetIsEnabled(true);
@@ -219,23 +220,23 @@ void USettingsMenuListEntry::OnClickedLeftArrowButton()
 	AddValueToFunctionName(SubSettingData->QualityCurrentValue);
 }
 
-void USettingsMenuListEntry::OnHoveredLeftArrowButton()
+void USettingMenuListEntry::OnHoveredLeftArrowButton()
 {
 	PlayAnimatonForButton(LeftArrowHoverAnim);
 }
 
-void USettingsMenuListEntry::OnUnhoveredLeftArrowButton()
+void USettingMenuListEntry::OnUnhoveredLeftArrowButton()
 {
 	PlayAnimatonForButton(LeftArrowHoverAnim, false);
 }
 #pragma endregion
 
 #pragma region ///////// RIGHT ARROW ////////////
-void USettingsMenuListEntry::OnClickedRightArrowButton()
+void USettingMenuListEntry::OnClickedRightArrowButton()
 {
 	SubSettingData->QualityCurrentValue++;
 
-	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) 
+	if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1)
 		RightArrowButton->SetIsEnabled(false);
 
 	LeftArrowButton->SetIsEnabled(true);
@@ -245,23 +246,23 @@ void USettingsMenuListEntry::OnClickedRightArrowButton()
 	AddValueToFunctionName(SubSettingData->QualityCurrentValue);
 }
 
-void USettingsMenuListEntry::OnHoveredRightArrowButton()
+void USettingMenuListEntry::OnHoveredRightArrowButton()
 {
 	PlayAnimatonForButton(RightArrowHoverAnim);
 }
 
-void USettingsMenuListEntry::OnUnhoveredRightArrowButton()
+void USettingMenuListEntry::OnUnhoveredRightArrowButton()
 {
 	PlayAnimatonForButton(RightArrowHoverAnim, false);
 }
 #pragma endregion
 
 #pragma region ///////// CHECK BOX ////////////
-void USettingsMenuListEntry::OnClickedOnOffButton()
+void USettingMenuListEntry::OnClickedOnOffButton()
 {
 	SubSettingOnOffCheckBox->SetCheckedState(SubSettingData->bSettingEnabled ? ECheckBoxState::Unchecked : ECheckBoxState::Checked);
 	SubSettingData->bSettingEnabled = SubSettingData->bSettingEnabled ? false : true;
-	
+
 	if (SubSettingData->bIsItObjectThatConnects)
 	{
 		FillConnectedSettingsEntryFromList();
@@ -271,17 +272,17 @@ void USettingsMenuListEntry::OnClickedOnOffButton()
 	AddValueToFunctionName(SubSettingData->bSettingEnabled ? 1 : 0);
 }
 
-void USettingsMenuListEntry::OnHoveredOnOffButton()
+void USettingMenuListEntry::OnHoveredOnOffButton()
 {
 	PlayAnimatonForButton(CheckBoxHoverAnim);
 }
 
-void USettingsMenuListEntry::OnUnhoveredOnOffButton()
+void USettingMenuListEntry::OnUnhoveredOnOffButton()
 {
 	PlayAnimatonForButton(CheckBoxHoverAnim, false);
 }
 
-void USettingsMenuListEntry::FillConnectedSettingsEntryFromList()
+void USettingMenuListEntry::FillConnectedSettingsEntryFromList()
 {
 	if (!IsValid(SettingEntryObject->SettingMenuWidget))
 		return;
@@ -290,13 +291,13 @@ void USettingsMenuListEntry::FillConnectedSettingsEntryFromList()
 
 	const int32& IndexOfThisEntry = SettingEntryObject->SettingMenuWidget->SettingsListView->GetIndexForItem(SettingEntryObject);
 	TArray<UObject*> Objects = SettingEntryObject->SettingMenuWidget->SettingsListView->GetListItems();
-	for (int i = IndexOfThisEntry+1; i != Objects.Num(); i++)
+	for (int i = IndexOfThisEntry + 1; i != Objects.Num(); i++)
 	{
-		if (!IsValid(Objects[i])) 
+		if (!IsValid(Objects[i]))
 			continue;
 
-		const TObjectPtr<USettingsMenuListEntry> CurrentSettingEntryWidget = Cast<USettingsMenuListEntry>(SettingEntryObject->SettingMenuWidget->SettingsListView->GetEntryWidgetFromItem(Objects[i]));
-		if (!IsValid(CurrentSettingEntryWidget)) 
+		const TObjectPtr<USettingMenuListEntry> CurrentSettingEntryWidget = Cast<USettingMenuListEntry>(SettingEntryObject->SettingMenuWidget->SettingsListView->GetEntryWidgetFromItem(Objects[i]));
+		if (!IsValid(CurrentSettingEntryWidget))
 			continue;
 		if (!CurrentSettingEntryWidget->SubSettingData->bIsConnectedToOtherSettings)
 			break;
@@ -305,9 +306,9 @@ void USettingsMenuListEntry::FillConnectedSettingsEntryFromList()
 	}
 }
 
-void USettingsMenuListEntry::EnableAllConnectedSettingsEntry(bool bEnable)
+void USettingMenuListEntry::EnableAllConnectedSettingsEntry(bool bEnable)
 {
-	for (TObjectPtr<USettingsMenuListEntry> ConnectedEntry : ConnectedSettingsEntryFromList)
+	for (TObjectPtr<USettingMenuListEntry> ConnectedEntry : ConnectedSettingsEntryFromList)
 	{
 		if (!IsValid(ConnectedEntry))
 			continue;
@@ -319,16 +320,16 @@ void USettingsMenuListEntry::EnableAllConnectedSettingsEntry(bool bEnable)
 #pragma endregion
 
 #pragma region ///////// SLIDER ////////////
-void USettingsMenuListEntry::OnValueChangedSlider(float Value)
+void USettingMenuListEntry::OnValueChangedSlider(float Value)
 {
 	SetSubSettingSliderValueText(Value);
 
 	SubSettingData->SliderCurrentValue = SubSettingData->DecimalNumbers == 0 ? (int)Value : Value;
-	
+
 	AddValueToFunctionName(Value);
 }
 
-void USettingsMenuListEntry::SetSubSettingSliderValueText(float Value)
+void USettingMenuListEntry::SetSubSettingSliderValueText(float Value)
 {
 	FString NewValue;
 	if (SubSettingData->DecimalNumbers == 0)
@@ -344,19 +345,19 @@ void USettingsMenuListEntry::SetSubSettingSliderValueText(float Value)
 	SubSettingSliderValueText->SetText(FText::FromString(NewValue));
 }
 
-void USettingsMenuListEntry::OnHoveredSliderButton()
+void USettingMenuListEntry::OnHoveredSliderButton()
 {
 	PlayAnimatonForButton(SliderHoverAnim);
 }
 
-void USettingsMenuListEntry::OnUnhoveredSliderButton()
+void USettingMenuListEntry::OnUnhoveredSliderButton()
 {
 	PlayAnimatonForButton(SliderHoverAnim, false);
 }
 #pragma endregion
 
 #pragma region //////// KEY MAPPING ////////////
-void USettingsMenuListEntry::OnIsSelectingKeyChangedInputKeySelector()
+void USettingMenuListEntry::OnIsSelectingKeyChangedInputKeySelector()
 {
 	if (bIsWaitingForNewKey)
 	{
@@ -373,7 +374,7 @@ void USettingsMenuListEntry::OnIsSelectingKeyChangedInputKeySelector()
 }
 
 
-void USettingsMenuListEntry::OnKeySelectedInputKeySelector(FInputChord SelectedKey)
+void USettingMenuListEntry::OnKeySelectedInputKeySelector(FInputChord SelectedKey)
 {
 	ReplaceKeyMap(SelectedKey);
 
@@ -383,7 +384,7 @@ void USettingsMenuListEntry::OnKeySelectedInputKeySelector(FInputChord SelectedK
 	bIsWaitingForNewKey = false;
 }
 
-void USettingsMenuListEntry::ReplaceKeyMap(const FInputChord & KeyToReplaceFor)
+void USettingMenuListEntry::ReplaceKeyMap(const FInputChord& KeyToReplaceFor)
 {
 	if (UInputSettings::GetInputSettings()->DoesActionExist(FName(SubSettingData->KeyMappingName)))
 	{
@@ -401,31 +402,31 @@ void USettingsMenuListEntry::ReplaceKeyMap(const FInputChord & KeyToReplaceFor)
 		UInputSettings::GetInputSettings()->AddAxisMapping(NewAxisKeyMapping, true);
 
 		CurrentMappedAxisKey = NewAxisKeyMapping;
-		
+
 	}
 	UInputSettings::GetInputSettings()->SaveKeyMappings();
 }
 
-void USettingsMenuListEntry::OnHoveredKeyMappingButton()
+void USettingMenuListEntry::OnHoveredKeyMappingButton()
 {
-	if (bIsWaitingForNewKey) 
+	if (bIsWaitingForNewKey)
 		return;
 
 	PlayAnimatonForButton(KeyMappingHoverAnim);
 }
-void USettingsMenuListEntry::OnUnhoveredKeyMappingButton()
+void USettingMenuListEntry::OnUnhoveredKeyMappingButton()
 {
-	if (bIsWaitingForNewKey) 
+	if (bIsWaitingForNewKey)
 		return;
 
 	PlayAnimatonForButton(KeyMappingHoverAnim, false);
 }
 
-const FString USettingsMenuListEntry::GetKeyActionName()
+const FString USettingMenuListEntry::GetKeyActionName()
 {
 	TArray<FInputActionKeyMapping> KeyActionMappings;
 	UInputSettings::GetInputSettings()->GetActionMappingByName(SubSettingData->KeyMappingName, KeyActionMappings);
-	if (KeyActionMappings.Num() <= SubSettingData->IndexOfKey) 
+	if (KeyActionMappings.Num() <= SubSettingData->IndexOfKey)
 		return "";
 
 	CurrentMappedActionKey = KeyActionMappings[SubSettingData->IndexOfKey];
@@ -433,7 +434,7 @@ const FString USettingsMenuListEntry::GetKeyActionName()
 	return CurrentMappedKeyName;
 }
 
-const FString USettingsMenuListEntry::GetKeyAxisName()
+const FString USettingMenuListEntry::GetKeyAxisName()
 {
 	TArray<FInputAxisKeyMapping> KeyAxisMappings;
 	UInputSettings::GetInputSettings()->GetAxisMappingByName(SubSettingData->KeyMappingName, KeyAxisMappings);
@@ -447,7 +448,7 @@ const FString USettingsMenuListEntry::GetKeyAxisName()
 
 #pragma endregion
 
-void USettingsMenuListEntry::AddValueToFunctionName(float Value)
+void USettingMenuListEntry::AddValueToFunctionName(float Value)
 {
 	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
 		return;
@@ -456,7 +457,7 @@ void USettingsMenuListEntry::AddValueToFunctionName(float Value)
 	SettingEntryObject->FunctionNameToApply = FunctionNameToApplyInCMD + " " + ValueToStr;
 }
 
-void USettingsMenuListEntry::AddValueToFunctionName(int32 Value)
+void USettingMenuListEntry::AddValueToFunctionName(int32 Value)
 {
 	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
 		return;
@@ -464,7 +465,7 @@ void USettingsMenuListEntry::AddValueToFunctionName(int32 Value)
 	SettingEntryObject->FunctionNameToApply = FunctionNameToApplyInCMD + " " + FString::FromInt(Value);
 }
 
-void USettingsMenuListEntry::AddValueToFunctionName(FString Value)
+void USettingMenuListEntry::AddValueToFunctionName(FString Value)
 {
 	if (SubSettingData->SettingApplyType != ESAT_FunctionInCMD)
 		return;
@@ -472,18 +473,18 @@ void USettingsMenuListEntry::AddValueToFunctionName(FString Value)
 	SettingEntryObject->FunctionNameToApply = FunctionNameToApplyInCMD + " " + Value;
 }
 
-void USettingsMenuListEntry::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay,bool bPlayForwardAnim)
+void USettingMenuListEntry::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim)
 {
 	if (!AnimToPlay)
 		return;
 
-	if (bPlayForwardAnim) 
+	if (bPlayForwardAnim)
 		PlayAnimationForward(AnimToPlay);
 	else
 		PlayAnimationReverse(AnimToPlay);
 }
 
-void USettingsMenuListEntry::EnableEntry(bool bEnable)
+void USettingMenuListEntry::EnableEntry(bool bEnable)
 {
 	SubSettingData->bEntryWidgetEnabled = bEnable;
 
@@ -495,11 +496,11 @@ void USettingsMenuListEntry::EnableEntry(bool bEnable)
 	LeftArrowButton->SetIsEnabled(bEnable);
 	RightArrowButton->SetIsEnabled(bEnable);
 
-	if (SubSettingData->QualityCurrentValue == 0) 
+	if (SubSettingData->QualityCurrentValue == 0)
 	{
 		LeftArrowButton->SetIsEnabled(false);
 	}
-	else if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1) 
+	else if (SubSettingData->QualityCurrentValue == SubSettingData->QualityTypes.Num() - 1)
 	{
 		RightArrowButton->SetIsEnabled(false);
 	}

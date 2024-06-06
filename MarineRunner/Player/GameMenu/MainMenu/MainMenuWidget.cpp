@@ -10,8 +10,8 @@
 #include "Components/AudioComponent.h"
 
 #include "MainMenuPawn.h"
-#include "MarineRunner/Player/PauseMenu/SettingsMenu/SettingsMenuWidget.h"
-#include "MarineRunner/Player/PauseMenu/LoadGameMenu/LoadGameMenuWidget.h"
+#include "MarineRunner/Player/GameMenu/SettingsMenu/SettingsMenuWidget.h"
+#include "MarineRunner/Player/GameMenu/LoadGameMenu/LoadGameMenuWidget.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/Player/SaveLoadGame/JsonFileActions.h"
 
@@ -183,6 +183,13 @@ void UMainMenuWidget::OnClickedLoadGameButton()
 	{
 		SpawnLoadGameMenuWidget();
 	}
+}
+
+void UMainMenuWidget::RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame)
+{
+	Super::RemoveLoadGameMenuWidgetFromViewport(bUnhoverTextLoadGame);
+
+	HideContinueButton();
 }
 
 #pragma region ///////////////// QUIT GAME ///////////////

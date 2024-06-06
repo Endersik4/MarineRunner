@@ -3,12 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SaveInformationData.generated.h"
-
-
-/**
- * 
- */
+#include "LoadSaveInformationData.generated.h"
 
 USTRUCT(BlueprintType)
 struct FSaveDataMenuStruct
@@ -16,19 +11,19 @@ struct FSaveDataMenuStruct
 	GENERATED_USTRUCT_BODY();
 
 	UPROPERTY(EditDefaultsOnly)
-		FString SaveName;
+	FString SaveName;
 	UPROPERTY(EditDefaultsOnly)
-		int32 SaveNumber = 1;
+	int32 SaveNumber = 1;
 	UPROPERTY(EditDefaultsOnly)
-		FString ScreenshotPathSave;
+	FString ScreenshotPathSave;
 	UPROPERTY(EditDefaultsOnly)
-		FString SaveDateTime;
+	FString SaveDateTime;
 	UPROPERTY(EditDefaultsOnly)
-		int32 SavedDateValue;
+	int32 SavedDateValue;
 	UPROPERTY(EditDefaultsOnly)
-		FString LevelNameToLoad;
+	FString LevelNameToLoad;
 	UPROPERTY(EditDefaultsOnly)
-		float TotalPlayTimeInSeconds;
+	float TotalPlayTimeInSeconds;
 
 	FSaveDataMenuStruct()
 	{
@@ -57,6 +52,7 @@ struct FSaveDataMenuStruct
 	}
 };
 
-class MARINERUNNER_API LoadGameData
+class MARINERUNNER_API LoadSaveInformationData
 {
+
 };

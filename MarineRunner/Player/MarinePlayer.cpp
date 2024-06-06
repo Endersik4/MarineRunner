@@ -29,7 +29,7 @@
 #include "MarineRunner/Player/Components/ArmsSwayComponent.h"
 #include "MarineRunner/Player/Inventory/WeaponInventoryComponent.h"
 #include "MarineRunner/Player/Inventory/InventoryComponent.h"
-#include "MarineRunner/Player/PauseMenu/PauseMenuComponent.h"
+#include "MarineRunner/Player/GameMenu/PauseMenu/PauseMenuComponent.h"
 #include "MarineRunner/Player/Widgets/HUDWidget.h"
 #include "MarineRunner/Player/Widgets/CrosshairWidget.h"
 
@@ -134,6 +134,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("ActionFromKey_One"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::ActionFromKey_One);
 
 	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::DropCurrentHoldingWeapon);
+	PlayerInputComponent->BindAction(TEXT("HideWeapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::HideWeaponByPlayer);
 
 	//Weapon Inventory
 	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("First_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 1);

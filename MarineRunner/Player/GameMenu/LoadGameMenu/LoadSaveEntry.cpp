@@ -1,7 +1,8 @@
 // Copyright Adam Bartela.All Rights Reserved
 
 
-#include "SaveToLoadEntry.h"
+#include "MarineRunner/Player/GameMenu/LoadGameMenu/LoadSaveEntry.h"
+
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/Image.h"
@@ -9,23 +10,24 @@
 #include "Kismet/KismetRenderingLibrary.h"
 
 #include "MarineRunner/Player/SaveLoadGame/SaveMarineRunner.h"
-#include "MarineRunner/Player/PauseMenu/ConfirmOptionWidget.h"
+#include "MarineRunner/Player/GameMenu/ConfirmOptionWidget.h"
+#include "MarineRunner/Player/GameMenu/GameMenuBase.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
-#include "SaveToLoadEntryObject.h"
+#include "LoadSaveEntryObject.h"
 
-void USaveGameMenuListEntry::NativeConstruct()
+void ULoadSaveEntry::NativeConstruct()
 {
-	LoadGameButton->OnClicked.AddDynamic(this, &USaveGameMenuListEntry::OnClickedLoadGameButton);
-	LoadGameButton->OnHovered.AddDynamic(this, &USaveGameMenuListEntry::OnHoveredLoadGameButton);
-	LoadGameButton->OnUnhovered.AddDynamic(this, &USaveGameMenuListEntry::OnUnhoveredLoadGameButton);
+	LoadGameButton->OnClicked.AddDynamic(this, &ULoadSaveEntry::OnClickedLoadGameButton);
+	LoadGameButton->OnHovered.AddDynamic(this, &ULoadSaveEntry::OnHoveredLoadGameButton);
+	LoadGameButton->OnUnhovered.AddDynamic(this, &ULoadSaveEntry::OnUnhoveredLoadGameButton);
 }
 
-void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
+void ULoadSaveEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 {
 	if (!IsValid(ListItemObject))
 		return;
 
-	LoadGameEntryObject = Cast<ULoadGameMenuEntryObject>(ListItemObject);
+	LoadGameEntryObject = Cast<ULoadSaveEntryObject>(ListItemObject);
 	if (!IsValid(LoadGameEntryObject))
 		return;
 
@@ -39,7 +41,7 @@ void USaveGameMenuListEntry::NativeOnListItemObjectSet(UObject* ListItemObject)
 	SetScreenshotImageFromSave();
 }
 
-void USaveGameMenuListEntry::OnClickedLoadGameButton()
+void ULoadSaveEntry::OnClickedLoadGameButton()
 {
 	if (!IsValid(LoadGameEntryObject))
 		return;
@@ -55,7 +57,7 @@ void USaveGameMenuListEntry::OnClickedLoadGameButton()
 	return;
 }
 
-void USaveGameMenuListEntry::ShowConfirmLoadingWidget()
+void ULoadSaveEntry::ShowConfirmLoadingWidget()
 {
 	TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	if (!IsValid(PlayerController))
@@ -66,10 +68,12 @@ void USaveGameMenuListEntry::ShowConfirmLoadingWidget()
 		return;
 
 	ConfirmLoadingWidget->AddToViewport();
+	ConfirmLoadingWidget->SetCurrentSpawnedMenu(LoadGameEntryObject->CurrentSpawnedMenu);
+	ConfirmLoadingWidget->AddThisWidgetToCurrentSpawnedMenuWidgets(false);
 	ConfirmLoadingWidget->ConfirmFunction = [this]() {this->LoadSave(); };
 }
 
-void USaveGameMenuListEntry::LoadSave()
+void ULoadSaveEntry::LoadSave()
 {
 	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
 	if (!IsValid(GameInstance))
@@ -79,17 +83,17 @@ void USaveGameMenuListEntry::LoadSave()
 	UGameplayStatics::OpenLevel(GetWorld(), FName(LoadGameEntryObject->SavesMenuData.LevelNameToLoad));
 }
 
-void USaveGameMenuListEntry::OnHoveredLoadGameButton()
+void ULoadSaveEntry::OnHoveredLoadGameButton()
 {
 	PlayAnimationForward(LoadGameHoverAnim);
 }
 
-void USaveGameMenuListEntry::OnUnhoveredLoadGameButton()
+void ULoadSaveEntry::OnUnhoveredLoadGameButton()
 {
 	PlayAnimationReverse(LoadGameHoverAnim);
 }
 
-void USaveGameMenuListEntry::ConvertTotalPlayTimeInSecondsToText()
+void ULoadSaveEntry::ConvertTotalPlayTimeInSecondsToText()
 {
 	const int SecondsInHour = 3600;
 	const int32& Hours = LoadGameEntryObject->SavesMenuData.TotalPlayTimeInSeconds / SecondsInHour;
@@ -102,10 +106,10 @@ void USaveGameMenuListEntry::ConvertTotalPlayTimeInSecondsToText()
 	TotalTimeText->SetText(TotalTime);
 }
 
-void USaveGameMenuListEntry::SetScreenshotImageFromSave()
+void ULoadSaveEntry::SetScreenshotImageFromSave()
 {
 	TObjectPtr<UTexture2D> ScreenshotFromSaveGame = UKismetRenderingLibrary::ImportFileAsTexture2D(GetWorld(), LoadGameEntryObject->SavesMenuData.ScreenshotPathSave);
-	if (!IsValid(ScreenshotFromSaveGame)) 
+	if (!IsValid(ScreenshotFromSaveGame))
 		return;
 
 	ScreenshotSaveImage->SetBrushFromTexture(ScreenshotFromSaveGame);

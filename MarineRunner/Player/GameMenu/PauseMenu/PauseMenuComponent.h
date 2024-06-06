@@ -30,17 +30,17 @@ public:
 	void ChangeUIToGameOnly();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Pause Menu")
-		TSubclassOf<class UUserWidget> PauseMenuWidgetClass = nullptr;
+	TSubclassOf<class UUserWidget> PauseMenuWidgetClass = nullptr;
 
 	UPROPERTY(Transient)
-		bool bIsInPauseMenu = false;
+	bool bIsInPauseMenu = false;
 	void SpawnPauseMenuWidget();
 	bool CanPauseGame();
 	UPROPERTY(Transient)
-		TObjectPtr<class UPauseMenuWidget> PauseMenuWidget = nullptr;
+	TObjectPtr<class UPauseMenuWidget> PauseMenuWidget = nullptr;
 
 	UPROPERTY(Transient)
-		TObjectPtr<APlayerController> PlayerController = nullptr;
+	TObjectPtr<APlayerController> PlayerController = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player = nullptr;
+	TObjectPtr<class AMarineCharacter> Player = nullptr;
 };

@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MarineRunner/Player/PauseMenu/MenuBase.h"
+#include "MarineRunner/Player/GameMenu/GameMenuBase.h"
 
 #include "MainMenuWidget.generated.h"
 
 UCLASS()
-class MARINERUNNER_API UMainMenuWidget : public UMenuBase
+class MARINERUNNER_API UMainMenuWidget : public UGameMenuBase
 {
 	GENERATED_BODY()
 
@@ -89,6 +89,7 @@ private:
 
 	// If there are no saves then hide continue button
 	void HideContinueButton();
+	virtual void RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame = false) override;
 
 	// Continue Game
 	UPROPERTY(Transient)

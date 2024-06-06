@@ -1,7 +1,7 @@
 // Copyright Adam Bartela.All Rights Reserved
 
 
-#include "MarineRunner/Player/MainMenu/SelectDifficultyWidget.h"
+#include "SelectDifficultyWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 

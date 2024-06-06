@@ -95,6 +95,13 @@ void UWeaponHandlerComponent::SelectWeaponFromQuickInventory(int32 HandNumber)
 	if (!bDrawWeaponAccordingToHandNumber)
 		return;
 
+	if (!IsValid(CurrentWeapon) && bWeaponHiddenByPlayer)
+	{
+		DrawNewEquipedWeapon();
+	}
+
+	bWeaponHiddenByPlayer = false;
+
 	bCanChangeWeapon = false;
 }
 
@@ -121,6 +128,20 @@ void UWeaponHandlerComponent::DropCurrentHoldingWeapon()
 		CurrentWeapon->PutAwayWeapon();
 	else 
 		SelectWeaponFromQuickInventory(Player->GetWeaponInventoryComponent()->GetLastWeaponSlotFromStorage(CurrentWeapon));
+}
+
+void UWeaponHandlerComponent::HideWeaponByPlayer()
+{
+	if (!bCanChangeWeapon || bIsPlayerADS || bWeaponHiddenByPlayer)
+		return;
+
+	if (!IsValid(CurrentWeapon))
+		return;
+
+	bWeaponHiddenByPlayer = true;
+	bCanChangeWeapon = false;
+
+	CurrentWeapon->PutAwayWeapon();
 }
 
 void UWeaponHandlerComponent::HideCurrentHoldingWeapon()

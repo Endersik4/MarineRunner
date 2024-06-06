@@ -1,33 +1,30 @@
 // Copyright Adam Bartela.All Rights Reserved
 
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "SettingsInformationData.h"
 
-#include "SettingsMenuEntryObject.generated.h"
+#include "SettingMenuEntryObject.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class MARINERUNNER_API USettingsMenuEntryObject : public UObject
+class MARINERUNNER_API USettingMenuEntryObject : public UObject
 {
 	GENERATED_BODY()
-
-
 public:
 
-	USettingsMenuEntryObject();
+	USettingMenuEntryObject();
 
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
-		FMenuSettings MenuSettingsData = FMenuSettings();
+	FMenuSettings MenuSettingsData = FMenuSettings();
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
-		TObjectPtr<class USettingsMenuWidget> SettingMenuWidget = nullptr;
+	TObjectPtr<class USettingsMenuWidget> SettingMenuWidget = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Settings Menu")
-		FString FunctionNameToApply = FString("");
+	FString FunctionNameToApply = FString("");
 
 	void SetVariablesToCurrent();
 	FORCEINLINE void SetGameInstance(class UMarineRunnerGameInstance* NewGameInstance) { GameInstance = NewGameInstance; }
@@ -45,5 +42,5 @@ private:
 	bool WasValueLoadedFromJsonFile(bool& Value);
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UMarineRunnerGameInstance> GameInstance = nullptr;
+	TObjectPtr<class UMarineRunnerGameInstance> GameInstance = nullptr;
 };

@@ -67,12 +67,14 @@ void UWeaponInventoryComponent::RemoveWeaponFromStorage(TObjectPtr<AWeaponBase> 
 
 bool UWeaponInventoryComponent::GetWeaponFromStorage(int32 KeyForWeapon, TObjectPtr<AWeaponBase> CurrentWeapon)
 {
-	if (!IsValid(CurrentWeapon))
-		return false;
-
 	if (!WeaponsStorage.Find(KeyForWeapon)) 
 		return false;
+
 	WeaponFromSlot = *WeaponsStorage.Find(KeyForWeapon);
+
+	if (!IsValid(CurrentWeapon)) //If player tries to select weapon from inventory without current weapon then return true
+		return true;
+
 	if (WeaponFromSlot == CurrentWeapon)
 		return false;
 

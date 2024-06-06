@@ -9,13 +9,15 @@
 #include "HAL/FileManagerGeneric.h"
 #include "Kismet/GameplayStatics.h"
 
-#include "SaveToLoadEntryObject.h"
+#include "LoadSaveEntryObject.h"
 #include "MarineRunner/Player/SaveLoadGame/JsonFileActions.h"
-#include "MarineRunner/Player/PauseMenu/ConfirmOptionWidget.h"
+#include "MarineRunner/Player/GameMenu/ConfirmOptionWidget.h"
+#include "MarineRunner/Player/GameMenu/GameMenuBase.h"
 
 void ULoadGameMenuWidget::NativeOnInitialized()
 {
-	FillAllSavesToLoadGameListView();
+	Super::NativeOnInitialized();
+
 
 	DeleteAllSavesButton->OnClicked.AddDynamic(this, &ULoadGameMenuWidget::DeleteAllSaves_OnClicked);
 	DeleteAllSavesButton->OnHovered.AddDynamic(this, &ULoadGameMenuWidget::DeleteAllSaves_OnHovered);
@@ -68,11 +70,12 @@ void ULoadGameMenuWidget::ConvertArrayToLoadGameMenuEntryList(TArray<FSaveDataMe
 {
 	for (const FSaveDataMenuStruct& CurrentSaveDataMenu : ArrayToConvert)
 	{
-		TObjectPtr<ULoadGameMenuEntryObject> ConstructedItemObject = NewObject<ULoadGameMenuEntryObject>(SavedGameSaveEntry);
+		TObjectPtr<ULoadSaveEntryObject> ConstructedItemObject = NewObject<ULoadSaveEntryObject>(SavedGameSaveEntry);
 
 		if (!IsValid(ConstructedItemObject))
 			continue;
 
+		ConstructedItemObject->CurrentSpawnedMenu = CurrentSpawnedMenu;
 		ConstructedItemObject->SavesMenuData = CurrentSaveDataMenu;
 
 		SavedGameSavesListView->AddItem(ConstructedItemObject);
@@ -90,6 +93,8 @@ void ULoadGameMenuWidget::DeleteAllSaves_OnClicked()
 		return;
 
 	ConfirmLoadingWidget->AddToViewport();
+	ConfirmLoadingWidget->SetCurrentSpawnedMenu(CurrentSpawnedMenu);
+	ConfirmLoadingWidget->AddThisWidgetToCurrentSpawnedMenuWidgets(false);
 	ConfirmLoadingWidget->ConfirmFunction = [this]() {this->DeleteAllSaves(); };
 }
 

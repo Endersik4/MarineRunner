@@ -55,6 +55,7 @@ void AWeaponBase::PickUpWeaponItem(AMarineCharacter* PlayerWhoTook, bool bWasOnc
 	}
 	if (IsValid(Player->GetWeaponHandlerComponent()))
 	{
+		Player->GetWeaponHandlerComponent()->SetWeaponHiddenByPlayer(false);
 		Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(false);
 		Player->GetWeaponHandlerComponent()->HideCurrentHoldingWeapon();
 		Player->GetWeaponHandlerComponent()->SetWeapon(this);
@@ -81,16 +82,19 @@ void AWeaponBase::DrawWeapon()
 	PlayGivenWeaponWithArmsAnimation(DrawWeapon_Anim);
 
 	if (IsValid(Player->GetWeaponHandlerComponent()))
+	{
 		Player->GetWeaponHandlerComponent()->SetWeapon(this);
+		Player->GetWeaponHandlerComponent()->SetWeaponHiddenByPlayer(false);
+	}
 	if (IsValid(Player->GetHudWidget()))
 		Player->GetHudWidget()->ShowWeaponOnHud();
+	if (IsValid(Player->GetArmsSkeletalMesh()))
+		Player->GetArmsSkeletalMesh()->SetForceRefPose(false);
 
 	if (IsValid(DrawWeapon_Sound))
 		UGameplayStatics::PlaySound2D(GetWorld(), DrawWeapon_Sound);
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Draw Weapon Sound is nullptr in Weapon"));
-
-	Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(true);
 
 	FTimerHandle CanChangeWeaponHandle;
 	FTimerDelegate SetCanChangeWeaponDelegate = FTimerDelegate::CreateUObject(Player->GetWeaponHandlerComponent(), &UWeaponHandlerComponent::SetCanChangeWeapon, true);
@@ -129,9 +133,10 @@ void AWeaponBase::HideWeapon()
 
 	Player->GetArmsSkeletalMesh()->Stop();
 
-	// Back to T-Pose if there is no gun to draw after dropping current gun
-	if (Player->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1 && bDropWeaponAfterPutAway)
+	// Back to T-Pose if there is no gun to draw after dropping current gun or if player wants to hide weapon
+	if ((Player->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1 && bDropWeaponAfterPutAway) || Player->GetWeaponHandlerComponent()->GetWeaponHiddenByPlayer())
 	{
+		Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(true);
 		Player->GetArmsSkeletalMesh()->SetForceRefPose(true);
 	}
 	else

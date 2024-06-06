@@ -1,19 +1,19 @@
 // Copyright Adam Bartela.All Rights Reserved
 
 
+#include "MarineRunner/Player/GameMenu/SettingsMenu/SettingMenuEntryObject.h"
 
-#include "SettingsMenuEntryObject.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/GameUserSettings.h"
 
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
-USettingsMenuEntryObject::USettingsMenuEntryObject()
+USettingMenuEntryObject::USettingMenuEntryObject()
 {
 }
 
-void USettingsMenuEntryObject::SetVariablesToCurrent()
+void USettingMenuEntryObject::SetVariablesToCurrent()
 {
 	MenuSettingsData.bEntryWidgetEnabled = true;
 
@@ -24,9 +24,9 @@ void USettingsMenuEntryObject::SetVariablesToCurrent()
 	SetFullscreenModeSetting();
 }
 
-void USettingsMenuEntryObject::QualityValue()
+void USettingMenuEntryObject::QualityValue()
 {
-	if (MenuSettingsData.SubSettingType != EST_Quality) 
+	if (MenuSettingsData.SubSettingType != EST_Quality)
 		return;
 
 	if (WasValueLoadedFromJsonFile(MenuSettingsData.QualityCurrentValue))
@@ -37,22 +37,22 @@ void USettingsMenuEntryObject::QualityValue()
 
 	MenuSettingsData.QualityCurrentValue = UKismetSystemLibrary::GetConsoleVariableIntValue(MenuSettingsData.SubSettingFunctionName);
 }
-void USettingsMenuEntryObject::SliderValue()
+void USettingMenuEntryObject::SliderValue()
 {
-	if (MenuSettingsData.SubSettingType != EST_SliderValue) 
+	if (MenuSettingsData.SubSettingType != EST_SliderValue)
 		return;
 
 	if (WasValueLoadedFromJsonFile(MenuSettingsData.SliderCurrentValue))
 		return;
 
-	if (MenuSettingsData.SettingApplyType != ESAT_FunctionInCMD) 
+	if (MenuSettingsData.SettingApplyType != ESAT_FunctionInCMD)
 		return;
 
 	MenuSettingsData.SliderCurrentValue = UKismetSystemLibrary::GetConsoleVariableFloatValue(MenuSettingsData.SubSettingFunctionName);
 }
-void USettingsMenuEntryObject::CheckBoxValue() 
+void USettingMenuEntryObject::CheckBoxValue()
 {
-	if (MenuSettingsData.SubSettingType != EST_OnOff) 
+	if (MenuSettingsData.SubSettingType != EST_OnOff)
 		return;
 
 	if (WasValueLoadedFromJsonFile(MenuSettingsData.bSettingEnabled))
@@ -65,7 +65,7 @@ void USettingsMenuEntryObject::CheckBoxValue()
 	MenuSettingsData.bSettingEnabled = UKismetSystemLibrary::GetConsoleVariableIntValue(MenuSettingsData.SubSettingFunctionName) <= 0 ? false : true;
 }
 
-void USettingsMenuEntryObject::SetResolutionSetting()
+void USettingMenuEntryObject::SetResolutionSetting()
 {
 	if (MenuSettingsData.SubSettingType != EST_SetResolution)
 		return;
@@ -77,7 +77,7 @@ void USettingsMenuEntryObject::SetResolutionSetting()
 	if (MenuSettingsData.QualityCurrentValue == INDEX_NONE) MenuSettingsData.QualityCurrentValue = 0;
 }
 
-void USettingsMenuEntryObject::FillSupportedResolutions()
+void USettingMenuEntryObject::FillSupportedResolutions()
 {
 	UKismetSystemLibrary::GetSupportedFullscreenResolutions(MenuSettingsData.SupportedResolutionsList);
 
@@ -89,7 +89,7 @@ void USettingsMenuEntryObject::FillSupportedResolutions()
 	}
 }
 
-void USettingsMenuEntryObject::SetFullscreenModeSetting()
+void USettingMenuEntryObject::SetFullscreenModeSetting()
 {
 	if (MenuSettingsData.SubSettingType != EST_SetFullscreen)
 		return;
@@ -97,9 +97,9 @@ void USettingsMenuEntryObject::SetFullscreenModeSetting()
 	MenuSettingsData.QualityCurrentValue = UGameUserSettings::GetGameUserSettings()->GetFullscreenMode();
 }
 
-bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(float& Value)
+bool USettingMenuEntryObject::WasValueLoadedFromJsonFile(float& Value)
 {
-	if (!MenuSettingsData.bSaveValueToGameInstance|| !IsValid(GameInstance))
+	if (!MenuSettingsData.bSaveValueToGameInstance || !IsValid(GameInstance))
 		return false;
 
 	GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, Value);
@@ -107,7 +107,7 @@ bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(float& Value)
 	return true;
 }
 
-bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(int32& Value)
+bool USettingMenuEntryObject::WasValueLoadedFromJsonFile(int32& Value)
 {
 	if (!MenuSettingsData.bSaveValueToGameInstance || !IsValid(GameInstance))
 		return false;
@@ -118,7 +118,7 @@ bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(int32& Value)
 	return true;
 }
 
-bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(bool& Value)
+bool USettingMenuEntryObject::WasValueLoadedFromJsonFile(bool& Value)
 {
 	if (!MenuSettingsData.bSaveValueToGameInstance || !IsValid(GameInstance))
 		return false;
@@ -128,4 +128,3 @@ bool USettingsMenuEntryObject::WasValueLoadedFromJsonFile(bool& Value)
 
 	return true;
 }
-

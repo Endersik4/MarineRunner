@@ -8,12 +8,12 @@
 
 DECLARE_DELEGATE_OneParam(FCrouchSlideDelegate, bool);
 /// This component let you Croach and Slide
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API UCroachAndSlide : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UCroachAndSlide();
 
@@ -22,8 +22,8 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-		void OnOwnerDestroyed(AActor* DestroyedActor);
-public:	
+	void OnOwnerDestroyed(AActor* DestroyedActor);
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -38,85 +38,85 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		float CrouchSpeed = 30000.f;
+	float CrouchSpeed = 30000.f;
 	// How fast change state of the crouch
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		float TimeToChangeCrouchState = 0.2f;
+	float TimeToChangeCrouchState = 0.2f;
 	// Actor Z Scale when crouching
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		float CrouchPlayerScale = 0.46f;
+	float CrouchPlayerScale = 0.46f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		float CrouchPressedVignetteIntensity = 0.7f;
+	float CrouchPressedVignetteIntensity = 0.7f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		float CrouchReleasedTimeCheck = 0.2f;
+	float CrouchReleasedTimeCheck = 0.2f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-		FVector CheckBoxSizeToStandUpAfterCrouch = FVector(60.f, 60.f, 60.f);
+	FVector CheckBoxSizeToStandUpAfterCrouch = FVector(60.f, 60.f, 60.f);
 
 	//Initial Velocity of Sliding is added to Walking Distance from MarineCharacter
 	//and then we have Initial Velocity of Sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float InitialVelocityOfSliding = 130000.f;
+	float InitialVelocityOfSliding = 130000.f;
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float SlideSpeed = 165000.f;
+	float SlideSpeed = 165000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float MaxSlideForce = 100000.f;
+	float MaxSlideForce = 100000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		float SlideDelayInSeconds = 0.01f;
+	float SlideDelayInSeconds = 0.01f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-		TObjectPtr<USoundBase> SlideSound = nullptr;
+	TObjectPtr<USoundBase> SlideSound = nullptr;
 	//How fast Pawn will gain speed on ramp when sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
-		float RampSlideDownForce = 25000.f;
+	float RampSlideDownForce = 25000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
-		float RampSlideUpForce = 150000.f;
+	float RampSlideUpForce = 150000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
-		TSubclassOf<UCameraShakeBase> RampCameraShake = nullptr;
+	TSubclassOf<UCameraShakeBase> RampCameraShake = nullptr;
 
 	UPROPERTY(Transient)
-		float CurrentMovementForce = 0.f;
+	float CurrentMovementForce = 0.f;
 	UPROPERTY(Transient)
-		float OriginalMovementForce = 0.f;
+	float OriginalMovementForce = 0.f;
 	void SetPlayerVariables();
 
 	UPROPERTY(Transient)
-		bool bIsCrouching = false;
+	bool bIsCrouching = false;
 	UPROPERTY(Transient)
-		bool bCrouchPressed = false;
+	bool bCrouchPressed = false;
 	bool CanPlayerStand();
 	void StopCrouching();
 	FTimerHandle CheckCrouchReleasedHandle;
 
 	// State of crouch (e.g standing/crouching)
 	UPROPERTY(Transient)
-		bool bChangingCrouchState = false;
+	bool bChangingCrouchState = false;
 	UPROPERTY(Transient)
-		FVector OriginalPlayerScale = FVector::Zero();
+	FVector OriginalPlayerScale = FVector::Zero();
 	UPROPERTY(Transient)
-		float CurrentVignetteIntensity = 0.f;
+	float CurrentVignetteIntensity = 0.f;
 	UPROPERTY(Transient)
-		float CurrentActorScale_Z = 0.f;
+	float CurrentActorScale_Z = 0.f;
 	UPROPERTY(Transient)
-		float CrouchPressedTimeElapsed = 0.f;
+	float CrouchPressedTimeElapsed = 0.f;
 	UPROPERTY(Transient)
-		float Target_VignetteIntensity = 1.1f;
+	float Target_VignetteIntensity = 1.1f;
 	UPROPERTY(Transient)
-		float Target_ScaleZ = 0.5f;
+	float Target_ScaleZ = 0.5f;
 	void PrepareVariablesForChangingCrouchState(const float& TargetScale_Z, const float& TargetVignetteIntensity);
 	void ChangingCrouchState(float Delta);
 
 	// Slide on ramp
-	void SlideOnRamp(const float & Delta);
+	void SlideOnRamp(const float& Delta);
 
 	// Camera Shake while sliding on ramp
 	UPROPERTY(Transient)
-		bool bRampCameraShakeStarted = false;
+	bool bRampCameraShakeStarted = false;
 	UPROPERTY(Transient)
-		TObjectPtr<UCameraShakeBase> CameraShakeBase = nullptr;
+	TObjectPtr<UCameraShakeBase> CameraShakeBase = nullptr;
 
 	// Delay for start sliding
 	UPROPERTY(Transient)
-		bool bSlide = false;
+	bool bSlide = false;
 	FTimerHandle SlideDelayHandle;
 	void Sliding(float Delta);
 	bool ShouldStopSliding();
@@ -125,15 +125,15 @@ private:
 
 	// Sliding sound
 	UPROPERTY(Transient)
-		bool bShouldPlaySound = true;
+	bool bShouldPlaySound = true;
 	void TurnOnSlideSound();
 	void TurnOffSlideSound();
 	UPROPERTY(Transient)
-		TObjectPtr<class UAudioComponent> SpawnedSlideSound = nullptr;
+	TObjectPtr<class UAudioComponent> SpawnedSlideSound = nullptr;
 
 	UPROPERTY(Transient)
-		TObjectPtr<APlayerController> PlayerController = nullptr;
+	TObjectPtr<APlayerController> PlayerController = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player = nullptr;
+	TObjectPtr<class AMarineCharacter> Player = nullptr;
 };
 

@@ -11,8 +11,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "GameFramework/GameUserSettings.h"
 
-#include "SettingsMenuEntryObject.h"
-#include "SettingsMenuListEntry.h"
+#include "SettingMenuEntryObject.h"
+#include "SettingMenuListEntry.h"
 #include "MarineRunner/Player/MarinePlayerController.h"
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/SaveLoadGame/SaveLoadPlayerComponent.h"
@@ -85,10 +85,10 @@ void USettingsMenuWidget::FillCurrentMenuSettingsListView(const TArray<FMenuSett
 {
 	SettingsListView->ClearListItems();
 
-	USettingsMenuEntryObject* ObjectThatConnectOtherSettings = nullptr;
+	TObjectPtr<USettingMenuEntryObject> ObjectThatConnectOtherSettings = nullptr;
 	for (const FMenuSettings& CurrentSetting : DataToFillFrom)
 	{
-		TObjectPtr<USettingsMenuEntryObject> ConstructedItemObject = NewObject<USettingsMenuEntryObject>(MenuSettingsDataObject);
+		TObjectPtr<USettingMenuEntryObject> ConstructedItemObject = NewObject<USettingMenuEntryObject>(MenuSettingsDataObject);
 		if (!IsValid(ConstructedItemObject)) 
 			continue;
 
@@ -102,7 +102,7 @@ void USettingsMenuWidget::FillCurrentMenuSettingsListView(const TArray<FMenuSett
 	}
 }
 
-TObjectPtr<USettingsMenuEntryObject> USettingsMenuWidget::ConnectedSettings(TObjectPtr<USettingsMenuEntryObject> ConstructedItemObject, TObjectPtr<USettingsMenuEntryObject> ObjectThatConnectOtherSettings)
+TObjectPtr<USettingMenuEntryObject> USettingsMenuWidget::ConnectedSettings(TObjectPtr<USettingMenuEntryObject> ConstructedItemObject, TObjectPtr<USettingMenuEntryObject> ObjectThatConnectOtherSettings)
 {
 	if (ConstructedItemObject->MenuSettingsData.bIsItObjectThatConnects)
 	{
@@ -242,7 +242,7 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 
 	for (TObjectPtr<UObject> CurrentElement : SettingsListView->GetListItems())
 	{
-		const TObjectPtr<USettingsMenuEntryObject> SettingMenuObject = Cast<USettingsMenuEntryObject>(CurrentElement);
+		const TObjectPtr<USettingMenuEntryObject> SettingMenuObject = Cast<USettingMenuEntryObject>(CurrentElement);
 		if (!IsValid(SettingMenuObject)) 
 			continue;
 
@@ -257,7 +257,7 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 	LoadSavedSettingsToPlayer();
 }
 
-void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingData, TObjectPtr<USettingsMenuEntryObject> SettingMenuObject)
+void USettingsMenuWidget::ActiveSettingByType(const FMenuSettings& SubSettingData, TObjectPtr<USettingMenuEntryObject> SettingMenuObject)
 {
 	if (!SubSettingData.bEntryWidgetEnabled || SubSettingData.SubSettingType == EST_Category)
 		return;

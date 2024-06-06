@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MenuBase.h"
+#include "MarineRunner/Player/GameMenu/GameMenuBase.h"
 
 #include "PauseMenuWidget.generated.h"
 
@@ -12,7 +12,7 @@ class UButton;
 class UImage;
 
 UCLASS()
-class MARINERUNNER_API UPauseMenuWidget : public UMenuBase
+class MARINERUNNER_API UPauseMenuWidget : public UGameMenuBase
 {
 	GENERATED_BODY()
 

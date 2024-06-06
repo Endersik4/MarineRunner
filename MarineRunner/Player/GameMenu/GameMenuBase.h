@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "MenuBase.generated.h"
+#include "GameMenuBase.generated.h"
 
 class UTextBlock;
 class UButton;
@@ -26,12 +26,10 @@ struct FVisiblePauseMenu
 		return VisibleWidget == CompareToVisibleWidget;
 	}
 };
-
 UCLASS()
-class MARINERUNNER_API UMenuBase : public UUserWidget
+class MARINERUNNER_API UGameMenuBase : public UUserWidget
 {
 	GENERATED_BODY()
-
 protected:
 	virtual void NativeConstruct() override;
 
@@ -103,7 +101,7 @@ protected:
 	UPROPERTY(Transient)
 	bool bWasLoadGameMenuWidgetSpawned = false;
 	void SpawnLoadGameMenuWidget();
-	void RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame = false);
+	virtual void RemoveLoadGameMenuWidgetFromViewport(bool bUnhoverTextLoadGame = false);
 	UPROPERTY(Transient)
 	TObjectPtr<class ULoadGameMenuWidget> LoadGameMenuWidget = nullptr;
 

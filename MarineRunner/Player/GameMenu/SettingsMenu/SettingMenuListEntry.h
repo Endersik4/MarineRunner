@@ -5,12 +5,15 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Blueprint/IUserObjectListEntry.h"
-#include "SettingsMenuEntryObject.h"
+#include "SettingMenuEntryObject.h"
 
-#include "SettingsMenuListEntry.generated.h"
+#include "SettingMenuListEntry.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class MARINERUNNER_API USettingsMenuListEntry : public UUserWidget, public IUserObjectListEntry
+class MARINERUNNER_API USettingMenuListEntry : public UUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
 
@@ -22,94 +25,94 @@ public:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UHorizontalBox> HorizontalBoxForSettingsText = nullptr;
+	TObjectPtr<class UHorizontalBox> HorizontalBoxForSettingsText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> SubSettingNameText = nullptr;
+	TObjectPtr<class UTextBlock> SubSettingNameText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> CategoryNameText = nullptr;
+	TObjectPtr<class UTextBlock> CategoryNameText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> SubSettingQualityText = nullptr;
+	TObjectPtr<class UTextBlock> SubSettingQualityText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> LeftArrowButton = nullptr;
+	TObjectPtr<class UButton> LeftArrowButton = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> RightArrowButton = nullptr;
+	TObjectPtr<class UButton> RightArrowButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UCheckBox> SubSettingOnOffCheckBox = nullptr;
+	TObjectPtr<class UCheckBox> SubSettingOnOffCheckBox = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> SubSettingOnOffButton = nullptr;
+	TObjectPtr<class UButton> SubSettingOnOffButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> SliderButton = nullptr;
+	TObjectPtr<class UButton> SliderButton = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class USlider> SubSettingSlider = nullptr;
+	TObjectPtr<class USlider> SubSettingSlider = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> SubSettingSliderValueText = nullptr;
+	TObjectPtr<class UTextBlock> SubSettingSliderValueText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> KeyMappingButton = nullptr;
+	TObjectPtr<class UButton> KeyMappingButton = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UInputKeySelector> KeyMappingInputKeySelector = nullptr;
+	TObjectPtr<class UInputKeySelector> KeyMappingInputKeySelector = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr < UWidgetAnimation> LeftArrowHoverAnim = nullptr;
+	TObjectPtr < UWidgetAnimation> LeftArrowHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr < UWidgetAnimation> RightArrowHoverAnim = nullptr;
+	TObjectPtr < UWidgetAnimation> RightArrowHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr < UWidgetAnimation> CheckBoxHoverAnim = nullptr;
+	TObjectPtr < UWidgetAnimation> CheckBoxHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr < UWidgetAnimation> SliderHoverAnim = nullptr;
+	TObjectPtr < UWidgetAnimation> SliderHoverAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr < UWidgetAnimation> KeyMappingHoverAnim = nullptr;
+	TObjectPtr < UWidgetAnimation> KeyMappingHoverAnim = nullptr;
 
 	UFUNCTION()
-		void OnClickedLeftArrowButton();
+	void OnClickedLeftArrowButton();
 	UFUNCTION()
-		void OnHoveredLeftArrowButton();
+	void OnHoveredLeftArrowButton();
 	UFUNCTION()
-		void OnUnhoveredLeftArrowButton();
+	void OnUnhoveredLeftArrowButton();
 
 	UFUNCTION()
-		void OnClickedRightArrowButton();
+	void OnClickedRightArrowButton();
 	UFUNCTION()
-		void OnHoveredRightArrowButton();
+	void OnHoveredRightArrowButton();
 	UFUNCTION()
-		void OnUnhoveredRightArrowButton();
+	void OnUnhoveredRightArrowButton();
 
 	UFUNCTION()
-		void OnClickedOnOffButton();
+	void OnClickedOnOffButton();
 	UFUNCTION()
-		void OnHoveredOnOffButton();
+	void OnHoveredOnOffButton();
 	UFUNCTION()
-		void OnUnhoveredOnOffButton();
+	void OnUnhoveredOnOffButton();
 
 	UFUNCTION()
-		void OnValueChangedSlider(float Value);
+	void OnValueChangedSlider(float Value);
 	UFUNCTION()
-		void OnHoveredSliderButton();
+	void OnHoveredSliderButton();
 	UFUNCTION()
-		void OnUnhoveredSliderButton();
+	void OnUnhoveredSliderButton();
 
 	UFUNCTION()
-		void OnIsSelectingKeyChangedInputKeySelector();
+	void OnIsSelectingKeyChangedInputKeySelector();
 	UFUNCTION()
-		void OnKeySelectedInputKeySelector(FInputChord SelectedKey);
+	void OnKeySelectedInputKeySelector(FInputChord SelectedKey);
 	UFUNCTION()
-		void OnHoveredKeyMappingButton();
+	void OnHoveredKeyMappingButton();
 	UFUNCTION()
-		void OnUnhoveredKeyMappingButton();
+	void OnUnhoveredKeyMappingButton();
 
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
-		FLinearColor CategoryTextColor = FLinearColor::Blue;
+	FLinearColor CategoryTextColor = FLinearColor::Blue;
 	UPROPERTY(EditDefaultsOnly, Category = "Text Settings")
-		FLinearColor WhenKeyMapColor = FLinearColor::Blue;
+	FLinearColor WhenKeyMapColor = FLinearColor::Blue;
 
 	UPROPERTY(Transient)
-		FString FunctionNameToApplyInCMD = FString("");
+	FString FunctionNameToApplyInCMD = FString("");
 	void AddValueToFunctionName(float Value);
 	void AddValueToFunctionName(int32 Value);
 	void AddValueToFunctionName(FString Value);
@@ -122,22 +125,22 @@ private:
 
 	// Key Mapping
 	UPROPERTY(Transient)
-		bool bIsWaitingForNewKey = false;
+	bool bIsWaitingForNewKey = false;
 	UPROPERTY(Transient)
-		FInputActionKeyMapping CurrentMappedActionKey = FInputActionKeyMapping();
+	FInputActionKeyMapping CurrentMappedActionKey = FInputActionKeyMapping();
 	UPROPERTY(Transient)
-		FInputAxisKeyMapping CurrentMappedAxisKey = FInputAxisKeyMapping();
+	FInputAxisKeyMapping CurrentMappedAxisKey = FInputAxisKeyMapping();
 	const FString GetKeyActionName();
 	const FString GetKeyAxisName();
 	UPROPERTY(Transient)
-		FText PreviousKeyText = FText();
+	FText PreviousKeyText = FText();
 
 	// Hide everything in this widget
 	void HideAllUIElements();
 
 	// Connect to other sub settings
 	UPROPERTY(Transient)
-		TArray<TObjectPtr<USettingsMenuListEntry>> ConnectedSettingsEntryFromList = { nullptr };
+	TArray<TObjectPtr<USettingMenuListEntry>> ConnectedSettingsEntryFromList = { nullptr };
 	void FillConnectedSettingsEntryFromList();
 	void EnableAllConnectedSettingsEntry(bool bEnable);
 
@@ -156,5 +159,5 @@ private:
 	void SubSettingType_OnOff();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class USettingsMenuEntryObject> SettingEntryObject = nullptr;
+	TObjectPtr<class USettingMenuEntryObject> SettingEntryObject = nullptr;
 };

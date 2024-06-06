@@ -35,7 +35,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	FORCEINLINE void SetShouldCameraYawRotate(bool bShould) { bRotateYawCameraTowardsWallrun = bShould;}
+	FORCEINLINE void SetShouldCameraYawRotate(bool bShould) { bRotateYawCameraTowardsWallrun = bShould; }
 	FORCEINLINE void SetCanJumpAfterWallrun(bool bCan) { bCanJumpAfterWallrun = bCan; }
 
 	//Getters
@@ -53,36 +53,36 @@ private:
 	FFloatRange WallrunVelocityRange = FFloatRange(2000.f, 2500.f);
 	//Force added to Stick with Obstacle
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float StickWithObstacleImpulse = 200000.f;
+	float StickWithObstacleImpulse = 200000.f;
 	//How much should change the angle of the impact vector
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float AngleOfHitImpact = 85.f;
+	float AngleOfHitImpact = 85.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float DelayToStartNextWallrun = 0.3f;
+	float DelayToStartNextWallrun = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-		float MaxYawDistanceToStopWallrunning = 45.f;
+	float MaxYawDistanceToStopWallrunning = 45.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Jump")
-		float JumpFromWallrunImpulse = 680000.f;
+	float JumpFromWallrunImpulse = 680000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Jump")
-		float CanJumpWhenWallrunStartsTime = 0.1f;
+	float CanJumpWhenWallrunStartsTime = 0.1f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Jump")
-		float CanJumpAfterWallrunTime = 0.3f;
+	float CanJumpAfterWallrunTime = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
-		float ObstacleRaycastDistance = 150.f;
+	float ObstacleRaycastDistance = 150.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
-		FFloatRange VelocityRangeToStopWallrunming = FFloatRange(-5.f, 400.f);
+	FFloatRange VelocityRangeToStopWallrunming = FFloatRange(-5.f, 400.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
-		float MinVelocityToPerformWallrun = 120.f;
+	float MinVelocityToPerformWallrun = 120.f;
 
 	//Interp Speed of Changing the Yaw Camera
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")
-		float CameraYawSpeed = 8.f;
+	float CameraYawSpeed = 8.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")
-		TObjectPtr<UCurveFloat> CameraRollRightSideCurve = nullptr;
+	TObjectPtr<UCurveFloat> CameraRollRightSideCurve = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")
-		TObjectPtr<UCurveFloat> CameraRollLeftSideCurve = nullptr;
+	TObjectPtr<UCurveFloat> CameraRollLeftSideCurve = nullptr;
 	UFUNCTION()
-		void CameraRollTimelineProgress(float CurveValue);
+	void CameraRollTimelineProgress(float CurveValue);
 
 	UPROPERTY(Transient)
 	bool bIsWallrunning = false;
@@ -92,25 +92,25 @@ private:
 	FVector WallrunDirection = FVector::Zero();
 
 	UPROPERTY(Transient)
-		float WallrunVelocity = 0.f;
+	float WallrunVelocity = 0.f;
 	UPROPERTY(Transient)
-		float WallrunTimeElapsed = 0.6f; //After the jump, this time must pass to do the wallrun again
+	float WallrunTimeElapsed = 0.6f; //After the jump, this time must pass to do the wallrun again
 	UPROPERTY(Transient)
-		FVector WallrunningWhereToJump = FVector::Zero(); //ImpactNormal of Obstacle HitResult
+	FVector WallrunningWhereToJump = FVector::Zero(); //ImpactNormal of Obstacle HitResult
 	void SetCanJumpWhileWallrunning();
 	FTimerHandle CanJumpHandle;
 
 	//Yaw camera rotation after run-up begins
 	UPROPERTY(Transient)
-		bool bRotateYawCameraTowardsWallrun = false;
+	bool bRotateYawCameraTowardsWallrun = false;
 	UPROPERTY(Transient)
-		float RotateYawCameraAngle = 0.f;
+	float RotateYawCameraAngle = 0.f;
 	void RotateCameraYaw(ESideOfLine CurrentSide, FVector HitNormal);
 	void CameraRotationTowardsHitNormal(float Delta);
 
 	// Rotate camera roll in direction of the obstacle normal 
 	UPROPERTY(Transient)
-		bool bCameraRollWasRotated = false;
+	bool bCameraRollWasRotated = false;
 	ESideOfLine CurrentRotatedCameraRoll;
 	void RotateCameraWhileWallrunning(UCurveFloat* CurveToUse);
 	FTimeline RotateCameraRollTimeline;
@@ -125,17 +125,17 @@ private:
 
 	// coyote time after wallrun
 	UPROPERTY(Transient)
-		bool bCanJumpAfterWallrun = false;
+	bool bCanJumpAfterWallrun = false;
 	FTimerHandle CanJumpAfterWallrunHandle;
 	void DisableCanJumpAfterWallrun();
 
 	UPROPERTY(Transient)
-		FRotator PlayerRotationWallrun = FRotator::ZeroRotator;
+	FRotator PlayerRotationWallrun = FRotator::ZeroRotator;
 	UPROPERTY(Transient)
-		FRotator PlayerRotationWhileWallrun = FRotator::ZeroRotator;
+	FRotator PlayerRotationWhileWallrun = FRotator::ZeroRotator;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
+	TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<APlayerController> PlayerController = nullptr;
+	TObjectPtr<APlayerController> PlayerController = nullptr;
 };

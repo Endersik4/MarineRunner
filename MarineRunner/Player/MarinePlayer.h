@@ -67,7 +67,7 @@ public:
 	FORCEINLINE TObjectPtr<class UWallrunComponent> GetWallrunComponent() const { return WallrunComponent; }
 	FORCEINLINE TObjectPtr<class UCroachAndSlide> GetCrouchAndSlideComponent() const { return CroachAndSlideComponent; }
 	FORCEINLINE TObjectPtr<class USlowMotionComponent> GetSlowMotionComponent() const { return SlowMotionComponent; }
-	FORCEINLINE FSettingSavedInJsonFile& GetMouseSensitivityJSON()  { return OriginalMouseSensitivityJSON; }
+	FORCEINLINE FSettingSavedInJsonFile& GetMouseSensitivityJSON() { return OriginalMouseSensitivityJSON; }
 	FORCEINLINE TObjectPtr<class AAlbertosPawn> GetAlbertosPawn() const { return AlbertoPawn; }
 
 	FORCEINLINE void SetHealth(float NewHealth) { Health = NewHealth; }
@@ -82,124 +82,124 @@ public:
 	void MakeCrosshire(bool bShouldRemoveFromParent = false);
 
 	UPROPERTY(Transient)
-		bool bIsPlayerInElevator = false;
+	bool bIsPlayerInElevator = false;
 
 	void ReplaceRootComponentRotation();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UCapsuleComponent> CapsulePawn = nullptr;
+	TObjectPtr<class UCapsuleComponent> CapsulePawn = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UCameraComponent> Camera = nullptr;
+	TObjectPtr<class UCameraComponent> Camera = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class USkeletalMeshComponent> ArmsSkeletalMesh = nullptr;
+	TObjectPtr<class USkeletalMeshComponent> ArmsSkeletalMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr < USceneComponent> GroundLocationSceneComponent = nullptr;
+	TObjectPtr < USceneComponent> GroundLocationSceneComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr < USceneComponent> RoofLocationSceneComponent = nullptr;
+	TObjectPtr < USceneComponent> RoofLocationSceneComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UWidgetInteractionComponent> WidgetInteractionComponent = nullptr;
+	TObjectPtr<class UWidgetInteractionComponent> WidgetInteractionComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UTakeAndDrop> TakeAndDropComponent = nullptr;
+	TObjectPtr<class UTakeAndDrop> TakeAndDropComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UInventoryComponent> InventoryComponent = nullptr;
+	TObjectPtr<class UInventoryComponent> InventoryComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UJumpComponent> JumpComponent = nullptr;
+	TObjectPtr<class UJumpComponent> JumpComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UCroachAndSlide> CroachAndSlideComponent = nullptr;
+	TObjectPtr<class UCroachAndSlide> CroachAndSlideComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UDashComponent> DashComponent = nullptr;
+	TObjectPtr<class UDashComponent> DashComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UWallrunComponent> WallrunComponent = nullptr;
+	TObjectPtr<class UWallrunComponent> WallrunComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class USlowMotionComponent> SlowMotionComponent = nullptr;
+	TObjectPtr<class USlowMotionComponent> SlowMotionComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UPullUpComponent> PullUpComponent = nullptr;
+	TObjectPtr<class UPullUpComponent> PullUpComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UWeaponInventoryComponent> WeaponInventoryComponent = nullptr;
+	TObjectPtr<class UWeaponInventoryComponent> WeaponInventoryComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UPauseMenuComponent> PauseMenuComponent = nullptr;
+	TObjectPtr<class UPauseMenuComponent> PauseMenuComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class USwingComponent> SwingComponent = nullptr;
+	TObjectPtr<class USwingComponent> SwingComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UWeaponHandlerComponent> WeaponHandlerComponent = nullptr;
+	TObjectPtr<class UWeaponHandlerComponent> WeaponHandlerComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class USpawnDeathWidgetComponent> SpawnDeathWidgetComponent = nullptr;
+	TObjectPtr<class USpawnDeathWidgetComponent> SpawnDeathWidgetComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UMessageHandlerComponent> MessageHandlerComponent = nullptr;
+	TObjectPtr<class UMessageHandlerComponent> MessageHandlerComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class USaveLoadPlayerComponent> SaveLoadPlayerComponent = nullptr;
+	TObjectPtr<class USaveLoadPlayerComponent> SaveLoadPlayerComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
-		TObjectPtr<class UArmsSwayComponent> ArmsSwayComponent = nullptr;
+	TObjectPtr<class UArmsSwayComponent> ArmsSwayComponent = nullptr;
 
 
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
-		float Health = 100.f;
+	float Health = 100.f;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
-		float OriginalHealth = 100.f;
+	float OriginalHealth = 100.f;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
-		float DividerForRadialDamage = 2.5f;
+	float DividerForRadialDamage = 2.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn")
-		TObjectPtr < USoundBase> MarineHitSound = nullptr;
+	TObjectPtr < USoundBase> MarineHitSound = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
-		TObjectPtr<class AAlbertosPawn> AlbertoPawn = nullptr;
+	TObjectPtr<class AAlbertosPawn> AlbertoPawn = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn|First Aid Kit")
-		FName FirstAidKitRowName = "FirstAidKit";
+	FName FirstAidKitRowName = "FirstAidKit";
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn|First Aid Kit")
-		float FirstAidKitHealth = 35.f;
+	float FirstAidKitHealth = 35.f;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn|First Aid Kit")
-		float DelayAfterUseFirstAidKit = 1.1f;
+	float DelayAfterUseFirstAidKit = 1.1f;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn|First Aid Kit")
-		int32 MaxAmountOfFirstAidKitsOnHud = 99;
+	int32 MaxAmountOfFirstAidKitsOnHud = 99;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|First Aid Kit")
-		TObjectPtr < USoundBase> UseFirstAidKitSound = nullptr;
+	TObjectPtr < USoundBase> UseFirstAidKitSound = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
-		FSettingSavedInJsonFile OriginalMouseSensitivityJSON = FSettingSavedInJsonFile("MouseSensitivity", 0.7f);
+	FSettingSavedInJsonFile OriginalMouseSensitivityJSON = FSettingSavedInJsonFile("MouseSensitivity", 0.7f);
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
-		FSettingSavedInJsonFile FieldOfViewJSON = FSettingSavedInJsonFile("FieldOfView", 90.f);
+	FSettingSavedInJsonFile FieldOfViewJSON = FSettingSavedInJsonFile("FieldOfView", 90.f);
 
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn|Movement")
-		float MovementSpeed = 80000.f;
+	float MovementSpeed = 80000.f;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn|Movement")
-		float CounterMovementForce = 30.f;
+	float CounterMovementForce = 30.f;
 	// When player wants to move forward and right then the forward speed is added to right speed and the player moves faster, this divider prevents this
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Movement")
-		float ForwardAndRightAtTheSameTimeDivider = 1.3f;
+	float ForwardAndRightAtTheSameTimeDivider = 1.3f;
 	// if Velocity is higher then MaxVelocityForStaticCounterMovement, The higher the velocity, the lower the force counteracting the movement (when in air)
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Movement")
-		float MaxVelocityForStaticCounterMovement = 1250.f;
+	float MaxVelocityForStaticCounterMovement = 1250.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Widgets")
-		TSubclassOf<class UCrosshairWidget> CrosshairWidgetClass = nullptr;
+	TSubclassOf<class UCrosshairWidget> CrosshairWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Widgets")
-		TSubclassOf<class UHUDWidget> HUDClass = nullptr;
+	TSubclassOf<class UHUDWidget> HUDClass = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
-		FFloatRange VelocityRangeToDisableFootsteps = FFloatRange(0.f, 150.f);
+	FFloatRange VelocityRangeToDisableFootsteps = FFloatRange(0.f, 150.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
-		float NormalTimeBetweenNextStep = 0.31f;
+	float NormalTimeBetweenNextStep = 0.31f;
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
-		float CrouchTimeBetweenNextStep = 0.5f;
+	float CrouchTimeBetweenNextStep = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
-		float WallrunTimeBetweenNextStep = 0.17f;
+	float WallrunTimeBetweenNextStep = 0.17f;
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps|AI")
-		float FootstepsSoundLoudnessForEnemy = 0.5f;
+	float FootstepsSoundLoudnessForEnemy = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps|AI")
-		float FootstepsSoundMaxRangeForEnemy = 1000.f;
+	float FootstepsSoundMaxRangeForEnemy = 1000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps|Sounds")
-		TObjectPtr<USoundBase> FootstepsSound = nullptr;
+	TObjectPtr<USoundBase> FootstepsSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps|Sounds")
-		TObjectPtr<USoundBase> FootstepsWallrunSound = nullptr;
+	TObjectPtr<USoundBase> FootstepsWallrunSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps|Sounds")
-		TObjectPtr<USoundBase> FootstepsCrouchSound = nullptr;
+	TObjectPtr<USoundBase> FootstepsCrouchSound = nullptr;
 
 	UPROPERTY(Transient)
-		bool bIsDead;
+	bool bIsDead;
 	void PlayerDead();
 
 	//Movement
@@ -208,18 +208,18 @@ private:
 	void Move(FVector Direction, float Axis, const FName InputAxisName);
 	FVector CalculateCounterMovement();
 	UPROPERTY(Transient)
-		float MovementForceDividerWhenInADS = 1.f;
+	float MovementForceDividerWhenInADS = 1.f;
 	UPROPERTY(Transient)
-		float MovementSpeedMutliplier = 1.f;
+	float MovementSpeedMutliplier = 1.f;
 	const float DegreeForForwardVector = -90.f;
 
 	//If true then in the the player will always walk forward
 	UPROPERTY(Transient)
-		bool bConstantlyGoForward; 
+	bool bConstantlyGoForward;
 
 	//Footsteps sounds
 	UPROPERTY(Transient)
-		bool bCanPlayFootstepsSound = true;
+	bool bCanPlayFootstepsSound = true;
 	FTimerHandle FootstepsHandle;
 	bool CheckIfCanPlayFootstepsSound();
 	void PlayFootstepsSound();
@@ -227,14 +227,14 @@ private:
 
 	void CallAlbertosPressed();
 	UPROPERTY(Transient)
-		TObjectPtr<class UCraftingAlbertosWidget> CraftingWidget = nullptr;
+	TObjectPtr<class UCraftingAlbertosWidget> CraftingWidget = nullptr;
 
 	void TakePressed();
 	void TakeReleased();
 
 	//FirstAidKit
 	UPROPERTY(Transient)
-		bool bCanUseFirstAidKit = true;
+	bool bCanUseFirstAidKit = true;
 	FTimerHandle UseFirstAidKitHandle;
 	FORCEINLINE void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }
 	void UseFirstAidKit();
@@ -242,9 +242,9 @@ private:
 	//Widgets
 	void MakeHudWidget();
 	UPROPERTY(Transient)
-		TObjectPtr<class UCrosshairWidget> SpawnedCrosshairWidget = nullptr;
+	TObjectPtr<class UCrosshairWidget> SpawnedCrosshairWidget = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class UHUDWidget> HudWidget = nullptr;
+	TObjectPtr<class UHUDWidget> HudWidget = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarinePlayerController> MarinePlayerController = nullptr;
+	TObjectPtr<class AMarinePlayerController> MarinePlayerController = nullptr;
 };

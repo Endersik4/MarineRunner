@@ -8,12 +8,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/AudioComponent.h"
 
-#include "SettingsMenu/SettingsMenuWidget.h"
-#include "LoadGameMenu/LoadGameMenuWidget.h"
-#include "MarineRunner/Player/PauseMenu/ConfirmOptionWidget.h"
+#include "MarineRunner/Player/GameMenu/SettingsMenu/SettingsMenuWidget.h"
+#include "MarineRunner/Player/GameMenu/LoadGameMenu/LoadGameMenuWidget.h"
+#include "MarineRunner/Player/GameMenu/ConfirmOptionWidget.h"
+#include "MarineRunner/Player/GameMenu/PauseMenu/PauseMenuComponent.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 #include "MarineRunner/Player/MarinePlayer.h"
-#include "MarineRunner/Player/PauseMenu/PauseMenuComponent.h"
 #include "MarineRunner/Player/SaveLoadGame/SaveLoadPlayerComponent.h"
 
 void UPauseMenuWidget::NativeConstruct()

@@ -15,9 +15,6 @@ class MARINERUNNER_API UConfirmOptionWidget : public UUserWidget
 protected:
 	virtual void NativeConstruct() override;
 
-	virtual void NativeOnInitialized() override;
-
-public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<class UImage> BackgroundImage = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -52,11 +49,17 @@ public:
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	TObjectPtr < UWidgetAnimation> DenyButtonHoveredAnim = nullptr;
 
+public:
 	// When player confirms then this function is called
 	TFunction<void()> ConfirmFunction;
+	// if bRemoveWidget is true then remove widget from current spawned menu widget, if false then add widget to current spawned menu widgets
+	void AddThisWidgetToCurrentSpawnedMenuWidgets(bool bRemoveWidget);
 
+	FORCEINLINE void SetCurrentSpawnedMenu(TObjectPtr<class UGameMenuBase> NewSpawnedMenu) { CurrentSpawnedMenu = NewSpawnedMenu; }
 private:
 
-	void AddThisWidgetToCurrentSpawnedMenuWidgets(bool bRemoveWidget);
 	void RemoveConfirmWidget(bool bRemove = true);
+
+	UPROPERTY(Transient)
+	TObjectPtr<class UGameMenuBase> CurrentSpawnedMenu = nullptr;
 };

@@ -386,9 +386,6 @@ void AGun::PutAwayWeapon()
 	bCanShoot = false;
 	ShootReleased();
 	CancelShoot();
-
-	FTimerHandle HideGunHandle;
-	GetWorld()->GetTimerManager().SetTimer(HideGunHandle, this, &AGun::HideWeapon, PutAwayWeapon_Anim.ArmsActionAnim->GetPlayLength(), false);
 }
 
 void AGun::HideWeapon()
