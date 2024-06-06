@@ -222,3 +222,10 @@ void AWeaponBase::PlayGivenWeaponWithArmsAnimation(const FWeaponAnimation& AnimT
 		Player->GetArmsSkeletalMesh()->PlayAnimation(AnimToPlay.ArmsActionAnim, false);
 	}
 }
+
+float AWeaponBase::GetPutAwayWeaponAnimTime()
+{
+	if (!IsValid(PutAwayWeapon_Anim.ArmsActionAnim))
+		return 0.f;
+	return PutAwayWeapon_Anim.ArmsActionAnim->GetPlayLength();
+}

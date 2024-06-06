@@ -108,6 +108,12 @@ void USwingComponent::SwingPressed()
 	if (!IsValid(CurrentFocusedHook))
 		return;
 
+	if (IsValid(Player))
+	{
+		if (Player->GetIsInCutscene())
+			return;
+	}
+
 	if (!CurrentFocusedHook->GetCanGrabHook())
 		return;
 

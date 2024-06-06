@@ -7,7 +7,7 @@
 #include "AlbertosAIController.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API AAlbertosAIController : public AAIController
@@ -21,19 +21,19 @@ public:
 	AAlbertosAIController();
 
 	UFUNCTION(BlueprintCallable)
-		void SetCanMove(bool bCan);
+	void SetCanMove(bool bCan);
 
-	void CallAlbertosToThePlayer(const FVector & PlayerLoc);
+	void CallAlbertosToThePlayer(const FVector& PlayerLoc);
 private:
 	virtual void OnMoveCompleted(FAIRequestID RequestID, const FPathFollowingResult& Result) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBehaviorTree> AIBehaviour = nullptr;
-	
+	TObjectPtr<class UBehaviorTree> AIBehaviour = nullptr;
+
 	UPROPERTY(Transient)
-		bool bIsMovingTowardsPlayer = false;
+	bool bIsMovingTowardsPlayer = false;
 	UPROPERTY(Transient)
-		TObjectPtr<class AAlbertosPawn> AlbertosOwner = nullptr;
+	TObjectPtr<class AAlbertosPawn> AlbertosOwner = nullptr;
 
 	void SetUpAIBehaviour();
 };

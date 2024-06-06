@@ -7,12 +7,12 @@
 #include "CraftingWidgetAnimationComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API UCraftingWidgetAnimationComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UCraftingWidgetAnimationComponent();
 
@@ -20,7 +20,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -29,30 +29,30 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting Widget Animation")
-		float CraftingWidgetAnimationTime = 0.4f;
+	float CraftingWidgetAnimationTime = 0.4f;
 	UPROPERTY(EditDefaultsOnly, Category = "Crafting Widget Animation")
-		FVector DissolveBoxesOffsetForAnim = FVector(0.f, 2130.f, 0.f);
+	FVector DissolveBoxesOffsetForAnim = FVector(0.f, 2130.f, 0.f);
 
 	// Animation for opening/closing crafting table widget
 
 	UPROPERTY(Transient)
-		bool bIsCraftingWidgetAnimatinPlaying = false;
+	bool bIsCraftingWidgetAnimatinPlaying = false;
 	UPROPERTY(Transient)
-		bool bWasCraftingWidgetClosed = false;
+	bool bWasCraftingWidgetClosed = false;
 	UPROPERTY(Transient)
-		float CraftingWidgetAnimationTimeElapsed = 0.f;
+	float CraftingWidgetAnimationTimeElapsed = 0.f;
 	UPROPERTY(Transient)
-		FVector DissolveBoxStartLoc_L = FVector::Zero();
+	FVector DissolveBoxStartLoc_L = FVector::Zero();
 	UPROPERTY(Transient)
-		FVector DissolveBoxEndLoc_L = FVector::Zero();
+	FVector DissolveBoxEndLoc_L = FVector::Zero();
 	UPROPERTY(Transient)
-		FVector DissolveBoxStartLoc_R = FVector::Zero();
+	FVector DissolveBoxStartLoc_R = FVector::Zero();
 	UPROPERTY(Transient)
-		FVector DissolveBoxEndLoc_R = FVector::Zero();
+	FVector DissolveBoxEndLoc_R = FVector::Zero();
 	void CraftingWidgetAnimationEnded();
 	void ToggleVisibilityForDissolveBoxes();
 	void CraftingWidgetAnimation(float Delta);
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AAlbertosPawn> AlbertosOwner = nullptr;
+	TObjectPtr<class AAlbertosPawn> AlbertosOwner = nullptr;
 };

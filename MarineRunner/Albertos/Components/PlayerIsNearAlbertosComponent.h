@@ -6,12 +6,12 @@
 #include "Components/ActorComponent.h"
 #include "PlayerIsNearAlbertosComponent.generated.h"
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API UPlayerIsNearAlbertosComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UPlayerIsNearAlbertosComponent();
 
@@ -19,7 +19,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -30,39 +30,39 @@ public:
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Setting up Player Is Near")
-		bool bIgnorePlayer = false;
+	bool bIgnorePlayer = false;
 	// if player is further then MaxPlayerDistanceToActiveAlbertos, Albertos goes back to wendering, otherwise = stops and rotates toward player
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Player Is Near", meta = (EditCondition = "!bIgnorePlayer"))
-		float MaxPlayerDistanceToActiveAlbertos = 600.f;
+	float MaxPlayerDistanceToActiveAlbertos = 600.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Player Is Near", meta = (EditCondition = "!bIgnorePlayer"))
-		float TimeToCheckIfPlayerIsNear = 0.1f;
+	float TimeToCheckIfPlayerIsNear = 0.1f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Player Is Near", meta = (EditCondition = "!bIgnorePlayer"))
-		float SpeedToRotateTowardsPlayer = 8.f;
+	float SpeedToRotateTowardsPlayer = 8.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Player Is Near", meta = (EditCondition = "!bIgnorePlayer"))
-		float ToleranceToRotateAlbertos = 2.f;
+	float ToleranceToRotateAlbertos = 2.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
-		TObjectPtr<UAnimMontage> AlbertosOpenAnimationMontage = nullptr;
+	TObjectPtr<UAnimMontage> AlbertosOpenAnimationMontage = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
-		TObjectPtr<UAnimMontage> AlbertosCloseAnimationMontage = nullptr;
+	TObjectPtr<UAnimMontage> AlbertosCloseAnimationMontage = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
-		FName OpenDoorSoundSocketName = FName(TEXT("Wysuwak"));
+	FName OpenDoorSoundSocketName = FName(TEXT("Wysuwak"));
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos|Open/Close Animation")
-		TObjectPtr<USoundBase> OpenDoorSound = nullptr;
+	TObjectPtr<USoundBase> OpenDoorSound = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Setting up Media Player")
-		TObjectPtr<class UMediaPlayer> AlbertosMediaPlayer = nullptr;
+	TObjectPtr<class UMediaPlayer> AlbertosMediaPlayer = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Setting up Media Player")
-		TObjectPtr<class UMediaSource> AlbertosMediaSource = nullptr;
+	TObjectPtr<class UMediaSource> AlbertosMediaSource = nullptr;
 
 	UPROPERTY(Transient)
-		bool bIsFrontDoorOpen = false;
+	bool bIsFrontDoorOpen = false;
 
 	// When Players is near Albertos
 	UPROPERTY(Transient)
-		bool bPlayerIsClose = false;
+	bool bPlayerIsClose = false;
 	UPROPERTY(Transient)
-		bool bRotateAlbertosTowardPlayer = false;
+	bool bRotateAlbertosTowardPlayer = false;
 	FTimerHandle PlayerIsNearHandle;
 	void CheckIfThePlayerIsNear();
 	void GoBackToWendering();
@@ -70,11 +70,11 @@ private:
 	void RotateAlbertosTowardsPlayer(float Delta);
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AAlbertosPawn> AlbertosOwner = nullptr;
+	TObjectPtr<class AAlbertosPawn> AlbertosOwner = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AAlbertosAIController> AlbertosAIController = nullptr;
+	TObjectPtr<class AAlbertosAIController> AlbertosAIController = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<APawn> Player = nullptr;
+	TObjectPtr<APawn> Player = nullptr;
 
 	void SetUpAlbertosAndPlayerVariables();
 };

@@ -63,7 +63,7 @@ void UJumpComponent::Jump()
 	if (!IsValid(Player))
 		return;
 
-	if (!Player->GetWallrunComponent()->GetCanJump())
+	if (!Player->GetWallrunComponent()->GetCanJump() || Player->GetIsInCutscene())
 		return;
 
 	if (CanJump())

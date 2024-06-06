@@ -134,7 +134,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("ActionFromKey_One"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::ActionFromKey_One);
 
 	PlayerInputComponent->BindAction(TEXT("Drop"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::DropCurrentHoldingWeapon);
-	PlayerInputComponent->BindAction(TEXT("HideWeapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::HideWeaponByPlayer);
+	PlayerInputComponent->BindAction(TEXT("HideWeapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::CallHideWeaponByPlayer);
 
 	//Weapon Inventory
 	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("First_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 1);
@@ -243,6 +243,8 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 	float TempMovementSpeed = MovementSpeed;
 	if (GetIsInSlowMotion())
 		TempMovementSpeed = SlowMotionComponent->GetMovementSpeedInSlowMotion();
+	if (bIsInCutscene)
+		TempMovementSpeed = MovementSpeedInCutscene;
 
 	float Speed = (TempMovementSpeed / MovementForceDividerWhenInADS) / (GetInputAxisValue(InputAxisName) != 0.f ? ForwardAndRightAtTheSameTimeDivider : 1);
 
@@ -331,6 +333,9 @@ void AMarineCharacter::PlayFootstepsSound()
 			UE_LOG(LogTemp, Warning, TEXT("Footsteps Sound is nullptr in MarinePlayer!"));
 	}
 
+	if (bIsInCutscene)
+		TimeToPlayNextStep = TimeBetweenNextStepInCutscene;
+
 	UAISense_Hearing::ReportNoiseEvent(GetWorld(), GetActorLocation(), FootstepsSoundLoudnessForEnemy, this, FootstepsSoundMaxRangeForEnemy);
 
 	bCanPlayFootstepsSound = false;
@@ -344,7 +349,7 @@ void AMarineCharacter::PlayFootstepsSound()
 
 void AMarineCharacter::UseFirstAidKit()
 {
-	if (!bCanUseFirstAidKit || Health == OriginalHealth)
+	if (!bCanUseFirstAidKit || Health == OriginalHealth || bIsInCutscene)
 		return;
 
 	FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
@@ -385,6 +390,9 @@ void AMarineCharacter::UseFirstAidKit()
 #pragma region ///////////////////////////// TAKE ////////////////////////////
 void AMarineCharacter::TakePressed()
 {
+	if (bIsInCutscene)
+		return;
+
 	if (WidgetInteractionComponent->IsOverInteractableWidget())
 	{
 		WidgetInteractionComponent->PressPointerKey(EKeys::LeftMouseButton);
@@ -511,6 +519,14 @@ void AMarineCharacter::UpdateHudWidget()
 		HudWidget->UpdateCurrentNumberOfFirstAidKits(0);
 	}
 }
+
+void AMarineCharacter::ShowHUD(bool bShow)
+{
+	if (IsValid(HudWidget))
+		HudWidget->ShowHUDWithAnim(bShow);
+	if (IsValid(SpawnedCrosshairWidget))
+		SpawnedCrosshairWidget->ShowCrosshairWithAnim(bShow);
+}
 #pragma endregion 
 
 #pragma region //////////////////////////////// ALBERTO ////////////////////////////////
@@ -539,7 +555,7 @@ void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool
 
 void AMarineCharacter::CallAlbertosPressed()
 {
-	if (!IsValid(AlbertoPawn))
+	if (!IsValid(AlbertoPawn) || bIsInCutscene)
 		return;
 	
 	if (!IsValid(AlbertoPawn->GetAlbertosToPlayerComponent()))

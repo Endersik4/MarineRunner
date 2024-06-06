@@ -14,12 +14,12 @@ UCLASS()
 class MARINERUNNER_API UCraftedItemDataObject : public UObject
 {
 	GENERATED_BODY()
-	
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FItemStruct ItemData = FItemStruct();
+	FItemStruct ItemData = FItemStruct();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool bIsItEnoughToCraft = true;
+	bool bIsItEnoughToCraft = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool bWasDisabled = false;
+	bool bWasDisabled = false;
 };

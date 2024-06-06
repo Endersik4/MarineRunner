@@ -11,3 +11,11 @@ void UCrosshairWidget::ChangeCrosshair(TObjectPtr<UTexture2D> NewCrosshairTextur
 
 	CrosshairImage->SetBrushFromTexture(NewCrosshairTexture);
 }
+
+void UCrosshairWidget::ShowCrosshairWithAnim(bool bShow)
+{
+	if (bShow)
+		PlayAnimationForward(ShowCrosshairWidget);
+	else
+		PlayAnimationForward(HideCrosshairWidget);
+}

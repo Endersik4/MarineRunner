@@ -32,20 +32,20 @@ public:
 	void DestructibleMeshActorGotHit();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> MainMeshComponent = nullptr;
+	TObjectPtr<class UStaticMeshComponent> MainMeshComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings")
-		TSubclassOf <class ADestructibleMeshActor > DestructibleMeshActorClass = nullptr;
+	TSubclassOf <class ADestructibleMeshActor > DestructibleMeshActorClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings")
-		float SpawnDestructibleMeshDelay = 0.08f;
+	float SpawnDestructibleMeshDelay = 0.08f;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class ADestructibleMeshActor> SpawnedDestructibleMeshActor;
+	TObjectPtr<class ADestructibleMeshActor> SpawnedDestructibleMeshActor;
 
 	UPROPERTY(Transient)
-		bool bSaved = false;
+	bool bSaved = false;
 	UPROPERTY(Transient)
-		int32 CurrentUniqueID = 0;
+	int32 CurrentUniqueID = 0;
 
 	void AddActorToSavedDataObject();
 

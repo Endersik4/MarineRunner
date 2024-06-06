@@ -33,7 +33,10 @@ void USlowMotionComponent::OnOwnerDestroyed(AActor* DestroyedActor)
 
 void USlowMotionComponent::SlowMotionPressed()
 {
-	if (MarinePawn->GetIsPlayerMovingToHookLocation()) 
+	if (!IsValid(MarinePawn))
+		return;
+
+	if (MarinePawn->GetIsPlayerMovingToHookLocation() || MarinePawn->GetIsInCutscene()) 
 		return;
 	
 	SuddentDisabledSlowMotion();

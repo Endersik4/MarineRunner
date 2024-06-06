@@ -12,8 +12,8 @@ UCLASS()
 class MARINERUNNER_API ACallAlbertosActor : public AActor, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ACallAlbertosActor();
 
@@ -28,19 +28,19 @@ protected:
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> CallAlbertosBoxComp;
+	TObjectPtr<class UBoxComponent> CallAlbertosBoxComp;
 
 	UPROPERTY(EditAnywhere, Category = "Call Albertos Settings")
-		FVector TeleportAlbertosLocation = FVector::Zero();
+	FVector TeleportAlbertosLocation = FVector::Zero();
 
 	UFUNCTION()
-		void CallAlbertosBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void CallAlbertosBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(Transient)
-		bool bWasCalled = false;
+	bool bWasCalled = false;
 
 	UPROPERTY(Transient)
-		int32 CurrentUniqueID = 0;
+	int32 CurrentUniqueID = 0;
 
 	void SaveCurrentCallState();
 };

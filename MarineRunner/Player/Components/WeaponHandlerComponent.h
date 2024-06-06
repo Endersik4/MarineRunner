@@ -54,7 +54,10 @@ public:
 	void HideCurrentHoldingWeapon();
 	void DrawNewEquipedWeapon();
 	void DropCurrentHoldingWeapon();
-	void HideWeaponByPlayer();
+
+	void CallHideWeaponByPlayer();
+	// returns hide anim time
+	float HideWeaponByPlayer();
 
 	void LoadSavedMouseSensitivities();
 

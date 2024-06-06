@@ -13,10 +13,18 @@ UCLASS()
 class MARINERUNNER_API UCrosshairWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 public:
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> CrosshairImage = nullptr;
 
 	void ChangeCrosshair(TObjectPtr<UTexture2D> NewCrosshairTexture);
+	void ShowCrosshairWithAnim(bool bShow = true);
+
+protected:
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<class UImage> CrosshairImage = nullptr;
+
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> ShowCrosshairWidget = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> HideCrosshairWidget = nullptr;
 };

@@ -74,6 +74,7 @@ public:
 	FORCEINLINE FString GetPathToWeaponClass() { return GetClass()->GetClassPathName().ToString(); }
 	FORCEINLINE virtual int32 GetIntValueToSave() { return int32(); }
 	FORCEINLINE TObjectPtr<class USkeletalMeshComponent> GetWeaponSkeletalMesh() const { return WeaponSkeletalMesh; }
+	float GetPutAwayWeaponAnimTime();
 
 	FORCEINLINE void SetDropWeapon(bool bDrop) { bDropWeaponAfterPutAway = bDrop; }
 

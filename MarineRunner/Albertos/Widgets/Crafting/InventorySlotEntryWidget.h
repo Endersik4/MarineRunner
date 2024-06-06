@@ -14,7 +14,7 @@ UCLASS()
 class MARINERUNNER_API UInventorySlotEntryWidget : public UUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
-	
+
 protected:
 	virtual void NativeConstruct() override;
 
@@ -23,33 +23,33 @@ protected:
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> ItemButton = nullptr;
+	TObjectPtr<class UButton> ItemButton = nullptr;
 	UFUNCTION()
-		void ItemButtonHovered();
+	void ItemButtonHovered();
 	UFUNCTION()
-		void ItemButtonUnhovered();
+	void ItemButtonUnhovered();
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> ItemHoveredAnim = nullptr;
+	TObjectPtr<UWidgetAnimation> ItemHoveredAnim = nullptr;
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> DisabledItemHoveredAnim = nullptr;
+	TObjectPtr<UWidgetAnimation> DisabledItemHoveredAnim = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> ItemImage = nullptr;
+	TObjectPtr<class UImage> ItemImage = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> ItemAmountTextBlock = nullptr;
+	TObjectPtr<class UTextBlock> ItemAmountTextBlock = nullptr;
 
 	UPROPERTY(Transient, BlueprintReadWrite, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> DisableItemAnim = nullptr;
+	TObjectPtr<UWidgetAnimation> DisableItemAnim = nullptr;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Storage List Entry")
-		int32 MaxAmountToDisplay = 999;
+	int32 MaxAmountToDisplay = 999;
 	UPROPERTY(EditDefaultsOnly, Category = "Storage List Entry")
-		FString ExceededMaxAmountToDisplayText = "+999";
+	FString ExceededMaxAmountToDisplayText = "+999";
 
 	UPROPERTY(Transient)
-		bool bNotEnoughResources = false;
+	bool bNotEnoughResources = false;
 
 	void ItemDataToUI(TObjectPtr<class UCraftedItemDataObject> ItemDataObject);
 };

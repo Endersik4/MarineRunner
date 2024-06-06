@@ -113,7 +113,7 @@ void UArmsSwayComponent::ArmsSway_WhileMoving()
 
 FVector UArmsSwayComponent::CalculateArmsSwayWhileMoving()
 {
-	const float& SpeedOfLemniscate = GetWorld()->GetTimeSeconds() * SpeedOfSwayWhileMoving;
+	const float SpeedOfLemniscate = GetWorld()->GetTimeSeconds() * (SpeedOfSwayWhileMoving / (Player->GetIsInCutscene() ? SwayWhileMovingDividerInCutscene : 1.f));
 
 	// Lemniscate of Bernoulli equation
 	float Ang = 2 / (9.f - FMath::Cos(FMath::DegreesToRadians(SpeedOfLemniscate * 2)));
@@ -125,6 +125,13 @@ FVector UArmsSwayComponent::CalculateArmsSwayWhileMoving()
 		Ang /= ArmsSwayWhileMovingDivider;
 		LocY /= ArmsSwayWhileMovingDivider;
 		LocZ /= ArmsSwayWhileMovingDivider;
+	}
+
+	if (Player->GetIsInCutscene())
+	{
+		Ang /= SwayWhileMovingDividerInCutscene;
+		LocY /= SwayWhileMovingDividerInCutscene;
+		LocZ /= SwayWhileMovingDividerInCutscene;
 	}
 
 	FVector CalculatedArmsSway = Player->GetArmsSkeletalMesh()->GetRelativeLocation();

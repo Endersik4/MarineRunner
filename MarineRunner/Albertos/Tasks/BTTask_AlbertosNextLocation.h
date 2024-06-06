@@ -23,10 +23,10 @@ protected:
 
 public:
 	UPROPERTY(EditAnywhere)
-		FName PlayerLocationValueName = "PlayerLocation";
+	FName PlayerLocationValueName = "PlayerLocation";
 	UPROPERTY(EditAnywhere)
-		float RadiusToPickFromPlayerLocation = 2000.f;
+	float RadiusToPickFromPlayerLocation = 2000.f;
 private:
 	const FVector CalculateNextLocationNearThePlayer();
-	
+
 };

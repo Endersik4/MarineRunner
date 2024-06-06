@@ -60,6 +60,7 @@ void ASpawnDestructibleActor::DestructibleMeshActorGotHit()
 	AddActorToSavedDataObject();
 }
 
+#pragma region ////////////// SaveCustomDataInterface Functions //////////
 void ASpawnDestructibleActor::AddActorToSavedDataObject()
 {
 	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
@@ -69,13 +70,14 @@ void ASpawnDestructibleActor::AddActorToSavedDataObject()
 
 	if (CurrentUniqueID == 0)
 		CurrentUniqueID = SavedDataObject->CreateUniqueIDForObject();
-	
+
 	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
 }
 
-#pragma region ////////////// SaveCustomDataInterface Functions //////////
+
 void ASpawnDestructibleActor::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
+	CurrentUniqueID = IDkey;
 	if (SavedCustomData.ObjectState == 1)
 	{
 		MainMeshComponent->SetHiddenInGame(true, true);

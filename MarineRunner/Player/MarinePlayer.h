@@ -46,6 +46,7 @@ public:
 
 	FORCEINLINE float GetMovementForce() const { return MovementSpeed; }
 	FORCEINLINE float GetHealth() const { return Health; }
+	FORCEINLINE bool GetIsInCutscene() const { return bIsInCutscene; }
 	FORCEINLINE bool GetIsDead() const { return bIsDead; }
 	FORCEINLINE bool GetShouldPlayerGoForward() const { return bConstantlyGoForward; }
 	FORCEINLINE TObjectPtr<class UCapsuleComponent> GetPlayerCapsule() const { return CapsulePawn; }
@@ -71,6 +72,7 @@ public:
 	FORCEINLINE TObjectPtr<class AAlbertosPawn> GetAlbertosPawn() const { return AlbertoPawn; }
 
 	FORCEINLINE void SetHealth(float NewHealth) { Health = NewHealth; }
+	FORCEINLINE void SetIsInCutscene(bool bNewIsInCutscene) { bIsInCutscene = bNewIsInCutscene; }
 	FORCEINLINE void SetMovementForce(float NewForce) { MovementSpeed = NewForce; }
 	FORCEINLINE void SetMovementForceDividerWhenInADS(float NewForceDivider) { MovementForceDividerWhenInADS = NewForceDivider; }
 	FORCEINLINE void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMutliplier = NewSpeed; }
@@ -80,6 +82,7 @@ public:
 	void UpdateHudWidget();
 	void UpdateAlbertosInventory(bool bShouldUpdateInventory = true, bool bShouldUpdateCrafting = false);
 	void MakeCrosshire(bool bShouldRemoveFromParent = false);
+	void ShowHUD(bool bShow = true);
 
 	UPROPERTY(Transient)
 	bool bIsPlayerInElevator = false;
@@ -178,6 +181,10 @@ private:
 	TSubclassOf<class UCrosshairWidget> CrosshairWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Widgets")
 	TSubclassOf<class UHUDWidget> HUDClass = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Marine Pawn|Movement|Cutscene")
+	float MovementSpeedInCutscene = 30000.f;
+	UPROPERTY(EditAnywhere, Category = "Marine Pawn|Movement|Cutscene")
+	float TimeBetweenNextStepInCutscene = 0.7f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
 	FFloatRange VelocityRangeToDisableFootsteps = FFloatRange(0.f, 150.f);
@@ -199,8 +206,11 @@ private:
 	TObjectPtr<USoundBase> FootstepsCrouchSound = nullptr;
 
 	UPROPERTY(Transient)
-	bool bIsDead;
+	bool bIsDead = false;
 	void PlayerDead();
+
+	UPROPERTY(Transient)
+	bool bIsInCutscene = false;
 
 	//Movement
 	void Forward(float Axis);
@@ -215,7 +225,7 @@ private:
 
 	//If true then in the the player will always walk forward
 	UPROPERTY(Transient)
-	bool bConstantlyGoForward;
+	bool bConstantlyGoForward = false;
 
 	//Footsteps sounds
 	UPROPERTY(Transient)

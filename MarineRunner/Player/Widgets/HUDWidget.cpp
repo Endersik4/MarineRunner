@@ -28,6 +28,14 @@ void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 	ProgressPowerUps(DeltaTime / DeltaDivider);
 }
 
+void UHUDWidget::ShowHUDWithAnim(bool bShow)
+{
+	if (bShow)
+		PlayAnimationForward(ShowHUDWidget);
+	else
+		PlayAnimationForward(HideHUDWidget);
+}
+
 void UHUDWidget::UpdateHealthBarPercent(float CurrentHealth)
 {
 	const float& HealthToPercent = 100.f;

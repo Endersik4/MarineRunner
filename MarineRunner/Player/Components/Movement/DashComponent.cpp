@@ -145,7 +145,7 @@ bool UDashComponent::CanPlayerPerformDash() const
 	if (MarinePawn->GetIsPlayerMovingToHookLocation()|| MarinePawn->GetIsWallrunning()) 
 		return false;
 
-	if (MarinePawn->GetIsCrouching() )
+	if (MarinePawn->GetIsCrouching() || MarinePawn->GetIsInCutscene())
 		return false;
 
 	if (MarinePawn->GetInputAxisValue("Right") == 0.f && MarinePawn->GetInputAxisValue("Forward") == 0.f)

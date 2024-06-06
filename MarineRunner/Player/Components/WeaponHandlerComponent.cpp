@@ -87,6 +87,12 @@ void UWeaponHandlerComponent::TertiaryAction(float WheelAxis)
 #pragma region ////////////////////// EQUIP WEAPON FROM INVENTORY //////////////////////
 void UWeaponHandlerComponent::SelectWeaponFromQuickInventory(int32 HandNumber)
 {
+	if (IsValid(Player))
+	{
+		if (Player->GetIsInCutscene())
+			return;
+	}
+
 	if (!bCanChangeWeapon || bIsPlayerADS)
 		return;
 
@@ -130,18 +136,25 @@ void UWeaponHandlerComponent::DropCurrentHoldingWeapon()
 		SelectWeaponFromQuickInventory(Player->GetWeaponInventoryComponent()->GetLastWeaponSlotFromStorage(CurrentWeapon));
 }
 
-void UWeaponHandlerComponent::HideWeaponByPlayer()
+void UWeaponHandlerComponent::CallHideWeaponByPlayer()
+{
+	HideWeaponByPlayer();
+}
+
+float UWeaponHandlerComponent::HideWeaponByPlayer()
 {
 	if (!bCanChangeWeapon || bIsPlayerADS || bWeaponHiddenByPlayer)
-		return;
+		return 0.f;
 
 	if (!IsValid(CurrentWeapon))
-		return;
+		return 0.f;
 
 	bWeaponHiddenByPlayer = true;
 	bCanChangeWeapon = false;
 
+	float PutAwayWeaponTime = CurrentWeapon->GetPutAwayWeaponAnimTime();
 	CurrentWeapon->PutAwayWeapon();
+	return PutAwayWeaponTime;
 }
 
 void UWeaponHandlerComponent::HideCurrentHoldingWeapon()

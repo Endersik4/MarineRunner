@@ -128,7 +128,7 @@ void APickupItem::SpawnWeaponForPlayer(TObjectPtr<class AMarineCharacter> Player
 
 	const FTransform& WeaponTransform = FTransform(FRotator(0.f, 90.f, 0.f), FVector(0.f), FVector(1.f));
 	TObjectPtr<AWeaponBase> SpawnedWeapon = GetWorld()->SpawnActor<AWeaponBase>(ItemDataFromDataTable->WeaponClass.TryLoadClass<UObject>(), WeaponTransform);
-	if (!SpawnedWeapon)
+	if (!IsValid(SpawnedWeapon))
 		return;
 
 	SpawnedWeapon->PickUpWeaponItem(Player, bWasOnceTaken, CurrentMagazineCapacity);
