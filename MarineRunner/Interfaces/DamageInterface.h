@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Adam Bartela.All Rights Reserved.
 
 #pragma once
 
@@ -14,7 +14,7 @@ class UDamageInterface : public UInterface
 };
 
 /**
- * 
+ *
  */
 class MARINERUNNER_API IDamageInterface
 {
@@ -22,9 +22,9 @@ class MARINERUNNER_API IDamageInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interact")
-		void BreakObject(float ImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interact")
+	void BreakObject(float ImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f);
 
 	UFUNCTION()
-		virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) = 0;
+	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) = 0;
 };

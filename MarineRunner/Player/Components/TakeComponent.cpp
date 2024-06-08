@@ -43,8 +43,8 @@ bool UTakeAndDrop::RaycastForHoverItems()
 	if (!IsValid(MarinePawn))
 		return false;
 
-	const FVector& Start = MarinePawn->GetCamera()->GetComponentLocation();
-	const FVector& End = Start + (UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetRootComponent()->GetForwardVector() * TakeDistance);
+	const FVector Start = MarinePawn->GetCamera()->GetComponentLocation();
+	const FVector End = Start + (UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetRootComponent()->GetForwardVector() * TakeDistance);
 
 	FHitResult CurrentItemHit;
 	const bool bWasHit = GetWorld()->SweepSingleByChannel(CurrentItemHit, Start, End, FQuat::Identity, ECC_GameTraceChannel1, FCollisionShape::MakeBox(CollisionBoxSize));

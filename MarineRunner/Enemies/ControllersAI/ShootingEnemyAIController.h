@@ -7,13 +7,13 @@
 #include "ShootingEnemyAIController.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API AShootingEnemyAIController : public AAIController
 {
 	GENERATED_BODY()
-	
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -27,35 +27,35 @@ public:
 
 private:
 	UFUNCTION()
-		void HandleTargetPerceptionUpdated(AActor* Actor, struct FAIStimulus Stimulus);
+	void HandleTargetPerceptionUpdated(AActor* Actor, struct FAIStimulus Stimulus);
 
 	UFUNCTION()
-		void DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor, bool bStartAttackingTheTarget = true);
+	void DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor, bool bStartAttackingTheTarget = true);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UAIPerceptionComponent> EnemyPerception = nullptr;
+	TObjectPtr<class UAIPerceptionComponent> EnemyPerception = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		TObjectPtr<class UBehaviorTree> AIBehaviour = nullptr;
+	TObjectPtr<class UBehaviorTree> AIBehaviour = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		TSubclassOf<class UAISense> SightSenseClass = nullptr;
+	TSubclassOf<class UAISense> SightSenseClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		TSubclassOf<class UAISense> HearingSenseClass = nullptr;
+	TSubclassOf<class UAISense> HearingSenseClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		int32 HowManyLocations = 5;
+	int32 HowManyLocations = 5;
 	//How long does it take to detect the player by enemy
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		float DetectPlayerTime = 0.2f;
+	float DetectPlayerTime = 0.2f;
 	//How long does it take to lose sight of the player by enemy
 	UPROPERTY(EditDefaultsOnly, Category = "AI Setup")
-		float LoseSightOfPlayerTime = 5.f;
+	float LoseSightOfPlayerTime = 5.f;
 
 	void SetAIVariables();
 	UPROPERTY(Transient)
-		bool bDead;
+	bool bDead;
 	UPROPERTY(Transient)
-		bool bDoEnemySeePlayer;
+	bool bDoEnemySeePlayer;
 
 	const bool CanSeeTheTarget(const TObjectPtr<AActor> TargetActor);
 

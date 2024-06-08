@@ -12,12 +12,12 @@ class AWeaponBase;
 /// A Component that will storage weapons in order that was taken.
 /// Max amount of items can be customizable
 /// </summary>
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API UWeaponInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UWeaponInventoryComponent();
 
@@ -25,7 +25,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 
 	bool CanPlayerTakeWeaponToInventory() const;
 	FORCEINLINE int32 GetCurrentAmountOfWeapons() const { return WeaponsStorage.Num(); }
@@ -50,21 +50,21 @@ public:
 	// int32 - MAgazine Capacity, FSoftClassPath - Path to Class to spawn
 	// Weapons Inventory to Load to the WeaponsStorage
 	UPROPERTY(EditAnywhere, Category = "Weapon Inventory Settings Settings")
-		TMap<int32, FSoftClassPath> WeaponsToLoadToInventory;
+	TMap<int32, FSoftClassPath> WeaponsToLoadToInventory;
 
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
-		int32 MaxAmountOfWeapons = 3;
+	int32 MaxAmountOfWeapons = 3;
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Inventory Settings Settings")
-		float TimeToSpawnWeaponsFromInventory = 0.02f;
+	float TimeToSpawnWeaponsFromInventory = 0.02f;
 
 	// inventory for current equiped weapons 
 	UPROPERTY(Transient)
-		TMap < int32, TObjectPtr<AWeaponBase> > WeaponsStorage;
+	TMap < int32, TObjectPtr<AWeaponBase> > WeaponsStorage;
 	// Current equiped weapon
 	UPROPERTY(Transient)
-		TObjectPtr<AWeaponBase> WeaponFromSlot = nullptr;
+	TObjectPtr<AWeaponBase> WeaponFromSlot = nullptr;
 
 	void LoadWeapons();
 

@@ -14,7 +14,7 @@ class UWeaponInterface : public UInterface
 };
 
 /**
- * 
+ *
  */
 class MARINERUNNER_API IWeaponInterface
 {
@@ -24,39 +24,39 @@ class MARINERUNNER_API IWeaponInterface
 public:
 
 	UFUNCTION()
-		virtual void TakeWeapon(class AMarineCharacter* Player, bool bWasOnceTaken, int32 CurrentMagazineCapacityToLoad) = 0;
+	virtual void TakeWeapon(class AMarineCharacter* Player, bool bWasOnceTaken, int32 CurrentMagazineCapacityToLoad) = 0;
 
 	UFUNCTION()
-		virtual void DrawWeapon() = 0;
+	virtual void DrawWeapon() = 0;
 	UFUNCTION()
-		virtual void PutAwayWeapon() = 0;
+	virtual void PutAwayWeapon() = 0;
 	UFUNCTION()
-		virtual void HideWeapon() = 0;
+	virtual void HideWeapon() = 0;
 	UFUNCTION()
-		virtual void SetDropWeapon(bool bDrop) = 0;
+	virtual void SetDropWeapon(bool bDrop) = 0;
 
 	UFUNCTION()
-		virtual void PrimaryAction() = 0;
+	virtual void PrimaryAction() = 0;
 	UFUNCTION()
-		virtual void ReleasedPrimaryAction() = 0;
+	virtual void ReleasedPrimaryAction() = 0;
 
 	UFUNCTION()
-		virtual void SecondaryAction() = 0;
+	virtual void SecondaryAction() = 0;
 	UFUNCTION()
-		virtual void ReleasedSecondaryAction() = 0;
+	virtual void ReleasedSecondaryAction() = 0;
 
 	UFUNCTION()
-		virtual void TertiaryAction(float Value) = 0;
+	virtual void TertiaryAction(float Value) = 0;
 
 	UFUNCTION()
-		virtual void ActionFromKey_One() = 0;
+	virtual void ActionFromKey_One() = 0;
 
 	UFUNCTION()
-		virtual void UpdateWeaponHudInformation() = 0;
+	virtual void UpdateWeaponHudInformation() = 0;
 
 	UFUNCTION()
-		virtual FString GetPathToWeaponClass() = 0;
+	virtual FString GetPathToWeaponClass() = 0;
 
 	UFUNCTION()
-		virtual int32 GetIntValueToSave() = 0;
+	virtual int32 GetIntValueToSave() = 0;
 };

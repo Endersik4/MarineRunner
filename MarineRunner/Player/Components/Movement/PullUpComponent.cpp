@@ -43,7 +43,7 @@ void UPullUpComponent::StartPullUpOnEdge()
 	if (bIsPullingUp || !MarinePawn->GetIsInAir())
 		return;
 
-	const FVector& PlayerForwardVector = CalculateForwardVectorForPlayer();
+	const FVector PlayerForwardVector = CalculateForwardVectorForPlayer();
 	if (!DetectEdge(PlayerForwardVector))
 		return;
 
@@ -65,12 +65,12 @@ void UPullUpComponent::StartPullUpOnEdge()
 
 bool UPullUpComponent::DetectEdge(const FVector& PlayerForwardVector)
 {
-	const FVector& StartTrueLine = MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupTrueLineZ);
-	const FVector& StartFalseLine = MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupFalseLineZ);
+	const FVector StartTrueLine = MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupTrueLineZ);
+	const FVector StartFalseLine = MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupFalseLineZ);
 	FHitResult Line1Hit, Line2Hit;
 
-	const bool& bObjectWasDetected = GetWorld()->LineTraceSingleByChannel(Line1Hit, StartTrueLine, StartTrueLine + PlayerForwardVector * PullupLinesDistance, ECC_GameTraceChannel8);
-	const bool& bStillObjectIsDetected = GetWorld()->LineTraceSingleByChannel(Line1Hit, StartFalseLine, StartFalseLine + PlayerForwardVector * PullupLinesDistance, ECC_GameTraceChannel8);
+	const bool bObjectWasDetected = GetWorld()->LineTraceSingleByChannel(Line1Hit, StartTrueLine, StartTrueLine + PlayerForwardVector * PullupLinesDistance, ECC_GameTraceChannel8);
+	const bool bStillObjectIsDetected = GetWorld()->LineTraceSingleByChannel(Line1Hit, StartFalseLine, StartFalseLine + PlayerForwardVector * PullupLinesDistance, ECC_GameTraceChannel8);
 
 	#ifdef WITH_EDITOR
 		if (bDrawHelpersForPullup == true)
@@ -87,8 +87,8 @@ bool UPullUpComponent::GetEdgeLocationOfTheObject(const FVector& PlayerForwardVe
 {
 	FHitResult HitResult;
 	TArray<AActor*> ActorsToIgnore;
-	const FVector& EdgeDetectionLineStart = (MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupTrueLineZ)) + PlayerForwardVector * EdgeDetectionLineStartDistance;
-	const FVector& EdgeDetectionLineEnd = EdgeDetectionLineStart + (MarinePawn->GetActorUpVector() * EdgeDetectionLineEndDistance);
+	const FVector EdgeDetectionLineStart = (MarinePawn->GetActorLocation() + FVector(0.f, 0.f, PullupTrueLineZ)) + PlayerForwardVector * EdgeDetectionLineStartDistance;
+	const FVector EdgeDetectionLineEnd = EdgeDetectionLineStart + (MarinePawn->GetActorUpVector() * EdgeDetectionLineEndDistance);
 
 	const bool bObjectHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), EdgeDetectionLineStart, EdgeDetectionLineEnd, UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel8), false, ActorsToIgnore, EDrawDebugTrace::None, HitResult, true);
 	
@@ -109,7 +109,7 @@ void UPullUpComponent::MovePlayerToPullUpLocation(float Delta)
 
 	if (PullupTimeElapsed <= PullUpTime)
 	{
-		const FVector& LerpLocation = FMath::Lerp(PlayerLocation, PullupLocationZ, PullupTimeElapsed / PullUpTime);
+		const FVector LerpLocation = FMath::Lerp(PlayerLocation, PullupLocationZ, PullupTimeElapsed / PullUpTime);
 		MarinePawn->SetActorLocation(LerpLocation);
 
 		PullupTimeElapsed += Delta;
@@ -117,7 +117,7 @@ void UPullUpComponent::MovePlayerToPullUpLocation(float Delta)
 	else
 	{
 		MarinePawn->GetPlayerCapsule()->SetPhysicsLinearVelocity(FVector(0.f));
-		const FVector& Impulse = (CalculateForwardVectorForPlayer() * PullUpForceForward) + FVector(0.f, 0.f, PullUpForceUp);
+		const FVector Impulse = (CalculateForwardVectorForPlayer() * PullUpForceForward) + FVector(0.f, 0.f, PullUpForceUp);
 		MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
 
 		bIsPullingUp = false;

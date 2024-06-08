@@ -11,8 +11,8 @@ UCLASS()
 class MARINERUNNER_API AIdentityDisc : public AWeaponBase
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AIdentityDisc();
 
 protected:
@@ -36,12 +36,12 @@ protected:
 	virtual void UpdateWeaponHudInformation(bool bUpdateStoredAmmoText = false, bool bUpdateWeaponImage = false) override;
 	virtual int32 GetIntValueToSave() override;
 
-public:	
+public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
 	UFUNCTION()
-		void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Disc Settings")
 	float FullPowerDamage = 10000.f;

@@ -115,8 +115,8 @@ void UGunRecoilComponent::RandomCameraRecoilTimelineProgress(float SmoothValue)
 	if (!IsValid(PlayerController))
 		return;
 
-	const float& ControlRotationPitch = RandomCameraRecoilPitch * SmoothValue * UGameplayStatics::GetGlobalTimeDilation(GetWorld());
-	const float& ControlRotationYaw = RandomCameraRecoilYaw * SmoothValue * UGameplayStatics::GetGlobalTimeDilation(GetWorld());
+	const float ControlRotationPitch = RandomCameraRecoilPitch * SmoothValue * UGameplayStatics::GetGlobalTimeDilation(GetWorld());
+	const float ControlRotationYaw = RandomCameraRecoilYaw * SmoothValue * UGameplayStatics::GetGlobalTimeDilation(GetWorld());
 
 	PlayerController->AddPitchInput(-ControlRotationPitch);
 	PlayerController->AddYawInput(ControlRotationYaw);
@@ -159,10 +159,10 @@ void UGunRecoilComponent::BackPlayerCameraToInitialRotation()
 	if (!IsValid(PlayerController))
 		return;
 
-	const float& DistanceBetweenPitch = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PlayerController->GetControlRotation(), TargetPlayerCameraRotation).Pitch);
+	const float DistanceBetweenPitch = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PlayerController->GetControlRotation(), TargetPlayerCameraRotation).Pitch);
 	
 	//If distance is too big then camera doesnt go back to its inital rotation
-	const float& DistanceBetweenYaw = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PlayerController->GetControlRotation(), TargetPlayerCameraRotation).Yaw);
+	const float DistanceBetweenYaw = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PlayerController->GetControlRotation(), TargetPlayerCameraRotation).Yaw);
 	if (DistanceBetweenYaw > MaxDistanceForCameraToGoBack)
 	{
 		TargetPlayerCameraRotation.Yaw = PlayerController->GetControlRotation().Yaw;
@@ -200,7 +200,7 @@ void UGunRecoilComponent::CameraInterpBackToInitialPosition(float Delta)
 		return;
 	}
 
-	const FRotator& NewControlRotation = UKismetMathLibrary::RInterpTo(PlayerController->GetControlRotation(), TargetPlayerCameraRotation, Delta * UGameplayStatics::GetGlobalTimeDilation(GetWorld()), BackToInitialCameraRotationSpeed);
+	const FRotator NewControlRotation = UKismetMathLibrary::RInterpTo(PlayerController->GetControlRotation(), TargetPlayerCameraRotation, Delta * UGameplayStatics::GetGlobalTimeDilation(GetWorld()), BackToInitialCameraRotationSpeed);
 	PlayerController->SetControlRotation(NewControlRotation);
 }
 

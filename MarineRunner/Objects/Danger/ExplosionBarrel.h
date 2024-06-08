@@ -13,8 +13,8 @@ UCLASS()
 class MARINERUNNER_API AExplosionBarrel : public AActor, public IDamageInterface, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AExplosionBarrel();
 
@@ -30,41 +30,41 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> ExplosionBarrelMesh = nullptr;
+	TObjectPtr<class UStaticMeshComponent> ExplosionBarrelMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TSubclassOf<AActor> ExplosionBarrelGeometryClass = nullptr;;
+	TSubclassOf<AActor> ExplosionBarrelGeometryClass = nullptr;;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
-		float StartExplodeTime = 0.05f;
+	float StartExplodeTime = 0.05f;
 	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel")
-		float ExplosionDamage = 1200.f;
+	float ExplosionDamage = 1200.f;
 	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel")
-		float ExplosionImpulseForce = 40000.f;
+	float ExplosionImpulseForce = 40000.f;
 	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel")
-		float ExplosionRadius = 1000.f;
+	float ExplosionRadius = 1000.f;
 	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel")
-		TObjectPtr<USoundBase>  ExplosionSound = nullptr;;
+	TObjectPtr<USoundBase>  ExplosionSound = nullptr;;
 	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel|Camera Shake")
-		float MaxDistanceToStartShake = 9000.f;
+	float MaxDistanceToStartShake = 9000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
-		float CameraShakeScaleMultiplier = 0.3f;
+	float CameraShakeScaleMultiplier = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
-		TSubclassOf<UCameraShakeBase> CameraShakeAfterExplosion = nullptr;;
+	TSubclassOf<UCameraShakeBase> CameraShakeAfterExplosion = nullptr;;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Camera Shake")
-		float MaxCameraShakeScale = 3.f;
+	float MaxCameraShakeScale = 3.f;
 	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel")
-		bool bDrawDebugRadialSphere = false;
+	bool bDrawDebugRadialSphere = false;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel|Explosion Decal")
-		TObjectPtr<UMaterialInstance>  ExplosionDecal = nullptr;;
+	TObjectPtr<UMaterialInstance>  ExplosionDecal = nullptr;;
 	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel|Explosion Decal")
-		FVector ExplosionDecalSize = FVector(4.f);
+	FVector ExplosionDecalSize = FVector(4.f);
 	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel|Explosion Particle")
-		TObjectPtr<class UParticleSystem> ExplosionParticle = nullptr;;
+	TObjectPtr<class UParticleSystem> ExplosionParticle = nullptr;;
 	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel|Explosion Particle")
-		float ExplosionParticleSize = 3.f;
+	float ExplosionParticleSize = 3.f;
 
 	UPROPERTY(Transient)
-		bool bExploded = false;
+	bool bExploded = false;
 	void Explode();
 
 	void UseDamageInterfaceOnActor(const FHitResult& HitResult);
@@ -73,10 +73,10 @@ private:
 	void SpawnExplosionBarrelGeometry();
 	void SpawnExplosionDecal();
 	UPROPERTY(Transient)
-		TObjectPtr<AActor> SpawnedBarrelGeometry;
+	TObjectPtr<AActor> SpawnedBarrelGeometry;
 
 	UPROPERTY(Transient)
-		int32 CurrentUniqueID = 0;
+	int32 CurrentUniqueID = 0;
 
 	void BarrelExplodedSaveData();
 	void DisableBarrel(bool bDisable = true);

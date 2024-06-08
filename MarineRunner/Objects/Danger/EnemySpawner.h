@@ -13,11 +13,11 @@ struct FEnemiesSpawner {
 	GENERATED_USTRUCT_BODY();
 
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<class AEnemyPawn> EnemyClassToSpawn;
+	TSubclassOf<class AEnemyPawn> EnemyClassToSpawn;
 
 	// Spawn EnemyClass in these locations
 	UPROPERTY(EditAnywhere)
-		TArray<FTransform> EnemiesTransform;
+	TArray<FTransform> EnemiesTransform;
 
 	FEnemiesSpawner()
 	{
@@ -25,7 +25,7 @@ struct FEnemiesSpawner {
 		EnemiesTransform.Empty();
 	}
 
-	FEnemiesSpawner(TSubclassOf<class AEnemyPawn> & NewEnemyClassToSpawn, TArray<FTransform>& NewEnemiesTransform)
+	FEnemiesSpawner(TSubclassOf<class AEnemyPawn>& NewEnemyClassToSpawn, TArray<FTransform>& NewEnemiesTransform)
 	{
 		EnemyClassToSpawn = NewEnemyClassToSpawn;
 		EnemiesTransform = NewEnemiesTransform;
@@ -36,8 +36,8 @@ UCLASS()
 class MARINERUNNER_API AEnemySpawner : public AActor, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AEnemySpawner();
 
@@ -51,18 +51,18 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> SpawnEnemiesBox = nullptr;
+	TObjectPtr<class UBoxComponent> SpawnEnemiesBox = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Enemy spawner settings")
-		TArray<FEnemiesSpawner> EnemiesSpawner = {FEnemiesSpawner()};
+	TArray<FEnemiesSpawner> EnemiesSpawner = { FEnemiesSpawner() };
 	UPROPERTY(EditAnywhere, Category = "Enemy spawner settings")
-		float DelayToActivateEnemySpawner = 1.f;
+	float DelayToActivateEnemySpawner = 1.f;
 
 	UFUNCTION()
-		void OnSpawnEnemiesBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnSpawnEnemiesBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(Transient)
-		bool bEnemiesSpawned = false;
+	bool bEnemiesSpawned = false;
 	void SpawnAllEnemiesFromSpawner();
 
 	void EnemiesSpawnedSaveData();
@@ -72,5 +72,5 @@ private:
 	void EnableSpawnEnemiesBoxBeginOverlap();
 
 	UPROPERTY(Transient)
-		int32 CurrentUniqueID = 0;
+	int32 CurrentUniqueID = 0;
 };

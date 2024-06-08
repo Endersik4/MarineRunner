@@ -181,3 +181,8 @@ const bool UEnemyGunComponent::CanShootAgain()
 	bCanShoot = bIsReloading == false && MagazineCapacity > 0;
 	return bCanShoot;
 }
+
+void UEnemyGunComponent::ApplyWeaponDifficulty(const float EnemiesDifficultyPercent)
+{
+	BulletData.Damage *= EnemiesDifficultyPercent;
+}

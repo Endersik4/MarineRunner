@@ -96,7 +96,7 @@ bool ABullet::BulletStuckInActor(const FHitResult& Hit)
 
 	if (Hit.GetActor() == HitActor) //If bullet is stuck in the same actor then teleport it a bit forward
 	{
-		const FVector& NewBulletLocation = GetActorLocation() + GetActorForwardVector() * BulletStuckInActorTeleportValue;
+		const FVector NewBulletLocation = GetActorLocation() + GetActorForwardVector() * BulletStuckInActorTeleportValue;
 		SetActorLocation(NewBulletLocation);
 		return true;
 	}
@@ -114,7 +114,7 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 
 	if (BulletData.bShouldCameraShakeAfterHit && IsValid(Player))
 	{
-		const float& DistanceToPlayer = FVector::Distance(Player->GetActorLocation(), GetActorLocation());
+		const float DistanceToPlayer = FVector::Distance(Player->GetActorLocation(), GetActorLocation());
 		if (DistanceToPlayer < MaxDistanceToStartShake && DistanceToPlayer != 0 && IsValid(PlayerController))
 		{
 			float CameraShakeScale = (MaxDistanceToStartShake / DistanceToPlayer) * CameraShakeScaleMultiplier;
@@ -195,7 +195,7 @@ void ABullet::HitActorWithoutInterface(const FHitResult& HitResult)
 
 	if (HitResult.GetComponent()->IsSimulatingPhysics())
 	{
-		const FVector& Impulse = GetActorForwardVector() * BulletData.HitImpulseForce * BulletImpulseMultiplier;
+		const FVector Impulse = GetActorForwardVector() * BulletData.HitImpulseForce * BulletImpulseMultiplier;
 		HitResult.GetComponent()->AddImpulse(Impulse);
 	}
 
@@ -218,7 +218,7 @@ void ABullet::BulletThroughObject(const FHitResult& Hit)
 	BulletData.HitImpulseForce *= BulletData.ImpulseReduceAfterObject;
 	BulletData.MaxObjectsForBulletToGoThrough--;
 
-	const FVector& MoveLocation = GetActorLocation() + GetActorForwardVector() * BulletStuckInActorTeleportValue;
+	const FVector MoveLocation = GetActorLocation() + GetActorForwardVector() * BulletStuckInActorTeleportValue;
 	SetActorLocation(MoveLocation);
 }
 #pragma endregion

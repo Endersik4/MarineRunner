@@ -152,7 +152,7 @@ float UWeaponHandlerComponent::HideWeaponByPlayer()
 	bWeaponHiddenByPlayer = true;
 	bCanChangeWeapon = false;
 
-	float PutAwayWeaponTime = CurrentWeapon->GetPutAwayWeaponAnimTime();
+	const float PutAwayWeaponTime = CurrentWeapon->GetPutAwayWeaponAnimTime();
 	CurrentWeapon->PutAwayWeapon();
 	return PutAwayWeaponTime;
 }

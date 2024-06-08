@@ -7,12 +7,12 @@
 #include "SwingComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API USwingComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	USwingComponent();
 
@@ -20,7 +20,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -29,36 +29,36 @@ public:
 private:
 	//Impuls before Interp
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		float SwingImpulse = 1200000.f;
+	float SwingImpulse = 1200000.f;
 	//Multiplier that is multiplying X and Y Velocity after Pawn got to Hook
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		float SwingLinearPhysicsMultiplier = 1.5f;
+	float SwingLinearPhysicsMultiplier = 1.5f;
 	//Pawn Interp Speed From Current location to Hook Location
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		float SwingSpeed = 10.f;
+	float SwingSpeed = 10.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		float SwingDelay = 0.2f;
+	float SwingDelay = 0.2f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		float MaxHookDistanceToFinishMoving = 200.f;
+	float MaxHookDistanceToFinishMoving = 200.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		float LengthOfSwingLineRaycast = 4500.f;
+	float LengthOfSwingLineRaycast = 4500.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		TSubclassOf<class ASwingLine> SwingLineClass = nullptr;
+	TSubclassOf<class ASwingLine> SwingLineClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		float ForwardSwingLineLocationOffset = 100.f;
+	float ForwardSwingLineLocationOffset = 100.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		float RightSwingLineLocationOffset = 40.f;
+	float RightSwingLineLocationOffset = 40.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
-		TObjectPtr<USoundBase> SwingSound = nullptr;
+	TObjectPtr<USoundBase> SwingSound = nullptr;
 
 	UPROPERTY(Transient)
-		bool bWasSwingPressed = false;
+	bool bWasSwingPressed = false;
 	UPROPERTY(Transient)
-		bool bCanPlayerSwing = false;
+	bool bCanPlayerSwing = false;
 	UPROPERTY(Transient)
-		bool bCanMakeSwingLineCheck = true;
+	bool bCanMakeSwingLineCheck = true;
 
 	FTimerHandle StartSwingHandle;
 
@@ -67,9 +67,9 @@ private:
 	void ClearLastActivatedHook();
 
 	UPROPERTY(Transient)
-		bool bIsPlayerMovingToHook = false;
+	bool bIsPlayerMovingToHook = false;
 	UPROPERTY(Transient)
-		FVector HookLocation;
+	FVector HookLocation;
 	void PrepareMoveToHook();
 	void MovingToHook(float Delta);
 	void StopMovingToHook();
@@ -77,9 +77,9 @@ private:
 	void SpawnSwingEffects();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AHook>CurrentFocusedHook = nullptr;
+	TObjectPtr<class AHook>CurrentFocusedHook = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player = nullptr;
+	TObjectPtr<class AMarineCharacter> Player = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<APlayerController> PlayerController = nullptr;
+	TObjectPtr<APlayerController> PlayerController = nullptr;
 };

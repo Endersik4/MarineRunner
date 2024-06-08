@@ -19,8 +19,8 @@ UCLASS()
 class MARINERUNNER_API ABullet : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ABullet();
 
@@ -28,7 +28,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -36,66 +36,66 @@ public:
 
 private:
 	UFUNCTION()
-		void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
+	void OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> BulletMesh = nullptr;
+	TObjectPtr<class UStaticMeshComponent> BulletMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet")
-		float BulletLifeSpan = 15.f;
+	float BulletLifeSpan = 15.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet")
-		float BulletFallingDown = 20.f;
+	float BulletFallingDown = 20.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Trail")
-		TObjectPtr<class UNiagaraSystem> BulletTrailNiagaraParticle = nullptr;
+	TObjectPtr<class UNiagaraSystem> BulletTrailNiagaraParticle = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
-		TObjectPtr<UParticleSystem> BulletHitParticle = nullptr;
+	TObjectPtr<UParticleSystem> BulletHitParticle = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
-		FVector BulletHitParticleSize = FVector(1.f);
+	FVector BulletHitParticleSize = FVector(1.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
-		TObjectPtr<USoundBase> BulletHitSound = nullptr;
+	TObjectPtr<USoundBase> BulletHitSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
-		float BulletImpulseMultiplier = 10.f;
+	float BulletImpulseMultiplier = 10.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
-		float BulletStuckInActorTeleportValue = 50.f;
+	float BulletStuckInActorTeleportValue = 50.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Hit|Shake")
-		float CameraShakeScaleMultiplier = 0.3f;
+	float CameraShakeScaleMultiplier = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Hit|Shake")
-		float MaxDistanceToStartShake = 9000.f;
+	float MaxDistanceToStartShake = 9000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Hit|Shake")
-		float MaxCameraShakeScale = 3.f;
+	float MaxCameraShakeScale = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
-		TObjectPtr<UMaterialInstance> BulletHoleDecalMaterial = nullptr;
+	TObjectPtr<UMaterialInstance> BulletHoleDecalMaterial = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
-		FVector BulletHoleDecalSize = FVector(1.f);
+	FVector BulletHoleDecalSize = FVector(1.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
-		float BulletHoleSize_X = 20.f;
+	float BulletHoleSize_X = 20.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
-		float BulletHoleFadeOutStartDelay = 4.f;
+	float BulletHoleFadeOutStartDelay = 4.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
-		float BulletHoleFadeOutDuration = 5.f;
+	float BulletHoleFadeOutDuration = 5.f;
 
 	void SetBulletMovementType();
 
 	UPROPERTY(Transient)
-		FBulletStruct BulletData = FBulletStruct();
+	FBulletStruct BulletData = FBulletStruct();
 
-	void SphereRadialDamage(const FHitResult& Hit);	
+	void SphereRadialDamage(const FHitResult& Hit);
 	void BulletThroughObject(const FHitResult& Hit);
 
 	//Bullet Movement
 	UPROPERTY(Transient)
-		bool bStartBulletMovement = false;
+	bool bStartBulletMovement = false;
 	UPROPERTY(Transient)
-		float TrackBulletDistance = 0.f;
+	float TrackBulletDistance = 0.f;
 	UPROPERTY(Transient)
-		FVector BulletLocation = FVector::Zero();
+	FVector BulletLocation = FVector::Zero();
 	void MovementBullet(float Delta);
 
 	//Bullet Stack in the same actor after another move
 	UPROPERTY(Transient)
-		TObjectPtr<AActor> HitActor = nullptr;
+	TObjectPtr<AActor> HitActor = nullptr;
 	bool BulletStuckInActor(const FHitResult& Hit);
 
 	//Hit
@@ -108,5 +108,5 @@ private:
 
 	// Bullet Trail
 	UPROPERTY(Transient)
-		TObjectPtr<class UNiagaraComponent> SpawnedBulletTrailNiagara = nullptr;
+	TObjectPtr<class UNiagaraComponent> SpawnedBulletTrailNiagara = nullptr;
 };

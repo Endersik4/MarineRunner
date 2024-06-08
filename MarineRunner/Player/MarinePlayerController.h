@@ -9,7 +9,7 @@
 #include "MarinePlayerController.generated.h"
 
 /**
- * 
+ *
  */
 
 UCLASS()
@@ -23,19 +23,19 @@ protected:
 	virtual void SetupInputComponent() override;
 
 public:
-	FORCEINLINE void SetMouseSensitivity(const FSettingSavedInJsonFile &NewMouseSensitivity) { MouseSensitivity = NewMouseSensitivity; }
-	FORCEINLINE const FSettingSavedInJsonFile &GetMouseSensitivity() const { return MouseSensitivity; }
+	FORCEINLINE void SetMouseSensitivity(const FSettingSavedInJsonFile& NewMouseSensitivity) { MouseSensitivity = NewMouseSensitivity; }
+	FORCEINLINE const FSettingSavedInJsonFile& GetMouseSensitivity() const { return MouseSensitivity; }
 
 	UPROPERTY(Transient)
-		float MouseXValue = 0.f;
+	float MouseXValue = 0.f;
 	UPROPERTY(Transient)
-		float MouseYValue = 0.f;
+	float MouseYValue = 0.f;
 
 	UFUNCTION()
-		void HandleOnPossessedPawnChanged(APawn* _NewPawn, APawn* _OldPawn);
+	void HandleOnPossessedPawnChanged(APawn* _NewPawn, APawn* _OldPawn);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Player Controller Settings")
-		FFloatRange MarginForPlayerToMove = FFloatRange(-0.2f, 0.2f);
+	FFloatRange MarginForPlayerToMove = FFloatRange(-0.2f, 0.2f);
 
 	void LookUp(float AxisValue);
 	void LookRight(float AxisValue);
@@ -47,5 +47,5 @@ private:
 	void DisableCameraRotateWhileWallrunning(float CurrentLookValue);
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> MarinePawn;
+	TObjectPtr<class AMarineCharacter> MarinePawn;
 };

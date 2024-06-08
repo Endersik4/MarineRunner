@@ -33,8 +33,8 @@ void AQuestItem::TakeItem(AMarineCharacter* Player)
 		return;
 
 	AddActorToSavedDataObject();
+	ItemUnHover(Player);
 	bQuestWasPlayed = true;
-	QuestItemMesh->SetRenderCustomDepth(false);
 
 	Player->SetIsInCutscene(true);
 	Player->ShowHUD(false);

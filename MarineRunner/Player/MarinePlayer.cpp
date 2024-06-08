@@ -86,6 +86,7 @@ AMarineCharacter::AMarineCharacter()
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
 	WidgetInteractionComponent->SetupAttachment(Camera);
 	WidgetInteractionComponent->InteractionSource = EWidgetInteractionSource::CenterScreen;
+	WidgetInteractionComponent->InteractionDistance = 700.f;
 
 	bUseControllerRotationYaw = true;
 	Tags.Add(TEXT("Player"));
@@ -396,6 +397,7 @@ void AMarineCharacter::TakePressed()
 	if (WidgetInteractionComponent->IsOverInteractableWidget())
 	{
 		WidgetInteractionComponent->PressPointerKey(EKeys::LeftMouseButton);
+		WidgetInteractionComponent->ReleasePointerKey(EKeys::LeftMouseButton);
 	}
 	else if (IsValid(TakeAndDropComponent))
 	{

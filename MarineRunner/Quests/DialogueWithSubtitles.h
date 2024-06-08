@@ -8,21 +8,21 @@
 
 USTRUCT(BlueprintType)
 struct FDialogueSubtitles {
-	
+
 public:
 	GENERATED_USTRUCT_BODY();
 
 	UPROPERTY(EditAnywhere, meta = (MultiLine = "true"))
-		FText CurrentSubtitles = FText();
+	FText CurrentSubtitles = FText();
 	UPROPERTY(EditAnywhere)
-		float TimeOnScreen = 0.f;
+	float TimeOnScreen = 0.f;
 
 	FDialogueSubtitles()
 	{
-			CurrentSubtitles = FText();
-			TimeOnScreen = 0.f;
+		CurrentSubtitles = FText();
+		TimeOnScreen = 0.f;
 	}
-	FDialogueSubtitles(const FText & _CurrentSubtitles, const float & _TimeOnScreen)
+	FDialogueSubtitles(const FText& _CurrentSubtitles, const float& _TimeOnScreen)
 	{
 		CurrentSubtitles = _CurrentSubtitles;
 		TimeOnScreen = _TimeOnScreen;
@@ -33,44 +33,44 @@ UCLASS()
 class MARINERUNNER_API ADialogueWithSubtitles : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	ADialogueWithSubtitles();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-		TObjectPtr<class UBoxComponent> ActivateDialogueBox = nullptr;
+	TObjectPtr<class UBoxComponent> ActivateDialogueBox = nullptr;
 
 	UFUNCTION()
-		void OnActivateDialogueBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-		
+	void OnActivateDialogueBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
 	UPROPERTY(EditAnywhere, Category = "Dialogue settings")
-		float StartDialogueDelay = 1.f;
+	float StartDialogueDelay = 1.f;
 	UPROPERTY(EditAnywhere, Category = "Dialogue settings")
-		TObjectPtr<USoundBase> DialogueSound = nullptr;
+	TObjectPtr<USoundBase> DialogueSound = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Dialogue settings")
-		TSubclassOf<class UDialogueSubtitlesWidget> DialogueWidgetClass = nullptr;
+	TSubclassOf<class UDialogueSubtitlesWidget> DialogueWidgetClass = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Dialogue settings")
-		TArray<FDialogueSubtitles> AllSubtitlesForDialogue;
+	TArray<FDialogueSubtitles> AllSubtitlesForDialogue;
 
 	UPROPERTY(Transient)
-		bool bWasActivated = false;
+	bool bWasActivated = false;
 
 	void StartDialogue();
 
 	UPROPERTY(Transient)
-		int32 CurrentDialogueSubtitles = 0;
+	int32 CurrentDialogueSubtitles = 0;
 
 	FTimerHandle ChangeSubtitlesHandle;
 	void ChangeSubtitles();
-	
+
 	// return true if widget spawned successfully
 	bool SpawnDialogueWidget();
 	UPROPERTY(Transient)
-		TObjectPtr<UDialogueSubtitlesWidget> SpawnedDialogueWidget = nullptr;
+	TObjectPtr<UDialogueSubtitlesWidget> SpawnedDialogueWidget = nullptr;
 };

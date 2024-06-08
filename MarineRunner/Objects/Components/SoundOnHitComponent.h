@@ -7,12 +7,12 @@
 #include "SoundOnHitComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API USoundOnHitComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	USoundOnHitComponent();
 
@@ -20,18 +20,18 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Sound On Hit Settings")
-		float VelocityLengthErrorTolerance = 25.f;
+	float VelocityLengthErrorTolerance = 25.f;
 	UPROPERTY(EditAnywhere, Category = "Sound On Hit Settings")
-		TObjectPtr<USoundBase> HitGroundSound = nullptr;
+	TObjectPtr<USoundBase> HitGroundSound = nullptr;
 
 	UFUNCTION()
-		void OnHitPlaySound(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
+	void OnHitPlaySound(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse, const FHitResult& Hit);
 
 	bool CanSpawnHitOnGroundSound(TObjectPtr<AActor> HitActor);
 	UPROPERTY(Transient)
-		TObjectPtr<UAudioComponent> SpawnedHitGroundSound = nullptr;
+	TObjectPtr<UAudioComponent> SpawnedHitGroundSound = nullptr;
 };

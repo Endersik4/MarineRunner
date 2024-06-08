@@ -57,6 +57,7 @@ void AGun::SetUpZoom()
 
 	ScopeActor->SetZoomMaterialIndexOnWeapon(ZoomMaterialIndexOnWeapon);
 	ScopeActor->SetUpZoomMaterial(this);
+	ScopeActor->ActiveZoom(false);
 }
 
 #pragma region //////////////////////////////////// SHOOT /////////////////////////////////////
@@ -165,10 +166,10 @@ void AGun::SpawnBullet()
 	if (!IsValid(BulletData.BulletClass))
 		return;
 
-	const FVector& BulletLocation = WeaponSkeletalMesh->GetSocketLocation(TEXT("Bullet"));
-	const FRotator& BulletRotation = GetActorRotation() + GunRecoilComponent->RandomBulletRotation();
+	const FVector BulletLocation = WeaponSkeletalMesh->GetSocketLocation(TEXT("Bullet"));
+	const FRotator BulletRotation = GetActorRotation() + GunRecoilComponent->RandomBulletRotation();
 
-	const FTransform& BulletTransform = FTransform(BulletRotation, BulletLocation);
+	const FTransform BulletTransform = FTransform(BulletRotation, BulletLocation);
 	TObjectPtr<ABullet> SpawnedBullet = GetWorld()->SpawnActorDeferred<ABullet>(BulletData.BulletClass, BulletTransform);
 	if (!IsValid(SpawnedBullet))
 		return;
@@ -271,7 +272,6 @@ void AGun::TertiaryAction(float Value)
 
 	if (!IsValid(ScopeActor))
 		return;
-
 
 	CurrentScopeIndex = ScopeActor->Zoom(Value);
 

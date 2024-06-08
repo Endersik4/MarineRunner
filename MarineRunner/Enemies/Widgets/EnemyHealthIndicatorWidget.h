@@ -15,23 +15,23 @@ class MARINERUNNER_API UEnemyIndicatorWidget : public UUserWidget
 
 protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UProgressBar> CurrentHealthBar = nullptr;
+	TObjectPtr<UProgressBar> CurrentHealthBar = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UProgressBar> DelayedHealthBar = nullptr;
+	TObjectPtr<UProgressBar> DelayedHealthBar = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> EnemyIndicatorImage = nullptr;
+	TObjectPtr<class UImage> EnemyIndicatorImage = nullptr;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float DelayedHealthTime = 0.5f;
+	float DelayedHealthTime = 0.5f;
 
 	void SetCurrentHealthInHealthBar(const float NewHealth);
 
 	FORCEINLINE void SetMaxHealth(float _MaxHealth) { MaxHealth = _MaxHealth; }
 private:
 	UPROPERTY(Transient)
-		float MaxHealth = 0.f;
+	float MaxHealth = 0.f;
 
 	FTimerHandle DelayedHealthProgressBarHandle;
 	void ApplyCurrentHealthToDelayedBar();

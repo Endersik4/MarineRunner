@@ -8,18 +8,18 @@
 #include "SelectFloorEntryObject.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API USelectFloorEntryObject : public UObject
 {
 	GENERATED_BODY()
-	
+
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		FElevatorFloor ElevatorFloor = FElevatorFloor();
+	FElevatorFloor ElevatorFloor = FElevatorFloor();
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		TObjectPtr<class UElevatorPanelWidget> ElevatorPanelWidget = nullptr;
+	TObjectPtr<class UElevatorPanelWidget> ElevatorPanelWidget = nullptr;
 
 	bool operator==(const USelectFloorEntryObject& OtherElevatorPanel);
 	bool operator==(const int32 FloorToGo);

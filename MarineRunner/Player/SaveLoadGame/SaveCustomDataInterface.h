@@ -1,4 +1,4 @@
-	// Copyright Adam Bartela.All Rights Reserved
+// Copyright Adam Bartela.All Rights Reserved
 
 #pragma once
 
@@ -19,24 +19,24 @@ struct FCustomDataSaved
 	GENERATED_USTRUCT_BODY();
 
 	UPROPERTY(EditAnywhere)
-		TEnumAsByte<ESavedDataState> SavedDataState;
+	TEnumAsByte<ESavedDataState> SavedDataState;
 
 	// Pointer to the actor to load/save data from e.g chest on map
 	UPROPERTY(EditAnywhere)
-		TObjectPtr<AActor> ObjectToSaveData;
+	TObjectPtr<AActor> ObjectToSaveData;
 	// State of saved object, number means something different in each actor e.g in chest 1 means the chest was open, in door 2 means the door was unlocked by pin etc.
 	UPROPERTY(EditAnywhere)
-		int32 ObjectState;
+	int32 ObjectState;
 
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<AActor> ObjectToSpawnFromClass;
+	TSubclassOf<AActor> ObjectToSpawnFromClass;
 	UPROPERTY(EditAnywhere)
-		FTransform ObjectTransform;
+	FTransform ObjectTransform;
 	UPROPERTY(EditAnywhere)
-		float ValueToSave;
+	float ValueToSave;
 	// if true then the object was added in details panel in SavedDataObject, its for objects that player cant interact to save it e.g Albertos location, after player saves it should save last albertos location
 	UPROPERTY(EditAnywhere)
-		bool bValueSavedFromTheBeginning;
+	bool bValueSavedFromTheBeginning;
 
 	FCustomDataSaved()
 	{
@@ -112,11 +112,11 @@ class MARINERUNNER_API ISaveCustomDataInterface
 public:
 
 	UFUNCTION()
-		virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) = 0;
+	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) = 0;
 
 	UFUNCTION()
-		virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) = 0;
+	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) = 0;
 
 	UFUNCTION()
-		virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) = 0;
+	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) = 0;
 };

@@ -11,6 +11,7 @@ void UMarineRunnerGameInstance::Init()
 	Super::Init();
 
 	LoadCustomSavedSettingsFromConfig();
+	LoadGameDifficulty();
 	LoadSoundsVolumeFromConfig(CustomSavedSettings);
 }
 
@@ -23,7 +24,7 @@ void UMarineRunnerGameInstance::SetSaveNumberAccordingToNumOfFiles(const FString
 
 void UMarineRunnerGameInstance::LoadCustomSavedSettingsFromConfig()
 {
-	const FString& ConfigPath = FPaths::GeneratedConfigDir() + CustomSavedSettingsConfigPath;
+	const FString ConfigPath = FPaths::GeneratedConfigDir() + CustomSavedSettingsConfigPath;
 	bWasJsonDeserialized = USaveGameJsonFile::ReadJson(ConfigPath, SavedDataJsonFile);
 	if (!bWasJsonDeserialized)
 		return;
@@ -46,14 +47,14 @@ void UMarineRunnerGameInstance::SaveCustomSavedSettingsToConfig()
 		JsonObject->SetNumberField(CurrentSavedSetting.FieldName, CurrentSavedSetting.FieldValue);
 	}
 
-	FString ConfigPath = FPaths::GeneratedConfigDir() + CustomSavedSettingsConfigPath;
+	const FString ConfigPath = FPaths::GeneratedConfigDir() + CustomSavedSettingsConfigPath;
 	USaveGameJsonFile::WriteJson(JsonObject, ConfigPath);
 }
 
 void UMarineRunnerGameInstance::FindSavedValueAccordingToName(const FString& SavedSettingName, float& Value)
 {
 	FSettingSavedInJsonFile NewStruct = FSettingSavedInJsonFile(SavedSettingName, 0.f);
-	const int32& FoundItemIndex = NewStruct.GetItemIndexInGivenArray(CustomSavedSettings);
+	const int32 FoundItemIndex = NewStruct.GetItemIndexInGivenArray(CustomSavedSettings);
 
 	if (FoundItemIndex == INDEX_NONE)
 		return;
@@ -64,12 +65,29 @@ void UMarineRunnerGameInstance::FindSavedValueAccordingToName(const FString& Sav
 void UMarineRunnerGameInstance::ReplaceValueInSavedSettingByName(float NewValue, const FString& SavedSettingName)
 {
 	FSettingSavedInJsonFile NewStruct = FSettingSavedInJsonFile(SavedSettingName, NewValue);
-	const int32& FoundItemIndex = NewStruct.GetItemIndexInGivenArray(CustomSavedSettings);
+	const int32 FoundItemIndex = NewStruct.GetItemIndexInGivenArray(CustomSavedSettings);
 
 	if (FoundItemIndex == INDEX_NONE)
 		return;
 
 	CustomSavedSettings[FoundItemIndex].FieldValue = NewValue;
+}
+
+void UMarineRunnerGameInstance::LoadGameDifficulty()
+{
+	if (AllGameDifficulties.Num() == 0)
+		return;
+
+	float SavedDifficultyLevel = -1.f;
+	FindSavedValueAccordingToName(GameDifficultySavedFieldName, SavedDifficultyLevel);
+	if (SavedDifficultyLevel == -1.f)
+		return;
+
+	FGameDifficulty* FoundSavedGameDifficulty = AllGameDifficulties.FindByKey((int32)SavedDifficultyLevel);
+	if (!FoundSavedGameDifficulty)
+		return;
+
+	CurrentGameDifficulty = *FoundSavedGameDifficulty;
 }
 #pragma endregion
 

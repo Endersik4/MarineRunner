@@ -10,8 +10,8 @@ UCLASS()
 class MARINERUNNER_API AConveyorBelt : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AConveyorBelt();
 
@@ -19,37 +19,37 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
-		void GenerateInstancedMeshesForConveyorBelt();
+	void GenerateInstancedMeshesForConveyorBelt();
 private:
 	UFUNCTION()
-		void OnMoveActorBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-			int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnMoveActorBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UFUNCTION()
-		void OnMoveActorBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-			int32 OtherBodyIndex);
+	void OnMoveActorBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UInstancedStaticMeshComponent> ConveyorBeltInstancedMesh = nullptr;
+	TObjectPtr<class UInstancedStaticMeshComponent> ConveyorBeltInstancedMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> MoveActorBoxComponent = nullptr;
+	TObjectPtr<class UBoxComponent> MoveActorBoxComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Conveyor Belt settings")
-		bool bConveyorBeltActive = true;
+	bool bConveyorBeltActive = true;
 	UPROPERTY(EditAnywhere, Category = "Conveyor Belt settings")
-		float SpeedOfActorOnConveyorBelt = 200.f;
+	float SpeedOfActorOnConveyorBelt = 200.f;
 	UPROPERTY(EditAnywhere, Category = "Conveyor Belt settings|Mesh")
-		int32 ConveyorBeltMeshAmount = 1;
+	int32 ConveyorBeltMeshAmount = 1;
 	UPROPERTY(EditAnywhere, Category = "Conveyor Belt settings|Mesh")
-		float ConveyorBeltMeshOffset = 100.f;
+	float ConveyorBeltMeshOffset = 100.f;
 	UPROPERTY(EditAnywhere, Category = "Conveyor Belt settings|Mesh")
-		FVector InstancedMeshDirection = FVector(1.f, 0.f, 0.f);
-	
+	FVector InstancedMeshDirection = FVector(1.f, 0.f, 0.f);
+
 	UPROPERTY(Transient)
 	TArray<TObjectPtr<AActor>> ActorsOnConveyorBelt = { nullptr };
 

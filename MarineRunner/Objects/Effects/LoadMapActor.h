@@ -10,32 +10,32 @@ UCLASS()
 class MARINERUNNER_API APlayCreditsActor : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	APlayCreditsActor();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> CreditsBox;
+	TObjectPtr<class UBoxComponent> CreditsBox;
 
 	UPROPERTY(EditAnywhere, Category = "Start Credits Settings")
-		FName CreditsLevelName = FName("CreditsMap");
+	FName CreditsLevelName = FName("CreditsMap");
 	UPROPERTY(EditAnywhere, Category = "Start Credits Settings")
-		float MoveToCreditsLevelTime = 2.f;
+	float MoveToCreditsLevelTime = 2.f;
 	UPROPERTY(EditAnywhere, Category = "Start Credits Settings")
-		TSubclassOf<class UUserWidget> WidgetClassToSpawnWhenOverlap;
+	TSubclassOf<class UUserWidget> WidgetClassToSpawnWhenOverlap;
 
 	UFUNCTION()
-		void CreditsBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void CreditsBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(Transient)
-		bool bCreditsActive = false;
+	bool bCreditsActive = false;
 
 	void SpawnWidget();
 

@@ -47,23 +47,23 @@ private:
 	int32 MagazineCapacity = 10;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Reload")
-		FWeaponAnimation WeaponReloadAnim = FWeaponAnimation();
+	FWeaponAnimation WeaponReloadAnim = FWeaponAnimation();
 	UPROPERTY(EditDefaultsOnly, Category = "Reload")
-		FWeaponAnimation WeaponReloadWithNoBulletsAnim = FWeaponAnimation();
+	FWeaponAnimation WeaponReloadWithNoBulletsAnim = FWeaponAnimation();
 	UPROPERTY(EditDefaultsOnly, Category = "Reload", meta = (EditCondition = "bReloadOneBullet"))
-		FWeaponAnimation WeaponReload_Begin = FWeaponAnimation();
+	FWeaponAnimation WeaponReload_Begin = FWeaponAnimation();
 	UPROPERTY(EditDefaultsOnly, Category = "Reload", meta = (EditCondition = "bReloadOneBullet"))
-		FWeaponAnimation WeaponReload_BeginEnd = FWeaponAnimation();
+	FWeaponAnimation WeaponReload_BeginEnd = FWeaponAnimation();
 	UPROPERTY(EditDefaultsOnly, Category = "Reload", meta = (EditCondition = "bReloadOneBullet"))
-		FWeaponAnimation WeaponReload_End = FWeaponAnimation();
+	FWeaponAnimation WeaponReload_End = FWeaponAnimation();
 
 	EReloadType CurrentReloadType = ERT_EndReload;
 	EReloadType GetCurrentReloadTypeAccordingToSituation();
 
 	UPROPERTY(Transient)
-		float OriginalMagazineCapacity = 0.f;
+	float OriginalMagazineCapacity = 0.f;
 	UPROPERTY(Transient)
-		bool bIsReloading = false;
+	bool bIsReloading = false;
 
 	FTimerHandle ReloadHandle;
 	bool CanReload();

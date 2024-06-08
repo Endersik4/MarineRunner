@@ -31,9 +31,9 @@ public:
 	void OnOwnerDestroyed(AActor* DestroyedActor);
 private:
 	UPROPERTY(EditAnywhere, Category = "Take Items")
-	float TakeDistance = 400.f;
+	float TakeDistance = 500.f;
 	UPROPERTY(EditAnywhere, Category = "Take Items")
-	FVector CollisionBoxSize = FVector(20.f);
+	FVector CollisionBoxSize = FVector(30.f);
 	UPROPERTY(EditAnywhere, Category = "Take Items")
 	float TakeAnotherItemTime = 0.12f;
 

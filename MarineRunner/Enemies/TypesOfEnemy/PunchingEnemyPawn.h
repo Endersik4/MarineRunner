@@ -7,7 +7,7 @@
 #include "PunchingEnemyPawn.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API APunchingEnemyPawn : public AEnemyPawn
@@ -23,30 +23,31 @@ public:
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Check if player is close")
-		float PlayerCloseRaycastInterval = 0.2f;
+	float PlayerCloseRaycastInterval = 0.2f;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Check if player is close")
-		FName PlayerCloseRaycastSocketNameLocation = "PunchSocket";
+	FName PlayerCloseRaycastSocketNameLocation = "PunchSocket";
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Check if player is close")
-		float MaxPlayerCloseRaycastDistance = 100.f;
+	float MaxPlayerCloseRaycastDistance = 100.f;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
-		float Damage = 6.f;
+	float Damage = 6.f;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
-		float DamageImpulseForce = 50000.f;
+	float DamageImpulseForce = 50000.f;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
-		float ApplyDamageTime = 0.1f;
+	float ApplyDamageTime = 0.1f;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
-		float DamageSphereRadius = 20.f;
+	float DamageSphereRadius = 20.f;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
-		float CanDamageAgainTime = 0.6f;
+	float CanDamageAgainTime = 0.6f;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
-		TObjectPtr<UAnimMontage> PunchAnimMontage = nullptr;
+	TObjectPtr<UAnimMontage> PunchAnimMontage = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Punching Enemy Settings|Punch")
-		TObjectPtr<USoundBase> PunchSound = nullptr;
+	TObjectPtr<USoundBase> PunchSound = nullptr;
 
 	FTimerHandle PlayerCloseForHitHandle;
 	void IsPlayerCloseForHit();
 
 	void StartPunchingPlayer();
+	UPROPERTY(Transient)
 	bool bIsPunching = false;
 
 	FVector DamageSphereLocation = FVector::Zero();
@@ -55,5 +56,5 @@ private:
 	void DamageAnimFinished();
 
 	UPROPERTY(Transient)
-		TObjectPtr<APawn> DetectedPlayer = nullptr;
+	TObjectPtr<APawn> DetectedPlayer = nullptr;
 };

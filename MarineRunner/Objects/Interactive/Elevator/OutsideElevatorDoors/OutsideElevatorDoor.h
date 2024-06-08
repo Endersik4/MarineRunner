@@ -21,8 +21,8 @@ UCLASS()
 class MARINERUNNER_API AOutsideElevatorDoor : public AActor, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AOutsideElevatorDoor();
 
@@ -34,7 +34,7 @@ protected:
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
-public:	
+public:
 
 	void OpenOutsideElevatorDoor();
 	void CloseOutsideElevatorDoor();
@@ -45,38 +45,38 @@ public:
 	void PinIsCorrect();
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class USkeletalMeshComponent> OutsideElevatorDoorsSkeletalMesh = nullptr;
+	TObjectPtr<class USkeletalMeshComponent> OutsideElevatorDoorsSkeletalMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> OutsideElevatorPanelMesh = nullptr;
+	TObjectPtr<class UStaticMeshComponent> OutsideElevatorPanelMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UWidgetComponent> OutsideElevatorPanel = nullptr;
+	TObjectPtr<class UWidgetComponent> OutsideElevatorPanel = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings")
-		TObjectPtr<class AElevator> ElevatorToCall = nullptr;
+	TObjectPtr<class AElevator> ElevatorToCall = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings")
-		int32 FloorNumber = 0;
+	int32 FloorNumber = 0;
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings")
-		bool bUsePinCode = false;
+	bool bUsePinCode = false;
 	UPROPERTY(EditAnywhere, Category = "Outside Elevator Doors settings", meta = (EditCondition = "bUsePinCode", EditConditionHides, ClampMin = "1000", ClampMax = "9999", UIMin = "1000", UIMax = "9999"))
-		int32 PinCode = 1111;
+	int32 PinCode = 1111;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Animations")
-		TObjectPtr < UAnimationAsset> OpenElevatorDoorsAnim = nullptr;
+	TObjectPtr < UAnimationAsset> OpenElevatorDoorsAnim = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Animations")
-		TObjectPtr < UAnimationAsset> CloseElevatorDoorsAnim = nullptr;
+	TObjectPtr < UAnimationAsset> CloseElevatorDoorsAnim = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Sounds")
-		FName SoundLocationSocketName = FName(TEXT("SoundLocationSocket"));
+	FName SoundLocationSocketName = FName(TEXT("SoundLocationSocket"));
 	UPROPERTY(EditDefaultsOnly, Category = "Outside Elevator Doors settings|Sounds")
-		TObjectPtr<USoundBase> OpenElevatorDoorsSound = nullptr;
+	TObjectPtr<USoundBase> OpenElevatorDoorsSound = nullptr;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UCallElevatorPanel> ElevatorPanelWidget = nullptr;
+	TObjectPtr<class UCallElevatorPanel> ElevatorPanelWidget = nullptr;
 
 	UPROPERTY(Transient)
-		bool bDoorsOpen = false;
+	bool bDoorsOpen = false;
 	void PlayElevatorEffects(TObjectPtr < UAnimationAsset> AnimToPlay, TObjectPtr < USoundBase> SoundToPlay);
 
 	void SetUpElevatorPanel();
 
 	UPROPERTY(Transient)
-		int32 CurrentUniqueID = 0;
+	int32 CurrentUniqueID = 0;
 };

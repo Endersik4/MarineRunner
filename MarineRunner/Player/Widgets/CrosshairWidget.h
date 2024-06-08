@@ -7,7 +7,7 @@
 #include "CrosshairWidget.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API UCrosshairWidget : public UUserWidget

@@ -10,12 +10,12 @@
 /// A Component that allow MarineCharacter to do Slow Motion with effect From DashWidget but without FOV 
 /// In Details Panel you can set up variables for Slow Motion (speed,time,delay)
 /// </summary>
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API USlowMotionComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	USlowMotionComponent();
 
@@ -24,46 +24,46 @@ protected:
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
-		void OnOwnerDestroyed(AActor* DestroyedActor);
-public:	
+	void OnOwnerDestroyed(AActor* DestroyedActor);
+public:
 
 	void TurnOnSlowMotion() { SlowMotionPressed(); };
 	FORCEINLINE bool GetIsInSlowMotion() const { return bIsInSlowMotion; }
-	FORCEINLINE float GetCounterForceMultiplierWhenInAir() const {return CounterForceMultiplierWhenInAir;}
-	FORCEINLINE float GetMovementSpeedInSlowMotion() const {return MovementSpeedInSlowMotion;}
-	FORCEINLINE float GetCounterForceInSlowMotion() const {return CounterForceInSlowMotion;}
+	FORCEINLINE float GetCounterForceMultiplierWhenInAir() const { return CounterForceMultiplierWhenInAir; }
+	FORCEINLINE float GetMovementSpeedInSlowMotion() const { return MovementSpeedInSlowMotion; }
+	FORCEINLINE float GetCounterForceInSlowMotion() const { return CounterForceInSlowMotion; }
 
 	void PauseSlowMotionSound(bool bPause);
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionValue = 0.3f;
+	float SlowMotionValue = 0.3f;
 	//How long should Slow Motion be on
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionTime = 5.f;
+	float SlowMotionTime = 5.f;
 	//Delay of Slow Motion before the next one
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float SlowMotionDelay = 4.f;
+	float SlowMotionDelay = 4.f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float GlobalPitchModulation = 0.5f;
+	float GlobalPitchModulation = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		float StartingChromaticAbberation = 5.f;
+	float StartingChromaticAbberation = 5.f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		FLinearColor ScreenColorWhenInSlowMotion = FLinearColor(FVector4(0.05f, 1.f, 0.24f,1.f));
+	FLinearColor ScreenColorWhenInSlowMotion = FLinearColor(FVector4(0.05f, 1.f, 0.24f, 1.f));
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		TObjectPtr<USoundBase> SlowMotionSound = nullptr;
+	TObjectPtr<USoundBase> SlowMotionSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
-		TObjectPtr<USoundBase> CancelSlowMotionSound = nullptr;
+	TObjectPtr<USoundBase> CancelSlowMotionSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings|Movement")
-		float CounterForceMultiplierWhenInAir = 2.0f;
+	float CounterForceMultiplierWhenInAir = 2.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings|Movement")
-		float MovementSpeedInSlowMotion = 350000.f;
+	float MovementSpeedInSlowMotion = 350000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings|Movement")
-		float CounterForceInSlowMotion = 45.f;
+	float CounterForceInSlowMotion = 45.f;
 
 	UPROPERTY(Transient)
-		bool bCanSlowMotion = true;
+	bool bCanSlowMotion = true;
 	UPROPERTY(Transient)
-		bool bIsInSlowMotion = false;
+	bool bIsInSlowMotion = false;
 	FTimerHandle SlowMotionDelayHandle;
 	FTimerHandle SlowMotionTimeHandle;
 	void SettingUpSlowMotion();
@@ -75,9 +75,9 @@ private:
 	void SlowMotionEffects();
 
 	void SetCanSlowMotionAgain();
-	
+
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
+	TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class UAudioComponent> SlowMotionSoundSpawned = nullptr;
+	TObjectPtr<class UAudioComponent> SlowMotionSoundSpawned = nullptr;
 };

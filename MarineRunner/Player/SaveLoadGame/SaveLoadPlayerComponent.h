@@ -7,12 +7,12 @@
 #include "SaveLoadPlayerComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API USaveLoadPlayerComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	USaveLoadPlayerComponent();
 
@@ -20,7 +20,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 
 	void SaveGame(const FString& _SaveName = "ManualSave_", const FString& _WildCard = "*ManualSave*");
 	bool CanPlayerSaveGame();
@@ -34,22 +34,22 @@ public:
 	void LoadHudVariables();
 
 	FORCEINLINE void SetSavedDataObject(TObjectPtr<class ASavedDataObject> NewSavedDataObject) { SavedDataObject = NewSavedDataObject; }
-	FORCEINLINE TObjectPtr<class ASavedDataObject> GetSavedDataObject() {return SavedDataObject;}
+	FORCEINLINE TObjectPtr<class ASavedDataObject> GetSavedDataObject() { return SavedDataObject; }
 
 	void ShowGameplayMechanicsOnHud(const enum EUnlockInHud& WhatToUnlock);
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Saves")
-		TObjectPtr<class ASavedDataObject> SavedDataObject = nullptr;
+	TObjectPtr<class ASavedDataObject> SavedDataObject = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Saves")
-		TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass = nullptr;
+	TSubclassOf<class UUserWidget> GameSavedNotificationWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Saves")
-		TSubclassOf<class UUserWidget> CannotSavedNotificationWidgetClass = nullptr;
+	TSubclassOf<class UUserWidget> CannotSavedNotificationWidgetClass = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Load")
-		TSubclassOf<class AMarineCharacter> PlayerClass = nullptr;
+	TSubclassOf<class AMarineCharacter> PlayerClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Load")
-		TSubclassOf<class UUserWidget> GameLoadedWidgetClass = nullptr;
+	TSubclassOf<class UUserWidget> GameLoadedWidgetClass = nullptr;
 
 	void SpawnPassingWidget(const TSubclassOf<class UUserWidget>& WidgetClassToSpawn);
 	TObjectPtr<class USaveMarineRunner> CreateLoadGame();
@@ -57,18 +57,18 @@ private:
 	void SpawnNewPlayer();
 
 	UPROPERTY(Transient)
-		bool bShowHealBar = false;
+	bool bShowHealBar = false;
 	UPROPERTY(Transient)
-		bool bShowDashBar = false;
+	bool bShowDashBar = false;
 	UPROPERTY(Transient)
-		bool bShowSlowMotionBar = false;
+	bool bShowSlowMotionBar = false;
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> Player = nullptr;
+	TObjectPtr<class AMarineCharacter> Player = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarinePlayerController> PlayerController = nullptr;
+	TObjectPtr<class AMarinePlayerController> PlayerController = nullptr;
 	UPROPERTY(Transient)
-		TObjectPtr<class UMarineRunnerGameInstance> GameInstance = nullptr;
+	TObjectPtr<class UMarineRunnerGameInstance> GameInstance = nullptr;
 
 };
 

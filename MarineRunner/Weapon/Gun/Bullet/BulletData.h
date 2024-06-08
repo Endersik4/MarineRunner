@@ -11,52 +11,52 @@ struct FBulletStruct
 	GENERATED_USTRUCT_BODY();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		float Damage;
+	float Damage;
 	// How fast ammo is moving forward. If Bullet has physics then this variable is Impulse Force
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		float Speed;
+	float Speed;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		bool bUsePhysicsForMovement;
+	bool bUsePhysicsForMovement;
 	// What distance should Ammo pass when bullet starts falling down
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bUsePhysicsForMovement", EditConditionHides))
-		float Distance;
+	float Distance;
 	// How fast Ammo will falling down when AmmoDistance hit the number
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "!bUsePhysicsForMovement", EditConditionHides))
-		float FallingDown;
+	float FallingDown;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		float HitImpulseForce;
+	float HitImpulseForce;
 
 	// Spawn Sphere in hit location, objects that are in sphere will take damage
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		bool bUseSphereForDamage;
+	bool bUseSphereForDamage;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bUseSphereForDamage", EditConditionHides))
-		float RadialSphereRadius;
+	float RadialSphereRadius;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bUseSphereForDamage", EditConditionHides))
-		bool bDrawDebugRadialSphere;
+	bool bDrawDebugRadialSphere;
 
 	// Can bullet go through objects that has material with Physics Asset = PM_BulletThrough
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet")
-		bool bCanBulletGoThroughObjects;
+	bool bCanBulletGoThroughObjects;
 	// How much damage should be reduced after one object in percentage
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Bullet Through Objects",
 		meta = (EditCondition = "bCanBulletGoThroughObjects", EditConditionHides, ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-		float DamageReduceAfterObject;
+	float DamageReduceAfterObject;
 	// How much impulse should be reduced after one object in percentage
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Bullet Through Objects",
 		meta = (EditCondition = "bCanBulletGoThroughObjects", EditConditionHides, ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
-		float ImpulseReduceAfterObject;
+	float ImpulseReduceAfterObject;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Bullet Through Objects", meta = (EditCondition = "bCanBulletGoThroughObjects", EditConditionHides))
-		int32 MaxObjectsForBulletToGoThrough;
+	int32 MaxObjectsForBulletToGoThrough;
 
 	// When a bullet hits an object, if the player is near the bullet, the camera shake effect will be played.
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (InlineEditConditionToggle))
-		bool bShouldCameraShakeAfterHit;
+	bool bShouldCameraShakeAfterHit;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet", meta = (EditCondition = "bShouldCameraShakeAfterHit"))
-		TSubclassOf<UCameraShakeBase> CameraShakeAfterBulletHit;
+	TSubclassOf<UCameraShakeBase> CameraShakeAfterBulletHit;
 
 	//Bullet Type that will be fired from Gun
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Objects to Spawn")
-		TSubclassOf<class ABullet> BulletClass;
+	TSubclassOf<class ABullet> BulletClass;
 };
 
 

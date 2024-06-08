@@ -21,41 +21,41 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> BackgroundImage = nullptr;
+	TObjectPtr<class UImage> BackgroundImage = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> RestartGameText = nullptr;
+	TObjectPtr<class UTextBlock> RestartGameText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> QuitGameText = nullptr;
-	
+	TObjectPtr<class UTextBlock> QuitGameText = nullptr;
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UButton> RestartGameButton = nullptr;
+	TObjectPtr<UButton> RestartGameButton = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<UButton> QuitGameButton = nullptr;
+	TObjectPtr<UButton> QuitGameButton = nullptr;
 
 	UFUNCTION()
-		void RestartGameButton_OnClicked();
+	void RestartGameButton_OnClicked();
 	UFUNCTION()
-		void RestartGameButton_OnHovered();
+	void RestartGameButton_OnHovered();
 	UFUNCTION()
-		void RestartGameButton_OnUnhovered();
+	void RestartGameButton_OnUnhovered();
 
 	UFUNCTION()
-		void QuitButton_OnClicked();
+	void QuitButton_OnClicked();
 	UFUNCTION()
-		void QuitButton_OnHovered();
+	void QuitButton_OnHovered();
 	UFUNCTION()
-		void QuitButton_OnUnhovered();
+	void QuitButton_OnUnhovered();
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> ShowWidgetAnim = nullptr;
+	TObjectPtr<UWidgetAnimation> ShowWidgetAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> RestartGameHoveredAnim = nullptr;
+	TObjectPtr<UWidgetAnimation> RestartGameHoveredAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> QuitHoveredAnim = nullptr;
+	TObjectPtr<UWidgetAnimation> QuitHoveredAnim = nullptr;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Death")
-		TObjectPtr<USoundBase> DeathSound = nullptr;
+	TObjectPtr<USoundBase> DeathSound = nullptr;
 
 	void PlayAnimatonForButton(TObjectPtr<UWidgetAnimation> AnimToPlay, bool bPlayForwardAnim = true);
 	void RestartGame();

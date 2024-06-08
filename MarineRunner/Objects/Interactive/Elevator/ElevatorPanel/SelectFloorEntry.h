@@ -9,13 +9,13 @@
 #include "SelectFloorEntry.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API UElevatorPanelListEntry : public UUserWidget, public IUserObjectListEntry
 {
 	GENERATED_BODY()
-	
+
 protected:
 	virtual void NativeConstruct() override;
 
@@ -24,20 +24,20 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> SelectFloorButton = nullptr;
+	TObjectPtr<class UButton> SelectFloorButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> FloorTextBlock = nullptr;
+	TObjectPtr<class UTextBlock> FloorTextBlock = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> HoverSelectFloor = nullptr;
+	TObjectPtr<UWidgetAnimation> HoverSelectFloor = nullptr;
 
 	UFUNCTION()
-		void OnClickedSelectFloorButton();
+	void OnClickedSelectFloorButton();
 	UFUNCTION()
-		void OnHoveredSelectFloorButton();
+	void OnHoveredSelectFloorButton();
 	UFUNCTION()
-		void OnUnhoveredSelectFloorButton();
+	void OnUnhoveredSelectFloorButton();
 
 private:
 	void DisableElevatorPanelEntry(bool bDisable = true);
@@ -45,7 +45,7 @@ private:
 	void FloorIsAccessible();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class USelectFloorEntryObject> FloorEntryObject = nullptr;
+	TObjectPtr<class USelectFloorEntryObject> FloorEntryObject = nullptr;
 
 	void SetUpElevatorEntry();
 };

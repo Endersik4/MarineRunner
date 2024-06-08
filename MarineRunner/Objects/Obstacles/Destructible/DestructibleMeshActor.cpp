@@ -33,8 +33,6 @@ void ADestructibleMeshActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SetLifeSpan(LifeSpan);
-
 	DestructableMeshComponent->OnChaosBreakEvent.AddDynamic(this, &ADestructibleMeshActor::OnChaosBreakEvent);
 }
 

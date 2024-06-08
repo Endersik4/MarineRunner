@@ -16,13 +16,13 @@ struct FHitBoneType {
 	GENERATED_USTRUCT_BODY();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FName BoneName;
+	FName BoneName;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float DamageMultiplier = 1.f;
+	float DamageMultiplier = 1.f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (InlineEditConditionToggle))
-		bool bCustomSoundForHitBone = true;
+	bool bCustomSoundForHitBone = true;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (EditCondition = "bCustomSoundForHitBone"))
-		TObjectPtr<USoundBase> BoneHitSound = nullptr;
+	TObjectPtr<USoundBase> BoneHitSound = nullptr;
 
 	FHitBoneType()
 	{
@@ -72,7 +72,7 @@ protected:
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -81,86 +81,86 @@ public:
 	FORCEINLINE virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
-		TObjectPtr<USkeletalMeshComponent> EnemySkeletalMesh = nullptr;
+	TObjectPtr<USkeletalMeshComponent> EnemySkeletalMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
-		TObjectPtr<class UFloatingPawnMovement> EnemyFloatingMovement = nullptr;
+	TObjectPtr<class UFloatingPawnMovement> EnemyFloatingMovement = nullptr;
 
 	// saving/loading
 	void SaveEnemySpawnedDataAtRuntime();
 
 protected:
 	UPROPERTY(Transient)
-		bool bIsDead = false;
+	bool bIsDead = false;
 
 	virtual bool KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObjectPtr<AActor> BulletActor, float NewSphereRadius);
 
 	UPROPERTY(Transient, EditAnywhere, Category = "Setting Enemy")
-		float Health = 100.f;
+	float Health = 100.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UWidgetComponent> EnemyIndicatorWidgetComponent = nullptr;
+	TObjectPtr<class UWidgetComponent> EnemyIndicatorWidgetComponent = nullptr;
 
 	UPROPERTY(Transient)
-		bool bIsRunningAway = false;
+	bool bIsRunningAway = false;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UCapsuleComponent> EnemyCapsule = nullptr;
+	TObjectPtr<class UCapsuleComponent> EnemyCapsule = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
-		float LifeSpanAfterDeath = 10.f;
+	float LifeSpanAfterDeath = 10.f;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Custom Hit on Bone")
-		TArray<FHitBoneType> HitBoneTypes = {FHitBoneType()};
+	TArray<FHitBoneType> HitBoneTypes = { FHitBoneType() };
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Custom Hit on Bone")
-		TObjectPtr<USoundBase> DefaultBoneHitSound = nullptr;
+	TObjectPtr<USoundBase> DefaultBoneHitSound = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-		float MaxDistanceToObjectForBlood = 900.f;
+	float MaxDistanceToObjectForBlood = 900.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-		float BloodDistanceSizeMutliplier = 0.8f;
+	float BloodDistanceSizeMutliplier = 0.8f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-		FFloatRange ClampBloodOnObjectSize = FFloatRange(40.f, 140.f);
+	FFloatRange ClampBloodOnObjectSize = FFloatRange(40.f, 140.f);
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-		float BloodFadeOutStartDelay = 10.f;
+	float BloodFadeOutStartDelay = 10.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-		float BloodFadeOutDuration = 5.f;
+	float BloodFadeOutDuration = 5.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-		TObjectPtr<UMaterialInstance> BloodOnObjectDecalMaterial = nullptr;
+	TObjectPtr<UMaterialInstance> BloodOnObjectDecalMaterial = nullptr;
 	// It was added to the Blood On Object Decal after spawn, because sometimes the decal is not visible on the body if it was moved slightly.
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Blood On Objects")
-		float AdditionalBloodOnObjectSize_X = 20.f;
+	float AdditionalBloodOnObjectSize_X = 20.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
-		FFloatRange GunshotWoundRandomSizeRange = FFloatRange(8.f, 18.f);
+	FFloatRange GunshotWoundRandomSizeRange = FFloatRange(8.f, 18.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
-		float GunshotWoundDecalLifeSpan = 10.f;
+	float GunshotWoundDecalLifeSpan = 10.f;
 	// It was added to the decal of gunshot wounds after spawn, because sometimes the decal is not visible on the body if it was moved slightly.
 	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
-		float AdditionalGunshotWoundSize_X = 20.f;
+	float AdditionalGunshotWoundSize_X = 20.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
-		TObjectPtr<UMaterialInstance> GunshotWoundDecalMaterial = nullptr;
+	TObjectPtr<UMaterialInstance> GunshotWoundDecalMaterial = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Footsteps")
-		float TimeBetweenNextStep = 0.42f;
+	float TimeBetweenNextStep = 0.42f;
 	UPROPERTY(EditAnywhere, Category = "Footsteps")
-		float TimeBetweenNextStepWhileRunningAway = 0.21f;
+	float TimeBetweenNextStepWhileRunningAway = 0.21f;
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
-		FFloatRange VelocityRangeToActivateFootsteps = FFloatRange(0.f, 25.f);
+	FFloatRange VelocityRangeToActivateFootsteps = FFloatRange(0.f, 25.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
-		TObjectPtr<USoundBase> FootstepsSound = nullptr;
+	TObjectPtr<USoundBase> FootstepsSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Footsteps")
-		TObjectPtr<USoundBase> FootstepsRunningAwaySound = nullptr;
+	TObjectPtr<USoundBase> FootstepsRunningAwaySound = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Enemy Blood Spray")
-		FRotator EnemyBloodParticleRotationOffset = FRotator(90.f, 0.f, 0.f);
+	FRotator EnemyBloodParticleRotationOffset = FRotator(90.f, 0.f, 0.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Enemy Blood Spray")
-		FColor BloodColor = FColor::Red;
+	FColor BloodColor = FColor::Red;
 	UPROPERTY(EditDefaultsOnly, Category = "Enemy Blood Spray")
-		FName BloodColorParameterName = FName(TEXT("ColorOfBlood"));
+	FName BloodColorParameterName = FName(TEXT("ColorOfBlood"));
 	UPROPERTY(EditDefaultsOnly, Category = "Enemy Blood Spray")
-		TObjectPtr<UParticleSystem> EnemyBloodParticle = nullptr;
+	TObjectPtr<UParticleSystem> EnemyBloodParticle = nullptr;
 
 	// Effects
 	void SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType* PtrHitBoneType);
@@ -169,19 +169,18 @@ private:
 
 	// Enemy Indicator Widget
 	UPROPERTY(Transient)
-		TObjectPtr<class UEnemyIndicatorWidget> EnemyIndicatorWidget = nullptr;
+	TObjectPtr<class UEnemyIndicatorWidget> EnemyIndicatorWidget = nullptr;
 
 	//Footsteps sound
 	void PlayFootstepsSound();
 	UPROPERTY(Transient)
-		bool bCanPlayFootstepsSound = true;
+	bool bCanPlayFootstepsSound = true;
 	FTimerHandle FootstepsHandle;
 	FORCEINLINE void SetCanPlayFootstepsSound() { bCanPlayFootstepsSound = true; }
 
 	UPROPERTY(Transient)
-		int32 CurrentUniqueID = 0;
+	int32 CurrentUniqueID = 0;
 	void RemoveEnemySavedDataFromSave();
 
 	void SetUpEnemyHealthIndicatorWidgetComponent();
 };
-                                                                                                                                                                                                             

@@ -7,7 +7,7 @@
 #include "BTTask_UpdateCurrentLocationNumber.generated.h"
 
 /**
- * This task tracks the number of current locations. If the enemy has successfully moved to a random location, the number will increase 
+ * This task tracks the number of current locations. If the enemy has successfully moved to a random location, the number will increase
  * If the number of current locations is 0, the enemy returns to its starting position.
  */
 UCLASS()
@@ -17,7 +17,7 @@ class MARINERUNNER_API UBTTask_SettingCurrentLocation : public UBTTaskNode
 
 public:
 	UBTTask_SettingCurrentLocation();
-	
+
 protected:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
 };

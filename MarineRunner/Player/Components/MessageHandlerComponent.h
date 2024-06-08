@@ -8,12 +8,12 @@
 
 DECLARE_DELEGATE_OneParam(FCloseMessageDelegate, class AMarineCharacter*)
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API UMessageHandlerComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UMessageHandlerComponent();
 
@@ -21,7 +21,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 
 	FORCEINLINE void SetCurrentDisplayedMessage(TObjectPtr<class UMessageToReadWidget> DisplayedMessage) { CurrentDisplayedMessage = DisplayedMessage; }
 	FORCEINLINE void SetIsMessageDisplayed(bool _bMessageDisplayed) { bIsMessageDisplayed = _bMessageDisplayed; }
@@ -36,16 +36,16 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
-		TSubclassOf<UUserWidget> NewRecipeUnlockedClassWidget = nullptr;
+	TSubclassOf<UUserWidget> NewRecipeUnlockedClassWidget = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
-		TSubclassOf<UUserWidget> NotEnoughSlotsForWeaponClassWidget = nullptr;
+	TSubclassOf<UUserWidget> NotEnoughSlotsForWeaponClassWidget = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
-		TObjectPtr<USoundBase> MessagePopUpSound = nullptr;
+	TObjectPtr<USoundBase> MessagePopUpSound = nullptr;
 
 	UPROPERTY(Transient)
-		bool bIsMessageDisplayed = false;
+	bool bIsMessageDisplayed = false;
 	UPROPERTY(Transient)
-		TObjectPtr<class UMessageToReadWidget> CurrentDisplayedMessage = nullptr;
+	TObjectPtr<class UMessageToReadWidget> CurrentDisplayedMessage = nullptr;
 
-	void SpawnWidget(const TSubclassOf<UUserWidget> & WidgetClassToSpawn);
+	void SpawnWidget(const TSubclassOf<UUserWidget>& WidgetClassToSpawn);
 };

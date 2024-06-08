@@ -14,7 +14,7 @@ class UUsePinToEnterInterface : public UInterface
 };
 
 /**
- * 
+ *
  */
 class MARINERUNNER_API IUsePinToEnterInterface
 {
@@ -24,12 +24,12 @@ class MARINERUNNER_API IUsePinToEnterInterface
 public:
 
 	UFUNCTION()
-		virtual void ClickedOpenButton(class UDoorPanelWidget* ClickedWidget = nullptr) = 0;
+	virtual void ClickedOpenButton(class UDoorPanelWidget* ClickedWidget = nullptr) = 0;
 
 	UFUNCTION()
-		virtual void PinCorrect() = 0;
+	virtual void PinCorrect() = 0;
 
 	UFUNCTION()
-		virtual class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) = 0;
+	virtual class UDoorPanelWidget* GetOtherPanelWidget(class UDoorPanelWidget* PanelActivatedByPlayer) = 0;
 
 };

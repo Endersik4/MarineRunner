@@ -6,7 +6,7 @@
 #include "ElevatorFloorData.generated.h"
 
 /**
- * 
+ *
  */
 USTRUCT(BlueprintType)
 struct FElevatorFloor
@@ -14,21 +14,21 @@ struct FElevatorFloor
 	GENERATED_USTRUCT_BODY();
 
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bAccessible", EditConditionHides))
-		int32 Floor;
+	int32 Floor;
 	UPROPERTY(EditAnywhere)
-		bool bAccessible = true;
+	bool bAccessible = true;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bAccessible", EditConditionHides))
-		FText NotAccessibleText;
+	FText NotAccessibleText;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bAccessible", EditConditionHides))
-		FSlateColor NotAccessibleTextColor = FSlateColor(FLinearColor(1.f, 0.f, 0.f, 1.f));;
+	FSlateColor NotAccessibleTextColor = FSlateColor(FLinearColor(1.f, 0.f, 0.f, 1.f));;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "!bAccessible", EditConditionHides))
-		FLinearColor NotAccessibleButtonColor = FLinearColor(1.f, 0.f, 0.f, 1.f);;
+	FLinearColor NotAccessibleButtonColor = FLinearColor(1.f, 0.f, 0.f, 1.f);;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bAccessible", EditConditionHides))
-		FVector FloorLocation;
+	FVector FloorLocation;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bAccessible", EditConditionHides))
-		FSlateColor AccessibleTextColor = FSlateColor(FLinearColor(0.f, 0.9f, 1.f, 1.f));;
+	FSlateColor AccessibleTextColor = FSlateColor(FLinearColor(0.f, 0.9f, 1.f, 1.f));;
 	UPROPERTY(EditAnywhere, meta = (EditCondition = "bAccessible", EditConditionHides))
-		FLinearColor AccessibleButtonColor = FLinearColor(0.68f, 0.045f, 0.8f, 1.f);;
+	FLinearColor AccessibleButtonColor = FLinearColor(0.68f, 0.045f, 0.8f, 1.f);;
 
 public:
 	FElevatorFloor()
@@ -40,7 +40,7 @@ public:
 		NotAccessibleButtonColor = FLinearColor(1.f, 0.f, 0.f, 1.f);
 		FloorLocation = FVector(0.f);
 		AccessibleTextColor = FSlateColor(FLinearColor(0.f, 0.9f, 1.f, 1.f));
-		AccessibleButtonColor = FLinearColor(0.68f,0.045f, 0.8f,1.f);
+		AccessibleButtonColor = FLinearColor(0.68f, 0.045f, 0.8f, 1.f);
 	}
 
 	FElevatorFloor(int32 _Floor, bool _bAccessible, FVector _FloorLocation)
@@ -59,5 +59,5 @@ public:
 class MARINERUNNER_API ElevatorPanelData
 {
 public:
-	
+
 };

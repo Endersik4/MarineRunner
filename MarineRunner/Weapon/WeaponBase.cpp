@@ -162,8 +162,8 @@ void AWeaponBase::DropWeapon()
 	else
 		UE_LOG(LogTemp, Warning, TEXT("DropWeaponSound is nullptr in Weapon"));
 
-	const FVector& LocationToSpawnWeaponItem = Player->GetCameraLocation() + Player->GetCamera()->GetForwardVector() * DistanceToDropWeapon;
-	const FTransform& WeaponItemTransform = FTransform(FRotator(0.f), LocationToSpawnWeaponItem);
+	const FVector LocationToSpawnWeaponItem = Player->GetCameraLocation() + Player->GetCamera()->GetForwardVector() * DistanceToDropWeapon;
+	const FTransform WeaponItemTransform = FTransform(FRotator(0.f), LocationToSpawnWeaponItem);
 	SpawnedDroppedWeaponItem = GetWorld()->SpawnActorDeferred<APickupItem>(ItemToSpawnAfterDrop, WeaponItemTransform);
 
 	if (IsValid(SpawnedDroppedWeaponItem))

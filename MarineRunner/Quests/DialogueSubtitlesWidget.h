@@ -7,7 +7,7 @@
 #include "DialogueSubtitlesWidget.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API UDialogueSubtitlesWidget : public UUserWidget
@@ -21,14 +21,14 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> BackgroundImage = nullptr;
+	TObjectPtr<class UImage> BackgroundImage = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class URichTextBlock> CurrentSubtitlesRichText = nullptr;
+	TObjectPtr<class URichTextBlock> CurrentSubtitlesRichText = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> ShowWidgetAnim = nullptr;
+	TObjectPtr<UWidgetAnimation> ShowWidgetAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> HideWidgetAnim = nullptr;
+	TObjectPtr<UWidgetAnimation> HideWidgetAnim = nullptr;
 
 	void ShowWidget(bool bShow);
 

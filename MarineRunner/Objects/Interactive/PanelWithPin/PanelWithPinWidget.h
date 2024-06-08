@@ -10,7 +10,7 @@ UCLASS()
 class MARINERUNNER_API UDoorPanelWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 protected:
 
 	virtual void NativeConstruct() override;
@@ -18,42 +18,42 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> InteractDoorButton = nullptr;
+	TObjectPtr<class UButton> InteractDoorButton = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> InteractDoorText = nullptr;
+	TObjectPtr<class UTextBlock> InteractDoorText = nullptr;
 
 	// If pin is in use
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> BackgroundPinImage = nullptr;
+	TObjectPtr<class UImage> BackgroundPinImage = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> PinCodeText = nullptr;
+	TObjectPtr<class UTextBlock> PinCodeText = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTileView> PinNumbersTileView = nullptr;
+	TObjectPtr<class UTileView> PinNumbersTileView = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> OnClickedInteractDoorAnim = nullptr;
+	TObjectPtr<UWidgetAnimation> OnClickedInteractDoorAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> HoverInteractDoorAnim = nullptr;
+	TObjectPtr<UWidgetAnimation> HoverInteractDoorAnim = nullptr;
 
 	UFUNCTION()
-		void OnClickedInteractDoorButton();
+	void OnClickedInteractDoorButton();
 	UFUNCTION()
-		void OnHoveredInteractDoorButton();
+	void OnHoveredInteractDoorButton();
 	UFUNCTION()
-		void OnUnhoveredInteractDoorButton();
+	void OnUnhoveredInteractDoorButton();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings")
-		FText OpenDoorText = FText();
+	FText OpenDoorText = FText();
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings")
-		FText CloseDoorText = FText();
+	FText CloseDoorText = FText();
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings")
-		float TimeToChangeStatusText = 0.3f;
+	float TimeToChangeStatusText = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
-		TObjectPtr < USoundBase> WrongCodeSound = nullptr;
+	TObjectPtr < USoundBase> WrongCodeSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
-		TArray<int32> PinNumberEntries = {0};
+	TArray<int32> PinNumberEntries = { 0 };
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
-		TSubclassOf<class UPinNumberEntryObject> PinNumberEntryObjectClass = nullptr;
+	TSubclassOf<class UPinNumberEntryObject> PinNumberEntryObjectClass = nullptr;
 
 	FORCEINLINE void SetActorToUnlock(class IUsePinToEnterInterface* NewActorWithWidget) { ActorWithWidget = NewActorWithWidget; }
 	FORCEINLINE void SetCanCloseObject(bool bCan) { bCanCloseObject = bCan; }
@@ -70,19 +70,19 @@ public:
 private:
 
 	UPROPERTY(Transient)
-		bool bDoorOpen = false;
+	bool bDoorOpen = false;
 	UPROPERTY(Transient)
-		bool bCanCloseObject = true;
+	bool bCanCloseObject = true;
 
 	FTimerHandle ChangeDoorStatusHandle;
 
 	class IUsePinToEnterInterface* ActorWithWidget = nullptr;
 
 	UPROPERTY(Transient)
-		int32 CurrentPinCode = 0;
+	int32 CurrentPinCode = 0;
 	UPROPERTY(Transient)
-		FString CurrentlyEnteredPin = FString("----");
+	FString CurrentlyEnteredPin = FString("----");
 	UPROPERTY(Transient)
-		FString CurrentlyEnteredPin_Text = FString("----");
+	FString CurrentlyEnteredPin_Text = FString("----");
 
 };

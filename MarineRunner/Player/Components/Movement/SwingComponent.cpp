@@ -51,11 +51,11 @@ void USwingComponent::HookLineCheck()
 		return;
 	}
 
-	const FVector& HookCheckLineStart = Player->GetCamera()->GetComponentLocation();
-	const FVector& HookCheckLineEnd = HookCheckLineStart + (PlayerController->GetRootComponent()->GetForwardVector() * LengthOfSwingLineRaycast);
+	const FVector HookCheckLineStart = Player->GetCamera()->GetComponentLocation();
+	const FVector HookCheckLineEnd = HookCheckLineStart + (PlayerController->GetRootComponent()->GetForwardVector() * LengthOfSwingLineRaycast);
 
 	FHitResult HitResults;
-	const bool& bHookHovered = GetWorld()->LineTraceSingleByChannel(HitResults, HookCheckLineStart, HookCheckLineEnd, ECC_GameTraceChannel2);
+	const bool bHookHovered = GetWorld()->LineTraceSingleByChannel(HitResults, HookCheckLineStart, HookCheckLineEnd, ECC_GameTraceChannel2);
 
 	if (bHookHovered)
 	{
@@ -159,8 +159,8 @@ void USwingComponent::PrepareMoveToHook()
 
 	HookLocation = CurrentFocusedHook->GetActorLocation() - CurrentFocusedHook->GetHookLocationOffset();
 
-	const FVector& DirectionTowardsHook = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(Player->GetActorLocation(), HookLocation));
-	const FVector& ImpulseTowardsHook = DirectionTowardsHook * SwingImpulse;
+	const FVector DirectionTowardsHook = UKismetMathLibrary::GetForwardVector(UKismetMathLibrary::FindLookAtRotation(Player->GetActorLocation(), HookLocation));
+	const FVector ImpulseTowardsHook = DirectionTowardsHook * SwingImpulse;
 	Player->GetPlayerCapsule()->AddImpulse(ImpulseTowardsHook);
 
 	Player->GetCrouchAndSlideComponent()->CrouchReleased();
@@ -172,7 +172,7 @@ void USwingComponent::MovingToHook(float Delta)
 	if (!bIsPlayerMovingToHook) 
 		return;
 
-	const FVector& NewLocation = FMath::VInterpTo(Player->GetActorLocation(), HookLocation, Delta, SwingSpeed);
+	const FVector NewLocation = FMath::VInterpTo(Player->GetActorLocation(), HookLocation, Delta, SwingSpeed);
 	Player->SetActorLocation(NewLocation);
 
 	StopMovingToHook();

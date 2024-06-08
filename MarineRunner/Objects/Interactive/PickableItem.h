@@ -14,8 +14,8 @@ UCLASS()
 class MARINERUNNER_API APickupItem : public AActor, public ITakeInterface, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	APickupItem();
 
@@ -31,7 +31,7 @@ protected:
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
-public:	
+public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetDissolveMaterial(class AMarineCharacter* Player, float TimeToEndDisolve, UMaterialInstance* OverlayInstanceMaterial);
@@ -47,21 +47,21 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> ItemMesh = nullptr;
+	TObjectPtr<class UStaticMeshComponent> ItemMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class USoundOnHitComponent> SoundOnHitComponent = nullptr;
+	TObjectPtr<class USoundOnHitComponent> SoundOnHitComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings")
-		FName ItemRowName = FName("null");
+	FName ItemRowName = FName("null");
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings|Sounds")
-		TObjectPtr<USoundBase> PickUpSound = nullptr;
+	TObjectPtr<USoundBase> PickUpSound = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings|Craft")
-		FName DisolveScalarParameterName = FName(TEXT("Dissolve"));
+	FName DisolveScalarParameterName = FName(TEXT("Dissolve"));
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings|Craft")
-		float DissolveStartValue = 0.6f;
+	float DissolveStartValue = 0.6f;
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings|Craft")
-		float DissolveEndValue = -0.4f;
+	float DissolveEndValue = -0.4f;
 
 	// Take
 	bool AddAmountToItemIfFound(FItemStruct* ItemFromInventory, float AmountToAdd);
@@ -69,27 +69,27 @@ private:
 	void SpawnWeaponForPlayer(TObjectPtr<class AMarineCharacter>, FItemStruct* ItemDataFromDataTable);
 
 	UPROPERTY(Transient)
-		int32 AmountMultiplier = 1;
+	int32 AmountMultiplier = 1;
 	UPROPERTY(Transient)
-		bool bWasOnceTaken = false;
+	bool bWasOnceTaken = false;
 	UPROPERTY(Transient)
-		int32 CurrentMagazineCapacity = 0;
+	int32 CurrentMagazineCapacity = 0;
 
 	//Dissolve Material
 	UPROPERTY(Transient)
-		bool bShouldDissolve = false;
+	bool bShouldDissolve = false;
 	UPROPERTY(Transient)
-		float DissolveTimeElapsed = 0.f;
+	float DissolveTimeElapsed = 0.f;
 	UPROPERTY(Transient)
-		float TimeToCraftAnItem = 4.f;
+	float TimeToCraftAnItem = 4.f;
 	void Dissolve(float Delta);
 	UPROPERTY(Transient)
-		TObjectPtr<UMaterialInstanceDynamic> DissolveDynamicMaterial = nullptr;
+	TObjectPtr<UMaterialInstanceDynamic> DissolveDynamicMaterial = nullptr;
 
 	void SaveItemWasTaken();
-	void SaveItem(TObjectPtr<class ASavedDataObject> SavedDataObject,const FCustomDataSaved& DataToSave);
+	void SaveItem(TObjectPtr<class ASavedDataObject> SavedDataObject, const FCustomDataSaved& DataToSave);
 	void DisableItem(bool bDisable = true);
 
 	UPROPERTY(Transient)
-		int32 CurrentUniqueID = 0;
+	int32 CurrentUniqueID = 0;
 };

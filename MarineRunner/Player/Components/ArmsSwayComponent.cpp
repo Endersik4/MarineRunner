@@ -59,23 +59,23 @@ void UArmsSwayComponent::ArmsSway_MouseMove(float Delta)
 	//If Player doing nothing then arms goes back to its original position
 	if ((Player->GetInputAxisValue("Forward") == 0 && Player->GetInputAxisValue("Right") == 0))
 	{
-		const FVector& BackToOriginalPositionLocation = FMath::VInterpTo(Player->GetArmsSkeletalMesh()->GetRelativeLocation(), InitialArmsRelativeLocation, Delta, BackToInitialPositionSpeed);
+		const FVector BackToOriginalPositionLocation = FMath::VInterpTo(Player->GetArmsSkeletalMesh()->GetRelativeLocation(), InitialArmsRelativeLocation, Delta, BackToInitialPositionSpeed);
 		Player->GetArmsSkeletalMesh()->SetRelativeLocation(BackToOriginalPositionLocation);
 	}
 }
 void UArmsSwayComponent::CalculateArmsSway(FVector& CalculatedLocation, FRotator& CalculatedRotation, const float& Delta)
 {
 	//Preparing variables
-	const float& LookUp = PlayerController->GetInputAxisValue("LookUp");
-	const float& LookRight = PlayerController->GetInputAxisValue("LookRight");
-	const float& Forward = Player->GetInputAxisValue("Forward");
-	const float& Right = Player->GetInputAxisValue("Right");
+	const float LookUp = PlayerController->GetInputAxisValue("LookUp");
+	const float LookRight = PlayerController->GetInputAxisValue("LookRight");
+	const float Forward = Player->GetInputAxisValue("Forward");
+	const float Right = Player->GetInputAxisValue("Right");
 
 	//Rotation Sway when The Player moves the mouse
 	float RotationSwayUP = FMath::FInterpTo(ArmsRotationSway.Pitch, UKismetMathLibrary::MapRangeClamped(LookUp, -1, 1, RotationSwayPitchRangeBack, RotationSwayPitchRangeUp), Delta, SpeedOfSwayPitch);
 	float RotationSwayRight = FMath::FInterpTo(ArmsRotationSway.Yaw, UKismetMathLibrary::MapRangeClamped(LookRight, -1, 1, RotationSwayYawRangeBack, RotationSwayYawRangeUp), Delta, SpeedOfSwayYaw);
 
-	float LocationSwayForward, LocationSwayRight;
+	float LocationSwayForward = 0.f, LocationSwayRight = 0.f;
 	if (!Player->GetWeaponHandlerComponent()->GetIsPlayerInAds())
 	{
 		//Location Sway when The Player moves around
@@ -107,7 +107,7 @@ void UArmsSwayComponent::ArmsSway_WhileMoving()
 	if (Player->GetVelocity().Length() < MinVelocityToStartArmsSway)
 		return;
 
-	const FVector& CalculatedGunSway = CalculateArmsSwayWhileMoving();
+	const FVector CalculatedGunSway = CalculateArmsSwayWhileMoving();
 	Player->GetArmsSkeletalMesh()->SetRelativeLocation(CalculatedGunSway);
 }
 

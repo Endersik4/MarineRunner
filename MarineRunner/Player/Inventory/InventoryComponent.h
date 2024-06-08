@@ -9,47 +9,47 @@
 USTRUCT(BlueprintType)
 struct FItemStruct : public FTableRowBase
 {
-	GENERATED_USTRUCT_BODY(); 
+	GENERATED_USTRUCT_BODY();
 
 public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		FString Item_Name;
+	FString Item_Name;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		int32 Item_Amount;
+	int32 Item_Amount;
 	// if 0 then unlimited
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		int32 MaxItem_Amount;
+	int32 MaxItem_Amount;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		UTexture2D* Item_StorageIcon;
+	UTexture2D* Item_StorageIcon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		bool bIsItResource = false;
+	bool bIsItResource = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		FString Item_Description;
+	FString Item_Description;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		bool bIsItWeapon = false;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition="bIsItWeapon", EditConditionHides))
-		FSoftClassPath WeaponClass;
+	bool bIsItWeapon = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItWeapon", EditConditionHides))
+	FSoftClassPath WeaponClass;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables")
-		bool bIsItCraftable = false;
+	bool bIsItCraftable = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
-		FSoftClassPath ItemObject;
+	FSoftClassPath ItemObject;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
-		float Item_TimeCraft;
+	float Item_TimeCraft;
 	// When item was spawned in Location of ItemCraftSocket then add this offset to location
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
-		FVector InitialCraftLocationOffset;
+	FVector InitialCraftLocationOffset;
 	// When player crafted an item then set this scale to the item to fit in albertos. If equals 1 then the scale will not be changed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
-		FVector InitialCraftScale = FVector(1.f);
+	FVector InitialCraftScale = FVector(1.f);
 	// when the crafting of this item ended then scale item to TargetScale
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
-		FVector TargetScaleAfterCrafting;
+	FVector TargetScaleAfterCrafting;
 	// When item was spawned in Location of ItemCraftSocket then add this offset to rotation
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
-		FRotator InitialCraftRotation;
+	FRotator InitialCraftRotation;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Variables", meta = (EditCondition = "bIsItCraftable", EditConditionHides))
-		TMap<FString, int32> ResourceRequirements;
+	TMap<FString, int32> ResourceRequirements;
 
 	FItemStruct()
 	{
@@ -67,7 +67,7 @@ public:
 		ResourceRequirements = { {" ", 0} };
 	}
 
-	FItemStruct(FString Name, int32 Amount, UTexture2D* StorageIcon, FString Description = " ", bool bResource = false, bool bCraftable = false, float CraftingTime = 0.f, TMap<FString, int32> Requirements = { {" ", 0}})
+	FItemStruct(FString Name, int32 Amount, UTexture2D* StorageIcon, FString Description = " ", bool bResource = false, bool bCraftable = false, float CraftingTime = 0.f, TMap<FString, int32> Requirements = { {" ", 0} })
 	{
 		Item_Name = Name;
 		Item_Amount = Amount;
@@ -90,12 +90,12 @@ public:
 	}
 };
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API UInventoryComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this component's properties
 	UInventoryComponent();
 
@@ -103,18 +103,18 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
+public:
 
 	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadWrite)
-		TMap<FName, int32> RowNameForStartingItems;
+	TMap<FName, int32> RowNameForStartingItems;
 	UPROPERTY(EditAnywhere, Category = "Inventory", BlueprintReadWrite)
-		TObjectPtr<UDataTable> ItemsDataTable = nullptr;
+	TObjectPtr<UDataTable> ItemsDataTable = nullptr;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-		TArray<FItemStruct> Inventory_Items;
+	TArray<FItemStruct> Inventory_Items;
 
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-		TArray<FItemStruct> Items_Recipes;
+	TArray<FItemStruct> Items_Recipes;
 
 	FItemStruct* GetItemFromInventory(FName ItemRowNameFromDataTable);
 	FItemStruct* GetItemInformationFromDataTable(FName ItemRowNameFromDataTable);
@@ -126,6 +126,6 @@ public:
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
-		int32 MaxSlotsInInventory = 31;
+	int32 MaxSlotsInInventory = 31;
 	void TransformItemsDataToInventory();
 };

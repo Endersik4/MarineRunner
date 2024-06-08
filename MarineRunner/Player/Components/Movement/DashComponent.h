@@ -7,48 +7,48 @@
 #include "DashComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API UDashComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-public:	
+public:
 	UDashComponent();
 
 protected:
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void Dash();
 	FORCEINLINE bool GetIsPerformingDash() const { return bIsPerformingDash; }
 private:
 	UPROPERTY(EditAnywhere, Category = "Dash")
-		float DashDistance = 2500.f;
+	float DashDistance = 2500.f;
 	UPROPERTY(EditAnywhere, Category = "Dash")
-		float DashTime = 0.2f;
+	float DashTime = 0.2f;
 	//Dash cooldown in Seconds
 	UPROPERTY(EditAnywhere, Category = "Dash")
-		float DashCoolDown = 1.8f;
+	float DashCoolDown = 1.8f;
 	// Offset from obstacle that is on the dash way 
 	UPROPERTY(EditAnywhere, Category = "Dash")
-		float OffsetFromObstacle = 100.f;
+	float OffsetFromObstacle = 100.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
-		TSubclassOf<class UDashWidget> DashWidgetClass = nullptr;
+	TSubclassOf<class UDashWidget> DashWidgetClass = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
-		TObjectPtr<USoundBase> DashSound = nullptr;
+	TObjectPtr<USoundBase> DashSound = nullptr;
 
 	bool CanPlayerPerformDash() const;
 	UPROPERTY(Transient)
-		bool bCanDash = true;
+	bool bCanDash = true;
 	UPROPERTY(Transient)
-		bool bIsPerformingDash = false;
+	bool bIsPerformingDash = false;
 
 	UPROPERTY(Transient)
-		FVector InitialPlayerPosition = FVector::Zero();
+	FVector InitialPlayerPosition = FVector::Zero();
 	UPROPERTY(Transient)
-		FVector DashLocation = FVector::Zero();
+	FVector DashLocation = FVector::Zero();
 
 	/// <summary>
 	/// Calculates closer hit result from two raycast, one from head location, the second from ground location
@@ -60,9 +60,9 @@ private:
 	const FVector CalculateDashDirection();
 
 	UPROPERTY(Transient)
-		float DashTimeElapsed = 0.f;
+	float DashTimeElapsed = 0.f;
 	UPROPERTY(Transient)
-		float CalculatedDashTime = 0.f;
+	float CalculatedDashTime = 0.f;
 	void MoveToDashLocation(float Delta);
 
 	void TurnOffDash();
@@ -72,5 +72,5 @@ private:
 	FORCEINLINE void EndDashCooldown() { bCanDash = true; }
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
+	TObjectPtr<class AMarineCharacter> MarinePawn = nullptr;
 };

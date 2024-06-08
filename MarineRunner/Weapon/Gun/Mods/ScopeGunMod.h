@@ -11,12 +11,12 @@ UCLASS()
 class MARINERUNNER_API AScope : public AActor
 {
 	GENERATED_BODY()
-	
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Sets default values for this actor's properties
 	AScope();
 
@@ -28,26 +28,26 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class USceneCaptureComponent2D> ZoomCamera = nullptr;
+	TObjectPtr<class USceneCaptureComponent2D> ZoomCamera = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		TObjectPtr<UMaterial> ZoomNotActiveMaterial = nullptr;
+	TObjectPtr<UMaterial> ZoomNotActiveMaterial = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		TObjectPtr<UMaterial> ZoomRenderTargetMaterial = nullptr;
+	TObjectPtr<UMaterial> ZoomRenderTargetMaterial = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		TArray<float> Scope_FOVValues = { 16.f, 10.f, 5.f, 1.f };
+	TArray<float> Scope_FOVValues = { 16.f, 10.f, 5.f, 1.f };
 	UPROPERTY(EditDefaultsOnly, Category = "Scope Settings")
-		TObjectPtr<USoundBase> ZoomSound = nullptr;
+	TObjectPtr<USoundBase> ZoomSound = nullptr;
 
 	UPROPERTY(Transient)
-		int32 CurrentScope = 0;
+	int32 CurrentScope = 0;
 	void ChangeScope(int32 CurrentScopeIndex);
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AGun> OwningGun = nullptr;
+	TObjectPtr<class AGun> OwningGun = nullptr;
 	UPROPERTY(Transient)
-		int32 ZoomMaterialIndexOnWeapon;
+	int32 ZoomMaterialIndexOnWeapon = 0;
 
 	UPROPERTY(Transient)
-		TObjectPtr<UMaterialInstanceDynamic> DynamicScopeMaterial = nullptr;
+	TObjectPtr<UMaterialInstanceDynamic> DynamicScopeMaterial = nullptr;
 };

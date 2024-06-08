@@ -12,8 +12,8 @@ UCLASS()
 class MARINERUNNER_API AChangeMusicActor : public AActor, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AChangeMusicActor();
 
@@ -25,22 +25,22 @@ protected:
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
-public:	
+public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> ChangeMusicBoxComp = nullptr;
+	TObjectPtr<class UBoxComponent> ChangeMusicBoxComp = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (InlineEditConditionToggle))
-		bool bChangeMusic = true;
+	bool bChangeMusic = true;
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (InlineEditConditionToggle))
-		bool bPlaySound = false;
+	bool bPlaySound = false;
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bChangeMusic", EditConditionHides))
-		TObjectPtr<USoundBase> MusicToChange = nullptr;
+	TObjectPtr<USoundBase> MusicToChange = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bPlaySound", EditConditionHides))
-		TObjectPtr<USoundBase> SoundToPlay = nullptr;
+	TObjectPtr<USoundBase> SoundToPlay = nullptr;
 	UFUNCTION()
-		void ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	void DisableChangeMusic(bool bDisable = true);
 	void ChangeBackgroundMusic();
@@ -48,7 +48,7 @@ private:
 	void ChangedMusicSaveData();
 
 	UPROPERTY(Transient)
-		bool OriginalChangeMusic = false;
+	bool OriginalChangeMusic = false;
 	UPROPERTY(Transient)
-		int32 CurrentUniqueID = 0;
+	int32 CurrentUniqueID = 0;
 };

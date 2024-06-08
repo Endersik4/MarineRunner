@@ -7,26 +7,26 @@
 #include "ChasingEnemyAIController.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API AChasingEnemyAIController : public AAIController
 {
 	GENERATED_BODY()
 protected:
-		AChasingEnemyAIController();
+	AChasingEnemyAIController();
 
-		virtual void BeginPlay() override;
+	virtual void BeginPlay() override;
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Chasing Enemy AI Settings")
-		float MaxDistanceToDetectPlayer = 5000.f;
+	float MaxDistanceToDetectPlayer = 5000.f;
 	UPROPERTY(EditAnywhere, Category = "Chasing Enemy AI Settings")
-		float CheckForDistanceInterval = 1.0f;
+	float CheckForDistanceInterval = 1.0f;
 
 	FTimerHandle DistanceCheckHandle;
 	void CheckDistanceToPlayer();
 
 	UPROPERTY(Transient)
-		bool bPlayerDetected = false;
+	bool bPlayerDetected = false;
 };

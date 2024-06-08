@@ -108,7 +108,7 @@ void USlowMotionComponent::SlowMotionEffects()
 void USlowMotionComponent::DisableSlowMotion()
 {
 	bIsInSlowMotion = false;
-	const float& NormalTimeSpeed = 1.f;
+	const float NormalTimeSpeed = 1.f;
 	UGameplayStatics::SetGlobalPitchModulation(GetWorld(), NormalTimeSpeed, UGameplayStatics::GetWorldDeltaSeconds(GetWorld()));
 	UGameplayStatics::SetGlobalTimeDilation(GetWorld(), NormalTimeSpeed);
 	MarinePawn->GetHudWidget()->SetDeltaDivider(NormalTimeSpeed);

@@ -52,14 +52,14 @@ FVector UDashComponent::CalculateEndDashPosition()
 	// If object that was hit is closer then DashDistance then calculate time for new distance
 	CalculatedDashTime = bHit ? (HitResult.Distance * DashTime) / DashDistance : DashTime;
 
-	const FVector& EndRaycastLocation = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
+	const FVector EndRaycastLocation = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
 	return (bHit ? HitResult.Location : EndRaycastLocation) - CalculateDashDirection() * OffsetFromObstacle;
 }
 
 bool UDashComponent::GetCloserHitResult(FHitResult& OutHitResult)
 {
-	const FVector& EndRaycastLowerLoc = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
-	const FVector& EndRaycastHigherLoc = MarinePawn->GetCameraLocation() + (CalculateDashDirection() * DashDistance);
+	const FVector EndRaycastLowerLoc = InitialPlayerPosition + (CalculateDashDirection() * DashDistance);
+	const FVector EndRaycastHigherLoc = MarinePawn->GetCameraLocation() + (CalculateDashDirection() * DashDistance);
 
 	// if there is obstacle on the way then set actor location to Hit Location with offset
 	FHitResult HitResultLower, HitResultHigher;
@@ -119,7 +119,7 @@ void UDashComponent::MoveToDashLocation(float Delta)
 
 	if (DashTimeElapsed <= CalculatedDashTime)
 	{
-		const FVector& NewLoc = FMath::Lerp(InitialPlayerPosition, DashLocation, DashTimeElapsed / CalculatedDashTime);
+		const FVector NewLoc = FMath::Lerp(InitialPlayerPosition, DashLocation, DashTimeElapsed / CalculatedDashTime);
 		MarinePawn->SetActorLocation(NewLoc);
 	}
 	else

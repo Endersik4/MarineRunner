@@ -13,8 +13,8 @@ UCLASS()
 class MARINERUNNER_API ASwingLine : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ASwingLine();
 
@@ -22,28 +22,28 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	void StartMovingToHookLocation(const FVector & NewHookLocation, float NewSwingToHookLocationTime);
+	void StartMovingToHookLocation(const FVector& NewHookLocation, float NewSwingToHookLocationTime);
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UNiagaraComponent> SwingLineTrail = nullptr;
+	TObjectPtr<class UNiagaraComponent> SwingLineTrail = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Swing Line Settings")
-		float LifeSpan = 8.f;
+	float LifeSpan = 8.f;
 
 	UPROPERTY(Transient)
-		bool bStartMovingToHookLocation = false;
+	bool bStartMovingToHookLocation = false;
 	UPROPERTY(Transient)
-		float SwingToHookLocationTime = 0.f;
+	float SwingToHookLocationTime = 0.f;
 	UPROPERTY(Transient)
-		float SwingToHookLocationTimeElapsed = 0.f;
+	float SwingToHookLocationTimeElapsed = 0.f;
 	UPROPERTY(Transient)
-		FVector HookLocation = FVector::Zero();
+	FVector HookLocation = FVector::Zero();
 	UPROPERTY(Transient)
-		FVector InitialSwingLineLocation = FVector::Zero();
+	FVector InitialSwingLineLocation = FVector::Zero();
 
 	void MoveToHookLocation(float Delta);
 

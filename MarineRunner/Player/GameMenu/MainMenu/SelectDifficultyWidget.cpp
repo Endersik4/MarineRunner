@@ -4,8 +4,10 @@
 #include "SelectDifficultyWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "MainMenuWidget.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
 void USelectDifficultyWidget::NativeConstruct()
 {
@@ -33,10 +35,16 @@ void USelectDifficultyWidget::NativeOnInitialized()
 	Super::NativeOnInitialized();
 
 	PlayAnimationForward(ShowWidgetAnim);
+	SetGameInstance();
 }
 
 void USelectDifficultyWidget::OnClickedLeftChoiceButton()
 {
+	if (CurrentDifficulty - 1 < 0)
+		return;
+
+	CurrentDifficulty--;
+	UpdateDifficultyText();
 }
 
 void USelectDifficultyWidget::OnHoveredLeftChoiceButton()
@@ -51,6 +59,11 @@ void USelectDifficultyWidget::OnUnhoveredLeftChoiceButton()
 
 void USelectDifficultyWidget::OnClickedRightChoiceButton()
 {
+	if (CurrentDifficulty + 1 >= GameInstance->GetAllGameDifficulties().Num())
+		return;
+
+	CurrentDifficulty++;
+	UpdateDifficultyText();
 }
 
 void USelectDifficultyWidget::OnHoveredRightChoiceButton()
@@ -65,6 +78,8 @@ void USelectDifficultyWidget::OnUnhoveredRightChoiceButton()
 
 void USelectDifficultyWidget::OnClickedStartNewGameButton()
 {
+	UpdateGameDifficultyInGameInstance();
+
 	if (CallNewGameFunc)
 		CallMainMenuMusicFadeOutFunc();
 	
@@ -99,3 +114,33 @@ void USelectDifficultyWidget::PlayAnimatonForButton(TObjectPtr<UWidgetAnimation>
 	else
 		PlayAnimationReverse(AnimToPlay);
 }
+#pragma region /////// GAME DIFFICULTY ////////
+void USelectDifficultyWidget::UpdateDifficultyText()
+{
+	if (!IsValid(GameInstance))
+		return;
+
+	if (GameInstance->GetAllGameDifficulties().Num() <= CurrentDifficulty)
+		return;
+
+	CurrentDifficultyLevelText->SetText(GameInstance->GetAllGameDifficulties()[CurrentDifficulty].DifficultyName);
+	CurrentDifficultyDescriptionText->SetText(GameInstance->GetAllGameDifficulties()[CurrentDifficulty].DifficultyDescription);
+}
+
+void USelectDifficultyWidget::UpdateGameDifficultyInGameInstance()
+{
+	GameInstance->ReplaceValueInSavedSettingByName(GameInstance->GetAllGameDifficulties()[CurrentDifficulty].DifficultyLevel, GameInstance->GetGameDifficultySavedFieldName());
+	GameInstance->SetCurrentGameDifficulty(GameInstance->GetAllGameDifficulties()[CurrentDifficulty]);
+	GameInstance->SaveCustomSavedSettingsToConfig();
+}
+
+void USelectDifficultyWidget::SetGameInstance()
+{
+	TObjectPtr<UGameInstance> TempGameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!IsValid(TempGameInstance))
+		return;
+
+	GameInstance = Cast<UMarineRunnerGameInstance>(TempGameInstance);
+	CurrentDifficulty = FMath::RoundToInt32(GameInstance->GetAllGameDifficulties().Num()/2.f)-1;
+}
+#pragma endregion

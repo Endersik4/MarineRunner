@@ -15,7 +15,7 @@ class MARINERUNNER_API USaveGameJsonFile : public UBlueprintFunctionLibrary
 
 public:
 	static bool ReadJson(const FString& JsonFilePath, TSharedPtr<FJsonObject>& JsonObject);
-	
-	static void WriteJson(const TSharedPtr<FJsonObject>& JsonObject,const FString & JsonFilePath);
+
+	static void WriteJson(const TSharedPtr<FJsonObject>& JsonObject, const FString& JsonFilePath);
 
 };

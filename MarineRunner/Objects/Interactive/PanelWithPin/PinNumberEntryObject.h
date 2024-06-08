@@ -7,7 +7,7 @@
 #include "PinNumberEntryObject.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API UPinNumberEntryObject : public UObject
@@ -16,11 +16,11 @@ class MARINERUNNER_API UPinNumberEntryObject : public UObject
 
 public:
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		int32 PinNumber = 0;
+	int32 PinNumber = 0;
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		TObjectPtr<class UDoorPanelWidget> DoorPanelWidget = nullptr;
+	TObjectPtr<class UDoorPanelWidget> DoorPanelWidget = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Select Floors Settings")
-		TObjectPtr<class UCallElevatorPanel> CallElevatorPanelWidget = nullptr;
-	
+	TObjectPtr<class UCallElevatorPanel> CallElevatorPanelWidget = nullptr;
+
 
 };

@@ -74,10 +74,10 @@ void UCroachAndSlide::ChangingCrouchState(float Delta)
 
 	if (CrouchPressedTimeElapsed <= TimeToChangeCrouchState)
 	{
-		const float& NewVignetteIntensity = FMath::Lerp(CurrentVignetteIntensity, Target_VignetteIntensity, CrouchPressedTimeElapsed / TimeToChangeCrouchState);
+		const float NewVignetteIntensity = FMath::Lerp(CurrentVignetteIntensity, Target_VignetteIntensity, CrouchPressedTimeElapsed / TimeToChangeCrouchState);
 		Player->GetCamera()->PostProcessSettings.VignetteIntensity = NewVignetteIntensity;
 
-		const float& NewScaleZ = FMath::Lerp(CurrentActorScale_Z, Target_ScaleZ, CrouchPressedTimeElapsed / TimeToChangeCrouchState);
+		const float NewScaleZ = FMath::Lerp(CurrentActorScale_Z, Target_ScaleZ, CrouchPressedTimeElapsed / TimeToChangeCrouchState);
 		Player->SetActorScale3D(FVector(OriginalPlayerScale.X, OriginalPlayerScale.Y, NewScaleZ));
 
 		CrouchPressedTimeElapsed += Delta;
@@ -113,7 +113,7 @@ bool UCroachAndSlide::CanPlayerStand()
 		return false;
 
 	FHitResult ObstacleAboveResult;
-	const FVector& CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
+	const FVector CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
 	if (GetWorld()->SweepSingleByChannel(ObstacleAboveResult, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECC_GameTraceChannel6, FCollisionShape::MakeBox(CheckBoxSizeToStandUpAfterCrouch)))
 	{
 		GetWorld()->GetTimerManager().SetTimer(CheckCrouchReleasedHandle, this, &UCroachAndSlide::CrouchReleased, CrouchReleasedTimeCheck, false);

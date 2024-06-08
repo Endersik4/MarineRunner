@@ -14,7 +14,7 @@ class UEnemyInterface : public UInterface
 };
 
 /**
- * 
+ *
  */
 class MARINERUNNER_API IEnemyInterface
 {
@@ -23,9 +23,9 @@ class MARINERUNNER_API IEnemyInterface
 public:
 
 	UFUNCTION()
-		virtual class USkeletalMeshComponent* GetSkeletalMesh() = 0;
+	virtual class USkeletalMeshComponent* GetSkeletalMesh() = 0;
 	UFUNCTION()
-		virtual class AActor* GetFocusedActor() = 0;
+	virtual class AActor* GetFocusedActor() = 0;
 	UFUNCTION()
-		virtual void AddImpulseToPhysicsMesh(const FVector & Impulse) = 0;
+	virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) = 0;
 };

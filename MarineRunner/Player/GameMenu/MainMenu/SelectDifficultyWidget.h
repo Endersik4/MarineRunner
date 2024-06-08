@@ -15,7 +15,7 @@ UCLASS()
 class MARINERUNNER_API USelectDifficultyWidget : public UUserWidget
 {
 	GENERATED_BODY()
-	
+
 protected:
 
 	virtual void NativeConstruct() override;
@@ -28,9 +28,11 @@ protected:
 	TObjectPtr<UWidgetAnimation> ShowWidgetAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	TObjectPtr<UWidgetAnimation> HideWidgetAnim = nullptr;
-	
+
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UTextBlock> CurrentDifficultyLevelText = nullptr;
+	TObjectPtr<UTextBlock> CurrentDifficultyLevelText = nullptr;	
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UTextBlock> CurrentDifficultyDescriptionText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UButton> LeftArrowChoiceButton = nullptr;
@@ -74,4 +76,11 @@ private:
 	UFUNCTION()
 	void OnAnimFinished_HideWidget();
 
+	UPROPERTY(Transient)
+	TObjectPtr<class UMarineRunnerGameInstance> GameInstance = nullptr;
+	UPROPERTY(Transient)
+	int32 CurrentDifficulty = 0;
+	void UpdateDifficultyText();
+	void UpdateGameDifficultyInGameInstance();
+	void SetGameInstance();
 };

@@ -15,7 +15,7 @@ class UTakeInterface : public UInterface
 };
 
 /**
- * 
+ *
  */
 class MARINERUNNER_API ITakeInterface
 {
@@ -25,11 +25,11 @@ class MARINERUNNER_API ITakeInterface
 public:
 
 	UFUNCTION()
-		virtual void TakeItem(class AMarineCharacter* Character) = 0;
+	virtual void TakeItem(class AMarineCharacter* Character) = 0;
 
 	UFUNCTION()
-		virtual void ItemHover(class AMarineCharacter* Character) = 0;
-	
+	virtual void ItemHover(class AMarineCharacter* Character) = 0;
+
 	UFUNCTION()
-		virtual void ItemUnHover(class AMarineCharacter* Character) = 0;
+	virtual void ItemUnHover(class AMarineCharacter* Character) = 0;
 };

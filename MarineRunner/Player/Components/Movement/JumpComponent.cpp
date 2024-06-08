@@ -98,7 +98,7 @@ void UJumpComponent::ApplyJumpForces(const float& DeltaTime)
 	}
 	else if (!bDownForceWasApplied) // for faster falling after jumping
 	{
-		const FVector& DownJumpImpulse = (-Player->GetActorUpVector() * JumpDownForce);
+		const FVector DownJumpImpulse = (-Player->GetActorUpVector() * JumpDownForce);
 		Player->GetPlayerCapsule()->AddImpulse(DownJumpImpulse);
 
 		bDownForceWasApplied = true;
@@ -115,7 +115,7 @@ void UJumpComponent::ApplyJumpUPForce(const float& DeltaTime)
 {
 	JumpTimeElapsed += DeltaTime;
 
-	const FVector& CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
+	const FVector CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
 	FHitResult ObstacleAboveHitResult;
 	const bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(ObstacleAboveHitResult, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
 	if (bObstacleAbovePlayer)
@@ -125,7 +125,7 @@ void UJumpComponent::ApplyJumpUPForce(const float& DeltaTime)
 		return;
 	}
 
-	const float& NewVel_Z = FMath::Lerp(InitialJumpForce, EndJumpForce, JumpTimeElapsed / JumpUpTime);
+	const float NewVel_Z = FMath::Lerp(InitialJumpForce, EndJumpForce, JumpTimeElapsed / JumpUpTime);
 	FVector JumpVelocity = Player->GetPlayerCapsule()->GetPhysicsLinearVelocity();
 	JumpVelocity.Z = NewVel_Z;
 	Player->GetPlayerCapsule()->SetPhysicsLinearVelocity(JumpVelocity);
@@ -159,7 +159,7 @@ void UJumpComponent::CheckIfIsInAir()
 		return;
 
 	FHitResult GroundHitResult;
-	const FVector& GroundCheckLocation = Player->GetGroundLocationSceneComponent()->GetComponentLocation();
+	const FVector GroundCheckLocation = Player->GetGroundLocationSceneComponent()->GetComponentLocation();
 	//Check if there is ground under the player, if not, the player is in the air
 	const bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GroundCheckLocation, GroundCheckLocation, FQuat::Identity, ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
 	if (!bSomethingIsBelowThePlayer)
@@ -238,13 +238,10 @@ void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
 	if (PreviousPlayerLocationOnRamp.Z < Player->GetActorLocation().Z)
 	{
 		bIsGoingUpOnRamp = true;
-		UE_LOG(LogTemp, Warning, TEXT("GOING UP"));
 
 	}
 	else if (bIsGoingUpOnRamp)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("GOING DOWN"));
-
 		//bIsOnRamp = false;
 		//Player->SetShouldPlayerGoForward(false);
 		
@@ -258,10 +255,9 @@ void UJumpComponent::DisablePlayerOnRampActions()
 	bIsOnRamp = false;
 	bIsGoingUpOnRamp = false;
 	return;
+
 	if (!bIsOnRamp)
 		return;
-	UE_LOG(LogTemp, Error, TEXT("STOPPED CROUCH"));
-
 
 	Player->SetShouldPlayerGoForward(false);
 	Player->GetCrouchAndSlideComponent()->CrouchReleasedByObject();

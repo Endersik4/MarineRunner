@@ -6,7 +6,7 @@
 #include "GameSavedNotificationWidget.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API UGameSavedNotificationWidget : public UUserWidget
@@ -20,14 +20,14 @@ protected:
 
 public:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UImage> BackgroundImage = nullptr;
+	TObjectPtr<class UImage> BackgroundImage = nullptr;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> GameSavedText = nullptr;
+	TObjectPtr<class UTextBlock> GameSavedText = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> GameSavedAppearAnim = nullptr;
+	TObjectPtr<UWidgetAnimation> GameSavedAppearAnim = nullptr;
 
 private:
 	UFUNCTION()
-		void GameSavedAnimFinished();
+	void GameSavedAnimFinished();
 };

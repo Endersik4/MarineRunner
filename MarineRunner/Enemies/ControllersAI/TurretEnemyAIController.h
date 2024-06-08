@@ -7,7 +7,7 @@
 #include "TurretEnemyAIController.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API ATurretEnemyAIController : public AAIController
@@ -21,23 +21,23 @@ public:
 	ATurretEnemyAIController();
 
 	UFUNCTION()
-		void HandleTargetPerceptionUpdated(AActor* Actor, struct FAIStimulus Stimulus);
+	void HandleTargetPerceptionUpdated(AActor* Actor, struct FAIStimulus Stimulus);
 
 	void AddEnemyToDetected(bool bWas);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		class UAIPerceptionComponent* EnemyPerception = nullptr;
+	class UAIPerceptionComponent* EnemyPerception = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Turret AI Settings")
-		float StopSeeingTheActorTime = 15.f;
+	float StopSeeingTheActorTime = 15.f;
 
 	FTimerHandle StopSeeingTheActorHandle;
 
 	UPROPERTY(Transient)
-		bool bActorWasSeen = false;
+	bool bActorWasSeen = false;
 	void StopSeeingActor();
 
 	UPROPERTY(Transient)
-		TObjectPtr<class AEnemyTurretPawn> TurretPawn = nullptr;
+	TObjectPtr<class AEnemyTurretPawn> TurretPawn = nullptr;
 
 };

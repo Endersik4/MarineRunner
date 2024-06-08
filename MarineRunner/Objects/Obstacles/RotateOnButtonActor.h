@@ -13,8 +13,8 @@ UCLASS()
 class MARINERUNNER_API AWallrunOnButton : public AActor, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AWallrunOnButton();
 
@@ -26,55 +26,55 @@ protected:
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> BaseMeshComponent = nullptr;
+	TObjectPtr<class UStaticMeshComponent> BaseMeshComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> SocketRotateMeshComponent = nullptr;
+	TObjectPtr<class UStaticMeshComponent> SocketRotateMeshComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> MeshToRotateComponent = nullptr;
+	TObjectPtr<class UStaticMeshComponent> MeshToRotateComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> ActivateRotateBoxComponent = nullptr;
+	TObjectPtr<class UBoxComponent> ActivateRotateBoxComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UStaticMeshComponent> ActivateMeshComponent = nullptr;
+	TObjectPtr<class UStaticMeshComponent> ActivateMeshComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UTextRenderComponent> ResetCurrentTimeText = nullptr;
+	TObjectPtr<class UTextRenderComponent> ResetCurrentTimeText = nullptr;
 
 	// X = roll, Y = Pitch, Z = Yaw
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
-		TObjectPtr<class UCurveVector> RelativeSocketRotationCurve = nullptr;
+	TObjectPtr<class UCurveVector> RelativeSocketRotationCurve = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
-		float ResetToInitialRotationTime = 6.f;
+	float ResetToInitialRotationTime = 6.f;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
-		int32 IndexForActiveMaterialToChange = 0;
+	int32 IndexForActiveMaterialToChange = 0;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
-		FLinearColor NotActiveMaterialColor = FLinearColor::Red;
+	FLinearColor NotActiveMaterialColor = FLinearColor::Red;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
-		FLinearColor ActiveMaterialColor = FLinearColor::Green;
+	FLinearColor ActiveMaterialColor = FLinearColor::Green;
 	UPROPERTY(EditAnywhere, Category = "Rotation Settings")
-		TObjectPtr<USoundBase> RotateObjectSound = nullptr;
+	TObjectPtr<USoundBase> RotateObjectSound = nullptr;
 
 	UFUNCTION()
-		void RotateSocketTimelineProgress(FVector NewRotation);
+	void RotateSocketTimelineProgress(FVector NewRotation);
 	UFUNCTION()
-		void RotateSocketTimelineFinished();
+	void RotateSocketTimelineFinished();
 
 	UFUNCTION()
-		void OnActivateRotateBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& OutHit);
+	void OnActivateRotateBoxHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& OutHit);
 
 	UPROPERTY(Transient)
-		FRotator InitialSocketRotation;
+	FRotator InitialSocketRotation;
 	UPROPERTY(Transient)
-		bool bWasRotated = false;
+	bool bWasRotated = false;
 	UPROPERTY(Transient)
-		bool bResetingRotation = false;
+	bool bResetingRotation = false;
 
 	UPROPERTY(Transient)
-		int32 CurrentResetSecond = 0;
+	int32 CurrentResetSecond = 0;
 	FTimerHandle ResetToInitialRotationHandle;
 	FTimerHandle DisplayResetTimeHandle;
 	void ResetRotateMeshTimeline();
@@ -82,10 +82,10 @@ private:
 
 	void StartRotateMeshTimeline();
 	UPROPERTY(Transient)
-		FTimeline RotateMeshTimeline;
+	FTimeline RotateMeshTimeline;
 
 	void SetUpActiveMaterial();
 
 	UPROPERTY(Transient)
-		TObjectPtr<UMaterialInstanceDynamic> ActiveDynamicMaterial = nullptr;
+	TObjectPtr<UMaterialInstanceDynamic> ActiveDynamicMaterial = nullptr;
 };

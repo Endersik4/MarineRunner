@@ -125,7 +125,7 @@ void UGunReloadComponent::ReloadMagazine(FItemStruct* AmmoFromInventory)
 		return;
 	}
 
-	const int32& RestAmmo = OriginalMagazineCapacity - MagazineCapacity;
+	const int32 RestAmmo = OriginalMagazineCapacity - MagazineCapacity;
 	if (AmmoFromInventory->Item_Amount < RestAmmo)
 	{
 		MagazineCapacity += AmmoFromInventory->Item_Amount;

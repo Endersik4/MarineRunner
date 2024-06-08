@@ -13,8 +13,8 @@ UCLASS()
 class MARINERUNNER_API AQuestItem : public AActor, public ITakeInterface, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AQuestItem();
 
 protected:
@@ -31,7 +31,7 @@ protected:
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	TObjectPtr<class UStaticMeshComponent> QuestItemMesh;
-	
+
 	UPROPERTY(EditAnywhere, Category = "Quest Item Settings")
 	FName AttachItemToSocketName = FName(TEXT("Weapon_R"));
 	UPROPERTY(EditAnywhere, Category = "Quest Item Settings")

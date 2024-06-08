@@ -9,7 +9,7 @@
 #include "PinNumberTileEntry.generated.h"
 
 /**
- * 
+ *
  */
 UCLASS()
 class MARINERUNNER_API UPinNumberTileEntry : public UUserWidget, public IUserObjectListEntry
@@ -24,23 +24,23 @@ protected:
 public:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UButton> PinNumberButton = nullptr;
+	TObjectPtr<class UButton> PinNumberButton = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-		TObjectPtr<class UTextBlock> PinNumberText = nullptr;
+	TObjectPtr<class UTextBlock> PinNumberText = nullptr;
 
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		TObjectPtr<UWidgetAnimation> HoverPinNumberButton = nullptr;
+	TObjectPtr<UWidgetAnimation> HoverPinNumberButton = nullptr;
 
 	UFUNCTION()
-		void OnClickedPinNumberButton();
+	void OnClickedPinNumberButton();
 	UFUNCTION()
-		void OnHoveredPinNumberButton();
+	void OnHoveredPinNumberButton();
 	UFUNCTION()
-		void OnUnhoveredPinNumberButton();
+	void OnUnhoveredPinNumberButton();
 
 private:
 
 	UPROPERTY(Transient)
-		TObjectPtr<class UPinNumberEntryObject> PinNumberEntryObject = nullptr;
+	TObjectPtr<class UPinNumberEntryObject> PinNumberEntryObject = nullptr;
 };

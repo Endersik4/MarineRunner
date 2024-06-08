@@ -32,38 +32,36 @@ public:
 	FORCEINLINE void SetAssignedDestructibleActor(TObjectPtr<class ASpawnDestructibleActor> NewActor) { AssignedDestructibleActor = NewActor; }
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UGeometryCollectionComponent> DestructableMeshComponent = nullptr;
+	TObjectPtr<class UGeometryCollectionComponent> DestructableMeshComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings")
-		float ImpulseForceMultiplier = 100.f;
+	float ImpulseForceMultiplier = 100.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings")
-		float ExternalStrainStrength = 5000.f;
+	float ExternalStrainStrength = 5000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings")
-		float ExternalStrainRadius = 20.f;
+	float ExternalStrainRadius = 20.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings")
-		float InternalStrainStrength = 5000.f;
+	float InternalStrainStrength = 5000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings")
-		float InternalStrainRadius = 20.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings")
-		float LifeSpan = 40.f;
+	float InternalStrainRadius = 20.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings|Effects")
-		TObjectPtr<USoundBase> DestructionHitSound = nullptr;
+	TObjectPtr<USoundBase> DestructionHitSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings|Effects")
-		TObjectPtr<USoundBase> BreakSound = nullptr;
+	TObjectPtr<USoundBase> BreakSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings|Effects")
-		float CanPlayBreakSoundTime = 0.05f;
+	float CanPlayBreakSoundTime = 0.05f;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings|Effects")
-		TObjectPtr<UParticleSystem> DestructionHitParticle = nullptr;
+	TObjectPtr<UParticleSystem> DestructionHitParticle = nullptr;
 
 	UFUNCTION()
-		void OnChaosBreakEvent(const FChaosBreakEvent& BreakEvent);
+	void OnChaosBreakEvent(const FChaosBreakEvent& BreakEvent);
 
 	void DisableAssignedDestructibleActor();
 	UPROPERTY(Transient)
-		bool bVisible = false;
+	bool bVisible = false;
 	UPROPERTY(Transient)
-		bool bCanPlayBreakSound = true;
-	FORCEINLINE void PlayAgainBreakSound() {bCanPlayBreakSound = true;}
+	bool bCanPlayBreakSound = true;
+	FORCEINLINE void PlayAgainBreakSound() { bCanPlayBreakSound = true; }
 
 	UPROPERTY(Transient)
-		TObjectPtr<class ASpawnDestructibleActor> AssignedDestructibleActor = nullptr;
+	TObjectPtr<class ASpawnDestructibleActor> AssignedDestructibleActor = nullptr;
 };

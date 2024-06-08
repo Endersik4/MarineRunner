@@ -12,8 +12,8 @@ UCLASS()
 class MARINERUNNER_API AShowTutorialMessage : public AActor, public ISaveCustomDataInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	AShowTutorialMessage();
 
@@ -25,31 +25,31 @@ protected:
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
-public:	
+public:
 
 	FORCEINLINE void SetCanShowTutorialMessage(bool bCan) { bCanShowTutorialMessage = bCan; }
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-		TObjectPtr<class UBoxComponent> ShowMessageBoxComp = nullptr;
+	TObjectPtr<class UBoxComponent> ShowMessageBoxComp = nullptr;
 	UFUNCTION()
-		void ShowMessageBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void ShowMessageBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
-		FText MessageTitle = FText();
+	FText MessageTitle = FText();
 	UPROPERTY(EditAnywhere, Category = "Message Settings", meta = (MultiLine = "true"))
-		FText MessageText = FText();
+	FText MessageText = FText();
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
-		float HideMessageAfterTime = 15.f;
+	float HideMessageAfterTime = 15.f;
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
-		TSubclassOf<class UMessageToReadWidget> MessageWidgetClass = nullptr;
+	TSubclassOf<class UMessageToReadWidget> MessageWidgetClass = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Message Settings")
-		bool bUnlockGameplayMechanicsInHud = false;
+	bool bUnlockGameplayMechanicsInHud = false;
 	UPROPERTY(EditAnywhere, Category = "Message Settings", meta = (EditCondition = "bUnlockGameplayMechanicsInHud", EditConditionHides))
-		TEnumAsByte<enum EUnlockInHud> UnlockInHud;
+	TEnumAsByte<enum EUnlockInHud> UnlockInHud;
 
 	UPROPERTY(Transient)
-		bool bCanShowTutorialMessage = true;
+	bool bCanShowTutorialMessage = true;
 	FTimerHandle SpawnMessageWidgetHandle;
 
 	void EnableShowTutorialMessage(bool bDisable);
@@ -58,5 +58,5 @@ private:
 
 	void MessageReadedSaveData();
 	UPROPERTY(Transient)
-		int32 CurrentUniqueID = 0;
+	int32 CurrentUniqueID = 0;
 };
