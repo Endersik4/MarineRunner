@@ -41,10 +41,14 @@ void UCroachAndSlide::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 #pragma region ////////// CROUCH /////////////
 void UCroachAndSlide::CrouchPressed(bool bSlidePressed)
 {
+	UE_LOG(LogTemp, Warning, TEXT("CROUCH"));
 	if (!IsValid(Player) || bIsCrouching)
 		return;
 
 	if (Player->GetIsPlayerMovingToHookLocation() || Player->GetIsWallrunning() || Player->GetIsInCutscene())
+		return;
+
+	if (Player->GetIsInAir())
 		return;
 
 	bCrouchPressed = true;
@@ -99,11 +103,15 @@ void UCroachAndSlide::CrouchReleased()
 	if (Player->GetIsInCutscene())
 		return;
 
+	if (Player->GetJumpComponent()->GetIsOnRamp())
+		return;
 	//if (Player->GetJumpComponent()->GetIsOnRamp() || !bIsCrouching)
-	//	return;
+	///	return;
 
 	if (!CanPlayerStand())
 		return;
+	UE_LOG(LogTemp, Error, TEXT("CROUCH rele"));
+
 	StopCrouching();
 }
 

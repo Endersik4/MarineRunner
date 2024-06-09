@@ -4,6 +4,7 @@
 #include "SelectDifficultyWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Components/RichTextBlock.h"
 #include "Kismet/GameplayStatics.h"
 
 #include "MainMenuWidget.h"

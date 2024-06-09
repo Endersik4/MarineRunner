@@ -17,7 +17,7 @@ public:
 	int32 DifficultyLevel = 0;
 	UPROPERTY(EditAnywhere)
 	FText DifficultyName = FText();
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, meta = (MultiLine = "true"))
 	FText DifficultyDescription = FText();
 	// Multiplies EnemiesDifficultyPercent by enemies' stats, e.g. damage *= 0.5f
 	UPROPERTY(EditAnywhere)
@@ -157,9 +157,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Game Difficulty")
 	FString GameDifficultySavedFieldName = TEXT("GameDifficulty");
-	UPROPERTY(EditAnywhere, Category = "Game Difficulty")
+	UPROPERTY(EditAnywhere, Category = "Game Difficulty", meta = (Multiline = "true"))
 	FGameDifficulty CurrentGameDifficulty = FGameDifficulty(1, FText::FromString(TEXT("-normal-")), FText::FromString(TEXT("-desc-")), 1.f);
-	UPROPERTY(EditAnywhere, Category = "Game Difficulty")
+	UPROPERTY(EditAnywhere, Category = "Game Difficulty", meta = (Multiline = "true"))
 	TArray<FGameDifficulty> AllGameDifficulties;
 
 	UPROPERTY(EditAnywhere, Category = "Dynamic Music")

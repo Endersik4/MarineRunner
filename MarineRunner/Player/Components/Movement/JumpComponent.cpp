@@ -160,8 +160,9 @@ void UJumpComponent::CheckIfIsInAir()
 
 	FHitResult GroundHitResult;
 	const FVector GroundCheckLocation = Player->GetGroundLocationSceneComponent()->GetComponentLocation();
-	//Check if there is ground under the player, if not, the player is in the air
-	const bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GroundCheckLocation, GroundCheckLocation, FQuat::Identity, ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsBelow));
+	const FCollisionShape box = FCollisionShape::MakeBox(Player->GetIsCrouching() ? SomethingIsBelowBoxSizeWhenInCrouch : SomethingIsBelowBoxSize);
+	//Check if there is ground under the player, if not, the player is in the ai
+	const bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GroundCheckLocation, GroundCheckLocation, FQuat::Identity, ECC_GameTraceChannel11, box);
 	if (!bSomethingIsBelowThePlayer)
 	{
 		if (bIsInAir)
@@ -188,10 +189,11 @@ void UJumpComponent::FirstMomentInAir()
 {
 	bDelayIsInAir = true;
 	GetWorld()->GetTimerManager().SetTimer(DelayIsInAirHandle, this, &UJumpComponent::DisableDelayIsInAir, DelayIsInAirTime, false);
-
-	DisablePlayerOnRampActions();
+	UE_LOG(LogTemp, Warning, TEXT("IN AIR FIRST "));
 
 	bIsInAir = true;
+
+	DisablePlayerOnRampActions();
 }
 
 void UJumpComponent::FirstTimeOnGround()
@@ -252,15 +254,14 @@ void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
 
 void UJumpComponent::DisablePlayerOnRampActions()
 {
-	bIsOnRamp = false;
 	bIsGoingUpOnRamp = false;
-	return;
 
 	if (!bIsOnRamp)
 		return;
 
-	Player->SetShouldPlayerGoForward(false);
-	Player->GetCrouchAndSlideComponent()->CrouchReleasedByObject();
+	bIsOnRamp = false;
+	//Player->SetShouldPlayerGoForward(false);
+	Player->GetCrouchAndSlideComponent()->CrouchReleased();
 }
 #pragma endregion
 

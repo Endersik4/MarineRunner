@@ -57,7 +57,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 	float CheckInAirTime = 0.001f;
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
-	FVector BoxSizeToCheckIfSomethingIsBelow = FVector(25.f, 25.f, 30.f);
+	FVector SomethingIsBelowBoxSize = FVector(25.f, 25.f, 30.f);
+	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
+	FVector SomethingIsBelowBoxSizeWhenInCrouch = FVector(25.f, 25.f, 60.f);
 	UPROPERTY(EditDefaultsOnly, Category = "In Air Settings")
 	FVector BoxSizeToCheckIfSomethingIsUp = FVector(25.f, 25.f, 25.f);
 	// Divide Movement speed and CounterMovementForce by this value when in Air
@@ -123,4 +125,5 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<class AMarineCharacter> Player = nullptr;
+
 };

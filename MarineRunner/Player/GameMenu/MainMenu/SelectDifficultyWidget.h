@@ -32,7 +32,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UTextBlock> CurrentDifficultyLevelText = nullptr;	
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UTextBlock> CurrentDifficultyDescriptionText = nullptr;
+	TObjectPtr<class URichTextBlock> CurrentDifficultyDescriptionText = nullptr;
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UButton> LeftArrowChoiceButton = nullptr;

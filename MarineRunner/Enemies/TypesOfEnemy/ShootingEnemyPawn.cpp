@@ -4,6 +4,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/FloatingPawnMovement.h"
 
 #include "MarineRunner/Enemies/Components/EnemyGunComponent.h"
 #include "MarineRunner/Enemies/ControllersAI/ShootingEnemyAIController.h"
@@ -21,6 +22,8 @@ void AShootingEnemyPawn::BeginPlay()
 	Super::BeginPlay();
 
 	SetUpShootAlert();
+
+	UE_LOG(LogTemp, Warning, TEXT("HP %f"), Health);
 }
 
 void AShootingEnemyPawn::Tick(float DeltaTime)
@@ -240,6 +243,9 @@ void AShootingEnemyPawn::ApplyEnemyDifficulty()
 	if (!IsValid(MarineRunnerGameInstance))
 		return;
 
-	Health *= MarineRunnerGameInstance->GetCurrentGameDifficulty().EnemiesDifficultyPercent;
-	EnemyGunComponent->ApplyWeaponDifficulty(MarineRunnerGameInstance->GetCurrentGameDifficulty().EnemiesDifficultyPercent);
+	const float& EnemiesDifficultyPercent = MarineRunnerGameInstance->GetCurrentGameDifficulty().EnemiesDifficultyPercent;
+	Health *= EnemiesDifficultyPercent;
+	EnemyGunComponent->ApplyWeaponDifficulty(EnemiesDifficultyPercent);
+	EnemyFloatingMovement->MaxSpeed *= EnemiesDifficultyPercent;
+	ShootTime /= EnemiesDifficultyPercent;
 }
