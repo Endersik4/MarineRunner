@@ -60,16 +60,17 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 	float SlideSpeed = 165000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-	float MaxSlideForce = 100000.f;
-	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 	float SlideDelayInSeconds = 0.01f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 	TObjectPtr<USoundBase> SlideSound = nullptr;
 	//How fast Pawn will gain speed on ramp when sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 	float RampSlideDownForce = 25000.f;
+	//How fast Pawn will lose speed on ramp when sliding up
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
-	float RampSlideUpForce = 150000.f;
+	float RampSlideUpForce = 350000.f;
+	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
+	float MaxSlideOnRampForce = 100000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 	TSubclassOf<UCameraShakeBase> RampCameraShake = nullptr;
 
@@ -112,7 +113,7 @@ private:
 	UPROPERTY(Transient)
 	bool bRampCameraShakeStarted = false;
 	UPROPERTY(Transient)
-	TObjectPtr<UCameraShakeBase> CameraShakeBase = nullptr;
+	TObjectPtr<UCameraShakeBase> CameraRampSlideShake = nullptr;
 
 	// Delay for start sliding
 	UPROPERTY(Transient)

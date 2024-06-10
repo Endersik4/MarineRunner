@@ -41,7 +41,6 @@ void UCroachAndSlide::TickComponent(float DeltaTime, ELevelTick TickType, FActor
 #pragma region ////////// CROUCH /////////////
 void UCroachAndSlide::CrouchPressed(bool bSlidePressed)
 {
-	UE_LOG(LogTemp, Warning, TEXT("CROUCH"));
 	if (!IsValid(Player) || bIsCrouching)
 		return;
 
@@ -60,7 +59,10 @@ void UCroachAndSlide::CrouchPressed(bool bSlidePressed)
 	bChangingCrouchState = true;
 
 	bIsCrouching = true;
-	CurrentMovementForce = CrouchSpeed;
+
+	if (!Player->GetJumpComponent()->GetWasOnRamp())
+		CurrentMovementForce = CrouchSpeed;
+
 	Player->SetMovementForce(CurrentMovementForce);
 
 	if (bSlidePressed)
@@ -105,12 +107,9 @@ void UCroachAndSlide::CrouchReleased()
 
 	if (Player->GetJumpComponent()->GetIsOnRamp())
 		return;
-	//if (Player->GetJumpComponent()->GetIsOnRamp() || !bIsCrouching)
-	///	return;
 
 	if (!CanPlayerStand())
 		return;
-	UE_LOG(LogTemp, Error, TEXT("CROUCH rele"));
 
 	StopCrouching();
 }
@@ -146,10 +145,11 @@ void UCroachAndSlide::StopCrouching()
 	PrepareVariablesForChangingCrouchState(OriginalPlayerScale.Z, 0.f);
 	bChangingCrouchState = true;
 
-	CurrentMovementForce = OriginalMovementForce;
-
 	if (!IsValid(Player))
 		return;
+
+	if (!Player->GetJumpComponent()->GetWasOnRamp())
+		CurrentMovementForce = OriginalMovementForce;
 
 	Player->SetMovementForce(OriginalMovementForce);
 }
@@ -157,8 +157,11 @@ void UCroachAndSlide::StopCrouching()
 void UCroachAndSlide::PrepareVariablesForChangingCrouchState(const float& TargetScale_Z, const float& TargetVignetteIntensity)
 {
 	CrouchPressedTimeElapsed = 0.f;
-	CurrentVignetteIntensity = Player->GetCamera()->PostProcessSettings.VignetteIntensity;
-	CurrentActorScale_Z = Player->GetActorScale3D().Z;
+	if (IsValid(Player))
+	{
+		CurrentVignetteIntensity = Player->GetCamera()->PostProcessSettings.VignetteIntensity;
+		CurrentActorScale_Z = Player->GetActorScale3D().Z;
+	}
 
 	Target_ScaleZ = TargetScale_Z;
 	Target_VignetteIntensity = TargetVignetteIntensity;
@@ -183,14 +186,22 @@ void UCroachAndSlide::BeginSlide()
 	if (Player->GetJumpComponent()->GetIsGoingUp())
 		return;
 
+	// cant slide without pressed any movement button unless ShouldPlayerGoForward is true
+	if (Player->GetInputAxisValue(TEXT("Forward")) == 0.f && Player->GetInputAxisValue(TEXT("Right")) == 0 && !Player->GetShouldPlayerGoForward())
+		return;
+	
 	// Cant Slide backward
-	if (Player->GetInputAxisValue(TEXT("Forward")) != 1.f && Player->GetInputAxisValue(TEXT("Right")) == 0)
+	if (Player->GetInputAxisValue(TEXT("Forward")) == -1.f)
 		return;
 
-	if (Player->GetJumpComponent()->GetIsJumping() || Player->GetJumpComponent()->GetIsInAir())
+	if (Player->GetJumpComponent()->GetIsInAir())
 		return;
 
-	CurrentMovementForce = OriginalMovementForce + InitialVelocityOfSliding;
+	// its for CurrentMovementForce to continue when player lands on ramp again
+	if (!Player->GetJumpComponent()->GetWasOnRamp())
+		CurrentMovementForce = OriginalMovementForce + InitialVelocityOfSliding;
+	
+	Player->SetMovementForce(CurrentMovementForce);
 	bSlide = true;
 }
 
@@ -205,12 +216,18 @@ void UCroachAndSlide::Sliding(float Delta)
 	TurnOnSlideSound();
 
 	if (Player->GetJumpComponent()->GetIsOnRamp())
+	{
 		SlideOnRamp(Delta);
+	}
 	else
+	{
 		CurrentMovementForce -= SlideSpeed * Delta;
+	}
 
 	if (ShouldStopSliding())
+	{
 		StopSliding();
+	}
 
 	Player->SetMovementForce(CurrentMovementForce);
 }
@@ -219,22 +236,21 @@ void UCroachAndSlide::SlideOnRamp(const float& Delta)
 {
 	if (!IsValid(Player))
 		return;
-
+	
 	if (Player->GetJumpComponent()->GetIsGoingUp())
 	{
 		CurrentMovementForce -= RampSlideUpForce * Delta;
-		Player->SetShouldPlayerGoForward(false);
-
 		return;
 	}
 
 	// if current movement force is bigger then max force then do not add more force 
-	CurrentMovementForce += (CurrentMovementForce < MaxSlideForce) ? RampSlideDownForce * Delta : 0;
+	CurrentMovementForce += (CurrentMovementForce < MaxSlideOnRampForce) ? RampSlideDownForce * Delta : 0;
+
 	Player->SetShouldPlayerGoForward(true);
 
 	if (!bRampCameraShakeStarted && IsValid(PlayerController))
 	{
-		CameraShakeBase = PlayerController->PlayerCameraManager->StartCameraShake(RampCameraShake);
+		CameraRampSlideShake = PlayerController->PlayerCameraManager->StartCameraShake(RampCameraShake);
 		bRampCameraShakeStarted = true;
 	}
 }
@@ -245,28 +261,34 @@ bool UCroachAndSlide::ShouldStopSliding()
 	if (!IsValid(Player))
 		return false;
 
-	const bool bPlayerIsntMoving = Player->GetInputAxisValue(TEXT("Forward")) != 1.f && Player->GetShouldPlayerGoForward() == false && Player->GetInputAxisValue(TEXT("Right")) == 0;
-	return CurrentMovementForce <= CrouchSpeed || bPlayerIsntMoving;
+	const bool bPlayerMovesBackward = Player->GetInputAxisValue(TEXT("Forward")) == -1.f;
+	return CurrentMovementForce <= CrouchSpeed || bPlayerMovesBackward;
 }
 
 void UCroachAndSlide::StopSliding()
 {
-	CurrentMovementForce = CrouchSpeed;
+	if (!IsValid(Player))
+		return;
+
+	if (!Player->GetJumpComponent()->GetWasOnRamp())
+		CurrentMovementForce = CrouchSpeed;
+
 	TurnOffSlideSound();
 	StopSlideCameraShake();
-
+	Player->SetShouldPlayerGoForward(false);
+	
 	bSlide = false;
 }
 
 void UCroachAndSlide::StopSlideCameraShake()
 {
-	if (!IsValid(CameraShakeBase))
+	if (!IsValid(CameraRampSlideShake))
 		return;
 
-	if (!CameraShakeBase->IsActive())
+	if (!CameraRampSlideShake->IsActive())
 		return;
 
-	CameraShakeBase->StopShake(false);
+	CameraRampSlideShake->StopShake(false);
 }
 
 void UCroachAndSlide::TurnOnSlideSound()
@@ -285,6 +307,7 @@ void UCroachAndSlide::TurnOffSlideSound()
 
 	SpawnedSlideSound->ToggleActive();
 	SpawnedSlideSound = nullptr;
+	bShouldPlaySound = true;
 }
 #pragma endregion
 

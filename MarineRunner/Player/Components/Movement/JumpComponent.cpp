@@ -3,6 +3,7 @@
 
 #include "JumpComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 
@@ -41,7 +42,8 @@ void UJumpComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 bool UJumpComponent::CanJump()
 {
 	FHitResult SomethingUpResult;
-	const bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(SomethingUpResult, Player->GetRoofLocationSceneComponent()->GetComponentLocation(), Player->GetRoofLocationSceneComponent()->GetComponentLocation(), FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel11, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
+	const bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(SomethingUpResult, Player->GetRoofLocationSceneComponent()->GetComponentLocation(), 
+		Player->GetRoofLocationSceneComponent()->GetComponentLocation(), FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel11, FCollisionShape::MakeBox(SomethingIsUpBoxSize));
 	
 	if (bObstacleAbovePlayer)
 		return false;
@@ -52,7 +54,11 @@ bool UJumpComponent::CanJump()
 	if (bStartApplyingJumpForces)
 		return false;
 
+	// the player cant jump if he is in the air, unless the player has been in the air for a very short time
 	if (bIsInAir && !bDelayIsInAir && !Player->GetWallrunComponent()->GetCanJumpAfterWallrun())
+		return false;
+
+	if (bIsGoingUpOnRamp)
 		return false;
 
 	return true;
@@ -68,6 +74,7 @@ void UJumpComponent::Jump()
 
 	if (CanJump())
 	{
+
 		Player->GetWallrunComponent()->SetCanJumpAfterWallrun(false);
 		Player->GetWallrunComponent()->AddImpulseAfterWallrun();
 		Player->GetCrouchAndSlideComponent()->CrouchReleasedByObject();
@@ -117,7 +124,7 @@ void UJumpComponent::ApplyJumpUPForce(const float& DeltaTime)
 
 	const FVector CheckObstacleLocation = Player->GetRoofLocationSceneComponent()->GetComponentLocation();
 	FHitResult ObstacleAboveHitResult;
-	const bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(ObstacleAboveHitResult, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeBox(BoxSizeToCheckIfSomethingIsUp));
+	const bool bObstacleAbovePlayer = GetWorld()->SweepSingleByChannel(ObstacleAboveHitResult, CheckObstacleLocation, CheckObstacleLocation, FQuat::Identity, ECollisionChannel::ECC_Visibility, FCollisionShape::MakeBox(SomethingIsUpBoxSize));
 	if (bObstacleAbovePlayer)
 	{
 		// if player hits soemthing uphead then stop applying jump forces
@@ -160,9 +167,10 @@ void UJumpComponent::CheckIfIsInAir()
 
 	FHitResult GroundHitResult;
 	const FVector GroundCheckLocation = Player->GetGroundLocationSceneComponent()->GetComponentLocation();
-	const FCollisionShape box = FCollisionShape::MakeBox(Player->GetIsCrouching() ? SomethingIsBelowBoxSizeWhenInCrouch : SomethingIsBelowBoxSize);
-	//Check if there is ground under the player, if not, the player is in the ai
-	const bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GroundCheckLocation, GroundCheckLocation, FQuat::Identity, ECC_GameTraceChannel11, box);
+	const FCollisionShape GroundCheckBox = FCollisionShape::MakeBox(Player->GetIsCrouching() ? SomethingIsBelowBoxSizeWhenInCrouch : SomethingIsBelowBoxSize);
+	
+	//Check if there is ground under the player, if not, the player is in the air
+	const bool bSomethingIsBelowThePlayer = GetWorld()->SweepSingleByChannel(GroundHitResult, GroundCheckLocation, GroundCheckLocation, FQuat::Identity, ECC_GameTraceChannel11, GroundCheckBox);
 	if (!bSomethingIsBelowThePlayer)
 	{
 		if (bIsInAir)
@@ -189,7 +197,6 @@ void UJumpComponent::FirstMomentInAir()
 {
 	bDelayIsInAir = true;
 	GetWorld()->GetTimerManager().SetTimer(DelayIsInAirHandle, this, &UJumpComponent::DisableDelayIsInAir, DelayIsInAirTime, false);
-	UE_LOG(LogTemp, Warning, TEXT("IN AIR FIRST "));
 
 	bIsInAir = true;
 
@@ -202,6 +209,9 @@ void UJumpComponent::FirstTimeOnGround()
 		return;
 
 	Player->GetWallrunComponent()->CallResetWallrunningAfterLanding();
+
+	if (!Player->GetIsWallrunning())
+		Player->SetShouldPlayerGoForward(false);
 
 	bIsInAir = false;
 	bDelayIsInAir = false;
@@ -218,49 +228,53 @@ void UJumpComponent::PlayerOnRamp(const FHitResult& GroundHitResult)
 {
 	if (!GroundHitResult.GetActor()->ActorHasTag("Ramp"))
 	{
+		bWasOnRamp = false;
+		
 		DisablePlayerOnRampActions();
 		return;
 	}
 
-	if (!bIsOnRamp)
+	if (!bIsOnRamp || !Player->GetCrouchAndSlideComponent()->GetIsSliding())
 	{
 		bIsOnRamp = true;
 
-		Player->SetShouldPlayerGoForward(true);
 		Player->GetCrouchAndSlideComponent()->CrouchPressed();
 		Player->GetCrouchAndSlideComponent()->BeginSlide();
 
-		/*if (!Player->GetCrouchAndSlideComponent()->GetIsSliding())
-		{
-
-		}*/
+		Player->SetShouldPlayerGoForward(true);
 	}
 
+	CheckIfPlayerIsGoingUpOnRamp();
+}
+
+void UJumpComponent::CheckIfPlayerIsGoingUpOnRamp()
+{
+	if (!GetWorld()->GetTimerManager().IsTimerActive(PreviousPlayerLocationHandle))
+		GetWorld()->GetTimerManager().SetTimer(PreviousPlayerLocationHandle, this, &UJumpComponent::UpdatePreviousPlayerLocationOnRamp, UpdatePreviousLocationOnRampTime, false);
+	
 	//Check if Pawn is going UP on ramp, if he is then he cant slide
-	if (PreviousPlayerLocationOnRamp.Z < Player->GetActorLocation().Z)
+	if (PreviousPlayerLocationOnRamp.Z <= Player->GetActorLocation().Z)
 	{
 		bIsGoingUpOnRamp = true;
-
 	}
 	else if (bIsGoingUpOnRamp)
 	{
-		//bIsOnRamp = false;
-		//Player->SetShouldPlayerGoForward(false);
-		
 		bIsGoingUpOnRamp = false;
 	}
+}
+
+void UJumpComponent::UpdatePreviousPlayerLocationOnRamp()
+{
 	PreviousPlayerLocationOnRamp = Player->GetActorLocation();
 }
 
 void UJumpComponent::DisablePlayerOnRampActions()
 {
-	bIsGoingUpOnRamp = false;
-
 	if (!bIsOnRamp)
 		return;
 
+	bWasOnRamp = true;
 	bIsOnRamp = false;
-	//Player->SetShouldPlayerGoForward(false);
 	Player->GetCrouchAndSlideComponent()->CrouchReleased();
 }
 #pragma endregion
