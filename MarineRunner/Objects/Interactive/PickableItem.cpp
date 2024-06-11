@@ -50,75 +50,35 @@ void APickupItem::TakeItem(AMarineCharacter* Player)
 	if (!IsValid(Player))
 		return;
 
-	TObjectPtr<UInventoryComponent> Inventory = Player->GetInventoryComponent();
-	if (!IsValid(Inventory)) 
-		return;
+	GenerateItemToInventory(Player);
 
-	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
-	if (!ItemInformationFromDataTable)
-		return;
-
-	if (ItemInformationFromDataTable->bIsItWeapon && !Player->GetWeaponInventoryComponent()->CanPlayerTakeWeaponToInventory())
-	{
-		Player->GetMessageHandlerComponent()->SpawnNotEnoughSlotsForWeaponWidget();
-		return;
-	}
-
-	bool bAmountWasAdded = AddAmountToItemIfFound(Inventory->GetItemFromInventory(ItemRowName), ItemInformationFromDataTable->Item_Amount * AmountMultiplier);
-
-	if (!bAmountWasAdded)
-	{
-		if (Inventory->Inventory_Items.Num() > Inventory->GetMaxSlotsInInventory())
-			return;
-
-		FItemStruct ItemToAdd = *ItemInformationFromDataTable;
-		ItemToAdd.Item_Amount *= AmountMultiplier;
-		Inventory->Inventory_Items.Add(ItemToAdd);
-	}
-
-	Player->UpdateHudWidget();
 	Player->GetHudWidget()->PlayAppearAnimForItemHover(false);
 	
 	if (IsValid(PickUpSound))
 		UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Pick up sound is nullptr in PickableItem!"));
-
-	AddCraftRecipeIfCraftable(Player, ItemInformationFromDataTable);
-
-	SpawnWeaponForPlayer(Player, ItemInformationFromDataTable);
-
-	Player->UpdateAlbertosInventory(true, ItemInformationFromDataTable->bIsItCraftable);
 	
 	SaveItemWasTaken();
 
 	DisableItem();
 }
 
-bool APickupItem::AddAmountToItemIfFound(FItemStruct* ItemFromInventory, float AmountToAdd)
+void APickupItem::GenerateItemToInventory(AMarineCharacter* Player)
 {
-	if (!ItemFromInventory)
-		return false;
-
-	if (ItemFromInventory->MaxItem_Amount != 0 && ItemFromInventory->Item_Amount >= ItemFromInventory->MaxItem_Amount)
-		return false;
-
-	ItemFromInventory->Item_Amount += AmountToAdd;
-
-	return true;
-}
-
-void APickupItem::AddCraftRecipeIfCraftable(TObjectPtr<class AMarineCharacter> Player, FItemStruct* ItemDataFromDataTable)
-{
-	if (!ItemDataFromDataTable->bIsItCraftable)
+	TObjectPtr<UInventoryComponent> Inventory = Player->GetInventoryComponent();
+	if (!IsValid(Inventory))
 		return;
 
-	// if there is craft recipe of this item then dont add another one
-	if (Player->GetInventoryComponent()->Items_Recipes.FindByKey(*ItemDataFromDataTable))
+	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
+	if (!ItemInformationFromDataTable)
 		return;
 
-	Player->GetMessageHandlerComponent()->SpawnNewRecipeUnlockedWidget();
-	Player->GetInventoryComponent()->Items_Recipes.Add(*ItemDataFromDataTable);
+	const bool bItemWasAddedToInventory = Inventory->AddItemToInventory(ItemRowName, ItemInformationFromDataTable->Item_Amount * AmountMultiplier);
+	if (!bItemWasAddedToInventory)
+		return;
+
+	SpawnWeaponForPlayer(Player, ItemInformationFromDataTable);
 }
 
 void APickupItem::SpawnWeaponForPlayer(TObjectPtr<class AMarineCharacter> Player, FItemStruct* ItemDataFromDataTable)

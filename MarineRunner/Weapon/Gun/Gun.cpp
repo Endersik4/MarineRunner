@@ -182,22 +182,6 @@ void AGun::SpawnBullet()
 	SpawnedBullet->FinishSpawning(BulletTransform);
 }
 
-void AGun::AddStoredAmmoToInventory()
-{
-	if (!IsValid(Player))
-		return;
-
-	FItemStruct* AmmunitionFromInventory = Player->GetInventoryComponent()->GetItemFromInventory(RowNameForAmmunitionItem);
-
-	if (AmmunitionFromInventory) // if ammo found in inventory then add the amount
-	{
-		AmmunitionFromInventory->Item_Amount += StoredAmmo;
-	}
-	else
-	{
-		Player->GetInventoryComponent()->AddNewItemToInventory(RowNameForAmmunitionItem, StoredAmmo);
-	}
-}
 #pragma endregion
 
 #pragma region //////////////// Gun handling Actions ///////////
@@ -351,7 +335,10 @@ void AGun::PickUpWeaponItem(AMarineCharacter* PlayerWhoTook, bool bWasOnceItemTa
 	if (bWasOnceItemTaken)
 		GunReloadComponent->SetMagazineCapacity(ValueToLoad);
 	else
-		AddStoredAmmoToInventory();
+		Player->GetInventoryComponent()->AddItemToInventory(RowNameForAmmunitionItem, StoredAmmo);
+
+	if (!IsValid(Player))
+		return;
 
 	UpdateWeaponHudInformation(true, true);
 

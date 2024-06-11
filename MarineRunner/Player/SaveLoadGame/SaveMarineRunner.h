@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool bShowSlowMotionBar = false;
 
+	UPROPERTY(EditAnywhere) //ztgk, delete later
+	int32 CheckpointNumber = 0;
+
 	UPROPERTY(EditAnywhere)
 	FVector SavedPlayerLocation = FVector::Zero();
 	UPROPERTY(EditAnywhere)

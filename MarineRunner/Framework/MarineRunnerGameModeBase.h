@@ -13,5 +13,19 @@ UCLASS()
 class MARINERUNNER_API AMarineRunnerGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+public:
+	UFUNCTION(Exec, Category = ExecFunctions)
+	void ChangeMap(const FName& NewLevelName);
+
+	UFUNCTION(Exec, Category = ExecFunctions)
+	void AddItem(const FName ItemRowNameToAdd, const int32 AmountToAdd);
+
+	UFUNCTION(Exec, Category = ExecFunctions)
+	void TeleportToNextStage(); //ztgk, delete later
+
+	UPROPERTY(EditAnywhere)
+	TArray<FVector> StagesToTeleport;
+
+private:
+	TObjectPtr<class AMarineCharacter> GetPlayer();
 };

@@ -159,8 +159,6 @@ private:
 
 	void SpawnBullet();
 
-	void AddStoredAmmoToInventory();
-
 	// Gun Effects
 	void PlayGunShootAnimation();
 	bool NoBulletsShootAnim();

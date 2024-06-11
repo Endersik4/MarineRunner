@@ -89,6 +89,9 @@ public:
 	// saving/loading
 	void SaveEnemySpawnedDataAtRuntime();
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void SetEnemyHealth(float& NewHealth) { Health = NewHealth; }
+
 protected:
 	UPROPERTY(Transient)
 	bool bIsDead = false;

@@ -174,10 +174,7 @@ void AWeaponBase::DropWeapon()
 		SpawnedDroppedWeaponItem->FinishSpawning(WeaponItemTransform);
 	}
 
-	FItemStruct* WeaponInformation = Player->GetInventoryComponent()->GetItemInformationFromDataTable(SpawnedDroppedWeaponItem->GetItemRowName());
-	if (WeaponInformation)
-		Player->GetInventoryComponent()->Inventory_Items.Remove(*WeaponInformation);
-
+	Player->GetInventoryComponent()->DeleteItemFromInventory(SpawnedDroppedWeaponItem->GetItemRowName());
 	Player->UpdateAlbertosInventory(true);
 }
 

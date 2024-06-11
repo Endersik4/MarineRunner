@@ -50,6 +50,7 @@ void ACheckpoint::OnCheckpointBoxBeginOverlap(UPrimitiveComponent* OverlappedCom
 	SaveCheckpointWasUsed();
 	DisableCheckpoint();
 
+	MarinePawn->CheckpointNumber = CheckpointNumber; //ztgk, delete later
 	MarinePawn->GetSaveLoadPlayerComponent()->SaveGame(SaveToNameAfterCheckpoint, SaveNumberWildCard);
 }
 

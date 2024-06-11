@@ -356,8 +356,8 @@ void AMarineCharacter::UseFirstAidKit()
 	FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
 	if (!FirstAidKitItem)
 		return;
-
 	FirstAidKitItem->Item_Amount--;
+
 	Health += FirstAidKitHealth;
 	if (Health > OriginalHealth)
 		Health = OriginalHealth;

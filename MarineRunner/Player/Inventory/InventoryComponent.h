@@ -79,12 +79,12 @@ public:
 		ResourceRequirements = Requirements;
 	}
 
-	bool operator==(const FItemStruct& SecondItem)
+	bool operator==(const FItemStruct& SecondItem) const
 	{
 		return Item_Name == SecondItem.Item_Name;
 	}
 
-	bool operator==(const FString& SecondItemName)
+	bool operator==(const FString& SecondItemName) const
 	{
 		return Item_Name == SecondItemName;
 	}
@@ -120,12 +120,25 @@ public:
 	FItemStruct* GetItemInformationFromDataTable(FName ItemRowNameFromDataTable);
 	FORCEINLINE int32 GetMaxSlotsInInventory() const { return MaxSlotsInInventory; }
 
-	void AddNewItemToInventory(FName ItemRowNameFromDataTable, float AddAmountToItem = 0.f);
+	// returns true if item was added to inventory, false otherwise
+	bool AddItemToInventory(FName ItemRowNameFromDataTable, const float& AddAmountToItem = 0.f);
+
 	void MoveWeaponRecipesToEndQueue();
 	void DeleteItemFromInventory(FItemStruct ItemToDelete);
+	void DeleteItemFromInventory(const FName& ItemRowNameToDelete);
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Inventory")
 	int32 MaxSlotsInInventory = 31;
 	void TransformItemsDataToInventory();
+
+	// returns true if amount was added to item in inventory, false otherwise
+	bool AddAmountToItemIfFound(FItemStruct* ItemFromInventory, const float& AmountToAdd);
+	void AddCraftRecipeIfCraftable(const FItemStruct* ItemDataFromDataTable);
+	void UpdateInventoryPlayerInformation(const bool& bIsItemCraftable);
+
+	UPROPERTY(Transient)
+	bool bSpawnNewRecipeUnlockedWidget = false;
+	UPROPERTY(Transient)
+	TObjectPtr<class AMarineCharacter> Player = nullptr;
 };

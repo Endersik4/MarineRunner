@@ -82,6 +82,8 @@ void USaveLoadPlayerComponent::SaveGame(const FString& _SaveName, const FString&
 	CreatedSaveGame->SavedPlayerLocation = Player->GetActorLocation();
 	CreatedSaveGame->SavedPlayerRotation = Player->GetActorRotation();
 
+	CreatedSaveGame->CheckpointNumber = Player->CheckpointNumber; //ztgk, delete later
+
 	CreatedSaveGame->bShowHealBar = bShowHealBar;
 	CreatedSaveGame->bShowDashBar = bShowDashBar;
 	CreatedSaveGame->bShowSlowMotionBar = bShowSlowMotionBar;

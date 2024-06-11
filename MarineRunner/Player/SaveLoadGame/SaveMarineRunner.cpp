@@ -53,9 +53,9 @@ FString USaveMarineRunner::TakeSaveScreenshot(TObjectPtr<APlayerController> Play
 	if (!IsValid(PlayerController))
 		return "0";
 
-	const FString& ScreenshotName = GetSaveGameName() +".jpg";
-	const FString& SaveGamesDir = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + ScreenshotName;
-	const FString& TakeScreenShotCommand = "HighResShot 320x180 filename=\"" + SaveGamesDir + "\"";
+	const FString ScreenshotName = GetSaveGameName() +".jpg";
+	const FString SaveGamesDir = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + ScreenshotName;
+	const FString TakeScreenShotCommand = "HighResShot 320x180 filename=\"" + SaveGamesDir + "\"";
 
 	PlayerController->ConsoleCommand(TakeScreenShotCommand);
 	return SaveGamesDir;
@@ -63,19 +63,19 @@ FString USaveMarineRunner::TakeSaveScreenshot(TObjectPtr<APlayerController> Play
 
 FString USaveMarineRunner::ConvertCurrentDateToText()
 {
-	const FString& CurrentTimeText_Minutes = FDateTime::Now().GetMinute() < 10 ? "0" + FString::FromInt(FDateTime::Now().GetMinute()) : FString::FromInt(FDateTime::Now().GetMinute());
-	const FString& CurrentTimeText = FString::FromInt(FDateTime::Now().GetHour()) + ":" + CurrentTimeText_Minutes;
+	const FString CurrentTimeText_Minutes = FDateTime::Now().GetMinute() < 10 ? "0" + FString::FromInt(FDateTime::Now().GetMinute()) : FString::FromInt(FDateTime::Now().GetMinute());
+	const FString CurrentTimeText = FString::FromInt(FDateTime::Now().GetHour()) + ":" + CurrentTimeText_Minutes;
 
-	const FString& SaveDateText = CurrentTimeText + " " + FString::FromInt(FDateTime::Now().GetDay()) + "/" + FString::FromInt(FDateTime::Now().GetMonth()) + "/" + FString::FromInt(FDateTime::Now().GetYear());
+	const FString SaveDateText = CurrentTimeText + " " + FString::FromInt(FDateTime::Now().GetDay()) + "/" + FString::FromInt(FDateTime::Now().GetMonth()) + "/" + FString::FromInt(FDateTime::Now().GetYear());
 	return SaveDateText;
 }
 
 void USaveMarineRunner::MakeJsonFileWithSaveInfo(TObjectPtr<APlayerController> PlayerController, const FString& CurrentLevelName)
 {
-	const FString& PathToScreenshot = TakeSaveScreenshot(PlayerController);
-	const FString& SaveDateText = ConvertCurrentDateToText();
+	const FString PathToScreenshot = TakeSaveScreenshot(PlayerController);
+	const FString SaveDateText = ConvertCurrentDateToText();
 
-	const FString& FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".json";
+	const FString FilePath = UKismetSystemLibrary::GetProjectSavedDirectory() + "SaveGames/" + GetSaveGameName() + "/" + GetSaveGameName() + ".json";
 
 	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject);
 	JsonObject->SetStringField("SavedDataName", GetSaveGameName());
@@ -94,6 +94,8 @@ void USaveMarineRunner::LoadGame(TObjectPtr<AMarineCharacter> MarinePawn, TObjec
 {
 	if (!IsValid(MarinePawn)) 
 		return;
+
+	MarinePawn->CheckpointNumber = CheckpointNumber; //ztgk, delete later
 
 	MarinePawn->SetHealth(CurrentHealthSaved);
 	MarinePawn->GetInventoryComponent()->Inventory_Items = Inventory_ItemsSaved;

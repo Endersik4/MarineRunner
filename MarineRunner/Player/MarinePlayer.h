@@ -88,6 +88,9 @@ public:
 	bool bIsPlayerInElevator = false;
 
 	void ReplaceRootComponentRotation();
+
+	UPROPERTY(Transient)
+	int32 CheckpointNumber = 0;//ztgk, delete later
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class UCapsuleComponent> CapsulePawn = nullptr;

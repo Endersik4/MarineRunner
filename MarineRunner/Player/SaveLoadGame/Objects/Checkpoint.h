@@ -25,8 +25,6 @@ protected:
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
-public:
-
 private:
 	UFUNCTION()
 	void OnCheckpointBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -34,6 +32,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class UBoxComponent> CheckpointBox;
 
+	// Cheats - player will teleport to the stage number
+	UPROPERTY(EditAnywhere, Category = "Checkpoint Setting") //ztgk, delete later
+	int32 CheckpointNumber = 0;
 	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Setting")
 	FString SaveToNameAfterCheckpoint = FString("autosave_");
 	UPROPERTY(EditDefaultsOnly, Category = "Checkpoint Setting")
