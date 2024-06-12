@@ -17,13 +17,13 @@ AShootingEnemyPawn::AShootingEnemyPawn()
 
 void AShootingEnemyPawn::BeginPlay()
 {
-	ApplyEnemyDifficulty();
-
 	Super::BeginPlay();
 
-	SetUpShootAlert();
+	OriginalMaxSpeed = EnemyFloatingMovement->MaxSpeed;
+	OriginalShootTime = ShootTime;
+	ApplyEnemyDifficulty();
 
-	UE_LOG(LogTemp, Warning, TEXT("HP %f"), Health);
+	SetUpShootAlert();
 }
 
 void AShootingEnemyPawn::Tick(float DeltaTime)
@@ -243,9 +243,15 @@ void AShootingEnemyPawn::ApplyEnemyDifficulty()
 	if (!IsValid(MarineRunnerGameInstance))
 		return;
 
-	const float& EnemiesDifficultyPercent = MarineRunnerGameInstance->GetCurrentGameDifficulty().EnemiesDifficultyPercent;
-	Health *= EnemiesDifficultyPercent;
+	int32 GameDifficultyNumber = MarineRunnerGameInstance->FindSavedValueAccordingToName(MarineRunnerGameInstance->GetGameDifficultySavedFieldName());
+	if (GameDifficultyNumber >= MarineRunnerGameInstance->GetAllGameDifficulties().Num())
+		return;
+
+	const float& EnemiesDifficultyPercent = MarineRunnerGameInstance->GetAllGameDifficulties()[GameDifficultyNumber].EnemiesDifficultyPercent;
+	Health = OriginalHealth * EnemiesDifficultyPercent;
 	EnemyGunComponent->ApplyWeaponDifficulty(EnemiesDifficultyPercent);
-	EnemyFloatingMovement->MaxSpeed *= EnemiesDifficultyPercent;
-	ShootTime /= EnemiesDifficultyPercent;
+	EnemyFloatingMovement->MaxSpeed = OriginalMaxSpeed * EnemiesDifficultyPercent;
+	ShootTime = OriginalShootTime / EnemiesDifficultyPercent;
+
+	SetUpEnemyHealthIndicatorWidgetComponent();
 }

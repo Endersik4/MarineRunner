@@ -41,7 +41,6 @@ public:
 	bool GetIsPullingUp() const;
 	bool GetIsInAir() const;
 	FVector GetCameraLocation() const;
-	bool GetIsMessageDisplayed() const;
 	bool GetIsInPauseMenu() const;
 
 	FORCEINLINE float GetMovementForce() const { return MovementSpeed; }
@@ -251,6 +250,7 @@ private:
 	FTimerHandle UseFirstAidKitHandle;
 	FORCEINLINE void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }
 	void UseFirstAidKit();
+
 
 	//Widgets
 	void MakeHudWidget();

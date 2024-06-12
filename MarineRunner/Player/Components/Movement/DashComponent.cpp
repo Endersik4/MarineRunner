@@ -6,8 +6,8 @@
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Widgets/HUDWidget.h"
 #include "MarineRunner/Player/Widgets/Dash/DashWidget.h"
+#include "MarineRunner/Player/SaveLoadGame/SaveLoadPlayerComponent.h"
 
-// Sets default values for this component's properties
 UDashComponent::UDashComponent()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -149,6 +149,9 @@ bool UDashComponent::CanPlayerPerformDash() const
 		return false;
 
 	if (MarinePawn->GetInputAxisValue("Right") == 0.f && MarinePawn->GetInputAxisValue("Forward") == 0.f)
+		return false;
+
+	if (!MarinePawn->GetSaveLoadPlayerComponent()->GetIsGameplayMechanicEnabled(EUIN_DashBar))
 		return false;
 
 	return true;

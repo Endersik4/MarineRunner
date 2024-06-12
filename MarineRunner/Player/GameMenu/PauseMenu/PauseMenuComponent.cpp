@@ -8,6 +8,7 @@
 #include "PauseMenuWidget.h"
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Components/Movement/SlowMotionComponent.h"
+#include "MarineRunner/Player/Components/MessageHandlerComponent.h"
 
 // Sets default values for this component's properties
 UPauseMenuComponent::UPauseMenuComponent()
@@ -50,17 +51,22 @@ void UPauseMenuComponent::UnPauseGame()
 	if (!bRemovePauseMenuWidget|| !IsValid(PlayerController))
 		return;
 
-	if (!Player->GetIsMessageDisplayed())
-	{
-		UGameplayStatics::SetGamePaused(GetWorld(), false);
-		ChangeUIToGameOnly();
-	}
 	bIsInPauseMenu = false;
 
 	Player->GetSlowMotionComponent()->PauseSlowMotionSound(false);
 
 	PauseMenuWidget->RemoveFromParent();
 	PauseMenuWidget = nullptr;
+
+	if (Player->GetMessageHandlerComponent()->GetIsMessageDisplayed())
+		return;
+
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+
+	if (Player->GetMessageHandlerComponent()->GetIsCheatsDisplayed())
+		return;
+
+	ChangeUIToGameOnly();
 }
 
 void UPauseMenuComponent::SpawnPauseMenuWidget()

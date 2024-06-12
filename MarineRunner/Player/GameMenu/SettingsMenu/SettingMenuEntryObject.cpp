@@ -102,8 +102,7 @@ bool USettingMenuEntryObject::WasValueLoadedFromJsonFile(float& Value)
 	if (!MenuSettingsData.bSaveValueToGameInstance || !IsValid(GameInstance))
 		return false;
 
-	GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, Value);
-
+	Value = GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName);
 	return true;
 }
 
@@ -112,8 +111,8 @@ bool USettingMenuEntryObject::WasValueLoadedFromJsonFile(int32& Value)
 	if (!MenuSettingsData.bSaveValueToGameInstance || !IsValid(GameInstance))
 		return false;
 
-	float IntToFloat = (float)Value;
-	GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, IntToFloat);
+	float IntToFloat = GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName);
+	Value = (int32)IntToFloat;
 
 	return true;
 }
@@ -123,8 +122,8 @@ bool USettingMenuEntryObject::WasValueLoadedFromJsonFile(bool& Value)
 	if (!MenuSettingsData.bSaveValueToGameInstance || !IsValid(GameInstance))
 		return false;
 
-	float BoolToFloat = (float)Value;
-	GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName, BoolToFloat);
+	float BoolToFloat = GameInstance->FindSavedValueAccordingToName(MenuSettingsData.SavedValueName);
+	Value = (bool)BoolToFloat;
 
 	return true;
 }

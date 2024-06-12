@@ -246,9 +246,9 @@ void USettingsMenuWidget::OnClickedAcceptSettingsButton()
 		if (!IsValid(SettingMenuObject)) 
 			continue;
 
-		ActiveSettingByType(SettingMenuObject->MenuSettingsData, SettingMenuObject);
-
 		ReplaceValueInGameInstanceByName(SettingMenuObject->MenuSettingsData);
+
+		ActiveSettingByType(SettingMenuObject->MenuSettingsData, SettingMenuObject);
 	}
 
 	UGameUserSettings::GetGameUserSettings()->ApplyResolutionSettings(false);
@@ -298,6 +298,10 @@ void USettingsMenuWidget::ReplaceValueInGameInstanceByName(const FMenuSettings& 
 	else if (SubSettingData.SubSettingType == EST_SliderValue)
 	{
 		MarineGameInstance->ReplaceValueInSavedSettingByName(SubSettingData.SliderCurrentValue, SubSettingData.SavedValueName);
+	}
+	else if (SubSettingData.SubSettingType == EST_OnOff)
+	{
+		MarineGameInstance->ReplaceValueInSavedSettingByName(SubSettingData.bSettingEnabled, SubSettingData.SavedValueName);
 	}
 }
 

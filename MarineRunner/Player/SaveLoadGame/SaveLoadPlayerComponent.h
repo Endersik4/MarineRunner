@@ -37,6 +37,8 @@ public:
 	FORCEINLINE TObjectPtr<class ASavedDataObject> GetSavedDataObject() { return SavedDataObject; }
 
 	void ShowGameplayMechanicsOnHud(const enum EUnlockInHud& WhatToUnlock);
+	bool GetIsGameplayMechanicEnabled(const enum EUnlockInHud& WhatToGet);
+
 private:
 
 	UPROPERTY(EditAnywhere, Category = "Saves")
@@ -56,11 +58,11 @@ private:
 
 	void SpawnNewPlayer();
 
-	UPROPERTY(Transient)
+	UPROPERTY(EditAnywhere, Category = "Gameplay Mechanics")
 	bool bShowHealBar = false;
-	UPROPERTY(Transient)
+	UPROPERTY(EditAnywhere, Category = "Gameplay Mechanics")
 	bool bShowDashBar = false;
-	UPROPERTY(Transient)
+	UPROPERTY(EditAnywhere, Category = "Gameplay Mechanics")
 	bool bShowSlowMotionBar = false;
 
 	UPROPERTY(Transient)

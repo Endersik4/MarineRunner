@@ -165,6 +165,9 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction(TEXT("Swing"), IE_Pressed, SwingComponent.Get(), &USwingComponent::SwingPressed);
 	PlayerInputComponent->BindAction(TEXT("SlowMotion"), IE_Pressed, SlowMotionComponent.Get(), &USlowMotionComponent::TurnOnSlowMotion);
 
+	PlayerInputComponent->BindAction(TEXT("Cheats"), IE_Pressed, MessageHandlerComponent.Get(), &UMessageHandlerComponent::SpawnCheatsWidget);
+
+
 	// Menu
 	FInputActionBinding& MainMenuToggle = PlayerInputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, PauseMenuComponent.Get(), &UPauseMenuComponent::PauseGame);
 	MainMenuToggle.bExecuteWhenPaused = true;
@@ -204,7 +207,7 @@ void AMarineCharacter::LoadFieldOfViewFromSettings()
 	if (!IsValid(GameInstance))
 		return;
 
-	GameInstance->FindSavedValueAccordingToName(FieldOfViewJSON.FieldName, FieldOfViewJSON.FieldValue);
+	FieldOfViewJSON.FieldValue = GameInstance->FindSavedValueAccordingToName(FieldOfViewJSON.FieldName);
 	Camera->SetFieldOfView(FieldOfViewJSON.FieldValue);
 }
 
@@ -350,7 +353,7 @@ void AMarineCharacter::PlayFootstepsSound()
 
 void AMarineCharacter::UseFirstAidKit()
 {
-	if (!bCanUseFirstAidKit || Health == OriginalHealth || bIsInCutscene)
+	if (!bCanUseFirstAidKit || Health == OriginalHealth || bIsInCutscene || !SaveLoadPlayerComponent->GetIsGameplayMechanicEnabled(EUIN_HealBar))
 		return;
 
 	FItemStruct* FirstAidKitItem = InventoryComponent->GetItemFromInventory(FirstAidKitRowName);
@@ -604,11 +607,6 @@ bool AMarineCharacter::GetIsCrouching() const
 FVector AMarineCharacter::GetCameraLocation() const
 {
 	return Camera->GetComponentLocation();
-}
-
-bool AMarineCharacter::GetIsMessageDisplayed() const
-{
-	return MessageHandlerComponent->GetIsMessageDisplayed();
 }
 
 bool AMarineCharacter::GetIsInPauseMenu() const

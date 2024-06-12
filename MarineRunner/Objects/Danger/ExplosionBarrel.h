@@ -32,8 +32,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class UStaticMeshComponent> ExplosionBarrelMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
-	TSubclassOf<AActor> ExplosionBarrelGeometryClass = nullptr;;
+	TObjectPtr<class USoundOnHitComponent> SoundOnHitComponent = nullptr;
 
+
+	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
+	TSubclassOf<AActor> ExplosionBarrelGeometryClass = nullptr;;
 	UPROPERTY(EditDefaultsOnly, Category = "Settings Explosion Barrel")
 	float StartExplodeTime = 0.05f;
 	UPROPERTY(EditAnywhere, Category = "Settings Explosion Barrel")

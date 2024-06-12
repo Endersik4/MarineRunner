@@ -7,6 +7,7 @@
 #include "Components/DecalComponent.h"
 
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
+#include "MarineRunner/Objects/Components/SoundOnHitComponent.h"
 
 AExplosionBarrel::AExplosionBarrel()
 {
@@ -14,6 +15,9 @@ AExplosionBarrel::AExplosionBarrel()
 	
 	ExplosionBarrelMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Explosion Barrel Mesh"));
 	RootComponent = ExplosionBarrelMesh;
+
+	SoundOnHitComponent = CreateDefaultSubobject<USoundOnHitComponent>(TEXT("Sound On Hit Component"));
+
 }
 
 void AExplosionBarrel::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
@@ -57,8 +61,8 @@ void AExplosionBarrel::Explode()
 	//Use interface on every actors that was hit by SweepMultiByChannel
 	for (const FHitResult& HitResult : HitArray)
 	{
-		if (ActorsToApplyDamage.Find(HitResult.GetActor()) == INDEX_NONE)
-			continue;
+		//if (ActorsToApplyDamage.Find(HitResult.GetActor()) == INDEX_NONE)
+		//	continue;
 
 		UseDamageInterfaceOnActor(HitResult);
 		ActorsToApplyDamage.Remove(HitResult.GetActor());
@@ -132,10 +136,11 @@ void AExplosionBarrel::SpawnExplosionDecal()
 	if (!bHit)
 		return;
 
-	TObjectPtr<UDecalComponent>	SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ExplosionDecal, ExplosionDecalSize, HitResult.Location, FRotator(-90.f, 0.f, 0.f));
+	TObjectPtr<UDecalComponent>	SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ExplosionDecal, FVector(1.f), HitResult.ImpactPoint-FVector(0.f, 0.f, 20.f), FRotator(-90.f, 0.f, 0.f));
 	if (!IsValid(SpawnedDecal))
 		return;
 
+	SpawnedDecal->DecalSize = ExplosionDecalSize;
 	SpawnedDecal->SetFadeScreenSize(0.f);
 }
 

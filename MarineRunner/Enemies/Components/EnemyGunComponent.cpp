@@ -98,7 +98,8 @@ void UEnemyGunComponent::SpawnBullet()
 		return;
 
 	FBulletStruct BulletDataForSpawnedBullet = BulletData;
-	BulletDataForSpawnedBullet.Damage = (bManyBulletAtOnce == false ? BulletData.Damage : BulletData.Damage / HowManyBulletsToSpawn);
+	float NewDamage = BulletData.Damage * EnemyDifficultyPercent;
+	BulletDataForSpawnedBullet.Damage = (bManyBulletAtOnce == false ? NewDamage : NewDamage / HowManyBulletsToSpawn);
 	BulletDataForSpawnedBullet.HitImpulseForce = (bManyBulletAtOnce == false ? BulletData.HitImpulseForce : BulletData.HitImpulseForce / HowManyBulletsToSpawn);
 	if (BulletData.bUsePhysicsForMovement)
 	{
@@ -184,5 +185,5 @@ const bool UEnemyGunComponent::CanShootAgain()
 
 void UEnemyGunComponent::ApplyWeaponDifficulty(const float EnemiesDifficultyPercent)
 {
-	BulletData.Damage *= EnemiesDifficultyPercent;
+	EnemyDifficultyPercent = EnemiesDifficultyPercent;
 }

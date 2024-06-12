@@ -7,6 +7,7 @@
 
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Widgets/HUDWidget.h"
+#include "MarineRunner/Player/SaveLoadGame/SaveLoadPlayerComponent.h"
 
 // Sets default values for this component's properties
 USlowMotionComponent::USlowMotionComponent()
@@ -36,7 +37,7 @@ void USlowMotionComponent::SlowMotionPressed()
 	if (!IsValid(MarinePawn))
 		return;
 
-	if (MarinePawn->GetIsPlayerMovingToHookLocation() || MarinePawn->GetIsInCutscene()) 
+	if (MarinePawn->GetIsPlayerMovingToHookLocation() || MarinePawn->GetIsInCutscene() || !MarinePawn->GetSaveLoadPlayerComponent()->GetIsGameplayMechanicEnabled(EUIN_SlowMoBar))
 		return;
 	
 	SuddentDisabledSlowMotion();

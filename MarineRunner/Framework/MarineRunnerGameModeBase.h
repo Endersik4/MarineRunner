@@ -23,6 +23,9 @@ public:
 	UFUNCTION(Exec, Category = ExecFunctions)
 	void TeleportToNextStage(); //ztgk, delete later
 
+	UFUNCTION(Exec, Category = ExecFunctions)
+	void ApplyDifficultyLevelToAllEnemies();
+
 	UPROPERTY(EditAnywhere)
 	TArray<FVector> StagesToTeleport;
 

@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "DialogueSubtitlesWidget.h"
+#include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
 ADialogueWithSubtitles::ADialogueWithSubtitles()
 {
@@ -41,6 +42,9 @@ void ADialogueWithSubtitles::StartDialogue()
 		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), DialogueSound, GetActorLocation());
 	else
 		UE_LOG(LogTemp, Warning, TEXT("DialogueSound is nullptr in DialogueWithSubtitles actor!"));
+
+	if (!GetIsSubtitlesEnabled())
+		return;
 
 	bool bSpawned = SpawnDialogueWidget();
 	if (!bSpawned)
@@ -82,5 +86,16 @@ void ADialogueWithSubtitles::ChangeSubtitles()
 	GetWorld()->GetTimerManager().SetTimer(ChangeSubtitlesHandle, this, &ADialogueWithSubtitles::ChangeSubtitles, AllSubtitlesForDialogue[CurrentDialogueSubtitles].TimeOnScreen, false);
 
 	CurrentDialogueSubtitles++;
+}
+
+bool ADialogueWithSubtitles::GetIsSubtitlesEnabled()
+{
+	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
+	if (!IsValid(GameInstance))
+		return false;
+
+	float SubtitlesEnabledValue = GameInstance->FindSavedValueAccordingToName(SubtitlesEnabledSavedName);
+
+	return SubtitlesEnabledValue == 0 ? false : true;
 }
 

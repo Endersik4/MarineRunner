@@ -100,6 +100,8 @@ protected:
 
 	UPROPERTY(Transient, EditAnywhere, Category = "Setting Enemy")
 	float Health = 100.f;
+	UPROPERTY(Transient)
+	float OriginalHealth = 100.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class UWidgetComponent> EnemyIndicatorWidgetComponent = nullptr;
@@ -107,12 +109,16 @@ protected:
 	UPROPERTY(Transient)
 	bool bIsRunningAway = false;
 
+	void SetUpEnemyHealthIndicatorWidgetComponent();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class UCapsuleComponent> EnemyCapsule = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	TObjectPtr<class UEnemyDismemberComponent> EnemyDismemberComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
-	float LifeSpanAfterDeath = 10.f;
+	float LifeSpanAfterDeath = 20.f;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Custom Hit on Bone")
 	TArray<FHitBoneType> HitBoneTypes = { FHitBoneType() };
@@ -185,5 +191,4 @@ private:
 	int32 CurrentUniqueID = 0;
 	void RemoveEnemySavedDataFromSave();
 
-	void SetUpEnemyHealthIndicatorWidgetComponent();
 };

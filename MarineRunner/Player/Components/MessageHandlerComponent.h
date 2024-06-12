@@ -27,12 +27,14 @@ public:
 	FORCEINLINE void SetIsMessageDisplayed(bool _bMessageDisplayed) { bIsMessageDisplayed = _bMessageDisplayed; }
 
 	FORCEINLINE bool GetIsMessageDisplayed() const { return bIsMessageDisplayed; }
+	FORCEINLINE bool GetIsCheatsDisplayed() const { return bIsCheatsDisplayed; }
 
 	void DeleteCurrentDisplayedMessage(class AMarineCharacter*);
 
 	void SpawnNewRecipeUnlockedWidget();
 	void SpawnNotEnoughSlotsForWeaponWidget();
 
+	void SpawnCheatsWidget();
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
@@ -41,11 +43,21 @@ private:
 	TSubclassOf<UUserWidget> NotEnoughSlotsForWeaponClassWidget = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
 	TObjectPtr<USoundBase> MessagePopUpSound = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Cheats")
+	TSubclassOf<class UCheatWidget> CheatWidgetClass = nullptr;
+
+	TObjectPtr<class UUserWidget> SpawnWidget(const TSubclassOf<UUserWidget>& WidgetClassToSpawn);
 
 	UPROPERTY(Transient)
 	bool bIsMessageDisplayed = false;
 	UPROPERTY(Transient)
 	TObjectPtr<class UMessageToReadWidget> CurrentDisplayedMessage = nullptr;
 
-	void SpawnWidget(const TSubclassOf<UUserWidget>& WidgetClassToSpawn);
+	UPROPERTY(Transient)
+	bool bIsCheatsDisplayed = false;
+	UPROPERTY(Transient)
+	TObjectPtr<class UUserWidget> SpawnedCheatWidget = nullptr;
+
+	UPROPERTY(Transient)
+	TObjectPtr<APlayerController> PlayerController = nullptr;
 };

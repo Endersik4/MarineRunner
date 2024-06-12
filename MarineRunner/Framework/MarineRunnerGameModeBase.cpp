@@ -6,6 +6,7 @@
 
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Inventory/InventoryComponent.h"
+#include "MarineRunner/Enemies/TypesOfEnemy/ShootingEnemyPawn.h"
 
 #pragma region //////// CUSTOM COMMANDS ///////
 void AMarineRunnerGameModeBase::ChangeMap(const FName& NewLevelName)
@@ -37,6 +38,23 @@ void AMarineRunnerGameModeBase::TeleportToNextStage()
 	Player->SetActorLocation(StagesToTeleport[Player->CheckpointNumber]);
 }
 
+void AMarineRunnerGameModeBase::ApplyDifficultyLevelToAllEnemies()
+{
+	TArray<TObjectPtr<AActor>> AllShootingEnemiesOnMap;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AShootingEnemyPawn::StaticClass(), AllShootingEnemiesOnMap);
+	for (TObjectPtr<AActor> CurrentEnemy : AllShootingEnemiesOnMap)
+	{
+		if (!IsValid(CurrentEnemy))
+			return;
+
+		TObjectPtr<AShootingEnemyPawn> ShootingEnemy = Cast<AShootingEnemyPawn>(CurrentEnemy);
+		if (!IsValid(ShootingEnemy))
+			return;
+
+		ShootingEnemy->ApplyEnemyDifficulty();
+	}
+}
+
 TObjectPtr<AMarineCharacter> AMarineRunnerGameModeBase::GetPlayer()
 {
 	TObjectPtr<APawn> TempPlayerPawn = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
@@ -45,5 +63,6 @@ TObjectPtr<AMarineCharacter> AMarineRunnerGameModeBase::GetPlayer()
 
 	return Cast<AMarineCharacter>(TempPlayerPawn);
 }
+
 #pragma endregion
 

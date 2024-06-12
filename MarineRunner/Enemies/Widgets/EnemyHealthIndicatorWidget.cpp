@@ -18,3 +18,9 @@ void UEnemyIndicatorWidget::ApplyCurrentHealthToDelayedBar()
 {
 	DelayedHealthBar->SetPercent(CurrentHealthBar->GetPercent());
 }
+
+void UEnemyIndicatorWidget::RestartEnemyHealthBar()
+{
+	DelayedHealthBar->SetPercent(MaxHealth);
+	CurrentHealthBar->SetPercent(MaxHealth);
+}

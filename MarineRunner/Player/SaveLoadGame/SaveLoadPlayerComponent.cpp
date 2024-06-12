@@ -158,6 +158,18 @@ void USaveLoadPlayerComponent::ShowGameplayMechanicsOnHud(const EUnlockInHud& Wh
 	Player->GetHudWidget()->ShowGameplayMechanicsBars(WhatToUnlock);
 }
 
+bool USaveLoadPlayerComponent::GetIsGameplayMechanicEnabled(const EUnlockInHud& WhatToGet)
+{
+	if (WhatToGet == EUnlockInHud::EUIN_DashBar)
+		return bShowDashBar;
+	else if (WhatToGet == EUnlockInHud::EUIN_HealBar)
+		return bShowHealBar;
+	else if (WhatToGet == EUnlockInHud::EUIN_SlowMoBar)
+		return bShowSlowMotionBar;
+
+	return false;
+}
+
 void USaveLoadPlayerComponent::RestartGame()
 {
 	if (!IsValid(Player))
@@ -238,7 +250,7 @@ void USaveLoadPlayerComponent::LoadSavedSettingsFromGameInstance()
 	const FSettingSavedInJsonFile& CurrentMouseSensName = PlayerController->GetMouseSensitivity();
 	FSettingSavedInJsonFile MouseSensitivityJson = Player->GetMouseSensitivityJSON();
 
-	GameInstance->FindSavedValueAccordingToName(MouseSensitivityJson.FieldName, MouseSensitivityJson.FieldValue);
+	MouseSensitivityJson.FieldValue = GameInstance->FindSavedValueAccordingToName(MouseSensitivityJson.FieldName);
 	if (CurrentMouseSensName == MouseSensitivityJson) 
 		Player->ChangeMouseSensitivity(MouseSensitivityJson);
 }

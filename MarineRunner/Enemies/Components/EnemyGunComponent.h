@@ -102,5 +102,8 @@ private:
 	FTimerHandle DelayEmptyMagazineHandle;
 	void DelayAfterEmptyMagazine();
 
+	UPROPERTY(Transient)
+	float EnemyDifficultyPercent = 1.f;
+
 	class IEnemyInterface* OwningEnemyInterface = nullptr;
 };

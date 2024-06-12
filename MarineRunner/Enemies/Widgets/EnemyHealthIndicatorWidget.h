@@ -27,6 +27,7 @@ public:
 	float DelayedHealthTime = 0.5f;
 
 	void SetCurrentHealthInHealthBar(const float NewHealth);
+	void RestartEnemyHealthBar();
 
 	FORCEINLINE void SetMaxHealth(float _MaxHealth) { MaxHealth = _MaxHealth; }
 private:

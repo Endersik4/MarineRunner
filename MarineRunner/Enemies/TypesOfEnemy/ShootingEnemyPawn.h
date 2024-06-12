@@ -41,6 +41,9 @@ public:
 	const FRotator FocusBoneOnPlayer(const FName BoneName, const bool bLookStraight);
 
 	void SawTheTarget(bool bSaw, TObjectPtr<AActor> SeenTarget = nullptr, bool bStartAttackingTheTarget = true);
+
+	void ApplyEnemyDifficulty();
+
 protected:
 
 	virtual bool KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObjectPtr<AActor> BulletActor, float NewSphereRadius) override;
@@ -105,7 +108,10 @@ private:
 	UPROPERTY(Transient)
 	TObjectPtr<UMaterialInstanceDynamic>CurrentAlertMaterial = nullptr;
 
-	void ApplyEnemyDifficulty();
+	UPROPERTY(Transient)
+	float OriginalShootTime = 1.f;
+	UPROPERTY(Transient)
+	float OriginalMaxSpeed = 1000.f;
 
 	//If enemy see the player then he will execute given functions
 	UPROPERTY(Transient)

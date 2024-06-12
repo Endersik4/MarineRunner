@@ -57,6 +57,8 @@ private:
 	TSubclassOf<class UDialogueSubtitlesWidget> DialogueWidgetClass = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Dialogue settings")
 	TArray<FDialogueSubtitles> AllSubtitlesForDialogue;
+	UPROPERTY(EditAnywhere, Category = "Dialogue settings")
+	FString SubtitlesEnabledSavedName = "SubtitlesEnable";
 
 	UPROPERTY(Transient)
 	bool bWasActivated = false;
@@ -68,6 +70,8 @@ private:
 
 	FTimerHandle ChangeSubtitlesHandle;
 	void ChangeSubtitles();
+
+	bool GetIsSubtitlesEnabled();
 
 	// return true if widget spawned successfully
 	bool SpawnDialogueWidget();

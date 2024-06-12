@@ -11,6 +11,7 @@
 
 #include "MarineRunner/Enemies/Widgets/EnemyHealthIndicatorWidget.h"
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
+#include "MarineRunner/Enemies/Components/EnemyDismemberComponent.h"
 
 AEnemyPawn::AEnemyPawn()
 {
@@ -29,6 +30,8 @@ AEnemyPawn::AEnemyPawn()
 	EnemySkeletalMesh->SetSimulatePhysics(false);
 	EnemySkeletalMesh->SetCollisionProfileName(FName(TEXT("EnemySkeletalProf")));
 
+	EnemyDismemberComponent = CreateDefaultSubobject<UEnemyDismemberComponent>(TEXT("Enemy Dismember Component"));
+
 	EnemyIndicatorWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Enemy Indicator Widget Component"));
 	EnemyIndicatorWidgetComponent->SetupAttachment(EnemySkeletalMesh);
 }
@@ -37,6 +40,7 @@ AEnemyPawn::AEnemyPawn()
 void AEnemyPawn::BeginPlay()
 {
 	Super::BeginPlay();
+	OriginalHealth = Health;
 
 	SetUpEnemyHealthIndicatorWidgetComponent();
 }
@@ -83,27 +87,31 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObj
 	{
 		bIsDead = true;
 
+		EnemyCapsule->SetSimulatePhysics(false);
+		EnemyCapsule->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		EnemySkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+
 		EnemySkeletalMesh->Stop();
 		EnemySkeletalMesh->SetSimulatePhysics(true);
 		SetLifeSpan(LifeSpanAfterDeath);
-
 		RemoveEnemySavedDataFromSave();
 
 		EnemyIndicatorWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
-	if (!IsValid(BulletActor))
-		return true;
-
 	// If the radius of the sphere is 0, the bullet did not use the radial sphere to deal damage.
-	if (NewSphereRadiusToApplyDamage == 0.f)
+	if (NewSphereRadiusToApplyDamage == 0.f && IsValid(BulletActor))
 	{
 		EnemySkeletalMesh->AddImpulse(BulletActor->GetActorForwardVector() * NewImpulseForce, NewHit.BoneName);
+		EnemyDismemberComponent->DismemberLimb(EnemySkeletalMesh, NewHit, NewImpulseForce);
 	}
 	else
 	{
-		EnemySkeletalMesh->AddRadialImpulse(BulletActor->GetActorLocation(), NewSphereRadiusToApplyDamage, NewImpulseForce, ERadialImpulseFalloff::RIF_Linear);
+		EnemySkeletalMesh->AddRadialImpulse(NewHit.TraceStart, NewSphereRadiusToApplyDamage, NewImpulseForce, ERadialImpulseFalloff::RIF_Linear);
+		EnemyDismemberComponent->DismemberLimb(EnemySkeletalMesh, NewHit, NewImpulseForce, NewSphereRadiusToApplyDamage);
 	}
+
 
 	return true;
 }
@@ -280,6 +288,13 @@ void AEnemyPawn::AddImpulseToPhysicsMesh(const FVector& Impulse)
 
 void AEnemyPawn::SetUpEnemyHealthIndicatorWidgetComponent()
 {
+	if (IsValid(EnemyIndicatorWidget))
+	{
+		EnemyIndicatorWidget->SetMaxHealth(Health);
+		EnemyIndicatorWidget->RestartEnemyHealthBar();
+		return;
+	}
+
 	EnemyIndicatorWidgetComponent->SetVisibility(false);
 	if (!ensureMsgf(IsValid(EnemyIndicatorWidgetComponent->GetUserWidgetObject()), TEXT("User Widget Object in Enemy Indicator Widget Component is nullptr in EnemyBasePawn")))
 		return;

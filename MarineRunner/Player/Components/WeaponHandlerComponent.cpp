@@ -178,7 +178,7 @@ void UWeaponHandlerComponent::LoadSavedMouseSensitivities()
 		return;
 
 	// updates player's default mouse sensitivity
-	GameInstance->FindSavedValueAccordingToName(Player->GetMouseSensitivityJSON().FieldName, Player->GetMouseSensitivityJSON().FieldValue);
+	Player->GetMouseSensitivityJSON().FieldValue = GameInstance->FindSavedValueAccordingToName(Player->GetMouseSensitivityJSON().FieldName);
 	
 	const FSettingSavedInJsonFile& CurrentMouseSensName = MarinePlayerController->GetMouseSensitivity();
 
@@ -189,7 +189,7 @@ void UWeaponHandlerComponent::LoadSavedMouseSensitivities()
 	for (FSettingSavedInJsonFile& CurrSetting : MouseSensitivityWhenScope)
 	{
 		// updates remaining mouse sensitivities
-		GameInstance->FindSavedValueAccordingToName(CurrSetting.FieldName, CurrSetting.FieldValue);
+		CurrSetting.FieldValue = GameInstance->FindSavedValueAccordingToName(CurrSetting.FieldName);
 
 		if (CurrentMouseSensName == CurrSetting) 
 			Player->ChangeMouseSensitivity(CurrSetting);

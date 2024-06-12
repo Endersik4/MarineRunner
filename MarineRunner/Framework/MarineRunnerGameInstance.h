@@ -117,7 +117,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SaveCustomSavedSettingsToConfig();
 	UFUNCTION(BlueprintCallable)
-	void FindSavedValueAccordingToName(const FString& SavedSettingName, float& Value);
+	float FindSavedValueAccordingToName(const FString& SavedSettingName);
 	UFUNCTION(BlueprintCallable)
 	void ReplaceValueInSavedSettingByName(float NewValue, const FString& SavedSettingName);
 
@@ -133,8 +133,6 @@ public:
 	FORCEINLINE EMusicType GetCurrentMusicType() const { return CurrentMusicType; }
 	FORCEINLINE TObjectPtr<USoundBase> GetCurrentExplorationMusic() const { return CurrentExplorationMusic; }
 
-	FORCEINLINE void SetCurrentGameDifficulty(FGameDifficulty NewGameDifficulty) { CurrentGameDifficulty = NewGameDifficulty; };
-	FORCEINLINE const FGameDifficulty& GetCurrentGameDifficulty() const { return CurrentGameDifficulty; };
 	FORCEINLINE const TArray<FGameDifficulty>& GetAllGameDifficulties() const { return AllGameDifficulties; };
 	FORCEINLINE const FString& GetGameDifficultySavedFieldName() const { return GameDifficultySavedFieldName; };
 
@@ -157,8 +155,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category = "Game Difficulty")
 	FString GameDifficultySavedFieldName = TEXT("GameDifficulty");
-	UPROPERTY(EditAnywhere, Category = "Game Difficulty", meta = (Multiline = "true"))
-	FGameDifficulty CurrentGameDifficulty = FGameDifficulty(1, FText::FromString(TEXT("-normal-")), FText::FromString(TEXT("-desc-")), 1.f);
 	UPROPERTY(EditAnywhere, Category = "Game Difficulty", meta = (Multiline = "true"))
 	TArray<FGameDifficulty> AllGameDifficulties;
 
@@ -186,8 +182,6 @@ private:
 	TArray<TObjectPtr<AActor>> DetectedPlayerEnemies;
 	UPROPERTY(Transient)
 	bool bIsDetectedByEnemies = false;
-
-	void LoadGameDifficulty();
 
 	UPROPERTY(Transient)
 	TEnumAsByte<EMusicType> CurrentMusicType = EMusicType::EMT_Exploration;

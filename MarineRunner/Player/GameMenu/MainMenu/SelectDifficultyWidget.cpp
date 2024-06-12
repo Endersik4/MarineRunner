@@ -41,11 +41,13 @@ void USelectDifficultyWidget::NativeOnInitialized()
 
 void USelectDifficultyWidget::OnClickedLeftChoiceButton()
 {
-	if (CurrentDifficulty - 1 < 0)
-		return;
+	RightArrowChoiceButton->SetIsEnabled(true);
 
 	CurrentDifficulty--;
 	UpdateDifficultyText();
+
+	if (CurrentDifficulty == 0)
+		LeftArrowChoiceButton->SetIsEnabled(false);
 }
 
 void USelectDifficultyWidget::OnHoveredLeftChoiceButton()
@@ -60,11 +62,13 @@ void USelectDifficultyWidget::OnUnhoveredLeftChoiceButton()
 
 void USelectDifficultyWidget::OnClickedRightChoiceButton()
 {
-	if (CurrentDifficulty + 1 >= GameInstance->GetAllGameDifficulties().Num())
-		return;
+	LeftArrowChoiceButton->SetIsEnabled(true);
 
 	CurrentDifficulty++;
 	UpdateDifficultyText();
+
+	if (CurrentDifficulty + 1 >= GameInstance->GetAllGameDifficulties().Num())
+		RightArrowChoiceButton->SetIsEnabled(false);
 }
 
 void USelectDifficultyWidget::OnHoveredRightChoiceButton()
@@ -131,7 +135,6 @@ void USelectDifficultyWidget::UpdateDifficultyText()
 void USelectDifficultyWidget::UpdateGameDifficultyInGameInstance()
 {
 	GameInstance->ReplaceValueInSavedSettingByName(GameInstance->GetAllGameDifficulties()[CurrentDifficulty].DifficultyLevel, GameInstance->GetGameDifficultySavedFieldName());
-	GameInstance->SetCurrentGameDifficulty(GameInstance->GetAllGameDifficulties()[CurrentDifficulty]);
 	GameInstance->SaveCustomSavedSettingsToConfig();
 }
 
