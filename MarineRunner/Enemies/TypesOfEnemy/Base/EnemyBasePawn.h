@@ -114,8 +114,8 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class UCapsuleComponent> EnemyCapsule = nullptr;
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-	TObjectPtr<class UEnemyDismemberComponent> EnemyDismemberComponent = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
+	TObjectPtr<class UDismemberEnemyComponent> DismemberEnemyComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy")
 	float LifeSpanAfterDeath = 20.f;

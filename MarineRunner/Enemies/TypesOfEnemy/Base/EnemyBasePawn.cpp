@@ -11,7 +11,7 @@
 
 #include "MarineRunner/Enemies/Widgets/EnemyHealthIndicatorWidget.h"
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
-#include "MarineRunner/Enemies/Components/EnemyDismemberComponent.h"
+#include "MarineRunner/Enemies/Components/DismemberEnemyComponent.h"
 
 AEnemyPawn::AEnemyPawn()
 {
@@ -30,7 +30,7 @@ AEnemyPawn::AEnemyPawn()
 	EnemySkeletalMesh->SetSimulatePhysics(false);
 	EnemySkeletalMesh->SetCollisionProfileName(FName(TEXT("EnemySkeletalProf")));
 
-	EnemyDismemberComponent = CreateDefaultSubobject<UEnemyDismemberComponent>(TEXT("Enemy Dismember Component"));
+	DismemberEnemyComponent = CreateDefaultSubobject<UDismemberEnemyComponent>(TEXT("Dismember Enemy Component"));
 
 	EnemyIndicatorWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Enemy Indicator Widget Component"));
 	EnemyIndicatorWidgetComponent->SetupAttachment(EnemySkeletalMesh);
@@ -75,6 +75,8 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitR
 		EnemyIndicatorWidget->SetCurrentHealthInHealthBar(Health);
 	}
 
+	DismemberEnemyComponent->DismemberLimb(EnemySkeletalMesh, NewHit, NewImpulseForce, BloodColor, NewSphereRadiusToApplyDamage);
+
 	KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadiusToApplyDamage);
 }
 
@@ -104,12 +106,10 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObj
 	if (NewSphereRadiusToApplyDamage == 0.f && IsValid(BulletActor))
 	{
 		EnemySkeletalMesh->AddImpulse(BulletActor->GetActorForwardVector() * NewImpulseForce, NewHit.BoneName);
-		EnemyDismemberComponent->DismemberLimb(EnemySkeletalMesh, NewHit, NewImpulseForce);
 	}
 	else
 	{
 		EnemySkeletalMesh->AddRadialImpulse(NewHit.TraceStart, NewSphereRadiusToApplyDamage, NewImpulseForce, ERadialImpulseFalloff::RIF_Linear);
-		EnemyDismemberComponent->DismemberLimb(EnemySkeletalMesh, NewHit, NewImpulseForce, NewSphereRadiusToApplyDamage);
 	}
 
 
