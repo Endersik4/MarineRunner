@@ -2,12 +2,12 @@
 
 
 #include "MarineRunner/Enemies/Components/DismemberEnemyComponent.h"
-#include "Animation/SkeletalMeshActor.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
+#include "DismemberedLimbActor.h"
 UDismemberEnemyComponent::UDismemberEnemyComponent()
 {
 	PrimaryComponentTick.bCanEverTick = false;
@@ -31,6 +31,7 @@ void UDismemberEnemyComponent::DismemberLimb(TObjectPtr<USkeletalMeshComponent> 
 		return;
 
 	SkeletalMeshToDismember->HideBoneByName(HitBoneResult.BoneName, EPhysBodyOp::PBO_MAX);
+	AllTerminatedBones.Add(HitBoneResult.BoneName);
 
 	// impulse is added to hit bone, have to terminate bone later for impulse to work
 	FTimerHandle TerminateBoneHandle;
@@ -54,28 +55,35 @@ FDismemberLimb* UDismemberEnemyComponent::SpawnLimb(TObjectPtr<USkeletalMeshComp
 
 	FRotator LimbRotation = LimbToDismbember->LimbRotation + SkeletalMeshToDismember->GetBoneQuaternion(HitBoneResult.BoneName).Rotator();
 	FTransform SpawnedLimbTransform = FTransform(LimbRotation, SkeletalMeshToDismember->GetBoneLocation(HitBoneResult.BoneName), SkeletalMeshToDismember->GetRelativeScale3D());
-	TObjectPtr<ASkeletalMeshActor> SpawnedLimb = GetWorld()->SpawnActor<ASkeletalMeshActor>(ASkeletalMeshActor::StaticClass(), SpawnedLimbTransform);
+	TObjectPtr<ADismemberedLimbActor> SpawnedLimb = GetWorld()->SpawnActor<ADismemberedLimbActor>(ADismemberedLimbActor::StaticClass(), SpawnedLimbTransform);
 	if (!IsValid(SpawnedLimb))
 		return nullptr;
 
+	SpawnedLimb->DismemberBodyComponent = this;
+
 	SpawnedLimb->SetLifeSpan(LimbLifeSpan);
 
-	SpawnedLimb->GetSkeletalMeshComponent()->SetSkeletalMesh(LimbToDismbember->LimbSkeletalMesh);
-	SpawnedLimb->GetSkeletalMeshComponent()->SetMassScale(NAME_None, LimbToDismbember->LimbMassScale);
-	SpawnedLimb->GetSkeletalMeshComponent()->RecreatePhysicsState();
+	SpawnedLimb->GetLimbSkeletalMesh()->SetSkeletalMesh(LimbToDismbember->LimbSkeletalMesh);
+	SpawnedLimb->GetLimbSkeletalMesh()->SetMassScale(NAME_None, LimbToDismbember->LimbMassScale);
+	SpawnedLimb->GetLimbSkeletalMesh()->RecreatePhysicsState();
 
-	SpawnedLimb->GetSkeletalMeshComponent()->SetSimulatePhysics(true);
+	SpawnedLimb->GetLimbSkeletalMesh()->SetSimulatePhysics(true);
 
-	SpawnedLimb->GetSkeletalMeshComponent()->SetCollisionResponseToChannel(ECC_GameTraceChannel11, ECR_Ignore); // trace == in air
+	//SpawnedLimb->GetLimbSkeletalMesh()->SetCollisionResponseToChannel(ECC_GameTraceChannel11, ECR_Ignore); // trace == in air
 
 	if (RadialImpulseRadius != 0.f)
 	{
-		SpawnedLimb->GetSkeletalMeshComponent()->AddRadialImpulse(HitBoneResult.TraceStart, RadialImpulseRadius, ImpulseForce * ImpulseForceMultiplier, ERadialImpulseFalloff::RIF_Linear, true);
+		SpawnedLimb->GetLimbSkeletalMesh()->AddRadialImpulse(HitBoneResult.TraceStart, RadialImpulseRadius, ImpulseForce * ImpulseForceMultiplier, ERadialImpulseFalloff::RIF_Linear, true);
 	}
 	else
 	{
 		FVector BulletDirection = UKismetMathLibrary::FindLookAtRotation(HitBoneResult.TraceStart, HitBoneResult.TraceEnd).Vector();
-		SpawnedLimb->GetSkeletalMeshComponent()->AddImpulse(BulletDirection * ImpulseForce * ImpulseForceMultiplier, HitBoneResult.BoneName, true);
+		SpawnedLimb->GetLimbSkeletalMesh()->AddImpulse(BulletDirection * ImpulseForce * ImpulseForceMultiplier, HitBoneResult.BoneName, true);
+	}
+
+	for (const FName& TerminatedBone : AllTerminatedBones)
+	{
+		SpawnedLimb->GetLimbSkeletalMesh()->HideBoneByName(TerminatedBone, EPhysBodyOp::PBO_Term);
 	}
 
 	return LimbToDismbember;
@@ -94,10 +102,11 @@ void UDismemberEnemyComponent::SpawnBloodSprayParticle(FDismemberLimb* Dismember
 	if (!IsValid(BloodSprayNiagaraSystem))
 		return;
 
-	FRotator BloodSprayRotation = SkeletalMeshToDismember->GetBoneQuaternion(DismemberedLimb->UpperBoneName).Rotator() + BloodSprayAddRotation;
-	TObjectPtr<UNiagaraComponent> SpawnedNiagaraParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(BloodSprayNiagaraSystem, SkeletalMeshToDismember, DismemberedLimb->UpperBoneName,
-			SkeletalMeshToDismember->GetBoneLocation(DismemberedLimb->UpperBoneName), BloodSprayRotation, EAttachLocation::KeepWorldPosition, true);
-
+	const FName& ParentBoneName = SkeletalMeshToDismember->GetParentBone(DismemberedLimb->BoneName);
+	FRotator BloodSprayRotation = SkeletalMeshToDismember->GetBoneQuaternion(ParentBoneName).Rotator() + BloodSprayAddRotation;
+	TObjectPtr<UNiagaraComponent> SpawnedNiagaraParticle = UNiagaraFunctionLibrary::SpawnSystemAttached(BloodSprayNiagaraSystem, SkeletalMeshToDismember, ParentBoneName,
+			SkeletalMeshToDismember->GetBoneLocation(ParentBoneName), BloodSprayRotation, EAttachLocation::KeepWorldPosition, true);
+	
 	if (!IsValid(SpawnedNiagaraParticle))
 		return;
 

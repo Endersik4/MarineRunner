@@ -15,9 +15,6 @@ struct FDismemberLimb
 	TObjectPtr<USkeletalMesh> LimbSkeletalMesh = nullptr;
 	UPROPERTY(EditAnywhere)
 	FName BoneName = FName();
-	// for blood spread
-	UPROPERTY(EditAnywhere)
-	FName UpperBoneName = FName();
 	UPROPERTY(EditAnywhere)
 	FRotator LimbRotation = FRotator(0.f);
 	UPROPERTY(EditAnywhere)
@@ -37,16 +34,14 @@ struct FDismemberLimb
 	{
 		LimbSkeletalMesh = nullptr;
 		BoneName = FName();
-		UpperBoneName = FName();
 		LimbRotation = FRotator(0.f);
 		LimbMassScale = 10.f;
 	}
 
-	FDismemberLimb(TObjectPtr<USkeletalMesh> _LimbSkeletalMesh, FName _BoneName, FName _UpperBoneName, FRotator _LimbRotation, float _LimbMassScale)
+	FDismemberLimb(TObjectPtr<USkeletalMesh> _LimbSkeletalMesh, FName _BoneName, FRotator _LimbRotation, float _LimbMassScale)
 	{
 		LimbSkeletalMesh = _LimbSkeletalMesh;
 		BoneName = _BoneName;
-		UpperBoneName = _UpperBoneName;
 		LimbRotation = _LimbRotation;
 		LimbMassScale = _LimbMassScale;
 	}
@@ -84,4 +79,7 @@ private:
 	FDismemberLimb* SpawnLimb(TObjectPtr<USkeletalMeshComponent> SkeletalMeshToDismember, const FHitResult& HitBoneResult, const float& ImpulseForce, const float& RadialImpulseRadius);
 	void TerminateBone(TObjectPtr<USkeletalMeshComponent> SkeletalMeshToDismember, FName BoneNameToTerminate);
 	void SpawnBloodSprayParticle(FDismemberLimb* DismemberedLimb, TObjectPtr<USkeletalMeshComponent> SkeletalMeshToDismember, const FColor& BloodSprayColor);
+
+	UPROPERTY(Transient)
+	TArray<FName> AllTerminatedBones;
 };
