@@ -60,12 +60,11 @@ public:
 	// Sets default values for this pawn's properties
 	AEnemyPawn();
 
+	//Function From IDamageInterface
+	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	//Function From IDamageInterface
-	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
 
 	// ISaveCustomDataInterface
 	virtual void LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
@@ -75,6 +74,12 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	// Effects
+	void SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType* PtrHitBoneType);
+	void SpawnGunshotWoundDecal(const FHitResult& Hit, const TObjectPtr<class USkeletalMeshComponent> SkeletalMeshToSpawnOn);
+	void SpawnBloodOnObjectDecal(TObjectPtr<const AActor> BulletThatHitEnemy, const FVector& HitLocation);
+	FHitBoneType* GetHitBoneType(const FName& BoneNameToFind);
 
 	FORCEINLINE virtual USkeletalMeshComponent* GetSkeletalMesh() override { return EnemySkeletalMesh; }
 	FORCEINLINE virtual class AActor* GetFocusedActor() override { return nullptr; }
@@ -91,6 +96,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void SetEnemyHealth(float& NewHealth) { Health = NewHealth; }
+
+	FORCEINLINE TObjectPtr<class UDismemberEnemyComponent> GetDismemberEnemyComponent() { return DismemberEnemyComponent; }
 
 protected:
 	UPROPERTY(Transient)
@@ -170,11 +177,6 @@ private:
 	FName BloodColorParameterName = FName(TEXT("ColorOfBlood"));
 	UPROPERTY(EditDefaultsOnly, Category = "Enemy Blood Spray")
 	TObjectPtr<UParticleSystem> EnemyBloodParticle = nullptr;
-
-	// Effects
-	void SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType* PtrHitBoneType);
-	void SpawnGunshotWoundDecal(const FHitResult& Hit);
-	void SpawnBloodOnObjectDecal(TObjectPtr<const AActor> BulletThatHitEnemy, const FVector& HitLocation);
 
 	// Enemy Indicator Widget
 	UPROPERTY(Transient)

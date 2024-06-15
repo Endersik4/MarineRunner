@@ -59,7 +59,7 @@ void AEnemyPawn::Tick(float DeltaTime)
 #pragma region ///////////////// DAMAGE ///////////////////////
 void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadiusToApplyDamage)
 {
-	const FHitBoneType* FoundBoneForExtraDamage = HitBoneTypes.FindByKey(NewHit.BoneName);
+	const FHitBoneType* FoundBoneForExtraDamage = GetHitBoneType(NewHit.BoneName);
 	if (FoundBoneForExtraDamage)
 	{
 		NewDamage *= FoundBoneForExtraDamage->DamageMultiplier;
@@ -67,7 +67,7 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitR
 
 	Health -= NewDamage;
 	SpawnEffectsForImpact(NewHit, FoundBoneForExtraDamage);
-	SpawnGunshotWoundDecal(NewHit);
+	SpawnGunshotWoundDecal(NewHit, EnemySkeletalMesh);
 	SpawnBloodOnObjectDecal(BulletActor, NewHit.Location);
 
 	if (IsValid(EnemyIndicatorWidget))
@@ -119,14 +119,14 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObj
 #pragma endregion 
 
 #pragma region ///////////// EFFECTS ////////////////////
-void AEnemyPawn::SpawnGunshotWoundDecal(const FHitResult& Hit)
+void AEnemyPawn::SpawnGunshotWoundDecal(const FHitResult& Hit, const TObjectPtr<class USkeletalMeshComponent> SkeletalMeshToSpawnOn)
 {
 	if (!IsValid(GunshotWoundDecalMaterial)) 
 		return;
 
 	const FVector& GunshotWoundSize = FVector(FMath::FRandRange(GunshotWoundRandomSizeRange.GetLowerBoundValue(), GunshotWoundRandomSizeRange.GetUpperBoundValue()));
 	const FRotator& GunshotWoundRotation = Hit.ImpactNormal.Rotation();
-	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAttached(GunshotWoundDecalMaterial, GunshotWoundSize, EnemySkeletalMesh, Hit.BoneName, Hit.Location, GunshotWoundRotation, EAttachLocation::KeepWorldPosition, GunshotWoundDecalLifeSpan);
+	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAttached(GunshotWoundDecalMaterial, GunshotWoundSize, SkeletalMeshToSpawnOn, Hit.BoneName, Hit.Location, GunshotWoundRotation, EAttachLocation::KeepWorldPosition, GunshotWoundDecalLifeSpan);
 	if (!IsValid(SpawnedDecal))
 		return;
 	
@@ -280,6 +280,10 @@ void AEnemyPawn::RestartData(ASavedDataObject* SavedDataObject, const int32 IDke
 
 #pragma endregion
 
+FHitBoneType* AEnemyPawn::GetHitBoneType(const FName& BoneNameToFind)
+{
+	return HitBoneTypes.FindByKey(BoneNameToFind);
+}
 
 void AEnemyPawn::AddImpulseToPhysicsMesh(const FVector& Impulse)
 {

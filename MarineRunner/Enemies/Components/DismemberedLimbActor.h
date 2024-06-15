@@ -24,12 +24,11 @@ protected:
 public:
 	FORCEINLINE TObjectPtr<USkeletalMeshComponent> GetLimbSkeletalMesh() const { return LimbSkeletalMesh; }
 
+	void SetEnemyLimbOwner(TObjectPtr<AActor> NewOwner);
 private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class USkeletalMeshComponent> LimbSkeletalMesh = nullptr;
-public:
-	UPROPERTY(EditDefaultsOnly, Category = "Components")
-	TObjectPtr<class UDismemberEnemyComponent> DismemberBodyComponent = nullptr;
-
+	UPROPERTY(Transient)
+	TObjectPtr<class AEnemyPawn> EnemyLimbOwner = nullptr;
 };

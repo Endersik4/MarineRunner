@@ -17,8 +17,6 @@ struct FDismemberLimb
 	FName BoneName = FName();
 	UPROPERTY(EditAnywhere)
 	FRotator LimbRotation = FRotator(0.f);
-	UPROPERTY(EditAnywhere)
-	float LimbMassScale = 10.f;
 
 	const bool operator==(const FName& otherLimbName) const
 	{
@@ -35,15 +33,13 @@ struct FDismemberLimb
 		LimbSkeletalMesh = nullptr;
 		BoneName = FName();
 		LimbRotation = FRotator(0.f);
-		LimbMassScale = 10.f;
 	}
 
-	FDismemberLimb(TObjectPtr<USkeletalMesh> _LimbSkeletalMesh, FName _BoneName, FRotator _LimbRotation, float _LimbMassScale)
+	FDismemberLimb(TObjectPtr<USkeletalMesh> _LimbSkeletalMesh, FName _BoneName, FRotator _LimbRotation)
 	{
 		LimbSkeletalMesh = _LimbSkeletalMesh;
 		BoneName = _BoneName;
 		LimbRotation = _LimbRotation;
-		LimbMassScale = _LimbMassScale;
 	}
 };
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -65,18 +61,24 @@ public:
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Dismember System")
 	TArray<FDismemberLimb> AllLimbsToDismember;
+	// When a new limb spawns, the original bone is hidden, after which the bone is terminated.
 	UPROPERTY(EditDefaultsOnly, Category = "Dismember System")
 	float TimeToTerminateBone = 0.05f;
 	UPROPERTY(EditDefaultsOnly, Category = "Dismember System")
 	float LimbLifeSpan = 30.f;
+	// multiplier for /radial/ impulse to limb
 	UPROPERTY(EditDefaultsOnly, Category = "Dismember System")
 	float ImpulseForceMultiplier = 5.f;
+	// This value is added to LimbLifeSpawn when a new limb is spawned for a new enemy life spawn
 	UPROPERTY(EditDefaultsOnly, Category = "Dismember System")
-	TObjectPtr<class UNiagaraSystem> BloodSprayNiagaraSystem = nullptr;
+	float AdditionalLifeSpanForEnemyOwner = 1.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Dismember System")
+	TObjectPtr<class UNiagaraSystem> BloodSprayFromLimbNiagaraSystem = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Dismember System")
 	FRotator BloodSprayAddRotation = FRotator(0.f, 0.f, -90.f);
 
-	FDismemberLimb* SpawnLimb(TObjectPtr<USkeletalMeshComponent> SkeletalMeshToDismember, const FHitResult& HitBoneResult, const float& ImpulseForce, const float& RadialImpulseRadius);
+	// returns DismemberLimb from AllLimbsToDismember if found
+	FDismemberLimb* SpawnLimbActor(TObjectPtr<USkeletalMeshComponent> SkeletalMeshToDismember, const FHitResult& HitBoneResult, const float& ImpulseForce, const float& RadialImpulseRadius);
 	void TerminateBone(TObjectPtr<USkeletalMeshComponent> SkeletalMeshToDismember, FName BoneNameToTerminate);
 	void SpawnBloodSprayParticle(FDismemberLimb* DismemberedLimb, TObjectPtr<USkeletalMeshComponent> SkeletalMeshToDismember, const FColor& BloodSprayColor);
 
