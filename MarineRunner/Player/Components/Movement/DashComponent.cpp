@@ -106,6 +106,9 @@ void UDashComponent::DashEffects()
 
 	if (!IsValid(MarinePawn))
 		return;
+
+	if (!IsValid(MarinePawn->GetHudWidget()))
+		return;
 	
 	FPowerUpLoaded DashDelay = FPowerUpLoaded(true, DashCoolDown, MarinePawn->GetHudWidget()->ActiveDashAnim, MarinePawn->GetHudWidget()->DashBar);
 	MarinePawn->GetHudWidget()->AddNewPowerUpToStartLoading(DashDelay);

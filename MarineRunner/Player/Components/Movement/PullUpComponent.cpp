@@ -117,7 +117,8 @@ void UPullUpComponent::MovePlayerToPullUpLocation(float Delta)
 	else
 	{
 		MarinePawn->GetPlayerCapsule()->SetPhysicsLinearVelocity(FVector(0.f));
-		const FVector Impulse = (CalculateForwardVectorForPlayer() * PullUpForceForward) + FVector(0.f, 0.f, PullUpForceUp);
+		FVector Impulse = (CalculateForwardVectorForPlayer() * PullUpForceForward) + FVector(0.f, 0.f, PullUpForceUp);
+		Impulse *= Delta;
 		MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
 
 		bIsPullingUp = false;

@@ -258,6 +258,8 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 	if (GetIsInAir() && !GetIsWallrunning() )
 		Speed /= (JumpComponent->GetDividerForMovementWhenInAir() / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));
 
+	Speed *= UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+
 	Direction.Z = 0.f;
 	const FVector& Force = (Axis * Direction * Speed) + CalculateCounterMovement();
 	CapsulePawn->AddImpulse(Force);
@@ -278,6 +280,8 @@ FVector AMarineCharacter::CalculateCounterMovement()
 		if (GetIsInSlowMotion())
 			CounterForce *= SlowMotionComponent->GetCounterForceMultiplierWhenInAir();
 	}
+
+	CounterForce *= UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 
 	return FVector(CounterForce * CounterVelocity.X, CounterForce * CounterVelocity.Y, 0);
 }

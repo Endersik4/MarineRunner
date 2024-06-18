@@ -44,17 +44,17 @@ private:
 	bool bDrawHelpersForPullup = false;
 
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
-	float CheckLinesForPullUpTime = 0.03f;
+	float CheckLinesForPullUpTime = 0.01f;
 	//Z Location of Line that need to hit something for example: edge. This line must be true to Pullup
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
-	float PullupTrueLineZ = 100.f;
+	float PullupTrueLineZ = 80.f;
 	//Z Location of Line that shouldnt hit something, This line must be false to Pullup
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
 	float PullupFalseLineZ = 130.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
-	float PullupLinesDistance = 100.f;
+	float PullupLinesDistance = 200.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
-	float PullupOffset_Z = 240.f;
+	float PullupOffset_Z = 270.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")
 	float EdgeDetectionLineStartDistance = 100.f;
 	UPROPERTY(EditAnywhere, Category = "PullUp|Check Raycast")

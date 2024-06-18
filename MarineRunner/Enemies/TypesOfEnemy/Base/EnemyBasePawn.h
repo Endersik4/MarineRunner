@@ -98,6 +98,7 @@ public:
 	FORCEINLINE void SetEnemyHealth(float& NewHealth) { Health = NewHealth; }
 
 	FORCEINLINE TObjectPtr<class UDismemberEnemyComponent> GetDismemberEnemyComponent() { return DismemberEnemyComponent; }
+	FORCEINLINE const FColor& GetBloodColor() { return BloodColor; }
 
 protected:
 	UPROPERTY(Transient)

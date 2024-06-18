@@ -89,11 +89,6 @@ void USlowMotionComponent::SlowMotionEffects()
 	if (!IsValid(MarinePawn))
 		return;
 
-	FPowerUpLoaded SlowMoDelay = FPowerUpLoaded(true, SlowMotionTime*SlowMotionValue, MarinePawn->GetHudWidget()->ActiveSlowMotionAnim, MarinePawn->GetHudWidget()->SlowMoBar);
-	MarinePawn->GetHudWidget()->AddNewPowerUpToStartLoading(SlowMoDelay);
-	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
-	MarinePawn->GetHudWidget()->SetDeltaDivider(1.f / SlowMotionValue);
-
 	MarinePawn->GetCamera()->PostProcessSettings.bOverride_ColorGain = true;
 	MarinePawn->GetCamera()->PostProcessSettings.ColorGain = ScreenColorWhenInSlowMotion;
 
@@ -102,6 +97,14 @@ void USlowMotionComponent::SlowMotionEffects()
 
 	MarinePawn->GetCamera()->PostProcessSettings.ChromaticAberrationStartOffset = 0.f;
 	MarinePawn->GetCamera()->PostProcessSettings.SceneFringeIntensity = StartingChromaticAbberation;
+
+	if (!IsValid(MarinePawn->GetHudWidget()))
+		return;
+
+	FPowerUpLoaded SlowMoDelay = FPowerUpLoaded(true, SlowMotionTime * SlowMotionValue, MarinePawn->GetHudWidget()->ActiveSlowMotionAnim, MarinePawn->GetHudWidget()->SlowMoBar);
+	MarinePawn->GetHudWidget()->AddNewPowerUpToStartLoading(SlowMoDelay);
+	MarinePawn->GetHudWidget()->PlayButtonAnimation(EATP_PressedButton_SlowMo);
+	MarinePawn->GetHudWidget()->SetDeltaDivider(1.f / SlowMotionValue);
 
 	MarinePawn->GetHudWidget()->SetColorAndOpacity(ScreenColorWhenInSlowMotion);
 }

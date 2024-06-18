@@ -50,9 +50,14 @@ void APickupItem::TakeItem(AMarineCharacter* Player)
 	if (!IsValid(Player))
 		return;
 
-	GenerateItemToInventory(Player);
+	bool bItemWasAddedToInventory = GenerateItemToInventory(Player);
+	if (!bItemWasAddedToInventory)
+		return;
 
-	Player->GetHudWidget()->PlayAppearAnimForItemHover(false);
+	if (IsValid(Player->GetHudWidget()))
+	{ 
+		Player->GetHudWidget()->PlayAppearAnimForItemHover(false);
+	}
 	
 	if (IsValid(PickUpSound))
 		UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
@@ -64,21 +69,22 @@ void APickupItem::TakeItem(AMarineCharacter* Player)
 	DisableItem();
 }
 
-void APickupItem::GenerateItemToInventory(AMarineCharacter* Player)
+bool APickupItem::GenerateItemToInventory(AMarineCharacter* Player)
 {
 	TObjectPtr<UInventoryComponent> Inventory = Player->GetInventoryComponent();
 	if (!IsValid(Inventory))
-		return;
+		return false;
 
 	FItemStruct* ItemInformationFromDataTable = Player->GetInventoryComponent()->GetItemInformationFromDataTable(ItemRowName);
 	if (!ItemInformationFromDataTable)
-		return;
+		return false;
 
 	const bool bItemWasAddedToInventory = Inventory->AddItemToInventory(ItemRowName, ItemInformationFromDataTable->Item_Amount * AmountMultiplier);
 	if (!bItemWasAddedToInventory)
-		return;
+		return false;
 
 	SpawnWeaponForPlayer(Player, ItemInformationFromDataTable);
+	return true;
 }
 
 void APickupItem::SpawnWeaponForPlayer(TObjectPtr<class AMarineCharacter> Player, FItemStruct* ItemDataFromDataTable)
@@ -105,10 +111,11 @@ void APickupItem::ItemHover(AMarineCharacter* Player)
 	if (!ItemInformationFromDataTable)
 		return;
 
+	ItemMesh->SetRenderCustomDepth(true);
+
 	if (!IsValid(Player->GetHudWidget()))
 		return;
 
-	ItemMesh->SetRenderCustomDepth(true);
 	Player->GetHudWidget()->SetItemHoverInformations(ItemInformationFromDataTable->Item_Name, ItemInformationFromDataTable->Item_Description, ItemInformationFromDataTable->Item_StorageIcon);
 }
 
@@ -117,10 +124,11 @@ void APickupItem::ItemUnHover(AMarineCharacter* Player)
 	if (!IsValid(Player))
 		return;
 
+	ItemMesh->SetRenderCustomDepth(false);
+
 	if (!IsValid(Player->GetHudWidget()))
 		return;
 
-	ItemMesh->SetRenderCustomDepth(false);
 	Player->GetHudWidget()->PlayAppearAnimForItemHover(false);
 }
 #pragma endregion

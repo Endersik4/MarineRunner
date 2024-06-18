@@ -75,8 +75,6 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitR
 		EnemyIndicatorWidget->SetCurrentHealthInHealthBar(Health);
 	}
 
-	DismemberEnemyComponent->DismemberLimb(EnemySkeletalMesh, NewHit, NewImpulseForce, BloodColor, NewSphereRadiusToApplyDamage);
-
 	KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadiusToApplyDamage);
 }
 
@@ -112,6 +110,7 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObj
 		EnemySkeletalMesh->AddRadialImpulse(NewHit.TraceStart, NewSphereRadiusToApplyDamage, NewImpulseForce, ERadialImpulseFalloff::RIF_Linear);
 	}
 
+	DismemberEnemyComponent->DismemberLimb(EnemySkeletalMesh, NewHit, NewImpulseForce, BloodColor, NewSphereRadiusToApplyDamage);
 
 	return true;
 }

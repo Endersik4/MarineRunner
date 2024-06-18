@@ -34,11 +34,12 @@ void ASpawnDestructibleActor::SpawnDestructibleMesh()
 	if (!IsValid(DestructibleMeshActorClass))
 		return;
 
-	SpawnedDestructibleMeshActor = GetWorld()->SpawnActor<ADestructibleMeshActor>(DestructibleMeshActorClass, GetActorLocation(), GetActorRotation());
+	SpawnedDestructibleMeshActor = GetWorld()->SpawnActorDeferred<ADestructibleMeshActor>(DestructibleMeshActorClass, FTransform(GetActorRotation(),GetActorLocation()));
 	if (!IsValid(SpawnedDestructibleMeshActor))
 		return;
 
 	SpawnedDestructibleMeshActor->SetAssignedDestructibleActor(this);
+	SpawnedDestructibleMeshActor->FinishSpawning(FTransform(GetActorRotation(), GetActorLocation()));
 }
 
 void ASpawnDestructibleActor::Tick(float DeltaTime)

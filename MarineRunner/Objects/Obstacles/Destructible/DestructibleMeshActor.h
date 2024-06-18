@@ -43,6 +43,8 @@ private:
 	float InternalStrainStrength = 5000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings")
 	float InternalStrainRadius = 20.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings")
+	FFloatRange MaxMinRadialImpulseRadius = FFloatRange(100.f, 3000.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings|Effects")
 	TObjectPtr<USoundBase> DestructionHitSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Destruction Settings|Effects")

@@ -69,7 +69,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Recoil", meta = (EditCondition = "RecoilType == ERecoilType::ERT_CurveRecoil", EditConditionHides))
 	float MaxYawDistanceToSubstract = 80.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Recoil", meta = (EditCondition = "RecoilType == ERecoilType::ERT_CurveRecoil", EditConditionHides))
-	float MaxDistanceForCameraToGoBack = 10.f;
+	float MaxYawDistanceForCameraToGoBack = 10.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Camera Recoil", meta = (EditCondition = "RecoilType == ERecoilType::ERT_CurveRecoil", EditConditionHides))
+	float MaxPitchDistanceForCameraToGoBack = 10.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Recoil", meta = (EditCondition = "RecoilType == ERecoilType::ERT_CurveRecoil", EditConditionHides))
 	float BackToInitialCameraRotationSpeed = 10.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Camera Recoil", meta = (EditCondition = "RecoilType == ERecoilType::ERT_CurveRecoil", EditConditionHides))

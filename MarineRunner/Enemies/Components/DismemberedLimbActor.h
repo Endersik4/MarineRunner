@@ -20,7 +20,6 @@ protected:
 
 	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) override;
 
-
 public:
 	FORCEINLINE TObjectPtr<USkeletalMeshComponent> GetLimbSkeletalMesh() const { return LimbSkeletalMesh; }
 

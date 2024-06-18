@@ -51,21 +51,10 @@ void AExplosionBarrel::Explode()
 			DrawDebugSphere(GetWorld(), GetActorLocation(), ExplosionRadius, 50, FColor::Red, true);
 	#endif //!WITH_EDITOR
 
-	//Use UseDamageInterfaceOnActor(HitResult) only once on the same actor
-	TArray<TObjectPtr<AActor>> ActorsToApplyDamage;
-	for (int i = 0; i != HitArray.Num(); i++)
-	{
-		ActorsToApplyDamage.AddUnique(HitArray[i].GetActor());
-	}
-
 	//Use interface on every actors that was hit by SweepMultiByChannel
 	for (const FHitResult& HitResult : HitArray)
 	{
-		//if (ActorsToApplyDamage.Find(HitResult.GetActor()) == INDEX_NONE)
-		//	continue;
-
 		UseDamageInterfaceOnActor(HitResult);
-		ActorsToApplyDamage.Remove(HitResult.GetActor());
 	}
 
 	SpawnEffects();

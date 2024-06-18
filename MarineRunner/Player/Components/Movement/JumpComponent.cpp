@@ -99,13 +99,13 @@ void UJumpComponent::ApplyJumpForces(const float& DeltaTime)
 	if (!bStartApplyingJumpForces || !IsValid(Player))
 		return;
 
-	if (JumpTimeElapsed < JumpUpTime)
+	if (JumpTimeElapsed <= JumpUpTime)
 	{
 		ApplyJumpUPForce(DeltaTime);
 	}
 	else if (!bDownForceWasApplied) // for faster falling after jumping
 	{
-		const FVector DownJumpImpulse = (-Player->GetActorUpVector() * JumpDownForce);
+		FVector DownJumpImpulse = (-Player->GetActorUpVector() * JumpDownForce);
 		Player->GetPlayerCapsule()->AddImpulse(DownJumpImpulse);
 
 		bDownForceWasApplied = true;

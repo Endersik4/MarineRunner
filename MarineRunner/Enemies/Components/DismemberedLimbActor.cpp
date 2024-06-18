@@ -13,7 +13,7 @@ ADismemberedLimbActor::ADismemberedLimbActor()
 
 	LimbSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Limb Skeletal Mesh"));
 	RootComponent = LimbSkeletalMesh;
-
+	SpawnCollisionHandlingMethod = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	LimbSkeletalMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	LimbSkeletalMesh->SetCollisionProfileName(FName("PhysicsActor"));
 	LimbSkeletalMesh->SetSimulatePhysics(true);
@@ -34,7 +34,7 @@ void ADismemberedLimbActor::ApplyDamage(float NewDamage, float NewImpulseForce, 
 	EnemyLimbOwner->SpawnGunshotWoundDecal(NewHit, LimbSkeletalMesh);
 	EnemyLimbOwner->SpawnEffectsForImpact(NewHit, EnemyLimbOwner->GetHitBoneType(NewHit.BoneName));
 	EnemyLimbOwner->SpawnBloodOnObjectDecal(BulletActor, NewHit.Location);
-	EnemyLimbOwner->GetDismemberEnemyComponent()->DismemberLimb(LimbSkeletalMesh, NewHit, NewImpulseForce, FColor::Purple, NewSphereRadius);
+	EnemyLimbOwner->GetDismemberEnemyComponent()->DismemberLimb(LimbSkeletalMesh, NewHit, NewImpulseForce, EnemyLimbOwner->GetBloodColor(), NewSphereRadius);
 
 	// If the radius of the sphere is 0, the bullet did not use the radial sphere to deal damage.
 	if (NewSphereRadius == 0.f && IsValid(BulletActor))

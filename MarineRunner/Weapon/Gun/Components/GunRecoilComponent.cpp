@@ -91,6 +91,7 @@ void UGunRecoilComponent::PlayRecoil()
 	if (RecoilType == ERecoilType::ERT_CurveRecoil)
 	{
 		RandomYawOffset_CurveRecoil = FMath::FRandRange(RandomOffsetRecoilCurve.GetLowerBoundValue(), RandomOffsetRecoilCurve.GetUpperBoundValue());
+		RandomYawOffset_CurveRecoil *= UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
 		bRotateCameraToPitchDistance = true;
 
 		bCanStartCameraRecoil = false;
@@ -100,6 +101,9 @@ void UGunRecoilComponent::PlayRecoil()
 		RandomCameraRecoilYaw = FMath::FRandRange(RandomCameraRecoilYawRange.GetLowerBoundValue(), RandomCameraRecoilYawRange.GetUpperBoundValue());
 		RandomCameraRecoilPitch = FMath::FRandRange(RandomCameraRecoilPitchRange.GetLowerBoundValue(), RandomCameraRecoilPitchRange.GetUpperBoundValue());
 	
+		RandomCameraRecoilPitch *= UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+		RandomCameraRecoilYaw *= UGameplayStatics::GetWorldDeltaSeconds(GetWorld());
+
 		if (Gun->GetStatusOfGun() == EStatusOfAimedGun::ESAG_ADS)
 		{
 			RandomCameraRecoilYaw /= DividerOfRecoilWhileADS;
@@ -160,14 +164,13 @@ void UGunRecoilComponent::BackPlayerCameraToInitialRotation()
 		return;
 
 	const float DistanceBetweenPitch = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PlayerController->GetControlRotation(), TargetPlayerCameraRotation).Pitch);
-	
 	//If distance is too big then camera doesnt go back to its inital rotation
 	const float DistanceBetweenYaw = FMath::Abs(UKismetMathLibrary::NormalizedDeltaRotator(PlayerController->GetControlRotation(), TargetPlayerCameraRotation).Yaw);
-	if (DistanceBetweenYaw > MaxDistanceForCameraToGoBack)
+	if (DistanceBetweenYaw > MaxYawDistanceForCameraToGoBack)
 	{
 		TargetPlayerCameraRotation.Yaw = PlayerController->GetControlRotation().Yaw;
 	}
-	if (DistanceBetweenPitch > PitchDistanceFromStart)
+	if (DistanceBetweenPitch > MaxPitchDistanceForCameraToGoBack)
 	{
 		TargetPlayerCameraRotation = PlayerController->GetControlRotation();
 

@@ -138,6 +138,9 @@ void AAlbertosPawn::ToggleInventoryVisibility()
 	if (!IsValid(CraftingTableWidget))
 		return;
 
+	if (CraftingWidgetAnimationComponent->GetIsCraftingWidgetAnimationPlaying())
+		return;
+
 	if (IsValid(AppearCraftingSound))
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AppearCraftingSound, CraftingTableWidget->GetComponentLocation());
 	else

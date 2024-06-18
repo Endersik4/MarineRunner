@@ -63,8 +63,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Item Settings|Craft")
 	float DissolveEndValue = -0.4f;
 
-
-	void GenerateItemToInventory(class AMarineCharacter* Player);
+	// returns true if item was added to inventory, false otherwise
+	bool GenerateItemToInventory(class AMarineCharacter* Player);
 	void SpawnWeaponForPlayer(TObjectPtr<class AMarineCharacter>, FItemStruct* ItemDataFromDataTable);
 
 	UPROPERTY(Transient)

@@ -140,21 +140,10 @@ void ABullet::SphereRadialDamage(const FHitResult& Hit)
 	if (BulletData.bDrawDebugRadialSphere) DrawDebugSphere(GetWorld(), GetActorLocation(), BulletData.RadialSphereRadius, 50, FColor::Red, true);
 #endif // !WITH_EDITOR
 
-	//Use UseDamageInterfaceOnActor(HitResult) only once on the same actor
-	TArray<TObjectPtr<AActor>> ActorsToApplyDamage;
-	for (int i = 0; i != HitArray.Num(); i++) 
-	{ 
-		ActorsToApplyDamage.AddUnique(HitArray[i].GetActor()); 
-	}
-
-	//Use interface on every actors that was hit by SweepMultiByChannel
+	//Use interface on every actors that was hit by SweepMultiB	yChannel
 	for (const FHitResult& HitResult : HitArray)
 	{
-		if (ActorsToApplyDamage.Find(HitResult.GetActor()) == INDEX_NONE)
-			continue;
-
 		UseDamageInterfaceOnActor(HitResult);
-		ActorsToApplyDamage.Remove(HitResult.GetActor());
 	}
 
 	SpawnEffectsWhenHit(Hit);

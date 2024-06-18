@@ -68,7 +68,7 @@ private:
 	float LimbLifeSpan = 30.f;
 	// multiplier for /radial/ impulse to limb
 	UPROPERTY(EditDefaultsOnly, Category = "Dismember System")
-	float ImpulseForceMultiplier = 5.f;
+	float ImpulseForceMultiplier = 1.5f;
 	// This value is added to LimbLifeSpawn when a new limb is spawned for a new enemy life spawn
 	UPROPERTY(EditDefaultsOnly, Category = "Dismember System")
 	float AdditionalLifeSpanForEnemyOwner = 1.f;

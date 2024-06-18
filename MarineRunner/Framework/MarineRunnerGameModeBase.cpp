@@ -45,11 +45,11 @@ void AMarineRunnerGameModeBase::ApplyDifficultyLevelToAllEnemies()
 	for (TObjectPtr<AActor> CurrentEnemy : AllShootingEnemiesOnMap)
 	{
 		if (!IsValid(CurrentEnemy))
-			return;
+			continue;
 
 		TObjectPtr<AShootingEnemyPawn> ShootingEnemy = Cast<AShootingEnemyPawn>(CurrentEnemy);
 		if (!IsValid(ShootingEnemy))
-			return;
+			continue;
 
 		ShootingEnemy->ApplyEnemyDifficulty();
 	}

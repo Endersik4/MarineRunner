@@ -64,23 +64,26 @@ void ADestructibleMeshActor::ApplyDamage(float NewDamage, float NewImpulseForce,
 	DestructableMeshComponent->ApplyExternalStrain(NewHit.Item, NewHit.ImpactPoint, ExternalStrainRadius, 0, 1.f, ExternalStrainStrength);
 	DestructableMeshComponent->ApplyInternalStrain(NewHit.Item, NewHit.ImpactPoint, InternalStrainRadius, 0, 1.f, InternalStrainStrength);
 
-	if (IsValid(BulletActor))
+	if (!IsValid(BulletActor))
+		return;
+	
+	DestructableMeshComponent->AddRadialImpulse(BulletActor->GetActorLocation(), 
+		FMath::Clamp(NewSphereRadius, MaxMinRadialImpulseRadius.GetLowerBoundValue(), MaxMinRadialImpulseRadius.GetUpperBoundValue()), NewImpulseForce * ImpulseForceMultiplier,
+		ERadialImpulseFalloff::RIF_Linear);
+
+	if (IsValid(DestructionHitSound))
+		UGameplayStatics::SpawnSoundAtLocation(GetWorld(), DestructionHitSound, BulletActor->GetActorLocation());
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Destruction Hit Sound is nullptr in Destructible Mesh Actor!"));
+
+	if (DestructionHitParticle)
 	{
-		DestructableMeshComponent->AddRadialImpulse(BulletActor->GetActorLocation(), FMath::Clamp(NewSphereRadius, 100.f, 3000.f), NewImpulseForce * ImpulseForceMultiplier, ERadialImpulseFalloff::RIF_Linear);
-
-		if (IsValid(DestructionHitSound))
-			UGameplayStatics::SpawnSoundAtLocation(GetWorld(), DestructionHitSound, BulletActor->GetActorLocation());
-		else
-			UE_LOG(LogTemp, Warning, TEXT("Destruction Hit Sound is nullptr in Destructible Mesh Actor!"));
-
-		if (DestructionHitParticle)
-		{
-			FTransform DestructionHitParticleTransform = FTransform(BulletActor->GetActorRotation(), BulletActor->GetActorLocation());
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DestructionHitParticle, DestructionHitParticleTransform);
-		}
-		else
-			UE_LOG(LogTemp, Warning, TEXT("Destruction Hit Sound is nullptr in Destructible Mesh Actor!!"));
+		FTransform DestructionHitParticleTransform = FTransform(BulletActor->GetActorRotation(), BulletActor->GetActorLocation());
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), DestructionHitParticle, DestructionHitParticleTransform);
 	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("Destruction Hit Sound is nullptr in Destructible Mesh Actor!!"));
+
 }
 
 void ADestructibleMeshActor::DisableAssignedDestructibleActor()
