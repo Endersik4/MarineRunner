@@ -74,7 +74,6 @@ public:
 	FORCEINLINE void SetIsInCutscene(bool bNewIsInCutscene) { bIsInCutscene = bNewIsInCutscene; }
 	FORCEINLINE void SetMovementForce(float NewForce) { MovementSpeed = NewForce; }
 	FORCEINLINE void SetMovementForceDividerWhenInADS(float NewForceDivider) { MovementForceDividerWhenInADS = NewForceDivider; }
-	FORCEINLINE void SetMovementSpeedMutliplier(float NewSpeed) { MovementSpeedMutliplier = NewSpeed; }
 	FORCEINLINE void SetShouldPlayerGoForward(bool bShould) { bConstantlyGoForward = bShould; }
 	FORCEINLINE void SetAlbertosPawn(TObjectPtr<class AAlbertosPawn> NewAlbertos) { AlbertoPawn = NewAlbertos; }
 
@@ -221,8 +220,6 @@ private:
 	FVector CalculateCounterMovement();
 	UPROPERTY(Transient)
 	float MovementForceDividerWhenInADS = 1.f;
-	UPROPERTY(Transient)
-	float MovementSpeedMutliplier = 1.f;
 	const float DegreeForForwardVector = -90.f;
 
 	//If true then in the the player will always walk forward

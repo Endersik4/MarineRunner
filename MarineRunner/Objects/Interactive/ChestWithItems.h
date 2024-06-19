@@ -88,6 +88,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Chest Settings")
 	TObjectPtr<USoundBase> WrongCodeSound = nullptr;
 
+	void SpawnItems();
+
 	UPROPERTY(Transient)
 	bool bIsChestOpen = false;
 	void SetUpFrontChestPanelWidget();
@@ -97,5 +99,4 @@ private:
 	void SaveChestState(int32 SaveState);
 	UPROPERTY(Transient)
 	int32 CurrentUniqueID = 0;
-
 };

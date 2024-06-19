@@ -67,7 +67,7 @@ void UWallrunComponent::StickToTheObstacle(ESideOfLine CurrentSide, FVector HitN
 		return;
 
 	//added Impulse to Stick with Obstacle
-	const FVector Impulse = (-HitNormal) * StickWithObstacleImpulse;
+	const FVector Impulse = (-HitNormal) * StickToObstacleImpulse;
 	MarinePawn->GetPlayerCapsule()->AddImpulse(Impulse);
 
 	BeginWallrun(CurrentSide, HitNormal);
@@ -90,7 +90,6 @@ void UWallrunComponent::BeginWallrun(ESideOfLine CurrentSide, FVector HitNormal)
 	WallrunTimeElapsed = DelayToStartNextWallrun;
 
 	MarinePawn->SetShouldPlayerGoForward(true);
-	//MarinePawn->SetMovementSpeedMutliplier(WallrunSpeed); //Player goes faster while performing wallrun
 
 	CurrentRotatedCameraRoll = CurrentSide;
 	RotateCameraWhileWallrunning(CurrentSide == Right ? CameraRollRightSideCurve : CameraRollLeftSideCurve);//Rotating the camera in Roll, Definition of this function is in Blueprint of MarineCharacter
@@ -99,6 +98,10 @@ void UWallrunComponent::BeginWallrun(ESideOfLine CurrentSide, FVector HitNormal)
 
 	const float YawMovementImpulse = HitNormal.Rotation().Yaw + (AngleOfHitImpact * (CurrentSide == Left ? -1 : 1));
 	WallrunDirection = FRotator(0, YawMovementImpulse, 0).Vector();
+
+	//added Impulse to Stick with Obstacle
+	const FVector FirstTimeImpulse = (-HitNormal) * StickToObstacleFirstTimeImpulse;
+	MarinePawn->GetPlayerCapsule()->AddImpulse(FirstTimeImpulse);
 
 	bIsWallrunning = true;
 
@@ -136,7 +139,6 @@ void UWallrunComponent::ResetWallrunning()
 	bRotateYawCameraTowardsWallrun = false;
 
 	MarinePawn->SetShouldPlayerGoForward(false);
-	//MarinePawn->SetMovementSpeedMutliplier(1.f);
 
 	RotateCameraWhileWallrunning(CurrentRotatedCameraRoll == Right ? CameraRollRightSideCurve : CameraRollLeftSideCurve);
 
@@ -162,10 +164,7 @@ bool UWallrunComponent::CanDoWallrun(float Delta)
 
 	if (WallrunTimeElapsed < DelayToStartNextWallrun) //Wait a little bit before the next wallrun
 	{
-		if (bIsWallrunning && !MarinePawn->GetJumpComponent()->GetIsJumping())
-			ResetWallrunning();
-		else 
-			WallrunTimeElapsed += Delta;
+		WallrunTimeElapsed += Delta;
 
 		return false;
 	}
@@ -174,6 +173,7 @@ bool UWallrunComponent::CanDoWallrun(float Delta)
 		return false;
 	if (MarinePawn->GetIsCrouching())
 		return false;
+
 	// only take X and Y velocity for length
 	if ((MarinePawn->GetVelocity() * FVector(1.f, 1.f, 0.f)).Length() < MinVelocityToPerformWallrun)
 		return false;

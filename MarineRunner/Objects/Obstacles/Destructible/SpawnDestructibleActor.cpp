@@ -22,7 +22,11 @@ ASpawnDestructibleActor::ASpawnDestructibleActor()
 void ASpawnDestructibleActor::BeginPlay()
 {
 	Super::BeginPlay();
+	SpawnDestructibleMeshAfterTime();
+}
 
+void ASpawnDestructibleActor::SpawnDestructibleMeshAfterTime()
+{
 	GetWorld()->GetTimerManager().SetTimer(SpawnDestructibleMeshHandle, this, &ASpawnDestructibleActor::SpawnDestructibleMesh, SpawnDestructibleMeshDelay, false);
 }
 
@@ -103,7 +107,7 @@ void ASpawnDestructibleActor::RestartData(ASavedDataObject* SavedDataObject, con
 	if (IsValid(SpawnedDestructibleMeshActor))
 		SpawnedDestructibleMeshActor->Destroy();
 
-	SpawnDestructibleMesh();
+	SpawnDestructibleMeshAfterTime();
 }
 #pragma endregion
 

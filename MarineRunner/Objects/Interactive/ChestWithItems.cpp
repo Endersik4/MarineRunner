@@ -74,15 +74,23 @@ void AChestWithItems::OpenChest()
 	ChestSkeletalMesh->SetMaterial(IndexToChangeOpenLockMaterial, UpperOpenLockMaterial);
 	ChestSkeletalMesh->PlayAnimation(OpenChestAnimation, false);
 
+	FTimerHandle test;
+	GetWorld()->GetTimerManager().SetTimer(test, this, &AChestWithItems::SpawnItems, 0.1f, false);
+
+	bIsChestOpen = true;
+}
+
+void AChestWithItems::SpawnItems()
+{
 	for (const TPair<TSubclassOf<class APickupItem>, FItemRandomSpawnStruct>& CurrentPair : ItemsToSpawn)
 	{
 		for (int i = 0; i != CurrentPair.Value.AmountItems; i++)
 		{
 			const float& ShouldSpawn = FMath::FRandRange(0.f, 100.f);
-			if (ShouldSpawn > CurrentPair.Value.PercentOfSpawningItem) 
+			if (ShouldSpawn > CurrentPair.Value.PercentOfSpawningItem)
 				continue;
 
-			const FVector & ItemLocation = ChestSkeletalMesh->GetSocketLocation(SocketNameToSpawnItems) + CurrentPair.Value.OffsetFromSpawnLocation;
+			const FVector& ItemLocation = ChestSkeletalMesh->GetSocketLocation(SocketNameToSpawnItems) + CurrentPair.Value.OffsetFromSpawnLocation;
 			const FTransform& ItemTransform = FTransform(GetActorRotation(), ItemLocation);
 
 			TObjectPtr<APickupItem> SpawnedItem = GetWorld()->SpawnActorDeferred<APickupItem>(CurrentPair.Key, ItemTransform);
@@ -95,7 +103,6 @@ void AChestWithItems::OpenChest()
 	}
 
 	SaveChestState(bUsePinCode ? 4 : 2);
-	bIsChestOpen = true;
 }
 
 void AChestWithItems::SaveChestState(int32 SaveState)

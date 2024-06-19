@@ -21,7 +21,8 @@ void AShootingEnemyAIController::BeginPlay()
 
 	EnemyPerception->OnTargetPerceptionUpdated.AddUniqueDynamic(this, &AShootingEnemyAIController::HandleTargetPerceptionUpdated);
 
-	SetAIVariables();
+	FTimerHandle SetAIVariablesHandle;
+	GetWorld()->GetTimerManager().SetTimer(SetAIVariablesHandle, this, &AShootingEnemyAIController::SetAIVariables, TimeToSetAIVariables, false);
 }
 
 void AShootingEnemyAIController::Tick(float DeltaTime)
@@ -65,6 +66,10 @@ void AShootingEnemyAIController::HearingHandle(TObjectPtr<AActor> SensedActor, c
 		StopMovement();
 
 	DetectPlayerWithDelay(true, SensedActor, false);
+
+	FTimerDelegate PlayerNotHeardDelegate;
+	PlayerNotHeardDelegate.BindUFunction(this, FName("DetectPlayerWithDelay"), false, nullptr);
+	GetWorld()->GetTimerManager().SetTimer(PlayerNotHeardHandle, PlayerNotHeardDelegate, StopDetectingPlayerTime, false);
 }
 
 void AShootingEnemyAIController::DetectPlayerWithDelay(bool bIsDetected, AActor* DetectedActor, bool bStartAttackingTheTarget)
@@ -73,6 +78,7 @@ void AShootingEnemyAIController::DetectPlayerWithDelay(bool bIsDetected, AActor*
 
 	if (bDoEnemySeePlayer)
 	{
+		GetWorld()->GetTimerManager().ClearTimer(PlayerNotHeardHandle);
 		SetFocus(DetectedActor);
 		GetBlackboardComponent()->SetValueAsObject(TEXT("FocusedActor"), DetectedActor);
 	}
@@ -87,13 +93,10 @@ void AShootingEnemyAIController::DetectPlayerWithDelay(bool bIsDetected, AActor*
 
 	AddEnemyToDetected(bDoEnemySeePlayer);
 
-	if (!IsValid(GetPawn()))
+	if (!IsValid(OwningEnemyPawn)) 
 		return;
 
-	TObjectPtr<class AShootingEnemyPawn > EnemyPawn = Cast<AShootingEnemyPawn>(GetPawn());
-	if (!IsValid(EnemyPawn)) 
-		return;
-	EnemyPawn->SawTheTarget(bDoEnemySeePlayer, DetectedActor, bStartAttackingTheTarget);
+	OwningEnemyPawn->SawTheTarget(bDoEnemySeePlayer, DetectedActor, bStartAttackingTheTarget);
 }
 
 const bool AShootingEnemyAIController::CanSeeTheTarget(const TObjectPtr<AActor> TargetActor)
@@ -136,14 +139,12 @@ void AShootingEnemyAIController::SetAIVariables()
 	GetBlackboardComponent()->SetValueAsInt(TEXT("HowManyLocations"), HowManyLocations);
 	GetBlackboardComponent()->SetValueAsInt(TEXT("CurrentLocations"), HowManyLocations);
 
-	if (!ensureMsgf(IsValid(GetPawn()), TEXT("Enemy Pawn is nullptr in ShootingEnemyAIController")))
+	OwningEnemyPawn = Cast<AShootingEnemyPawn>(GetPawn());
+
+	if (!IsValid(OwningEnemyPawn)) 
 		return;
 
-	TObjectPtr<AShootingEnemyPawn > EnemyPawn = Cast<AShootingEnemyPawn>(GetPawn());
-	if (!IsValid(EnemyPawn)) 
-		return;
-
-	GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), EnemyPawn->GetActorLocation());
+	GetBlackboardComponent()->SetValueAsVector(TEXT("StartLocation"), OwningEnemyPawn->GetActorLocation());
 }
 
 void AShootingEnemyAIController::EnemyKilled(bool bRunAwayInsteadOfKill)

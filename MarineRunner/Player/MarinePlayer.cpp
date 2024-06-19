@@ -253,7 +253,7 @@ void AMarineCharacter::Move(FVector Direction, float Axis, const FName InputAxis
 	float Speed = (TempMovementSpeed / MovementForceDividerWhenInADS) / (GetInputAxisValue(InputAxisName) != 0.f ? ForwardAndRightAtTheSameTimeDivider : 1);
 
 	if (GetIsWallrunning())
-		Speed = (MovementSpeed / MovementForceDividerWhenInADS) * MovementSpeedMutliplier;
+		Speed = (MovementSpeed / MovementForceDividerWhenInADS);
 
 	if (GetIsInAir() && !GetIsWallrunning() )
 		Speed /= (JumpComponent->GetDividerForMovementWhenInAir() / UGameplayStatics::GetGlobalTimeDilation(GetWorld()));

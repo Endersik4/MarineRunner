@@ -139,6 +139,7 @@ void AElevator::StartMovingElevator()
 {
 	ElevatorPanelWidget->ShowWaitForElevatorText(false);
 	ElevatorPanelWidget->ShowElevatorGoesUpDownImage(true, FloorLocationToGo);
+	ElevatorMesh->RecreatePhysicsState();
 
 	if (IsValid(AmbientElevatorSound))
 	{

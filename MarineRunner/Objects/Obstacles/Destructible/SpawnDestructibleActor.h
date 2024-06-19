@@ -51,4 +51,5 @@ private:
 
 	FTimerHandle SpawnDestructibleMeshHandle;
 	void SpawnDestructibleMesh();
+	void SpawnDestructibleMeshAfterTime();
 };

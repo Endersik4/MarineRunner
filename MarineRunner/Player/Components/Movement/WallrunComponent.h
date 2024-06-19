@@ -53,7 +53,9 @@ private:
 	FFloatRange WallrunVelocityRange = FFloatRange(2000.f, 2500.f);
 	//Force added to Stick with Obstacle
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-	float StickWithObstacleImpulse = 200000.f;
+	float StickToObstacleImpulse = 200000.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
+	float StickToObstacleFirstTimeImpulse = 1500000.f;
 	//How much should change the angle of the impact vector
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 	float AngleOfHitImpact = 85.f;
@@ -68,11 +70,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Jump")
 	float CanJumpAfterWallrunTime = 0.3f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
-	float ObstacleRaycastDistance = 150.f;
+	float ObstacleRaycastDistance = 200.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
 	FFloatRange VelocityRangeToStopWallrunming = FFloatRange(-5.f, 400.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Conditions to perform wallrun")
-	float MinVelocityToPerformWallrun = 120.f;
+	float MinVelocityToPerformWallrun = 80.f;
 
 	//Interp Speed of Changing the Yaw Camera
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun|Wallrun Begins Camera Rotation")

@@ -96,8 +96,8 @@ void AShootingEnemyPawn::ShouldRunAway()
 #pragma region ////////////// ENEMY SEE PLAYER //////////////
 void AShootingEnemyPawn::SawTheTarget(const bool bSaw, const TObjectPtr<AActor> SeenTarget, const bool bStartAttackingTheTarget)
 {
-	if (bSaw == bEnemyDetectedTarget)
-		return;
+	////if (bSaw == bEnemyDetectedTarget)
+	//	return;
 
 	FocusedActor = SeenTarget;
 
