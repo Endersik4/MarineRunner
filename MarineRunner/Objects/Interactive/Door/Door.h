@@ -78,6 +78,7 @@ private:
 	TObjectPtr < UDoorPanelWidget> DoorPanelSecondWidget = nullptr;
 	void SetUpDoorPanels();
 
+	void SaveDoorToCustomSavedData();
 	UPROPERTY(Transient)
 	int32 CurrentUniqueID = 0;
 	void StopUsingPin();

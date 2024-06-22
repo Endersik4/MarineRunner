@@ -50,8 +50,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Swing")
 	float RightSwingLineLocationOffset = 40.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Swing")
+	UPROPERTY(EditDefaultsOnly, Category = "Swing|Sounds")
 	TObjectPtr<USoundBase> SwingSound = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Swing|Sounds")
+	TObjectPtr<USoundBase> HookActivatedSound = nullptr;
 
 	UPROPERTY(Transient)
 	bool bWasSwingPressed = false;

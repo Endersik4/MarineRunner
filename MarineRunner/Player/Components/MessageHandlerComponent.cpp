@@ -38,6 +38,7 @@ void UMessageHandlerComponent::DeleteCurrentDisplayedMessage(AMarineCharacter* P
 	if (!IsValid(CurrentDisplayedMessage) || !bIsMessageDisplayed)
 		return;
 
+
 	CurrentDisplayedMessage->RemoveFromParent();
 	bIsMessageDisplayed = false;
 	UGameplayStatics::SetGamePaused(GetWorld(), false);
@@ -81,21 +82,27 @@ void UMessageHandlerComponent::SpawnCheatsWidget()
 	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerController);
 }
 
-TObjectPtr<class UUserWidget> UMessageHandlerComponent::SpawnWidget(const TSubclassOf<UUserWidget>& WidgetClassToSpawn)
+TObjectPtr<class UUserWidget> UMessageHandlerComponent::SpawnWidget(const TSubclassOf<UUserWidget>& WidgetClassToSpawn, bool bOnlyOneAtTime)
 {
+	if (bOnlyOneAtTime && IsValid(SpawnedOneAtTimeWidget))
+		SpawnedOneAtTimeWidget->RemoveFromParent();
+
 	if (!IsValid(WidgetClassToSpawn))
 		return nullptr;
 
-	TObjectPtr<UUserWidget> NewWidget = CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), WidgetClassToSpawn);
-	if (!IsValid(NewWidget))
+	TObjectPtr<UUserWidget> SpawnedWidget = CreateWidget(PlayerController, WidgetClassToSpawn);
+
+	if (!IsValid(SpawnedWidget))
 		return nullptr;
+
+	if (bOnlyOneAtTime)
+		SpawnedOneAtTimeWidget = SpawnedWidget;
 
 	if (MessagePopUpSound)
 		UGameplayStatics::PlaySound2D(GetWorld(), MessagePopUpSound);
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Message Pop up sound is nullptr in Message Handler component!"));
 
-	NewWidget->AddToViewport();
-	return NewWidget;
+	SpawnedWidget->AddToViewport();
+	return SpawnedWidget;
 }
-

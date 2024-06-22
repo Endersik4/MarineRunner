@@ -10,6 +10,7 @@
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
 #include "MarineRunner/Player/Widgets/HUDWidget.h"
 #include "MarineRunner/Player/MarinePlayer.h"
+#include "MarineRunner/Player/Components/MessageHandlerComponent.h"
 #include "MarineRunner/Player/SaveLoadGame/SaveLoadPlayerComponent.h"
 #include "MarineRunner/Framework/MarineRunnerGameInstance.h"
 
@@ -34,11 +35,7 @@ void AShowTutorialMessage::BeginPlay()
 
 void AShowTutorialMessage::ShowMessageBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (!IsValid(MessageWidgetClass) || !bCanShowTutorialMessage)
-		return;
-
-	TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (!IsValid(PlayerController))
+	if (!bCanShowTutorialMessage)
 		return;
 
 	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(UGameplayStatics::GetGameInstance(GetWorld()));
@@ -50,14 +47,18 @@ void AShowTutorialMessage::ShowMessageBoxBeginOverlap(UPrimitiveComponent* Overl
 
 	UnlockGameplayMechanicsInHud(OtherActor);
 
-	if (!IsValid(MessageWidgetClass))
+	TObjectPtr<AMarineCharacter> MarinePlayer = Cast<AMarineCharacter>(OtherActor);
+	if (!IsValid(MarinePlayer))
 		return;
 
-	TObjectPtr<UMessageToReadWidget> MessageWidget = Cast<UMessageToReadWidget>(CreateWidget(PlayerController, MessageWidgetClass));
+	TObjectPtr<UUserWidget> TempMessageWidget = MarinePlayer->GetMessageHandlerComponent()->SpawnWidget(MessageWidgetClass, true);
+	if (!IsValid(TempMessageWidget))
+		return;
+
+	TObjectPtr<UMessageToReadWidget> MessageWidget = Cast<UMessageToReadWidget>(TempMessageWidget);
 	if (!IsValid(MessageWidget))
 		return;
 
-	MessageWidget->AddToViewport();
 	MessageWidget->SetMessageInformation(MessageTitle, MessageText);
 	MessageWidget->HideMessageAfterTime(HideMessageAfterTime);
 

@@ -150,7 +150,8 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	//Take
 	PlayerInputComponent->BindAction(TEXT("Take"), IE_Pressed, this, &AMarineCharacter::TakePressed);
-	PlayerInputComponent->BindAction(TEXT("Take"), IE_Released, this, &AMarineCharacter::TakeReleased);
+	FInputActionBinding& TakeReleasedToggle = PlayerInputComponent->BindAction(TEXT("Take"), IE_Released, this, &AMarineCharacter::TakeReleased);
+	TakeReleasedToggle.bExecuteWhenPaused = true;
 
 	//Movement
 	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, JumpComponent.Get(), &UJumpComponent::Jump);

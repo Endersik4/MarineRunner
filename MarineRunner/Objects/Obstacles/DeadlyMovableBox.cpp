@@ -32,6 +32,13 @@ void ABigHammer::BeginPlay()
 	HammerBoxComponent->OnComponentBeginOverlap.AddDynamic(this, &ABigHammer::OnBoxBeginOverlap);
 
 	SetupMoveTimeline();
+
+	if (bUseTimerToDamage)
+	{
+		HammerBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		FTimerHandle StopDamagingHandle;
+		GetWorld()->GetTimerManager().SetTimer(StopDamagingHandle, this, &ABigHammer::StartDamaging, StartDamagingDelay, false);
+	}
 }
 
 // Called every frame
@@ -56,7 +63,7 @@ void ABigHammer::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 
 void ABigHammer::MoveHammerTimelineProgress(float Value)
 {
-	HammerMesh->SetRelativeLocation(DirectorToApplyCurve * Value);
+	HammerMesh->SetRelativeLocation(DirectionToApplyCurve * Value);
 }
 
 void ABigHammer::SetupMoveTimeline()
@@ -80,6 +87,22 @@ void ABigHammer::PlayHitSound()
 		UGameplayStatics::SpawnSoundAttached(HitSound, HammerMesh);
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Hit Sound is nullptr in DeadlyMovableBox!"));
+}
+
+void ABigHammer::StartDamaging()
+{
+	HammerBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+	FTimerHandle StopDamagingHandle;
+	GetWorld()->GetTimerManager().SetTimer(StopDamagingHandle, this, &ABigHammer::StopDamaging, StopDamagingTime, false);
+}
+
+void ABigHammer::StopDamaging()
+{
+	HammerBoxComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	FTimerHandle StartDamagingHandle;
+	GetWorld()->GetTimerManager().SetTimer(StartDamagingHandle, this, &ABigHammer::StartDamaging, StartDamagingTime, false);
 }
 
 void ABigHammer::MoveHammerTimelineFinished()

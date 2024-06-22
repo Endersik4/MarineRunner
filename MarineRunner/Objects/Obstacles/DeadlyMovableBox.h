@@ -43,11 +43,22 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
 	float ImpulseForceToApply = 0.f;
 	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
-	FVector DirectorToApplyCurve = FVector(0.f, 0.f, 1.f);
+	FVector DirectionToApplyCurve = FVector(0.f, 0.f, 1.f);
 	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
 	TObjectPtr<UCurveFloat> CurveZLocation = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Hammer Setup")
 	float TimeToPlayHitSound = 0.4f;
+	UPROPERTY(EditAnywhere, Category = "Hammer Setup|Damage")
+	bool bUseTimerToDamage = false;
+	// first time delay 
+	UPROPERTY(EditAnywhere, Category = "Hammer Setup|Damage", meta = (EditCondition="bUseTimerToDamage", EditConditionHides))
+	float StartDamagingDelay = 0.4f;
+	// after StartDamagingTime damage is enabled
+	UPROPERTY(EditAnywhere, Category = "Hammer Setup|Damage", meta = (EditCondition = "bUseTimerToDamage", EditConditionHides))
+	float StartDamagingTime = 0.4f;
+	// after StopDamaginTime damage is disabled
+	UPROPERTY(EditAnywhere, Category = "Hammer Setup|Damage", meta = (EditCondition = "bUseTimerToDamage", EditConditionHides))
+	float StopDamagingTime = 0.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Hammer Sounds")
 	TObjectPtr<USoundBase> HitSound = nullptr;
 
@@ -58,4 +69,7 @@ private:
 	UPROPERTY(Transient)
 	FTimerHandle HitSoundHandle;
 	void PlayHitSound();
+
+	void StartDamaging();
+	void StopDamaging();
 };

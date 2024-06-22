@@ -8,6 +8,7 @@
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/ListView.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 #include "ElevatorPanel/ElevatorPanelWidget.h"
 #include "OutsideElevatorDoors/OutsideElevatorDoor.h"
@@ -64,7 +65,6 @@ void AElevator::MoveElevatorAfterTime()
 	if (!IsPlayerTooFarAwayToDoCutscene())
 		return;
 
-	//ElevatorPanelWidget->ShowSelectFloorPanel(false);
 	ElevatorPanelWidget->SelectFloorsListView->SetVisibility(ESlateVisibility::Hidden);
 
 	FTimerHandle MoveToFloorHandle;
@@ -89,13 +89,10 @@ bool AElevator::IsPlayerTooFarAwayToDoCutscene()
 void AElevator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	ElevatorIsMoving(DeltaTime);
 }
 
 void AElevator::PrepareElevatorToMove(FVector Location, int32 Floor)
 {
-	StartLocation = GetActorLocation();
 	FloorLocationToGo = Location;
 
 	GetWorldTimerManager().ClearTimer(CloseDoorAfterInactivityHandle);
@@ -103,7 +100,6 @@ void AElevator::PrepareElevatorToMove(FVector Location, int32 Floor)
 	// if the elevator is on the same floor as the floor the player wants to go to then open/close the door
 	if (CurrentFloor == Floor)
 	{
-		MoveElevatorTimeElapsed += TimeToMoveOnFloor;
 		CurrentOutsideElevatorDoor = nullptr;
 		MovedToNewFloor();
 
@@ -151,32 +147,16 @@ void AElevator::StartMovingElevator()
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Spawned Ambient Elevator Sound is nullptr in Elevator!"));
 
-	bCanMoveToFloorLocation = true;
-}
+	FLatentActionInfo MoveElevatorToFloorLatentAction;
+	MoveElevatorToFloorLatentAction.CallbackTarget = this;
+	UKismetSystemLibrary::MoveComponentTo(ElevatorMesh, FloorLocationToGo, GetActorRotation(), true, true, TimeToMoveOnFloor, false, EMoveComponentAction::Move, MoveElevatorToFloorLatentAction);
 
-void AElevator::ElevatorIsMoving(float Delta)
-{
-	if (!bCanMoveToFloorLocation)
-		return;
-
-	if (MoveElevatorTimeElapsed <= TimeToMoveOnFloor)
-	{
-		const FVector& NewLocation = FMath::Lerp(StartLocation, FloorLocationToGo, MoveElevatorTimeElapsed / TimeToMoveOnFloor);
-		SetActorLocation(NewLocation);
-
-		MoveElevatorTimeElapsed += Delta;
-	}
-	else
-	{
-		MovedToNewFloor();
-	}
+	GetWorld()->GetTimerManager().SetTimer(NewFloorHandle, this, &AElevator::MovedToNewFloor, TimeToMoveOnFloor, false);
 }
 
 void AElevator::MovedToNewFloor()
 {
 	SetActorLocation(FloorLocationToGo);
-	bCanMoveToFloorLocation = false;
-	MoveElevatorTimeElapsed = 0.f;
 
 	if (IsValid(SpawnedAmbientElevatorSound))
 	{

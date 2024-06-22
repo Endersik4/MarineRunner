@@ -109,9 +109,10 @@ void AShootingEnemyPawn::SawTheTarget(const bool bSaw, const TObjectPtr<AActor> 
 
 	bEnemyDetectedTarget = bSaw;
 
-	const float& StartShootingTime = TimeToStartShooting + FMath::FRandRange(StartShootingRandomTimeRange.GetLowerBoundValue(), StartShootingRandomTimeRange.GetUpperBoundValue());
 	if (bSaw)
-		GetWorld()->GetTimerManager().SetTimer(StartShootingHandle, this, &AShootingEnemyPawn::StartShooting, StartShootingTime, false);
+	{
+		GetWorld()->GetTimerManager().SetTimer(StartShootingHandle, this, &AShootingEnemyPawn::StartShooting, FMath::FRandRange(StartShootingRandomTimeRange.GetLowerBoundValue(), StartShootingRandomTimeRange.GetUpperBoundValue()), false);
+	}
 	else
 	{
 		GetWorld()->GetTimerManager().ClearTimer(ShootHandle);
@@ -146,7 +147,7 @@ void AShootingEnemyPawn::StartShooting()
 		return;
 
 	bStartAlert = true;
-	GetWorld()->GetTimerManager().SetTimer(ShootHandle, this, &AShootingEnemyPawn::Shoot, ShootTime, true);
+	GetWorld()->GetTimerManager().SetTimer(ShootHandle, this, &AShootingEnemyPawn::Shoot, ShootTime, true, 0.f);
 }
 
 void AShootingEnemyPawn::Shoot()

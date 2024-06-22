@@ -86,6 +86,9 @@ void USwingComponent::ActivateCurrentHoveredHook(TObjectPtr<AActor> HookActorFro
 	if (!HoveredHook->GetCanGrabHook())
 		return;
 
+	if (IsValid(HookActivatedSound))
+		UGameplayStatics::PlaySound2D(GetWorld(), HookActivatedSound);
+
 	bCanPlayerSwing = true;
 	HoveredHook->ChangeToPlayerInRangeAnim();
 	CurrentFocusedHook = HoveredHook;

@@ -30,5 +30,9 @@ public:
 	TArray<FVector> StagesToTeleport;
 
 private:
+
 	TObjectPtr<class AMarineCharacter> GetPlayer();
+
+	void DestroyAllEnemies();
+	void ResetDetectedEnemies();
 };

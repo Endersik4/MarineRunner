@@ -36,6 +36,10 @@ public:
 
 	void SpawnCheatsWidget();
 
+	// spawns widget and when bOnlyOneAtTime == true then when another widget is spawned the first one will be deleted
+	TObjectPtr<UUserWidget> SpawnWidget(const TSubclassOf<UUserWidget>& WidgetClassToSpawn, bool bOnlyOneAtTime = false);
+
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Messages Handler")
 	TSubclassOf<UUserWidget> NewRecipeUnlockedClassWidget = nullptr;
@@ -46,7 +50,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Cheats")
 	TSubclassOf<class UCheatWidget> CheatWidgetClass = nullptr;
 
-	TObjectPtr<class UUserWidget> SpawnWidget(const TSubclassOf<UUserWidget>& WidgetClassToSpawn);
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> SpawnedOneAtTimeWidget = nullptr;
 
 	UPROPERTY(Transient)
 	bool bIsMessageDisplayed = false;
@@ -56,7 +61,7 @@ private:
 	UPROPERTY(Transient)
 	bool bIsCheatsDisplayed = false;
 	UPROPERTY(Transient)
-	TObjectPtr<class UUserWidget> SpawnedCheatWidget = nullptr;
+	TObjectPtr<UUserWidget> SpawnedCheatWidget = nullptr;
 
 	UPROPERTY(Transient)
 	TObjectPtr<APlayerController> PlayerController = nullptr;

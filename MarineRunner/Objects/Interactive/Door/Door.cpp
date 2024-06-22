@@ -67,6 +67,7 @@ void ADoor::OpenDoor()
 		UE_LOG(LogTemp, Warning, TEXT("Open Door Sound is nullptr in Door!"));
 
 	bDoorOpen = true;
+	SaveDoorToCustomSavedData();
 
 	GetWorldTimerManager().SetTimer(CloseAfterInactivityHandle, this, &ADoor::CloseDoorsAfterInactivity, CloseDoorAfterInactivityTime, false);
 }
@@ -136,7 +137,7 @@ void ADoor::SetUpDoorPanels()
 	}
 }
 
-void ADoor::PinCorrect()
+void ADoor::SaveDoorToCustomSavedData()
 {
 	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
@@ -149,10 +150,15 @@ void ADoor::PinCorrect()
 	SavedDataObject->AddCustomSaveData(CurrentUniqueID, FCustomDataSaved(ESavedDataState::ESDS_LoadData, this, 1));
 }
 
+void ADoor::PinCorrect()
+{
+	;
+}
+
 void ADoor::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
 	CurrentUniqueID = IDkey;
-	if (SavedCustomData.ObjectState == 1)
+	if (bUsePinCode)
 	{
 		StopUsingPin();
 
@@ -160,7 +166,6 @@ void ADoor::LoadData(const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 			DoorPanelWidget->RestartDoorPanelWidget();
 		if (IsValid(DoorPanelSecondWidget))
 			DoorPanelSecondWidget->RestartDoorPanelWidget();
-
 	}
 }
 
@@ -171,10 +176,8 @@ void ADoor::SaveData(ASavedDataObject* SavedDataObject, const int32 IDkey, const
 
 void ADoor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
-	if (SavedCustomData.ObjectState != 1)
-		return;
-
-	SetUpDoorPanels();
+	if (bUsePinCode)
+		SetUpDoorPanels();
 
 	if (bDoorOpen)
 	{
@@ -189,6 +192,8 @@ void ADoor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, co
 
 		bDoorOpen = false;
 	}
+
+	CurrentUniqueID = 0;
 }
 
 void ADoor::StopUsingPin()

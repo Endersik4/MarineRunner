@@ -31,14 +31,18 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class UBoxComponent> ChangeMusicBoxComp = nullptr;
 
-	UPROPERTY(EditAnywhere, Category = "Music", meta = (InlineEditConditionToggle))
+	UPROPERTY(EditAnywhere, Category = "Music")
 	bool bChangeMusic = true;
-	UPROPERTY(EditAnywhere, Category = "Music", meta = (InlineEditConditionToggle))
+	UPROPERTY(EditAnywhere, Category = "Music")
 	bool bPlaySound = false;
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bChangeMusic", EditConditionHides))
 	TObjectPtr<USoundBase> MusicToChange = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bPlaySound", EditConditionHides))
 	TObjectPtr<USoundBase> SoundToPlay = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bChangeMusic", EditConditionHides))
+	bool bAddDelayToMusic = false;
+	UPROPERTY(EditAnywhere, Category = "Music", meta = (EditCondition = "bChangeMusic && bAddDelayToMusic", EditConditionHides))
+	float MusicDelay = 2.f;
 	UFUNCTION()
 	void ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
@@ -51,4 +55,7 @@ private:
 	bool OriginalChangeMusic = false;
 	UPROPERTY(Transient)
 	int32 CurrentUniqueID = 0;
+
+	UPROPERTY(Transient)
+	FTimerHandle MusicDelayHandle = FTimerHandle();
 };

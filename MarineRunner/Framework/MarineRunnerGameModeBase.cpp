@@ -7,11 +7,42 @@
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Inventory/InventoryComponent.h"
 #include "MarineRunner/Enemies/TypesOfEnemy/ShootingEnemyPawn.h"
+#include "MarineRunnerGameInstance.h"
 
 #pragma region //////// CUSTOM COMMANDS ///////
 void AMarineRunnerGameModeBase::ChangeMap(const FName& NewLevelName)
 {
+	DestroyAllEnemies();
+	ResetDetectedEnemies();
+
 	UGameplayStatics::OpenLevel(GetWorld(), NewLevelName);
+}
+
+void AMarineRunnerGameModeBase::DestroyAllEnemies()
+{
+	TArray<TObjectPtr<AActor>> AllEnemiesOnMap;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemyPawn::StaticClass(), AllEnemiesOnMap);
+
+	for (TObjectPtr<AActor> CurrentEnemy : AllEnemiesOnMap)
+	{
+		if (!IsValid(CurrentEnemy))
+			continue;
+
+		CurrentEnemy->Destroy();
+	}
+}
+
+void AMarineRunnerGameModeBase::ResetDetectedEnemies()
+{
+	TObjectPtr<UGameInstance> TempGameInstance = UGameplayStatics::GetGameInstance(GetWorld());
+	if (!IsValid(TempGameInstance))
+		return;
+
+	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(TempGameInstance);
+	if (!IsValid(GameInstance))
+		return;
+	GameInstance->bNewGame = true;
+	GameInstance->ResetDetectedEnemy();
 }
 
 void AMarineRunnerGameModeBase::AddItem(const FName ItemRowNameToAdd, const int32 AmountToAdd)
@@ -34,6 +65,9 @@ void AMarineRunnerGameModeBase::TeleportToNextStage()
 
 	if (Player->CheckpointNumber >= StagesToTeleport.Num() || Player->CheckpointNumber < 0)
 		return;
+
+	DestroyAllEnemies();
+	ResetDetectedEnemies();
 
 	Player->SetActorLocation(StagesToTeleport[Player->CheckpointNumber]);
 }

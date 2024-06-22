@@ -87,17 +87,11 @@ private:
 	FTimerHandle StartElevatorHandle;
 	void StartMovingElevator();
 
-	// Moving Elevator
-	UPROPERTY(Transient)
-	bool bCanMoveToFloorLocation = false;
-	UPROPERTY(Transient)
-	float MoveElevatorTimeElapsed = 0.f;
-	UPROPERTY(Transient)
-	FVector StartLocation = FVector::Zero();
 	UPROPERTY(Transient)
 	FVector FloorLocationToGo = FVector::Zero();
-	void ElevatorIsMoving(float Delta);
 	void MovedToNewFloor();
+	UPROPERTY(Transient)
+	FTimerHandle NewFloorHandle = FTimerHandle();
 
 	UPROPERTY(Transient)
 	bool bDoorOpen = false;

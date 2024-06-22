@@ -310,11 +310,14 @@ void USettingsMenuWidget::SpawnSettingsAcceptedWidget()
 	if (!IsValid(SettingsAppliedWidgetClass))
 		return;
 
-	TObjectPtr<UUserWidget> SpawnedWidget = CreateWidget(MarinePlayerController, SettingsAppliedWidgetClass);
-	if (!IsValid(SpawnedWidget))
+	if (IsValid(SpawnedSettingsAcceptedWidget))
+		SpawnedSettingsAcceptedWidget->RemoveFromParent();
+
+	SpawnedSettingsAcceptedWidget = CreateWidget(MarinePlayerController, SettingsAppliedWidgetClass);
+	if (!IsValid(SpawnedSettingsAcceptedWidget))
 		return;
 
-	SpawnedWidget->AddToViewport();
+	SpawnedSettingsAcceptedWidget->AddToViewport();
 }
 
 void USettingsMenuWidget::LoadSavedSettingsToPlayer()

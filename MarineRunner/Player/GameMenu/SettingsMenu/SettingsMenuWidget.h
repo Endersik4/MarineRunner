@@ -161,6 +161,8 @@ private:
 
 	void LoadSavedSettingsToPlayer();
 
+	UPROPERTY(Transient)
+	TObjectPtr<UUserWidget> SpawnedSettingsAcceptedWidget = nullptr;
 	void SpawnSettingsAcceptedWidget();
 
 	UPROPERTY(Transient)

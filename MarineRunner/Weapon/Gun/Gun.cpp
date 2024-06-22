@@ -315,7 +315,15 @@ void AGun::AimTheGun(EStatusOfAimedGun NewGunStatus)
 	}
 	else
 	{
+		const float TempArmsAnimPos = Player->GetArmsSkeletalMesh()->GetPosition();
+
 		PlayGivenWeaponWithArmsAnimation(WeaponADSOutAnim);
+
+		if (GetWorldTimerManager().IsTimerActive(ShootHandle)) // if player exits ads when shoot anim is playing then play normal arms animation
+		{
+			Player->GetArmsSkeletalMesh()->PlayAnimation(WeaponShootAnim.ArmsActionAnim, false);
+			Player->GetArmsSkeletalMesh()->SetPosition(TempArmsAnimPos);
+		}
 	}
 
 }

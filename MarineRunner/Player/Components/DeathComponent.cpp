@@ -3,6 +3,7 @@
 
 #include "DeathComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/WidgetBlueprintLibrary.h"
 
 #include "MarineRunner/Player/Widgets/YouDiedWidget.h"
 
@@ -30,6 +31,7 @@ void USpawnDeathWidgetComponent::SpawnDeathWidget(TObjectPtr<APlayerController> 
 		return;
 
 	YouDiedWidget->AddToViewport();
+	UWidgetBlueprintLibrary::SetInputMode_GameAndUIEx(PlayerController);
 	PlayerController->SetShowMouseCursor(true);
 
 	GetWorld()->GetTimerManager().SetTimer(PauseGameHandle, this, &USpawnDeathWidgetComponent::PauseGameAfterDelay, DelayForGamePause, false);

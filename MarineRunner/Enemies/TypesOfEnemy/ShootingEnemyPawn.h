@@ -53,8 +53,6 @@ private:
 	TObjectPtr<class UEnemyGunComponent> EnemyGunComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
-	float TimeToStartShooting = 1.f;
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
 	float ShootTime = 1.f;
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Shoot")
 	FFloatRange StartShootingRandomTimeRange = FFloatRange(1.f, 3.f);

@@ -31,7 +31,14 @@ void AChangeMusicActor::BeginPlay()
 void AChangeMusicActor::ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (bChangeMusic)
-		ChangeBackgroundMusic();
+	{
+		if (bAddDelayToMusic)
+		{
+			GetWorld()->GetTimerManager().SetTimer(MusicDelayHandle, this, &AChangeMusicActor::ChangeBackgroundMusic, MusicDelay, false);
+		}
+		else 
+			ChangeBackgroundMusic();
+	}
 
 	if (bPlaySound)
 	{
