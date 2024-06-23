@@ -54,11 +54,11 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings")
 	TObjectPtr<USoundBase> CancelSlowMotionSound = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings|Movement")
-	float CounterForceMultiplierWhenInAir = 2.0f;
+	float CounterForceMultiplierWhenInAir = 3.0f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings|Movement")
-	float MovementSpeedInSlowMotion = 350000.f;
+	float MovementSpeedInSlowMotion = 30599756.f;
 	UPROPERTY(EditDefaultsOnly, Category = "SlowMotion Settings|Movement")
-	float CounterForceInSlowMotion = 45.f;
+	float CounterForceInSlowMotion = 3934.f;
 
 	UPROPERTY(Transient)
 	bool bCanSlowMotion = true;

@@ -25,8 +25,9 @@
 #include "MarineRunner/Player/Components/WeaponHandlerComponent.h"
 #include "MarineRunner/Player/Components/DeathComponent.h"
 #include "MarineRunner/Player/Components/MessageHandlerComponent.h"
-#include "MarineRunner/Player/SaveLoadGame/SaveLoadPlayerComponent.h"
 #include "MarineRunner/Player/Components/ArmsSwayComponent.h"
+#include "MarineRunner/Player/Components/QuickAttackComponent.h"
+#include "MarineRunner/Player/SaveLoadGame/SaveLoadPlayerComponent.h"
 #include "MarineRunner/Player/Inventory/WeaponInventoryComponent.h"
 #include "MarineRunner/Player/Inventory/InventoryComponent.h"
 #include "MarineRunner/Player/GameMenu/PauseMenu/PauseMenuComponent.h"
@@ -82,6 +83,7 @@ AMarineCharacter::AMarineCharacter()
 	MessageHandlerComponent = CreateDefaultSubobject<UMessageHandlerComponent>(TEXT("MessageHandlerComponent"));
 	SaveLoadPlayerComponent = CreateDefaultSubobject<USaveLoadPlayerComponent>(TEXT("Save and Load Player Component"));
 	ArmsSwayComponent = CreateDefaultSubobject<UArmsSwayComponent>(TEXT("Arms Sway Component"));
+	QuickAttackComponent = CreateDefaultSubobject<UQuickAttackComponent>(TEXT("Quick Attack Component"));
 
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
 	WidgetInteractionComponent->SetupAttachment(Camera);
@@ -142,6 +144,7 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Second_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 2);
 	PlayerInputComponent->BindAction<FSelectWeaponDelegate>(TEXT("Third_Weapon"), IE_Pressed, WeaponHandlerComponent.Get(), &UWeaponHandlerComponent::SelectWeaponFromQuickInventory, 3);
 
+	PlayerInputComponent->BindAction(TEXT("QuickAttack"), IE_Released, QuickAttackComponent.Get(), &UQuickAttackComponent::QuickAttack);
 
 	PlayerInputComponent->BindAction(TEXT("FirstAidKit"), IE_Pressed, this, &AMarineCharacter::UseFirstAidKit);
 

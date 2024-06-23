@@ -109,17 +109,19 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 	if (BulletStuckInActor(Hit)) 
 		return;
 
-	TObjectPtr<APawn> Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-
-	if (BulletData.bShouldCameraShakeAfterHit && IsValid(Player))
+	if (BulletData.bShouldCameraShakeAfterHit)
 	{
-		const float DistanceToPlayer = FVector::Distance(Player->GetActorLocation(), GetActorLocation());
-		if (DistanceToPlayer < MaxDistanceToStartShake && DistanceToPlayer != 0 && IsValid(PlayerController))
+		TObjectPtr<APawn> Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+		if (IsValid(Player))
 		{
-			float CameraShakeScale = (MaxDistanceToStartShake / DistanceToPlayer) * CameraShakeScaleMultiplier;
-			CameraShakeScale = CameraShakeScale > MaxCameraShakeScale ? MaxCameraShakeScale : CameraShakeScale;
-			PlayerController->PlayerCameraManager->StartCameraShake(BulletData.CameraShakeAfterBulletHit, CameraShakeScale);
+			TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+			const float DistanceToPlayer = FVector::Distance(Player->GetActorLocation(), GetActorLocation());
+			if (DistanceToPlayer < MaxDistanceToStartShake&& DistanceToPlayer != 0 && IsValid(PlayerController))
+			{
+				float CameraShakeScale = (MaxDistanceToStartShake / DistanceToPlayer) * CameraShakeScaleMultiplier;
+				CameraShakeScale = CameraShakeScale > MaxCameraShakeScale ? MaxCameraShakeScale : CameraShakeScale;
+				PlayerController->PlayerCameraManager->StartCameraShake(BulletData.CameraShakeAfterBulletHit, CameraShakeScale);
+			}
 		}
 	}
 

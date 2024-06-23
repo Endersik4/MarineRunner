@@ -38,7 +38,7 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
-	float CrouchSpeed = 30000.f;
+	float CrouchSpeed = 2622836.f;
 	// How fast change state of the crouch
 	UPROPERTY(EditAnywhere, Category = "Movement|Croach")
 	float TimeToChangeCrouchState = 0.2f;
@@ -55,22 +55,22 @@ private:
 	//Initial Velocity of Sliding is added to Walking Distance from MarineCharacter
 	//and then we have Initial Velocity of Sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-	float InitialVelocityOfSliding = 130000.f;
+	float InitialVelocityOfSliding = 11365623.f;
 	//How fast Velocity will be subtracted from Initial Velocity Of Sliding (multiply by Delta Time)
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
-	float SlideSpeed = 165000.f;
+	float SlideSpeed = 14425599.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 	float SlideDelayInSeconds = 0.01f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide")
 	TObjectPtr<USoundBase> SlideSound = nullptr;
 	//How fast Pawn will gain speed on ramp when sliding
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
-	float RampSlideDownForce = 25000.f;
+	float RampSlideDownForce = 2185696.f;
 	//How fast Pawn will lose speed on ramp when sliding up
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
-	float RampSlideUpForce = 350000.f;
+	float RampSlideUpForce = 30599756.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
-	float MaxSlideOnRampForce = 100000.f;
+	float MaxSlideOnRampForce = 25000000.f;
 	UPROPERTY(EditAnywhere, Category = "Movement|Slide|Ramp")
 	TSubclassOf<UCameraShakeBase> RampCameraShake = nullptr;
 

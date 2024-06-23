@@ -125,7 +125,7 @@ void AExplosionBarrel::SpawnExplosionDecal()
 	if (!bHit)
 		return;
 
-	TObjectPtr<UDecalComponent>	SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ExplosionDecal, FVector(1.f), HitResult.ImpactPoint-FVector(0.f, 0.f, 20.f), FRotator(-90.f, 0.f, 0.f));
+	TObjectPtr<UDecalComponent>	SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ExplosionDecal, FVector(1.f), HitResult.ImpactPoint, FRotator(-90.f, 0.f, 0.f));
 	if (!IsValid(SpawnedDecal))
 		return;
 

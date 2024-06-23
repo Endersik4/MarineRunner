@@ -35,7 +35,7 @@ private:
 	float PullUpTime = 0.2f;
 	//Forward Force that will be applied to player when he pull up on the edge
 	UPROPERTY(EditAnywhere, Category = "PullUp")
-	float PullUpForceForward = 300000.f;
+	float PullUpForceForward = 26228362.f;
 	//Up Force that will be applied to player when he pull up on the edge
 	UPROPERTY(EditAnywhere, Category = "PullUp")
 	float PullUpForceUp = 0.f;

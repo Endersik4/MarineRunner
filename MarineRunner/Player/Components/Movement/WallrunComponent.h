@@ -50,7 +50,7 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
-	FFloatRange WallrunVelocityRange = FFloatRange(2000.f, 2500.f);
+	FFloatRange WallrunVelocityRange = FFloatRange(2000.f, 2450.f);
 	//Force added to Stick with Obstacle
 	UPROPERTY(EditDefaultsOnly, Category = "Wallrun")
 	float StickToObstacleImpulse = 200000.f;

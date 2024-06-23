@@ -49,7 +49,7 @@ public:
 	// Overridable native event | activates this weapon to be the current one. 
 	virtual void DrawWeapon();
 	// Overridable native event | Deactivates this weapon. 
-	virtual void PutAwayWeapon();
+	virtual void PutAwayWeapon(bool bImmediatelyHideWeapon = false, bool bRemoveWeaponFromCurrentOne = false);
 	// Overridable native event | After PutAway anim hides the weapon. 
 	virtual void HideWeapon();
 	// Overridable native event | Removes weapon from inventory, spawnes weapon item in front of the player. 

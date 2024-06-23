@@ -38,9 +38,9 @@ void AIdentityDisc::DrawWeapon()
 	Super::DrawWeapon();
 }
 
-void AIdentityDisc::PutAwayWeapon()
+void AIdentityDisc::PutAwayWeapon(bool bImmediatelyHideWeapon, bool bRemoveWeaponFromCurrentOne)
 {
-	Super::PutAwayWeapon();
+	Super::PutAwayWeapon(bImmediatelyHideWeapon, bRemoveWeaponFromCurrentOne);
 }
 
 void AIdentityDisc::HideWeapon()

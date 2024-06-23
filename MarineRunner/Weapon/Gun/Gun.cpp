@@ -370,9 +370,9 @@ void AGun::DrawWeapon()
 	GetWorld()->GetTimerManager().SetTimer(DrawGunHandle, this, &AGun::SetCanShootAgain, DrawWeapon_Anim.ArmsActionAnim->GetPlayLength(), false);
 }
 
-void AGun::PutAwayWeapon()
+void AGun::PutAwayWeapon(bool bImmediatelyHideWeapon, bool bRemoveWeaponFromCurrentOne)
 {
-	Super::PutAwayWeapon();
+	Super::PutAwayWeapon(bImmediatelyHideWeapon, bRemoveWeaponFromCurrentOne);
 
 	if (!IsValid(Player))
 		return;

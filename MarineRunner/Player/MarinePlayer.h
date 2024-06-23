@@ -139,7 +139,8 @@ private:
 	TObjectPtr<class USaveLoadPlayerComponent> SaveLoadPlayerComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 	TObjectPtr<class UArmsSwayComponent> ArmsSwayComponent = nullptr;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
+	TObjectPtr<class UQuickAttackComponent> QuickAttackComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
 	float Health = 100.f;
@@ -169,9 +170,9 @@ private:
 	FSettingSavedInJsonFile FieldOfViewJSON = FSettingSavedInJsonFile("FieldOfView", 90.f);
 
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn|Movement")
-	float MovementSpeed = 80000.f;
+	float MovementSpeed = 6994230.f;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn|Movement")
-	float CounterMovementForce = 30.f;
+	float CounterMovementForce = 2623.f;
 	// When player wants to move forward and right then the forward speed is added to right speed and the player moves faster, this divider prevents this
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Movement")
 	float ForwardAndRightAtTheSameTimeDivider = 1.3f;
@@ -183,7 +184,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn|Widgets")
 	TSubclassOf<class UHUDWidget> HUDClass = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn|Movement|Cutscene")
-	float MovementSpeedInCutscene = 30000.f;
+	float MovementSpeedInCutscene = 2622836.f;
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn|Movement|Cutscene")
 	float TimeBetweenNextStepInCutscene = 0.7f;
 

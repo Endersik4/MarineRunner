@@ -143,7 +143,7 @@ void UWeaponHandlerComponent::CallHideWeaponByPlayer()
 
 float UWeaponHandlerComponent::HideWeaponByPlayer()
 {
-	if (!bCanChangeWeapon || bIsPlayerADS || bWeaponHiddenByPlayer)
+	if (!bCanChangeWeapon || bWeaponHiddenByPlayer)
 		return 0.f;
 
 	if (!IsValid(CurrentWeapon))

@@ -30,7 +30,7 @@ protected:
 	virtual void PickUpWeaponItem(class AMarineCharacter* PlayerWhoTook, bool bWasOnceItemTaken, int32 ValueToLoad) override;
 
 	virtual void DrawWeapon() override;
-	virtual void PutAwayWeapon() override;
+	virtual void PutAwayWeapon(bool bImmediatelyHideWeapon = false, bool bRemoveWeaponFromCurrentOne = false) override;
 	virtual void HideWeapon() override;
 	virtual void DropWeapon() override;
 

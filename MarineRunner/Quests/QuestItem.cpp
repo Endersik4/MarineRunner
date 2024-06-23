@@ -32,6 +32,9 @@ void AQuestItem::TakeItem(AMarineCharacter* Player)
 	if (bQuestWasPlayed)
 		return;
 
+	if (Player->GetWeaponHandlerComponent()->GetIsPlayerInAds())
+		return;
+
 	AddActorToSavedDataObject();
 	ItemUnHover(Player);
 	bQuestWasPlayed = true;

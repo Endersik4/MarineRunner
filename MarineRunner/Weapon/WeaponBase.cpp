@@ -101,14 +101,13 @@ void AWeaponBase::DrawWeapon()
 	GetWorld()->GetTimerManager().SetTimer(CanChangeWeaponHandle, SetCanChangeWeaponDelegate, DrawWeapon_Anim.ArmsActionAnim->GetPlayLength(), false);
 }
 
-void AWeaponBase::PutAwayWeapon()
+void AWeaponBase::PutAwayWeapon(bool bImmediatelyHideWeapon, bool bRemoveWeaponFromCurrentOne)
 {
 	if (!IsValid(Player))
 		return;
 
-	PlayGivenWeaponWithArmsAnimation(PutAwayWeapon_Anim);
 
-	if (IsValid(Player->GetWeaponHandlerComponent()))
+	if (IsValid(Player->GetWeaponHandlerComponent()) && !bRemoveWeaponFromCurrentOne)
 		Player->GetWeaponHandlerComponent()->SetWeapon(nullptr);
 	if (IsValid(Player->GetHudWidget()))
 		Player->GetHudWidget()->ShowWeaponOnHud(false);
@@ -117,6 +116,14 @@ void AWeaponBase::PutAwayWeapon()
 		UGameplayStatics::PlaySound2D(GetWorld(), PutAwayWeapon_Sound);
 	else
 		UE_LOG(LogTemp, Warning, TEXT("PutAwayWeapon_Sound is nullptr in Weapon"));
+
+	if (bImmediatelyHideWeapon)
+	{
+		HideWeapon();
+		return;
+	}
+	
+	PlayGivenWeaponWithArmsAnimation(PutAwayWeapon_Anim);
 
 	FTimerHandle HideWeaponHandle;
 	GetWorld()->GetTimerManager().SetTimer(HideWeaponHandle, this, &AWeaponBase::HideWeapon, PutAwayWeapon_Anim.ArmsActionAnim->GetPlayLength(), false);
@@ -134,7 +141,7 @@ void AWeaponBase::HideWeapon()
 	Player->GetArmsSkeletalMesh()->Stop();
 
 	// Back to T-Pose if there is no gun to draw after dropping current gun or if player wants to hide weapon
-	if ((Player->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1 && bDropWeaponAfterPutAway) || Player->GetWeaponHandlerComponent()->GetWeaponHiddenByPlayer())
+	if ((Player->GetWeaponInventoryComponent()->GetCurrentAmountOfWeapons() == 1 && bDropWeaponAfterPutAway) || Player->GetWeaponHandlerComponent()->GetIsWeaponHiddenByPlayer())
 	{
 		Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(true);
 		Player->GetArmsSkeletalMesh()->SetForceRefPose(true);

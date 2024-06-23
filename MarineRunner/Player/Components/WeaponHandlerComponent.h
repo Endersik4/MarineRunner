@@ -11,6 +11,7 @@
 class AWeaponBase;
 DECLARE_DELEGATE_OneParam(FSelectWeaponDelegate, int32);
 
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class MARINERUNNER_API UWeaponHandlerComponent : public UActorComponent
 {
@@ -27,7 +28,8 @@ protected:
 public:
 
 	FORCEINLINE bool GetIsPlayerInAds() const { return bIsPlayerADS; }
-	FORCEINLINE bool GetWeaponHiddenByPlayer() const { return bWeaponHiddenByPlayer; }
+	FORCEINLINE TObjectPtr<AWeaponBase> GetCurrentWeapon() const { return CurrentWeapon; }
+	FORCEINLINE bool GetIsWeaponHiddenByPlayer() const { return bWeaponHiddenByPlayer; }
 	FORCEINLINE const TArray<FSettingSavedInJsonFile>& GetMouseSensitivityWhenScope() const { return MouseSensitivityWhenScope; }
 
 	FORCEINLINE void SetWeapon(TObjectPtr<AWeaponBase> NewGun) { CurrentWeapon = NewGun; }
