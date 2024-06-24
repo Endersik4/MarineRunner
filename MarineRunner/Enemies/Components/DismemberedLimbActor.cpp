@@ -26,15 +26,15 @@ void ADismemberedLimbActor::BeginPlay()
 	
 }
 
-void ADismemberedLimbActor::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
+void ADismemberedLimbActor::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, const EWeaponType& WeaponType, float NewSphereRadius)
 {
 	if (!IsValid(EnemyLimbOwner))
 		return;
 
-	EnemyLimbOwner->SpawnGunshotWoundDecal(NewHit, LimbSkeletalMesh);
+	EnemyLimbOwner->SpawnGunshotWoundDecal(NewHit, LimbSkeletalMesh, WeaponType);
 	EnemyLimbOwner->SpawnEffectsForImpact(NewHit, EnemyLimbOwner->GetHitBoneType(NewHit.BoneName));
 	EnemyLimbOwner->SpawnBloodOnObjectDecal(BulletActor, NewHit.Location);
-	EnemyLimbOwner->GetDismemberEnemyComponent()->DismemberLimb(LimbSkeletalMesh, NewHit, NewImpulseForce, EnemyLimbOwner->GetBloodColor(), NewSphereRadius);
+	EnemyLimbOwner->GetDismemberEnemyComponent()->DismemberLimb(LimbSkeletalMesh, NewHit, NewImpulseForce, EnemyLimbOwner->GetBloodColor(), WeaponType, NewSphereRadius);
 
 	// If the radius of the sphere is 0, the bullet did not use the radial sphere to deal damage.
 	if (NewSphereRadius == 0.f && IsValid(BulletActor))

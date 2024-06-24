@@ -44,6 +44,6 @@ void ADeadlyBox::KillEverythingBeginOverlap(UPrimitiveComponent* OverlappedComp,
 	if (!InteractInterface)
 		return;
 
-	InteractInterface->ApplyDamage(DamageToApply, ImpulseForceToApply, SweepResult, nullptr);
+	InteractInterface->ApplyDamage(DamageToApply, ImpulseForceToApply, SweepResult, nullptr, EWT_None);
 }
 

@@ -37,42 +37,19 @@ void UQuickAttackComponent::BeginPlay()
 #pragma region /////////////////// QUICK ATTACK ////////////
 void UQuickAttackComponent::QuickAttack()
 {
-	if (!bCanQuickAttack)
-		return;
-
-	if (!IsValid(QuickAttackAnim))
-		return;
-
-	if (!IsValid(Player))
+	if (!CanPlayerQuickAttack())
 		return;
 
 	bCanQuickAttack = false;
-	GetWorld()->GetTimerManager().SetTimer(QuickAttackHandle, this, &UQuickAttackComponent::QuickAttackFinished, QuickAttackAnim->GetPlayLength(), false);
+	GetWorld()->GetTimerManager().SetTimer(CanQuickAttackAgainHandle, this, &UQuickAttackComponent::SetCanQuickAttackAgain, CanAttackAgainTime, false);
+
+	GetWorld()->GetTimerManager().SetTimer(QuickAttackHandle, this, &UQuickAttackComponent::QuickAttackFinished, QuickAttackTime, false);
 
 	SpawnQuickAttackWeapon();
 
 	QuickAttackEffects();
 
-	FHitResult QuickAttackResult;
-	const FVector StartRaycast = Player->GetCameraLocation();
-	const FVector EndRaycast = StartRaycast + MaxDistanceToDamage * Player->GetCamera()->GetForwardVector();
-	TArray<AActor*> ActorsToIgnore = {Player};
-
-	const bool bHit = UKismetSystemLibrary::BoxTraceSingle(GetWorld(), StartRaycast, EndRaycast, FVector(SweepBoxSize), FRotator(0.f),
-		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel3), false, ActorsToIgnore, EDrawDebugTrace::None, QuickAttackResult, true);
-
-	if (!bHit)
-		return;
-
-	IDamageInterface* ObjectThatHasInterface = Cast<IDamageInterface>(QuickAttackResult.GetActor());
-	if (ObjectThatHasInterface)
-	{
-		ObjectThatHasInterface->ApplyDamage(Damage, DamageInterfaceImpulseForce, QuickAttackResult, SpawnedQuickWeapon);
-	}
-	else
-	{
-		HitWithoutDamageInterface(QuickAttackResult);
-	}
+	QuickAttackHit();
 }
 
 void UQuickAttackComponent::SpawnQuickAttackWeapon()
@@ -85,7 +62,10 @@ void UQuickAttackComponent::SpawnQuickAttackWeapon()
 		return;
 
 	if (IsValid(Player->GetWeaponHandlerComponent()->GetCurrentWeapon()))
+	{
+		Player->GetWeaponHandlerComponent()->SetWeaponHiddenByPlayer(true);
 		Player->GetWeaponHandlerComponent()->GetCurrentWeapon()->PutAwayWeapon(true, true);
+	}
 
 	Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(false);
 
@@ -94,6 +74,8 @@ void UQuickAttackComponent::SpawnQuickAttackWeapon()
 
 void UQuickAttackComponent::QuickAttackEffects()
 {
+	Player->GetArmsSkeletalMesh()->SetForceRefPose(false);
+
 	if (IsValid(QuickAttackAnim))
 		Player->GetArmsSkeletalMesh()->PlayAnimation(QuickAttackAnim, false);
 
@@ -102,6 +84,29 @@ void UQuickAttackComponent::QuickAttackEffects()
 
 	if (IsValid(PlayerController))
 		PlayerController->ClientStartCameraShake(QuickAttackCameraShake);
+}
+
+void UQuickAttackComponent::QuickAttackHit()
+{
+	FHitResult QuickAttackResult;
+	const FVector StartRaycast = Player->GetCameraLocation();
+	const FVector EndRaycast = StartRaycast + MaxDistanceToDamage * Player->GetCamera()->GetForwardVector();
+	TArray<AActor*> ActorsToIgnore = { Player };
+
+	const bool bHit = UKismetSystemLibrary::BoxTraceSingle(GetWorld(), StartRaycast, EndRaycast, SweepBoxSize, FRotator(0.f),
+		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel12), false, ActorsToIgnore, EDrawDebugTrace::None, QuickAttackResult, true);
+	if (!bHit)
+		return;
+
+	IDamageInterface* ObjectThatHasInterface = Cast<IDamageInterface>(QuickAttackResult.GetActor());
+	if (ObjectThatHasInterface)
+	{
+		ObjectThatHasInterface->ApplyDamage(Damage, DamageInterfaceImpulseForce, QuickAttackResult, SpawnedQuickWeapon, WeaponType);
+	}
+	else
+	{
+		HitWithoutDamageInterface(QuickAttackResult);
+	}
 }
 
 void UQuickAttackComponent::HitWithoutDamageInterface(const FHitResult& HitResultFromAttack)
@@ -126,25 +131,47 @@ void UQuickAttackComponent::SpawnHitDecal(const FHitResult& HitResultFromAttack)
 		return;
 	}
 
-	TObjectPtr<UDecalComponent>	SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), WeaponHoleDecalMaterial, FVector(1.f), HitResultFromAttack.ImpactPoint, HitResultFromAttack.ImpactNormal.Rotation());
+	const FRotator DecalRotation = HitResultFromAttack.ImpactNormal.Rotation() + FRotator(0.f, Player->GetActorRotation().Yaw, 0.f);
+	TObjectPtr<UDecalComponent>	SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), WeaponHoleDecalMaterial, FVector(1.f), HitResultFromAttack.ImpactPoint, DecalRotation);
 	if (!IsValid(SpawnedDecal))
 		return;
 
 	SpawnedDecal->DecalSize = WeaponHoleDecalSize;
 	SpawnedDecal->SetFadeScreenSize(0.f);
+	SpawnedDecal->SetFadeOut(HitDecalFadeOutDelay, HitDecalFadeOutDuration, false);
 }
 
 void UQuickAttackComponent::QuickAttackFinished()
 {
-	bCanQuickAttack = true;
-
 	if (IsValid(SpawnedQuickWeapon))
 		SpawnedQuickWeapon->Destroy();
 
+	Player->GetArmsSkeletalMesh()->SetForceRefPose(true);
+
 	if (IsValid(Player->GetWeaponHandlerComponent()->GetCurrentWeapon()))
+	{
+		Player->GetWeaponHandlerComponent()->SetWeaponHiddenByPlayer(false);
 		Player->GetWeaponHandlerComponent()->GetCurrentWeapon()->DrawWeapon();
+	}
 
 	Player->GetWeaponHandlerComponent()->SetCanChangeWeapon(true);
+}
+
+bool UQuickAttackComponent::CanPlayerQuickAttack()
+{
+	if (!bCanQuickAttack)
+		return false;
+
+	if (!IsValid(QuickAttackAnim))
+		return false;
+
+	if (!IsValid(Player))
+		return false;
+
+	if (Player->GetIsInCutscene())
+		return false;
+
+	return true;
 }
 
 #pragma endregion

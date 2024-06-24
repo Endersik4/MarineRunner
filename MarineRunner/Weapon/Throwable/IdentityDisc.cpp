@@ -5,7 +5,6 @@
 #include "Camera/CameraComponent.h"
 
 #include "MarineRunner/Player/MarinePlayer.h"
-#include "MarineRunner/Interfaces/DamageInterface.h"
 
 AIdentityDisc::AIdentityDisc()
 {
@@ -107,7 +106,7 @@ void AIdentityDisc::OnBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	if (!DamageInterface)
 		return;
 
-	DamageInterface->ApplyDamage(10000.f, 0.f, SweepResult, this);
+	DamageInterface->ApplyDamage(10000.f, 0.f, SweepResult, this, WeaponType);
 }
 
 void AIdentityDisc::ReleasedPrimaryAction()

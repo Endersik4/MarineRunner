@@ -39,16 +39,15 @@ void AShootingEnemyPawn::Tick(float DeltaTime)
 	ChangeParameterInAlertMaterial(DeltaTime);
 }
 
-void AShootingEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
+void AShootingEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, const EWeaponType& WeaponType, float NewSphereRadius)
 {
-	Super::ApplyDamage(NewDamage,NewImpulseForce, NewHit, BulletActor, NewSphereRadius);
+	Super::ApplyDamage(NewDamage,NewImpulseForce, NewHit, BulletActor, WeaponType, NewSphereRadius);
 
-	KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadius);
 }
 
-bool AShootingEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObjectPtr<AActor> BulletActor, float NewSphereRadius)
+bool AShootingEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObjectPtr<AActor> BulletActor, const EWeaponType& WeaponType, float NewSphereRadius)
 {
-	bool bKilled = Super::KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadius);
+	bool bKilled = Super::KillEnemy(NewImpulseForce, NewHit, BulletActor, WeaponType, NewSphereRadius);
 
 	if (bKilled)
 	{
@@ -68,7 +67,7 @@ bool AShootingEnemyPawn::EnemyRunAway()
 	if (Health > MaxEnemyHealthForRunAway || !bCanEnemyRunAway)
 		return false;
 
-	int32 RandomPercent = FMath::RandRange(0, 100);
+	const int32 RandomPercent = FMath::RandRange(0, 100);
 	if (PercentForEnemyRunaway > RandomPercent)
 	{
 		ShouldRunAway();

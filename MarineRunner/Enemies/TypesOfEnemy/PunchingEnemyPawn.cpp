@@ -77,7 +77,7 @@ void APunchingEnemyPawn::ApplyDamageToPlayer()
 	if (ActorWithDamageInterface == this)
 		return;
 
-	ActorWithDamageInterface->ApplyDamage(Damage, DamageImpulseForce, DamagePlayerResult, this);
+	ActorWithDamageInterface->ApplyDamage(Damage, DamageImpulseForce, DamagePlayerResult, this, EWT_None);
 }
 
 void APunchingEnemyPawn::DamageAnimFinished()

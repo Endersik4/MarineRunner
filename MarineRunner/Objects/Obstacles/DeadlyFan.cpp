@@ -56,7 +56,7 @@ void ADeadlyFan::OnFanMeshBeginOverlap(UPrimitiveComponent* OverlappedComp, AAct
 	if (!InteractInterface)
 		return;
 
-	InteractInterface->ApplyDamage(DamageToApply, ImpulseForceToApply, SweepResult, nullptr);
+	InteractInterface->ApplyDamage(DamageToApply, ImpulseForceToApply, SweepResult, nullptr, EWT_None);
 }
 
 void ADeadlyFan::RotateFan(float Delta)

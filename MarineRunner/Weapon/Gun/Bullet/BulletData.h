@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "MarineRunner/Interfaces/DamageInterface.h"
 #include "BulletData.generated.h"
 
 USTRUCT(BlueprintType)
@@ -57,6 +58,8 @@ struct FBulletStruct
 	//Bullet Type that will be fired from Gun
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Up Bullet|Objects to Spawn")
 	TSubclassOf<class ABullet> BulletClass;
+
+	EWeaponType WeaponType;
 };
 
 

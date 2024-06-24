@@ -426,7 +426,7 @@ void AMarineCharacter::TakeReleased()
 #pragma endregion 
 
 #pragma region //////////////////////////////// DAMAGE /////////////////////////////////
-void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
+void AMarineCharacter::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, const EWeaponType& WeaponType, float NewSphereRadius)
 {
 	if (bIsDead)
 		return;

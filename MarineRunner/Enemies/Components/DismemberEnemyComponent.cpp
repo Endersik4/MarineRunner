@@ -21,7 +21,7 @@ void UDismemberEnemyComponent::BeginPlay()
 	
 }
 
-void UDismemberEnemyComponent::DismemberLimb(TObjectPtr<USkeletalMeshComponent> SkeletalMeshToDismember, const FHitResult& HitBoneResult, float ImpulseForce, const FColor& BloodSprayColor, float RadialImpulseRadius)
+void UDismemberEnemyComponent::DismemberLimb(TObjectPtr<USkeletalMeshComponent> SkeletalMeshToDismember, const FHitResult& HitBoneResult, float ImpulseForce, const FColor& BloodSprayColor, const EWeaponType& WeaponType, float RadialImpulseRadius)
 {
 	if (!IsValid(SkeletalMeshToDismember))
 		return;
@@ -63,7 +63,7 @@ FDismemberLimb* UDismemberEnemyComponent::SpawnLimbActor(TObjectPtr<USkeletalMes
 
 	SpawnedLimb->SetLifeSpan(LimbLifeSpan);
 	if (IsValid(GetOwner()))
-		GetOwner()->SetLifeSpan(LimbLifeSpan+ AdditionalLifeSpanForEnemyOwner); // the spawned limb has a pointer to EnemyOwner. This prevents the enemy from destroying itself before limb
+		GetOwner()->SetLifeSpan(LimbLifeSpan + AdditionalLifeSpanForEnemyOwner);
 
 	SpawnedLimb->GetLimbSkeletalMesh()->SetSkeletalMesh(LimbToDismbember->LimbSkeletalMesh);
 	SpawnedLimb->GetLimbSkeletalMesh()->RecreatePhysicsState();

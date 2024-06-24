@@ -57,7 +57,7 @@ void ADestructibleMeshActor::OnChaosBreakEvent(const FChaosBreakEvent& BreakEven
 	GetWorld()->GetTimerManager().SetTimer(BreakSoundHandle, this, &ADestructibleMeshActor::PlayAgainBreakSound, CanPlayBreakSoundTime, false);
 }
 
-void ADestructibleMeshActor::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
+void ADestructibleMeshActor::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, const EWeaponType& WeaponType, float NewSphereRadius)
 {
 	DisableAssignedDestructibleActor();
 

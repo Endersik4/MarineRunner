@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "MarineRunner/Interfaces/DamageInterface.h"
 #include "WeaponBase.generated.h"
 
 USTRUCT(BlueprintType)
@@ -84,6 +85,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings")
 	FName SocketNameToAttachWeapon = FName(TEXT("Weapon_R"));
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings")
+	TEnumAsByte<EWeaponType> WeaponType = EWT_Gun;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon Settings|Draw")
 	FWeaponAnimation FirstTimePickedUpWeapon_Anim = FWeaponAnimation();

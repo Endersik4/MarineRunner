@@ -13,9 +13,15 @@ class UDamageInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- *
- */
+
+UENUM()
+enum EWeaponType
+{
+	EWT_Gun,
+	EWT_Knife,
+	EWT_None,
+};
+
 class MARINERUNNER_API IDamageInterface
 {
 	GENERATED_BODY()
@@ -26,5 +32,5 @@ public:
 	void BreakObject(float ImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f);
 
 	UFUNCTION()
-	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) = 0;
+	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, const EWeaponType& WeaponType, float NewSphereRadius = 0.f) = 0;
 };

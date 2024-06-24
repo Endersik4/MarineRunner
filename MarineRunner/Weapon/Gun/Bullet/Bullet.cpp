@@ -8,8 +8,6 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
-#include "MarineRunner/Interfaces/DamageInterface.h"
-
 ABullet::ABullet()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -160,7 +158,7 @@ void ABullet::UseDamageInterfaceOnActor(const FHitResult& HitResult)
 	IDamageInterface* DamageInterface = Cast<IDamageInterface>(HitResult.GetActor());
 	if (DamageInterface) // C++ Interface function
 	{
-		DamageInterface->ApplyDamage(BulletData.Damage, BulletData.HitImpulseForce, HitResult, this, BulletData.RadialSphereRadius);
+		DamageInterface->ApplyDamage(BulletData.Damage, BulletData.HitImpulseForce, HitResult, this, BulletData.WeaponType, BulletData.RadialSphereRadius);
 	}
 	else if (HitResult.GetActor()->Implements<UDamageInterface>()) // Blueprint Interface function
 	{
@@ -241,6 +239,6 @@ void ABullet::SpawnBulletHoleDecal(const FHitResult& Hit)
 
 	SpawnedDecal->SetFadeScreenSize(0.f);
 	SpawnedDecal->DecalSize.X += BulletHoleSize_X;
-	SpawnedDecal->SetFadeOut(BulletHoleFadeOutStartDelay, BulletHoleFadeOutDuration);
+	SpawnedDecal->SetFadeOut(BulletHoleFadeOutStartDelay, BulletHoleFadeOutDuration, false);
 }
 #pragma endregion

@@ -51,6 +51,44 @@ struct FHitBoneType {
 	}
 };
 
+USTRUCT(BlueprintType)
+struct FWoundDecal
+{
+	GENERATED_USTRUCT_BODY();
+
+	UPROPERTY(EditAnywhere)
+	TEnumAsByte<EWeaponType> WoundFromWeaponType;
+	UPROPERTY(EditAnywhere)
+	FVector WoundDecalSize = FVector();
+	UPROPERTY(EditAnywhere)
+	FFloatRange WoundRandomSizeMultiplierRange = FFloatRange();
+	// It was added to the decal of gunshot wounds after spawn, because sometimes the decal is not visible on the body if it was moved slightly.
+	UPROPERTY(EditAnywhere)
+	float AdditionalWoundSize_X = 0.f;
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UMaterialInstance> WoundDecalMaterial = nullptr;
+	UPROPERTY(EditAnywhere)
+	float WoundFadeOutDelay = 0.f;
+	UPROPERTY(EditAnywhere)
+	float WoundFadeOutDuration = 0.f;
+
+	const bool operator==(const EWeaponType& otherWeaponType) const
+	{
+		return WoundFromWeaponType == otherWeaponType;
+	}
+
+	FWoundDecal()
+	{
+		WoundFromWeaponType = EWeaponType::EWT_Gun;
+		WoundDecalSize = FVector();
+		WoundRandomSizeMultiplierRange = FFloatRange();
+		AdditionalWoundSize_X = 0.f;
+		WoundDecalMaterial = nullptr;
+		WoundFadeOutDelay = 0.f;
+		WoundFadeOutDuration = 0.f;
+	}
+};
+
 UCLASS()
 class MARINERUNNER_API AEnemyPawn : public APawn, public IDamageInterface, public IEnemyInterface, public ISaveCustomDataInterface
 {
@@ -61,7 +99,7 @@ public:
 	AEnemyPawn();
 
 	//Function From IDamageInterface
-	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius) override;
+	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, const EWeaponType& WeaponType, float NewSphereRadius = 0.f) override;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -77,7 +115,7 @@ public:
 
 	// Effects
 	void SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType* PtrHitBoneType);
-	void SpawnGunshotWoundDecal(const FHitResult& Hit, const TObjectPtr<class USkeletalMeshComponent> SkeletalMeshToSpawnOn);
+	void SpawnGunshotWoundDecal(const FHitResult& Hit, const TObjectPtr<class USkeletalMeshComponent> SkeletalMeshToSpawnOn, const EWeaponType& WeaponType);
 	void SpawnBloodOnObjectDecal(TObjectPtr<const AActor> BulletThatHitEnemy, const FVector& HitLocation);
 	FHitBoneType* GetHitBoneType(const FName& BoneNameToFind);
 
@@ -85,7 +123,7 @@ public:
 	FORCEINLINE virtual class AActor* GetFocusedActor() override { return nullptr; }
 	FORCEINLINE virtual void AddImpulseToPhysicsMesh(const FVector& Impulse) override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Components", BlueprintReadWrite)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
 	TObjectPtr<USkeletalMeshComponent> EnemySkeletalMesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
@@ -104,7 +142,7 @@ protected:
 	UPROPERTY(Transient)
 	bool bIsDead = false;
 
-	virtual bool KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObjectPtr<AActor> BulletActor, float NewSphereRadius);
+	virtual bool KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObjectPtr<AActor> BulletActor, const EWeaponType& WeaponType, float NewSphereRadius);
 
 	UPROPERTY(Transient, EditAnywhere, Category = "Setting Enemy")
 	float Health = 100.f;
@@ -149,15 +187,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Blood On Objects")
 	float AdditionalBloodOnObjectSize_X = 20.f;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
-	FFloatRange GunshotWoundRandomSizeRange = FFloatRange(8.f, 18.f);
-	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
-	float GunshotWoundDecalLifeSpan = 10.f;
-	// It was added to the decal of gunshot wounds after spawn, because sometimes the decal is not visible on the body if it was moved slightly.
-	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
-	float AdditionalGunshotWoundSize_X = 20.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Gunshot wound")
-	TObjectPtr<UMaterialInstance> GunshotWoundDecalMaterial = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Gunshot wound")
+	TArray<FWoundDecal> AllWoundDecals;
 
 	UPROPERTY(EditAnywhere, Category = "Footsteps")
 	float TimeBetweenNextStep = 0.42f;
@@ -187,6 +218,7 @@ private:
 	void PlayFootstepsSound();
 	UPROPERTY(Transient)
 	bool bCanPlayFootstepsSound = true;
+	UPROPERTY(Transient)
 	FTimerHandle FootstepsHandle;
 	FORCEINLINE void SetCanPlayFootstepsSound() { bCanPlayFootstepsSound = true; }
 

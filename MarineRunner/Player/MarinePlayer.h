@@ -24,7 +24,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) override; //C++ ONLY
+	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, const EWeaponType& WeaponType, float NewSphereRadius = 0.f) override; //C++ ONLY
 
 public:
 	virtual void Tick(float DeltaTime) override;

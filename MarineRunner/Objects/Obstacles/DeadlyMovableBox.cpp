@@ -58,7 +58,7 @@ void ABigHammer::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* 
 	if (!InteractInterface)
 		return;
 
-	InteractInterface->ApplyDamage(DamageToApply, ImpulseForceToApply, SweepResult, nullptr);
+	InteractInterface->ApplyDamage(DamageToApply, ImpulseForceToApply, SweepResult, nullptr, EWT_None);
 }
 
 void ABigHammer::MoveHammerTimelineProgress(float Value)

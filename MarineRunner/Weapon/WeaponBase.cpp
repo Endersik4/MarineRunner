@@ -106,7 +106,6 @@ void AWeaponBase::PutAwayWeapon(bool bImmediatelyHideWeapon, bool bRemoveWeaponF
 	if (!IsValid(Player))
 		return;
 
-
 	if (IsValid(Player->GetWeaponHandlerComponent()) && !bRemoveWeaponFromCurrentOne)
 		Player->GetWeaponHandlerComponent()->SetWeapon(nullptr);
 	if (IsValid(Player->GetHudWidget()))

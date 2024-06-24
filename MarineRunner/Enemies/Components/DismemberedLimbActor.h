@@ -18,7 +18,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) override;
+	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, const EWeaponType& WeaponType, float NewSphereRadius = 0.f) override;
 
 public:
 	FORCEINLINE TObjectPtr<USkeletalMeshComponent> GetLimbSkeletalMesh() const { return LimbSkeletalMesh; }

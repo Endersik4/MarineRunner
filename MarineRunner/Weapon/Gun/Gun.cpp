@@ -177,6 +177,7 @@ void AGun::SpawnBullet()
 	FBulletStruct BulletDataForSpawnedBullet = BulletData;
 	BulletDataForSpawnedBullet.Damage = bManyBulletsPerShoot == false ? BulletData.Damage : (BulletData.Damage / BulletsAmountPerShoot);
 	BulletDataForSpawnedBullet.HitImpulseForce = bManyBulletsPerShoot == false ? BulletData.HitImpulseForce : (BulletData.HitImpulseForce / BulletsAmountPerShoot);
+	BulletDataForSpawnedBullet.WeaponType = WeaponType;
 
 	SpawnedBullet->SetBulletData(BulletDataForSpawnedBullet);
 	SpawnedBullet->FinishSpawning(BulletTransform);

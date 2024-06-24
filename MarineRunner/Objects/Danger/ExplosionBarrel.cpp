@@ -20,7 +20,7 @@ AExplosionBarrel::AExplosionBarrel()
 
 }
 
-void AExplosionBarrel::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius)
+void AExplosionBarrel::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, const EWeaponType& WeaponType, float NewSphereRadius)
 {
 	if (bExploded) 
 		return;
@@ -58,7 +58,7 @@ void AExplosionBarrel::Explode()
 	}
 
 	SpawnEffects();
-
+	
 	BarrelExplodedSaveData();
 	DisableBarrel();
 }
@@ -68,7 +68,7 @@ void AExplosionBarrel::UseDamageInterfaceOnActor(const FHitResult& HitResult)
 	IDamageInterface* Interface = Cast<IDamageInterface>(HitResult.GetActor());
 	if (Interface) //Check if Object has Interface C++ Implementation
 	{
-		Interface->ApplyDamage(ExplosionDamage, ExplosionImpulseForce, HitResult, this, ExplosionRadius);
+		Interface->ApplyDamage(ExplosionDamage, ExplosionImpulseForce, HitResult, this, EWT_None, ExplosionRadius);
 	}
 	else if (HitResult.GetActor()->Implements<UDamageInterface>())  //Check if Object has Interface Blueprint Implementation
 	{

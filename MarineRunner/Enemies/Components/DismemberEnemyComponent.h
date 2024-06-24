@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "MarineRunner/Interfaces/DamageInterface.h"
 #include "DismemberEnemyComponent.generated.h"
 
 USTRUCT(BlueprintType)
@@ -56,7 +57,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	void DismemberLimb(TObjectPtr<USkeletalMeshComponent> SkeletalMeshToDismember, const FHitResult& HitBoneResult, float ImpulseForce, const FColor& BloodSprayColor, float RadialImpulseRadius = 0.f);
+	void DismemberLimb(TObjectPtr<USkeletalMeshComponent> SkeletalMeshToDismember, const FHitResult& HitBoneResult, float ImpulseForce, const FColor& BloodSprayColor, const EWeaponType& WeaponType, float RadialImpulseRadius = 0.f);
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Dismember System")

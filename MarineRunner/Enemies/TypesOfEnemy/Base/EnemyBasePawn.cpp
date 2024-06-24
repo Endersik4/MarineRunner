@@ -52,12 +52,12 @@ void AEnemyPawn::Tick(float DeltaTime)
 
 	if (bIsDead)
 		return;
-
+	
 	PlayFootstepsSound();
 
 }
 #pragma region ///////////////// DAMAGE ///////////////////////
-void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadiusToApplyDamage)
+void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, const EWeaponType& WeaponType, float NewSphereRadiusToApplyDamage)
 {
 	const FHitBoneType* FoundBoneForExtraDamage = GetHitBoneType(NewHit.BoneName);
 	if (FoundBoneForExtraDamage)
@@ -67,7 +67,7 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitR
 
 	Health -= NewDamage;
 	SpawnEffectsForImpact(NewHit, FoundBoneForExtraDamage);
-	SpawnGunshotWoundDecal(NewHit, EnemySkeletalMesh);
+	SpawnGunshotWoundDecal(NewHit, EnemySkeletalMesh, WeaponType);
 	SpawnBloodOnObjectDecal(BulletActor, NewHit.Location);
 
 	if (IsValid(EnemyIndicatorWidget))
@@ -75,10 +75,10 @@ void AEnemyPawn::ApplyDamage(float NewDamage, float NewImpulseForce, const FHitR
 		EnemyIndicatorWidget->SetCurrentHealthInHealthBar(Health);
 	}
 
-	KillEnemy(NewImpulseForce, NewHit, BulletActor, NewSphereRadiusToApplyDamage);
+	KillEnemy(NewImpulseForce, NewHit, BulletActor, WeaponType, NewSphereRadiusToApplyDamage);
 }
 
-bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObjectPtr<AActor> BulletActor, float NewSphereRadiusToApplyDamage)
+bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObjectPtr<AActor> BulletActor, const EWeaponType& WeaponType, float NewSphereRadiusToApplyDamage)
 {
 	if (Health > 0.f) 
 		return false;
@@ -95,6 +95,7 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObj
 		EnemySkeletalMesh->Stop();
 		EnemySkeletalMesh->SetSimulatePhysics(true);
 		SetLifeSpan(LifeSpanAfterDeath);
+
 		RemoveEnemySavedDataFromSave();
 
 		EnemyIndicatorWidget->SetVisibility(ESlateVisibility::Hidden);
@@ -110,27 +111,32 @@ bool AEnemyPawn::KillEnemy(float NewImpulseForce, const FHitResult& NewHit, TObj
 		EnemySkeletalMesh->AddRadialImpulse(NewHit.TraceStart, NewSphereRadiusToApplyDamage, NewImpulseForce, ERadialImpulseFalloff::RIF_Linear);
 	}
 
-	DismemberEnemyComponent->DismemberLimb(EnemySkeletalMesh, NewHit, NewImpulseForce, BloodColor, NewSphereRadiusToApplyDamage);
+	DismemberEnemyComponent->DismemberLimb(EnemySkeletalMesh, NewHit, NewImpulseForce, BloodColor, WeaponType, NewSphereRadiusToApplyDamage);
 
 	return true;
 }
-
 #pragma endregion 
 
 #pragma region ///////////// EFFECTS ////////////////////
-void AEnemyPawn::SpawnGunshotWoundDecal(const FHitResult& Hit, const TObjectPtr<class USkeletalMeshComponent> SkeletalMeshToSpawnOn)
+void AEnemyPawn::SpawnGunshotWoundDecal(const FHitResult& Hit, const TObjectPtr<class USkeletalMeshComponent> SkeletalMeshToSpawnOn, const EWeaponType& WeaponType)
 {
-	if (!IsValid(GunshotWoundDecalMaterial)) 
+	FWoundDecal* FoundWoundDecal = AllWoundDecals.FindByKey(WeaponType);
+	if (!FoundWoundDecal)
 		return;
 
-	const FVector& GunshotWoundSize = FVector(FMath::FRandRange(GunshotWoundRandomSizeRange.GetLowerBoundValue(), GunshotWoundRandomSizeRange.GetUpperBoundValue()));
+	if (!IsValid(FoundWoundDecal->WoundDecalMaterial))
+		return;
+
+	const float& RandomSizeMultiplier = FMath::FRandRange(FoundWoundDecal->WoundRandomSizeMultiplierRange.GetLowerBoundValue(), FoundWoundDecal->WoundRandomSizeMultiplierRange.GetUpperBoundValue());
+	const FVector& GunshotWoundSize = FoundWoundDecal->WoundDecalSize * RandomSizeMultiplier;
 	const FRotator& GunshotWoundRotation = Hit.ImpactNormal.Rotation();
-	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAttached(GunshotWoundDecalMaterial, GunshotWoundSize, SkeletalMeshToSpawnOn, Hit.BoneName, Hit.Location, GunshotWoundRotation, EAttachLocation::KeepWorldPosition, GunshotWoundDecalLifeSpan);
+	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAttached(FoundWoundDecal->WoundDecalMaterial, GunshotWoundSize, SkeletalMeshToSpawnOn, Hit.BoneName, Hit.Location, GunshotWoundRotation, EAttachLocation::KeepWorldPosition);
 	if (!IsValid(SpawnedDecal))
 		return;
 	
 	SpawnedDecal->SetFadeScreenSize(0.f);
-	SpawnedDecal->DecalSize.X += AdditionalGunshotWoundSize_X;
+	SpawnedDecal->DecalSize.X += FoundWoundDecal->AdditionalWoundSize_X;
+	SpawnedDecal->SetFadeOut(FoundWoundDecal->WoundFadeOutDelay, FoundWoundDecal->WoundFadeOutDuration, false);
 }
 
 void AEnemyPawn::PlayFootstepsSound()
@@ -216,11 +222,12 @@ void AEnemyPawn::SpawnBloodOnObjectDecal(TObjectPtr<const AActor> BulletThatHitE
 
 	SpawnedDecal->SetFadeScreenSize(0.f);
 	SpawnedDecal->DecalSize.X += AdditionalBloodOnObjectSize_X;
-	SpawnedDecal->SetFadeOut(BloodFadeOutStartDelay, BloodFadeOutDuration);
+	SpawnedDecal->SetFadeOut(BloodFadeOutStartDelay, BloodFadeOutDuration, false);
 }
 #pragma endregion
 
-#pragma region //////////// SAVE/LOAD /////////////
+#pragma region 
+//////////// SAVE/LOAD /////////////
 void AEnemyPawn::RemoveEnemySavedDataFromSave()
 {
 	if (CurrentUniqueID == 0)

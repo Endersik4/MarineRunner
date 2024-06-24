@@ -18,7 +18,7 @@ public:
 	// Sets default values for this actor's properties
 	AExplosionBarrel();
 
-	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, float NewSphereRadius = 0.f) override;
+	virtual void ApplyDamage(float NewDamage, float NewImpulseForce, const FHitResult& NewHit, AActor* BulletActor, const EWeaponType& WeaponType, float NewSphereRadius = 0.f) override;
 
 protected:
 	// Called when the game starts or when spawned

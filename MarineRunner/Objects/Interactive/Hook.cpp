@@ -14,9 +14,7 @@ AHook::AHook()
 	HookActiveSphere = CreateDefaultSubobject<USphereComponent>(TEXT("HookActiveSphere"));
 	RootComponent = HookActiveSphere;
 
-	HookActiveSphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	HookActiveSphere->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	HookActiveSphere->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	HookActiveSphere->SetCollisionProfileName(FName(TEXT("DetectOnlyPlayer")));
 
 	HookMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HookMesh"));
 	HookMesh->SetupAttachment(HookActiveSphere);
