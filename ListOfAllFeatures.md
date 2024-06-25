@@ -705,8 +705,6 @@ The game includes over <i>170</i> animations (+ many widget animations), <i>400<
     		<li><strong>Spawn and Equip:</strong> Spawn the quest item mesh, attach it to the player's hands, and play the associated animation.</li>
     		<li><strong>Show HUD and Re-equip:</strong> Show the HUD widget and re-equip the weapon.</li>
 	</ul>
-
-
 	<h3> - CONVEYOR BELT </h3>
 	<ul>
 	    <li><strong>Mesh Generation:</strong> Creates instanced meshes based on Direction, Offset, and Amount parameters.</li>
