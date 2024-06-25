@@ -1,7 +1,7 @@
 <h2>Here is a brief overview of MarineRunner's features. <br/>
 Keep in mind that each of these includes various details and functionalities, contributing to a seamless gaming experience. <br/>
 Some of the features may be unclear. I recommend watching the latest demo version for better context.  <br/>
-The game includes over <i>150</i> animations (+ many widget animations), <i>360</i> 3D models, <i>160</i> sounds and <i>8</i> pieces of music. <br/>
+The game includes over <i>170</i> animations (+ many widget animations), <i>400</i> 3D models, <i>170</i> sounds and <i>8</i> pieces of music. <br/>
 </h2>
 
 <hr>
@@ -102,11 +102,21 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
     <li><strong>Reload:</strong> Manages the reloading process for the player's currently equipped weapon.</li>
     <li><strong>ADS In:</strong> Handles the aiming down sights (ADS) animation and behavior.</li>
     <li><strong>ADS Out:</strong> Manages the transition out of aiming down sights.</li>
+    <li><strong>Hide weapon:</strong> Manages hiding weapon by the player.</li>
     <li><strong>Zoom:</strong> enables sniper scope zoom-in functionality; Adjusts mouse sensitivity dynamically based on the zoom level.</li>
     <li><strong>Equips Weapon:</strong> Allows the player to draw a weapon from storage using a specified key (e.g., pressing '1' equips the weapon from slot 1).</li>
     <li><strong>Drops Gun:</strong> Facilitates the action of dropping the currently held weapon.</li>
     <li><strong>Loads Mouse Sensitivities:</strong> Retrieves mouse sensitivity settings from the configuration save, including values for ADS, 2x, 4x, and 8x zoom.</li>
 </ul>
+
+<h3> - Quick Attack Component </h3>
+<ul>
+    <li><strong>Quick Attack Availability:</strong> Verifies if the player can perform a quick attack.</li>
+    <li><strong>Weapon for Quick Attack:</strong> Spawns a weapon for the quick attack and attaches it to the socket.</li>
+    <li><strong>Weapon In Use:</strong> Immediately hides the weapon and, after the quick attack finishes, re-equips the weapon.</li>
+    <li><strong>Hit Detection:</strong> When hitting an object without a damage interface, spawns default quick attack effects.</li>
+</ul>
+
 	
 <h3> - Crouch and Slide Component </h3>
 	<ul>
@@ -178,16 +188,18 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    <li><strong>Starting Items Transformation:</strong> Transforms all starting items into the inventory.</li>
 	    <li><strong>Recipe Sorting:</strong> Sorts recipes, ensuring that weapons are placed last.</li>
 	</ul>
-<h3> - Footsteps sounds</h3>
-<ul>
-	<li>If player crouches then  use diffreent footsteps sounds</li>
-	<li>If player does wallrunning then  use diffreent footsteps sounds</li>
-</ul>
 <h3> - Footsteps Sounds </h3>
 	<ul>
 	    <li><strong>Crouch Variation:</strong> Use different footsteps sounds when the player is crouching.</li>
 	    <li><strong>Wallrunning Variation:</strong> Use different footsteps sounds when the player is wallrunning.</li>
 	</ul>
+<h3> - Cheats </h3>
+<ul>
+    <li><strong>Cheats Menu:</strong> The player can open the cheats menu widget while in-game.</li>
+    <li><strong>Cheat Widget:</strong> The cheat widget has a TileView with Cheat Menu entries.</li>
+    <li><strong>Execute Command:</strong> When the player presses a Cheat Menu entry, the given console command is executed.</li>
+</ul>
+
 
 <br/>	
 <hr>
@@ -202,6 +214,7 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		    <li><strong>Load Game Widget:</strong></li>
 		    <ul>
 		        <li><strong>Saves Check:</strong> If there are saves, hides NoSavedDataText.</li>
+			<li><strong>Delete all saves:</strong> Deletes all saves (with confirmation).</li>
 		        <li><strong>JSON Deserialization:</strong> Gets locations of all JSON file saves, then deserializes all JSON to FSaveDataMenuStruct and adds them to the DeserializedSaves array.</li>
 		        <li><strong>Sorting:</strong> Sorts the DeserializedSaves array based on the save date, ensuring the most recent save is listed first.</li>
 		        <li>Add items from DeserializedSaves to SavesListView as LoadGameEntry.</li>
@@ -341,6 +354,14 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		    <li><strong>No Music:</strong> When there is no music, spawn exploration music with fade-in.</li>
 		    <li><strong>Music Transition:</strong> When a different type of music has to play, the current music fades out. After the fade-out time, another music is spawned with fade-in.</li>
 		</ul>
+	<h3> - Game Difficulty </h3>
+		<ul>
+   		    <li><strong>Difficulty Level:</strong> Game difficulty ID to recognize which game difficulty to load.</li>
+    		    <li><strong>Difficulty Name:</strong> The name of the game difficulty that is shown when a new game begins or in game settings.</li>
+    		    <li><strong>Difficulty Description:</strong> A description that is used at the beginning of the game when the player can choose the game difficulty.</li>
+    		    <li><strong>Difficulty Percent:</strong> A number that acts as a multiplier for enemy variables such as damage, movement speed, shooting speed, etc.</li>
+		</ul>
+
 
 
 <br/>
@@ -466,7 +487,7 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 <h3> - Call Albertos Component</h3>
 <ul>
     <li>Allows the player to call Albertos, prompting the robot to move quickly to the player's location.</li>
-    <li>If Albertos is too far away, it will be teleported beside the player.</li>
+    <li>If Albertos is too far away or cant go to the player, it will be teleported beside the player.</li>
 </ul>
 
 <h3> - Crafting Albertos Widget</h3>
@@ -512,6 +533,16 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		    </ul>
 	    <li>Produces footsteps sounds.</li>
 	    <li>Enemy state (health, location) can be saved.</li>
+	    <li><strong>Dismember System:</strong></li>
+		<ul>
+    		    <li>Finds the bone name in the list that was hit.</li>
+    		    <li>If the bone name is found, terminates the bone and spawns a LimbActor with the given mesh and rotator.</li>
+    		    <li>Saves the bones that were terminated and, when spawning LimbActor, terminates all bones on the actor that were terminated on the original enemy.</li>
+    		    <li>Spawns a blood spray particle from the terminated bone.</li>
+   		    <li>When a new LimbActor is spawned, resets the lifespan of the enemy.</li>
+   		    <li>LimbActor has a pointer to the original enemy. When LimbActor is hit, every effect is applied from the original enemy (such as bullet holes, blood on objects, etc.).</li>
+		</ul>
+
 	</ul>
 <h3> - Shooting Enemy  </h3>
 	<ul>
@@ -629,7 +660,7 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 		<ul>
 		    <li><strong>Dynamic Location:</strong> An actor that adjusts its own location based on a timeline.</li>
 		    <li><strong>Audio Cue:</strong> Triggers a hit sound after a specified time.</li>
-		    <li><strong>Player Collision:</strong> Causes the player to be eliminated upon collision with the HammerBox.</li>
+		    <li><strong>Player Collision:</strong> Causes the player to be eliminated upon collision with the HammerBox when activated.</li>
 		</ul>
 	<h3> - CHANGE MUSIC/SOUND </h3>
 		<ul>
@@ -650,6 +681,32 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	        <li><strong>Pin Code Access:</strong> Optionally requires a pin code to open.</li>
 	    </ul>
 	</ul>
+	<h3> - SPAWNS DESTRUCTIBLE MESH ACTOR  </h3>
+	<ul>
+		<li> Spawns Destructible Mesh acttor is for cosmetics without any collisions </li>
+		<li> At begin play spawns the given fracture actor </li>
+   	 	<li>When the player hits the fracture actor:</li>
+    		<ul>
+       	 		<li>set SpawnsDestructibleMesh to hide and save the object was hit to save file.</li>
+       		 	<li>On fracture actor apply external and internal strain, apply radial impulse, spawn sound and particles.</li>
+   	 	</ul>
+	</ul>
+	<h3> - QUEST WITH SUBTITLES </h3>
+		<ul>
+    			<li><strong>Quest Activation:</strong> When the player collides with the QuestWithSubtitles actor, play sound and start subtitles if enabled in settings.</li>
+    			<li><strong>Dialogue Subtitles Array:</strong> Contains an array of DialogueSubtitles structs.</li>
+    			<li><strong>Subtitles Text:</strong> DialogueSubtitles has text that is set on the SubtitlesWidget.</li>
+    			<li><strong>Subtitles Timing:</strong> DialogueSubtitles has TimeOnScreen; after spawning subtitles, the timer is started and after TimeOnScreen, another subtitle is spawned if there is one.</li>
+		</ul>
+	<h3> - Quest Item </h3>
+	<ul>
+    		<li><strong>Interaction:</strong> The player can interact with the quest item.</li>
+   		 <li><strong>Hide HUD:</strong> After interacting, play the HideHudWidget animation in the HudWidget and hide the weapon if there is any.</li>
+    		<li><strong>Spawn and Equip:</strong> Spawn the quest item mesh, attach it to the player's hands, and play the associated animation.</li>
+    		<li><strong>Show HUD and Re-equip:</strong> Show the HUD widget and re-equip the weapon.</li>
+	</ul>
+
+
 	<h3> - CONVEYOR BELT </h3>
 	<ul>
 	    <li><strong>Mesh Generation:</strong> Creates instanced meshes based on Direction, Offset, and Amount parameters.</li>
@@ -668,6 +725,10 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	<ul>
 	    <li><strong>Spawn Mechanism:</strong> Initiates the spawning of an enemy with a specified class and transform.</li>
 	    <li><strong>Activation Trigger:</strong> Spawning occurs when the player collides with the EnemySpawnerBox.</li>
+	</ul>
+	<h3> - ENEMY DISABLER </h3>
+	<ul>
+	    <li><strong>Destroy All Enemies:</strong> Destroys all enemies on the map and resets DetectedByEnemies in the Game Instance.</li>
 	</ul>
 	<h3> - EXPLOSION BARREL </h3>
 	<ul>
@@ -694,4 +755,3 @@ The game includes over <i>150</i> animations (+ many widget animations), <i>360<
 	    </ul>
 	    <li>Upon completion of the rotate timer, the SocketMesh is rotated back to its initial rotation, the timer is restarted, and the material is reset.</li>
 	</ul>
-
