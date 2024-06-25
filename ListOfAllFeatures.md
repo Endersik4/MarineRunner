@@ -542,7 +542,6 @@ The game includes over <i>170</i> animations (+ many widget animations), <i>400<
    		    <li>When a new LimbActor is spawned, resets the lifespan of the enemy.</li>
    		    <li>LimbActor has a pointer to the original enemy. When LimbActor is hit, every effect is applied from the original enemy (such as bullet holes, blood on objects, etc.).</li>
 		</ul>
-
 	</ul>
 <h3> - Shooting Enemy  </h3>
 	<ul>
