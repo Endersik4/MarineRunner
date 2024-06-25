@@ -46,7 +46,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Quick Attack|Raycast")
 	float MaxDistanceToDamage = 400.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Quick Attack|Raycast")
-	FVector SweepBoxSize = FVector(15.f);
+	FVector SweepBoxSize = FVector(25.f);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Quick Attack|Effects")
 	TSubclassOf<UCameraShakeBase> QuickAttackCameraShake = nullptr;
@@ -59,7 +59,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Quick Attack|Effects|Hit Decal")
 	TObjectPtr<UMaterialInstance> WeaponHoleDecalMaterial = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Quick Attack|Effects|Hit Decal")
-	FVector WeaponHoleDecalSize = FVector(20.f, 20.f, 5.f);
+	FVector WeaponHoleDecalSize = FVector(40.f, 20.f, 5.f);
 	UPROPERTY(EditDefaultsOnly, Category = "Quick Attack|Effects|Hit Decal")
 	float HitDecalFadeOutDelay = 10.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Quick Attack|Effects|Hit Decal")

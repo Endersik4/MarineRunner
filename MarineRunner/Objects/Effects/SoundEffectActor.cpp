@@ -34,7 +34,9 @@ void AChangeMusicActor::ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* Ove
 	{
 		if (bAddDelayToMusic)
 		{
-			GetWorld()->GetTimerManager().SetTimer(MusicDelayHandle, this, &AChangeMusicActor::ChangeBackgroundMusic, MusicDelay, false);
+			ChangeBackgroundMusic(true);
+			FTimerDelegate MusicAfterTimeDelegate = FTimerDelegate::CreateUObject(this, &AChangeMusicActor::ChangeBackgroundMusic, false);
+			GetWorld()->GetTimerManager().SetTimer(MusicDelayHandle, MusicAfterTimeDelegate, MusicDelay, false);
 		}
 		else 
 			ChangeBackgroundMusic();
@@ -45,15 +47,15 @@ void AChangeMusicActor::ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* Ove
 		if (IsValid(SoundToPlay))
 			UGameplayStatics::PlaySound2D(GetWorld(), SoundToPlay);
 		else
-			UE_LOG(LogTemp, Warning, TEXT("Sound TO Play is nullptr in SoundEffectActor!"));
+			UE_LOG(LogTemp, Warning, TEXT("Sound to Play is nullptr in SoundEffectActor!"));
 	}
 
-	DisableChangeMusic();
+	DisableSoundEffectActor();
 
-	ChangedMusicSaveData();
+	SaveSoundEffectActor();
 }
 
-void AChangeMusicActor::ChangeBackgroundMusic()
+void AChangeMusicActor::ChangeBackgroundMusic(bool bDisableMusic)
 {
 	if (!IsValid(GetGameInstance()))
 		return;
@@ -62,18 +64,18 @@ void AChangeMusicActor::ChangeBackgroundMusic()
 	if (!IsValid(GameInstance) || !IsValid(MusicToChange))
 		return;
 
-	GameInstance->SetCurrentExplorationMusic(MusicToChange);
-	GameInstance->ChangeBackgroundMusic(EMusicType::EMT_Exploration);
+	GameInstance->SetCurrentExplorationMusic(bDisableMusic ? nullptr : MusicToChange);
+	GameInstance->ChangeBackgroundMusic(EMusicType::EMT_Exploration, bDisableMusic);
 }
 
-void AChangeMusicActor::DisableChangeMusic(bool bDisable)
+void AChangeMusicActor::DisableSoundEffectActor(bool bDisable)
 {
 	SetActorTickEnabled(!bDisable);
 	SetActorHiddenInGame(bDisable);
 	SetActorEnableCollision(!bDisable);
 }
 
-void AChangeMusicActor::ChangedMusicSaveData()
+void AChangeMusicActor::SaveSoundEffectActor()
 {
 	TObjectPtr<ASavedDataObject> SavedDataObject = Cast<ASavedDataObject>(UGameplayStatics::GetActorOfClass(GetWorld(), ASavedDataObject::StaticClass()));
 
@@ -91,7 +93,7 @@ void AChangeMusicActor::LoadData(const int32 IDkey, const FCustomDataSaved& Save
 	CurrentUniqueID = IDkey;
 	if (SavedCustomData.ObjectState == 1)
 	{
-		DisableChangeMusic();
+		DisableSoundEffectActor();
 	}
 }
 
@@ -103,5 +105,5 @@ void AChangeMusicActor::SaveData(ASavedDataObject* SavedDataObject, const int32 
 void AChangeMusicActor::RestartData(ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData)
 {
 	bChangeMusic = OriginalChangeMusic;
-	DisableChangeMusic(false);
+	DisableSoundEffectActor(false);
 }

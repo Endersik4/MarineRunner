@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "BulletData.h"
+#include "MarineRunner/Utilities/CustomDecalUtility.h"
 
 #include "Bullet.generated.h"
 
@@ -66,15 +67,7 @@ private:
 	float MaxCameraShakeScale = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
-	TObjectPtr<UMaterialInstance> BulletHoleDecalMaterial = nullptr;
-	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
-	FVector BulletHoleDecalSize = FVector(1.f);
-	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
-	float BulletHoleSize_X = 20.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
-	float BulletHoleFadeOutStartDelay = 4.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")
-	float BulletHoleFadeOutDuration = 5.f;
+	FDecalBase BulletHoleDecal = FDecalBase(FVector(1.f), nullptr, 10.f, 2.f);
 
 	void SetBulletMovementType();
 
@@ -98,15 +91,12 @@ private:
 	TObjectPtr<AActor> HitActor = nullptr;
 	bool BulletStuckInActor(const FHitResult& Hit);
 
-	//Hit
 	void HitActorWithoutInterface(const FHitResult& HitResult);
 	void UseDamageInterfaceOnActor(const FHitResult& HitResult);
+	void StartCameraShake();
 
-	//Effects
 	void SpawnEffectsWhenHit(const FHitResult& Hit);
-	void SpawnBulletHoleDecal(const FHitResult& Hit);
 
-	// Bullet Trail
 	UPROPERTY(Transient)
 	TObjectPtr<class UNiagaraComponent> SpawnedBulletTrailNiagara = nullptr;
 };

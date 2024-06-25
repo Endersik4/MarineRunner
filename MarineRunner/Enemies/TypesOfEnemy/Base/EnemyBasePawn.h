@@ -8,7 +8,7 @@
 #include "MarineRunner/Weapon/Gun/Bullet/BulletData.h"
 #include "MarineRunner/Enemies/Interfaces/EnemyGunInterface.h"
 #include "MarineRunner/Player/SaveLoadGame/SaveCustomDataInterface.h"
-
+#include "MarineRunner/Utilities/CustomDecalUtility.h"
 #include "EnemyBasePawn.generated.h"
 
 USTRUCT(BlueprintType)
@@ -48,44 +48,6 @@ struct FHitBoneType {
 	bool operator==(const FName& OtherHitBoneName)
 	{
 		return BoneName == OtherHitBoneName;
-	}
-};
-
-USTRUCT(BlueprintType)
-struct FWoundDecal
-{
-	GENERATED_USTRUCT_BODY();
-
-	UPROPERTY(EditAnywhere)
-	TEnumAsByte<EWeaponType> WoundFromWeaponType;
-	UPROPERTY(EditAnywhere)
-	FVector WoundDecalSize = FVector();
-	UPROPERTY(EditAnywhere)
-	FFloatRange WoundRandomSizeMultiplierRange = FFloatRange();
-	// It was added to the decal of gunshot wounds after spawn, because sometimes the decal is not visible on the body if it was moved slightly.
-	UPROPERTY(EditAnywhere)
-	float AdditionalWoundSize_X = 0.f;
-	UPROPERTY(EditAnywhere)
-	TObjectPtr<UMaterialInstance> WoundDecalMaterial = nullptr;
-	UPROPERTY(EditAnywhere)
-	float WoundFadeOutDelay = 0.f;
-	UPROPERTY(EditAnywhere)
-	float WoundFadeOutDuration = 0.f;
-
-	const bool operator==(const EWeaponType& otherWeaponType) const
-	{
-		return WoundFromWeaponType == otherWeaponType;
-	}
-
-	FWoundDecal()
-	{
-		WoundFromWeaponType = EWeaponType::EWT_Gun;
-		WoundDecalSize = FVector();
-		WoundRandomSizeMultiplierRange = FFloatRange();
-		AdditionalWoundSize_X = 0.f;
-		WoundDecalMaterial = nullptr;
-		WoundFadeOutDelay = 0.f;
-		WoundFadeOutDuration = 0.f;
 	}
 };
 
@@ -172,20 +134,9 @@ private:
 	TObjectPtr<USoundBase> DefaultBoneHitSound = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-	float MaxDistanceToObjectForBlood = 900.f;
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-	float BloodDistanceSizeMutliplier = 0.8f;
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-	FFloatRange ClampBloodOnObjectSize = FFloatRange(40.f, 140.f);
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-	float BloodFadeOutStartDelay = 10.f;
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-	float BloodFadeOutDuration = 5.f;
-	UPROPERTY(EditAnywhere, Category = "Setting Enemy|Blood On Objects")
-	TObjectPtr<UMaterialInstance> BloodOnObjectDecalMaterial = nullptr;
-	// It was added to the Blood On Object Decal after spawn, because sometimes the decal is not visible on the body if it was moved slightly.
+	float MaxDistanceToObjectForBlood = 750.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Blood On Objects")
-	float AdditionalBloodOnObjectSize_X = 20.f;
+	FDecalBase BloodOnObject = FDecalBase();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting Enemy|Gunshot wound")
 	TArray<FWoundDecal> AllWoundDecals;

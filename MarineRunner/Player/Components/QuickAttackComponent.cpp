@@ -97,6 +97,16 @@ void UQuickAttackComponent::QuickAttackHit()
 		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel12), false, ActorsToIgnore, EDrawDebugTrace::None, QuickAttackResult, true);
 	if (!bHit)
 		return;
+	
+	// when the object is hit, make another raycast of a single line to get more precise results, if the second raycast hits nothing, use the result from the first raycast
+	FHitResult PreciseQuickAttackResult;
+	const bool bPreciseHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), StartRaycast, EndRaycast,
+		UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel12), false, ActorsToIgnore, EDrawDebugTrace::None, PreciseQuickAttackResult, true);
+
+	if (bPreciseHit)
+	{
+		QuickAttackResult = PreciseQuickAttackResult;
+	}
 
 	IDamageInterface* ObjectThatHasInterface = Cast<IDamageInterface>(QuickAttackResult.GetActor());
 	if (ObjectThatHasInterface)

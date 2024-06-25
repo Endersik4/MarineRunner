@@ -3,6 +3,7 @@
 #include "Hook.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PaperFlipbookComponent.h"
@@ -16,9 +17,17 @@ AHook::AHook()
 
 	HookActiveSphere->SetCollisionProfileName(FName(TEXT("DetectOnlyPlayer")));
 
+	GrabHookBoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("Grab Hook Box Component"));
+	GrabHookBoxComponent->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	GrabHookBoxComponent->SetCollisionResponseToAllChannels(ECR_Ignore);
+	GrabHookBoxComponent->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECR_Block);
+	GrabHookBoxComponent->SetupAttachment(RootComponent);
+
 	HookMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("HookMesh"));
-	HookMesh->SetupAttachment(HookActiveSphere);
-	HookMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+	HookMesh->SetupAttachment(RootComponent);
+	HookMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	HookMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+	HookMesh->SetCollisionResponseToChannel(ECC_Visibility, ECR_Ignore);
 
 	HookStateFlipBook = CreateDefaultSubobject<UPaperFlipbookComponent>(TEXT("HookStateFlipBook"));
 	HookStateFlipBook->SetupAttachment(HookMesh);
@@ -30,14 +39,14 @@ void AHook::BeginPlay()
 {
 	Super::BeginPlay();
 
-	PlayerInRangeWhenGameStarted();
-
 	OriginalHookStateScale = HookStateFlipBook->GetComponentScale();
 
 	HookActiveSphere->OnComponentBeginOverlap.AddUniqueDynamic(this, &AHook::OnCheckSphereBeginOverlap);
 	HookActiveSphere->OnComponentEndOverlap.AddUniqueDynamic(this, &AHook::OnCheckSphereEndOverlap);
 
 	GetWorld()->GetTimerManager().SetTimer(HookVisibleHandle, this, &AHook::HideFlipbookIfItIsNotVisible, CheckIfHookIsVisibleInterval, true);
+
+	PlayerInRangeWhenGameStarted();
 }
 
 // Called every frame
@@ -129,7 +138,7 @@ void AHook::HookFlipbookLookAtThePlayer(float Delta)
 
 void AHook::HideFlipbookIfItIsNotVisible()
 {
-	if (!bHookActive|| !IsValid(PlayerInRange))
+	if (!bHookActive || !IsValid(PlayerInRange))
 		return;
 
 	FHitResult HitResult;

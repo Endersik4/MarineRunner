@@ -33,6 +33,8 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class USphereComponent> HookActiveSphere = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	TObjectPtr<class UBoxComponent> GrabHookBoxComponent = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class UStaticMeshComponent> HookMesh = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class UPaperFlipbookComponent> HookStateFlipBook = nullptr;

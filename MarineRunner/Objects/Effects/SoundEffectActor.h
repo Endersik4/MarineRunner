@@ -46,10 +46,10 @@ private:
 	UFUNCTION()
 	void ChangeMusicSoundBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	void DisableChangeMusic(bool bDisable = true);
-	void ChangeBackgroundMusic();
+	void DisableSoundEffectActor(bool bDisable = true);
+	void ChangeBackgroundMusic(bool bDisableMusic = false);
 
-	void ChangedMusicSaveData();
+	void SaveSoundEffectActor();
 
 	UPROPERTY(Transient)
 	bool OriginalChangeMusic = false;

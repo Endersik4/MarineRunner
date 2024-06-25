@@ -124,19 +124,13 @@ void AEnemyPawn::SpawnGunshotWoundDecal(const FHitResult& Hit, const TObjectPtr<
 	if (!FoundWoundDecal)
 		return;
 
-	if (!IsValid(FoundWoundDecal->WoundDecalMaterial))
+	if (!IsValid(FoundWoundDecal->DecalMaterial))
 		return;
 
 	const float& RandomSizeMultiplier = FMath::FRandRange(FoundWoundDecal->WoundRandomSizeMultiplierRange.GetLowerBoundValue(), FoundWoundDecal->WoundRandomSizeMultiplierRange.GetUpperBoundValue());
-	const FVector& GunshotWoundSize = FoundWoundDecal->WoundDecalSize * RandomSizeMultiplier;
-	const FRotator& GunshotWoundRotation = Hit.ImpactNormal.Rotation();
-	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAttached(FoundWoundDecal->WoundDecalMaterial, GunshotWoundSize, SkeletalMeshToSpawnOn, Hit.BoneName, Hit.Location, GunshotWoundRotation, EAttachLocation::KeepWorldPosition);
-	if (!IsValid(SpawnedDecal))
-		return;
-	
-	SpawnedDecal->SetFadeScreenSize(0.f);
-	SpawnedDecal->DecalSize.X += FoundWoundDecal->AdditionalWoundSize_X;
-	SpawnedDecal->SetFadeOut(FoundWoundDecal->WoundFadeOutDelay, FoundWoundDecal->WoundFadeOutDuration, false);
+	const FVector& GunshotWoundSize = FoundWoundDecal->DecalSize * RandomSizeMultiplier;
+
+	UCustomDecalUtility::SpawnDecalAttached(*FoundWoundDecal, SkeletalMeshToSpawnOn, Hit.BoneName, Hit.Location, Hit.ImpactNormal.Rotation(), GunshotWoundSize);
 }
 
 void AEnemyPawn::PlayFootstepsSound()
@@ -205,24 +199,21 @@ void AEnemyPawn::SpawnEffectsForImpact(const FHitResult& Hit, const FHitBoneType
 
 void AEnemyPawn::SpawnBloodOnObjectDecal(TObjectPtr<const AActor> BulletThatHitEnemy, const FVector& HitLocation)
 {
-	if (!IsValid(BloodOnObjectDecalMaterial) || !IsValid(BulletThatHitEnemy))
+	if (!IsValid(BloodOnObject.DecalMaterial) || !IsValid(BulletThatHitEnemy))
 		return;
 
 	FHitResult ObjectToSpawnBloodOnHitResult;
-	const bool bObjectHit = GetWorld()->LineTraceSingleByChannel(ObjectToSpawnBloodOnHitResult, HitLocation, HitLocation + BulletThatHitEnemy->GetActorForwardVector() * MaxDistanceToObjectForBlood, ECC_GameTraceChannel5);
+	const FVector& StartRaycast = HitLocation;
+	const FVector EndRaycast = HitLocation + BulletThatHitEnemy->GetActorForwardVector() * MaxDistanceToObjectForBlood;
+	const bool bObjectHit = GetWorld()->LineTraceSingleByChannel(ObjectToSpawnBloodOnHitResult, StartRaycast, EndRaycast, ECC_GameTraceChannel5);
 
 	if (!bObjectHit)
 		return;
 
-	const FVector& DecalSizeAccordingToDistance = FVector(FMath::Clamp(ObjectToSpawnBloodOnHitResult.Distance * BloodDistanceSizeMutliplier, ClampBloodOnObjectSize.GetLowerBoundValue(), ClampBloodOnObjectSize.GetUpperBoundValue()));
-	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BloodOnObjectDecalMaterial, DecalSizeAccordingToDistance, ObjectToSpawnBloodOnHitResult.Location, (ObjectToSpawnBloodOnHitResult.Normal * -1.f).Rotation());
+	const float MultiplierAccordingToDistance = FVector::Distance(StartRaycast, ObjectToSpawnBloodOnHitResult.ImpactPoint) / MaxDistanceToObjectForBlood;
+	const FVector DecalSizeAccordingToDistance = BloodOnObject.DecalSize * MultiplierAccordingToDistance;
 
-	if (!IsValid(SpawnedDecal))
-		return;
-
-	SpawnedDecal->SetFadeScreenSize(0.f);
-	SpawnedDecal->DecalSize.X += AdditionalBloodOnObjectSize_X;
-	SpawnedDecal->SetFadeOut(BloodFadeOutStartDelay, BloodFadeOutDuration, false);
+	UCustomDecalUtility::SpawnDecalAtLocation(BloodOnObject, GetWorld(), ObjectToSpawnBloodOnHitResult.Location, ObjectToSpawnBloodOnHitResult.ImpactNormal.Rotation(), DecalSizeAccordingToDistance);
 }
 #pragma endregion
 

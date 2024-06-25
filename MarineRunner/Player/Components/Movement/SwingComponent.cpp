@@ -47,12 +47,11 @@ void USwingComponent::HookLineCheck()
 {
 	if (!bCanMakeSwingLineCheck || bIsPlayerMovingToHook)
 	{
-
 		return;
 	}
 
 	const FVector HookCheckLineStart = Player->GetCamera()->GetComponentLocation();
-	const FVector HookCheckLineEnd = HookCheckLineStart + (PlayerController->GetRootComponent()->GetForwardVector() * LengthOfSwingLineRaycast);
+	const FVector HookCheckLineEnd = HookCheckLineStart + (Player->GetCamera()->GetForwardVector() * LengthOfSwingLineRaycast);
 
 	FHitResult HitResults;
 	const bool bHookHovered = GetWorld()->LineTraceSingleByChannel(HitResults, HookCheckLineStart, HookCheckLineEnd, ECC_GameTraceChannel2);

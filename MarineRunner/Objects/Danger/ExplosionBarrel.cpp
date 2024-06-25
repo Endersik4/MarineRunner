@@ -57,10 +57,10 @@ void AExplosionBarrel::Explode()
 		UseDamageInterfaceOnActor(HitResult);
 	}
 
-	SpawnEffects();
-	
 	BarrelExplodedSaveData();
 	DisableBarrel();
+
+	SpawnEffects();
 }
 
 void AExplosionBarrel::UseDamageInterfaceOnActor(const FHitResult& HitResult)
@@ -92,45 +92,46 @@ void AExplosionBarrel::SpawnEffects()
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Explosion Particle is nullptr in ExplosionBarrel!"));
 
+	StartCameraShake();
+
+	SpawnExplosionDecal();
+}
+
+void AExplosionBarrel::StartCameraShake()
+{
 	const TObjectPtr<APawn> Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	if (!IsValid(Player))
 		return;
 
 	const float& DistanceToPlayer = FVector::Distance(Player->GetActorLocation(), GetActorLocation());
-	if (DistanceToPlayer < MaxDistanceToStartShake && DistanceToPlayer != 0)
-	{
-		float CameraShakeScale = (MaxDistanceToStartShake / DistanceToPlayer) * CameraShakeScaleMultiplier;
-		CameraShakeScale = CameraShakeScale > MaxCameraShakeScale ? MaxCameraShakeScale : CameraShakeScale;
+	if (DistanceToPlayer > MaxDistanceToStartShake)
+		return;
 
-		const TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-		if (IsValid(PlayerController))
-		{
-			PlayerController->PlayerCameraManager->StartCameraShake(CameraShakeAfterExplosion, CameraShakeScale);
-		}
-	}
+	float CameraShakeScale = (MaxDistanceToStartShake / DistanceToPlayer) * CameraShakeScaleMultiplier;
+	CameraShakeScale = CameraShakeScale > MaxCameraShakeScale ? MaxCameraShakeScale : CameraShakeScale;
 
-	SpawnExplosionDecal();
+	const TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(PlayerController))
+		return;
+
+	PlayerController->PlayerCameraManager->StartCameraShake(CameraShakeAfterExplosion, CameraShakeScale);
 }
 
 void AExplosionBarrel::SpawnExplosionDecal()
 {
-	if (!IsValid(ExplosionDecal))
+	if (!IsValid(ExplosionDecal.DecalMaterial))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Explosion Decal is nullptr in ExplosionBarrel!"));
 		return;
 	}
 
-	FHitResult HitResult;
-	bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), GetActorLocation() + FVector(0.f, 0.f, -300.f), ECC_WorldStatic);
-	if (!bHit)
+	FHitResult GroundHitResult;
+	bool bGroundHit = GetWorld()->LineTraceSingleByChannel(GroundHitResult, GetActorLocation(), GetActorLocation() - GroundCheckOffset, ECC_GameTraceChannel3);
+	if (!bGroundHit)
 		return;
 
-	TObjectPtr<UDecalComponent>	SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), ExplosionDecal, FVector(1.f), HitResult.ImpactPoint, FRotator(-90.f, 0.f, 0.f));
-	if (!IsValid(SpawnedDecal))
-		return;
-
-	SpawnedDecal->DecalSize = ExplosionDecalSize;
-	SpawnedDecal->SetFadeScreenSize(0.f);
+	UCustomDecalUtility::SpawnDecalAtLocation(ExplosionDecal, GetWorld(), GroundHitResult.ImpactPoint, GroundHitResult.ImpactNormal.Rotation(),
+		ExplosionDecal.DecalSize);
 }
 
 void AExplosionBarrel::SpawnExplosionBarrelGeometry()

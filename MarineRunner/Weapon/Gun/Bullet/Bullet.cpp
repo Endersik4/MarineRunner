@@ -107,21 +107,7 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 	if (BulletStuckInActor(Hit)) 
 		return;
 
-	if (BulletData.bShouldCameraShakeAfterHit)
-	{
-		TObjectPtr<APawn> Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-		if (IsValid(Player))
-		{
-			TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-			const float DistanceToPlayer = FVector::Distance(Player->GetActorLocation(), GetActorLocation());
-			if (DistanceToPlayer < MaxDistanceToStartShake&& DistanceToPlayer != 0 && IsValid(PlayerController))
-			{
-				float CameraShakeScale = (MaxDistanceToStartShake / DistanceToPlayer) * CameraShakeScaleMultiplier;
-				CameraShakeScale = CameraShakeScale > MaxCameraShakeScale ? MaxCameraShakeScale : CameraShakeScale;
-				PlayerController->PlayerCameraManager->StartCameraShake(BulletData.CameraShakeAfterBulletHit, CameraShakeScale);
-			}
-		}
-	}
+	StartCameraShake();
 
 	if (BulletData.bUseSphereForDamage)
 		SphereRadialDamage(Hit);
@@ -129,6 +115,29 @@ void ABullet::OnHit(AActor* SelfActor, AActor* OtherActor, FVector NormalImpulse
 		UseDamageInterfaceOnActor(Hit);
 
 	BulletThroughObject(Hit);
+}
+
+void ABullet::StartCameraShake()
+{
+	if (!BulletData.bShouldCameraShakeAfterHit)
+		return;
+
+	const TObjectPtr<APawn> Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	if (!IsValid(Player))
+		return;
+
+	const float& DistanceToPlayer = FVector::Distance(Player->GetActorLocation(), GetActorLocation());
+	if (DistanceToPlayer > MaxDistanceToStartShake)
+		return;
+
+	float CameraShakeScale = (MaxDistanceToStartShake / DistanceToPlayer) * CameraShakeScaleMultiplier;
+	CameraShakeScale = CameraShakeScale > MaxCameraShakeScale ? MaxCameraShakeScale : CameraShakeScale;
+
+	const TObjectPtr<APlayerController> PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!IsValid(PlayerController))
+		return;
+
+	PlayerController->PlayerCameraManager->StartCameraShake(BulletData.CameraShakeAfterBulletHit, CameraShakeScale);
 }
 
 void ABullet::SphereRadialDamage(const FHitResult& Hit)
@@ -225,20 +234,7 @@ void ABullet::SpawnEffectsWhenHit(const FHitResult& Hit)
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Bullet Hit Particle is nullptr in Bullet!"));
 
-	SpawnBulletHoleDecal(Hit);
+	UCustomDecalUtility::SpawnDecalAtLocation(BulletHoleDecal, GetWorld(), Hit.ImpactPoint, Hit.ImpactNormal.Rotation(), BulletHoleDecal.DecalSize);
 }
 
-void ABullet::SpawnBulletHoleDecal(const FHitResult& Hit)
-{
-	if (!IsValid(BulletHoleDecalMaterial)) 
-		return;
-
-	TObjectPtr<UDecalComponent> SpawnedDecal = UGameplayStatics::SpawnDecalAtLocation(GetWorld(), BulletHoleDecalMaterial, BulletHoleDecalSize, Hit.Location, Hit.ImpactNormal.Rotation());
-	if (!IsValid(SpawnedDecal))
-		return;
-
-	SpawnedDecal->SetFadeScreenSize(0.f);
-	SpawnedDecal->DecalSize.X += BulletHoleSize_X;
-	SpawnedDecal->SetFadeOut(BulletHoleFadeOutStartDelay, BulletHoleFadeOutDuration, false);
-}
 #pragma endregion
