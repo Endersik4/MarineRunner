@@ -7,6 +7,7 @@
 
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Albertos/AlbertosPawn.h"
+#include "MarineRunner/Albertos/AlbertosAIController.h"
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
 
 // Sets default values
@@ -16,8 +17,7 @@ ACallAlbertosActor::ACallAlbertosActor()
 
 	CallAlbertosBoxComp = CreateDefaultSubobject<UBoxComponent>(TEXT("CallAlbertosBoxComp"));
 	RootComponent = CallAlbertosBoxComp;
-	CallAlbertosBoxComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	CallAlbertosBoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	CallAlbertosBoxComp->SetCollisionProfileName(FName(TEXT("DetectOnlyPlayer")));
 
 }
 
@@ -31,20 +31,48 @@ void ACallAlbertosActor::BeginPlay()
 
 void ACallAlbertosActor::CallAlbertosBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (bWasCalled || !IsValid(OtherActor))
+	if (bWasCalled)
+		return;
+
+	TeleportAlbertos(OtherActor);
+
+	bWasCalled = true;
+
+	SaveCurrentCallState();
+}
+
+void ACallAlbertosActor::TeleportAlbertos(AActor* OtherActor)
+{
+	if (!IsValid(OtherActor))
 		return;
 
 	TObjectPtr<AMarineCharacter> Player = Cast<AMarineCharacter>(OtherActor);
 	if (!IsValid(Player))
 		return;
-	if (!IsValid(Player->GetAlbertosPawn()))
+
+	TObjectPtr<AAlbertosPawn> AlbertosPawn = Player->GetAlbertosPawn();
+	if (!IsValid(AlbertosPawn))
 		return;
 
-	Player->GetAlbertosPawn()->SetActorLocation(TeleportAlbertosLocation);
+	AlbertosPawn->SetActorLocation(TeleportAlbertosLocation);
+	AlbertosPawn->SetActorRotation(TeleportAlbertosRotation);
 
-	bWasCalled = true;
+	StopAlbertosMovement(Player->GetAlbertosPawn(), true);
 
-	SaveCurrentCallState();
+	FTimerDelegate ResumeMovementDelegate = FTimerDelegate::CreateUObject(this, &ACallAlbertosActor::StopAlbertosMovement, Player->GetAlbertosPawn(), false);
+	GetWorld()->GetTimerManager().SetTimer(ResumeAlbertosMovementHandle, ResumeMovementDelegate, ResumeAlbertosMovementTime, false);
+}
+
+void ACallAlbertosActor::StopAlbertosMovement(TObjectPtr<class AAlbertosPawn> AlbertosPawn, bool bStop)
+{
+	TObjectPtr<AAlbertosAIController> AlbertosAIController = Cast<AAlbertosAIController>(AlbertosPawn->GetController());
+	if (!IsValid(AlbertosAIController))
+		return;
+
+	AlbertosAIController->SetCanMove(!bStop);
+
+	if (bStop)
+		AlbertosAIController->StopMovement();
 }
 
 void ACallAlbertosActor::SaveCurrentCallState()
