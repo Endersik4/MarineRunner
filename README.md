@@ -36,9 +36,11 @@ Gameplay:
 <br/><br/>
 
 ![endersik-4-screenshot00001 (1)](https://github.com/Endersik4/MarineRunner/assets/131354098/a3a02f78-be24-4474-bc67-d68585a974b6)
+![ScreenShot00015](https://github.com/Endersik4/MarineRunner/assets/131354098/47920bbc-0c87-4620-b5dc-7f167db72e75)
 
-![endersik-4-screenshot00001](https://github.com/Endersik4/MarineRunner/assets/131354098/312fda0d-ede3-4288-8409-496daf9215d2)
-![endersik-4-screenshot00013](https://github.com/Endersik4/MarineRunner/assets/131354098/f5abba1e-c299-46e1-86a3-f56f4359c1f9)
+![ScreenShot00043](https://github.com/Endersik4/MarineRunner/assets/131354098/c56d17cc-f770-41bc-9779-68f86dfa6c51)
+
+
 ![endersik-4-screenshot00021](https://github.com/Endersik4/MarineRunner/assets/131354098/2da07ed6-fce5-40ad-95f6-5014a8cf20bc)
 ![endersik-4-screenshot00003](https://github.com/Endersik4/MarineRunner/assets/131354098/4065420d-8ae2-4dbc-ae66-21405db15759)
 ![menu](https://github.com/Endersik4/MarineRunner/assets/131354098/3c89763d-44e7-4b74-bb50-6dafbd3d6126)
