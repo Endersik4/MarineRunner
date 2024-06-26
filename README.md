@@ -5,9 +5,6 @@ The game features 5 different types of weapons and 5 different enemy types. <br/
 Players also have a robot companion, Albertos, who can create items like medkits, ammo, and weapons, and stores all the items the player collects. <br/>
 The main objective is to kill everyone due to a betrayal, but the story takes an unexpected turn.<br/><br/>
 
-I made everything in this game, except for the Music and Sounds. <br/> 
-The <a href="https://github.com/Endersik4/MarineRunner/blob/main/ListOfAllFeatures.md"> List of All Features </a> explains nearly every game mechanic briefly. spoiler: it's long. <br/> <br/>
-
 I started this project on January 23, 2023, and finished on June 26, 2024 with some breaks for final exams. It took nearly 2300 hours to make. <br/>
 The game is in state to be shipped. <br/> 
 
@@ -16,6 +13,10 @@ The new demo includes the best elements from the previous demo based on the grea
 
 You can download game here: <a href="https://drive.google.com/file/d/1129YVxe-Y7sZKiCk2M-CVIuQeKLLRA6S/view?usp=sharing"> MarineRunner</a><br/>
 Below is Trailer of the demo (1 min long) and Gameplay of the demo (17 minutes long) <br/>
+
+I made everything in this game, except for the Music and Sounds. <br/> 
+The <a href="https://github.com/Endersik4/MarineRunner/blob/main/ListOfAllFeatures.md"> List of All Features </a> explains nearly every game mechanic briefly. spoiler: it's long. <br/> <br/>
+
 <h2> Marine Runner Trailer Demo: </h2>
 <a href="https://youtu.be/1LjPsHe3uc0">
 Trailer:
