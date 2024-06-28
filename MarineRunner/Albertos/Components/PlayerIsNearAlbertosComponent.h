@@ -25,6 +25,8 @@ public:
 
 	void OpenAlbertosDoor(const bool bOpenDoor);
 
+	FORCEINLINE bool GetPlayerIsClose() const { return bPlayerIsClose; }
+
 	FORCEINLINE void SetPlayerPawn(TObjectPtr<APawn> NewPlayerPawn) { Player = NewPlayerPawn; }
 	FORCEINLINE void SetRotateAlbertosTowardPlayer(bool bRotate) { bRotateAlbertosTowardPlayer = bRotate; }
 private:

@@ -34,6 +34,7 @@ AEnemyPawn::AEnemyPawn()
 
 	EnemyIndicatorWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Enemy Indicator Widget Component"));
 	EnemyIndicatorWidgetComponent->SetupAttachment(EnemySkeletalMesh);
+	EnemyIndicatorWidgetComponent->SetCollisionProfileName(FName(TEXT("NoCollision")));
 }
 
 // Called when the game starts or when spawned

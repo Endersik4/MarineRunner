@@ -26,6 +26,9 @@ public:
 	UFUNCTION(Exec, Category = ExecFunctions)
 	void ApplyDifficultyLevelToAllEnemies();
 
+	UFUNCTION(Exec, Category = ExecFunctions)
+	void ResetDetectedEnemies();
+
 	UPROPERTY(EditAnywhere)
 	TArray<FVector> StagesToTeleport;
 
@@ -34,5 +37,4 @@ private:
 	TObjectPtr<class AMarineCharacter> GetPlayer();
 
 	void DestroyAllEnemies();
-	void ResetDetectedEnemies();
 };

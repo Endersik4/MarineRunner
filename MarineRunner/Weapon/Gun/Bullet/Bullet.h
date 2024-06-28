@@ -10,7 +10,7 @@
 #include "Bullet.generated.h"
 
 UENUM()
-enum TypeOfObject {
+enum ETypeOfObject {
 	EnemyType,
 	GlassType,
 	ObjectType,
@@ -59,11 +59,14 @@ private:
 	float BulletImpulseMultiplier = 10.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Hit")
 	float BulletStuckInActorTeleportValue = 50.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Hit|Shake")
+
+	UPROPERTY(EditDefaultsOnly, Category = "Hit Radial Impulse")
+	TEnumAsByte<ECollisionChannel> RadialDamageCollisionChannel = ECC_GameTraceChannel3;
+	UPROPERTY(EditDefaultsOnly, Category = "Hit Radial Impulse|Shake")
 	float CameraShakeScaleMultiplier = 0.3f;
-	UPROPERTY(EditDefaultsOnly, Category = "Hit|Shake")
+	UPROPERTY(EditDefaultsOnly, Category = "Hit Radial Impulse|Shake")
 	float MaxDistanceToStartShake = 9000.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Hit|Shake")
+	UPROPERTY(EditDefaultsOnly, Category = "Hit Radial Impulse|Shake")
 	float MaxCameraShakeScale = 3.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Bullet Hole Decal")

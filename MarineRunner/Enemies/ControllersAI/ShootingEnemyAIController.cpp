@@ -79,13 +79,19 @@ void AShootingEnemyAIController::DetectPlayerWithDelay(bool bIsDetected, AActor*
 	if (bDoEnemySeePlayer)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(PlayerNotHeardHandle);
-		SetFocus(DetectedActor);
-		GetBlackboardComponent()->SetValueAsObject(TEXT("FocusedActor"), DetectedActor);
+		if (IsValid(DetectedActor))
+		{
+			SetFocus(DetectedActor);
+			if (IsValid(GetBlackboardComponent()))
+				GetBlackboardComponent()->SetValueAsObject(TEXT("FocusedActor"), DetectedActor);
+		}
 	}
 	else
 	{
 		ClearFocus(EAIFocusPriority::Gameplay);
-		GetBlackboardComponent()->ClearValue(TEXT("FocusedActor"));
+
+		if (IsValid(GetBlackboardComponent()))
+			GetBlackboardComponent()->ClearValue(TEXT("FocusedActor"));
 
 		if (IsValid(DetectedActor))
 			GetBlackboardComponent()->SetValueAsVector(TEXT("LastKnownPlayerLocation"), DetectedActor->GetActorLocation());

@@ -109,7 +109,6 @@ void AAlbertosPawn::ItemHover(AMarineCharacter* Character)
 		return;
 
 	AlbertosSkeletalMesh->SetMaterial(AlbertosHoverMaterialIndex, OnAlbertosHoverMaterial);
-	//AlbertosSkeletalMesh->bRenderCustomDepth = true; 
 
 	if (IsValid(HoverSound))
 		UGameplayStatics::PlaySoundAtLocation(GetWorld(), HoverSound, GetActorLocation());
@@ -128,7 +127,6 @@ void AAlbertosPawn::ItemUnHover(AMarineCharacter* Character)
 		return;
 
 	AlbertosSkeletalMesh->SetMaterial(AlbertosHoverMaterialIndex, OnAlbertosUnHoverMaterial);
-	//AlbertosSkeletalMesh->bRenderCustomDepth = false; 
 
 	bIsHovered = false;
 }

@@ -143,7 +143,7 @@ void ABullet::StartCameraShake()
 void ABullet::SphereRadialDamage(const FHitResult& Hit)
 {
 	TArray<FHitResult> HitArray;
-	GetWorld()->SweepMultiByChannel(HitArray, GetActorLocation(), GetActorLocation(), FQuat::Identity, ECC_GameTraceChannel3, FCollisionShape::MakeSphere(BulletData.RadialSphereRadius));
+	GetWorld()->SweepMultiByChannel(HitArray, GetActorLocation(), GetActorLocation(), FQuat::Identity, RadialDamageCollisionChannel, FCollisionShape::MakeSphere(BulletData.RadialSphereRadius));
 
 #ifdef WITH_EDITOR
 	if (BulletData.bDrawDebugRadialSphere) DrawDebugSphere(GetWorld(), GetActorLocation(), BulletData.RadialSphereRadius, 50, FColor::Red, true);

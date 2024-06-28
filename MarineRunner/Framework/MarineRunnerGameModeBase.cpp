@@ -41,7 +41,7 @@ void AMarineRunnerGameModeBase::ResetDetectedEnemies()
 	TObjectPtr<UMarineRunnerGameInstance> GameInstance = Cast<UMarineRunnerGameInstance>(TempGameInstance);
 	if (!IsValid(GameInstance))
 		return;
-	GameInstance->bNewGame = true;
+	
 	GameInstance->ResetDetectedEnemy();
 }
 
