@@ -11,7 +11,7 @@ The game is in state to be shipped. <br/>
 I made demo for ZTGK contest with new features. <br/>
 The new demo includes the best elements from the previous demo based on the great feedback I received and is shorter for a more focused experience.<br/>
 
-You can download game here: <a href="https://drive.google.com/file/d/1129YVxe-Y7sZKiCk2M-CVIuQeKLLRA6S/view?usp=sharing"> MarineRunner</a><br/>
+You can download game here: <a href="https://drive.google.com/file/d/1kO7TRv5SByjV-hvCxdeAIfN2AWrN3ULJ/view?usp=sharing"> MarineRunner</a><br/>
 Below is Trailer of the demo (1 min long) and Gameplay of the demo (17 minutes long) <br/>
 
 I made everything in this game, except for the Music and Sounds. <br/> 
