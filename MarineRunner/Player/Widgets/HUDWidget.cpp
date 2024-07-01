@@ -15,6 +15,8 @@ void UHUDWidget::NativeConstruct()
 
 void UHUDWidget::NativeOnInitialized()
 {
+	Super::NativeOnInitialized();
+
 	if (HealthBar->GetPercent() < MinHPToIndicateLowHP)
 	{
 		PlayAnimationForward(UseFirstAidKitLessHPAnim);
@@ -25,7 +27,7 @@ void UHUDWidget::NativeTick(const FGeometry& MyGeometry, float DeltaTime)
 {
 	Super::NativeTick(MyGeometry, DeltaTime);
 
-	ProgressPowerUps(DeltaTime / DeltaDivider);
+	ProgressPowerUps(DeltaTime / TimeDilationDeltaDivider);
 }
 
 void UHUDWidget::ShowHUDWithAnim(bool bShow)
@@ -45,7 +47,7 @@ void UHUDWidget::UpdateHealthBarPercent(float CurrentHealth)
 
 void UHUDWidget::UpdateCurrentNumberOfFirstAidKits(int32 CurrentAidKitsNumber)
 {
-	const FString& FirstAidKitAmountString = CurrentAidKitsNumber < 10 ? "0" + FString::FromInt(CurrentAidKitsNumber) : FString::FromInt(CurrentAidKitsNumber);
+	const FString FirstAidKitAmountString = CurrentAidKitsNumber < 10 ? "0" + FString::FromInt(CurrentAidKitsNumber) : FString::FromInt(CurrentAidKitsNumber);
 	CurrentNumbersOfFirstAidKit->SetText(FText::FromString(FirstAidKitAmountString));
 }
 
@@ -139,7 +141,7 @@ void UHUDWidget::LoadingPowerUp(FPowerUpLoaded& PowerUpToLoad, const float & Del
 
 		PowerUpToLoad.PowerUpFillTimeElapsed += Delta;
 	}
-	else
+	else // a power up was loaded 
 	{
 		if (IsValid(PowerUpLoadedSound))
 			UGameplayStatics::SpawnSound2D(GetWorld(), PowerUpLoadedSound);

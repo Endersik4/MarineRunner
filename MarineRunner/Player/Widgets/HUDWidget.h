@@ -73,7 +73,7 @@ protected:
 
 public:
 
-	FORCEINLINE void SetDeltaDivider(float NewDeltaDivider) { DeltaDivider = NewDeltaDivider; }
+	FORCEINLINE void SetDeltaDivider(float NewDeltaDivider) { TimeDilationDeltaDivider = NewDeltaDivider; }
 
 	void UpdateHealthBarPercent(float CurrentHealth);
 	void UpdateCurrentNumberOfFirstAidKits(int32 CurrentAidKitsNumber);
@@ -97,23 +97,9 @@ public:
 	void ShowGameplayMechanicsBars(const bool bUnlockHeal, const bool bUnlockDash, const bool bUnlockSlowMo);
 	void ShowGameplayMechanicsBars(const EUnlockInHud& WhatToUnlock);
 
-
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	TObjectPtr<UWidgetAnimation> ShowHUDWidget = nullptr;
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	TObjectPtr<UWidgetAnimation> HideHUDWidget = nullptr;
-
-#pragma region ///////////// USE FIRST AID KIT UI /////////////
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UImage> UseFirstAidKidImage = nullptr;
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	TObjectPtr<UWidgetAnimation> UseFirstAidKitAnim = nullptr;
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-	TObjectPtr<UWidgetAnimation> UseFirstAidKitLessHPAnim = nullptr;
-
-	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
-	TObjectPtr<UProgressBar> HealthBar = nullptr;
-#pragma endregion
+	// On Item Hover
+	void PlayAppearAnimForItemHover(bool bForwardAnim = true);
+	void SetItemHoverInformations(const FString& ItemName, const FString& ItemDescription, TObjectPtr < UTexture2D> ItemIcon);
 
 #pragma region ///////////// HEAL UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
@@ -159,6 +145,24 @@ public:
 	TObjectPtr<UWidgetAnimation> ActiveSlowMotionAnim = nullptr;
 #pragma endregion
 
+protected:
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> ShowHUDWidget = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> HideHUDWidget = nullptr;
+
+#pragma region ///////////// USE FIRST AID KIT UI /////////////
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UImage> UseFirstAidKidImage = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> UseFirstAidKitAnim = nullptr;
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+	TObjectPtr<UWidgetAnimation> UseFirstAidKitLessHPAnim = nullptr;
+
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	TObjectPtr<UProgressBar> HealthBar = nullptr;
+#pragma endregion
+
 #pragma region ///////////// GOT DAMAGE UI /////////////
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UImage> GotDamageImage;
@@ -198,10 +202,7 @@ public:
 	TObjectPtr<UWidgetAnimation> ShowDashBarAnim = nullptr;
 	UPROPERTY(Transient, meta = (BindWidgetAnim))
 	TObjectPtr<UWidgetAnimation> ShowSlowMotionBarAnim = nullptr;
-public:
-	// On Item Hover
-	void PlayAppearAnimForItemHover(bool bForwardAnim = true);
-	void SetItemHoverInformations(const FString& ItemName, const FString& ItemDescription, TObjectPtr < UTexture2D> ItemIcon);
+
 private:
 	// in percent
 	UPROPERTY(EditDefaultsOnly, Category = "Player", meta = (ClampMin = "0.0", ClampMax = "1.0", UIMin = "0.0", UIMax = "1.0"))
@@ -217,7 +218,7 @@ private:
 	FText AmmoValueToText(const int32& AmmoAmountToText);
 
 	UPROPERTY(Transient)
-	float DeltaDivider = 1.f;
+	float TimeDilationDeltaDivider = 1.f;
 	UPROPERTY(Transient)
 	TArray<FPowerUpLoaded> PowerUpsToLoad;
 	UPROPERTY(Transient)

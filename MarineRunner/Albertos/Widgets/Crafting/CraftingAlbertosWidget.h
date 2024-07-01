@@ -9,7 +9,7 @@
 
 /**
  * A widget that appears when the player presses the action key on Albertos.
- * The widget stores everything the player takes.
+ * The widget shows player's inventory.
  * The player can produce items using this widget, and the resource requirements of the items will appear in the ResourcesInventoryTileView
  * The resources that the player can take will appear in StorageInventoryTileView.
  */
@@ -38,11 +38,6 @@ protected:
 	virtual void NativeOnInitialized() override;
 
 public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crafting Albertos Widget Settings")
-	TSubclassOf<class UCraftedItemDataObject> ItemDataObject = nullptr;
-	UPROPERTY(EditDefaultsOnly, Category = "Crafting Albertos Widget Settings")
-	float FillCraftingPercentBarTimerTime = 0.001f;
 
 	void AddItemsToInventoryTileView(const TArray<FItemStruct>& InventoryItems);
 	void SwitchCurrentCraftingItem(bool bDeleteResources = false);
@@ -90,11 +85,11 @@ protected:
 	UFUNCTION()
 	void OnSlideCraftingAnimFinished();
 
-	// A place where all items will be stored except resources (first aid kits, ammunition...).
+	// The place where all items except resources will be displayed (first aid kits, ammunition...).
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UTileView> StorageInventoryTileView = nullptr;
 
-	// The Place where only Resources will be stored
+	// The Place where only Resources will be displayed
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<UTileView> ResourcesInventoryTileView = nullptr;
 
@@ -198,6 +193,10 @@ protected:
 	void OnItemInTileViewHovered(UObject* Item, bool bIsHovered);
 
 private:
+	UPROPERTY(EditAnywhere, Category = "Crafting Albertos Widget Settings")
+	TSubclassOf<class UCraftedItemDataObject> ItemDataObject = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Crafting Albertos Widget Settings")
+	float FillCraftingPercentBarTimerTime = 0.001f;
 
 	UPROPERTY(Transient)
 	TArray<FItemStruct> RecipesOfCraftableItems;
@@ -207,23 +206,24 @@ private:
 	UPROPERTY(Transient)
 	int32 CraftingMultiplier = 1;
 
-	// Crafting
 	UPROPERTY(Transient)
 	bool bCanUseCraftPanel = true;
 	UPROPERTY(Transient)
 	bool bCanCraftItem = true;
-	void SetItemDataToUI(bool bRefreshOnlyInventory);
+
+	void SetItemDataToUI();
 	void AddItemResourcesToRequirementsList(bool bRefreshOnlyInventory);
 	bool DoesHaveEnoughResources(const FString& ResourceName, bool bRefreshOnlyInventory = false);
 
-	// Craft Button Progress Bar
 	UPROPERTY(Transient)
 	float CurrentItemCraftingTimeElapsed = 0.f;
 	UPROPERTY(Transient)
 	float CurrentItemCraftTime = 0.f;
 	UPROPERTY(Transient)
 	float ItemCraftTimeLeftInSeconds = 0.f;
-	FTimerHandle TimeCraftHandle;
+	UPROPERTY(Transient)
+	FTimerHandle TimeCraftHandle = FTimerHandle();
+
 	void SetPercentOfCraftingProgressBar();
 	void SetCanUseCraftPanelAgain();
 
@@ -232,7 +232,6 @@ private:
 	TEnumAsByte<EChoiceOfArrow> CurrentChoiceOfArrow = ECA_None;
 	void PlaySwipeItemIconAnim();
 
-	// Multiplier Buttons
 	UPROPERTY(Transient)
 	TObjectPtr<UButton> MultiplierButtonChoice = nullptr;
 	void MultiplierButtonClicked(int32 Mutliplier);

@@ -166,6 +166,8 @@ void UPauseMenuWidget::OnClickedQuitGameButton()
 		return;
 
 	ConfirmQuitingGameWidget->AddToViewport();
+	ConfirmQuitingGameWidget->SetCurrentSpawnedMenu(this);
+	ConfirmQuitingGameWidget->AddThisWidgetToCurrentSpawnedMenuWidgets(false);
 	ConfirmQuitingGameWidget->ConfirmFunction = [this]() {this->QuitGame(); };
 }
 

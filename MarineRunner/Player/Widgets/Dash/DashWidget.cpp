@@ -12,6 +12,12 @@ void UDashWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+}
+
+void UDashWidget::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
 	PrepareDashWidget();
 }
 

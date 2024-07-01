@@ -18,6 +18,7 @@ class MARINERUNNER_API UPinNumberTileEntry : public UUserWidget, public IUserObj
 
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeOnInitialized() override;
 
 	virtual void NativeOnListItemObjectSet(UObject* ListItemObject);
 

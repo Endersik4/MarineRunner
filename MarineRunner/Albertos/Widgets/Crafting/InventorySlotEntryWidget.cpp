@@ -15,6 +15,8 @@ void UInventorySlotEntryWidget::NativeConstruct()
 
 void UInventorySlotEntryWidget::NativeOnInitialized()
 {
+	Super::NativeOnInitialized();
+
 	if (!IsValid(ItemButton))
 		return;
 
@@ -38,7 +40,7 @@ void UInventorySlotEntryWidget::ItemDataToUI(TObjectPtr<UCraftedItemDataObject> 
 {
 	ItemImage->SetBrushFromTexture(ItemDataObject->ItemData.Item_StorageIcon);
 
-	const FString& ItemAmountValueString = ItemDataObject->ItemData.Item_Amount > MaxAmountToDisplay ? ExceededMaxAmountToDisplayText : FString::FromInt(ItemDataObject->ItemData.Item_Amount);
+	const FString ItemAmountValueString = ItemDataObject->ItemData.Item_Amount > MaxAmountToDisplay ? ExceededMaxAmountToDisplayText : FString::FromInt(ItemDataObject->ItemData.Item_Amount);
 	ItemAmountTextBlock->SetText(FText::FromString(ItemAmountValueString));
 
 	bNotEnoughResources = ItemDataObject->bIsItEnoughToCraft;

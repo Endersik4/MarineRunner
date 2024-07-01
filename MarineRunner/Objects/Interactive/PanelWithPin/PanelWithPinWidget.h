@@ -15,7 +15,7 @@ protected:
 
 	virtual void NativeConstruct() override;
 
-public:
+protected:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	TObjectPtr<class UButton> InteractDoorButton = nullptr;
@@ -55,6 +55,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Door Panel Settings|Pin")
 	TSubclassOf<class UPinNumberEntryObject> PinNumberEntryObjectClass = nullptr;
 
+public:
 	FORCEINLINE void SetActorToUnlock(class IUsePinToEnterInterface* NewActorWithWidget) { ActorWithWidget = NewActorWithWidget; }
 	FORCEINLINE void SetCanCloseObject(bool bCan) { bCanCloseObject = bCan; }
 

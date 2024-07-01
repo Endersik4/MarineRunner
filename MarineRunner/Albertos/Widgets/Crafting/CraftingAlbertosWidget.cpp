@@ -114,7 +114,8 @@ void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshOnlyInvento
 	if (RecipesOfCraftableItems.Num() < ChoiceOfCraftableItem) 
 		return;
 
-	SetItemDataToUI(bRefreshOnlyInventory);
+	if (!bRefreshOnlyInventory)
+		SetItemDataToUI();
 
 	PlaySwipeItemIconAnim();
 
@@ -124,11 +125,8 @@ void UCraftingAlbertosWidget::SwitchCurrentCraftingItem(bool bRefreshOnlyInvento
 	AddItemResourcesToRequirementsList(bRefreshOnlyInventory);
 }
 
-void UCraftingAlbertosWidget::SetItemDataToUI(bool bRefreshOnlyInventory)
+void UCraftingAlbertosWidget::SetItemDataToUI()
 {
-	if (bRefreshOnlyInventory)
-		return;
-
 	if (CurrentChoiceOfArrow == ECA_None)
 	{
 		CraftingItemImage->SetBrushFromTexture(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_StorageIcon);
@@ -141,10 +139,10 @@ void UCraftingAlbertosWidget::SetItemDataToUI(bool bRefreshOnlyInventory)
 	ItemNameToBeCraftedText->SetText(FText::FromString("-" + RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Name + "-"));
 	ItemDescriptionText->SetText(FText::FromString(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Description));
 
-	FString TimeToCraftItem = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
+	const FString TimeToCraftItem = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
 	ItemCraftTimeText->SetText(FText::FromString(TimeToCraftItem));
 
-	FString AmountTextStr = FString::FromInt(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Amount * CraftingMultiplier);
+	const FString AmountTextStr = FString::FromInt(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_Amount * CraftingMultiplier);
 	ItemValue_AmountText->SetText(FText::FromString(AmountTextStr));
 
 	// Player cant craft multiple weapons at once
@@ -245,7 +243,7 @@ void UCraftingAlbertosWidget::CraftPressed()
 	if (!IsValid(MarinePawn) || !IsValid(AlbertosPawn))
 		return;
 
-	if (!bCanCraftItem|| !bCanUseCraftPanel)
+	if (!bCanCraftItem || !bCanUseCraftPanel)
 		return;
 
 	SwitchCurrentCraftingItem(true);
@@ -253,13 +251,11 @@ void UCraftingAlbertosWidget::CraftPressed()
 
 	AlbertosPawn->GetCraftItemAlbertosComponent()->CraftPressed(MarinePawn, &RecipesOfCraftableItems[ChoiceOfCraftableItem], CraftingMultiplier);
 
-	// Effects
 	CraftButton->SetIsEnabled(false);
 	LeftArrowButton->SetIsEnabled(false);
 	RightArrowButton->SetIsEnabled(false);
 	CraftingTimeProgressBar->SetVisibility(ESlateVisibility::Visible);
 
-	// Fill in Progress bar
 	CurrentItemCraftingTimeElapsed = 0.f;
 	ItemCraftTimeLeftInSeconds = RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft;
 
@@ -289,7 +285,7 @@ void UCraftingAlbertosWidget::SetPercentOfCraftingProgressBar()
 		const float& CraftingTimeProgress = FMath::Lerp(0.f, 1.f, CurrentItemCraftingTimeElapsed / CurrentItemCraftTime);
 		CraftingTimeProgressBar->SetPercent(CraftingTimeProgress);
 
-		const FString& SecondsLeftString = FString::SanitizeFloat(FMath::RoundValuesToGivenDecimalNumbers(ItemCraftTimeLeftInSeconds, 2)) + "s";
+		const FString SecondsLeftString = FString::SanitizeFloat(FMath::RoundValuesToGivenDecimalNumbers(ItemCraftTimeLeftInSeconds, 2)) + "s";
 		ItemCraftTimeText->SetText(FText::FromString(SecondsLeftString));
 
 		ItemCraftTimeLeftInSeconds -= FillCraftingPercentBarTimerTime;
@@ -312,7 +308,7 @@ void UCraftingAlbertosWidget::SetCanUseCraftPanelAgain()
 
 	AlbertosPawn->GetCraftItemAlbertosComponent()->CraftingFinished();
 
-	const FString& Time = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
+	const FString Time = FString::SanitizeFloat(RecipesOfCraftableItems[ChoiceOfCraftableItem].Item_TimeCraft) + "s";
 	ItemCraftTimeText->SetText(FText::FromString(Time));
 
 	bCanUseCraftPanel = true;

@@ -12,6 +12,13 @@
 
 void UPinNumberTileEntry::NativeConstruct()
 {
+	Super::NativeConstruct();
+}
+
+void UPinNumberTileEntry::NativeOnInitialized()
+{
+	Super::NativeOnInitialized();
+
 	PinNumberButton->OnClicked.AddDynamic(this, &UPinNumberTileEntry::OnClickedPinNumberButton);
 	PinNumberButton->OnHovered.AddDynamic(this, &UPinNumberTileEntry::OnHoveredPinNumberButton);
 	PinNumberButton->OnUnhovered.AddDynamic(this, &UPinNumberTileEntry::OnUnhoveredPinNumberButton);
