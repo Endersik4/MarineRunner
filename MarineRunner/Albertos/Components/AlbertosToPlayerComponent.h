@@ -31,13 +31,12 @@ private:
 	float MaxDistanceToPlayer = 4000.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Call Albertos To Player")
 	float TeleportToPlayerRadius = 3000.f;
-	UPROPERTY(EditDefaultsOnly, Category = "Call Albertos To Player")
+	UPROPERTY(EditDefaultsOnly, Category = "Call Albertos To Player|Effects")
 	TObjectPtr<USoundBase>CallAlbertosSound = nullptr;
-
-	UPROPERTY(Transient)
-	TObjectPtr<class AAlbertosPawn> AlbertosPawn = nullptr;
-	UPROPERTY(Transient)
-	TObjectPtr<class AAlbertosAIController> AlbertosAIController = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Call Albertos To Player|Albertos Icon")
+	float AlbertosIconWidgetSpawnTime = 5.f;
+	UPROPERTY(EditDefaultsOnly, Category = "Call Albertos To Player|Albertos Icon")
+	TSubclassOf<class UAlbertosIcon> AlbertosIconWidget = nullptr;
 
 	UPROPERTY(Transient)
 	float OriginalMoveSpeed = 0.f;
@@ -48,4 +47,18 @@ private:
 	void TeleportAlbertosToPlayer(const FVector& PlayerLoc);
 
 	void SetInitialAlbertosVariables();
+
+	void SpawnAlbertosIconWidgetOnPlayer();
+	void DestroyAlbertosIconWidget();
+	UPROPERTY(Transient)
+	bool bAlbertosIconSpawned = false;
+	UPROPERTY(Transient)
+	TObjectPtr<class UAlbertosIcon> SpawnedAlbertosIconWidget = nullptr;
+	UPROPERTY(Transient)
+	FTimerHandle VisibleAlbertosIconHandle = FTimerHandle();
+
+	UPROPERTY(Transient)
+	TObjectPtr<class AAlbertosPawn> AlbertosPawn = nullptr;
+	UPROPERTY(Transient)
+	TObjectPtr<class AAlbertosAIController> AlbertosAIController = nullptr;
 };

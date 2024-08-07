@@ -22,6 +22,7 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void Dash();
+
 	FORCEINLINE bool GetIsPerformingDash() const { return bIsPerformingDash; }
 private:
 	UPROPERTY(EditAnywhere, Category = "Dash")
@@ -36,7 +37,7 @@ private:
 	float OffsetFromObstacle = 100.f;
 	UPROPERTY(EditDefaultsOnly, Category = "Dash")
 	TSubclassOf<class UDashWidget> DashWidgetClass = nullptr;
-	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+	UPROPERTY(EditDefaultsOnly, Category = "Dash|Effects")
 	TObjectPtr<USoundBase> DashSound = nullptr;
 
 	bool CanPlayerPerformDash() const;

@@ -8,6 +8,7 @@
 #include "MarineRunner/Albertos/AlbertosPawn.h"
 #include "MarineRunner/Albertos/AlbertosAIController.h"
 #include "MarineRunner/Albertos/Components/PlayerIsNearAlbertosComponent.h"
+#include "MarineRunner/Player/Widgets/AlbertosIcon.h"
 
 UAlbertosToPlayerComponent::UAlbertosToPlayerComponent()
 {
@@ -31,12 +32,52 @@ void UAlbertosToPlayerComponent::CallAlbertosToThePlayer(FVector PlayerLoc)
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Call Albertos Sound is nullptr in AlbertosToPlayer Component"));
 
+	SpawnAlbertosIconWidgetOnPlayer();
+
 	TeleportAlbertosToPlayer(PlayerLoc);
 
 	PlayerLoc.Z = AlbertosPawn->GetActorLocation().Z;
 	AlbertosAIController->CallAlbertosToThePlayer(PlayerLoc);
 
 	ChangeMaxSpeedOfFloatingMovement(true);
+}
+
+void UAlbertosToPlayerComponent::SpawnAlbertosIconWidgetOnPlayer()
+{
+	if (bAlbertosIconSpawned)
+	{
+		GetWorld()->GetTimerManager().SetTimer(VisibleAlbertosIconHandle, this, &UAlbertosToPlayerComponent::DestroyAlbertosIconWidget, AlbertosIconWidgetSpawnTime, false);
+		return;
+	}
+
+	if (!IsValid(AlbertosIconWidget))
+		return;
+
+	TObjectPtr<UUserWidget> TempAlbertosIconWidget = CreateWidget(UGameplayStatics::GetPlayerController(GetWorld(), 0), AlbertosIconWidget);
+	if (!IsValid(TempAlbertosIconWidget))
+		return;
+
+	SpawnedAlbertosIconWidget = Cast<UAlbertosIcon>(TempAlbertosIconWidget);
+	if (!IsValid(SpawnedAlbertosIconWidget))
+		return;
+
+	SpawnedAlbertosIconWidget->AddToViewport();
+	SpawnedAlbertosIconWidget->SetAlbertosPawn(AlbertosPawn);
+	SpawnedAlbertosIconWidget->StartTrackingAlbertos();
+
+	bAlbertosIconSpawned = true;
+	GetWorld()->GetTimerManager().SetTimer(VisibleAlbertosIconHandle, this, &UAlbertosToPlayerComponent::DestroyAlbertosIconWidget, AlbertosIconWidgetSpawnTime, false);
+}
+
+void UAlbertosToPlayerComponent::DestroyAlbertosIconWidget()
+{
+	if (!IsValid(SpawnedAlbertosIconWidget))
+		return;
+
+	SpawnedAlbertosIconWidget->StopTrackingAlbertos();
+	SpawnedAlbertosIconWidget->RemoveFromParent();
+
+	bAlbertosIconSpawned = false;
 }
 
 // if player is further away from TeleportToPlayerRadius then teleport albertos to location near player
