@@ -9,6 +9,7 @@
 #include "MarineRunner/Albertos/AlbertosPawn.h"
 #include "MarineRunner/Albertos/AlbertosAIController.h"
 #include "MarineRunner/Albertos/Components/PlayerIsNearAlbertosComponent.h"
+#include "MarineRunner/Player/Components/PlayersAlbertosComponent.h"
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
 
 // Sets default values
@@ -51,13 +52,13 @@ void ACallAlbertosActor::TeleportAlbertos(AActor* OtherActor)
 	if (!IsValid(Player))
 		return;
 
-	TObjectPtr<AAlbertosPawn> AlbertosPawn = Player->GetAlbertosPawn();
+	TObjectPtr<AAlbertosPawn> AlbertosPawn = Player->GetPlayersAlbertosComponent()->GetAlbertosPawn();
 	if (!IsValid(AlbertosPawn))
 		return;
 
-	StopAlbertosMovement(Player->GetAlbertosPawn(), true);
+	StopAlbertosMovement(Player->GetPlayersAlbertosComponent()->GetAlbertosPawn(), true);
 
-	FTimerDelegate ResumeMovementDelegate = FTimerDelegate::CreateUObject(this, &ACallAlbertosActor::StopAlbertosMovement, Player->GetAlbertosPawn(), false);
+	FTimerDelegate ResumeMovementDelegate = FTimerDelegate::CreateUObject(this, &ACallAlbertosActor::StopAlbertosMovement, Player->GetPlayersAlbertosComponent()->GetAlbertosPawn(), false);
 	GetWorld()->GetTimerManager().SetTimer(ResumeAlbertosMovementHandle, ResumeMovementDelegate, ResumeAlbertosMovementTime, false);
 
 	AlbertosPawn->SetActorLocation(TeleportAlbertosLocation);

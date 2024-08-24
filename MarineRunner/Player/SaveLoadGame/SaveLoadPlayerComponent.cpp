@@ -10,6 +10,7 @@
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/MarinePlayerController.h"
 #include "MarineRunner/Player/Components/WeaponHandlerComponent.h"
+#include "MarineRunner/Player/Components/PlayersAlbertosComponent.h"
 #include "MarineRunner/Player/Widgets/HUDWidget.h"
 #include "MarineRunner/Player/Inventory/WeaponInventoryComponent.h"
 #include "MarineRunner/Player/Inventory/InventoryComponent.h"
@@ -219,10 +220,10 @@ void USaveLoadPlayerComponent::SpawnNewPlayer()
 	if (!IsValid(SpawnedNewPlayer))
 		return;
 
-	SpawnedNewPlayer->SetAlbertosPawn(Player->GetAlbertosPawn());
+	SpawnedNewPlayer->GetPlayersAlbertosComponent()->SetAlbertosPawn(Player->GetPlayersAlbertosComponent()->GetAlbertosPawn());
 	SpawnedNewPlayer->GetSaveLoadPlayerComponent()->SetSavedDataObject(Player->GetSaveLoadPlayerComponent()->GetSavedDataObject());
-	if (IsValid(Player->GetAlbertosPawn()))
-		Player->GetAlbertosPawn()->GetPlayerIsNearComponent()->SetPlayerPawn(SpawnedNewPlayer);
+	if (IsValid(Player->GetPlayersAlbertosComponent()->GetAlbertosPawn()))
+		Player->GetPlayersAlbertosComponent()->GetAlbertosPawn()->GetPlayerIsNearComponent()->SetPlayerPawn(SpawnedNewPlayer);
 
 	SpawnedNewPlayer->FinishSpawning(NewPlayerTransform);
 

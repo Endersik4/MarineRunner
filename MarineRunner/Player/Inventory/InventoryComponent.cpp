@@ -4,6 +4,7 @@
 
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Components/MessageHandlerComponent.h"
+#include "MarineRunner/Player/Components/PlayersAlbertosComponent.h"
 #include "WeaponInventoryComponent.h"
 
 // Sets default values for this component's properties
@@ -124,7 +125,7 @@ void UInventoryComponent::UpdateInventoryPlayerInformation(const bool& bIsItemCr
 		return;
 
 	Player->UpdateHudWidget();
-	Player->UpdateAlbertosInventory(true, bIsItemCraftable);
+	Player->GetPlayersAlbertosComponent()->UpdateAlbertosInventory(true, bIsItemCraftable);
 }
 
 void UInventoryComponent::MoveWeaponRecipesToEndQueue()

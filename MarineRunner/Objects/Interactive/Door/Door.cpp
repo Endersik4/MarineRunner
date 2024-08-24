@@ -10,10 +10,8 @@
 #include "MarineRunner/Objects/Interactive/PanelWithPin/PanelWithPinWidget.h"
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
 
-// Sets default values
 ADoor::ADoor()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 
 	DoorSkeletalMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("DoorSkeletalMesh"));
@@ -34,13 +32,14 @@ ADoor::ADoor()
 	DoorPanelSecondWidgetComponent->SetupAttachment(DoorPanelSecondMesh);
 	DoorPanelSecondWidgetComponent->SetDrawAtDesiredSize(true);
 	DoorPanelSecondWidgetComponent->SetTickWhenOffscreen(true);
+
 }
 
 // Called when the game starts or when spawned
 void ADoor::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	SetUpDoorPanels();
 }
 
@@ -50,6 +49,14 @@ void ADoor::ClickedOpenButton(class UDoorPanelWidget* ClickedWidget)
 		OpenDoor();
 	else
 		CloseDoor();
+
+	// if ClickedWidget argument is nullptr then do effects on both widgets
+	if (!IsValid(ClickedWidget))
+	{
+		DoorPanelWidget->PlayOpenCloseEffects();
+		DoorPanelSecondWidget->PlayOpenCloseEffects();
+		return;
+	}
 
 	if (IsValid(GetOtherPanelWidget(ClickedWidget)))
 		GetOtherPanelWidget(ClickedWidget)->PlayOpenCloseEffects();

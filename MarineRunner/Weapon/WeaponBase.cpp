@@ -10,6 +10,7 @@
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Components/WeaponHandlerComponent.h"
 #include "MarineRunner/Player/Components/ArmsSwayComponent.h"
+#include "MarineRunner/Player/Components/PlayersAlbertosComponent.h"
 #include "MarineRunner/Player/Inventory/WeaponInventoryComponent.h"
 #include "MarineRunner/Player/Widgets/HUDWidget.h"
 #include "MarineRunner/Objects/Interactive/PickableItem.h"
@@ -181,7 +182,7 @@ void AWeaponBase::DropWeapon()
 	}
 
 	Player->GetInventoryComponent()->DeleteItemFromInventory(SpawnedDroppedWeaponItem->GetItemRowName());
-	Player->UpdateAlbertosInventory(true);
+	Player->GetPlayersAlbertosComponent()->UpdateAlbertosInventory(true);
 }
 
 void AWeaponBase::PrimaryAction()

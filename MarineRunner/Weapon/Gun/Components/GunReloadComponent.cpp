@@ -5,6 +5,7 @@
 
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Components/WeaponHandlerComponent.h"
+#include "MarineRunner/Player/Components/PlayersAlbertosComponent.h"
 #include "MarineRunner/Player/Inventory/InventoryComponent.h"
 
 UGunReloadComponent::UGunReloadComponent()
@@ -77,7 +78,7 @@ void UGunReloadComponent::Reload()
 	Gun->SetCanShoot(true);
 	Gun->UpdateWeaponHudInformation(true);
 
-	Gun->GetPlayer()->UpdateAlbertosInventory();
+	Gun->GetPlayer()->GetPlayersAlbertosComponent()->UpdateAlbertosInventory();
 
 	GetWorld()->GetTimerManager().ClearTimer(ReloadHandle);
 	bIsReloading = false;

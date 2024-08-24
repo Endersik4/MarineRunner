@@ -27,16 +27,13 @@
 #include "MarineRunner/Player/Components/MessageHandlerComponent.h"
 #include "MarineRunner/Player/Components/ArmsSwayComponent.h"
 #include "MarineRunner/Player/Components/QuickAttackComponent.h"
+#include "MarineRunner/Player/Components/PlayersAlbertosComponent.h"
 #include "MarineRunner/Player/SaveLoadGame/SaveLoadPlayerComponent.h"
 #include "MarineRunner/Player/Inventory/WeaponInventoryComponent.h"
 #include "MarineRunner/Player/Inventory/InventoryComponent.h"
 #include "MarineRunner/Player/GameMenu/PauseMenu/PauseMenuComponent.h"
 #include "MarineRunner/Player/Widgets/HUDWidget.h"
 #include "MarineRunner/Player/Widgets/CrosshairWidget.h"
-
-#include "MarineRunner/Albertos/AlbertosPawn.h"
-#include "MarineRunner/Albertos/Components/AlbertosToPlayerComponent.h"
-#include "MarineRunner/Albertos/Widgets/Crafting/CraftingAlbertosWidget.h"
 
 // Sets default values
 AMarineCharacter::AMarineCharacter()
@@ -84,6 +81,7 @@ AMarineCharacter::AMarineCharacter()
 	SaveLoadPlayerComponent = CreateDefaultSubobject<USaveLoadPlayerComponent>(TEXT("Save and Load Player Component"));
 	ArmsSwayComponent = CreateDefaultSubobject<UArmsSwayComponent>(TEXT("Arms Sway Component"));
 	QuickAttackComponent = CreateDefaultSubobject<UQuickAttackComponent>(TEXT("Quick Attack Component"));
+	PlayersAlbertosComponent = CreateDefaultSubobject<UPlayersAlbertosComponent>(TEXT("Players Albertos Component"));
 
 	WidgetInteractionComponent = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("WidgetInteractionComponent"));
 	WidgetInteractionComponent->SetupAttachment(Camera);
@@ -185,7 +183,8 @@ void AMarineCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	FInputActionBinding& YouDiedQuitToggle = PlayerInputComponent->BindAction(TEXT("QuitGameWhenDead"), IE_Pressed, SpawnDeathWidgetComponent.Get(), &USpawnDeathWidgetComponent::QuitGameInYouDiedWidget);
 	YouDiedQuitToggle.bExecuteWhenPaused = true;
 
-	PlayerInputComponent->BindAction(TEXT("CallAlbertos"), IE_Pressed, this, &AMarineCharacter::CallAlbertosPressed);
+	PlayerInputComponent->BindAction(TEXT("OpenAlbertosCommands"), IE_Pressed, PlayersAlbertosComponent.Get(), &UPlayersAlbertosComponent::OpenAlbertosCommands);
+	PlayerInputComponent->BindAction(TEXT("OpenAlbertosCommands"), IE_Released, PlayersAlbertosComponent.Get(), &UPlayersAlbertosComponent::CloseAlbertosCommands);
 }
 
 void AMarineCharacter::ChangeMouseSensitivity(const FSettingSavedInJsonFile& NewMouseSensitivity, bool bResetMouseSensitivity)
@@ -389,7 +388,7 @@ void AMarineCharacter::UseFirstAidKit()
 		HudWidget->PlayButtonAnimation(EATP_PressedButton_Heal);
 	}
 
-	UpdateAlbertosInventory();
+	PlayersAlbertosComponent->UpdateAlbertosInventory();
 
 	if (FirstAidKitItem->Item_Amount <= 0)
 		InventoryComponent->DeleteItemFromInventory(*FirstAidKitItem);
@@ -540,43 +539,6 @@ void AMarineCharacter::ShowHUD(bool bShow)
 	if (IsValid(SpawnedCrosshairWidget))
 		SpawnedCrosshairWidget->ShowCrosshairWithAnim(bShow);
 }
-#pragma endregion 
-
-#pragma region //////////////////////////////// ALBERTO ////////////////////////////////
-void AMarineCharacter::UpdateAlbertosInventory(bool bShouldUpdateInventory, bool bShouldUpdateCrafting)
-{
-	if (!IsValid(AlbertoPawn))
-		return;
-	
-	CraftingWidget = Cast<UCraftingAlbertosWidget>(AlbertoPawn->GetCraftingTableWidget());
-	if (!IsValid(CraftingWidget)) 
-		return;
-
-	if (bShouldUpdateInventory)
-	{
-		CraftingWidget->AddItemsToInventoryTileView(InventoryComponent->Inventory_Items);
-	}
-
-	if (bShouldUpdateCrafting)
-	{
-		InventoryComponent->MoveWeaponRecipesToEndQueue();
-		CraftingWidget->SetPlayer(this);
-		CraftingWidget->SetRecipesData(InventoryComponent->Items_Recipes);
-		CraftingWidget->SwitchCurrentCraftingItem();
-	}
-}
-
-void AMarineCharacter::CallAlbertosPressed()
-{
-	if (!IsValid(AlbertoPawn) || bIsInCutscene)
-		return;
-	
-	if (!IsValid(AlbertoPawn->GetAlbertosToPlayerComponent()))
-		return;
-
-	AlbertoPawn->GetAlbertosToPlayerComponent()->CallAlbertosToThePlayer(GetActorLocation());
-}
-
 #pragma endregion 
 
 // When the player does not move the mouse during the pawn's spawn, the rotation of the RootComponent is not updated and, 

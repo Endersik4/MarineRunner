@@ -67,18 +67,16 @@ public:
 	FORCEINLINE TObjectPtr<class UWallrunComponent> GetWallrunComponent() const { return WallrunComponent; }
 	FORCEINLINE TObjectPtr<class UCroachAndSlide> GetCrouchAndSlideComponent() const { return CroachAndSlideComponent; }
 	FORCEINLINE TObjectPtr<class USlowMotionComponent> GetSlowMotionComponent() const { return SlowMotionComponent; }
+	FORCEINLINE TObjectPtr<class UPlayersAlbertosComponent> GetPlayersAlbertosComponent() const { return PlayersAlbertosComponent; }
 	FORCEINLINE FSettingSavedInJsonFile& GetMouseSensitivityJSON() { return OriginalMouseSensitivityJSON; }
-	FORCEINLINE TObjectPtr<class AAlbertosPawn> GetAlbertosPawn() const { return AlbertoPawn; }
 
 	FORCEINLINE void SetHealth(float NewHealth) { Health = NewHealth; }
 	FORCEINLINE void SetIsInCutscene(bool bNewIsInCutscene) { bIsInCutscene = bNewIsInCutscene; }
 	FORCEINLINE void SetMovementForce(float NewForce) { MovementSpeed = NewForce; }
 	FORCEINLINE void SetMovementForceDividerWhenInADS(float NewForceDivider) { MovementForceDividerWhenInADS = NewForceDivider; }
 	FORCEINLINE void SetShouldPlayerGoForward(bool bShould) { bConstantlyGoForward = bShould; }
-	FORCEINLINE void SetAlbertosPawn(TObjectPtr<class AAlbertosPawn> NewAlbertos) { AlbertoPawn = NewAlbertos; }
 
 	void UpdateHudWidget();
-	void UpdateAlbertosInventory(bool bShouldUpdateInventory = true, bool bShouldUpdateCrafting = false);
 	void MakeCrosshire(bool bShouldRemoveFromParent = false);
 	void ShowHUD(bool bShow = true);
 
@@ -141,6 +139,8 @@ private:
 	TObjectPtr<class UArmsSwayComponent> ArmsSwayComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 	TObjectPtr<class UQuickAttackComponent> QuickAttackComponent = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
+	TObjectPtr<class UPlayersAlbertosComponent> PlayersAlbertosComponent = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
 	float Health = 100.f;
@@ -150,8 +150,6 @@ private:
 	float DividerForRadialDamage = 2.5f;
 	UPROPERTY(EditDefaultsOnly, Category = "Marine Pawn")
 	TObjectPtr < USoundBase> MarineHitSound = nullptr;
-	UPROPERTY(EditAnywhere, Category = "Marine Pawn")
-	TObjectPtr<class AAlbertosPawn> AlbertoPawn = nullptr;
 
 	UPROPERTY(EditAnywhere, Category = "Marine Pawn|First Aid Kit")
 	FName FirstAidKitRowName = "FirstAidKit";
@@ -235,10 +233,6 @@ private:
 	void PlayFootstepsSound();
 	FORCEINLINE void SetCanPlayFootstepsSound() { bCanPlayFootstepsSound = true; }
 
-	void CallAlbertosPressed();
-	UPROPERTY(Transient)
-	TObjectPtr<class UCraftingAlbertosWidget> CraftingWidget = nullptr;
-
 	void TakePressed();
 	void TakeReleased();
 
@@ -248,7 +242,6 @@ private:
 	FTimerHandle UseFirstAidKitHandle;
 	FORCEINLINE void CanUseFirstAidKit() { bCanUseFirstAidKit = true; }
 	void UseFirstAidKit();
-
 
 	//Widgets
 	void MakeHudWidget();

@@ -13,6 +13,7 @@
 #include "MarineRunner/Albertos/Components/CraftingWidgetAnimationComponent.h"
 #include "MarineRunner/Albertos/Components/PlayerIsNearAlbertosComponent.h"
 #include "MarineRunner/Albertos/Components/AlbertosToPlayerComponent.h"
+#include "MarineRunner/Player/Components/PlayersAlbertosComponent.h"
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
 
@@ -97,7 +98,7 @@ void AAlbertosPawn::TakeItem(AMarineCharacter* Character)
 		return;
 
 	PlayerIsNearAlbertosComponent->SetRotateAlbertosTowardPlayer(true);
-	Character->UpdateAlbertosInventory(true, true);
+	Character->GetPlayersAlbertosComponent()->UpdateAlbertosInventory(true, true);
 }
 
 void AAlbertosPawn::ItemHover(AMarineCharacter* Character)

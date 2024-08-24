@@ -14,6 +14,7 @@
 #include "MarineRunner/Albertos/AlbertosPawn.h"
 #include "MarineRunner/Player/Widgets/HUDWidget.h"
 #include "MarineRunner/Albertos/Components/CraftItemAlbertosComponent.h"
+#include "MarineRunner/Player/Components/PlayersAlbertosComponent.h"
 
 void UCraftingAlbertosWidget::NativeConstruct()
 {
@@ -247,7 +248,7 @@ void UCraftingAlbertosWidget::CraftPressed()
 		return;
 
 	SwitchCurrentCraftingItem(true);
-	MarinePawn->UpdateAlbertosInventory();
+	MarinePawn->GetPlayersAlbertosComponent()->UpdateAlbertosInventory();
 
 	AlbertosPawn->GetCraftItemAlbertosComponent()->CraftPressed(MarinePawn, &RecipesOfCraftableItems[ChoiceOfCraftableItem], CraftingMultiplier);
 
