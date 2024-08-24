@@ -3,6 +3,10 @@
 
 #include "MarineRunner/Player/Widgets/PlayerAlbertos/AlbertosCommandsWidget.h"
 #include "Components/Button.h"
+#include "Components/TextBlock.h"
+
+#include "MarineRunner/Player/Components/PlayersAlbertosComponent.h"
+
 void UAlbertosCommandsWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -38,11 +42,25 @@ void UAlbertosCommandsWidget::NativeOnInitialized()
 void UAlbertosCommandsWidget::OnHovered_CallAlbertosButton()
 {
 	PlayAnimationForward(CallAlbertosButtonHoverAnim);
+
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = [this]() {this->PlayersAlbertosComponent->CallAlbertosToPlayer(); };
+	}
+
+	AlbertosCommandText->SetText(CallAlbertosText);
 }
 
 void UAlbertosCommandsWidget::OnUnhovered_CallAlbertosButton()
 {
 	PlayAnimationReverse(CallAlbertosButtonHoverAnim);
+
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = nullptr;
+	}
+
+	AlbertosCommandText->SetText(DefaultCommandText);
 }
 #pragma endregion
 
@@ -51,11 +69,24 @@ void UAlbertosCommandsWidget::OnHovered_StopButton()
 {
 	PlayAnimationForward(StopAlbertosButtonHoverAnim);
 
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = [this]() {this->PlayersAlbertosComponent->StopAlbertosMovement(); };
+	}
+
+	AlbertosCommandText->SetText(StopAlbertosText);
 }
 
 void UAlbertosCommandsWidget::OnUnhovered_StopButton()
 {
 	PlayAnimationReverse(StopAlbertosButtonHoverAnim);
+
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = nullptr;
+	}
+
+	AlbertosCommandText->SetText(DefaultCommandText);
 }
 #pragma endregion
 
@@ -64,11 +95,24 @@ void UAlbertosCommandsWidget::OnHovered_HackButton()
 {
 	PlayAnimationForward(HackButtonHoverAnim);
 
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = [this]() {this->PlayersAlbertosComponent->HackInteractiveObject(); };
+	}
+
+	AlbertosCommandText->SetText(HackInteractiveObjectsText);
 }
 
 void UAlbertosCommandsWidget::OnUnhovered_HackButton()
 {
 	PlayAnimationReverse(HackButtonHoverAnim);
+
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = nullptr;
+	}
+
+	AlbertosCommandText->SetText(DefaultCommandText);
 }
 #pragma endregion
 
@@ -77,11 +121,25 @@ void UAlbertosCommandsWidget::OnHovered_OpenButton()
 {
 	PlayAnimationForward(OpenCommandButtonHoverAnim);
 
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = [this]() {this->PlayersAlbertosComponent->OpenInteractiveObject(); };
+	}
+
+	AlbertosCommandText->SetText(OpenInteractiveObjectsText);
 }
 
 void UAlbertosCommandsWidget::OnUnhovered_OpenButton()
 {
 	PlayAnimationReverse(OpenCommandButtonHoverAnim);
+
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = nullptr;
+	}
+
+	AlbertosCommandText->SetText(DefaultCommandText);
+
 }
 #pragma endregion
 
@@ -89,11 +147,26 @@ void UAlbertosCommandsWidget::OnUnhovered_OpenButton()
 void UAlbertosCommandsWidget::OnHovered_ChangeToAlbertosButton()
 {
 	PlayAnimationForward(ChangeToAlbertosButtonHoverAnim);
+
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = [this]() {this->PlayersAlbertosComponent->ChangeToAlbertos(); };
+	}
+
+	AlbertosCommandText->SetText(ChangeToAlbertosText);
 }
 
 void UAlbertosCommandsWidget::OnUnhovered_ChangeToAlbertosButton()
 {
 	PlayAnimationReverse(ChangeToAlbertosButtonHoverAnim);
+
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = nullptr;
+	}
+
+	AlbertosCommandText->SetText(DefaultCommandText);
+
 }
 #pragma endregion
 
@@ -102,11 +175,25 @@ void UAlbertosCommandsWidget::OnHovered_CraftLastItemButton()
 {
 	PlayAnimationForward(CraftLastItemButtonHoverAnim);
 
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = [this]() {this->PlayersAlbertosComponent->CraftLastCraftedItem(); };
+	}
+
+	AlbertosCommandText->SetText(CraftLastCraftedItemText);
 }
 
 void UAlbertosCommandsWidget::OnUnhovered_CraftLastItemButton()
 {
 	PlayAnimationReverse(CraftLastItemButtonHoverAnim);
+
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = nullptr;
+	}
+
+	AlbertosCommandText->SetText(DefaultCommandText);
+
 }
 #pragma endregion
 
@@ -115,11 +202,26 @@ void UAlbertosCommandsWidget::OnHovered_DamageEnemyButton()
 {
 	PlayAnimationForward(DamageEnemyButtonHoverAnim);
 
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = [this]() {this->PlayersAlbertosComponent->DamageEnemy(); };
+	}
+
+	AlbertosCommandText->SetText(DamageEnemyText);
+
 }
 
 void UAlbertosCommandsWidget::OnUnhovered_DamageEnemyButton()
 {
 	PlayAnimationReverse(DamageEnemyButtonHoverAnim);
+
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = nullptr;
+	}
+
+	AlbertosCommandText->SetText(DefaultCommandText);
+
 }
 #pragma endregion
 
@@ -127,9 +229,25 @@ void UAlbertosCommandsWidget::OnUnhovered_DamageEnemyButton()
 void UAlbertosCommandsWidget::OnHovered_WalkAroundButton()
 {
 	PlayAnimationForward(WalkAroundButtonHoverAnim);
+
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = [this]() {this->PlayersAlbertosComponent->StartAlbertosMovement(); };
+	}
+
+	AlbertosCommandText->SetText(StartAlbertosMovementText);
 }
+
 void UAlbertosCommandsWidget::OnUnhovered_WalkAroundButton()
 {
 	PlayAnimationReverse(WalkAroundButtonHoverAnim);
+
+	if (IsValid(PlayersAlbertosComponent))
+	{
+		PlayersAlbertosComponent->AlbertosCommandToExecute = nullptr;
+	}
+
+	AlbertosCommandText->SetText(DefaultCommandText);
+
 }
 #pragma endregion

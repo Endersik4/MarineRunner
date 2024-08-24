@@ -14,6 +14,9 @@ class MARINERUNNER_API UAlbertosCommandsWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY(Transient)
+	TObjectPtr<class UPlayersAlbertosComponent> PlayersAlbertosComponent = nullptr;
 
 protected:
 	virtual void NativeOnInitialized() override;
@@ -116,6 +119,23 @@ protected:
 	UFUNCTION()
 	void OnUnhovered_WalkAroundButton();
 
-	private:
-
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Albertos Commands Names")
+	FText DefaultCommandText = FText();
+	UPROPERTY(EditDefaultsOnly, Category = "Albertos Commands Names")
+	FText CallAlbertosText = FText();
+	UPROPERTY(EditDefaultsOnly, Category = "Albertos Commands Names")
+	FText StopAlbertosText = FText();
+	UPROPERTY(EditDefaultsOnly, Category = "Albertos Commands Names")
+	FText HackInteractiveObjectsText = FText();
+	UPROPERTY(EditDefaultsOnly, Category = "Albertos Commands Names")
+	FText OpenInteractiveObjectsText = FText();
+	UPROPERTY(EditDefaultsOnly, Category = "Albertos Commands Names")
+	FText ChangeToAlbertosText = FText();
+	UPROPERTY(EditDefaultsOnly, Category = "Albertos Commands Names")
+	FText CraftLastCraftedItemText = FText();
+	UPROPERTY(EditDefaultsOnly, Category = "Albertos Commands Names")
+	FText DamageEnemyText = FText();
+	UPROPERTY(EditDefaultsOnly, Category = "Albertos Commands Names")
+	FText StartAlbertosMovementText = FText();
 };

@@ -28,6 +28,17 @@ public:
 
 	FORCEINLINE TObjectPtr<class AAlbertosPawn> GetAlbertosPawn() const { return AlbertoPawn; }
 
+	TFunction<void()> AlbertosCommandToExecute;
+
+	void CallAlbertosToPlayer();
+	void StopAlbertosMovement();
+	void HackInteractiveObject();
+	void OpenInteractiveObject();
+	void ChangeToAlbertos();
+	void CraftLastCraftedItem();
+	void DamageEnemy();
+	void StartAlbertosMovement();
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Assigned Albertos Settings")
 	bool bAlbertosAssigned = true;
@@ -40,6 +51,8 @@ private:
 
 	UPROPERTY(Transient)
 	TObjectPtr<class UAlbertosCommandsWidget> AlbertosCommandsWidget = nullptr;
+	UPROPERTY(Transient)
+	TObjectPtr<AAlbertosAIController> AlbertosAIController = nullptr;
 	UPROPERTY(Transient)
 	TObjectPtr<APlayerController> PlayerController = nullptr;
 	UPROPERTY(Transient)

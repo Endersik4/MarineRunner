@@ -32,6 +32,8 @@ void UAlbertosToPlayerComponent::CallAlbertosToThePlayer(FVector PlayerLoc)
 	else
 		UE_LOG(LogTemp, Warning, TEXT("Call Albertos Sound is nullptr in AlbertosToPlayer Component"));
 
+	AlbertosAIController->SetCanMove(true);
+
 	SpawnAlbertosIconWidgetOnPlayer();
 
 	TeleportAlbertosToPlayer(PlayerLoc);

@@ -12,6 +12,7 @@
 #include "MarineRunner/Albertos/AlbertosPawn.h"
 #include "MarineRunner/Albertos/Components/AlbertosToPlayerComponent.h"
 #include "MarineRunner/Albertos/Widgets/Crafting/CraftingAlbertosWidget.h"
+#include "MarineRunner/Albertos/AlbertosAIController.h"
 
 UPlayersAlbertosComponent::UPlayersAlbertosComponent()
 {
@@ -27,6 +28,11 @@ void UPlayersAlbertosComponent::BeginPlay()
 	{
 		Player = Cast<AMarineCharacter>(GetOwner());
 		PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	}
+
+	if (IsValid(AlbertoPawn))
+	{
+		AlbertosAIController = Cast<AAlbertosAIController>(AlbertoPawn->GetController());
 	}
 }
 
@@ -58,6 +64,7 @@ void UPlayersAlbertosComponent::SpawnAlbertosCommandsWidget()
 		return;
 
 	AlbertosCommandsWidget->AddToViewport();
+	AlbertosCommandsWidget->PlayersAlbertosComponent = this;
 }
 
 void UPlayersAlbertosComponent::CloseAlbertosCommands()
@@ -74,6 +81,12 @@ void UPlayersAlbertosComponent::CloseAlbertosCommands()
 
 	UWidgetBlueprintLibrary::SetInputMode_GameOnly(PlayerController);
 	PlayerController->SetShowMouseCursor(false);
+
+	if (AlbertosCommandToExecute)
+	{
+		AlbertosCommandToExecute();
+		AlbertosCommandToExecute = nullptr;
+	}
 }
 
 #pragma region //////////////////////////////// ALBERTO ////////////////////////////////
@@ -103,15 +116,64 @@ void UPlayersAlbertosComponent::UpdateAlbertosInventory(bool bShouldUpdateInvent
 	}
 }
 
-/*
-void UPlayersAlbertosComponent::CallAlbertosPressed()
-{
-	if (!IsValid(AlbertoPawn) || Player->GetIsInCutscene())
-		return;
-
-	if (!IsValid(AlbertoPawn->GetAlbertosToPlayerComponent()))
-		return;
-
-	//AlbertoPawn->GetAlbertosToPlayerComponent()->CallAlbertosToThePlayer(GetActorLocation());
-}*/
 #pragma endregion 
+
+#pragma region ////////// COMMANDS //////////
+void UPlayersAlbertosComponent::CallAlbertosToPlayer()
+{
+	if (!IsValid(AlbertoPawn) || !IsValid(Player))
+		return;
+
+	if (!IsValid(AlbertoPawn->GetAlbertosToPlayerComponent()) || Player->GetIsInCutscene())
+		return;
+
+	AlbertoPawn->GetAlbertosToPlayerComponent()->CallAlbertosToThePlayer(Player->GetActorLocation());
+}
+
+void UPlayersAlbertosComponent::StopAlbertosMovement()
+{
+	if (!IsValid(AlbertosAIController))
+		return;
+
+	AlbertosAIController->SetCanMove(false);
+	AlbertosAIController->StopMovement();
+}
+
+void UPlayersAlbertosComponent::HackInteractiveObject()
+{
+	UE_LOG(LogTemp, Warning, TEXT("3"));
+
+}
+
+void UPlayersAlbertosComponent::OpenInteractiveObject()
+{
+	UE_LOG(LogTemp, Warning, TEXT("4"));
+
+}
+
+void UPlayersAlbertosComponent::ChangeToAlbertos()
+{
+	UE_LOG(LogTemp, Warning, TEXT("5"));
+
+}
+
+void UPlayersAlbertosComponent::CraftLastCraftedItem()
+{
+	UE_LOG(LogTemp, Warning, TEXT("6"));
+
+}
+
+void UPlayersAlbertosComponent::DamageEnemy()
+{
+	UE_LOG(LogTemp, Warning, TEXT("7"));
+
+}
+
+void UPlayersAlbertosComponent::StartAlbertosMovement()
+{
+	if (!IsValid(AlbertosAIController))
+		return;
+
+	AlbertosAIController->SetCanMove(true);
+}
+#pragma endregion
