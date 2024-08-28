@@ -46,13 +46,17 @@ private:
 	TObjectPtr<class AAlbertosPawn> AlbertoPawn = nullptr;
 	UPROPERTY(EditAnywhere, Category = "Albertos Commands")
 	TSubclassOf<class UAlbertosCommandsWidget> AlbertosCommandsWidgetClass = nullptr;
+	UPROPERTY(EditAnywhere, Category = "Albertos Commands|Hacking")
+	float HackRaycastDistance = 5500.f;
+	UPROPERTY(EditAnywhere, Category = "Albertos Commands|Hacking")
+	FVector HackRaycastShapeSize = FVector(250.f);
 
 	void SpawnAlbertosCommandsWidget();
 
 	UPROPERTY(Transient)
 	TObjectPtr<class UAlbertosCommandsWidget> AlbertosCommandsWidget = nullptr;
 	UPROPERTY(Transient)
-	TObjectPtr<AAlbertosAIController> AlbertosAIController = nullptr;
+	TObjectPtr<class AAlbertosAIController> AlbertosAIController = nullptr;
 	UPROPERTY(Transient)
 	TObjectPtr<APlayerController> PlayerController = nullptr;
 	UPROPERTY(Transient)

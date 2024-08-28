@@ -40,6 +40,8 @@ protected:
 	virtual void SaveData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 	virtual void RestartData(class ASavedDataObject* SavedDataObject, const int32 IDkey, const FCustomDataSaved& SavedCustomData) override;
 
+	virtual void PossessedBy(AController* NewController) override;
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -53,9 +55,13 @@ public:
 	FORCEINLINE TObjectPtr<class UPlayerIsNearAlbertosComponent> GetPlayerIsNearComponent() { return PlayerIsNearAlbertosComponent; }
 	FORCEINLINE TObjectPtr<class UAlbertosToPlayerComponent> GetAlbertosToPlayerComponent() { return AlbertosToPlayerComponent; }
 	FORCEINLINE TObjectPtr<USkeletalMeshComponent> GetAlbertosSkeletal() const { return AlbertosSkeletalMesh; }
+	FORCEINLINE TObjectPtr<class UCameraComponent> GetAlbertosCamera() const { return CameraComponent; }
 	TObjectPtr<UUserWidget> GetCraftingTableWidget() const;
 	bool GetIsCraftingTableWidgetVisible() const;
 	float GetFloatingMovementMaxSpeed() const;
+
+	UFUNCTION(BlueprintCallable)
+	class UFloatingPawnMovement* GetAlbertosFloatingMovement() const { return AlbertosFloatingMovement; }
 
 	void CallToggleOpenDoor(bool bOpenDoor) const;
 
@@ -79,6 +85,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class UStaticMeshComponent> HologramMeshEffect = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	TObjectPtr<class USpringArmComponent> SpringArmComponent = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
+	TObjectPtr<class UCameraComponent> CameraComponent = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Components")
 	TObjectPtr<class UFloatingPawnMovement> AlbertosFloatingMovement = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 	TObjectPtr<class UCraftItemAlbertosComponent> CraftItemAlbertosComponent = nullptr;
@@ -88,6 +98,8 @@ private:
 	TObjectPtr<class UPlayerIsNearAlbertosComponent> PlayerIsNearAlbertosComponent = nullptr;
 	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
 	TObjectPtr<class UAlbertosToPlayerComponent> AlbertosToPlayerComponent = nullptr;
+	UPROPERTY(EditDefaultsOnly, Category = "Components", meta = (BlueprintSpawnableComponent))
+	TObjectPtr<class UPlayerConnectedComponent> PlayerConnectedComponent = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setting up Albertos")
 	FFloatRange TimeRangeToPlayRandomSounds = FFloatRange(2.f, 7.f);

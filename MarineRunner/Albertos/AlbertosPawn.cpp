@@ -6,13 +6,15 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/FloatingPawnMovement.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetMathLibrary.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 
 #include "MarineRunner/Albertos/Widgets/Crafting/CraftingAlbertosWidget.h"
 #include "MarineRunner/Albertos/Components/CraftItemAlbertosComponent.h"
 #include "MarineRunner/Albertos/Components/CraftingWidgetAnimationComponent.h"
 #include "MarineRunner/Albertos/Components/PlayerIsNearAlbertosComponent.h"
 #include "MarineRunner/Albertos/Components/AlbertosToPlayerComponent.h"
+#include "MarineRunner/Albertos/Components/PlayerConnectedComponent.h"
 #include "MarineRunner/Player/Components/PlayersAlbertosComponent.h"
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/SaveLoadGame/Objects/SavedDataObject.h"
@@ -43,6 +45,7 @@ AAlbertosPawn::AAlbertosPawn()
 	CraftingWidgetAnimationComponent = CreateDefaultSubobject<UCraftingWidgetAnimationComponent>(TEXT("Crafting Widget Animation Component"));
 	PlayerIsNearAlbertosComponent = CreateDefaultSubobject<UPlayerIsNearAlbertosComponent>(TEXT("Player Is Near Albertos Component"));
 	AlbertosToPlayerComponent = CreateDefaultSubobject<UAlbertosToPlayerComponent>(TEXT("Call Albertos To Player Component"));
+	PlayerConnectedComponent = CreateDefaultSubobject<UPlayerConnectedComponent>(TEXT("Player Connected Component"));
 
 	CraftingTableWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("CraftingTableWidget"));
 	CraftingTableWidget->SetupAttachment(AlbertosSkeletalMesh);
@@ -59,6 +62,13 @@ AAlbertosPawn::AAlbertosPawn()
 	DissolveBox_Right = CreateOptionalDefaultSubobject<UChildActorComponent>(TEXT("DissolveBox_Right"));
 	DissolveBox_Right->SetupAttachment(CraftingTableWidget);
 	DissolveBox_Right->SetVisibility(false);
+
+	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("Spring Arm Component"));
+	SpringArmComponent->SetupAttachment(RootComponent);
+
+	CameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera Component"));
+	CameraComponent->SetupAttachment(SpringArmComponent);
+
 }
 
 // Called when the game starts or when spawned
@@ -81,6 +91,12 @@ void AAlbertosPawn::Tick(float DeltaTime)
 void AAlbertosPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis(TEXT("Forward"), PlayerConnectedComponent.Get(), &UPlayerConnectedComponent::MoveForward);
+	PlayerInputComponent->BindAxis(TEXT("Right"), PlayerConnectedComponent.Get(), &UPlayerConnectedComponent::MoveRight);
+
+	PlayerInputComponent->BindAction(TEXT("SprintAlbertos"), IE_Pressed, PlayerConnectedComponent.Get(), &UPlayerConnectedComponent::SprintPressed);
+	PlayerInputComponent->BindAction(TEXT("SprintAlbertos"), IE_Released, PlayerConnectedComponent.Get(), &UPlayerConnectedComponent::SprintReleased);
 }
 
 #pragma region //////////////////// Inventory /////////////////
@@ -216,7 +232,6 @@ void AAlbertosPawn::RestartData(ASavedDataObject* SavedDataObject, const int32 I
 {
 	LoadData(IDkey, SavedCustomData);
 }
-
 #pragma endregion 
 
 #pragma region //////////// random sounds //////////
@@ -258,6 +273,13 @@ float AAlbertosPawn::GetFloatingMovementMaxSpeed() const
 	return  AlbertosFloatingMovement->GetMaxSpeed();
 }
 #pragma endregion
+
+void AAlbertosPawn::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	PlayerConnectedComponent->PossessedBy(NewController);
+}
 
 void AAlbertosPawn::SetFloatingMovementMaxSpeed(const float& NewSpeed)
 {

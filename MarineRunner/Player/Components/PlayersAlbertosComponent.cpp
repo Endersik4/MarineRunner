@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Blueprint/WidgetLayoutLibrary.h"
+#include "Camera/CameraComponent.h"
 
 #include "MarineRunner/Player/MarinePlayer.h"
 #include "MarineRunner/Player/Inventory/InventoryComponent.h"
@@ -13,6 +14,7 @@
 #include "MarineRunner/Albertos/Components/AlbertosToPlayerComponent.h"
 #include "MarineRunner/Albertos/Widgets/Crafting/CraftingAlbertosWidget.h"
 #include "MarineRunner/Albertos/AlbertosAIController.h"
+#include "MarineRunner/Objects/Interactive/PanelWithPin/UsePinToEnterInterface.h"
 
 UPlayersAlbertosComponent::UPlayersAlbertosComponent()
 {
@@ -141,8 +143,26 @@ void UPlayersAlbertosComponent::StopAlbertosMovement()
 
 void UPlayersAlbertosComponent::HackInteractiveObject()
 {
-	UE_LOG(LogTemp, Warning, TEXT("3"));
+	if (!IsValid(Player))
+		return;
 
+	FHitResult HackableObjectResult;
+	const FVector StartHackRaycast = Player->GetCameraLocation();
+	const FVector EndHackRaycast = StartHackRaycast + Player->GetCamera()->GetForwardVector() * HackRaycastDistance;
+	FCollisionShape RaycastShape = FCollisionShape::MakeBox(HackRaycastShapeSize);
+
+	bool bHit = GetWorld()->SweepSingleByChannel(HackableObjectResult, StartHackRaycast, EndHackRaycast, FQuat::Identity, ECC_GameTraceChannel13, RaycastShape);
+	if (!bHit)
+		return;
+
+	if (!IsValid(HackableObjectResult.GetActor()))
+		return;
+
+	IUsePinToEnterInterface* HackableObject = Cast<IUsePinToEnterInterface>(HackableObjectResult.GetActor());
+	if (!HackableObject)
+		return;
+
+	UE_LOG(LogTemp, Warning, TEXT("FOUND %s"), *HackableObjectResult.GetActor()->GetActorLabel());
 }
 
 void UPlayersAlbertosComponent::OpenInteractiveObject()
@@ -153,8 +173,12 @@ void UPlayersAlbertosComponent::OpenInteractiveObject()
 
 void UPlayersAlbertosComponent::ChangeToAlbertos()
 {
-	UE_LOG(LogTemp, Warning, TEXT("5"));
+	if (!IsValid(PlayerController))
+		return;
 
+	UWidgetLayoutLibrary::RemoveAllWidgets(GetWorld());
+
+	PlayerController->Possess(AlbertoPawn);
 }
 
 void UPlayersAlbertosComponent::CraftLastCraftedItem()
